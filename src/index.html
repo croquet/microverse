@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>Microverse 1</title>
+        <style>
+            html, body {
+                margin: 0;
+                overflow: hidden;
+                font: 12px sans-serif;
+                background: #999;
+            }
+            .root {
+                position: absolute;
+                width: 1100px;
+                height: 1100px;
+                background: #333;
+                overflow: hidden;
+            }
+            #gui-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                transform-origin: top left;
+                transform: scale(1.25, 1.25);
+                z-index: 100;
+            }
+            @media screen and ( max-width: 768px ) {
+                #gui-container {
+                    transform: scale(1.5, 1.75);
+                }
+            }
+            #container {
+                background-color: #000;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                touch-action: none;
+            }
+            #codelink {
+                z-index: 101;
+                position: fixed; bottom: 10px; right: 10px; padding: .5em; border-radius: 30px;
+                opacity: 50%; background: lightgray; box-shadow: 1px 1px 5px black;
+                text-decoration: none; font-family: monospace; font-size: 1.5em;
+            }
+            #codelink:hover {
+                opacity: 100%;
+            }
+        </style>
+        <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
+        <script src="https://unpkg.com/@croquet/croquet@1.0"></script>
+    </head>
+    <body>
+       <!-- <div id="gui-container"></div>
+        <div id="container" touch-action="none"></div>
+        <!-- <script src="threeview.js"></script>    not needed, given webpack config -->
+        <a id="codelink" href="https://github.com/croquet/multiblaster/blob/master/index.html"
+        title="View source code on GitHub" target="_blank">{}</a>
+    </body>
+</html>

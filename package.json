@@ -1,0 +1,32 @@
+{
+  "type": "module",
+  "name": "@croquet/microverse",
+  "version": "0.0.2",
+  "description": "Croquet Microverse",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "webpack serve --mode development --devtool source-map",
+    "build": "webpack --mode production",
+    "build-dev": "webpack --mode development"
+  },
+  "author": "",
+  "license": "ISC",
+  "browserslist": [
+    "> 5%"
+  ],
+  "dependencies": {
+    "@croquet/worldcore": "^1.0.2",
+    "@croquet/worldcore-kernel": "^1.0.1",
+    "jszip": "^3.7.1",
+    "pako": "^2.0.4",
+    "three": "^0.130.1"
+  },
+  "devDependencies": {
+    "html-webpack-plugin": "^4",
+    "node-fetch": "^2",
+    "url-loader": "^4.1.1",
+    "webpack": "^4",
+    "webpack-cli": "^4",
+    "webpack-dev-server": "^3"
+  }
+}
