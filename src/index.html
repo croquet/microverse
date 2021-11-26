@@ -2,64 +2,79 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-        <title>Microverse 1</title>
+        <title>Microverse 2</title>
         <style>
-            html, body {
+            body {
+                background-color: #bfe3dd;
+				color: #000;
                 margin: 0;
-                overflow: hidden;
-                font: 12px sans-serif;
-                background: #999;
-            }
-            .root {
-                position: absolute;
-                width: 1100px;
-                height: 1100px;
-                background: #333;
-                overflow: hidden;
-            }
-            #gui-container {
-                position: absolute;
-                top: 0;
-                left: 0;
-                transform-origin: top left;
-                transform: scale(1.25, 1.25);
-                z-index: 100;
-            }
-            @media screen and ( max-width: 768px ) {
-                #gui-container {
-                    transform: scale(1.5, 1.75);
-                }
-            }
-            #container {
                 background-color: #000;
-                left: 0;
-                right: 0;
-                top: 0;
-                bottom: 0;
+                color: #fff;
+                font-size: 20px;
+                line-height: 24px;
+                overscroll-behavior: none;
+            }
+            #info {
                 position: absolute;
+                top: 0px;
                 width: 100%;
-                height: 100%;
-                overflow: hidden;
-                touch-action: none;
+                padding: 10px;
+                box-sizing: border-box;
+                text-align: center;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                pointer-events: none;
+                z-index: 1; /* TODO Solve this in HTML */
+}
+            .fa-circle {
+                color: lightgray;
+                opacity: 50%;
+                text-shadow: 0 0 4px #000;
             }
-            #codelink {
-                z-index: 101;
-                position: fixed; bottom: 10px; right: 10px; padding: .5em; border-radius: 30px;
-                opacity: 50%; background: lightgray; box-shadow: 1px 1px 5px black;
-                text-decoration: none; font-family: monospace; font-size: 1.5em;
+            .fa-stack:hover .fa-circle {
+                color:gray;
             }
-            #codelink:hover {
-                opacity: 100%;
+            a {
+                color: #fff;
+                text-decoration: none;
+                z-index: 300;
+                text-shadow: 2px 2px #000000;
+            }
+
+            a:hover {
+                text-decoration: underline;
             }
         </style>
-        <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
         <script src="https://unpkg.com/@croquet/croquet@1.0"></script>
+        <script src="https://kit.fontawesome.com/5c50921baa.js" crossorigin="anonymous"></script>
     </head>
     <body>
-       <!-- <div id="gui-container"></div>
-        <div id="container" touch-action="none"></div>
-        <!-- <script src="threeview.js"></script>    not needed, given webpack config -->
-        <a id="codelink" href="https://github.com/croquet/multiblaster/blob/master/index.html"
-        title="View source code on GitHub" target="_blank">{}</a>
+        <div id="info">
+			<a>Touch and drag to move.</a>
+		</div>
+
+            <a href="https://github.com/croquet/multiblaster/blob/master/index.html" target="_blank" title="View source code on GitHub" >
+                <button id="codeBttn">
+                    <span class="fa-stack fa-2x" id="codeBttn" style = "position:fixed; bottom:10px; right:10px; z-index:200">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fas fa-code fa-stack-1x fa-inverse"></i>
+                    </span>
+                </button>
+            </a>
+            <button id="walkingBttn">
+                <span class="fa-stack fa-2x" style = "position:fixed; top:10px; right:10px; z-index:200">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fas fa-walking fa-stack-1x fa-inverse"></i>
+                </span>
+            </button>
+            <button id="orbitingBttn">
+                <span class="fa-stack fa-2x"  style = "position:fixed; top:10px; right:10px; z-index:200">
+                <i class="fas fa-circle fa-stack-2x"></i>
+                <i class="fas fa-hand-paper fa-stack-1x fa-inverse"></i>
+                </span>
+            </button>
+
     </body>
 </html>

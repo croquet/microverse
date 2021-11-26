@@ -1,3 +1,11 @@
+// Microverse 2
+// TODO:
+// Switch between walk and orbit modes
+// Generic Importer
+// Collisions and height
+// Drag and drop
+
+
 import { App,  ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
     AM_Player, PM_Player, PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, AM_MouselookAvatar, 
     PM_MouselookAvatar, PM_ThreeCamera, toRad, v3_sqrMag, v3_sub, q_identity, q_euler, q_axisAngle, m4_scaleRotationTranslation, m4_multiply, m4_translation, m4_rotationQ} from "@croquet/worldcore";
@@ -21,7 +29,28 @@ import skyDown from "../assets/sky/bluecloud_dn.jpg";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 console.log("%cJSZip.Version",  'color: #f00', JSZip.version);
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+//const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isMobile = true;
+
+let myAvatar;
+let isWalking = false; // switchControl() will make it true
+
+function setupButton( bttn ){ // button click passes through to world otherwise
+    bttn.addEventListener("click", switchControl, false);
+    bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);
+    bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
+}
+setupButton(document.getElementById("orbitingBttn"));
+setupButton(document.getElementById("walkingBttn"))
+
+function switchControl(e){
+    isWalking = !isWalking;
+    if(myAvatar)myAvatar.setControls(isWalking);
+    document.getElementById("walkingBttn" ).style.display=isWalking?"none":"inline-block";
+    document.getElementById("orbitingBttn").style.display=isWalking?"inline-block":"none";
+    if(e){e.stopPropagation(); e.preventDefault();}
+}
+switchControl(); //initialize the buttons.
 
 async function loadGLB(zip, file, scene, onComplete, position, scale, rotation){
     await fetch(zip)
@@ -32,7 +61,6 @@ async function loadGLB(zip, file, scene, onComplete, position, scale, rotation){
             zip.file(file).async("ArrayBuffer").then(function(data) {
                 (new GLTFLoader()).parse( data, null, function (gltf) {  
                     if(onComplete)onComplete(gltf);
-                    console.log(gltf.scene);
                     scene.add( gltf.scene );
                     scene.updateMatrixWorld ( true );
                     if(position)gltf.scene.position.set(...position);
@@ -56,56 +84,42 @@ function addShadows(gltf) {
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 const plant = new THREE.Group();
-loadGLB(powerPlant, "OilFacility.glb", plant, addShadows, [0, -8, 0]);
+loadGLB(powerPlant, "OilFacility.glb", plant, addShadows, [0, -6.5, 0]);
 
 const avatar = new THREE.Group();
 loadGLB(simplehead, "simplehead.glb", avatar, addShadows, [0, -0.2, 0.0], [0.4,0.4,0.4], [0, Math.PI, 0]);
 
-class MyAvatar extends mix(Actor).with(AM_MouselookAvatar, AM_Player) {
+class MyAvatar extends mix(Actor).with(AM_Player, AM_MouselookAvatar) {
     init(options) {
         super.init(options);
-        this.isAvatar = true;
     }
     get pawn() {return AvatarPawn}
 }
 
 MyAvatar.register('MyAvatar');
 
-class AvatarPawn extends mix(Pawn).with(PM_MouselookAvatar, PM_Player, PM_ThreeVisible, PM_ThreeCamera) {
+class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeVisible, PM_ThreeCamera) {
     constructor(...args) {
         super(...args);
         this.isAvatar = true;
         this.fore = this.back = this.left = this.right = 0;
-        this.mouseLookView = true;
         this.opacity = 1;
-        this.activeMMotion = false; // mobile motion inactive
+        this.activeMMotion = false; // mobile motion initally inactive
         if (this.isMyPlayerPawn) {
-            this.subscribe("input", "doubleDown", this.switchView);
-            if( isMobile ){
-                this.subscribe("input", "pointerDown", this.startMMotion);
-                this.subscribe("input", "pointerUp", this.endMMotion);
-                this.subscribe("input", "pointerCancel", this.endMMotion);
-                this.subscribe("input", "pointerMove", this.continueMMotion);
-            }else{
-                this.subscribe("input", "pointerLock", this.onPointerLock);
-                this.subscribe("input", "wDown", () => {this.fore = 1; this.changeVelocity()});
-                this.subscribe("input", "wUp", () => {this.fore = 0; this.changeVelocity()});
-                this.subscribe("input", "sDown", () => {this.back = 1; this.changeVelocity()});
-                this.subscribe("input", "sUp", () => {this.back = 0; this.changeVelocity()});
-                this.subscribe("input", "aDown", () => {this.left = 1; this.changeVelocity()});
-                this.subscribe("input", "aUp", () => {this.left = 0; this.changeVelocity()});
-                this.subscribe("input", "dDown", () => {this.right = 1; this.changeVelocity()});
-                this.subscribe("input", "dUp", () => {this.right = 0; this.changeVelocity()});
-
-                this.subscribe("input", "ArrowUpDown", () => {this.fore = 1; this.changeVelocity()});
-                this.subscribe("input", "ArrowUpUp", () => {this.fore = 0; this.changeVelocity()});
-                this.subscribe("input", "ArrowDownDown", () => {this.back = 1; this.changeVelocity()});
-                this.subscribe("input", "ArrowDownUp", () => {this.back = 0; this.changeVelocity()});
-                this.subscribe("input", "ArrowLeftDown", () => {this.left = 1; this.changeVelocity()});
-                this.subscribe("input", "ArrowLeftUp", () => {this.left = 0; this.changeVelocity()});
-                this.subscribe("input", "ArrowRightDown", () => {this.right = 1; this.changeVelocity()});
-                this.subscribe("input", "ArrowRightUp", () => {this.right = 0; this.changeVelocity()});
-            }
+            myAvatar = this; // set the global for callbacks
+            // create a dummy camera that will be moved by the OrbitControls
+            let renderMgr = this.service("ThreeRenderManager");
+            this.camera = renderMgr.camera;
+            this.scene = renderMgr.scene;
+            this.orbitCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+            this.orbitCamera.position.set( 100, 50, 0 );
+            this.orbitCamera.updateMatrixWorld();
+            this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
+            this.setControls(isWalking); // walking or orbiting?
+            this.subscribe("input", "pointerDown", this.startMMotion);
+            this.subscribe("input", "pointerUp", this.endMMotion);
+            this.subscribe("input", "pointerCancel", this.endMMotion);
+            this.subscribe("input", "pointerMove", this.continueMMotion);
         } else { 
             // create the avatar (cloned from above) for anyone that is not me (for now)
             let a = this.avatar = avatar.clone();
@@ -115,22 +129,51 @@ class AvatarPawn extends mix(Pawn).with(PM_MouselookAvatar, PM_Player, PM_ThreeV
         this.future(100).fadeNearby();
     }
 
+    createOrbitControls( camera, renderer ) {
+        this.controls = new OrbitControls( camera, renderer.domElement );
+        this.controls.rotateSpeed = 1.0;
+        this.controls.zoomSpeed = 1.0;
+        this.controls.panSpeed = 0.8;
+        this.controls.enablePan = false;
+        this.controls.minDistance = 20;
+        this.controls.maxDistance = 100;
+        this.controls.maxPolarAngle = Math.PI / 2;
+    }
+
+    updateOrbitCamera(data){ // this is a callback from DOM, so can't read 'this' directly
+
+       // myAvatar.orbitCamera.updateWorldMatrix();
+        myAvatar.refreshCameraTransform();
+        /*
+        const pos = new THREE.Vector3().copy(myAvatar.orbitCamera.position);
+        myAvatar.camera.position.copy(myAvatar.orbitCamera.position);
+        myAvatar.camera.quaternion.copy(myAvatar.orbitCamera.quaternion);
+        myAvatar.camera.updateMatrixWorld();
+        //camera.quaternion.copy(cameraAvatar.quaternion);
+        myAvatar.camera.zoom = myAvatar.orbitCamera.zoom;
+        myAvatar.camera.updateMatrixWorld();
+        myAvatar.camera.updateProjectionMatrix();
+        */
+
+        
+       // myAvatar.publish(myAvatar.model.id, "moveCamera", { pos: pos.toArray(), quat: myAvatar.cameraAvatar.quaternion.toArray(), 
+       // zoom: myAvatar.cameraAvatar.zoom, viewId: myAvatar.viewId });
+    }
+
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         super.destroy();
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
     }
 
-    onPointerLock(inPointerLock) {
-        if (inPointerLock) {
-            this.subscribe("input", "pointerDelta", this.onPointerDelta);
-        } else {
-            this.unsubscribe("input", "pointerDelta");
+    setControls(isWalking){
+        const input = this.service("InputManager");
+        if(isWalking) {
+            if(input.addAllListeners)input.addAllListeners();
+            this.controls.removeEventListener('change', this.updateOrbitCamera);
+        }else {
+            input.removeAllListeners();
+            this.controls.addEventListener('change', this.updateOrbitCamera);
         }
-    }
-
-    switchView(){
-        this.mouseLookView = !this.mouseLookView;
-        console.log("mouseLookView: ", this.mouseLookView)
     }
 
     // The multipliers here determine how fast the player moves and turns.
@@ -147,42 +190,32 @@ class AvatarPawn extends mix(Pawn).with(PM_MouselookAvatar, PM_Player, PM_ThreeV
     }
 
     get lookGlobal() { 
-        if(isMobile) return this.global; 
-        else {        
-    
-            const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
-            const yawRotation = q_axisAngle([0,1,0], this.lookYaw);
-    
-            const modelLocal =  m4_scaleRotationTranslation(this.scale, yawRotation, this.translation)
-            let modelGlobal = modelLocal;
-            if (this.parent) modelGlobal = m4_multiply(modelLocal, this.parent.global);
-
-            const m0 = m4_translation(this.lookOffset);
-            const m1 = m4_rotationQ(pitchRotation);
-            const m2 = m4_multiply(m1, m0);
-            return m4_multiply(m2, modelGlobal);
-        }
+        if(isWalking || !this.orbitCamera)return this.global;
+        else {return this.orbitCamera.matrixWorld.elements;}
     }
 
     startMMotion( data ){
-        this.activeMMotion = true;
-        this.basePosition = data.xy;
-        console.log( data );
+        if(isWalking){
+            this.activeMMotion = true;
+            this.basePosition = data.xy;
+        }
     }
 
     endMMotion( data ){
-        this.activeMMotion =false;
-        this.setVelocity([0, 0, 0]);
-        this.setSpin(q_identity());
+        if(isWalking){
+            this.activeMMotion =false;
+            this.setVelocity([0, 0, 0]);
+            this.setSpin(q_identity());
+        }
     }
 
     continueMMotion( data ){
-        if( this.activeMMotion ){
+        if( isWalking && this.activeMMotion ){
             let v = (data.xy[1] - this.basePosition[1])*0.00005;
             v = Math.min(Math.max(v, -0.008),0.008);
             this.setVelocity([0, 0, v]);
 
-            const yaw = (data.xy[0] - this.basePosition[0]) * -0.00001;
+            const yaw = (data.xy[0] - this.basePosition[0]) * -0.000005;
             const qyaw = q_euler(0, yaw ,0);
             this.setSpin(qyaw);
         }
@@ -191,13 +224,13 @@ class AvatarPawn extends mix(Pawn).with(PM_MouselookAvatar, PM_Player, PM_ThreeV
     fadeNearby(){
         let pawnManager = this.service("PawnManager");
         let t = this.actor.translation;
-        //console.log('-------------')
         pawnManager.pawns.forEach(a => {if(a!==this && a.isAvatar){
                 let d = Math.min(4, v3_sqrMag(v3_sub(a.translation, t)))/4;
                 //console.log(d)
                 a.setOpacity(d);
             }
         });
+        //this.controls.update();
         this.future(100).fadeNearby();
     }
 
@@ -302,7 +335,28 @@ class MyViewRoot extends ViewRoot {
         const three = this.service("ThreeRenderManager");
         three.renderer.setClearColor(new THREE.Color(0.45, 0.8, 0.8));
 
-        if( !isMobile ) this.subscribe("input", "click", () => {this.service("InputManager").enterPointerLock()});
+        const input = this.service("InputManager");
+        input.addAllListeners = function(){
+            this.addListener(document, 'contextmenu', e => e.preventDefault());
+            this.addListener(window, 'resize', e => this.onResize(e));
+            this.addListener(window, 'focus', e => this.onFocus(e));
+            this.addListener(window, 'blur', e => this.onBlur(e));
+            this.addListener(window, 'deviceorientation', e => this.onOrientation(e));
+            this.addListener(document, 'click', e => this.onClick(e));
+            this.addListener(document, 'pointerlockchange', e => this.onPointerLock(e));
+
+            this.addListener(document, 'pointerdown', e => this.onPointerDown(e));
+            this.addListener(document, 'pointerup', e => this.onPointerUp(e));
+            this.addListener(document, 'pointercancel', e => this.onPointerUp(e));
+            this.addListener(document, 'pointermove', e => this.onPointerMove(e));
+
+            this.addListener(document, 'wheel', e => this.onWheel(e));
+
+            this.addListener(document,'keydown', e => this.onKeyDown(e));
+            this.addListener(document,'keyup', e => this.onKeyUp(e));
+
+        }
+        //input.removeAllListeners(); //get rid of them at startup
     }
 
 }
