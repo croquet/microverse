@@ -1,6 +1,6 @@
 // Microverse 2
 // TODO:
-// Switch between walk and orbit modes
+// Orbit mode is jerky
 // Generic Importer
 // Collisions and height
 // Drag and drop
@@ -164,14 +164,12 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
         if(isWalking) {
             this.tween(this.orbitCamera, this.walkCamera, ()=>{
                 input.addAllListeners();
-                this.tug = 0.2;
-                this.controls.removeEventListener('change', this.updateOrbitCamera);
+                //this.controls.removeEventListener('change', this.updateOrbitCamera);
             });
         }else {
             this.tween(this.walkCamera, this.orbitCamera, ()=>{
                 input.removeAllListeners();
-                this.tug = 0;
-                this.controls.addEventListener('change', this.updateOrbitCamera);
+                //this.controls.addEventListener('change', this.updateOrbitCamera);
             })
         }
     }
@@ -223,14 +221,18 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
 
     get lookGlobal() { 
         if(isTweening)return this.tweenCamera.matrixWorld.elements;
-        else if(isWalking || !this.orbitCamera)return this.global;
+        else if(isWalking)return this.global;
         else {return this.orbitCamera.matrixWorld.elements;}
     }
 
     update(time, delta) {
         super.update(time, delta);
-        TWEEN.update();
-        this.refreshCameraTransform(); 
+        if(isTweening) TWEEN.update();
+        if(!isWalking){
+            this.orbitCamera.updateMatrixWorld();
+            this.orbitCamera.updateProjectionMatrix();
+        }
+        this.refreshCameraTransform();
     }
 
     startMMotion( data ){
