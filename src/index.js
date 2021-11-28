@@ -151,10 +151,6 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
         this.controls.maxPolarAngle = Math.PI / 2;
     }
 
-    updateOrbitCamera(data){ // this is a callback from DOM, so can't read 'this' directly
-        myAvatar.refreshCameraTransform();
-    }
-
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         super.destroy();
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
@@ -165,17 +161,8 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
         this.walkCamera.position.set( ...this.translation );
         this.walkCamera.quaternion.set( ...this.rotation );
         this.walkCamera.updateMatrixWorld();
-        if(isWalking) {
-            this.tween(this.orbitCamera, this.walkCamera, ()=>{
-                input.addAllListeners();
-                //this.controls.removeEventListener('change', this.updateOrbitCamera);
-            });
-        }else {
-            this.tween(this.walkCamera, this.orbitCamera, ()=>{
-                input.removeAllListeners();
-                //this.controls.addEventListener('change', this.updateOrbitCamera);
-            })
-        }
+        if(isWalking) this.tween(this.orbitCamera, this.walkCamera, ()=> input.addAllListeners());
+        else  this.tween(this.walkCamera, this.orbitCamera, ()=>input.removeAllListeners());
     }
 
     tween(fromCam, toCam, onComplete){
