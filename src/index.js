@@ -1,7 +1,7 @@
 // Microverse 2
 // TODO:
 // Generic Importer
-// Collisions and height
+// Collisions
 // Drag and drop
 
 
@@ -32,6 +32,8 @@ console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 console.log("%cJSZip.Version",  'color: #f00', JSZip.version);
 //const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const isMobile = true;
+const eyeHeight = 1.8; // height of eyes above ground in meters
+const eyeEpsilon = 0.1; // don't replicate the change unless it is sufficiently large
 
 let myAvatar;
 let isWalking = false; // switchControl() will make it true
@@ -86,7 +88,7 @@ function addShadows(gltf) {
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 const plant = new THREE.Group();
-loadGLB(powerPlant, "OilFacility.glb", plant, addShadows, [0, -6.5, 0]);
+loadGLB(powerPlant, "OilFacility.glb", plant, addShadows, [0, -10, 0]);
 
 const avatar = new THREE.Group();
 loadGLB(simplehead, "simplehead.glb", avatar, addShadows, [0, -0.2, 0.0], [0.4,0.4,0.4], [0, Math.PI, 0]);
@@ -107,13 +109,14 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
+
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
             // create a dummy camera that will be moved by the OrbitControls
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
             this.scene = renderMgr.scene;
-
+            this.lastHeight = eyeHeight; // tracking the height above ground
             this.tweenCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             this.walkCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             this.orbitCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -126,6 +129,7 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
             this.subscribe("input", "pointerUp", this.endMMotion);
             this.subscribe("input", "pointerCancel", this.endMMotion);
             this.subscribe("input", "pointerMove", this.continueMMotion);
+            this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
         } else { 
             // create the avatar (cloned from above) for anyone that is not me (for now)
 
@@ -207,18 +211,6 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
             .start();
     }
 
-    // The multipliers here determine how fast the player moves and turns.
-    changeVelocity() {
-        const velocity = [ -0.01 * (this.left - this.right), 0,  -0.01 * (this.fore - this.back)]
-        this.setVelocity(velocity);
-    }
-
-    onPointerDelta(data) {
-        const pitch = Math.max(-Math.PI, Math.min(Math.PI, this.lookPitch + data.xy[1] * -0.0025));
-        const yaw = this.lookYaw + data.xy[0] * -0.0025;
-        this.throttledLookTo(pitch, yaw);
-    }
-
     get lookGlobal() { 
         if (this.isMyPlayerPawn) {
             if(isTweening)return this.tweenCamera.matrixWorld.elements;
@@ -234,9 +226,28 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
             if(!isWalking){
                 this.orbitCamera.updateMatrixWorld();
                 this.orbitCamera.updateProjectionMatrix();
+            }else{
+                this.findFloor(10,2);
             }
             this.refreshCameraTransform();
         }
+    }
+
+    findFloor(maxDist, recurse){
+        if( recurse < 0 )return;
+        this.raycaster.ray.origin.set( ...this.translation );
+        this.raycaster.far = maxDist;
+        const intersections = this.raycaster.intersectObjects( this.scene.children, true );
+        const onObject = intersections.length > 0;
+        if(onObject){
+            let dFront = intersections[0].distance;
+            let delta = Math.min(dFront-eyeHeight, eyeHeight/16); // can only fall 1/8 eyeHeight at a time
+
+            if(Math.abs(delta)>eyeEpsilon){
+                let t = this.translation;
+                this.moveTo([t[0], t[1]-delta, t[2]]);
+            }
+        }else{ this.findFloor(maxDist*2, recurse-1); }
     }
 
     startMMotion( data ){
