@@ -1,6 +1,5 @@
 // Microverse 2
 // TODO:
-// Orbit mode is jerky
 // Generic Importer
 // Collisions and height
 // Drag and drop
@@ -129,6 +128,7 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
             this.subscribe("input", "pointerMove", this.continueMMotion);
         } else { 
             // create the avatar (cloned from above) for anyone that is not me (for now)
+
             let a = this.avatar = avatar.clone();
             a.traverse( n => {if(n.isMesh)n.material = n.material.clone()});
             this.setRenderObject(a);
@@ -220,19 +220,23 @@ class AvatarPawn extends mix(Pawn).with(PM_Player, PM_MouselookAvatar, PM_ThreeV
     }
 
     get lookGlobal() { 
-        if(isTweening)return this.tweenCamera.matrixWorld.elements;
-        else if(isWalking)return this.global;
-        else {return this.orbitCamera.matrixWorld.elements;}
+        if (this.isMyPlayerPawn) {
+            if(isTweening)return this.tweenCamera.matrixWorld.elements;
+            else if(isWalking)return this.global;
+            else {return this.orbitCamera.matrixWorld.elements;}
+        }else return this.global;
     }
 
     update(time, delta) {
         super.update(time, delta);
-        if(isTweening) TWEEN.update();
-        if(!isWalking){
-            this.orbitCamera.updateMatrixWorld();
-            this.orbitCamera.updateProjectionMatrix();
+        if(this.isMyPlayerPawn){
+            if(isTweening) TWEEN.update();
+            if(!isWalking){
+                this.orbitCamera.updateMatrixWorld();
+                this.orbitCamera.updateProjectionMatrix();
+            }
+            this.refreshCameraTransform();
         }
-        this.refreshCameraTransform();
     }
 
     startMMotion( data ){
