@@ -15,11 +15,10 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/worldcore": "^1.0.2",
+    "@croquet/worldcore": "^1.0.3",
     "@croquet/worldcore-kernel": "^1.0.1",
     "jszip": "^3.7.1",
-    "pako": "^2.0.4",
-    "three": "^0.130.1"
+    "pako": "^2.0.4"
   },
   "devDependencies": {
     "html-webpack-plugin": "^4",
