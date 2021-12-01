@@ -21,6 +21,7 @@
     "pako": "^2.0.4"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^6.4.1",
     "html-webpack-plugin": "^4",
     "node-fetch": "^2",
     "url-loader": "^4.1.1",

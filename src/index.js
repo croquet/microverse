@@ -17,14 +17,14 @@ import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import JSZip from "jszip";
 
 // model art CC 4.0 https://sketchfab.com/3d-models/substation-bimfra-37528b7d65f945d0b31389d95abced6d
-import powerPlant from "../assets/OilFacility.glb.zip";
-import simplehead from "../assets/simplehead.glb.zip";
-import alice from "../assets/avatars/alice.zip";
-import cheshire from "../assets/avatars/cheshirecat.zip";
-import hatter from "../assets/avatars/madhatter.zip";
-import hare from "../assets/avatars/marchhare.zip";
-import queen from "../assets/avatars/queenofhearts.zip";
-import rabbit from "../assets/avatars/whiterabbit.zip";
+const powerPlant = "../assets/OilFacility.glb.zip";
+const simplehead = "../assets/simplehead.glb.zip";
+const alice  = "../assets/avatars/alice.zip";
+const cheshire = "../assets/avatars/cheshirecat.zip";
+const hatter = "../assets/avatars/madhatter.zip";
+const hare = "../assets/avatars/marchhare.zip";
+const queen = "../assets/avatars/queenofhearts.zip";
+const rabbit = "../assets/avatars/whiterabbit.zip";
 
 // skybox art courtesy of https://opengameart.org/users/spiney
 import skyFront from "../assets/sky/bluecloud_ft.jpg";

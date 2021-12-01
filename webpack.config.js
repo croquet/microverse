@@ -1,4 +1,5 @@
 import HtmlWebPackPlugin from'html-webpack-plugin';
+import CopyPlugin from'copy-webpack-plugin';
 import fetch from 'node-fetch';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,8 +12,8 @@ export default {
     entry : './src/index.js',
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: '[name]-[contenthash:8].js',
-        chunkFilename: 'chunk-[name]-[contenthash:8].js',
+        filename: 'src/[name]-[contenthash:8].js',
+        chunkFilename: 'src/chunk-[name]-[contenthash:8].js',
     },
     devServer: {
         disableHostCheck: true,
@@ -23,14 +24,8 @@ export default {
     module: {
         rules: [
             {
-                test: /\.(jpe?g|png|gif|svg|zip|glb)$/i, 
+                test: /\.(jpe?g|png|gif|svg)$/i, 
                 loader: "url-loader?name=app/images/[name].[ext]"
-
-               //test: /\.(png|svg|jpg|gif|mp3)$/,
-                //loader: 'file-loader',
-                //options: {
-                //    name: '[contenthash:8].[ext]',
-                //},
             },
         ],
     },
@@ -42,6 +37,11 @@ export default {
         new HtmlWebPackPlugin({
             template: 'src/index.html',   // input
             filename: 'index.html',   // output filename in dist/
+        }),
+        new CopyPlugin({
+            patterns: [
+                { from: "assets", to: "assets" },
+            ]
         }),
     ],
 };
