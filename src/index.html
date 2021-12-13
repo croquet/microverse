@@ -13,6 +13,7 @@
                 font-size: 20px;
                 line-height: 24px;
                 overscroll-behavior: none;
+                overflow: hidden;
             }
             #info {
                 position: absolute;
@@ -27,7 +28,42 @@
                 user-select: none;
                 pointer-events: none;
                 z-index: 1; /* TODO Solve this in HTML */
-}
+            }
+            #joystick {
+                box-sizing: border-box;
+                position: absolute;
+                left: 50%;
+                bottom: 50px;
+                -ms-transform: translate(-50%, 0%);
+                transform: translate(-50%, 0%);
+                width: 126px;
+                height: 126px;
+                border: 3px solid #FFF;
+                border-radius: 60px;
+                box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); 
+                opacity: 0.75;
+                z-index:200;
+            }
+            #knob {
+                position: absolute;
+                left: 30px;
+                top: 30px;
+                width: 60px;
+                height: 60px;
+                border-radius: 40px;
+                background-color: #FFF;
+                opacity: 0.75;
+                z-index:200;
+            }
+            #hiddenknob {
+                position: absolute;
+                width: 120px;
+                height: 120px;
+                border-radius: 60px;
+                background-color: #FFF;
+                opacity: 0.25;
+                z-index:301;
+            }
             .fa-circle {
                 color: lightgray;
                 opacity: 50%;
@@ -75,6 +111,6 @@
                 <i class="fas fa-hand-paper fa-stack-1x fa-inverse"></i>
                 </span>
             </button>
-
+            <div id="joystick"><div id="knob"></div><div id="hiddenknob"></div></div>
     </body>
 </html>
