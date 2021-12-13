@@ -84,16 +84,33 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
+            this.capturedPointers = {};
             this.joystick = document.getElementById("joystick");
-            this.knob = document.getElementById("knob");             
+            this.knob = document.getElementById("knob");
+            this.releaseHandler = (e) => {
+                for (let k in this.capturedPointers) {
+                    this.hiddenknob.releasePointerCapture(k);
+                }
+                this.capturedPointers = {};
+                this.endMMotion(e);
+            };
+                
             this.hiddenknob = document.getElementById("hiddenknob"); 
-            this.hiddenknob.onpointerdown = (e) => this.startMMotion(e); // use the knob to start
+            this.hiddenknob.onpointerdown = (e) => {
+                if (e.pointerId) {
+                    this.capturedPointers[e.pointerId] = true;
+                    this.hiddenknob.setPointerCapture(e.pointerId);
+                }
+                this.startMMotion(e); // use the knob to start
+            };
             //this.hiddenknob.onpointerenter = (e) => console.log("pointerEnter")
-            this.hiddenknob.onpointerleave = (e) => this.continueMMotion(e);
-            this.joystick.onpointermove = (e) => this.continueMMotion(e);
-            this.joystick.onpointerup = (e) => this.endMMotion(e);
-            this.joystick.onpointercancel = (e) => this.endMMotion(e);
-        } 
+            // this.hiddenknob.onpointerleave = (e) => this.continueMMotion(e);
+            this.hiddenknob.onpointerleave = (e) => this.releaseHandler(e);
+            this.hiddenknob.onpointermove = (e) => this.continueMMotion(e);
+            this.hiddenknob.onpointerup = (e) => this.releaseHandler(e);
+            this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
+            this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
+        }
         this.constructVisual();
     }
 
