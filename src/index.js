@@ -12,6 +12,7 @@
 // Panel Controls
 
 
+
 import { App,  ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
     PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
 import {AMVAvatar, PMVAvatar} from './MVAvatar.js';
@@ -125,7 +126,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         scene.add(ambient);
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
-        sun.position.set(200, 800, 100);
+        sun.position.set(-200, 800, 100);
         sun.castShadow = true;
         //Set up shadow properties for the light
         sun.shadow.camera.near = 0.5; // default
