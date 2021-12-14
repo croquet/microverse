@@ -18,7 +18,10 @@
     "@croquet/worldcore": "^1.0.3",
     "@croquet/worldcore-kernel": "^1.0.1",
     "jszip": "^3.7.1",
-    "pako": "^2.0.4"
+    "pako": "^2.0.4",
+    "load-bmfont": "^1.4.0",
+    "three-bmfont-text": "https://github.com/yoshikiohshima/three-bmfont-text.git"
+      
   },
   "devDependencies": {
     "copy-webpack-plugin": "^6.4.1",

@@ -18,10 +18,11 @@ import { App,  ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManag
 import {AMVAvatar, PMVAvatar} from './MVAvatar.js';
 import * as THREE from './three/build/three.module.js';
 import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
+import { TextPopupActor } from './popuptext.js';
 
 import JSZip from "jszip";
 
-const powerPlant = "../assets/refineryx.glb.zip";
+const powerPlant = "../assets/refinery.glb.zip";
 
 const alice  = "../assets/avatars/alice.zip";
 const cheshire = "../assets/avatars/cheshirecat.zip";
@@ -112,6 +113,11 @@ class PMAvatar extends PMVAvatar {
 
 class LevelActor extends mix(Actor).with(AM_Spatial) {
     get pawn() {return LevelPawn}
+    init(...args) {
+        super.init(...args);
+        this.popup = TextPopupActor.create();
+        this.popup.set({translation: [-5, 0, -5]});
+    }
 }
 
 LevelActor.register('LevelActor');
@@ -150,6 +156,8 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         this.setRenderObject( plant )
+        window.renderer = this.service("ThreeRenderManager");
+        this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
 
     destroy() {
@@ -198,5 +206,6 @@ StartWorldcore({
     password: 'password',
     model: MyModelRoot,
     view: MyViewRoot,
-    tps:60
+    tps:60,
+    eventRateLimit: 60,
 });
