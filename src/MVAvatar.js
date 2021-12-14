@@ -13,13 +13,13 @@ let isTweening = false; // transition between camera modes
 const eyeHeight = 1.7; // height of eyes above ground in meters
 const eyeEpsilon = 0.1; // don't replicate the change unless it is sufficiently large
 
-function setupButton( bttn ){ 
-    bttn.addEventListener("click", switchControl, false);
+function setupButton( bttn, dothis ){ 
+    bttn.addEventListener("click", dothis, false);
     bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
     bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
 }
-setupButton(document.getElementById("orbitingBttn"));
-setupButton(document.getElementById("walkingBttn"))
+setupButton(document.getElementById("orbitingBttn"), switchControl);
+setupButton(document.getElementById("walkingBttn"), switchControl);
 
 function switchControl(e){
     isWalking = !isWalking;
@@ -34,6 +34,7 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
+        this.listen("comeHere", this.goThere);
     }
     
     get lookPitch() { return this._lookPitch || 0 };
@@ -42,6 +43,10 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     onLookTo(e) {
         this.set({lookPitch: e[0], lookYaw: e[1]});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
+    }
+
+    goThere(){
+        console.log("goThere")
     }
 }
 
@@ -110,6 +115,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
             this.hiddenknob.onpointerup = (e) => this.releaseHandler(e);
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
+
+            setupButton(document.getElementById("gotoBttn"), this.comeToMe);
         }
         this.constructVisual();
     }
@@ -350,5 +357,10 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
             });
         }
     }
+    
+    comeToMe(){ // in a callback, so use myAvatar
+        myAvatar.say("comeHere")
+    }
+
 }
 

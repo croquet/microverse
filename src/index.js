@@ -1,5 +1,9 @@
 // Microverse
 // TODO:
+// "Come to me" button
+// Select/highlight object
+// Create visualizer
+// Tilt camera when going down stairs
 // Laser Controller
 // Demo graphing
 // Generic Importer
@@ -69,8 +73,6 @@ function addShadows(obj3d, layer, singleSide) {
 }
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
-const plant = new THREE.Group();
-loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], 1, false);
 
 var i = 0;
 const avatars = []; for(i=0; i<6;i++) avatars[i]=new THREE.Group;
@@ -81,6 +83,9 @@ loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 
 loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
 loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
 loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+
+const plant = new THREE.Group();
+loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], 1, false);
 
 class AMAvatar extends AMVAvatar{
     init(options) {
@@ -116,25 +121,27 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         const scene = this.service("ThreeRenderManager").scene;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-        const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
+        const ambient = new THREE.AmbientLight( 0xffffff, 0.1 );
         scene.add(ambient);
 
-        const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 0.25 );
-        sun.position.set(100, 800, 100);
+        const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
+        sun.position.set(200, 800, 100);
         sun.castShadow = true;
         //Set up shadow properties for the light
-        sun.shadow.mapSize.width = 1024; // default
-        sun.shadow.mapSize.height = 1024; // default
         sun.shadow.camera.near = 0.5; // default
         sun.shadow.camera.far = 1000; // default
         sun.shadow.mapSize.width = 2048;
         sun.shadow.mapSize.height = 2048;
         sun.shadow.camera.zoom = 0.125;
         sun.shadow.bias = -0.0001;
-
+        var side = 30;
+        sun.shadow.camera.top = side;
+        sun.shadow.camera.bottom = -side;
+        sun.shadow.camera.left = side;
+        sun.shadow.camera.right = -side;
         scene.add(sun);
 
-        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080820, 0.125);
+        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080840, 0.2);
         scene.add(hemiLight);
 
         const renderer = this.service("ThreeRenderManager").renderer;
