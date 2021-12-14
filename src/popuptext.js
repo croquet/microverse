@@ -1,10 +1,5 @@
 import {
-    App, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager, FocusManager,
-    AM_Player, PM_Player,
-    THREE,
-    PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, AM_MouselookAvatar,
-    PM_MouselookAvatar, PM_ThreeCamera, toRad, v3_sqrMag, v3_sub, q_identity, q_euler,
-    q_axisAngle, m4_scaleRotationTranslation, m4_multiply, m4_translation, m4_rotationQ
+    Actor, Pawn, mix, THREE, PM_ThreeVisible, AM_Spatial, PM_Spatial
 } from "@croquet/worldcore";
 
 import {TextFieldActor} from "./text/text.js";
