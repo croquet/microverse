@@ -21,7 +21,6 @@
     "pako": "^2.0.4",
     "load-bmfont": "^1.4.0",
     "three-bmfont-text": "https://github.com/yoshikiohshima/three-bmfont-text.git"
-      
   },
   "devDependencies": {
     "copy-webpack-plugin": "^6.4.1",

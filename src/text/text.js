@@ -9,7 +9,6 @@ import {TextLayout} from "./layout.js";
 
 export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     init(...args) {
-        super.init(...args);
         this.doc = new Doc();
         this.doc.load([]);
         // this.doc.load([
@@ -17,6 +16,9 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         // ]);
 
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
+
+        super.init(...args);
+        
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
         this.subscribe(this.id, "undoRequest", "undoRequest");
@@ -180,6 +182,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
     }
 
     fontLoaded(name) {
+        if (!this.fonts[name]) {return;} // this message could be phony when it was sent by replay
+        
         if (!this.textGeometry) {
             let TextGeometry = getTextGeometry(THREE);
             this.textGeometry = new TextGeometry({
@@ -187,8 +191,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
                 font: this.fonts[name].font,
                 defaultColor: new THREE.Color(0xFFFF00),
             });
-
-            window.textGeometry = this.textGeometry;
 
             let texture = this.fonts[name].texture;
             this.textMaterial = new THREE.RawShaderMaterial(HybridMSDFShader({
@@ -208,25 +210,11 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
             this.textMesh.position.z = 0.005;
             this.plane.add(this.textMesh);
         }
-
-        let drawnStrings = [
-            {x: 0, y: 0, string: "Croquet is awesome!", font: this.fonts[name].font, style: "blue"},
-        ];
-
-        let layout = new TextLayout({font: this.fonts[name].font});
-        let glyphs = layout.computeGlyphs({font: this.fonts[name].font, drawnStrings});
-
-        this.textGeometry.update({glyphs});
-
-        let bounds = {left: 0, top: 0, bottom: 600, right: 600};
-        this.textMaterial.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
-        
-        // this.test();
     }
 
     setup() {
-        this.geometry = new THREE.PlaneGeometry(10, 5);
-        this.material = new THREE.MeshBasicMaterial({color: 0xF0F0FF, side: THREE.DoubleSide});
+        this.geometry = new THREE.PlaneGeometry(0, 0);
+        this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
 
         this.setRenderObject(this.plane);
