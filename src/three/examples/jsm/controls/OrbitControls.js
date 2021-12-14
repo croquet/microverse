@@ -1,4 +1,6 @@
-import {
+import {THREE} from "@croquet/worldcore";
+
+const {
 	EventDispatcher,
 	MOUSE,
 	Quaternion,
@@ -6,7 +8,7 @@ import {
 	TOUCH,
 	Vector2,
 	Vector3
-} from '../../../build/three.module.js';
+} = THREE;
 
 // This set of controls performs orbiting, dollying (zooming), and panning.
 // Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).

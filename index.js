@@ -13,10 +13,9 @@
 
 
 
-import { App,  ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
-    PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
+import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
+         PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
 import {AMVAvatar, PMVAvatar} from './src/MVAvatar.js';
-import * as THREE from './src/three/build/three.module.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 

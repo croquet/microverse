@@ -1,3 +1,4 @@
+import {THREE} from "@croquet/worldcore";
 ( function () {
 
 	const _changeEvent = {

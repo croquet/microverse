@@ -1,8 +1,7 @@
 import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeVisible, PM_ThreeCamera,
-    v3_transform, v3_add, q_identity, q_euler, q_axisAngle,
-    m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
+         v3_transform, v3_add, q_identity, q_euler, q_axisAngle, THREE,
+         m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
-import * as THREE from './three/build/three.module.js';
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 

@@ -1,4 +1,5 @@
-import {
+import {THREE} from "@croquet/worldcore";
+const {
 	AnimationClip,
 	Bone,
 	Box3,
@@ -62,7 +63,7 @@ import {
 	Vector3,
 	VectorKeyframeTrack,
 	sRGBEncoding
-} from '../../../build/three.module.js';
+} = THREE;
 
 class GLTFLoader extends Loader {
 
