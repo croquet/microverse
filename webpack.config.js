@@ -1,42 +1,44 @@
-import HtmlWebPackPlugin from'html-webpack-plugin';
-import CopyPlugin from'copy-webpack-plugin';
-import fetch from 'node-fetch';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const path = require('path');
+const webpack = require("webpack");
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-export default {
-    entry : './src/index.js',
+module.exports = {
+    entry : './index.js',
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: 'src/[name]-[contenthash:8].js',
-        chunkFilename: 'src/chunk-[name]-[contenthash:8].js',
+        filename: '[name]-[contenthash:8].js',
+        chunkFilename: 'chunk-[name]-[contenthash:8].js',
+        clean: true
     },
+    resolve: {
+        fallback: {
+            "crypto": false,
+            buffer: require.resolve('buffer/'),
+        }
+    },
+    experiments: {
+        asyncWebAssembly: true
+    },
+    
     devServer: {
-        disableHostCheck: true,
-        contentBase: path.join(__dirname, 'dist'),
-        publicPath: '/',
         port: 9009
     },
     module: {
         rules: [
             {
-                test: /\.(jpe?g|png|gif|svg)$/i, 
-                loader: "url-loader?name=app/images/[name].[ext]"
-            },
-        ],
-    },
-    // use Croquet loaded via <script>
-    externals: {
-        "@croquet/croquet": "Croquet",
+                test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
+                type: 'asset/resource',
+            }
+        ]
     },
     plugins: [
         new HtmlWebPackPlugin({
-            template: 'src/index.html',   // input
+            template: 'index.html',   // input
             filename: 'index.html',   // output filename in dist/
+        }),
+        new webpack.ProvidePlugin({
+            Buffer: ['buffer', 'Buffer']
         }),
         new CopyPlugin({
             patterns: [

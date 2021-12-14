@@ -134,8 +134,8 @@ export class TextPopupPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
             this.closeButtonGeometry = new THREE.PlaneGeometry(0.2, 0.2);
             this.closeButtonMaterial = new THREE.MeshStandardMaterial({color: 0x602020});
             this.closeButton = new THREE.Mesh(this.closeButtonGeometry, this.closeButtonMaterial);
-            this.closeButton.position.x = newWidth / 2 + 0.05,
-            this.closeButton.position.y = newHeight / 2 + 0.05,
+            this.closeButton.position.x = newWidth / 2,
+            this.closeButton.position.y = newHeight / 2,
             this.closeButton.position.z = 0.008
             pawn.plane.add(this.closeButton);
         }
