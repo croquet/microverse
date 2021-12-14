@@ -248,9 +248,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.hiddenInput.addEventListener("paste", evt => this.paste(evt));
 
         this.subscribe(this.viewId, "synced", "synced");
-        this.isSynced = false;
         this.screenUpdate(this.warota.timezone);
-        this.isSynced = true;
     }
 
     detach() {

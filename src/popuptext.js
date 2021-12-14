@@ -126,12 +126,42 @@ export class TextPopupPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         pawn.textMaterial.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
 
         if (!this.closeButton) {
-            this.closeButtonGeometry = new THREE.PlaneGeometry(0.2, 0.2);
-            this.closeButtonMaterial = new THREE.MeshStandardMaterial({color: 0x602020});
+            let canvas = document.createElement("canvas");
+            canvas.width = 64;
+            canvas.height = 64;
+
+            let ctx = canvas.getContext("2d");
+
+            ctx.clearRect(0, 0, 64, 64);
+            ctx.strokeStile = "green";
+
+            ctx.beginPath();
+
+            ctx.moveTo(8, 4);
+            ctx.lineTo(56, 4);
+            ctx.arcTo(60, 4, 60, 8, 4);
+            ctx.lineTo(60, 56);
+            ctx.arcTo(60, 60, 56, 60, 4);
+            ctx.lineTo(8, 60);
+            ctx.arcTo(4, 60, 4, 56, 4);
+            ctx.lineTo(4, 8);
+            ctx.arcTo(4, 4, 8, 4, 4);
+            ctx.stroke();
+
+            ctx.fillStyle = "blue";
+            ctx.font = "60px monospace";
+            ctx.fillText("X", 10, 56);
+
+            let texture = new THREE.CanvasTexture(canvas, THREE.UVMapping);
+            
+            this.closeButtonGeometry = new THREE.PlaneGeometry(64, 64);
+            this.closeButtonMaterial = new THREE.MeshBasicMaterial({map: texture, transparent: true});
             this.closeButton = new THREE.Mesh(this.closeButtonGeometry, this.closeButtonMaterial);
             this.closeButton.position.x = newWidth / 2,
             this.closeButton.position.y = newHeight / 2,
-            this.closeButton.position.z = 0.008
+            this.closeButton.position.z = 0.008;
+            this.closeButton.scale.x = 0.3 / 64;
+            this.closeButton.scale.y = 0.3 / 64;
             pawn.plane.add(this.closeButton);
         }
     }
