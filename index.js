@@ -23,6 +23,12 @@ import JSZip from "jszip";
 
 const powerPlant = "./assets/refineryx.glb.zip";
 
+const a1 = "./assets/avatars/generic/1.zip";
+const a2 = "./assets/avatars/generic/2.zip";
+const a3 = "./assets/avatars/generic/3.zip";
+const a4 = "./assets/avatars/generic/4.zip";
+const a5 = "./assets/avatars/generic/5.zip";
+const a6 = "./assets/avatars/generic/6.zip";
 const alice  = "./assets/avatars/alice.zip";
 const cheshire = "./assets/avatars/cheshirecat.zip";
 const hatter = "./assets/avatars/fixmadhatter.zip";
@@ -54,6 +60,7 @@ async function loadGLB(zip, file, scene, onComplete, position, scale, rotation, 
                     if(position)gltf.scene.position.set(...position);
                     if(scale)gltf.scene.scale.set(...scale);
                     if(rotation)gltf.scene.rotation.set(...rotation);
+                    scene.ready = true;
                     return scene;
                 });
             })
@@ -76,8 +83,15 @@ function addShadows(obj3d, layer, singleSide) {
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 
 var i = 0;
-const avatars = []; for(i=0; i<6;i++) avatars[i]=new THREE.Group;
+const avatars = []; for(i=0; i<12;i++) avatars[i]=new THREE.Group;
 i=0;
+loadGLB(a3, "3.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(a4, "4.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(a5, "5.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(a6, "6.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(a1, "1.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(a2, "2.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+
 loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
 loadGLB(rabbit, "white.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
 loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
@@ -102,11 +116,15 @@ AMAvatar.register('AMAvatar');
 class PMAvatar extends PMVAvatar {
 
     constructVisual(){
-        // create the avatar (cloned from above) for anyone that is not me (for now)
-        let a = this.avatar = avatars[this.avatarIndex%avatars.length];
-        a.traverse( n => {if(n.material)n.material = n.material.clone();});
-        console.log(a)
-        this.setRenderObject(a);        
+        this.setupAvatar(avatars[this.avatarIndex%avatars.length]);
+    }
+
+    setupAvatar(a){// create the avatar (cloned from above) 
+        if(a.ready){
+            a=this.avatar = a.clone();
+            a.traverse( n => {if(n.material)n.material = n.material.clone();});
+            this.setRenderObject(a);        
+        }else this.future(1000).setupAvatar(a);
     }
 }
 
@@ -140,7 +158,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         sun.shadow.mapSize.height = 2048;
         sun.shadow.camera.zoom = 0.125;
         sun.shadow.bias = -0.0001;
-        var side = 25;
+        var side = 15;
         sun.shadow.camera.top = side;
         sun.shadow.camera.bottom = -side;
         sun.shadow.camera.left = side;

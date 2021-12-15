@@ -31,6 +31,7 @@ switchControl(); //initialize the buttons.
 
 export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     init(options) {
+        // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
         this.listen("goHome", this.goHome);
