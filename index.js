@@ -11,13 +11,12 @@
 // Drag and drop
 // Panel Controls
 
-
-
 import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
          PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
 import {AMVAvatar, PMVAvatar} from './src/MVAvatar.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
+import {AM_PerlinNoise} from './src/PerlinMixin.js';
 
 import JSZip from "jszip";
 
@@ -145,7 +144,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         const scene = this.service("ThreeRenderManager").scene;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-        const ambient = new THREE.AmbientLight( 0xffffff, 0.1 );
+        const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         scene.add(ambient);
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
@@ -185,6 +184,120 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
     }
 }
 
+class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise){
+    get pawn() {return PerlinPawn}
+    init(...args) {
+        super.init(...args);
+        this.initPerlin(); // call this before init. PerlinPawn requires this.
+        this.future(1000).updatePerlin();
+    }
+
+    initPerlin(){
+        let r = this.currentRow = this.rows=20;
+        let c = this.columns=20;
+        let d = this.delta=0.1;
+        this.data=[];
+        let i,j;
+        for(i=0;i<this.rows;i++){
+            this.data[i]=[];
+            for(j=0;j<this.columns;j++){
+                this.data[i].push(this.noise2D(i*d,j*d));
+            }
+        }
+    }
+
+    updatePerlin(){
+        this.data.shift(); // dump the first row
+        let row = [];
+        let d = this.delta;
+        for(let i=0;i<this.columns;i++)
+            row.push(this.noise2D(this.currentRow*d, i*d));
+        this.data.push(row); 
+        this.currentRow++;
+        this.say("updatePerlin", row);
+        this.future(100).updatePerlin();    
+    }
+
+}
+PerlinActor.register('PerlinActor');
+
+const maxHeight = 8;
+const barScale = 0.25;
+
+class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
+    constructor(...args) {
+        super(...args);
+        const scene = this.service("ThreeRenderManager").scene;
+        this.listen("updatePerlin", this.updatePerlin);
+        this.isConstructed = false;
+    }
+
+    updatePerlin(row){
+
+        const r = this.actor.rows;
+        const s = barScale;
+        if(this.isConstructed){
+            let rg = this.rowGeometry.shift();
+            this.rowGeometry.push(rg);
+            for(let i=0; i<rg.children.length;i++){
+                this.setBar(rg.children[i],row[i],r,i);
+            }
+            for(let i=0; i< r; i++){
+                this.rowGeometry[i].position.set(0,s/4,(i-r/2)*s);
+            }
+            
+        }
+        else this.constructPerlin();
+    }
+
+    constructPerlin(){
+        console.log("constructPerlin", this.actor, this.actor.rows, this.actor.columns);
+        const scene = this.service("ThreeRenderManager").scene;
+        const data = this.actor.data;
+        const r = this.actor.rows;
+        const c = this.actor.columns;
+        const s = barScale;
+
+        this.group = new THREE.Group();
+        this.color = new THREE.Color();
+        this.base = new THREE.Mesh(new THREE.BoxGeometry((r+2)*s, s/2, (c+2)*s, 2, 10, 2 ),
+            new THREE.MeshStandardMaterial({color: this.color.getHex()}));
+        this.base.position.set(-s/2, 0, -s/2);
+        this.bar = new THREE.Mesh(new THREE.BoxGeometry(s, s, s, 1, 10, 1 ),
+            new THREE.MeshStandardMaterial({color: this.color.getHex()}));
+        this.base.layers.enable(1); // use this for raycasting
+        this.base.castShadow = true;
+        this.base.receiveShadow = true;
+        this.group.add(this.base);
+        this.group.position.set(0, -2.75, -25);
+        this.group.rotation.y = Math.PI/2;
+        scene.add(this.group);
+        this.rowGeometry = [];
+        for(let i=0; i<r; i++){
+            let rGroup = new THREE.Group();
+            rGroup.position.set(0,s/4,(i-r/2)*s);
+            for(let j=0; j<c;j++){
+                let bar = this.bar.clone();
+                bar.material = bar.material.clone();
+                let d = data[i][j];
+                this.setBar(bar, d, r, j);
+                rGroup.add(bar);
+            }
+            this.rowGeometry.push(rGroup);
+            this.group.add(rGroup);
+        }
+        this.isConstructed=true;
+    }
+
+    setBar(bar, d, rlength, j){
+        const s = barScale;
+        bar.material.color.setRGB((1-d)/2, 1-d*d, (1+d)/2);
+        d=d*maxHeight;
+        bar.position.set((j-rlength/2)*s, s*d/2, 0);
+        bar.scale.set(1, d, 1);
+    }
+}
+
 class MyPlayerManager extends PlayerManager {
     createPlayer(options) {
         options.index = this.count;
@@ -204,6 +317,7 @@ class MyModelRoot extends ModelRoot {
     init(...args) {
         super.init(...args);
         this.level = LevelActor.create();
+        this.perlin = PerlinActor.create();
     }
 }
 
