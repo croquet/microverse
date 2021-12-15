@@ -140,7 +140,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         sun.shadow.mapSize.height = 2048;
         sun.shadow.camera.zoom = 0.125;
         sun.shadow.bias = -0.0001;
-        var side = 30;
+        var side = 25;
         sun.shadow.camera.top = side;
         sun.shadow.camera.bottom = -side;
         sun.shadow.camera.left = side;
@@ -156,7 +156,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         renderer.shadowMap.enabled = true;
         this.setRenderObject( plant )
         window.renderer = this.service("ThreeRenderManager");
-        // this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
+        this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
 
     destroy() {

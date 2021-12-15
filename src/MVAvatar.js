@@ -1,5 +1,5 @@
 import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeVisible, PM_ThreeCamera,
-         v3_transform, v3_add, q_identity, q_euler, q_axisAngle, THREE,
+         v3_transform, v3_add, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
@@ -33,7 +33,7 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
-        this.listen("comeHere", this.goThere);
+        this.listen("goHome", this.goHome);
     }
     
     get lookPitch() { return this._lookPitch || 0 };
@@ -44,8 +44,30 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         this.rotateTo(q_euler(0, this.lookYaw, 0));
     }
 
-    goThere(){
-        console.log("goThere")
+    goHome( there ){
+        console.log("goHome:", there, this.translation, this.rotation);
+        this.set({translation: there[0], rotation: there[1]})
+       // this.moveTo(there[0]); 
+       // this.rotateTo(there[1]);
+        /*
+        this.vStart = [...this.translation];
+        this.qStart = [...this.rotation];
+        console.log("start", this.vStart, this.qStart)
+        this.vEnd = there[0];
+        this.qEnd = there[1];
+        this.goToStep(0.05);
+        */
+    }
+
+    goToStep(t){
+        if(t>=1)t=1;
+        let v = v3_lerp(this.vStart, this.vEnd, t);
+        let q = q_slerp(this.qStart, this.qEnd, t );   
+        this.set({translation: v, rotation: q})
+        //this.moveTo(v); 
+        //this.rotateTo(q);
+        //console.log(t, v, q);
+        if(t<1)this.future(50).goToStep(t+0.05);
     }
 }
 
@@ -115,7 +137,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
-            setupButton(document.getElementById("gotoBttn"), this.comeToMe);
+            setupButton(document.getElementById("homeBttn"), this.goHome);
         }
         this.constructVisual();
     }
@@ -167,6 +189,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
         else  this.tween(this.walkCamera, this.orbitCamera, ()=>input.removeAllListeners());
     }
 
+    // This tween is only on the view side because we are transitioning between two cameras.
+    // This does not actually effect the avatar's position, just where you see him from.
     tween(fromCam, toCam, onComplete){
         isTweening = true;
         var tweenCam = this.tweenCamera; 
@@ -357,8 +381,9 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
         }
     }
     
-    comeToMe(){ // in a callback, so use myAvatar
-        myAvatar.say("comeHere")
+    goHome(){ // in a callback, so use myAvatar
+        console.log("goHome")
+        myAvatar.say("goHome", [[0,0,0], [0,0,0,1]])
     }
 
 }
