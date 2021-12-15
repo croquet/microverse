@@ -13,29 +13,29 @@
 
 
 
-import { App,  ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
-    PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
-import {AMVAvatar, PMVAvatar} from './MVAvatar.js';
-import * as THREE from './three/build/three.module.js';
-import { GLTFLoader } from './three/examples/jsm/loaders/GLTFLoader.js';
+import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
+         PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
+import {AMVAvatar, PMVAvatar} from './src/MVAvatar.js';
+import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
+import { TextPopupActor } from './src/popuptext.js';
 
 import JSZip from "jszip";
 
-const powerPlant = "../assets/refineryx.glb.zip";
+const powerPlant = "./assets/refineryx.glb.zip";
 
-const alice  = "../assets/avatars/alice.zip";
-const cheshire = "../assets/avatars/cheshirecat.zip";
-const hatter = "../assets/avatars/fixmadhatter.zip";
-const hare = "../assets/avatars/marchhare.zip";
-const queen = "../assets/avatars/queenofhearts.zip";
-const rabbit = "../assets/avatars/whiterabbit.zip";
+const alice  = "./assets/avatars/alice.zip";
+const cheshire = "./assets/avatars/cheshirecat.zip";
+const hatter = "./assets/avatars/fixmadhatter.zip";
+const hare = "./assets/avatars/marchhare.zip";
+const queen = "./assets/avatars/queenofhearts.zip";
+const rabbit = "./assets/avatars/whiterabbit.zip";
 
-import skyFront from "../assets/sky/sh_ft.png";
-import skyBack from "../assets/sky/sh_bk.png";
-import skyRight from "../assets/sky/sh_rt.png";
-import skyLeft from "../assets/sky/sh_lf.png";
-import skyUp from "../assets/sky/sh_up.png";
-import skyDown from "../assets/sky/sh_dn.png";
+import skyFront from "./assets/sky/sh_ft.png";
+import skyBack from "./assets/sky/sh_bk.png";
+import skyRight from "./assets/sky/sh_rt.png";
+import skyLeft from "./assets/sky/sh_lf.png";
+import skyUp from "./assets/sky/sh_up.png";
+import skyDown from "./assets/sky/sh_dn.png";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 console.log("%cJSZip.Version",  'color: #f00', JSZip.version);
@@ -112,6 +112,11 @@ class PMAvatar extends PMVAvatar {
 
 class LevelActor extends mix(Actor).with(AM_Spatial) {
     get pawn() {return LevelPawn}
+    init(...args) {
+        super.init(...args);
+        this.popup = TextPopupActor.create();
+        this.popup.set({translation: [-5, 0, -5]});
+    }
 }
 
 LevelActor.register('LevelActor');
@@ -150,6 +155,8 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         this.setRenderObject( plant )
+        window.renderer = this.service("ThreeRenderManager");
+        // this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
 
     destroy() {
@@ -198,5 +205,6 @@ StartWorldcore({
     password: 'password',
     model: MyModelRoot,
     view: MyViewRoot,
-    tps:60
+    tps:60,
+    eventRateLimit: 60,
 });

@@ -1,3 +1,4 @@
+import {THREE} from "@croquet/worldcore";
 ( function () {
 
 	// http://en.wikipedia.org/wiki/RGBE_image_format

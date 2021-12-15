@@ -1,5 +1,4 @@
 {
-  "type": "module",
   "name": "@croquet/microverse",
   "version": "0.0.2",
   "description": "Croquet Microverse",
@@ -15,18 +14,18 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/worldcore": "^1.0.3",
-    "@croquet/worldcore-kernel": "^1.0.1",
+    "@croquet/worldcore": "^1.0.5",
     "jszip": "^3.7.1",
-    "pako": "^2.0.4"
+    "pako": "^2.0.4",
+    "load-bmfont": "^1.4.0",
+    "three-bmfont-text": "https://github.com/yoshikiohshima/three-bmfont-text.git"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^6.4.1",
-    "html-webpack-plugin": "^4",
-    "node-fetch": "^2",
-    "url-loader": "^4.1.1",
-    "webpack": "^4",
-    "webpack-cli": "^4",
-    "webpack-dev-server": "^3"
+    "buffer": "^6.0.3",
+    "copy-webpack-plugin": "^10.0.0",
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.64.1",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.5.0"
   }
 }
