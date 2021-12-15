@@ -105,6 +105,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
             //this.subscribe("input", "pointerUp", this.endMMotion);
             //this.subscribe("input", "pointerCancel", this.endMMotion);
             //this.subscribe("input", "pointerMove", this.continueMMotion);
+            //this.subscribe("input","keyDown",this.keyAction);
+            document.addEventListener('keypress', this.keyAction);
             this.subscribe("input", "wheel", this.thirdPerson);
             this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
             this.raycaster.layers.set( 1 ); // only test against layer 1. Layer 2 is other players.
@@ -387,5 +389,12 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
         myAvatar.say("goHome", [[0,0,0], [0,0,0,1]])
     }
 
+    keyAction(e){
+        if('p'===e.key){
+        let pawnManager = myAvatar.service("PawnManager"); 
+        pawnManager.pawns.forEach(a => {
+            if( a.perlin ){a.say("showHide");}
+        });
+        }
+    }
 }
-

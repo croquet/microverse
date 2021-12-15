@@ -187,9 +187,11 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
 class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise){
     get pawn() {return PerlinPawn}
     init(...args) {
+        this.visible = false;
         super.init(...args);
         this.initPerlin(); // call this before init. PerlinPawn requires this.
         this.future(1000).updatePerlin();
+        this.listen("showHide", this.showHide);
     }
 
     initPerlin(){
@@ -218,6 +220,11 @@ class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise){
         this.future(100).updatePerlin();    
     }
 
+    showHide(){
+        this.visible = !this.visible;
+        this.say("showMe", this.visible);
+    }
+
 }
 PerlinActor.register('PerlinActor');
 
@@ -229,7 +236,9 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         super(...args);
         const scene = this.service("ThreeRenderManager").scene;
         this.listen("updatePerlin", this.updatePerlin);
+        this.listen("showMe", this.showMe);
         this.isConstructed = false;
+        this.perlin = true;
     }
 
     updatePerlin(row){
@@ -269,7 +278,7 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         this.base.castShadow = true;
         this.base.receiveShadow = true;
         this.group.add(this.base);
-        this.group.position.set(0, -2.75, -25);
+        this.group.position.set(0, -2.75, -10);
         this.group.rotation.y = Math.PI/2;
         scene.add(this.group);
         this.rowGeometry = [];
@@ -286,15 +295,28 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
             this.rowGeometry.push(rGroup);
             this.group.add(rGroup);
         }
+        this.perlinGroup = this.group;
+        this.perlinGroup.visible=this.actor.visible;
         this.isConstructed=true;
     }
 
     setBar(bar, d, rlength, j){
         const s = barScale;
-        bar.material.color.setRGB((1-d)/2, 1-d*d, (1+d)/2);
+        //bar.material.color.setRGB((1-d)/2, 1-d*d, (1+d)/2);
+        let b= Math.cos((1-d)*Math.PI); b=Math.min(1,(b+1)/1.25);
+        let g= Math.sin(d*Math.PI); g=(g+1)/2.2;
+        let r= Math.cos(d*Math.PI); r=Math.min(1, (r+1)/1.25);
+
+
+        bar.material.color.setRGB(r, g, b);
         d=d*maxHeight;
         bar.position.set((j-rlength/2)*s, s*d/2, 0);
         bar.scale.set(1, d, 1);
+    }
+
+    showMe(visible){
+        console.log(visible);
+        this.perlinGroup.visible=visible;
     }
 }
 
