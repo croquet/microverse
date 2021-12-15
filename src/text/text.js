@@ -214,7 +214,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
 
     setup() {
         this.geometry = new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshStandardMaterial({color: 0xFFFFFF, transparent: true, opacity: 0.8, emissive: new THREE.Color(0xFFFFFF), side: THREE.DoubleSide});
+        this.material = new THREE.MeshStandardMaterial({color: 0xFCFCFC, emissive: new THREE.Color(0xFFFFFF), side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
 
         this.setRenderObject(this.plane);
