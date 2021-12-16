@@ -282,7 +282,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
     }
 
     setupMesh() {
-        this.geometry = new THREE.PlaneGeometry(10, 5);
+        this.geometry = new THREE.PlaneGeometry(0, 0);
         this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
 
