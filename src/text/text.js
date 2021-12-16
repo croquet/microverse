@@ -120,7 +120,9 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
 
     askFont(data) {
         console.log(data);
-        this.fonts.set(data.name, data.font);
+        if (data.font) {
+            this.fonts.set(data.name, data.font);
+        }
         this.say("fontAsked", data.name);
     }
 
@@ -365,7 +367,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
                         this.fonts[name] = {font, texture: processedTexture};
                         delete this.isLoading[name];
                         if (me) {
-                            this.say("askFont", {name, font});
+                            let maybeFont = this.model.fonts.get(name) ? null : font;
+                            this.say("askFont", {name, font: maybeFont});
                         }
                         resolve(this.fonts[name]);
                     },
