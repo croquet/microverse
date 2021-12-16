@@ -13,7 +13,7 @@
 
 import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
          PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
-import {AMVAvatar, PMVAvatar} from './src/MVAvatar.js';
+import {AMVAvatar, PMVAvatar, MV} from './src/MVAvatar.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 import {AM_PerlinNoise} from './src/PerlinMixin.js';
@@ -84,22 +84,22 @@ function addShadows(obj3d, layer, singleSide) {
 var i = 0;
 const avatars = []; for(i=0; i<12;i++) avatars[i]=new THREE.Group;
 i=0;
-loadGLB(a3, "3.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(a4, "4.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(a5, "5.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(a6, "6.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(a1, "1.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(a2, "2.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(a3, "3.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(a4, "4.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(a5, "5.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(a6, "6.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(a1, "1.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(a2, "2.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
 
-loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(rabbit, "white.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
-loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], 2, true);
+loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(rabbit, "white.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
 
 const plant = new THREE.Group();
-loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], 1, false);
+loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], MV.WALK, false);
 
 class AMAvatar extends AMVAvatar{
     init(options) {

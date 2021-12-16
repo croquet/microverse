@@ -8,15 +8,18 @@ import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 export var myAvatar;
 export var isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
+export const MV ={POINTER:1, WALK:2, AVATAR:4}
 
 const eyeHeight = 1.7; // height of eyes above ground in meters
 const eyeEpsilon = 0.1; // don't replicate the change unless it is sufficiently large
 
+// simple "click button, do this, nothing else"
 function setupButton( bttn, dothis ){ 
     bttn.addEventListener("click", dothis, false);
     bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
     bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
 }
+
 setupButton(document.getElementById("orbitingBttn"), switchControl);
 setupButton(document.getElementById("walkingBttn"), switchControl);
 
@@ -27,12 +30,12 @@ function switchControl(e){
     document.getElementById("orbitingBttn").style.display=isWalking?"inline-block":"none";
     if(e){e.stopPropagation(); e.preventDefault();}
 }
-switchControl(); //initialize the buttons.
+switchControl(); //initialize the buttons (lazy me)
 
 export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     init(options) {
         // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
-        this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
+        this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn will not see it
         super.init(options);
         this.listen("goHome", this.goHome);
     }
@@ -101,15 +104,19 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
 
             this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
             this.setControls(isWalking); // walking or orbiting?
-            //this.subscribe("input", "pointerDown", this.startMMotion);
-            //this.subscribe("input", "pointerUp", this.endMMotion);
-            //this.subscribe("input", "pointerCancel", this.endMMotion);
-            //this.subscribe("input", "pointerMove", this.continueMMotion);
-            //this.subscribe("input","keyDown",this.keyAction);
-            document.addEventListener('keypress', this.keyAction);
+            this.subscribe("input", "pointerDown", this.pointerDown);
+            this.subscribe("input", "pointerUp", this.pointerUp);
+            this.subscribe("input", "pointerCancel", this.pointerCancel);
+            this.subscribe("input", "pointerMove", this.pointerMove);
             this.subscribe("input", "wheel", this.thirdPerson);
+            this.pointercaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+            this.pointercaster.layers.set( MV.POINTER ); // only test against layer 1. Layer 2 is other players.
+
+
+            document.addEventListener('keypress', this.keyAction); // should use input but that is broken
+
             this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-            this.raycaster.layers.set( 1 ); // only test against layer 1. Layer 2 is other players.
+            this.raycaster.layers.set( MV.WALK ); // only test against layer 1. Layer 2 is other players.
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
@@ -287,6 +294,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
 
     startMMotion( e ){
         e.preventDefault();
+        e.stopPropagation(); 
         this.knobX = e.clientX;
         this.knobY = e.clientY;
         if(true || isWalking){
@@ -297,6 +305,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
 
     endMMotion( e ){
         e.preventDefault();
+        e.stopPropagation(); 
         if(true || isWalking){
             this.activeMMotion =false;
             this.setVelocity([0, 0, 0]);
@@ -309,6 +318,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
 
     continueMMotion( e ){
         e.preventDefault();
+        e.stopPropagation(); 
         if( this.activeMMotion ){
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
@@ -394,7 +404,24 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
         let pawnManager = myAvatar.service("PawnManager"); 
         pawnManager.pawns.forEach(a => {
             if( a.perlin ){a.say("showHide");}
-        });
+            });
         }
+    }
+
+    pointerDown(e){
+
+        //console.log('vvvvvvvvvvvv');
+    }
+    pointerUp(e){
+
+        //console.log('^^^^^^^^^^^^^')
+    }
+    pointerMove(e){
+
+        //console.log('++++++++++++')
+    }
+    pointerCancel(e){
+
+        //console.log('xxxxxxxxxx')
     }
 }
