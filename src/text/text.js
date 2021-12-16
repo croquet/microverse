@@ -1,11 +1,9 @@
 import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_ThreeVisible, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 // import {canonicalizeKeyboardEvent} from "./text-commands.js";
-import {getTextGeometry, HybridMSDFShader} from "three-bmfont-text";
+import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
-import {MSDFFontPreprocessor} from "./fontProcessor.js";
 import {Doc, Warota} from "./warota.js";
 import {eof} from "./wrap.js";
-import {TextLayout} from "./layout.js";
 
 export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     init(...args) {
@@ -16,16 +14,25 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         // ]);
 
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
+        this.fonts = new Map();
 
         super.init(...args);
-        
+
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
         this.subscribe(this.id, "undoRequest", "undoRequest");
         this.subscribe(this.id, "setWidth", "setWidth");
         this.subscribe(this.sessionId, "view-exit", "viewExit");
 
-        this.listen("registerFont", "registerFont");
+        this.listen("askFont", "askFont");
+
+        this.text = {
+            extent: {width: 500, height: 50},
+            fontName: "DejaVu Sans Mono",
+            drawnStrings: [
+                {x: 0, y: 0, string: "Croquet is awesome!", style: "blue"}
+            ]
+        };
     }
 
     get pawn() {return TextFieldPawn;}
@@ -111,9 +118,10 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         return this.doc.setDefault(font, size);
     }
 
-    registerFont(data) {
+    askFont(data) {
         console.log(data);
-        this.say("fontLoaded", data.name);
+        this.fonts.set(data.name, data.font);
+        this.say("fontAsked", data.name);
     }
 
     styleAt(index) {
@@ -136,8 +144,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         super(model);
         this.model = model;
         // this.subscribe(this.model.id, "screenUpdate", "screenUpdate");
-        this.widgets = {};
 
+        this.widgets = {};
         this.hiddenInput = document.createElement("input");
         this.hiddenInput.style.setProperty("position", "absolute");
         this.hiddenInput.style.setProperty("left", "-120px"); //-100
@@ -147,26 +155,41 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.hiddenInput.style.setProperty("width", "100px");
         this.hiddenInput.style.setProperty("height", "100px");
 
+        this.hiddenInput.addEventListener("input", evt => this.input(evt), true);
+        this.hiddenInput.addEventListener("keydown", evt => this.keyDown(evt), true);
+        this.hiddenInput.addEventListener("copy", evt => this.copy(evt));
+        this.hiddenInput.addEventListener("cut", evt => this.cut(evt));
+        this.hiddenInput.addEventListener("paste", evt => this.paste(evt));
         document.body.appendChild(this.hiddenInput);
 
-        this.setup();
+        this.setupEditor();
+        this.setupMesh();
 
         this.fonts = {};
         this.isLoading = {};
 
-        this.listen("fontLoaded", "fontLoaded");
-        this.loadFont("DejaVu Sans Mono");
+        this.setupDefaultFont();
+
+        this.listen("fontAsked", "askFont");
+
+        this.model.fonts.forEach((_f, n) => {
+            this.askFont(n);
+        });
+
     }
 
     destroy() {
         super.destroy();
-        if (this.geometry) {
-            this.geometry.dispose();
-            this.geometry = null;
-        }
-        if (this.material) {
-            this.material.dispose();
-            this.material = null;
+
+        ["geometry", "material", "textGeometry", "textMaterial"].forEach((n) => {
+            if (this[n]) {
+                this[n].dispose();
+                this[n] = null;
+            }
+        });
+
+        if (this.hiddenInput) {
+            this.hiddenInput.remove();
         }
     }
 
@@ -181,40 +204,86 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         return `hsl(${h}, ${s}, ${l})`;
     }
 
-    fontLoaded(name) {
-        if (!this.fonts[name]) {return;} // this message could be phony when it was sent by replay
-        
-        if (!this.textGeometry) {
-            let TextGeometry = getTextGeometry(THREE);
-            this.textGeometry = new TextGeometry({
-                text: "abc",
-                font: this.fonts[name].font,
-                defaultColor: new THREE.Color(0xFFFF00),
-            });
-
+    changeMaterial(name, makeNew) {
+        if (!this.fonts[name]) {return;}
+        if (!this.fonts[name].material) {
             let texture = this.fonts[name].texture;
-            this.textMaterial = new THREE.RawShaderMaterial(HybridMSDFShader({
+            this.fonts[name].material = new THREE.RawShaderMaterial(HybridMSDFShader({
                 map: texture,
                 textureSize: texture.image.width,
                 side: THREE.DoubleSide,
                 transparent: true,
             }, THREE));
+        }
 
-            this.textMesh = new THREE.Mesh(this.textGeometry, this.textMaterial);
-            //this.textMesh.position.set(new THREE.Vector3(-0, 0, -0));
-            this.textMesh.scale.x = 0.01;
-            this.textMesh.scale.y = -0.01;
-
-            this.textMesh.position.x = -5;
-            this.textMesh.position.y = 2.5;
-            this.textMesh.position.z = 0.005;
-            this.plane.add(this.textMesh);
+        if (makeNew) {
+            this.textMesh = new THREE.Mesh(this.textGeometry, this.fonts[name].material);
+        } else {
+            let m = this.textMesh.material;
+            this.textMesh.material = this.fonts[name].material;
+            if (m) {
+                m.dispose();
+            }
         }
     }
 
-    setup() {
-        this.geometry = new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshStandardMaterial({color: 0xFCFCFC, emissive: new THREE.Color(0xFFFFFF), side: THREE.DoubleSide});
+    setupTextMesh(name) {
+        if (!this.textGeometry) {
+            let TextGeometry = getTextGeometry(THREE);
+            this.textGeometry = new TextGeometry({});
+
+            this.changeMaterial(name, true);
+            this.plane.add(this.textMesh);
+            this.updateString();
+        }
+    }
+
+    updateString(retry) {
+        // will be this model.doc
+        let stringInfo = this.model.text;
+        let {fontName, extent, drawnStrings} = stringInfo;
+
+        if (!this.fonts[fontName]) {
+            this.askFont(fontName).then(() => {
+                if (!retry) {
+                    this.updateString(true);
+                }
+            });
+            return;
+        }
+
+        let font = this.fonts[fontName].font;
+        drawnStrings = drawnStrings.map(spec => ({...spec, font: font}));
+
+        let TextLayout = getTextLayout(THREE);
+        let layout = new TextLayout({font});
+        let glyphs = layout.computeGlyphs({font, drawnStrings});
+
+        this.textMesh.scale.x = 0.01;
+        this.textMesh.scale.y = -0.01;
+
+        let newWidth = extent.width * 0.01;
+        let newHeight = extent.height * 0.01;
+
+        if (newWidth !== this.plane.geometry.parameters.width ||
+            newHeight !== this.plane.geometry.parameters.height) {
+            let geometry = new THREE.PlaneGeometry(newWidth, newHeight);
+            this.plane.geometry = geometry;
+            this.geometry.dispose();
+            this.geometry = geometry;
+
+            this.textMesh.position.x = -newWidth / 2;
+            this.textMesh.position.y = newHeight / 2;
+            this.textMesh.position.z = 0.005;
+        }
+        this.textGeometry.update({font, glyphs});
+        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
+        this.fonts[fontName].material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    }
+
+    setupMesh() {
+        this.geometry = new THREE.PlaneGeometry(10, 5);
+        this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
 
         this.setRenderObject(this.plane);
@@ -225,7 +294,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
             new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),
             new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)
         ];
+    }
 
+    setupEditor() {
         let font = this.model.doc.defaultFont;
         let fontSize = this.model.doc.defaultSize;
         let options = {width: 800, height: 800, font, fontSize};
@@ -240,66 +311,70 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.user = {id: this.viewId, color: this.randomColor(this.viewId)};
         this.selections = {}; // {user: {bar: div, boxes: []}}
 
-        this.hiddenInput.addEventListener("input", evt => this.input(evt), true);
-        this.hiddenInput.addEventListener("keydown", evt => this.keyDown(evt), true);
-
-        this.hiddenInput.addEventListener("copy", evt => this.copy(evt));
-        this.hiddenInput.addEventListener("cut", evt => this.cut(evt));
-        this.hiddenInput.addEventListener("paste", evt => this.paste(evt));
-
         this.subscribe(this.viewId, "synced", "synced");
         this.screenUpdate(this.warota.timezone);
     }
 
-    detach() {
-        super.detach();
-        if (this.hiddenInput) {
-            this.hiddenInput.remove();
-        }
+    setupDefaultFont() {
+        let fontName = "DejaVu Sans Mono";
+        this.askFont(fontName, true).then(() => {
+            this.setupTextMesh(fontName);
+        });
     }
 
-    loadFont(name) {
+    askFont(name, me) {
+        if (this.fonts[name]) {return Promise.resolve(null);}
+        if (this.isLoading[name]) {return Promise.resolve(null);}
+        this.isLoading[name] = true;
+        console.log("start loading");
+
         let path = "./assets/fonts";
         let image = `${path}/${name}.png`;
-        loadFont(`${path}/${name}.json`, (err, font) => {
-            if (err) throw err;
-            let loader = new THREE.TextureLoader();
-            loader.load(
-                image,
-                (tex) => {
-                    console.log('begin registering');
-                    let preprocessor = new MSDFFontPreprocessor();
-                    let img = new Image(font.common.scaleW, font.common.scaleH);
-                    let canvas = document.createElement("canvas");
-                    canvas.width = font.common.scaleW;
-                    canvas.height = font.common.scaleH;
-                    let ctx = canvas.getContext("2d");
-                    ctx.drawImage(tex.image, 0, 0);
-                    let inBitmap = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    let outImage = preprocessor.process(font, inBitmap.data);
-                    ctx.putImageData(outImage, 0, 0);
 
-                    let processedTexture = new THREE.Texture(outImage);
-                    processedTexture.minFilter = THREE.LinearMipMapLinearFilter;
-                    processedTexture.magFilter = THREE.LinearFilter;
-                    processedTexture.generateMipmaps = true;
-                    processedTexture.anisotropy = 1; // maxAni
+        return new Promise((resolve, reject) => {
+            loadFont(`${path}/${name}.json`, (err, font) => {
+                if (err) throw err;
+                let loader = new THREE.TextureLoader();
+                loader.load(
+                    image,
+                    (tex) => {
+                        console.log('begin registering');
+                        let preprocessor = new MSDFFontPreprocessor();
+                        let img = new Image(font.common.scaleW, font.common.scaleH);
+                        let canvas = document.createElement("canvas");
+                        canvas.width = font.common.scaleW;
+                        canvas.height = font.common.scaleH;
+                        let ctx = canvas.getContext("2d");
+                        ctx.drawImage(tex.image, 0, 0);
+                        let inBitmap = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        let outImage = preprocessor.process(font, inBitmap.data);
+                        ctx.putImageData(outImage, 0, 0);
 
-                    img.src = canvas.toDataURL("image/png");
-                    img.onload = () => {
-                        console.log('in onload for img');
-                        processedTexture.needsUpdate = true;
-                    };
+                        let processedTexture = new THREE.Texture(outImage);
+                        processedTexture.minFilter = THREE.LinearMipMapLinearFilter;
+                        processedTexture.magFilter = THREE.LinearFilter;
+                        processedTexture.generateMipmaps = true;
+                        processedTexture.anisotropy = 1; // maxAni
 
-                    this.say("registerFont", {name, font});
-                    this.fonts[name] = { font, texture: processedTexture};
-                    delete this.isLoading[name];
-                    console.log("end registering");
-                },
-                null,
-                (err) => {
-                    throw new Error("failed to load font file");
-                })
+                        img.src = canvas.toDataURL("image/png");
+                        img.onload = () => {
+                            console.log('in onload for img');
+                            processedTexture.needsUpdate = true;
+                        };
+
+                        this.fonts[name] = {font, texture: processedTexture};
+                        delete this.isLoading[name];
+                        if (me) {
+                            this.say("askFont", {name, font});
+                        }
+                        resolve(this.fonts[name]);
+                    },
+                    null,
+                    () => {
+                        this.isLoading[name] = false;
+                        reject(new Error(`failed to load font: ${name}`));
+                    });
+            });
         });
     }
 

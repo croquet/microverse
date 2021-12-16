@@ -18,7 +18,7 @@
     "jszip": "^3.7.1",
     "pako": "^2.0.4",
     "load-bmfont": "^1.4.0",
-    "three-bmfont-text": "https://github.com/yoshikiohshima/three-bmfont-text.git"
+    "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git"
   },
   "devDependencies": {
     "buffer": "^6.0.3",

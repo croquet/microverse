@@ -1,6 +1,3 @@
-import {THREE} from "@croquet/worldcore";
-import {TextLayout} from "./layout.js";
-
 export const eof = String.fromCharCode(26); // "^Z"
 
 export function isNewline(str) {

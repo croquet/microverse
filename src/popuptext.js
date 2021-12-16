@@ -3,7 +3,6 @@ import {
 } from "@croquet/worldcore";
 
 import {TextFieldActor} from "./text/text.js";
-import {TextLayout} from "./text/layout.js";
 
 export class TextPopupActor extends mix(Actor).with(AM_Spatial) {
     get pawn() {return TextPopupPawn;}
@@ -63,11 +62,8 @@ export class TextPopupActor extends mix(Actor).with(AM_Spatial) {
         if (this.stringIndex >= this.strings.length) {
             this.stringIndex = 0;
         }
+        this.text.text = this.strings[this.stringIndex];
         this.say("updateString");
-    }
-
-    getString() {
-        return this.strings[this.stringIndex];
     }
 
     popdown() {
@@ -92,38 +88,8 @@ export class TextPopupPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         if (!this.model.text) {return;}
         let pawn = this.service('PawnManager').get(this.model.text.id);
         if (!pawn.model) {console.log("not initialized?"); return;}
-        if (!pawn.textMesh) {console.log("not initialized?"); return;}
 
-        let stringInfo = this.model.getString();
-        let {fontName, extent, drawnStrings} = stringInfo;
-        if (!pawn.fonts[fontName]) {return;}
-        let font = pawn.fonts[fontName].font;
-
-        drawnStrings = drawnStrings.map(spec => ({...spec, font: font}));
- 
-        let layout = new TextLayout({font});
-        let glyphs = layout.computeGlyphs({font, drawnStrings});
-
-        pawn.textMesh.scale.x = 0.01;
-        pawn.textMesh.scale.y = -0.01;
-
-        let newWidth = extent.width * 0.01;
-        let newHeight = extent.height * 0.01;
-
-        if (newWidth !== pawn.plane.geometry.parameters.width ||
-            newHeight !== pawn.plane.geometry.parameters.height) {
-            let geometry = new THREE.PlaneGeometry(newWidth, newHeight);
-            pawn.plane.geometry = geometry;
-            pawn.geometry.dispose();
-            pawn.geometry = geometry;
-
-            pawn.textMesh.position.x = -newWidth / 2;
-            pawn.textMesh.position.y = newHeight / 2;
-            pawn.textMesh.position.z = 0.005;
-        }
-        pawn.textGeometry.update({glyphs});
-        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
-        pawn.textMaterial.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        pawn.updateString(true);
 
         if (!this.closeButton) {
             let canvas = document.createElement("canvas");
@@ -153,6 +119,11 @@ export class TextPopupPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
             ctx.fillText("X", 10, 56);
 
             let texture = new THREE.CanvasTexture(canvas, THREE.UVMapping);
+
+            let extent = pawn.model.text.extent;
+
+            let newWidth = extent.width * 0.01;
+            let newHeight = extent.height * 0.01;
             
             this.closeButtonGeometry = new THREE.PlaneGeometry(64, 64);
             this.closeButtonMaterial = new THREE.MeshBasicMaterial({map: texture, transparent: true});
