@@ -181,7 +181,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.listen("fontAsked", "askFont");
         this.listen("needsUpdate", "needsUpdate");
 
-        this.subscribe("input", "pointerDown", this._pointerDown);
+ //       this.subscribe("input", "pointerDown", this._pointerDown);
 
     }
 
