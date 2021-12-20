@@ -34,13 +34,6 @@ export const AM_Events = superclass => class extends superclass {
 RegisterMixin(AM_Events);
 
 export const PM_Events = superclass => class extends superclass {
-    constructor(...args) {
-        super(...args);
-        console.log("P_Events !!!!!!", this.isMyPlayerPawn)
-
-        if(this.isMyPlayerPawn) this.setupEvents();
-        this.xy = {x:0, y:0}; // reuse this
-    }
     // the pawn can override these functions if it needs it executed immediately
     _pointerDown(p3d){this.say("_PointerDown", p3d)}
     _pointerUp(p3d){this.say("_PointerUp", p3d)}
