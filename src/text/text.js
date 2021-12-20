@@ -180,36 +180,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
 
         this.listen("fontAsked", "askFont");
         this.listen("needsUpdate", "needsUpdate");
-
-        this.subscribe("input", "pointerDown", this._pointerDown);
-
     }
 
-    _pointerDown(p3d){
-        console.log("pointerDown", p3d);
+    _pointerDown(e) {
+        console.log(e);
     }
-    _pointerUp(p3d){
-        console.log("pointerUp", p3d);
-    }
-    _pointerMove(p3d){
-        console.log("pointerMove", p3d);
-    }
-    _pointerCancel(p3d){
-        console.log("pointerCancel", p3d);
-    }
-    _pointerEnter(p3d){
-        console.log("pointerEnter", p3d);
-    }
-    _pointerOver(p3d){
-        console.log("pointerOver", p3d);
-    }
-    _pointerLeave(p3d){
-        console.log("pointerLeave", p3d);
-    }
-    _pointerWheel(p3d){
-        console.log("pointerWheel", p3d);
-    }
-
+    
     destroy() {
         super.destroy();
 
@@ -344,7 +320,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
 
-        this.setRenderObject(this.plane);
+        this.setRenderObject(this.plane, D_CONSTANTS.EVENT_LAYER);
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
@@ -497,8 +473,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     }
 
     pointerDown(evt) {
-        this.warota.mouseDown(evt.x, evt.y, evt.y, this.user);
-        this.changed();
+        console.log(evt);
+        //this.warota.mouseDown(evt.x, evt.y, evt.y, this.user);
+        //this.changed();
     }
 
     pointerMove(evt) {
