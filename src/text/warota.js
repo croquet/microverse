@@ -1,4 +1,10 @@
-import {Wrap, Measurer, isNewline, equalStyle, eof} from "./wrap.js";
+import {Wrap, Measurer, isNewline, equalStyle, eof, fontRegistry} from "./wrap.js";
+import {canonicalizeKeyboardEvent} from "./text-commands.js";
+
+export {
+    Wrap, Measurer, isNewline, equalStyle, eof, fontRegistry,
+    canonicalizeKeyboardEvent};
+
 // import MockContext from "./MockContext.js";
 
 let lastFontLoadedTime = 0;

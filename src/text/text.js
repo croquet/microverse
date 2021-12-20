@@ -1,11 +1,14 @@
 import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_ThreeVisible, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
-import loadFont from "load-bmfont";
-import {canonicalizeKeyboardEvent} from "./text-commands.js";
-import {Doc, Warota} from "./warota.js";
-import {eof, fontRegistry} from "./wrap.js";
 
-export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
+import { Actor_Events, Pawn_Events } from '../DEvents.js';
+import { PM_ThreeVisibleLayer } from '../DLayerManager.js';
+import { D_CONSTANTS } from '../DConstants.js';
+
+import loadFont from "load-bmfont";
+import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
+
+export class TextFieldActor extends mix(Actor).with(AM_Spatial, Actor_Events) {
     init(...args) {
         this.doc = new Doc();
         this.doc.load([]);
@@ -139,7 +142,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_Dynamic) {
+export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer, PM_Dynamic, Pawn_Events) {
     constructor(model) {
         super(model);
         this.model = model;
@@ -177,6 +180,34 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
 
         this.listen("fontAsked", "askFont");
         this.listen("needsUpdate", "needsUpdate");
+
+        this.subscribe("input", "pointerDown", this._pointerDown);
+
+    }
+
+    _pointerDown(p3d){
+        console.log("pointerDown", p3d);
+    }
+    _pointerUp(p3d){
+        console.log("pointerUp", p3d);
+    }
+    _pointerMove(p3d){
+        console.log("pointerMove", p3d);
+    }
+    _pointerCancel(p3d){
+        console.log("pointerCancel", p3d);
+    }
+    _pointerEnter(p3d){
+        console.log("pointerEnter", p3d);
+    }
+    _pointerOver(p3d){
+        console.log("pointerOver", p3d);
+    }
+    _pointerLeave(p3d){
+        console.log("pointerLeave", p3d);
+    }
+    _pointerWheel(p3d){
+        console.log("pointerWheel", p3d);
     }
 
     destroy() {
