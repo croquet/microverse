@@ -16,7 +16,7 @@ export class AM_EditCube extends mix(Actor).with(AM_Spatial, Actor_Events){
     init(...args) {
         this.visible = true;
         super.init(...args);
-        this._translation = [0, 0, -10];
+        this._translation = [0, 2, -10];
     }
 
     onPointerDown(p3d){

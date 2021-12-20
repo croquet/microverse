@@ -174,8 +174,6 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
         this.setRenderObject( plant, D_CONSTANTS.WALK_LAYER );
         window.renderer = this.service("ThreeRenderManager");
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});

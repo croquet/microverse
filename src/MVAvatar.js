@@ -94,7 +94,6 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
 
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
-            this.pointer3D = {};
             // create a dummy camera that will be moved by the OrbitControls
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;

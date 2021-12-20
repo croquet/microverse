@@ -13,13 +13,13 @@ import { D_CONSTANTS } from './DConstants.js';
 export const Actor_Events = superclass => class extends superclass {
     init(...args) {
         super.init(...args);
-        this.listen("pointerDown", this.onPointerDown);
-        this.listen("pointerUp", this.onPointerUp);
-        this.listen("pointerCancel", this.onPointerCancel);
-        this.listen("pointerMove", this.onPointerMove);
-        this.listen("pointerEnter", this.onPointerEnter);
-        this.listen("pointerOver", this.onPointerOver);
-        this.listen("pointerLeave", this.onPointerLeave);
+        this.listen("_PointerDown", this.onPointerDown);
+        this.listen("_PointerUp", this.onPointerUp);
+        this.listen("_PointerCancel", this.onPointerCancel);
+        this.listen("_PointerMove", this.onPointerMove);
+        this.listen("_PointerEnter", this.onPointerEnter);
+        this.listen("_PointerOver", this.onPointerOver);
+        this.listen("_PointerLeave", this.onPointerLeave);
     }
 
     // extended class has responsibility to redefine these functions.
@@ -42,13 +42,14 @@ export const Pawn_Events = superclass => class extends superclass {
         this.xy = {x:0, y:0}; // reuse this
     }
 
-    pointerDown(p3d){this.say("pointerDown", p3d)}
-    pointerUp(p3d){this.say("pointerUp", p3d)}
-    pointerMove(p3d){this.say("pointerMove", p3d)}
-    pointerCancel(p3d){this.say("pointerCancel", p3d)}
-    pointerEnter(p3d){this.say("pointerEnter", p3)}
-    pointerOver(p3d){this.say("pointerOver", p3d)}
-    pointerLeave(p3d){this.say("pointerLeave", p3d)}
+    _pointerDown(p3d){this.say("_PointerDown", p3d)}
+    _pointerUp(p3d){this.say("_PointerUp", p3d)}
+    _pointerMove(p3d){this.say("_PointerMove", p3d)}
+    _pointerCancel(p3d){this.say("_PointerCancel", p3d)}
+    _pointerEnter(p3d){this.say("_PointerEnter", p3d)}
+    _pointerOver(p3d){this.say("_PointerOver", p3d)}
+    _pointerLeave(p3d){this.say("_PointerLeave", p3d)}
+    _pointWheel(p3d){this.say("_PointerWheel", p3d);}
 
     makePlane(pEvt, useNorm) {
         // worldDirection is an optional direction vector if you don't want to
@@ -85,72 +86,78 @@ export const PM_AvatarEvents = superclass => class extends superclass {
 
     // Event Management 
     setupEvents(){
-        this.subscribe("input", "pointerDown", this.pointerDown);
-        this.subscribe("input", "pointerUp", this.pointerUp);
-        this.subscribe("input", "pointerCancel", this.pointerCancel);
-        this.subscribe("input", "pointerMove", this.pointerMove);
-        this.subscribe("input", "wheel", this.pointerWheel);
-        this.pointercaster = new THREE.Raycaster();
+        this.subscribe("input", "pointerDown", this._pointerDown);
+        this.subscribe("input", "pointerUp", this._pointerUp);
+        this.subscribe("input", "pointerCancel", this._pointerCancel);
+        this.subscribe("input", "pointerMove", this._pointerMove);
+        this.subscribe("input", "wheel", this._pointerWheel);
+        this._pointercaster = new THREE.Raycaster();
         this.xy = {x:0, y:0}; // reuse this
-        document.addEventListener('keypress', this.keyAction); // should use input but that is broken
+        this._pointer3D = {};
+        //document.addEventListener('keypress', this._keyAction); // should use input but that is broken
     }
 
-    pointerDown(e){
-        if(this.updatePointer(e)){
+    _pointerDown(e){
+        if(this._updatePointer(e)){
             this.downTarget = this.target;
-            if(this.overTarget)this.overTarget.say("pointerLeave");
+            if(this.overTarget)this.overTarget._pointerLeave();
             this.overTarget = null;
-            this.downTarget.say("pointerDown", this.pointer3D);
+            this.downTarget._pointerDown(this._pointer3D);
         }
         this.target = null;
     }
-    pointerUp(e){
+    _pointerUp(e){
         if(this.downTarget){
-            this.downTarget.say("pointerUp", this.pointer3D);
+            this.downTarget._pointerUp(this._pointer3D);
             this.downTarget = null;
         }
-        this.pointerMove(e); // check for pointerOver
+        this._pointerMove(e); // check for pointerOver
     }
-    pointerMove(e){
-        this.updatePointer(e);
-        if(this.downTarget){this.downTarget.say("pointerMove", this.pointer3D)}
+    _pointerMove(e){
+        this._updatePointer(e);
+        if(this.downTarget){this.downTarget._pointerMove(this._pointer3D)}
         else if(this.overTarget !== this.target){
             if(this.overTarget){
-                this.overTarget.say("pointerLeave");
+                this.overTarget._pointerLeave();
                 this.overTarget = null;
             }
             if(this.target){
                 this.overTarget=this.target;
-                this.overTarget.say("pointerEnter", this.pointer3D);
+                this.overTarget._pointerEnter(this._pointer3D);
             }
         }else if(this.overTarget){
-            this.overTarget.say("pointerOver", this.pointer3D);
+            this.overTarget._pointerOver(this._pointer3D);
         }
         this.target = null;
     }
-    pointerCancel(e){ // if the user gets locked up for some period or leaves with a pointer state
-        if(this.downTarget) this.downTarget.say("pointerCancel");
-        if(this.overTarget) this.overTarget.say("pointerLeave");
+    _pointerCancel(e){ // if the user gets locked up for some period or leaves with a pointer state
+        if(this.downTarget) this.downTarget._pointerCancel();
+        this.downTarget = null;
+        if(this.overTarget) this.overTarget._pointerLeave();
+        this.overTarget = null;
         this.target = null;
     }
 
-    pointerWheel(e){
+    _pointerWheel(e){
+        if(this.iPointerWheel)this.iPointerWheel(e);
     }
 
-    updatePointer(e){
+    _updatePointer(e){
         this.xy.x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         this.xy.y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
 
-        this.pointercaster.setFromCamera( this.xy, this.camera );
-        const intersects = this.pointercaster.intersectObjects( this.scene.eventLayer.children, true );
+        this._pointercaster.setFromCamera( this.xy, this.camera );
+        const intersects = this._pointercaster.intersectObjects( this.scene.eventLayer.children, true );
         if( intersects.length>0){
            // console.log(intersects[0])
             this.target = this.getTarget(intersects[0].object);
             if(this.target){
-                this.pointer3D.e = e; // keep the original event
-                this.pointer3D.playerId = this.actor.playerId;
-                this.pointer3D.button = e.button;
-                //console.log(this.pointer3D);
+                this._pointer3D.e = e; // keep the original event
+                this._pointer3D.playerId = this.actor.playerId;
+                this._pointer3D.rotation = this.actor.rotation;
+                this._pointer3D.translation = this.actor.translation;
+                this._pointer3D.button = e.button;
+                //console.log(this._pointer3D);
                 return true;
             }
         } 
