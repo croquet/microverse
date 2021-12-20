@@ -16,7 +16,7 @@ export class Doc {
         this.intervals = []; // [{start: num, end: num}]
         this.selections = {}; // {user: {start: num, end: num, isBol: boolean, color: string}}
 
-        this.defaultFont = "DevaVu Sans Mono";
+        this.defaultFont = "DejaVu Sans Mono";
         this.defaultSize = 10;
         // After the canonicalization step, the intervals and runs at least has one element
         // that denotes the end of file

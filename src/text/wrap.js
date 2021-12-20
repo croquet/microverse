@@ -61,14 +61,34 @@ class MetricCache {
 
 class MSDFFontRegistry {
     constructor() {
-        this.measurers = {};
+        this.layouts = new Map();
+    }
+
+    hasLayout(name) {
+        return this.layouts.get(name);
+    }
+
+    addLayout(name, layout) {
+        this.layouts.set(name, layout);
+        return layout;
     }
 
     measureText(word, font, size) {
-        return {width: word.length * 20, height: 20, ascent: 20 / 2};
+        let layout = this.layouts.get(font);
+        if (layout) {
+            return layout.measureText(word.text);
+        }
+
+        return {ascent: 36, height: 50, descent: 14, width: word.text.length * 20};
     }
 
-    getInfo(font, fontSize) {
+    getInfo(name, fontSize) {
+        let layout = this.layouts.get(name);
+        let font;
+        if (layout) {
+            font = layout._opt.font;
+        }
+        if (font) {return font;}
         return {common: {lineHeight: fontSize}};
     }
 }
@@ -83,7 +103,8 @@ export class Measurer {
     measureText(word, font, size) {
         let key = this.cache.makeKey(word, font, size);
         let m = this.cache.lookup(key);
-        if (m) {return m;}
+        if (m) {
+            return m;}
         m = fontRegistry.measureText(word, font, size);
         this.cache.update(key, m);
         return m;

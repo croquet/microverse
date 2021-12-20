@@ -1,9 +1,9 @@
 import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_ThreeVisible, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
-// import {canonicalizeKeyboardEvent} from "./text-commands.js";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
+import {canonicalizeKeyboardEvent} from "./text-commands.js";
 import {Doc, Warota} from "./warota.js";
-import {eof} from "./wrap.js";
+import {eof, fontRegistry} from "./wrap.js";
 
 export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     init(...args) {
@@ -30,7 +30,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
             extent: {width: 500, height: 50},
             fontName: "DejaVu Sans Mono",
             drawnStrings: [
-                {x: 0, y: 0, string: "Croquet is awesome!", style: "blue"}
+                {x: 0, y: 0, string: "", style: "blue"}
             ]
         };
     }
@@ -39,11 +39,6 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
 
     static types() {
         return {"Warota.Doc": Doc};
-    }
-
-    setWidth(pixelWidth) {
-        let cssWidth = pixelWidth + "px";
-        this.style.setProperty("width", cssWidth);
     }
 
     load(stringOrArray) {
@@ -61,6 +56,8 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     save() {
         return {runs: this.doc.runs, defaultFont: this.doc.defaultFont, defaultSize: this.doc.defaultSize};
     }
+
+    setWidth() {}
 
     loadAndReset(string) {
         let runs = [{text: string}];
@@ -81,6 +78,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     }
 
     publishAccept() {
+        console.log("accept");
         this.publish(this.id, "text", {id: this.id, text: this.doc.plainText()});
     }
 
@@ -95,7 +93,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     }
 
     needsUpdate() {
-        this.say("changed");
+        this.say("needsUpdate");
     }
 
     undoRequest(user) {
@@ -150,9 +148,10 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.widgets = {};
         this.hiddenInput = document.createElement("input");
         this.hiddenInput.style.setProperty("position", "absolute");
-        this.hiddenInput.style.setProperty("left", "-120px"); //-100
-        this.hiddenInput.style.setProperty("top", "-120px");  // -100
-        this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
+
+        this.hiddenInput.style.setProperty("left", "-120px"); //-120px
+        this.hiddenInput.style.setProperty("top", "-120px");  // -120px
+        // this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
 
         this.hiddenInput.style.setProperty("width", "100px");
         this.hiddenInput.style.setProperty("height", "100px");
@@ -167,26 +166,33 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.setupEditor();
         this.setupMesh();
 
-        this.fonts = {};
+        this.fonts = new Map();
         this.isLoading = {};
 
         this.setupDefaultFont();
-
-        this.listen("fontAsked", "askFont");
 
         this.model.fonts.forEach((_f, n) => {
             this.askFont(n);
         });
 
+        this.listen("fontAsked", "askFont");
+        this.listen("needsUpdate", "needsUpdate");
     }
 
     destroy() {
         super.destroy();
 
-        ["geometry", "material", "textGeometry", "textMaterial"].forEach((n) => {
+        ["geometry", "material", "textGeometry"].forEach((n) => {
             if (this[n]) {
                 this[n].dispose();
                 this[n] = null;
+            }
+        });
+
+        this.fonts.forEach((v, k) => {
+            if (v.material) {
+                v.material.dispose();
+                v.material = null;
             }
         });
 
@@ -199,6 +205,10 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         // this.warota.insert(user, [{text: cEvt.key}]);
     }
 
+    needsUpdate() {
+        this.screenUpdate(this.warota.timezone);
+    }
+
     randomColor(viewId) {
         let h = Math.floor(parseInt(viewId, 36) / (10 ** 36 / 360));
         let s = "40%";
@@ -207,10 +217,10 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
     }
 
     changeMaterial(name, makeNew) {
-        if (!this.fonts[name]) {return;}
-        if (!this.fonts[name].material) {
-            let texture = this.fonts[name].texture;
-            this.fonts[name].material = new THREE.RawShaderMaterial(HybridMSDFShader({
+        if (!this.fonts.get(name)) {return;}
+        if (!this.fonts.get(name).material) {
+            let texture = this.fonts.get(name).texture;
+            this.fonts.get(name).material = new THREE.RawShaderMaterial(HybridMSDFShader({
                 map: texture,
                 textureSize: texture.image.width,
                 side: THREE.DoubleSide,
@@ -219,17 +229,17 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         }
 
         if (makeNew) {
-            this.textMesh = new THREE.Mesh(this.textGeometry, this.fonts[name].material);
+            this.textMesh = new THREE.Mesh(this.textGeometry, this.fonts.get(name).material);
         } else {
             let m = this.textMesh.material;
-            this.textMesh.material = this.fonts[name].material;
+            this.textMesh.material = this.fonts.get(name).material;
             if (m) {
                 m.dispose();
             }
         }
     }
 
-    setupTextMesh(name) {
+    setupTextMesh(name, font) {
         if (!this.textGeometry) {
             let TextGeometry = getTextGeometry(THREE);
             this.textGeometry = new TextGeometry({});
@@ -238,27 +248,25 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
             this.plane.add(this.textMesh);
             this.updateString();
         }
+
+        let layout = fontRegistry.hasLayout(name);
+        if (!layout) {
+            let TextLayout = getTextLayout(THREE);
+            layout = new TextLayout({font});
+            fontRegistry.addLayout(name, layout);
+        }
     }
 
-    updateString(retry) {
-        // will be this model.doc
-        let stringInfo = this.model.text;
+    updateMesh(stringInfo) {
         let {fontName, extent, drawnStrings} = stringInfo;
+        if (!this.fonts.get(fontName)) {return;}
+        let font = this.fonts.get(fontName).font;
 
-        if (!this.fonts[fontName]) {
-            this.askFont(fontName).then(() => {
-                if (!retry) {
-                    this.updateString(true);
-                }
-            });
-            return;
-        }
-
-        let font = this.fonts[fontName].font;
         drawnStrings = drawnStrings.map(spec => ({...spec, font: font}));
 
-        let TextLayout = getTextLayout(THREE);
-        let layout = new TextLayout({font});
+        let layout = fontRegistry.hasLayout(fontName);
+        if (!layout) {return;}
+
         let glyphs = layout.computeGlyphs({font, drawnStrings});
 
         this.textMesh.scale.x = 0.01;
@@ -280,7 +288,24 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         }
         this.textGeometry.update({font, glyphs});
         let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
-        this.fonts[fontName].material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    }
+
+    updateString(retry) {
+        // will be this model.doc
+        let stringInfo = this.model.text;
+        let fontName = stringInfo.fontName;
+
+        if (!this.fonts.get(fontName)) {
+            this.askFont(fontName).then(() => {
+                if (!retry) {
+                    this.updateString(true);
+                }
+            });
+            return;
+        }
+
+        this.updateMesh(stringInfo);
     }
 
     setupMesh() {
@@ -301,17 +326,18 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
     setupEditor() {
         let font = this.model.doc.defaultFont;
         let fontSize = this.model.doc.defaultSize;
-        let options = {width: 800, height: 800, font, fontSize};
-        this.singleLine = true;
+        let options = {width: 500, height: 500, font, fontSize};
+        this.singleLine = false;
         if (this.singleLine) {
             options.singleLine = true;
         }
 
         this.warota = new Warota(options, this.model.doc);
+        this.warota.width(500);
         this.options = options;
 
         this.user = {id: this.viewId, color: this.randomColor(this.viewId)};
-        this.selections = {}; // {user: {bar: div, boxes: []}}
+        this.selections = {}; // {user: {bar: mesh, boxes: [mesh]}}
 
         this.subscribe(this.viewId, "synced", "synced");
         this.screenUpdate(this.warota.timezone);
@@ -319,13 +345,13 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
 
     setupDefaultFont() {
         let fontName = "DejaVu Sans Mono";
-        this.askFont(fontName, true).then(() => {
-            this.setupTextMesh(fontName);
+        this.askFont(fontName, true).then((font) => {
+            this.setupTextMesh(fontName, font.font);
         });
     }
 
     askFont(name, me) {
-        if (this.fonts[name]) {return Promise.resolve(null);}
+        if (this.fonts.get(name)) {return Promise.resolve(null);}
         if (this.isLoading[name]) {return Promise.resolve(null);}
         this.isLoading[name] = true;
         console.log("start loading");
@@ -364,13 +390,13 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
                             processedTexture.needsUpdate = true;
                         };
 
-                        this.fonts[name] = {font, texture: processedTexture};
+                        this.fonts.set(name, {font, texture: processedTexture});
                         delete this.isLoading[name];
                         if (me) {
                             let maybeFont = this.model.fonts.get(name) ? null : font;
                             this.say("askFont", {name, font: maybeFont});
                         }
-                        resolve(this.fonts[name]);
+                        resolve(this.fonts.get(name));
                     },
                     null,
                     () => {
@@ -421,8 +447,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         let w = elem.style.getPropertyValue("width");
         this.width(parseInt(w, 10));
 
-        if (this._lastValues.get("enterToAccept") !== this.model._get("enterToAccept")) {
-            let accept = this.model._get("enterToAccept");
+        if (this._lastValues.get("enterToAccept") !== this.model["enterToAccept"]) {
+            let accept = this.model["enterToAccept"];
             this._lastValues.set("enterToAccept", accept);
             if (accept) {
                 this.dom.style.setProperty("overflow", "hidden");
@@ -527,12 +553,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         if (evt.key === "Enter") {
             if (this.hiddenInput.value !== "") {
                 this.hiddenInput.value = "";
-                //cEvt = this.eventFromField();
+                cEvt = this.eventFromField();
             } else {
-                // cEvt = canonicalizeKeyboardEvent(evt);
+                cEvt = canonicalizeKeyboardEvent(evt);
             }
         } else {
-            // cEvt = canonicalizeKeyboardEvent(evt);
+            cEvt = canonicalizeKeyboardEvent(evt);
         }
 
         let user = this.user;
@@ -557,7 +583,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         }
 
         if (cEvt.keyCode === 13) {
-            if (this.model._get("enterToAccept")) {
+            if (this.model["enterToAccept"]) {
                 evt.preventDefault();
                 this.accept();
                 return true;
@@ -636,7 +662,21 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
 
     ensureDiv(_index) {    }
 
-    showText() {}
+    showText() {
+        let drawnStrings = [];
+        for (let i = 0; i < this.warota.words.length - 1; i++) {
+            let word = this.warota.words[i];
+            let str = {
+                x: word.left,
+                y: word.top,
+                string: word.text,
+                style: word.style && word.style.color
+            };
+            drawnStrings.push(str);
+        }
+
+        this.updateMesh({fontName: "DejaVu Sans Mono", extent: {width: 600, height: 600}, drawnStrings});
+    }
 
     spanFor(text, style) {
         let span = document.createElement("span");
@@ -689,26 +729,20 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
 
     ensureSelection(id) {
         let sel = this.selections[id];
-        if (!sel) {
-            let bar = document.createElement("div");
-            bar.classList.add("caret");
-            bar.style.setProperty("pointer-events", "none");
-            bar.style.setProperty("position", "absolute");
-            this.selectionPane.appendChild(bar);
-
-            let boxes = [0, 1, 2].map(() => {
-                let box = document.createElement("div");
-                box.classList.add("selection");
-                box.style.setProperty("visibility", "hidden");
-                box.style.setProperty("pointer-events", "none");
-                box.style.setProperty("position", "absolute");
-                this.selectionPane.appendChild(box);
-                return box;
-            });
-
-            sel = {bar, boxes};
-            this.selections[id] = sel;
+        let modelSel = this.model.content.selections[id];
+        let color = modelSel.color;
+        if (!color) {
+            color = "blue";
         }
+        if (!sel) {
+            const bar = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
+
+            bar.visible = false;
+            this.plane.add(bar);
+            // plane.onBeforeRender = this.selectionBeforeRender.bind(this);
+            sel = {bar, boxes: []};
+        }
+        this.selections[id] = sel;
         return sel;
     }
 
@@ -720,20 +754,30 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
 
         for (let k in this.model.content.selections) {
             delete unused[k];
-            this.ensureSelection(k).boxes.forEach(box => box.style.setProperty("visibility", "hidden"));
+            let thisSelection = this.ensureSelection(k);
+            thisSelection.boxes.forEach(box => box.visible = false);
             let selection = this.model.content.selections[k];
-            let caret = this.ensureSelection(k).bar;
 
             if (selection.end === selection.start) {
-                caret.style.removeProperty("visibility");
+                let caret = thisSelection.bar;
+                caret.visible = true;
                 let caretRect = this.warota.barRect(selection);
-                caret.style.setProperty("left", caretRect.left + "px");
-                caret.style.setProperty("top", caretRect.top + "px");
-                caret.style.setProperty("width", caretRect.width + "px");
-                caret.style.setProperty("height", caretRect.height + "px");
-                caret.style.setProperty("background-color", selection.color);
-                caret.style.setProperty("opacity", k === this.viewId ? "0.5" : "0.25");
+                const geom = new THREE.PlaneBufferGeometry(caretRect.width * 0.01, caretRect.height * 0.01);
+                let old = caret.geometry;
+                caret.geometry = geom;
+                if (old) {
+                    old.dispose();
+                }
+
+                let width = this.plane.geometry.parameters.width;
+                let height = this.plane.geometry.parameters.height;
+
+                let left = (-width / 2) + (caretRect.left + 4) * 0.01; // ?
+                let top = (height / 2) - (caretRect.top + caretRect.height / 2) * 0.01;
+                caret.position.set(left, top, 0.003);
+                // caret.style.setProperty("opacity", k === this.viewId ? "0.5" : "0.25");
             } else {
+                /*
                 caret.style.setProperty("visibility", "hidden");
                 let rects = this.warota.selectionRects(selection);
                 for (let i = 0; i < 3; i++) {
@@ -751,6 +795,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
                         box.style.setProperty("visibility", "hidden");
                     }
                 }
+                */
             }
         }
         for (let k in unused) {
@@ -762,6 +807,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
     }
 
     scrollSelectionToView() {
+        /*
         let scrollTop = this.dom.scrollTop;
         let viewHeight = parseFloat(this.dom.style.getPropertyValue("height"));
         let selection = this.model.content.selections[this.viewId];
@@ -774,6 +820,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         } else if (caretRect.top < scrollTop) {
             this.dom.scrollTop = caretRect.top;
         }
+        */
     }
 
     addWidget(name, dom) {
