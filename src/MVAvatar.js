@@ -1,14 +1,15 @@
-import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeVisible, PM_ThreeCamera,
+import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeCamera,
          v3_transform, v3_add, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-
+import { PM_AvatarEvents } from './DEvents.js';
+import { D_CONSTANTS } from './DConstants.js';
+import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 export var myAvatar;
 export var isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
-export const MV ={POINTER:1, WALK:2, AVATAR:4}
 
 const eyeHeight = 1.7; // height of eyes above ground in meters
 const eyeEpsilon = 0.1; // don't replicate the change unless it is sufficiently large
@@ -19,7 +20,7 @@ function setupButton( bttn, dothis ){
     bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
     bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
 }
-
+// swith between walk and orbit
 setupButton(document.getElementById("orbitingBttn"), switchControl);
 setupButton(document.getElementById("walkingBttn"), switchControl);
 
@@ -50,17 +51,20 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
 
     goHome( there ){
         console.log("goHome:", there, this.translation, this.rotation);
-        this.set({translation: there[0], rotation: there[1]})
+        this.set({translation: there[0], rotation: there[1]});
+    }
+
+    /*
+    goThere(there){
        // this.moveTo(there[0]); 
        // this.rotateTo(there[1]);
-        /*
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
         console.log("start", this.vStart, this.qStart)
         this.vEnd = there[0];
         this.qEnd = there[1];
         this.goToStep(0.05);
-        */
+        
     }
 
     goToStep(t){
@@ -73,9 +77,10 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         //console.log(t, v, q);
         if(t<1)this.future(50).goToStep(t+0.05);
     }
+    */
 }
 
-export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisible, PM_ThreeCamera){
+export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEvents, PM_ThreeVisibleLayer, PM_ThreeCamera){
     constructor(...args) {
         super(...args);
         this.isAvatar = true;
@@ -89,6 +94,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
 
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
+            this.pointer3D = {};
             // create a dummy camera that will be moved by the OrbitControls
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
@@ -104,19 +110,10 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
 
             this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
             this.setControls(isWalking); // walking or orbiting?
-            this.subscribe("input", "pointerDown", this.pointerDown);
-            this.subscribe("input", "pointerUp", this.pointerUp);
-            this.subscribe("input", "pointerCancel", this.pointerCancel);
-            this.subscribe("input", "pointerMove", this.pointerMove);
-            this.subscribe("input", "wheel", this.thirdPerson);
-            this.pointercaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-            this.pointercaster.layers.set( MV.POINTER ); // only test against layer 1. Layer 2 is other players.
-
-
-            document.addEventListener('keypress', this.keyAction); // should use input but that is broken
+            this.setupEvents();
 
             this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-            this.raycaster.layers.set( MV.WALK ); // only test against layer 1. Layer 2 is other players.
+            //this.raycaster.layers.set( D_CONSTANTS.WALK_LAYER ); // only test against layer 1. Layer 2 is other players.
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
@@ -272,7 +269,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
         if( recurse < 0 )return false; // never found the ground
         this.raycaster.ray.origin.set( ...(move || this.translation));
         this.raycaster.far = maxDist;
-        const intersections = this.raycaster.intersectObjects( this.scene.children, true );
+        const intersections = this.raycaster.intersectObjects( this.scene.walkLayer.children, true );
         const onObject = intersections.length > 0;
         if(onObject){
             let dFront = intersections[0].distance;
@@ -356,9 +353,10 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
         }
     }
 
-    thirdPerson(data){        
+    // Overriding from DEvents.js
+    pointerWheel(wheel){        
         let z = this.lookOffset[2];
-        z += data/1000.0;
+        z += wheel/1000.0;
         z = Math.min(4, Math.max(z,0));
         this.lookOffset[1]=z/3;
         this.lookOffset[2]=z;
@@ -397,31 +395,5 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_ThreeVisi
     goHome(){ // in a callback, so use myAvatar
         console.log("goHome")
         myAvatar.say("goHome", [[0,0,0], [0,0,0,1]])
-    }
-
-    keyAction(e){
-        if('p'===e.key){
-        let pawnManager = myAvatar.service("PawnManager"); 
-        pawnManager.pawns.forEach(a => {
-            if( a.perlin ){a.say("showHide");}
-            });
-        }
-    }
-
-    pointerDown(e){
-
-        //console.log('vvvvvvvvvvvv');
-    }
-    pointerUp(e){
-
-        //console.log('^^^^^^^^^^^^^')
-    }
-    pointerMove(e){
-
-        //console.log('++++++++++++')
-    }
-    pointerCancel(e){
-
-        //console.log('xxxxxxxxxx')
     }
 }

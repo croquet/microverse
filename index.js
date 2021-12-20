@@ -12,11 +12,14 @@
 // Panel Controls
 
 import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
-         PM_ThreeVisible, ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
-import {AMVAvatar, PMVAvatar, MV} from './src/MVAvatar.js';
+         ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
+import { DLayerManager, PM_ThreeVisibleLayer } from './src/DLayerManager.js';
+import { AMVAvatar, PMVAvatar } from './src/MVAvatar.js';
+import { D_CONSTANTS } from './src/DConstants.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
-import {AM_PerlinNoise} from './src/PerlinMixin.js';
+import { AM_PerlinNoise } from './src/PerlinMixin.js';
+import { AM_EditCube } from './src/DEditCube.js';
 
 import JSZip from "jszip";
 
@@ -45,7 +48,7 @@ import skyDown from "./assets/sky/sh_dn.png";
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 console.log("%cJSZip.Version",  'color: #f00', JSZip.version);
 
-async function loadGLB(zip, file, scene, onComplete, position, scale, rotation, layer, singleSide){
+async function loadGLB(zip, file, group, onComplete, position, scale, rotation, singleSide){
     await fetch(zip)
     .then(res => res.blob())
     .then(blob => {
@@ -53,26 +56,25 @@ async function loadGLB(zip, file, scene, onComplete, position, scale, rotation, 
         jsz.loadAsync(blob, {createFolders: true}).then(function(zip){
             zip.file(file).async("ArrayBuffer").then(function(data) {
                 (new GLTFLoader()).parse( data, null, function (gltf) {  
-                    if(onComplete)onComplete(gltf, layer, singleSide);
-                    scene.add( gltf.scene );
-                    scene.updateMatrixWorld ( true );
+                    if(onComplete)onComplete(gltf, singleSide);
+                    group.add( gltf.scene );
+                    group.updateMatrixWorld ( true );
                     if(position)gltf.scene.position.set(...position);
                     if(scale)gltf.scene.scale.set(...scale);
                     if(rotation)gltf.scene.rotation.set(...rotation);
-                    scene.ready = true;
-                    return scene;
+                    group.ready = true;
+                    return group;
                 });
             })
         })
     })
 }
 
-function addShadows(obj3d, layer, singleSide) {
+function addShadows(obj3d, singleSide) {
     obj3d.scene.traverse( n => {
         if(n.material){
             if(singleSide)n.material.side = THREE.FrontSide; //only render front side
             n.material.format = THREE.RGBAFormat; // fixes a bug in GLTF import
-            n.layers.enable(layer); // use this for raycasting
             n.castShadow = true;
             n.receiveShadow = true;
         }
@@ -84,22 +86,22 @@ function addShadows(obj3d, layer, singleSide) {
 var i = 0;
 const avatars = []; for(i=0; i<12;i++) avatars[i]=new THREE.Group;
 i=0;
-loadGLB(a3, "3.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(a4, "4.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(a5, "5.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(a6, "6.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(a1, "1.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(a2, "2.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(a3, "3.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(a4, "4.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(a5, "5.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(a6, "6.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(a1, "1.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(a2, "2.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 
-loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(rabbit, "white.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
-loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], MV.AVATAR, true);
+loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(rabbit, "white.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 
 const plant = new THREE.Group();
-loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], MV.WALK, false);
+loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
 
 class AMAvatar extends AMVAvatar{
     init(options) {
@@ -122,7 +124,7 @@ class PMAvatar extends PMVAvatar {
         if(a.ready){
             a=this.avatar = a.clone();
             a.traverse( n => {if(n.material)n.material = n.material.clone();});
-            this.setRenderObject(a);        
+            this.setRenderObject(a, D_CONSTANTS.AVATAR_LAYER);  // note the extension 
         }else this.future(1000).setupAvatar(a);
     }
 }
@@ -138,19 +140,20 @@ class LevelActor extends mix(Actor).with(AM_Spatial) {
 
 LevelActor.register('LevelActor');
 
-class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
+class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
     constructor(...args) {
         super(...args);
         const scene = this.service("ThreeRenderManager").scene;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
-        scene.add(ambient);
+        scene.lightLayer.add(ambient);
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
         sun.position.set(-200, 800, 100);
         sun.castShadow = true;
         //Set up shadow properties for the light
+        
         sun.shadow.camera.near = 0.5; // default
         sun.shadow.camera.far = 1000; // default
         sun.shadow.mapSize.width = 2048;
@@ -162,18 +165,21 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         sun.shadow.camera.bottom = -side;
         sun.shadow.camera.left = side;
         sun.shadow.camera.right = -side;
-        scene.add(sun);
+        scene.lightLayer.add(sun);
 
         const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080840, 0.2);
-        scene.add(hemiLight);
+        scene.lightLayer.add(hemiLight);
 
         const renderer = this.service("ThreeRenderManager").renderer;
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
-        this.setRenderObject( plant )
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        this.setRenderObject( plant, D_CONSTANTS.WALK_LAYER );
         window.renderer = this.service("ThreeRenderManager");
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
+        AM_EditCube.register('AM_EditCube');
     }
 
     destroy() {
@@ -183,15 +189,17 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         this.hemiLight.dispose();
     }
 }
-
+/*
 class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise){
     get pawn() {return PerlinPawn}
     init(...args) {
-        this.visible = false;
+        this.visible = true;
         super.init(...args);
         this.initPerlin(); // call this before init. PerlinPawn requires this.
         this.future(1000).updatePerlin();
         this.listen("showHide", this.showHide);
+        this._translation = [0, -2.75, -10];
+        //this.group.rotation.y = Math.PI/2;
     }
 
     initPerlin(){
@@ -231,10 +239,9 @@ PerlinActor.register('PerlinActor');
 const maxHeight = 8;
 const barScale = 0.25;
 
-class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
+class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer){
     constructor(...args) {
         super(...args);
-        const scene = this.service("ThreeRenderManager").scene;
         this.listen("updatePerlin", this.updatePerlin);
         this.listen("showMe", this.showMe);
         this.isConstructed = false;
@@ -261,7 +268,6 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
 
     constructPerlin(){
         console.log("constructPerlin", this.actor, this.actor.rows, this.actor.columns);
-        const scene = this.service("ThreeRenderManager").scene;
         const data = this.actor.data;
         const r = this.actor.rows;
         const c = this.actor.columns;
@@ -278,9 +284,10 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         this.base.castShadow = true;
         this.base.receiveShadow = true;
         this.group.add(this.base);
-        this.group.position.set(0, -2.75, -10);
-        this.group.rotation.y = Math.PI/2;
-        scene.add(this.group);
+        //this.group.position.set(0, -2.75, -10);
+        //this.group.rotation.y = Math.PI/2;
+
+        this.setRenderObject( this.group, D_CONSTANTS.EVENT_LAYER );
         this.rowGeometry = [];
         for(let i=0; i<r; i++){
             let rGroup = new THREE.Group();
@@ -307,7 +314,6 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         let g= Math.sin(d*Math.PI); g=(g+1)/2.2;
         let r= Math.cos(d*Math.PI); r=Math.min(1, (r+1)/1.25);
 
-
         bar.material.color.setRGB(r, g, b);
         d=d*maxHeight;
         bar.position.set((j-rlength/2)*s, s*d/2, 0);
@@ -319,7 +325,7 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         this.perlinGroup.visible=visible;
     }
 }
-
+*/
 class MyPlayerManager extends PlayerManager {
     createPlayer(options) {
         options.index = this.count;
@@ -339,7 +345,9 @@ class MyModelRoot extends ModelRoot {
     init(...args) {
         super.init(...args);
         this.level = LevelActor.create();
-        this.perlin = PerlinActor.create();
+        //this.perlin = PerlinActor.create();
+        AM_EditCube.register('AM_EditCube');
+        this.editCube = AM_EditCube.create();
     }
 }
 
@@ -347,7 +355,7 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [InputManager, ThreeRenderManager];
+        return [InputManager, ThreeRenderManager, DLayerManager];
     }
 }
 
