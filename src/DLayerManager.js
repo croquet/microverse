@@ -96,7 +96,7 @@ export const PM_ThreeVisibleLayer = superclass => class extends superclass {
         this.renderObject.matrixAutoUpdate = false;
         this.renderObject.matrix.fromArray(this.global);
         this.renderObject.matrixWorldNeedsUpdate = true;
-        this.renderObject.userData = this; // used to find the Worldcore object from the 3D model
+        this.renderObject.userData = {target:this}; // used to find the Worldcore object from the 3D model
         if (render && render.scene){
             if(layer) render.scene.allLayers[layer].add(this.renderObject);
             else render.scene.add(this.renderObject);

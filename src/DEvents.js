@@ -1,14 +1,12 @@
 // Copyright 2022 by Croquet Corporation. All Rights Reserved.
 //
 // Collaborative event manager for PCs and Mobile.
-// Actor_Events and the Pawn_Events are designed to be used together to extend an 
-// event-based actor/pawn pair. 
+// Actor_Events and the Pawn_Events are designed to be used together to be 
+// mixedin in to an event-based actor/pawn pair. 
 //
 // The PM_AvatarEvents is used to generate events, usually by extending an avatar.
 
 import { RegisterMixin, THREE } from "@croquet/worldcore";
-
-import { D_CONSTANTS } from './DConstants.js';
 
 export const Actor_Events = superclass => class extends superclass {
     init(...args) {
@@ -124,6 +122,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
                 this.overTarget = null;
             }
             if(this.target){
+                console.log(this.target)
                 this.overTarget=this.target;
                 this.overTarget._pointerEnter(this._pointer3D);
             }
@@ -172,7 +171,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
     }
 
     getTarget( o3d ){ // find the Worldcore Pawn associated with this object.
-        if( o3d )return o3d.userData || this.getTarget( o3d.parent );
+        if( o3d )return o3d.userData.target || this.getTarget( o3d.parent );
         else return null;
     }
 }

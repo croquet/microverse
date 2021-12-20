@@ -19,7 +19,7 @@ import { D_CONSTANTS } from './src/DConstants.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 import { AM_PerlinNoise } from './src/PerlinMixin.js';
-import { AM_EditCube } from './src/DEditCube.js';
+import { AM_Card } from './src/DCard.js';
 
 import JSZip from "jszip";
 
@@ -177,7 +177,6 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
         this.setRenderObject( plant, D_CONSTANTS.WALK_LAYER );
         window.renderer = this.service("ThreeRenderManager");
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
-        AM_EditCube.register('AM_EditCube');
     }
 
     destroy() {
@@ -344,8 +343,7 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
         //this.perlin = PerlinActor.create();
-        AM_EditCube.register('AM_EditCube');
-        this.editCube = AM_EditCube.create();
+        this.editCard = AM_Card.create();
     }
 }
 
