@@ -1,7 +1,7 @@
 // Copyright 2022 by Croquet Corporation. All Rights Reserved.
 // Collaboratve Card
 
-import { Actor_Events, Pawn_Events } from './DEvents.js';
+import { AM_Events, PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, viewRoot} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D_CONSTANTS } from './DConstants.js';
@@ -11,8 +11,8 @@ const OverColor = 0xffff77;   // yellow
 const DownColor = 0x88ff88; // green
 const NoColor =0x000000; // black
 
-export class AM_Card extends mix(Actor).with(AM_Spatial, Actor_Events){
-    get pawn() {return PM_Card}
+export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
+    get pawn() {return Pawn_Card}
     init(...args) {
         this.visible = true;
         super.init(...args);
@@ -52,9 +52,9 @@ export class AM_Card extends mix(Actor).with(AM_Spatial, Actor_Events){
     showHide(){}
 }
 
-AM_Card.register('AM_Card');
+Actor_Card.register('Actor_Card');
 
-class PM_Card extends mix(Pawn).with(PM_Spatial, Pawn_Events, PM_ThreeVisibleLayer, ){
+class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
     constructor(...args) {
         super(...args);
         this.constructCardBase();
@@ -84,7 +84,9 @@ class PM_Card extends mix(Pawn).with(PM_Spatial, Pawn_Events, PM_ThreeVisibleLay
     doPointerMove(p3d){}
     doPointerUp(p3d){this.hilite(NoColor)}
     doPointerCancel(p3d){}
-    doPointerEnter(p3d){this.hilite(OverColor)}
+    doPointerEnter(p3d){
+        this.hilite(OverColor);
+    }
     doPointerOver(p3d){}
     doPointerLeave(p3d){this.hilite(NoColor)}
     doPointerWheel(p3d){

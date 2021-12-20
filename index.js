@@ -19,7 +19,7 @@ import { D_CONSTANTS } from './src/DConstants.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 import { AM_PerlinNoise } from './src/PerlinMixin.js';
-import { AM_Card } from './src/DCard.js';
+import { Actor_Card } from './src/DCard.js';
 
 import JSZip from "jszip";
 
@@ -343,7 +343,7 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
         //this.perlin = PerlinActor.create();
-        this.editCard = AM_Card.create();
+        this.editCard = Actor_Card.create();
     }
 }
 

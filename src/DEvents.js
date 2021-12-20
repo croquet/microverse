@@ -8,7 +8,7 @@
 
 import { RegisterMixin, THREE } from "@croquet/worldcore";
 
-export const Actor_Events = superclass => class extends superclass {
+export const AM_Events = superclass => class extends superclass {
     init(...args) {
         super.init(...args);
         this.listen("_PointerDown", this.onPointerDown);
@@ -31,9 +31,9 @@ export const Actor_Events = superclass => class extends superclass {
     onPointerLeave(p3d){}
     onPointerWheel(e){}
 }
-RegisterMixin(Actor_Events);
+RegisterMixin(AM_Events);
 
-export const Pawn_Events = superclass => class extends superclass {
+export const PM_Events = superclass => class extends superclass {
     constructor(...args) {
         super(...args);
         console.log("P_Events !!!!!!", this.isMyPlayerPawn)
