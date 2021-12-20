@@ -1,14 +1,14 @@
 import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_ThreeVisible, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 
-import { Actor_Events, Pawn_Events } from '../DEvents.js';
+import { AM_Events, PM_Events } from '../DEvents.js';
 import { PM_ThreeVisibleLayer } from '../DLayerManager.js';
 import { D_CONSTANTS } from '../DConstants.js';
 
 import loadFont from "load-bmfont";
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
-export class TextFieldActor extends mix(Actor).with(AM_Spatial, Actor_Events) {
+export class TextFieldActor extends mix(Actor).with(AM_Spatial, AM_Events) {
     init(...args) {
         this.doc = new Doc();
         this.doc.load([]);
@@ -142,7 +142,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial, Actor_Events) {
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer, PM_Dynamic, Pawn_Events) {
+export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer, PM_Dynamic, PM_Events) {
     constructor(model) {
         super(model);
         this.model = model;
