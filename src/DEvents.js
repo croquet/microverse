@@ -122,7 +122,6 @@ export const PM_AvatarEvents = superclass => class extends superclass {
                 this.overTarget = null;
             }
             if(this.target){
-                console.log(this.target)
                 this.overTarget=this.target;
                 this.overTarget._pointerEnter(this._pointer3D);
             }
@@ -156,13 +155,18 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         const intersects = this._pointercaster.intersectObjects( this.scene.eventLayer.children, true );
         if( intersects.length>0){
            // console.log(intersects[0])
-            this.target = this.getTarget(intersects[0].object);
+            let idata = intersects[0];
+            this.target = this.getTarget(idata.object);
             if(this.target){
                 this._pointer3D.e = e; // keep the original event
                 this._pointer3D.playerId = this.actor.playerId;
                 this._pointer3D.rotation = this.actor.rotation;
                 this._pointer3D.translation = this.actor.translation;
                 this._pointer3D.button = e.button;
+                this._pointer3D.distance = idata.distance;
+                this._pointer3D.point = idata.point.toArray();
+                this._pointer3D.uv = idata.uv.toArray();
+
                 //console.log(this._pointer3D);
                 return true;
             }
