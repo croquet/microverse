@@ -20,6 +20,7 @@ export const Actor_Events = superclass => class extends superclass {
         this.listen("_PointerEnter", this.onPointerEnter);
         this.listen("_PointerOver", this.onPointerOver);
         this.listen("_PointerLeave", this.onPointerLeave);
+        this.listen("_PointerWheel", this.onPointerWheel);
     }
 
     // extended class has responsibility to redefine these functions.
@@ -30,6 +31,7 @@ export const Actor_Events = superclass => class extends superclass {
     onPointerEnter(p3d){}
     onPointerOver(p3d){}
     onPointerLeave(p3d){}
+    onPointerWheel(e){}
 }
 RegisterMixin(Actor_Events);
 
@@ -41,7 +43,7 @@ export const Pawn_Events = superclass => class extends superclass {
         if(this.isMyPlayerPawn) this.setupEvents();
         this.xy = {x:0, y:0}; // reuse this
     }
-
+    // the pawn can override these functions if it needs it executed immediately
     _pointerDown(p3d){this.say("_PointerDown", p3d)}
     _pointerUp(p3d){this.say("_PointerUp", p3d)}
     _pointerMove(p3d){this.say("_PointerMove", p3d)}
@@ -49,7 +51,7 @@ export const Pawn_Events = superclass => class extends superclass {
     _pointerEnter(p3d){this.say("_PointerEnter", p3d)}
     _pointerOver(p3d){this.say("_PointerOver", p3d)}
     _pointerLeave(p3d){this.say("_PointerLeave", p3d)}
-    _pointWheel(p3d){this.say("_PointerWheel", p3d);}
+    _pointerWheel(p3d){this.say("_PointerWheel", p3d);}
 
     makePlane(pEvt, useNorm) {
         // worldDirection is an optional direction vector if you don't want to
@@ -139,13 +141,18 @@ export const PM_AvatarEvents = superclass => class extends superclass {
     }
 
     _pointerWheel(e){
-        if(this.iPointerWheel)this.iPointerWheel(e);
+        this._updatePointer(this.lastE);
+        if(this.target){
+            this._pointer3D.wheel = e;
+            this.target._pointerWheel(this._pointer3D);
+            this._pointer3D.wheel = undefined; // clear it 
+        }else if(this.iPointerWheel)this.iPointerWheel(e); // avatar can use it
     }
 
     _updatePointer(e){
+        this.lastE=e;
         this.xy.x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         this.xy.y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-
         this._pointercaster.setFromCamera( this.xy, this.camera );
         const intersects = this._pointercaster.intersectObjects( this.scene.eventLayer.children, true );
         if( intersects.length>0){

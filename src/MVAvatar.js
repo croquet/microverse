@@ -352,8 +352,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
         }
     }
 
-    // Overriding from DEvents.js
-    pointerWheel(wheel){        
+    // from DEvents.js
+    iPointerWheel(wheel){        
         let z = this.lookOffset[2];
         z += wheel/1000.0;
         z = Math.min(4, Math.max(z,0));

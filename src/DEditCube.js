@@ -40,6 +40,15 @@ export class AM_EditCube extends mix(Actor).with(AM_Spatial, Actor_Events){
     onPointerLeave(p3d){
         this.say("doPointerLeave", p3d);
     }    
+    onPointerWheel(p3d){
+        let s = this.scale;
+        let w = p3d.wheel < 0?-0.1:0.1;
+        if(s[0]+w >0.3){
+            this._scale = [s[0]+w, s[1]+w, s[2]+w];
+            this.scaleChanged();
+        }
+        //this.say("doPointerWheel", p3d);
+    }
     showHide(){}
 }
 
@@ -56,6 +65,7 @@ class PM_EditCube extends mix(Pawn).with(PM_Spatial, Pawn_Events, PM_ThreeVisibl
         this.listen("doPointerEnter", this.doPointerEnter);
         this.listen("doPointerOver", this.doPointerOver);
         this.listen("doPointerLeave", this.doPointerLeave);
+        this.listen("doPointerWheel", this.doPointerWheel);
     }
 
     constructCube()
@@ -63,6 +73,8 @@ class PM_EditCube extends mix(Pawn).with(PM_Spatial, Pawn_Events, PM_ThreeVisibl
        // this.color = new THREE.Color();
         this.cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1, 2, 2, 2),
             new THREE.MeshStandardMaterial({color: CubeColor}));
+        console.log(this.actor)
+        //this.cube.position.set()
         this.setRenderObject( this.cube, D_CONSTANTS.EVENT_LAYER );
     }
 
@@ -73,7 +85,16 @@ class PM_EditCube extends mix(Pawn).with(PM_Spatial, Pawn_Events, PM_ThreeVisibl
     doPointerEnter(p3d){this.hilite(OverColor)}
     doPointerOver(p3d){}
     doPointerLeave(p3d){this.hilite(NoColor)}
-
+    doPointerWheel(p3d){
+/*        let s = this.cube.scale;
+        let w = p3d.wheel < 0?-0.1:0.1;
+        console.log(s)
+        if(s.x+w >0.2){
+            this.cube.scale.set(s.x+w, s.y+w, s.z+w);
+            this.cube.updateMatrix();
+        }
+        */
+    }
     hilite(color) { 
         this.cube.material.emissive = new THREE.Color(color);
     }
