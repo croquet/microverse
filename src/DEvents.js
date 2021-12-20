@@ -74,9 +74,7 @@ export const PM_Events = superclass => class extends superclass {
 export const PM_AvatarEvents = superclass => class extends superclass {
     constructor(...args) {
         super(...args);
-        if(this.isMyPlayerPawn) {
-            this.setupEvents();
-        }
+        if(this.isMyPlayerPawn) this.setupEvents();
     }
 
     // Event Management 
