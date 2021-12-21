@@ -109,7 +109,6 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
 
             this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
             this.setControls(isWalking); // walking or orbiting?
-            this.setupEvents();
 
             this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
             //this.raycaster.layers.set( D_CONSTANTS.WALK_LAYER ); // only test against layer 1. Layer 2 is other players.
@@ -191,8 +190,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
         this.walkCamera.updateMatrixWorld();
         this.orbitControls.target = this.walkCamera.position;
         this.orbitControls.update();
-        if(isWalking) this.tween(this.orbitCamera, this.walkCamera, ()=> input.addAllListeners());
-        else  this.tween(this.walkCamera, this.orbitCamera, ()=>input.removeAllListeners());
+        if(isWalking) this.tween(this.orbitCamera, this.walkCamera); //, ()=> input.addAllListeners());
+        else  this.tween(this.walkCamera, this.orbitCamera); //, ()=>input.removeAllListeners());
     }
 
     // This tween is only on the view side because we are transitioning between two cameras.
