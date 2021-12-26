@@ -5,6 +5,13 @@
 // mixedin in to an event-based actor/pawn pair. 
 //
 // The PM_AvatarEvents is used to generate events, usually by extending an avatar.
+//
+// TO DO:
+// Need a way to minimize messages. Only replicate events if the model/view actually need it.
+// Time out if a user is in the middle of some event sequence and drops out. 
+// - PointerDown - send PointerCancel instead of PointerUp.
+// - PointerEnter/PointerOver - send PointerLeave.
+// - KeyDown - send KeyCancel instead of KeyUp.
 
 import { RegisterMixin, THREE } from "@croquet/worldcore";
 
@@ -19,6 +26,8 @@ export const AM_Events = superclass => class extends superclass {
         this.listen("_PointerOver", this.onPointerOver);
         this.listen("_PointerLeave", this.onPointerLeave);
         this.listen("_PointerWheel", this.onPointerWheel);
+        this.listen("_KeyDown", this.onKeyDown);
+        this.listen("_KeyUp", this.onKeyUp);
     }
 
     // extended class has responsibility to redefine these functions.
@@ -30,47 +39,32 @@ export const AM_Events = superclass => class extends superclass {
     onPointerOver(p3d){}
     onPointerLeave(p3d){}
     onPointerWheel(e){}
+    onKeyDown(e){}
+    onKeyUp(e){}
 }
 RegisterMixin(AM_Events);
 
 export const PM_Events = superclass => class extends superclass {
     // the pawn can override these functions if it needs it executed immediately
-    _pointerDown(p3d){this.say("_PointerDown", p3d)}
-    _pointerUp(p3d){this.say("_PointerUp", p3d)}
-    _pointerMove(p3d){this.say("_PointerMove", p3d)}
-    _pointerCancel(p3d){this.say("_PointerCancel", p3d)}
-    _pointerEnter(p3d){this.say("_PointerEnter", p3d)}
-    _pointerOver(p3d){this.say("_PointerOver", p3d)}
-    _pointerLeave(p3d){this.say("_PointerLeave", p3d)}
-    _pointerWheel(p3d){this.say("_PointerWheel", p3d);}
-
-    makePlane(pEvt, useNorm) {
-        // worldDirection is an optional direction vector if you don't want to
-        // use the objects world direction
-        let pos = new THREE.Vector3(), norm = new THREE.Vector3();
-        pos.copy(pEvt.point);
-        //this.object3D.worldToLocal(vec0);
-        //let offset = vec0.z;
-        if (useNorm && pEvt.face && pEvt.face.normal) {
-          norm.copy(pEvt.face.normal);
-          let normalMatrix = new THREE.Matrix3().getNormalMatrix( this.object3D.matrixWorld );
-          norm.applyMatrix3( normalMatrix ).normalize();
-        }
-        else this.object3D.getWorldDirection(norm);
-        let offset = norm.dot(pos); // direction dotted with position in world coords
-        this.plane = new THREE.Plane(norm, -offset);
-    }
-
-    trackPlane(pEvt, vec) {
-        if (this.plane) {
-            let vec0 = vec || new THREE.Vector3();
-            pEvt.ray3D.ray.intersectPlane(this.plane, vec0);
-            return vec0;
-        }
-        return null;
-    }
+    wantsPointerEvents(){return true; }
+    wantsKeyEvents(){return true; }
+    _pointerDown(p3d){ this.say("_PointerDown", p3d) }
+    _pointerUp(p3d){ this.say("_PointerUp", p3d) }
+    _pointerMove(p3d){ this.say("_PointerMove", p3d) }
+    _pointerCancel(p3d){ this.say("_PointerCancel", p3d) }
+    _pointerEnter(p3d){ this.say("_PointerEnter", p3d) }
+    _pointerOver(p3d){ this.say("_PointerOver", p3d) }
+    _pointerLeave(p3d){ this.say("_PointerLeave", p3d) }
+    _pointerWheel(p3d){ this.say("_PointerWheel", p3d); }
+    _keyDown(e){ this.say("_KeyDown", e); }
+    _keyUp(e){ this.say("_KeyUp", e); }
+    handlesKeyEvents(){return true; }
 }
 
+//-----------------------------------------------------------------------------------
+// PM_AvatarEvents
+// Mixin to the avatar to add event management
+//
 export const PM_AvatarEvents = superclass => class extends superclass {
     constructor(...args) {
         super(...args);
@@ -84,6 +78,8 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         this.subscribe("input", "pointerCancel", this._pointerCancel);
         this.subscribe("input", "pointerMove", this._pointerMove);
         this.subscribe("input", "wheel", this._pointerWheel);
+        this.subscribe("input", "keyDown", this._keyDown);
+        this.subscribe("input", "keyUp", this._keyUp);
         this._pointercaster = new THREE.Raycaster();
         this.xy = {x:0, y:0}; // reuse this
         this._pointer3D = {};
@@ -96,6 +92,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             if(this.overTarget)this.overTarget._pointerLeave();
             this.overTarget = null;
             this.downTarget._pointerDown(this._pointer3D);
+            if(this.downTarget.handlesKeyEvents()){this.focusTarget = this.downTarget; }
         }
         this.target = null;
     }
@@ -138,6 +135,16 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             this.target._pointerWheel(this._pointer3D);
             this._pointer3D.wheel = undefined; // clear it 
         }else if(this.iPointerWheel)this.iPointerWheel(e); // avatar can use it
+    }
+
+    _keyDown(e){
+        console.log(e)
+        if(this.focusTarget)this.focusTarget._keyDown(e);
+    }
+
+    _keyUp(e){
+        console.log(e)
+        if(this.focusTarget)this.focusTarget._keyUp(e);
     }
 
     _updatePointer(e){
