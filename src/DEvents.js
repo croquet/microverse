@@ -4,7 +4,6 @@
 // Actor_Events and the Pawn_Events are designed to be used together to be 
 // mixedin in to an event-based actor/pawn pair. 
 //
-// The PM_AvatarEvents is used to generate events, usually by extending an avatar.
 //
 // TO DO:
 // Need a way to minimize messages. Only replicate events if the model/view actually need it.
@@ -47,6 +46,7 @@ RegisterMixin(AM_Events);
 export const PM_Events = superclass => class extends superclass {
     // the pawn can override these functions if it needs it executed immediately
     wantsPointerEvents(){return true; }
+    wantsPointerOverEvents(){return true; }
     wantsKeyEvents(){return true; }
     _pointerDown(p3d){ this.say("_PointerDown", p3d) }
     _pointerUp(p3d){ this.say("_PointerUp", p3d) }
@@ -83,21 +83,23 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         this._pointercaster = new THREE.Raycaster();
         this.xy = {x:0, y:0}; // reuse this
         this._pointer3D = {};
+        this._ray3D = {};
         //document.addEventListener('keypress', this._keyAction); // should use input but that is broken
     }
 
     _pointerDown(e){
         if(this._updatePointer(e)){
             this.downTarget = this.target;
-            if(this.overTarget)this.overTarget._pointerLeave();
+            if(this.overTarget)this.overTarget._pointerLeave(this._pointer3D);
             this.overTarget = null;
             this.downTarget._pointerDown(this._pointer3D);
             if(this.downTarget.handlesKeyEvents()){this.focusTarget = this.downTarget; }
         }
-        this.target = null;
     }
     _pointerUp(e){
         if(this.downTarget){
+            this._updatePointer(e); // we need to know if the pointerUp occurred ON the object
+            this._pointer3D.sameTarget = this.downTarget === this.target; // pointerUp on target?
             this.downTarget._pointerUp(this._pointer3D);
             this.downTarget = null;
         }
@@ -105,10 +107,13 @@ export const PM_AvatarEvents = superclass => class extends superclass {
     }
     _pointerMove(e){
         this._updatePointer(e);
-        if(this.downTarget){this.downTarget._pointerMove(this._pointer3D)}
+        if(this.downTarget){
+            this._pointer3D.sameTarget = this.downTarget === this.target;
+            this.downTarget._pointerMove(this._pointer3D);
+        }
         else if(this.overTarget !== this.target){
             if(this.overTarget){
-                this.overTarget._pointerLeave();
+                this.overTarget._pointerLeave(this._pointer3D);
                 this.overTarget = null;
             }
             if(this.target){
@@ -118,14 +123,12 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         }else if(this.overTarget){
             this.overTarget._pointerOver(this._pointer3D);
         }
-        this.target = null;
     }
     _pointerCancel(e){ // if the user gets locked up for some period or leaves with a pointer state
         if(this.downTarget) this.downTarget._pointerCancel();
         this.downTarget = null;
         if(this.overTarget) this.overTarget._pointerLeave();
         this.overTarget = null;
-        this.target = null;
     }
 
     _pointerWheel(e){
@@ -138,17 +141,16 @@ export const PM_AvatarEvents = superclass => class extends superclass {
     }
 
     _keyDown(e){
-        console.log(e)
         if(this.focusTarget)this.focusTarget._keyDown(e);
     }
 
     _keyUp(e){
-        console.log(e)
         if(this.focusTarget)this.focusTarget._keyUp(e);
     }
 
     _updatePointer(e){
         this.lastE=e;
+        this.target = null;
         this.xy.x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         this.xy.y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
         this._pointercaster.setFromCamera( this.xy, this.camera );
@@ -159,18 +161,20 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             this.target = this.getTarget(idata.object);
             if(this.target){
                 this._pointer3D.e = e; // keep the original event
+                // avatar info
                 this._pointer3D.playerId = this.actor.playerId;
                 this._pointer3D.rotation = this.actor.rotation;
-                this._pointer3D.translation = this.actor.translation;
-                this._pointer3D.button = e.button;
-                this._pointer3D.distance = idata.distance;
-                this._pointer3D.point = idata.point.toArray();
-                this._pointer3D.uv = idata.uv.toArray();
-
-                //console.log(this._pointer3D);
+                this._pointer3D.translation = this.actor.translation; 
+                this._pointer3D.button = e.button; // which button is pressed
+                this._pointer3D.distance = idata.distance; // how far away are we from the avatar start
+                this._pointer3D.point = idata.point.toArray(); // where on the target are we selecting?
+                this._pointer3D.uv = idata.uv.toArray(); // where on the 2D face of the target are we selecting?
+                this._pointer3D.rayDirection = this._pointercaster.ray.direction.toArray(); 
                 return true;
             }
-        } 
+        } else { //update the pointer - we will use this to update the avatar in some way
+            this._ray3D.direction = this._pointercaster.ray.direction.toArray();
+        }
         return false; // nothing to see here...
     }
 
