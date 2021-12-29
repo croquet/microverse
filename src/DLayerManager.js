@@ -22,7 +22,7 @@
 // An object could then be in multiple arrays.
 
 import { ViewService } from "@croquet/worldcore-kernel";
-import { D_CONSTANTS } from './DConstants.js';
+import { D } from './DConstants.js';
 import { THREE } from "@croquet/worldcore";
 //------------------------------------------------------------------------------------------
 //-- DLayerManager --------------------------------------------------------------------
@@ -34,10 +34,10 @@ export class DLayerManager extends ViewService {
     constructor(options = {}, name) {
         super(name || "DLayerManager");
         this.groupLayers = [];
-        this.groupLayers[D_CONSTANTS.LIGHT_LAYER] = new THREE.Group();
-        this.groupLayers[D_CONSTANTS.EVENT_LAYER] = new THREE.Group();
-        this.groupLayers[D_CONSTANTS.WALK_LAYER] = new THREE.Group();
-        this.groupLayers[D_CONSTANTS.AVATAR_LAYER] = new THREE.Group();
+        this.groupLayers[D.LIGHT] = new THREE.Group();
+        this.groupLayers[D.EVENT] = new THREE.Group();
+        this.groupLayers[D.WALK] = new THREE.Group();
+        this.groupLayers[D.AVATAR] = new THREE.Group();
         
         const scene = this.service("ThreeRenderManager").scene;
         
@@ -58,10 +58,10 @@ export class DLayerManager extends ViewService {
 
     update(){}
     get allLayers(){ return this.groupLayers; }
-    get lightLayer(){ return this.groupLayers[D_CONSTANTS.LIGHT_LAYER] }
-    get eventLayer(){ return this.groupLayers[D_CONSTANTS.EVENT_LAYER] }
-    get walkLayer(){ return this.groupLayers[D_CONSTANTS.WALK_LAYER] }
-    get avatarLayer(){ return this.groupLayers[D_CONSTANTS.AVATAR_LAYER] }
+    get lightLayer(){ return this.groupLayers[D.LIGHT] }
+    get eventLayer(){ return this.groupLayers[D.EVENT] }
+    get walkLayer(){ return this.groupLayers[D.WALK] }
+    get avatarLayer(){ return this.groupLayers[D.AVATAR] }
 
 }
 
@@ -89,16 +89,16 @@ export const PM_ThreeVisibleLayer = superclass => class extends superclass {
         }
     }
 
-    setRenderObject(renderObject, layer) {
+    setRenderObject(renderObject) {
+
         const render = this.service("ThreeRenderManager");
-        this.layer = layer;
         this.renderObject = renderObject;
         this.renderObject.matrixAutoUpdate = false;
         this.renderObject.matrix.fromArray(this.global);
         this.renderObject.matrixWorldNeedsUpdate = true;
         this.renderObject.userData = {target:this}; // used to find the Worldcore object from the 3D model
         if (render && render.scene){
-            if(layer) render.scene.allLayers[layer].add(this.renderObject);
+            if(this.layer) render.scene.allLayers[this.layer].add(this.renderObject);
             else render.scene.add(this.renderObject);
         }
     }

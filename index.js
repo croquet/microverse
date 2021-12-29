@@ -15,7 +15,7 @@ import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, Inpu
          ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
 import { DLayerManager, PM_ThreeVisibleLayer } from './src/DLayerManager.js';
 import { AMVAvatar, PMVAvatar } from './src/MVAvatar.js';
-import { D_CONSTANTS } from './src/DConstants.js';
+import { D } from './src/DConstants.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 import { AM_PerlinNoise } from './src/PerlinMixin.js';
@@ -124,7 +124,8 @@ class PMAvatar extends PMVAvatar {
         if(a.ready){
             a=this.avatar = a.clone();
             a.traverse( n => {if(n.material)n.material = n.material.clone();});
-            this.setRenderObject(a, D_CONSTANTS.AVATAR_LAYER);  // note the extension 
+            this.layer = D.AVATAR;
+            this.setRenderObject(a);  // note the extension 
         }else this.future(1000).setupAvatar(a);
     }
 }
@@ -133,8 +134,6 @@ class LevelActor extends mix(Actor).with(AM_Spatial) {
     get pawn() {return LevelPawn}
     init(...args) {
         super.init(...args);
-        this.popup = TextPopupActor.create();
-        this.popup.set({translation: [-5, 0, -5]});
     }
 }
 
@@ -174,7 +173,8 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
-        this.setRenderObject( plant, D_CONSTANTS.WALK_LAYER );
+        plant.layer = D.WALK;
+        this.setRenderObject( plant );
         window.renderer = this.service("ThreeRenderManager");
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
@@ -283,8 +283,8 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer){
         this.group.add(this.base);
         //this.group.position.set(0, -2.75, -10);
         //this.group.rotation.y = Math.PI/2;
-
-        this.setRenderObject( this.group, D_CONSTANTS.EVENT_LAYER );
+        this.layer = D.EVENT;
+        this.setRenderObject( this.group );
         this.rowGeometry = [];
         for(let i=0; i<r; i++){
             let rGroup = new THREE.Group();
@@ -344,6 +344,8 @@ class MyModelRoot extends ModelRoot {
         this.level = LevelActor.create();
         //this.perlin = PerlinActor.create();
         this.editCard = Actor_Card.create();
+        this.popup = TextPopupActor.create();
+        this.popup.set({translation: [-5, 0, -5]});
     }
 }
 

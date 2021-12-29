@@ -4,7 +4,7 @@
 import { AM_Events, PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, viewRoot} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
-import { D_CONSTANTS } from './DConstants.js';
+import { D } from './DConstants.js';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0xffff77;   // yellow
@@ -136,7 +136,8 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.cardBase.castShadow = true;
         this.cardBase.recieveShadow = true;
         this.cardGroup.add(this.cardBase);
-        this.setRenderObject( this.cardGroup, D_CONSTANTS.EVENT_LAYER );
+        this.layer = D.EVENT;
+        this.setRenderObject( this.cardGroup );
     }
 
     doPointerDown(p3d){ this.hilite(DownColor)}

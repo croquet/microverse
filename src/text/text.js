@@ -3,7 +3,7 @@ import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} 
 
 import { AM_Events, PM_Events } from '../DEvents.js';
 import { PM_ThreeVisibleLayer } from '../DLayerManager.js';
-import { D_CONSTANTS } from '../DConstants.js';
+import { D } from '../DConstants.js';
 
 import loadFont from "load-bmfont";
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
@@ -342,8 +342,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.geometry = new THREE.PlaneGeometry(0, 0);
         this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
-
-        this.setRenderObject(this.plane, D_CONSTANTS.EVENT_LAYER);
+        this.layer = D.EVENT;
+        this.setRenderObject(this.plane);
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
