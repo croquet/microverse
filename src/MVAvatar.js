@@ -5,7 +5,7 @@ import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeC
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { PM_AvatarEvents } from './DEvents.js';
-import { D_CONSTANTS } from './DConstants.js';
+import { D } from './DConstants.js';
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 export var myAvatar;
 export var isWalking = false; // switchControl() will make it true
@@ -111,7 +111,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
             this.setControls(isWalking); // walking or orbiting?
 
             this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-            //this.raycaster.layers.set( D_CONSTANTS.WALK_LAYER ); // only test against layer 1. Layer 2 is other players.
+            //this.raycaster.layers.set( D.WALK ); // only test against layer 1. Layer 2 is other players.
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 

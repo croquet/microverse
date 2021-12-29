@@ -173,8 +173,9 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
-        plant.layer = D.WALK;
+        this.layer = D.WALK;
         this.setRenderObject( plant );
+        console.log(scene.allLayers)
         window.renderer = this.service("ThreeRenderManager");
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }

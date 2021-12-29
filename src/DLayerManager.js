@@ -90,7 +90,6 @@ export const PM_ThreeVisibleLayer = superclass => class extends superclass {
     }
 
     setRenderObject(renderObject) {
-
         const render = this.service("ThreeRenderManager");
         this.renderObject = renderObject;
         this.renderObject.matrixAutoUpdate = false;
