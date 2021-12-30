@@ -103,7 +103,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             this.downTarget._pointerUp(this._pointer3D);
             this.downTarget = null;
         }
-        this._pointerMove(e); // check for pointerOver
+        //this._pointerMove(e); // check for pointerOver
     }
     _pointerMove(e){
         this._updatePointer(e);

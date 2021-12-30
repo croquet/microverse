@@ -1,27 +1,52 @@
 // Copyright 2022 by Croquet Corporation. All Rights Reserved.
-// Collaboratve Card
-
+// Collaborative Card
+import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { AM_Events, PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, viewRoot} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
-
+import { myAvatar } from './MVAvatar.js'
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0xffff77;   // yellow
 const DownColor = 0x88ff88; // green
 const NoColor =0x000000; // black
+
 const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
+
 export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
     get pawn() {return Pawn_Card}
     init(...args) {
         this.visible = true;
         super.init(...args);
-        this._translation = [0, 2, -10];
+        //this._translation = args;
         // managing multiple users
         this._downUsers = new Map(); 
         this._overUsers = new Map();
+        this.listen("pawnExists", this.finalize);
         this.future(1000).timeOutEvent();
+    }
+
+    //get shape(){return this._shape || "rectangle"}
+    //get scale(){return this._scale || [1,1,1]}
+    //get color(){return this._color || [1,1,1]}
+    //get depth(){return this._depth || 0 }
+
+    finalize(){ if(this._cardInstall)this.say("addToWorld");}
+
+    get parent() { return this._parent; }
+
+    addCard(c) {
+        let cardId = c.id?c.id:c;
+        if (!this.children) this.children = new Set();
+        this.children.add(cardId);
+        this.say("addChild", cardId);
+    }
+
+    removeCard(c) { 
+        let cardId = c.id?c.id:c;
+        if (this.children) this.children.delete(cardId);
+        this.say("removeChild", cardId);
     }
 
     // check if user hasn't moved if pointer is down or over
@@ -31,14 +56,14 @@ export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
         let userId;
         if(this._downUsers.size>0){
             userId = this._downUsers.keys().next().value;
-            if(n-this._downUsers.get(userId)>5000){
+            if(n-this._downUsers.get(userId)>timeOutDown){
                 this._downUsers.delete(userId);
                 this.onPointerDownCancel()
             }
         }
         if(this._overUsers.size>0){
             userId = this._overUsers.keys().next().value;
-            if(n-this._overUsers.get(userId)>10000){
+            if(n-this._overUsers.get(userId)>timeOutOver){
                 this._overUsers.delete(userId);
                 this.onPointerOverCancel()
             }   
@@ -114,8 +139,8 @@ Actor_Card.register('Actor_Card');
 class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
     constructor(...args) {
         super(...args);
-        this.constructCardBase();
-    //    this.constructOutline();
+        console.log(args);
+        this.constructCard();
         this.listen("doPointerDown", this.doPointerDown);
         this.listen("doPointerMove", this.doPointerMove)
         this.listen("doPointerUp", this.doPointerUp);
@@ -125,23 +150,41 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.listen("doPointerLeave", this.doPointerLeave);
         this.listen("doPointerOverCancel", this.doPointerLeave);
         this.listen("doPointerWheel", this.doPointerWheel);
+        this.listen("addCard", this.addCard);
+        this.listen("removeCard", this.removeCard);
+        this.listen("addToWorld", this.addToWorld);
+        this.say("pawnExists");
     }
 
-    constructCardBase()
+
+    constructCard()
     {
        // this.color = new THREE.Color();
-        this.cardGroup = new THREE.Group();
-        this.cardBase = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.1, 2, 2, 1),
+        this.card3D = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.1, 2, 2, 1),
             new THREE.MeshStandardMaterial({color: CardColor}));
-        this.cardBase.castShadow = true;
-        this.cardBase.recieveShadow = true;
-        this.cardGroup.add(this.cardBase);
+        this.card3D.castShadow = true;
+        this.card3D.recieveShadow = true;
+        this.cardSphere = new THREE.Mesh(new THREE.SphereGeometry(0.1,32,16), 
+            new THREE.MeshStandardMaterial({color: CardColor}));
+        this.cardSphere.position.z = 0.15;
+        this.card3D.add(this.cardSphere);
         this.layer = D.EVENT;
-        this.setRenderObject( this.cardGroup );
+    //    this.addToWorld();
     }
 
+    addCard(){}
+    removeCard(){}
+    addToWorld(){
+        // this part is to place in the scene
+        this.cardHolder = new THREE.Group();
+        this.cardHolder.add(this.card3D);
+        this.setRenderObject( this.cardHolder );
+    }s
+
     doPointerDown(p3d){ this.hilite(DownColor)}
+
     doPointerMove(p3d){}
+    
     doPointerUp(p3d){
         if(p3d && p3d.sameTarget)console.log("Do something");
         else console.log("Don't do anything");
@@ -149,7 +192,8 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
     }
     doPointerCancel(p3d){}
     doPointerEnter(p3d){
-
+        if(myAvatar.actor.playerId === p3d.playerId)
+            this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
         this.hilite(OverColor);
     }
     doPointerOver(p3d){}
@@ -158,10 +202,44 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
 
     }
     hilite(color) { 
-        this.cardBase.material.emissive = new THREE.Color(color);
+        this.card3D.material.emissive = new THREE.Color(color);
+    }
+    tween(target, qEnd, onComplete){
+        if(this.isTweening)return;
+
+        this.isTweening = true;
+        var qStart = new THREE.Quaternion();
+        // tween
+        var time = { t: 0 };
+        var scope = this;
+        new TWEEN.Tween( time )
+            .to( { t : 1 }, 300 )
+            //.easing( TWEEN.Easing.Quadratic.InOut )
+            .easing( TWEEN.Easing.Linear.None )
+            .onStart( function() {
+                qStart.copy(target.quaternion);
+            } )
+            .onUpdate( function() {
+                target.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
+                target.updateMatrixWorld();
+            } )
+            .onComplete( function() {
+                target.quaternion.copy( qEnd ); // so it is exact  
+                target.updateMatrixWorld();
+                scope.isTweening = false;
+                if(onComplete)onComplete();
+            } )
+            .start();
+        this.future(100).updateTween();
     }
 
-    
+    updateTween(){
+        if(this.isTweening){
+            TWEEN.update();
+            this.future(50).updateTween();
+        }
+    }
+
     makePlane(pEvt, useNorm) {
         // worldDirection is an optional direction vector if you don't want to
         // use the objects world direction
