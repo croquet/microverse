@@ -5,11 +5,12 @@ import { AM_Events, PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, viewRoot} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
-import { myAvatar } from './MVAvatar.js'
+import { myAvatar } from './MVAvatar.js';
+
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0xffff77;   // yellow
 const DownColor = 0x88ff88; // green
-const NoColor =0x000000; // black
+const NoColor = 0x000000; // black
 
 const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
@@ -19,20 +20,12 @@ export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
     init(...args) {
         this.visible = true;
         super.init(...args);
-        //this._translation = args;
+
         // managing multiple users
         this._downUsers = new Map(); 
         this._overUsers = new Map();
-        this.listen("pawnExists", this.finalize);
         this.future(1000).timeOutEvent();
     }
-
-    //get shape(){return this._shape || "rectangle"}
-    //get scale(){return this._scale || [1,1,1]}
-    //get color(){return this._color || [1,1,1]}
-    //get depth(){return this._depth || 0 }
-
-    finalize(){ if(this._cardInstall)this.say("addToWorld");}
 
     get parent() { return this._parent; }
 
@@ -151,9 +144,6 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.listen("doPointerOverCancel", this.doPointerLeave);
         this.listen("doPointerWheel", this.doPointerWheel);
         this.listen("addCard", this.addCard);
-        this.listen("removeCard", this.removeCard);
-        this.listen("addToWorld", this.addToWorld);
-        this.say("pawnExists");
     }
 
 
@@ -169,17 +159,18 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.cardSphere.position.z = 0.15;
         this.card3D.add(this.cardSphere);
         this.layer = D.EVENT;
-    //    this.addToWorld();
+        if(this.actor._cardInstall) this.addToWorld();
     }
 
     addCard(){}
     removeCard(){}
+
     addToWorld(){
         // this part is to place in the scene
         this.cardHolder = new THREE.Group();
         this.cardHolder.add(this.card3D);
         this.setRenderObject( this.cardHolder );
-    }s
+    }
 
     doPointerDown(p3d){ this.hilite(DownColor)}
 
