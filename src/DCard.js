@@ -6,7 +6,7 @@ import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, viewRoot} from "@croqu
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
 import { myAvatar } from './MVAvatar.js';
-
+import { loadSVG } from './SVGimporter.js';
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0xffff77;   // yellow
 const DownColor = 0x88ff88; // green
@@ -149,6 +149,9 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
 
     constructCard()
     {
+        this.card3D = new THREE.Group();
+
+        /*
        // this.color = new THREE.Color();
         this.card3D = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.1, 2, 2, 1),
             new THREE.MeshStandardMaterial({color: CardColor}));
@@ -157,7 +160,10 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.cardSphere = new THREE.Mesh(new THREE.SphereGeometry(0.1,32,16), 
             new THREE.MeshStandardMaterial({color: CardColor}));
         this.cardSphere.position.z = 0.15;
-        this.card3D.add(this.cardSphere);
+        this.card3D.add(this.cardSphere);        
+        */
+        loadSVG('./assets/SVG/Vespa-logo.svg', this.card3D);
+        console.log(this.card3D)
         this.layer = D.EVENT;
         if(this.actor._cardInstall) this.addToWorld();
     }
