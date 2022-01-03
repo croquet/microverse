@@ -14,7 +14,8 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/worldcore": "^1.0.5",
+    "@croquet/worldcore": "^1.0.8",
+    "three": "^0.134.0",
     "jszip": "^3.7.1",
     "pako": "^2.0.4",
     "load-bmfont": "^1.4.0",

@@ -1,10 +1,9 @@
 import { THREE } from "@croquet/worldcore";
 import { SVGLoader } from './three/examples/jsm/loaders/SVGLoader.js';
-
-export function loadSVG( url, group ) {
+let counter = 0;
+export function loadSVG( url, group, onComplete ) {
 				const loader = new SVGLoader();
 				loader.load( url, function ( data ) {
-                    console.log(data)
 					const paths = data.paths;
 					for ( let i = 0; i < paths.length; i ++ ) {
 						const path = paths[ i ];
@@ -46,5 +45,6 @@ export function loadSVG( url, group ) {
 							}
 						}
 					}
+					if(onComplete)onComplete(group);
 				} );
 			}

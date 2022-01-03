@@ -14,6 +14,7 @@ const NoColor = 0x000000; // black
 
 const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
+let counter = 0;
 
 export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
     get pawn() {return Pawn_Card}
@@ -129,10 +130,11 @@ export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
 
 Actor_Card.register('Actor_Card');
 
+let that;
 class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
     constructor(...args) {
         super(...args);
-        console.log(args);
+        that=this;
         this.constructCard();
         this.listen("doPointerDown", this.doPointerDown);
         this.listen("doPointerMove", this.doPointerMove)
@@ -162,10 +164,68 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.cardSphere.position.z = 0.15;
         this.card3D.add(this.cardSphere);        
         */
-        loadSVG('./assets/SVG/Vespa-logo.svg', this.card3D);
-        console.log(this.card3D)
+        loadSVG('./assets/SVG/Vespa-logo.svg', this.card3D, this.normalize);
         this.layer = D.EVENT;
         if(this.actor._cardInstall) this.addToWorld();
+    }
+
+    normalize(group){
+        let ext = that.extent3D(group);
+        let cen = that.center3D(group);
+console.log("normalize", ext, cen)
+        let mx = Math.max(ext.x, ext.y);
+        if(mx>0){ 
+            that.card3D.position.set(-cen.x, -cen.y, -cen.z);
+            let sc = 1/mx;
+            group.scale.set(sc,sc,sc);
+            group.matrixWorldNeedsUpdate = true;
+            group.updateMatrixWorld(true);
+        }
+    }
+
+    boundingBox(obj, bigBox,depth) { 
+        // this needs to recursively merge the bounding box of all of the objects it contains.
+        // computes the boundingBox in LOCAL coordinates.  if there's a parent, temporarily
+        // remove from the parent and reset position and orientation.
+        // the boundingBox reflects the extent after application of the current scale setting.
+
+        if(!bigBox){ bigBox = new THREE.Box3(); depth = 0}
+//console.log('depth:', depth, "children: ", obj.children.length)
+        if(obj.material){ //means it is a visible thing
+            obj.updateMatrixWorld();
+            obj.geometry.computeBoundingBox();
+//console.log("depth", depth, "boundingBox", obj.geometry.boundingBox)
+            const box = obj.geometry.boundingBox;
+            //console.log(box, obj.matrixWorld)
+            box.applyMatrix4(obj.matrixWorld);
+            bigBox.union(box);
+        }
+        if(obj.children){obj.children.forEach(child=>that.boundingBox(child, bigBox, depth+1))}
+
+        return bigBox;
+    }
+
+    extent3D(obj) {
+        let rVec = new THREE.Vector3();
+        let bb = this.boundingBox(obj);
+//console.log("extent3D", bb)
+        if(bb){
+            rVec.copy(bb.max);
+            rVec.sub(bb.min);
+        }
+        return rVec;
+    }
+
+    center3D(obj) {
+        let rVec = new THREE.Vector3();
+        let bb = this.boundingBox(obj);
+//console.log("center3D", bb)
+        if (bb) {
+          rVec.copy(bb.max);
+          rVec.add(bb.min);
+          rVec.multiplyScalar(0.5);
+         }
+        return rVec;
     }
 
     addCard(){}
@@ -199,7 +259,8 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
 
     }
     hilite(color) { 
-        this.card3D.material.emissive = new THREE.Color(color);
+        viewRoot.outlinePass.selectedObjects = [this.card3D];
+       // this.card3D.material.emissive = new THREE.Color(color);
     }
     tween(target, qEnd, onComplete){
         if(this.isTweening)return;

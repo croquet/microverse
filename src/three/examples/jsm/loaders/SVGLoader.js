@@ -24,174 +24,113 @@ class SVGLoader extends THREE.Loader {
 		loader.setRequestHeader( scope.requestHeader );
 		loader.setWithCredentials( scope.withCredentials );
 		loader.load( url, function ( text ) {
-
 			try {
 				onLoad( scope.parse( text ) );
-
 			} catch ( e ) {
-
 				if ( onError ) {
-
 					onError( e );
-
 				} else {
-
 					console.error( e );
-
 				}
-
 				scope.manager.itemError( url );
-
 			}
-
 		}, onProgress, onError );
-
 	}
 
 	parse( text ) {
-
 		const scope = this;
-
 		function parseNode( node, style ) {
-
 			if ( node.nodeType !== 1 ) return;
-
 			const transform = getNodeTransform( node );
-
 			let traverseChildNodes = true;
-
 			let path = null;
-
 			switch ( node.nodeName ) {
-
 				case 'svg':
 					break;
-
 				case 'style':
 					parseCSSStylesheet( node );
 					break;
-
 				case 'g':
 					style = parseStyle( node, style );
 					break;
-
 				case 'path':
 					style = parseStyle( node, style );
 					if ( node.hasAttribute( 'd' ) ) path = parsePathNode( node );
 					break;
-
 				case 'rect':
 					style = parseStyle( node, style );
 					path = parseRectNode( node );
 					break;
-
 				case 'polygon':
 					style = parseStyle( node, style );
 					path = parsePolygonNode( node );
 					break;
-
 				case 'polyline':
 					style = parseStyle( node, style );
 					path = parsePolylineNode( node );
 					break;
-
 				case 'circle':
 					style = parseStyle( node, style );
 					path = parseCircleNode( node );
 					break;
-
 				case 'ellipse':
 					style = parseStyle( node, style );
 					path = parseEllipseNode( node );
 					break;
-
 				case 'line':
 					style = parseStyle( node, style );
 					path = parseLineNode( node );
 					break;
-
 				case 'defs':
 					traverseChildNodes = false;
 					break;
-
 				case 'use':
 					style = parseStyle( node, style );
 					const usedNodeId = node.href.baseVal.substring( 1 );
 					const usedNode = node.viewportElement.getElementById( usedNodeId );
 					if ( usedNode ) {
-
 						parseNode( usedNode, style );
-
 					} else {
-
 						console.warn( 'SVGLoader: \'use node\' references non-existent node id: ' + usedNodeId );
-
 					}
-
 					break;
-
 				default:
 					// console.log( node );
-
 			}
 
 			if ( path ) {
-
 				if ( style.fill !== undefined && style.fill !== 'none' ) {
-
 					path.color.setStyle( style.fill );
-
 				}
-
 				transformPath( path, currentTransform );
-
 				paths.push( path );
-
 				path.userData = { node: node, style: style };
-
 			}
 
 			if ( traverseChildNodes ) {
-
 				const nodes = node.childNodes;
-
 				for ( let i = 0; i < nodes.length; i ++ ) {
-
 					parseNode( nodes[ i ], style );
-
 				}
-
 			}
 
 			if ( transform ) {
-
 				transformStack.pop();
-
 				if ( transformStack.length > 0 ) {
-
 					currentTransform.copy( transformStack[ transformStack.length - 1 ] );
-
 				} else {
-
 					currentTransform.identity();
-
 				}
-
 			}
-
 		}
 
 		function parsePathNode( node ) {
-
 			const path = new THREE.ShapePath();
-
 			const point = new THREE.Vector2();
 			const control = new THREE.Vector2();
-
 			const firstPoint = new THREE.Vector2();
 			let isFirstPoint = true;
 			let doSetFirstPoint = false;
-
 			const d = node.getAttribute( 'd' );
 
 			// console.log( d );

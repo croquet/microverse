@@ -22,6 +22,7 @@ import { PerlinActor } from './src/PerlinMixin.js';
 import { Actor_Card } from './src/DCard.js';
 
 import JSZip from "jszip";
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 const powerPlant = "./assets/refineryx.glb.zip";
 const alice  = "./assets/avatars/alice.zip";
@@ -82,21 +83,25 @@ function addShadows(obj3d, singleSide) {
 }
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
+let maxAvatars = 12;
 let i = 0;
-const avatars = []; for(i=0; i<12;i++) avatars[i]=new THREE.Group; 
-i=0;
-loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-loadGLB(rabbit, "newwhite.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-/*
-const avatars = [a1,a2,a3,a4,a5,a6]; 
+const avatars = []; for(i=0; i<maxAvatars;i++) avatars[i]=new THREE.Group; 
+const genericAvatars = [a1,a2,a3,a4,a5,a6]; 
 for(i=0; i<6;i++){
-    let a = avatars[i]; avatars[i]=new THREE.Group;
+    let a = genericAvatars[i]; 
     loadGLB(a, (i+1)+".glb", avatars[i], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 }
+if(maxAvatars>6){
+    i=6;
+    loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB(rabbit, "newwhite.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+}
+/*
+
 */
 const plant = new THREE.Group();
 loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
@@ -136,37 +141,7 @@ LevelActor.register('LevelActor');
 class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
     constructor(...args) {
         super(...args);
-        const scene = this.service("ThreeRenderManager").scene;
 
-        this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-        const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
-        scene.lightLayer.add(ambient);
-
-        const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
-        sun.position.set(-200, 800, 100);
-
-        //Set up shadow properties for the light
-        sun.castShadow = true;
-        sun.shadow.camera.near = 0.5; // default
-        sun.shadow.camera.far = 1000; // default
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
-        sun.shadow.camera.zoom = 0.125;
-        sun.shadow.bias = -0.0001;
-        var side = 15;
-        sun.shadow.camera.top = side;
-        sun.shadow.camera.bottom = -side;
-        sun.shadow.camera.left = side;
-        sun.shadow.camera.right = -side;
-        scene.lightLayer.add(sun);
-
-        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080840, 0.2);
-        scene.lightLayer.add(hemiLight);
-
-        const renderer = window.renderer = this.service("ThreeRenderManager").renderer;
-        renderer.toneMapping = THREE.ReinhardToneMapping;
-        renderer.toneMappingExposure = 2;
-        renderer.shadowMap.enabled = true;
         this.layer = D.WALK;
         this.setRenderObject( plant );
 
@@ -208,6 +183,8 @@ class MyModelRoot extends ModelRoot {
             {
                 cardShape: 'Rectangle',
                 cardSize:[2,2,0.1],
+                cardDepth: 0.1,
+                cardBevel:0.02,
                 cardColor:[1,1,1], // white
                 translation:[-2,0,-5*i],
                 cardInstall: true
@@ -223,6 +200,44 @@ MyModelRoot.register("MyModelRoot");
 class MyViewRoot extends ViewRoot {
     static viewServices() {
         return [InputManager, ThreeRenderManager, DLayerManager];
+    }
+    constructor(model){
+        super(model);
+        const TRM = this.service("ThreeRenderManager");
+        const scene = TRM.scene;
+        this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), TRM.scene, TRM.camera );
+        this.outlinePass.edgeStrength = 4;
+        TRM.composer.addPass( this.outlinePass );
+console.log(TRM)
+        this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
+        const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
+        scene.lightLayer.add(ambient);
+
+        const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
+        sun.position.set(-200, 800, 100);
+
+        //Set up shadow properties for the light
+        sun.castShadow = true;
+        sun.shadow.camera.near = 0.5; // default
+        sun.shadow.camera.far = 1000; // default
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.zoom = 0.125;
+        sun.shadow.bias = -0.0001;
+        var side = 15;
+        sun.shadow.camera.top = side;
+        sun.shadow.camera.bottom = -side;
+        sun.shadow.camera.left = side;
+        sun.shadow.camera.right = -side;
+        scene.lightLayer.add(sun);
+
+        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080840, 0.2);
+        scene.lightLayer.add(hemiLight);
+
+        const renderer = window.renderer = this.service("ThreeRenderManager").renderer;
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.toneMappingExposure = 2;
+        renderer.shadowMap.enabled = true;
     }
 }
 
