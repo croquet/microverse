@@ -130,11 +130,14 @@ export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
 
 Actor_Card.register('Actor_Card');
 
-let that;
+function traverse(doThis, toThis){
+    doThis(toThis);
+    if(toThis.children){toThis.children.forEach(child=>traverse(doThis, child))}
+}
+
 class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
     constructor(...args) {
         super(...args);
-        that=this;
         this.constructCard();
         this.listen("doPointerDown", this.doPointerDown);
         this.listen("doPointerMove", this.doPointerMove)
@@ -152,7 +155,6 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
     constructCard()
     {
         this.card3D = new THREE.Group();
-
         /*
        // this.color = new THREE.Color();
         this.card3D = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.1, 2, 2, 1),
@@ -164,22 +166,30 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.cardSphere.position.z = 0.15;
         this.card3D.add(this.cardSphere);        
         */
-        loadSVG('./assets/SVG/Vespa-logo.svg', this.card3D, this.normalize);
         this.layer = D.EVENT;
+        loadSVG(this.actor._cardSVG, this, this.normalize);
         if(this.actor._cardInstall) this.addToWorld();
     }
 
-    normalize(group){
-        let ext = that.extent3D(group);
-        let cen = that.center3D(group);
-console.log("normalize", ext, cen)
+    normalize(target, group){
+        target.card3D.rotation.x = Math.PI;
+        target.card3D.add(group);
+        let ext = target.extent3D(group);
+        let cen = target.center3D(group);
         let mx = Math.max(ext.x, ext.y);
         if(mx>0){ 
-            that.card3D.position.set(-cen.x, -cen.y, -cen.z);
+            group.position.set(-cen.x, -cen.y, -cen.z);
             let sc = 1/mx;
-            group.scale.set(sc,sc,sc);
-            group.matrixWorldNeedsUpdate = true;
-            group.updateMatrixWorld(true);
+            target.card3D.scale.set(sc,sc,sc);
+        }
+        if(target.actor._cardColor){
+            let c = target.actor._cardColor;
+            c = new THREE.Color(...c);
+            traverse(obj=>{if(obj.material){
+                obj.material.color=c; 
+                obj.material.transparent=false;
+                obj.material.depthWrite = true;
+            }}, group);
         }
     }
 
@@ -200,7 +210,7 @@ console.log("normalize", ext, cen)
             box.applyMatrix4(obj.matrixWorld);
             bigBox.union(box);
         }
-        if(obj.children){obj.children.forEach(child=>that.boundingBox(child, bigBox, depth+1))}
+        if(obj.children){obj.children.forEach(child=>this.boundingBox(child, bigBox, depth+1))}
 
         return bigBox;
     }
@@ -259,8 +269,9 @@ console.log("normalize", ext, cen)
 
     }
     hilite(color) { 
-        viewRoot.outlinePass.selectedObjects = [this.card3D];
-       // this.card3D.material.emissive = new THREE.Color(color);
+        //viewRoot.outlinePass.selectedObjects = [this.card3D];
+        let c = new THREE.Color(color);
+        traverse(obj=>{if(obj.material)obj.material.emissive=c;}, this.card3D);
     }
     tween(target, qEnd, onComplete){
         if(this.isTweening)return;

@@ -22,7 +22,7 @@ import { PerlinActor } from './src/PerlinMixin.js';
 import { Actor_Card } from './src/DCard.js';
 
 import JSZip from "jszip";
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+//import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 const powerPlant = "./assets/refineryx.glb.zip";
 const alice  = "./assets/avatars/alice.zip";
@@ -147,13 +147,6 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
 
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
-
-    destroy() {
-        super.destroy();
-        this.background.dispose();
-        this.sun.dispose();
-        this.hemiLight.dispose();
-    }
 }
 
 class MyPlayerManager extends PlayerManager {
@@ -178,15 +171,19 @@ class MyModelRoot extends ModelRoot {
             {translation:[ 4, -2.75, -14],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
-        for(let i =0; i<10; i++)
+        let svgCards = ['cog.svg', 'credit-card.svg', 'tobias_penny-farthing.svg', 'flask.svg',
+        'feuille-leaf_09.svg', 'geometries.svg', 'Gerald_G_Heraculeum_lanatum.svg', 
+        'GlassesInsertCutPattern.svg', 'johnny_automatic_minarets.svg', 'tiger.svg'];
+        for(let i =0; i<8; i++)
         Actor_Card.create(
             {
-                cardShape: 'Rectangle',
+                cardSVG: i==5?'/assets/SVG/smile.svg':'./assets/SVG/credit-card.svg',
                 cardSize:[2,2,0.1],
                 cardDepth: 0.1,
                 cardBevel:0.02,
                 cardColor:[1,1,1], // white
-                translation:[-2,0,-5*i],
+                translation:[-2.5,0,-6*i],
+                scale: [4,4,4],
                 cardInstall: true
             }
         );
@@ -205,10 +202,10 @@ class MyViewRoot extends ViewRoot {
         super(model);
         const TRM = this.service("ThreeRenderManager");
         const scene = TRM.scene;
-        this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), TRM.scene, TRM.camera );
-        this.outlinePass.edgeStrength = 4;
-        TRM.composer.addPass( this.outlinePass );
-console.log(TRM)
+//        this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), TRM.scene, TRM.camera );
+//        this.outlinePass.edgeStrength = 4;
+//        TRM.composer.addPass( this.outlinePass );
+//console.log(TRM)
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         scene.lightLayer.add(ambient);
@@ -238,6 +235,13 @@ console.log(TRM)
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
+    }
+
+    destroy() {
+        super.destroy();
+        this.background.dispose();
+        this.sun.dispose();
+        this.hemiLight.dispose();
     }
 }
 

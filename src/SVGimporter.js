@@ -1,8 +1,9 @@
 import { THREE } from "@croquet/worldcore";
 import { SVGLoader } from './three/examples/jsm/loaders/SVGLoader.js';
 let counter = 0;
-export function loadSVG( url, group, onComplete ) {
+export function loadSVG( url, target, onComplete ) {
 				const loader = new SVGLoader();
+				let group = new THREE.Group();
 				loader.load( url, function ( data ) {
 					const paths = data.paths;
 					for ( let i = 0; i < paths.length; i ++ ) {
@@ -10,13 +11,14 @@ export function loadSVG( url, group, onComplete ) {
 						const fillColor = path.userData.style.fill;
 						if ( fillColor !== undefined && fillColor !== 'none' ) {
 
-							const material = new THREE.MeshBasicMaterial( {
+							const material = new THREE.MeshStandardMaterial( {
 								color: new THREE.Color().setStyle( fillColor ),
 								opacity: path.userData.style.fillOpacity,
-								transparent: true,
+								//transparent: true,
 								side: THREE.DoubleSide,
-								depthWrite: false,
+								//depthWrite: false,
 							} );
+							console.log(path)
 							const shapes = SVGLoader.createShapes( path );
 							for ( let j = 0; j < shapes.length; j ++ ) {
 								const shape = shapes[ j ];
@@ -27,12 +29,12 @@ export function loadSVG( url, group, onComplete ) {
 						}
 						const strokeColor = path.userData.style.stroke;
 						if ( strokeColor !== undefined && strokeColor !== 'none' ) {
-							const material = new THREE.MeshBasicMaterial( {
+							const material = new THREE.MeshStandardMaterial( {
 								color: new THREE.Color().setStyle( strokeColor ),
 								opacity: path.userData.style.strokeOpacity,
-								transparent: true,
+								//transparent: true,
 								side: THREE.DoubleSide,
-								depthWrite: false,
+								//depthWrite: false,
 							} );
 
 							for ( let j = 0, jl = path.subPaths.length; j < jl; j ++ ) {
@@ -45,6 +47,6 @@ export function loadSVG( url, group, onComplete ) {
 							}
 						}
 					}
-					if(onComplete)onComplete(group);
+					if(onComplete)onComplete(target, group);
 				} );
 			}
