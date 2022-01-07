@@ -7,7 +7,8 @@ import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { PM_AvatarEvents } from './DEvents.js';
 import { D } from './DConstants.js';
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
-export var myAvatar;
+
+export var myAvatar; 
 export var isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
 
@@ -195,7 +196,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
     }
 
     // This tween is only on the view side because we are transitioning between two cameras.
-    // This does not actually effect the avatar's position, just where you see him from.
+    // This does not actually affect the avatar's position, just where you see him from.
     tween(fromCam, toCam, onComplete){
         isTweening = true;
         var tweenCam = this.tweenCamera; 

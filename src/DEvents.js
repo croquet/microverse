@@ -83,9 +83,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         this._pointercaster = new THREE.Raycaster();
         this.xy = {x:0, y:0}; // reuse this
         this._pointer3D = {};
-        this._ray3D = {};
-        //document.addEventListener('keypress', this._keyAction); // should use input but that is broken
-    }
+        this._ray3D = {};    }
 
     _pointerDown(e){
         if(this._updatePointer(e)){

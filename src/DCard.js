@@ -1,23 +1,25 @@
 // Copyright 2022 by Croquet Corporation. All Rights Reserved.
-// Collaborative Card
+// Collaborative Card Object
+// Also works with DSurface as a smart 2D object
+
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { AM_Events, PM_Events } from './DEvents.js';
-import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, viewRoot} from "@croquet/worldcore";
+import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
 import { myAvatar } from './MVAvatar.js';
 import { loadSVG } from './SVGimporter.js';
 const CardColor = 0x9999cc;  // light blue
-const OverColor = 0xffff77;   // yellow
-const DownColor = 0x88ff88; // green
+const OverColor = 0x181808; //0xffff77;   // yellow
+const DownColor = 0x081808; // green
 const NoColor = 0x000000; // black
 
 const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
 let counter = 0;
 
-export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
-    get pawn() {return Pawn_Card}
+export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
+    get pawn() {return CardPawn}
     init(...args) {
         this.visible = true;
         super.init(...args);
@@ -25,7 +27,7 @@ export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
         // managing multiple users
         this._downUsers = new Map(); 
         this._overUsers = new Map();
-        this.future(1000).timeOutEvent();
+        this.future(1000).timeOutEvent(); // check once a second to see if user is alive
     }
 
     get parent() { return this._parent; }
@@ -128,14 +130,9 @@ export class Actor_Card extends mix(Actor).with(AM_Spatial, AM_Events){
     showHide(){}
 }
 
-Actor_Card.register('Actor_Card');
+Card.register('CardActor');
 
-function traverse(doThis, toThis){
-    doThis(toThis);
-    if(toThis.children){toThis.children.forEach(child=>traverse(doThis, child))}
-}
-
-class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
+class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
     constructor(...args) {
         super(...args);
         this.constructCard();
@@ -167,77 +164,23 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
         this.card3D.add(this.cardSphere);        
         */
         this.layer = D.EVENT;
-        loadSVG(this.actor._cardSVG, this, this.normalize);
+        let texture;
+        if(this.actor._cardSurface){
+            this.surface = this.service("PawnManager").get(this.actor._cardSurface.id);
+            texture = this.surface.texture;
+            this.subscribe(this.surface.actor.id,"updateDisplay",this.updateMaterial)
+//            console.log(texture)
+        }
+
+        loadSVG(this.actor._cardShape, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright);
         if(this.actor._cardInstall) this.addToWorld();
+        //this.future(1000).updateMaterial();
     }
 
-    normalize(target, group){
-        target.card3D.rotation.x = Math.PI;
-        target.card3D.add(group);
-        let ext = target.extent3D(group);
-        let cen = target.center3D(group);
-        let mx = Math.max(ext.x, ext.y);
-        if(mx>0){ 
-            group.position.set(-cen.x, -cen.y, -cen.z);
-            let sc = 1/mx;
-            target.card3D.scale.set(sc,sc,sc);
-        }
-        if(target.actor._cardColor){
-            let c = target.actor._cardColor;
-            c = new THREE.Color(...c);
-            traverse(obj=>{if(obj.material){
-                obj.material.color=c; 
-                obj.material.transparent=false;
-                obj.material.depthWrite = true;
-            }}, group);
-        }
+    updateMaterial(){
+        this.card3D.traverse(obj=>{if(obj.material)obj.material.map.needsUpdate=true;});
+    //    this.future(1000).updateMaterial();
     }
-
-    boundingBox(obj, bigBox,depth) { 
-        // this needs to recursively merge the bounding box of all of the objects it contains.
-        // computes the boundingBox in LOCAL coordinates.  if there's a parent, temporarily
-        // remove from the parent and reset position and orientation.
-        // the boundingBox reflects the extent after application of the current scale setting.
-
-        if(!bigBox){ bigBox = new THREE.Box3(); depth = 0}
-//console.log('depth:', depth, "children: ", obj.children.length)
-        if(obj.material){ //means it is a visible thing
-            obj.updateMatrixWorld();
-            obj.geometry.computeBoundingBox();
-//console.log("depth", depth, "boundingBox", obj.geometry.boundingBox)
-            const box = obj.geometry.boundingBox;
-            //console.log(box, obj.matrixWorld)
-            box.applyMatrix4(obj.matrixWorld);
-            bigBox.union(box);
-        }
-        if(obj.children){obj.children.forEach(child=>this.boundingBox(child, bigBox, depth+1))}
-
-        return bigBox;
-    }
-
-    extent3D(obj) {
-        let rVec = new THREE.Vector3();
-        let bb = this.boundingBox(obj);
-//console.log("extent3D", bb)
-        if(bb){
-            rVec.copy(bb.max);
-            rVec.sub(bb.min);
-        }
-        return rVec;
-    }
-
-    center3D(obj) {
-        let rVec = new THREE.Vector3();
-        let bb = this.boundingBox(obj);
-//console.log("center3D", bb)
-        if (bb) {
-          rVec.copy(bb.max);
-          rVec.add(bb.min);
-          rVec.multiplyScalar(0.5);
-         }
-        return rVec;
-    }
-
     addCard(){}
     removeCard(){}
 
@@ -270,8 +213,10 @@ class Pawn_Card extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLay
     }
     hilite(color) { 
         //viewRoot.outlinePass.selectedObjects = [this.card3D];
-        let c = new THREE.Color(color);
-        traverse(obj=>{if(obj.material)obj.material.emissive=c;}, this.card3D);
+        if(!this.actor._cardFullBright){
+            let c = new THREE.Color(color);
+            this.card3D.traverse(obj=>{if(obj.material)obj.material.emissive=c;});
+        }
     }
     tween(target, qEnd, onComplete){
         if(this.isTweening)return;

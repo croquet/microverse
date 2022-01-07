@@ -19,7 +19,8 @@ import { D } from './src/DConstants.js';
 import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 import { PerlinActor } from './src/PerlinMixin.js';
-import { Actor_Card } from './src/DCard.js';
+import { Card } from './src/DCard.js';
+import { TextureSurface, VideoSurface, CanvasSurface } from './src/DSurface.js';
 
 import JSZip from "jszip";
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -106,18 +107,18 @@ if(maxAvatars>6){
 const plant = new THREE.Group();
 loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
 
-class AMAvatar extends AMVAvatar{
+class Avatar extends AMVAvatar{
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
     }
 
-    get pawn() {return PMAvatar}
+    get pawn() {return AvatarPawn}
 }
 
-AMAvatar.register('AMAvatar');
+Avatar.register('Avatar');
 
-class PMAvatar extends PMVAvatar {
+class AvatarPawn extends PMVAvatar {
 
     constructVisual(){
         this.setupAvatar(avatars[this.avatarIndex%avatars.length]);
@@ -144,7 +145,6 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
 
         this.layer = D.WALK;
         this.setRenderObject( plant );
-
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
 }
@@ -154,7 +154,7 @@ class MyPlayerManager extends PlayerManager {
         options.index = this.count;
         options.lookYaw = toRad(45);
         options.color = [Math.random(), Math.random(), Math.random(), 1];
-        return AMAvatar.create(options);
+        return Avatar.create(options);
     }
 }
 
@@ -171,18 +171,25 @@ class MyModelRoot extends ModelRoot {
             {translation:[ 4, -2.75, -14],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
-        let svgCards = ['cog.svg', 'credit-card.svg', 'tobias_penny-farthing.svg', 'flask.svg',
-        'feuille-leaf_09.svg', 'geometries.svg', 'Gerald_G_Heraculeum_lanatum.svg', 
-        'GlassesInsertCutPattern.svg', 'johnny_automatic_minarets.svg', 'tiger.svg'];
+
+        let tSurface = TextureSurface.create({url: '/assets/images/Kay.jpg'});
+        let vSurface = VideoSurface.create({url:'/assets/videos/fromPCtoHMD.mp4'});
+        let cSurface = CanvasSurface.create();
+
+        let svgCards = ['CroquetSymbol_CMYK_NoShadow.svg', 'credit-card.svg', 'credit-card.svg', 
+        'square.svg', 'square-full.svg',
+        'circle.svg', 'compass.svg', 'frown.svg', 'cog.svg'];
+        let surfaces = [tSurface, tSurface, vSurface, cSurface, tSurface, vSurface, cSurface, tSurface];
         for(let i =0; i<8; i++)
-        Actor_Card.create(
+        Card.create(
             {
-                cardSVG: i==5?'/assets/SVG/smile.svg':'./assets/SVG/credit-card.svg',
-                cardSize:[2,2,0.1],
+                cardShape: '/assets/SVG/'+svgCards[i],
+                cardSurface: surfaces[i],
+                cardFullBright: surfaces[i]===vSurface || surfaces[i]===cSurface,
                 cardDepth: 0.1,
                 cardBevel:0.02,
-                cardColor:[1,1,1], // white
-                translation:[-2.5,0,-6*i],
+                cardColor:i>0?[1,1,1]:undefined, // white
+                translation:[-2.5,0,-6*(i+1)],
                 scale: [4,4,4],
                 cardInstall: true
             }
@@ -196,16 +203,13 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [InputManager, ThreeRenderManager, DLayerManager];
+        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}, DLayerManager];
     }
     constructor(model){
         super(model);
         const TRM = this.service("ThreeRenderManager");
         const scene = TRM.scene;
-//        this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), TRM.scene, TRM.camera );
-//        this.outlinePass.edgeStrength = 4;
-//        TRM.composer.addPass( this.outlinePass );
-//console.log(TRM)
+
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         scene.lightLayer.add(ambient);
