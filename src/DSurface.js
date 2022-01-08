@@ -31,13 +31,26 @@ export class VideoSurface extends Surface{
 }
 VideoSurface.register('VideoSurface');
 
+let videoStart = function (){
+    let videos=[];
+    let onClick = function(){
+        videos.forEach((v)=>v.play());
+        document.removeEventListener('click', onClick);
+    }
+    document.addEventListener("click", onClick);
+    return function addVideo(video){
+        videos.push(video)
+    }
+}();
+
 class VideoSurfacePawn extends SurfacePawn{
     constructor(...args){
         super(...args);
         this.video = document.createElement('video');
         this.video.src = this.actor._url;
         this.video.loop = true;
-        this.video.play();
+        videoStart(this.video);
+        //this.video.play();
         this.texture = new THREE.VideoTexture(this.video);
 
     }
@@ -73,10 +86,19 @@ export class CanvasSurface extends Surface{
         if(px>this.width)px=this.width-this.radius;
         if(py<0)py=this.radius;
         if(py>this.height)py=this.height-this.radius;
+        this.updatePosition(px,py);
+        this.future(50).bounce();
+    }
+
+    updatePosition(px, py){
         this.position[0]=px;
         this.position[1]=py;
         this.say("updatePosition", this.position);
-        this.future(50).bounce();
+    }
+
+    onPointerDown(p3d){
+        this.updatePosition(this.width*p3d.uv[0], this.height*(1-p3d.uv[1]));
+        console.log("CanvasSurface.onPointerDown()", p3d.uv);
     }
 }
 CanvasSurface.register('CanvasSurface');
@@ -90,7 +112,6 @@ class CanvasSurfacePawn extends SurfacePawn{
         this.canvas.style.zIndex=2000;
         this.texture = new THREE.CanvasTexture(this.canvas);
         this.updatePosition(this.actor.position);
-        console.log(this.texture)
         var body = document.getElementsByTagName("body")[0];
         body.appendChild(this.canvas);
         this.listen("updatePosition", this.updatePosition);
@@ -110,5 +131,9 @@ class CanvasSurfacePawn extends SurfacePawn{
         ctx.arc(pos[0], pos[1], this.actor.radius, 0, Math.PI*2, true);
         ctx.fill();
         this.texture.needsUpdate=true;
+    }
+
+    iPointerDown(p3d){
+        console.log("CanvasSurfacePawn.iPointerDown()", p3d.uv);
     }
 }

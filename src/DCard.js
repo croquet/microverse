@@ -69,46 +69,61 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
 
     multiUser(){ return true; }
 
+    get surface(){return this._cardSurface}
+
     onPointerDown(p3d){
+        if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
         if(this.multiUser() || this._downUsers.size === 0 ){
             this._downUsers.set(p3d.playerId, this.now());
             this.say("doPointerDown", p3d);
         }
     }
     onPointerUp(p3d){
+        if(this.surface && this.surface.onPointerUp)this.surface.onPointerUp(p3d);
         if(this._downUsers.has(p3d.playerId)){
             this._downUsers.delete(p3d.playerId);
             this.say("doPointerUp", p3d);
         }
     }
+    
     onPointerMove(p3d){
+        if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
         if(this._downUsers.has(p3d.playerId)){
             this._downUsers.set(p3d.playerId, this.now())// update the _downUser
             this.say("doPointerMove", p3d);
         }
     }
+    
     onPointerDownCancel(pId){
+        if(this.surface && this.surface.onPointerDownCancel)this.surface.onPointerDownCancel(pId);
         this.say("doPointerDownCancel", pId);
-    }    
+    }   
+
     onPointerEnter(p3d){
+        if(this.surface && this.surface.onPointerEnter)this.surface.onPointerEnter(p3d);
         if(this.multiUser() || this._overUsers.size === 0 ){
             this._overUsers.set(p3d.playerId, this.now());
             this.say("doPointerEnter", p3d);
         }
     }
+    
     onPointerOver(p3d){
         if(this._overUsers.has(p3d.playerId)){
+            if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
             this._overUsers.set(p3d.playerId, this.now())// update the _overUser
             this.say("doPointerOver", p3d);
         }
     }
+    
     onPointerLeave(p3d){
+        if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d);
         if(this._overUsers.has(p3d.playerId)){
             this._overUsers.delete(p3d.playerId);
             this.say("doPointerLeave", p3d);
         }
     }    
     onPointerOverCancel(pId){
+        if(this.surface && this.surface.onPointerOverCancel)this.surface.onPointerOverCancel(pId);
         this.say("doPointerLeave", pId);
     }   
 
@@ -122,12 +137,13 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
         //this.say("doPointerWheel", p3d);
     }
     onKeyDown(e){
+        if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
         console.log(e)
     }
     onKeyUp(e){
+        if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
         console.log(e)
     }
-    showHide(){}
 }
 
 Card.register('CardActor');
@@ -165,11 +181,9 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         */
         this.layer = D.EVENT;
         let texture;
-        if(this.actor._cardSurface){
-            this.surface = this.service("PawnManager").get(this.actor._cardSurface.id);
+        if(this.actor.surface){
+            this.surface = this.service("PawnManager").get(this.actor.surface.id);
             texture = this.surface.texture;
-            this.subscribe(this.surface.actor.id,"updateDisplay",this.updateMaterial)
-//            console.log(texture)
         }
 
         loadSVG(this.actor._cardShape, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright);
@@ -177,10 +191,6 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         //this.future(1000).updateMaterial();
     }
 
-    updateMaterial(){
-        this.card3D.traverse(obj=>{if(obj.material)obj.material.map.needsUpdate=true;});
-    //    this.future(1000).updateMaterial();
-    }
     addCard(){}
     removeCard(){}
 
@@ -189,6 +199,32 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.cardHolder = new THREE.Group();
         this.cardHolder.add(this.card3D);
         this.setRenderObject( this.cardHolder );
+    }
+
+    iPointerDown(p3d){
+        if(this.surface && this.surface.iPointerDown)this.surface.iPointerDown(p3d);
+    }
+    iPointerMove(p3d){
+        if(this.surface && this.surface.iPointerMove)this.surface.iPointerMove(p3d);
+    }
+    iPointerUp(p3d){
+        if(this.surface && this.surface.iPointerUp)this.surface.iPointerUp(p3d);
+    }
+    iPointerEnter(p3d){
+        this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
+        if(this.surface && this.surface.iPointerEnter)this.surface.iPointerEnter(p3d);
+    }
+    iPointerOver(p3d){
+        if(this.surface && this.surface.iPointerOver)this.surface.iPointerOver(p3d);
+    }
+    iPointerLeave(p3d){
+        if(this.surface && this.surface.iPointerLeave)this.surface.iPointerLeave(p3d)
+    }
+    iKeyDown(e){
+        if(this.surface && this.surface.iKeyDown)this.surface.iKeyDown(e);
+    }
+    iKeyUp(e){
+        if(this.surface && this.surface.iKeyUp)this.surface.iKeyUp(e);
     }
 
     doPointerDown(p3d){ this.hilite(DownColor)}
@@ -202,8 +238,8 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
     }
     doPointerCancel(p3d){}
     doPointerEnter(p3d){
-        if(myAvatar.actor.playerId === p3d.playerId)
-            this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
+       // if(myAvatar.actor.playerId === p3d.playerId)
+       //     this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
         this.hilite(OverColor);
     }
     doPointerOver(p3d){}
