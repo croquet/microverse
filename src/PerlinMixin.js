@@ -1,6 +1,6 @@
 import { THREE, Actor, Pawn, AM_Spatial, PM_Spatial, RegisterMixin, mix } from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
-import { AM_Events, PM_Events } from './DEvents.js';
+import { PM_Events } from './DEvents.js';
 import { D } from './DConstants.js';
 //------------------------------------------------------------------------------------------
 //-- Perlin Noise Mixin --------------------------------------------------------------------
@@ -126,13 +126,17 @@ export const AM_PerlinNoise = superclass => class extends superclass {
 RegisterMixin(AM_PerlinNoise);
 
 
-export class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise, AM_Events){
+export class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise){
     get pawn() {return PerlinPawn}
     init(...args) {
         this.visible = true;
         super.init(...args);
         this.initPerlin(); // call this before init. PerlinPawn requires this.
         this.future(1000).updatePerlin();
+        this.listen("onPointerDown", this.onPointerDown);
+        this.listen("onPointerUp", this.onPointerUp);
+        this.listen("onPointerEnter", this.onPointerEnter);
+        this.listen("onPointerLeave", this.onPointerLeave);
         this.listen("showHide", this.showHide);
         this.visible = false;
         //this._translation = [0, -2.75, -10];
@@ -140,17 +144,17 @@ export class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise, AM_
     }
 
     onPointerDown(p3d){
-        this.say("doPointerDown", p3d);
+        this.say("hilite", 0x081808);
     }
     onPointerUp(p3d){
         if(p3d && p3d.sameTarget)this.showHide();
-        this.say("doPointerUp", p3d);
+        this.say("hilite", 0x000000);
     }
     onPointerEnter(p3d){
-        this.say("doPointerEnter", p3d);
+        this.say("hilite", 0x181808);
     }
     onPointerLeave(p3d){
-        this.say("doPointerLeave", p3d);
+        this.say("hilite", 0x000000);
     }    
     initPerlin(){
         let r = this.currentRow = this.rows=20;
@@ -196,19 +200,15 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLa
         this.listen("showMe", this.showMe);
         this.isConstructed = false;
         this.perlin = true;
-        this.listen("doPointerUp", this.doPointerUp);
-        this.listen("doPointerDown", this.doPointerDown);
-        this.listen("doPointerEnter", this.doPointerEnter);
-        this.listen("doPointerLeave", this.doPointerLeave);
+        this.listen("hilite", this.hilite);
     }
 
-    doPointerDown(p3d){ this.hilite(DownColor);}
-    doPointerUp(p3d){this.hilite(NoColor);}
-    doPointerEnter(p3d){this.hilite(OverColor);}
-    doPointerLeave(p3d){this.hilite(NoColor);}
+    onPointerDown(p3d){this.say("onPointerDown", p3d)}
+    onPointerUp(p3d){this.say("onPointerUp", p3d)}
+    onPointerEnter(p3d){this.say("onPointerEnter", p3d)}
+    onPointerLeave(p3d){this.say("onPointerLeave", p3d)}
 
     updatePerlin(row){
-
         const r = this.actor.rows;
         const s = barScale;
         if(this.isConstructed){

@@ -3,7 +3,7 @@
 // Also works with DSurface as a smart 2D object
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { AM_Events, PM_Events } from './DEvents.js';
+import { PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
@@ -18,7 +18,7 @@ const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
 let counter = 0;
 
-export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
+export class Card extends mix(Actor).with(AM_Spatial){
     get pawn() {return CardPawn}
     init(...args) {
         this.visible = true;
@@ -27,6 +27,10 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
         // managing multiple users
         this._downUsers = new Map(); 
         this._overUsers = new Map();
+        this.listen("onPointerDown", this.onPointerDown);
+        this.listen("onPointerUp", this.onPointerUp);
+        this.listen("onPointerEnter", this.onPointerEnter);
+        this.listen("onPointerLeave", this.onPointerLeave);
         this.future(1000).timeOutEvent(); // check once a second to see if user is alive
     }
 
@@ -71,6 +75,8 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
 
     get surface(){return this._cardSurface}
 
+
+
     onPointerDown(p3d){
         if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
         if(this.multiUser() || this._downUsers.size === 0 ){
@@ -85,7 +91,7 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
             this.say("doPointerUp", p3d);
         }
     }
-    
+/*    
     onPointerMove(p3d){
         if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
         if(this._downUsers.has(p3d.playerId)){
@@ -93,7 +99,7 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
             this.say("doPointerMove", p3d);
         }
     }
-    
+*/    
     onPointerDownCancel(pId){
         if(this.surface && this.surface.onPointerDownCancel)this.surface.onPointerDownCancel(pId);
         this.say("doPointerDownCancel", pId);
@@ -106,7 +112,7 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
             this.say("doPointerEnter", p3d);
         }
     }
-    
+ /*   
     onPointerOver(p3d){
         if(this._overUsers.has(p3d.playerId)){
             if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
@@ -114,7 +120,7 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
             this.say("doPointerOver", p3d);
         }
     }
-    
+ */   
     onPointerLeave(p3d){
         if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d);
         if(this._overUsers.has(p3d.playerId)){
@@ -136,6 +142,7 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
         }
         //this.say("doPointerWheel", p3d);
     }
+    /*
     onKeyDown(e){
         if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
         console.log(e)
@@ -144,6 +151,7 @@ export class Card extends mix(Actor).with(AM_Spatial, AM_Events){
         if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
         console.log(e)
     }
+    */
 }
 
 Card.register('CardActor');
@@ -201,30 +209,39 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.setRenderObject( this.cardHolder );
     }
 
-    iPointerDown(p3d){
-        if(this.surface && this.surface.iPointerDown)this.surface.iPointerDown(p3d);
-    }
-    iPointerMove(p3d){
-        if(this.surface && this.surface.iPointerMove)this.surface.iPointerMove(p3d);
-    }
-    iPointerUp(p3d){
-        if(this.surface && this.surface.iPointerUp)this.surface.iPointerUp(p3d);
-    }
-    iPointerEnter(p3d){
+    onPointerDown(p3d){
         this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
-        if(this.surface && this.surface.iPointerEnter)this.surface.iPointerEnter(p3d);
+        this.say("onPointerDown", p3d);
+        if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
     }
-    iPointerOver(p3d){
-        if(this.surface && this.surface.iPointerOver)this.surface.iPointerOver(p3d);
+    onPointerMove(p3d){
+        this.say("onPointerMove", p3d);
+        if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
     }
-    iPointerLeave(p3d){
-        if(this.surface && this.surface.iPointerLeave)this.surface.iPointerLeave(p3d)
+    onPointerUp(p3d){
+        this.say("onPointerUp", p3d);
+        if(this.surface && this.surface.onPointerUp)this.surface.onPointerUp(p3d);
     }
-    iKeyDown(e){
-        if(this.surface && this.surface.iKeyDown)this.surface.iKeyDown(e);
+    onPointerEnter(p3d){
+        this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
+        this.say("onPointerEnter", p3d);
+        if(this.surface && this.surface.onPointerEnter)this.surface.onPointerEnter(p3d);
     }
-    iKeyUp(e){
-        if(this.surface && this.surface.iKeyUp)this.surface.iKeyUp(e);
+    onPointerOver(p3d){
+        this.say("onPointerOver", p3d);
+        if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
+    }
+    onPointerLeave(p3d){
+        this.say("onPointerLeave", p3d);
+        if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d)
+    }
+    onKeyDown(e){
+        this.say("onKeyDown", e);
+        if(this.surface && this.surface.iKeyDown)this.surface.onDown(e);
+    }
+    onKeyUp(e){
+        this.say("onKeyUp", e);
+        if(this.surface && this.surface.iKeyUp)this.surface.onKeyUp(e);
     }
 
     doPointerDown(p3d){ this.hilite(DownColor)}

@@ -12,38 +12,7 @@
 // - PointerEnter/PointerOver - send PointerLeave.
 // - KeyDown - send KeyCancel instead of KeyUp.
 
-import { RegisterMixin, THREE } from "@croquet/worldcore";
-
-export const AM_Events = superclass => class extends superclass {
-    init(...args) {
-        super.init(...args);
-        if(this.onPointerDown)this.listen("_PointerDown", this.onPointerDown);
-        if(this.onPointerUp)this.listen("_PointerUp", this.onPointerUp);
-        if(this.onPointerCancel)this.listen("_PointerCancel", this.onPointerCancel);
-        if(this.onPointerMove)this.listen("_PointerMove", this.onPointerMove);
-        if(this.onPointerEnter)this.listen("_PointerEnter", this.onPointerEnter);
-        if(this.onPointerOver)this.listen("_PointerOver", this.onPointerOver);
-        if(this.onPointerLeave)this.listen("_PointerLeave", this.onPointerLeave);
-        if(this.onPointerWheel)this.listen("_PointerWheel", this.onPointerWheel);
-        if(this.onKeyDown)this.listen("_KeyDown", this.onKeyDown);
-        if(this.onKeyUp)this.listen("_KeyUp", this.onKeyUp);
-    }
-
-    // extended class has responsibility to redefine these functions.
-    /*
-    onPointerDown(p3d){}
-    onPointerUp(p3d){}
-    onPointerCancel(p3d){}    
-    onPointerMove(p3d){}
-    onPointerEnter(p3d){}
-    onPointerOver(p3d){}
-    onPointerLeave(p3d){}
-    onPointerWheel(e){}
-    onKeyDown(e){}
-    onKeyUp(e){}
-    */
-}
-RegisterMixin(AM_Events);
+import { THREE } from "@croquet/worldcore";
 
 export const PM_Events = superclass => class extends superclass {
     // the pawn can override these functions if it needs it executed immediately
@@ -55,44 +24,44 @@ export const PM_Events = superclass => class extends superclass {
     wantsPointerOverEvents(){return true; }
     wantsKeyEvents(){return true; }
     _pointerDown(p3d){ 
-        if(this.iPointerDown)this.iPointerDown(p3d);
-        if(this.actor.onPointerDown)this.say("_PointerDown", p3d); 
+        if(this.onPointerDown)this.onPointerDown(p3d);
+    //    if(this.actor.onPointerDown)this.say("_PointerDown", p3d); 
     }
     _pointerUp(p3d){ 
-        if(this.iPointerUp)this.iPointerUp(p3d);
-        if(this.actor.onPointerUp)this.say("_PointerUp", p3d); 
+        if(this.onPointerUp)this.onPointerUp(p3d);
+    //    if(this.actor.onPointerUp)this.say("_PointerUp", p3d); 
     }
     _pointerMove(p3d){ 
-        if(this.iPointerMove)this.iPointerMove(p3d);
-        if(this.actor.onPointerMove)this.say("_PointerMove", p3d) 
+        if(this.onPointerMove)this.onPointerMove(p3d);
+    //    if(this.actor.onPointerMove)this.say("_PointerMove", p3d) 
     }
     _pointerCancel(p3d){ 
-        if(this.iPointerCancel)this.iPointerCancel(p3d);
-        if(this.actor.onPointerCancel)this.say("_PointerCancel", p3d) 
+        if(this.onPointerCancel)this.onPointerCancel(p3d);
+    //    if(this.actor.onPointerCancel)this.say("_PointerCancel", p3d) 
     }
     _pointerEnter(p3d){ 
-        if(this.iPointerEnter)this.iPointerEnter(p3d);
-        if(this.actor.onPointerEnter)this.say("_PointerEnter", p3d) 
+        if(this.onPointerEnter)this.onPointerEnter(p3d);
+    //    if(this.actor.onPointerEnter)this.say("_PointerEnter", p3d) 
     }
     _pointerOver(p3d){ 
-        if(this.iPointerOver)this.iPointerOver(p3d);
-        if(this.actor.onPointerOver)this.say("_PointerOver", p3d) 
+        if(this.onPointerOver)this.onPointerOver(p3d);
+    //    if(this.actor.onPointerOver)this.say("_PointerOver", p3d) 
     }
     _pointerLeave(p3d){ 
-        if(this.iPointerLeave)this.iPointerLeave(p3d);
-        if(this.actor.onPointerLeave)this.say("_PointerLeave", p3d) 
+        if(this.onPointerLeave)this.onPointerLeave(p3d);
+    //    if(this.actor.onPointerLeave)this.say("_PointerLeave", p3d) 
     }
     _pointerWheel(p3d){ 
-        if(this.iPointerWheel)this.iPointerWheel(p3d);
-        if(this.actor.onPointerWheel)this.say("_PointerWheel", p3d); 
+        if(this.onPointerWheel)this.onPointerWheel(p3d);
+    //    if(this.actor.onPointerWheel)this.say("_PointerWheel", p3d); 
     }
     _keyDown(e){ 
-        if(this.iKeyDown)this.iKeyDown(e);
-        if(this.actor.onKeyDown)this.say("_KeyDown", e); 
+        if(this.onKeyDown)this.onKeyDown(e);
+    //    if(this.actor.onKeyDown)this.say("_KeyDown", e); 
     }
     _keyUp(e){ 
-        if(this.iKeyUp)this.iKeyUp(e);
-        if(this.actor.onKeyUp)this.say("_KeyUp", e); 
+        if(this.onKeyUp)this.onKeyUp(e);
+    //    if(this.actor.onKeyUp)this.say("_KeyUp", e); 
     }
 }
 
@@ -170,7 +139,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             this._pointer3D.wheel = e;
             this.target._pointerWheel(this._pointer3D);
             this._pointer3D.wheel = undefined; // clear it 
-        }else if(this.iPointerWheel)this.iPointerWheel(e); // avatar can use it
+        }else if(this.onPointerWheel)this.onPointerWheel(e); // avatar can use it
     }
 
     _keyDown(e){

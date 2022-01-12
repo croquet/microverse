@@ -1,4 +1,4 @@
-import { THREE, Actor, Pawn, PM_Dynamic, mix} from "@croquet/worldcore";
+import { THREE, Actor, Pawn } from "@croquet/worldcore";
 export class Surface extends Actor{
     get pawn(){return SurfacePawn}
     init(...args) {
@@ -21,7 +21,6 @@ class TextureSurfacePawn extends SurfacePawn{
     constructor(...args){
         super(...args);
         this.texture = new THREE.TextureLoader().load(this.actor._url);
-
     }
 }
 
@@ -65,6 +64,7 @@ export class CanvasSurface extends Surface{
         this.position = [512,512];
         this.velocity = this.randomVelocity();
         this.radius = 50;
+        this.listen("set", this.setPosition);
         this.future(100).bounce();
     }
     get pawn(){return CanvasSurfacePawn}
@@ -96,9 +96,8 @@ export class CanvasSurface extends Surface{
         this.say("updatePosition", this.position);
     }
 
-    onPointerDown(p3d){
-        this.updatePosition(this.width*p3d.uv[0], this.height*(1-p3d.uv[1]));
-        console.log("CanvasSurface.onPointerDown()", p3d.uv);
+    setPosition(uv){
+        this.updatePosition(this.width*uv[0], this.height*(1-uv[1]));
     }
 }
 CanvasSurface.register('CanvasSurface');
@@ -133,7 +132,7 @@ class CanvasSurfacePawn extends SurfacePawn{
         this.texture.needsUpdate=true;
     }
 
-    iPointerDown(p3d){
-        console.log("CanvasSurfacePawn.iPointerDown()", p3d.uv);
+    onPointerDown(p3d){
+        this.say("set", p3d.uv);
     }
 }
