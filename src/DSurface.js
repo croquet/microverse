@@ -59,6 +59,7 @@ const SPEED = 10;
 export class CanvasSurface extends Surface{
     init(...args) {
         super.init(...args);
+        console.log(this)
         this.width = this._width || 1024;
         this.height = this._height || 1024;
         this.position = [512,512];
@@ -102,14 +103,20 @@ export class CanvasSurface extends Surface{
 }
 CanvasSurface.register('CanvasSurface');
 
-class CanvasSurfacePawn extends SurfacePawn{
+export class CanvasSurfacePawn extends SurfacePawn{
     constructor(...args){
         super(...args);
+        console.log(this);
         this.canvas = document.createElement('canvas');
+        this.canvas.setAttribute("id", this._name);
+
         this.canvas.width = this.actor.width;
         this.canvas.height = this.actor.height;
         this.canvas.style.zIndex=2000;
         this.texture = new THREE.CanvasTexture(this.canvas);
+        this.setup();
+    }
+    setup(){
         this.updatePosition(this.actor.position);
         var body = document.getElementsByTagName("body")[0];
         body.appendChild(this.canvas);

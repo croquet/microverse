@@ -21,6 +21,7 @@ import { TextPopupActor } from './src/popuptext.js';
 import { PerlinActor } from './src/PerlinMixin.js';
 import { Card } from './src/DCard.js';
 import { TextureSurface, VideoSurface, CanvasSurface } from './src/DSurface.js';
+import { MultiBlaster } from './src/multiblaster.js';
 
 import JSZip from "jszip";
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -174,18 +175,19 @@ class MyModelRoot extends ModelRoot {
 
         let tSurface = TextureSurface.create({url: '/assets/images/Kay.jpg'});
         let vSurface = VideoSurface.create({url:'/assets/videos/fromPCtoHMD.mp4'});
-        let cSurface = CanvasSurface.create();
+        let cSurface = CanvasSurface.create({name: 'CanvasSurface'});
+        let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
         let svgCards = ['CroquetSymbol_CMYK_NoShadow.svg', 'credit-card.svg', 'credit-card.svg', 
         'square.svg', 'square-full.svg',
         'circle.svg', 'compass.svg', 'frown.svg', 'cog.svg'];
-        let surfaces = [tSurface, tSurface, vSurface, cSurface, tSurface, vSurface, cSurface, tSurface];
+        let surfaces = [tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
         for(let i =0; i<8; i++)
         Card.create(
             {
                 cardShape: '/assets/SVG/'+svgCards[i],
                 cardSurface: surfaces[i],
-                cardFullBright: surfaces[i]===vSurface || surfaces[i]===cSurface,
+                cardFullBright: surfaces[i]===vSurface || surfaces[i]===cSurface || surfaces[i]===gSurface,
                 cardDepth: 0.1,
                 cardBevel:0.02,
                 cardColor:i>0?[1,1,1]:undefined, // white

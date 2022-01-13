@@ -20,48 +20,35 @@ export const PM_Events = superclass => class extends superclass {
         super(...args);
 
     }
-    wantsPointerEvents(){return true; }
-    wantsPointerOverEvents(){return true; }
-    wantsKeyEvents(){return true; }
     _pointerDown(p3d){ 
         if(this.onPointerDown)this.onPointerDown(p3d);
-    //    if(this.actor.onPointerDown)this.say("_PointerDown", p3d); 
     }
     _pointerUp(p3d){ 
         if(this.onPointerUp)this.onPointerUp(p3d);
-    //    if(this.actor.onPointerUp)this.say("_PointerUp", p3d); 
     }
     _pointerMove(p3d){ 
         if(this.onPointerMove)this.onPointerMove(p3d);
-    //    if(this.actor.onPointerMove)this.say("_PointerMove", p3d) 
     }
     _pointerCancel(p3d){ 
         if(this.onPointerCancel)this.onPointerCancel(p3d);
-    //    if(this.actor.onPointerCancel)this.say("_PointerCancel", p3d) 
     }
     _pointerEnter(p3d){ 
         if(this.onPointerEnter)this.onPointerEnter(p3d);
-    //    if(this.actor.onPointerEnter)this.say("_PointerEnter", p3d) 
     }
     _pointerOver(p3d){ 
         if(this.onPointerOver)this.onPointerOver(p3d);
-    //    if(this.actor.onPointerOver)this.say("_PointerOver", p3d) 
     }
     _pointerLeave(p3d){ 
         if(this.onPointerLeave)this.onPointerLeave(p3d);
-    //    if(this.actor.onPointerLeave)this.say("_PointerLeave", p3d) 
     }
     _pointerWheel(p3d){ 
         if(this.onPointerWheel)this.onPointerWheel(p3d);
-    //    if(this.actor.onPointerWheel)this.say("_PointerWheel", p3d); 
     }
     _keyDown(e){ 
         if(this.onKeyDown)this.onKeyDown(e);
-    //    if(this.actor.onKeyDown)this.say("_KeyDown", e); 
     }
     _keyUp(e){ 
         if(this.onKeyUp)this.onKeyUp(e);
-    //    if(this.actor.onKeyUp)this.say("_KeyUp", e); 
     }
 }
 

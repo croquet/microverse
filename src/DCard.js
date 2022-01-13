@@ -161,7 +161,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         super(...args);
         this.constructCard();
         this.listen("doPointerDown", this.doPointerDown);
-        this.listen("doPointerMove", this.doPointerMove)
+        this.listen("doPointerMove", this.doPointerMove);
         this.listen("doPointerUp", this.doPointerUp);
         this.listen("doPointerDownCancel", this.doPointerUp);
         this.listen("doPointerEnter", this.doPointerEnter);
@@ -209,6 +209,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.setRenderObject( this.cardHolder );
     }
 
+    // communication with the Card_Actor and the Surface_Pawn
     onPointerDown(p3d){
         this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
         this.say("onPointerDown", p3d);
@@ -237,13 +238,14 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
     }
     onKeyDown(e){
         this.say("onKeyDown", e);
-        if(this.surface && this.surface.iKeyDown)this.surface.onDown(e);
+        if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
     }
     onKeyUp(e){
         this.say("onKeyUp", e);
-        if(this.surface && this.surface.iKeyUp)this.surface.onKeyUp(e);
+        if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
     }
 
+    // communication from the Card_Actor
     doPointerDown(p3d){ this.hilite(DownColor)}
 
     doPointerMove(p3d){}
