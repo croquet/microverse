@@ -24,6 +24,7 @@ function setupButton( bttn, dothis ){
 // swith between walk and orbit
 setupButton(document.getElementById("orbitingBttn"), switchControl);
 setupButton(document.getElementById("walkingBttn"), switchControl);
+setupButton(document.getElementById("fullscreenBttn"), toggleFullScreen);
 
 function switchControl(e){
     isWalking = !isWalking;
@@ -33,6 +34,21 @@ function switchControl(e){
     if(e){e.stopPropagation(); e.preventDefault();}
 }
 switchControl(); //initialize the buttons (lazy me)
+
+function toggleFullScreen(e) {
+    if (!document.fullscreenElement) {
+      // If the document is not in full screen mode
+      // make the document full screen
+      document.body.requestFullscreen();
+    } else {
+      // Otherwise exit the full screen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+    if(e){e.stopPropagation(); e.preventDefault();}
+  }
+  
 
 export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     init(options) {
