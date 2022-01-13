@@ -70,6 +70,8 @@ export class CanvasSurface extends Surface{
     }
     get pawn(){return CanvasSurfacePawn}
 
+    uv2xy(uv){return [this.width*uv[0],this.height*(1-uv[1])]}
+    
     randomVelocity() {
         const r = this.random() * 2 * Math.PI;
         return [Math.cos(r) * SPEED, Math.sin(r) * SPEED];
@@ -87,18 +89,19 @@ export class CanvasSurface extends Surface{
         if(px>this.width)px=this.width-this.radius;
         if(py<0)py=this.radius;
         if(py>this.height)py=this.height-this.radius;
-        this.updatePosition(px,py);
+        this.updatePosition([px,py]);
         this.future(50).bounce();
     }
 
-    updatePosition(px, py){
-        this.position[0]=px;
-        this.position[1]=py;
+    updatePosition(p){
+        this.position[0]=p[0];
+        this.position[1]=p[1];
         this.say("updatePosition", this.position);
     }
 
     setPosition(uv){
-        this.updatePosition(this.width*uv[0], this.height*(1-uv[1]));
+        let p = this.uv2xy(uv);
+        this.updatePosition(p);
     }
 }
 CanvasSurface.register('CanvasSurface');

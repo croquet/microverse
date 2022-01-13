@@ -268,87 +268,47 @@ Blast.register("Blast");
 class MultiBlasterDisplay extends CanvasSurfacePawn {
     constructor(...args) {
         super(...args);
-/*
-        document.onkeydown = (e) => {
-            //joystick.style.display = "none";
-            if (e.repeat) return;
-            switch (e.key) {
-                case "a": case "A": case "ArrowLeft":  this.publish(this.viewId, "left-thruster", true); break;
-                case "d": case "D": case "ArrowRight": this.publish(this.viewId, "right-thruster", true); break;
-                case "w": case "W": case "ArrowUp":    this.publish(this.viewId, "forward-thruster", true); break;
-                case " ":                              this.publish(this.viewId, "fire-blaster"); break;
-                case "p": case "P": this.publish(this.viewId, "switchPause"); break;
-            }
-        };
-        document.onkeyup = (e) => {
-            if (e.repeat) return;
-            switch (e.key) {
-                case "a": case "A": case "ArrowLeft":  this.publish(this.viewId, "left-thruster", false); break;
-                case "d": case "D": case "ArrowRight": this.publish(this.viewId, "right-thruster", false); break;
-                case "w": case "W": case "ArrowUp":    this.publish(this.viewId, "forward-thruster", false); break;
-            }
-        };
-
-        let x = 0, y = 0, id = 0, right = false, left = false, forward = false;
-        document.onpointerdown = (e) => {
-            if (!id) {
-                id = e.pointerId;
-                x = e.clientX;
-                y = e.clientY;
-                joystick.style.left = `${x - 60}px`;
-                joystick.style.top = `${y - 60}px`;
-                joystick.style.display = "block";
-            }
-        };
-        document.onpointermove = (e) => {
-            e.preventDefault();
-            if (id === e.pointerId) {
-                let dx = e.clientX - x;
-                let dy = e.clientY - y;
-                if (dx > 30) {
-                    dx = 30;
-                    if (!right) { this.publish(this.viewId, "right-thruster", true); right = true; }
-                } else if (right) { this.publish(this.viewId, "right-thruster", false); right = false; }
-                if (dx < -30) {
-                    dx = -30;
-                    if (!left) { this.publish(this.viewId, "left-thruster", true); left = true; }
-                } else if (left) { this.publish(this.viewId, "left-thruster", false); left = false; }
-                if (dy < -30) {
-                    dy = -30;
-                    if (!forward) { this.publish(this.viewId, "forward-thruster", true); forward = true; }
-                } else if (forward) { this.publish(this.viewId, "forward-thruster", false); forward = false; }
-                if (dy > 0) dy = 0;
-                knob.style.left = `${20 + dx}px`;
-                knob.style.top = `${20 + dy}px`;
-            }
-        }
-        document.onpointerup = (e) => {
-            e.preventDefault();
-            if (id === e.pointerId) {
-                id = 0;
-                if (!right && !left && !forward) {
-                    this.publish(this.viewId, "fire-blaster");
-                }
-                if (right) { this.publish(this.viewId, "right-thruster", false); right = false; }
-                if (left) { this.publish(this.viewId, "left-thruster", false); left = false;  }
-                if (forward) { this.publish(this.viewId, "forward-thruster", false); forward = false; }
-                knob.style.left = `20px`;
-                knob.style.top = `20px`;
-            } else {
-                this.publish(this.viewId, "fire-blaster");
-            }
-        }
-        */
-        /*
-        document.onpointercancel = document.onpointerup;
-        document.oncontextmenu = e => { e.preventDefault();  this.publish(this.viewId, "fire-blaster"); }
-        document.ontouchend = e => e.preventDefault(); // prevent double-tap zoom on iOS
-        codelink.ontouchend = () => codelink.click(); // but allow clicking link ¯\_(ツ)_/¯
-        */
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 
         this.context = this.canvas.getContext("2d");
         this.future(50).update();
+    }
+    onPointerDown(p3d){
+        console.log("onPointerDown")
+        this.joystick = this.actor.uv2xy(p3d.uv);
+        this.knob = this.joystick;
+    }
+
+    onPointerMove(p3d){ 
+        console.log("onPointerMove")
+        this.knob= this.actor.uv2xy(p3d.uv);
+        let dx = this.knob[0]- this.joystick[0];
+        let dy = this.knob[1] - this.joystick[1];
+        if (dx > 30) {
+            if (!this.right) { this.publish(this.viewId, "right-thruster", true); this.right = true; }
+        } else if (this.right) { this.publish(this.viewId, "right-thruster", false); this.right = false; }
+        if (dx < -30) {
+            if (!this.left) { this.publish(this.viewId, "left-thruster", true); this.left = true; }
+        } else if (this.left) { this.publish(this.viewId, "left-thruster", false); this.left = false; }
+        if (dy < -30) {
+            if (!this.forward) { this.publish(this.viewId, "forward-thruster", true); this.forward = true; }
+        } else if (this.forward) { this.publish(this.viewId, "forward-thruster", false); this.forward = false; }
+    }
+
+    onPointerUp(p3d){ 
+        if (!this.right && !this.left && !this.forward) {
+            this.publish(this.viewId, "fire-blaster");
+        }
+        if (this.right) { this.publish(this.viewId, "right-thruster", this.false); this.right = false; }
+        if (this.left) { this.publish(this.viewId, "left-thruster", false); this.left = false;  }
+        if (this.forward) { this.publish(this.viewId, "forward-thruster", false); this.forward = false; }
+
+        this.joystick = null;
+        this.knob= null;
+    }
+
+    onPointerCancel(p3d){
+        this.onPointerUp(p3d);
     }
 
     onKeyDown(e){
@@ -411,6 +371,7 @@ class MultiBlasterDisplay extends CanvasSurfacePawn {
                 this.drawBlast();
                 this.context.restore();
             }
+            if(this.joystick)this.drawJoystick();
             this.texture.needsUpdate=true;
         }
         this.future(50).update();
@@ -433,6 +394,19 @@ class MultiBlasterDisplay extends CanvasSurfacePawn {
         const da = obj.a - smoothed.a;
         if (Math.abs(da) < 1) smoothed.a += da * 0.3; else smoothed.a = obj.a;
         return smoothed;
+    }
+
+    drawJoystick(){
+        this.drawCircle(this.joystick, 50, false);
+        this.drawCircle(this.knob, 25, true);
+    }
+
+    drawCircle(pos, radius, filled){
+        this.context.fillStyle = '#ffffff';
+        this.context.beginPath();
+        this.context.arc(pos[0], pos[1], radius, 0, Math.PI*2, true);
+        if(filled)this.context.fill();
+        else this.context.stroke();
     }
 
     drawShip(thrust, highlight) {
