@@ -1,15 +1,7 @@
 // Microverse
 // TODO:
-// "Come to me" button
-// Select/highlight object
-// Create visualizer
-// Tilt camera when going down stairs
-// Laser Controller
-// Demo graphing
-// Generic Importer
-// Collisions
-// Drag and drop
-// Panel Controls
+// https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit
+
 
 import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
          ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
@@ -94,7 +86,6 @@ for(i=0; i<6;i++){
     loadGLB(a, (i+1)+".glb", avatars[i], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 }
 if(maxAvatars>6){
-    i=6;
     loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     loadGLB(rabbit, "newwhite.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
@@ -102,9 +93,7 @@ if(maxAvatars>6){
     loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 }
-/*
 
-*/
 const plant = new THREE.Group();
 loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
 
@@ -173,8 +162,8 @@ class MyModelRoot extends ModelRoot {
             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
 
-        let tSurface = TextureSurface.create({url: '/assets/images/Kay.jpg'});
-        let vSurface = VideoSurface.create({url:'/assets/videos/fromPCtoHMD.mp4'});
+        let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
+        let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let cSurface = CanvasSurface.create({name: 'CanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
@@ -185,7 +174,7 @@ class MyModelRoot extends ModelRoot {
         for(let i =0; i<8; i++)
         Card.create(
             {
-                cardShape: '/assets/SVG/'+svgCards[i],
+                cardShape: './assets/SVG/'+svgCards[i],
                 cardSurface: surfaces[i],
                 cardFullBright: surfaces[i]===vSurface || surfaces[i]===cSurface || surfaces[i]===gSurface,
                 cardDepth: 0.1,
