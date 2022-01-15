@@ -12,7 +12,7 @@ import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { TextPopupActor } from './src/popuptext.js';
 import { PerlinActor } from './src/PerlinMixin.js';
 import { Card } from './src/DCard.js';
-import { TextureSurface, VideoSurface, CanvasSurface } from './src/DSurface.js';
+import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 
 import JSZip from "jszip";
@@ -163,14 +163,15 @@ class MyModelRoot extends ModelRoot {
         );
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
+        let chessLightSurface = TextureSurface.create({url: './assets/images/light-wood.jpg'});
+        let chessDarkSurface = TextureSurface.create({url: './assets/images/dark-wood.jpg'});
         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
-        let cSurface = CanvasSurface.create({name: 'CanvasSurface'});
+        let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
-        let svgCards = ['CroquetSymbol_CMYK_NoShadow.svg', 'credit-card.svg', 'credit-card.svg', 
-        'square.svg', 'square-full.svg',
-        'circle.svg', 'compass.svg', 'frown.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
+        let svgCards = ['CroquetSymbol_CMYK_NoShadow.svg', 'square.svg', 'chess-board-solid.svg', 'chess-board-solid.svg', 'credit-card.svg', 
+        'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'frown.svg', 'cog.svg'];
+        let surfaces = [tSurface, cSurface, chessLightSurface, chessDarkSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
         for(let i =0; i<8; i++)
         Card.create(
             {
