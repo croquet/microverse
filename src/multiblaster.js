@@ -7,7 +7,6 @@ import { CanvasSurface, CanvasSurfacePawn} from "./DSurface.js";
 export class MultiBlaster extends CanvasSurface {
     get pawn(){ return MultiBlasterDisplay }
     init(...args) {
-        console.log(this)
         super.init(...args);
         this.beWellKnownAs("multiBlaster");
         this.ships = new Map();
@@ -274,13 +273,11 @@ class MultiBlasterDisplay extends CanvasSurfacePawn {
         this.future(50).update();
     }
     onPointerDown(p3d){
-        console.log("onPointerDown")
         this.joystick = this.actor.uv2xy(p3d.uv);
         this.knob = this.joystick;
     }
 
     onPointerMove(p3d){ 
-        console.log("onPointerMove")
         this.knob= this.actor.uv2xy(p3d.uv);
         let dx = this.knob[0]- this.joystick[0];
         let dy = this.knob[1] - this.joystick[1];

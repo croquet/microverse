@@ -7,7 +7,6 @@ import { PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
-import { myAvatar } from './MVAvatar.js';
 import { loadSVG } from './SVGimporter.js';
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -31,6 +30,7 @@ export class Card extends mix(Actor).with(AM_Spatial){
         this.listen("onPointerUp", this.onPointerUp);
         this.listen("onPointerEnter", this.onPointerEnter);
         this.listen("onPointerLeave", this.onPointerLeave);
+        this.listen("onPointerWheel", this.onPointerWheel);
         this.future(1000).timeOutEvent(); // check once a second to see if user is alive
     }
 
@@ -244,7 +244,9 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.say("onKeyUp", e);
         if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
     }
-
+    onPointerWheel(p3d){
+        this.say("onPointerWheel", p3d);
+    }
     // communication from the Card_Actor
     doPointerDown(p3d){ this.hilite(DownColor)}
 

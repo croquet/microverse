@@ -71,7 +71,6 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         this.set({translation: there[0], rotation: there[1]});
     }
 
-    /*
     goThere(there){
        // this.moveTo(there[0]); 
        // this.rotateTo(there[1]);
@@ -94,7 +93,6 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         //console.log(t, v, q);
         if(t<1)this.future(50).goToStep(t+0.05);
     }
-    */
 }
 
 export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEvents, PM_ThreeVisibleLayer, PM_ThreeCamera){
@@ -250,7 +248,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
         if (this.isMyPlayerPawn) {
             if(isTweening)return this.tweenCamera.matrixWorld.elements;
             else if(isWalking)return this.walkLook;
-            else if(this.orbitCamera){return this.orbitCamera.matrixWorld.elements;}
+            else if(this.orbitCamera && this.orbitCamera.matrixWorld){return this.orbitCamera.matrixWorld.elements;}
             else return this.global;
         }else return this.global;
     }
@@ -369,7 +367,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
     }
 
     // from DEvents.js
-    iPointerWheel(wheel){        
+    onPointerWheel(wheel){        
         let z = this.lookOffset[2];
         z += wheel/1000.0;
         z = Math.min(4, Math.max(z,0));
