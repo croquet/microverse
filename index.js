@@ -8,14 +8,15 @@ import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, Inpu
 import { DLayerManager, PM_ThreeVisibleLayer } from './src/DLayerManager.js';
 import { AMVAvatar, PMVAvatar } from './src/MVAvatar.js';
 import { D } from './src/DConstants.js';
-import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
+//import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
+import { loadGLB, addShadows } from '/src/LoadGLB.js'
 import { TextPopupActor } from './src/popuptext.js';
 import { PerlinActor } from './src/PerlinMixin.js';
 import { Card } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 
-import JSZip from "jszip";
+console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 const powerPlant = "./assets/refineryx.glb.zip";
@@ -39,42 +40,6 @@ import skyRight from "./assets/sky/sh_rt.png";
 import skyLeft from "./assets/sky/sh_lf.png";
 import skyUp from "./assets/sky/sh_up.png";
 import skyDown from "./assets/sky/sh_dn.png";
-
-console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
-console.log("%cJSZip.Version",  'color: #f00', JSZip.version);
-
-async function loadGLB(zip, file, group, onComplete, position, scale, rotation, singleSide){
-    await fetch(zip)
-    .then(res => res.blob())
-    .then(blob => {
-        let jsz = new JSZip();
-        jsz.loadAsync(blob, {createFolders: true}).then(function(zip){
-            zip.file(file).async("ArrayBuffer").then(function(data) {
-                (new GLTFLoader()).parse( data, null, function (gltf) {  
-                    if(onComplete)onComplete(gltf, singleSide);
-                    group.add( gltf.scene );
-                    group.updateMatrixWorld ( true );
-                    if(position)gltf.scene.position.set(...position);
-                    if(scale)gltf.scene.scale.set(...scale);
-                    if(rotation)gltf.scene.rotation.set(...rotation);
-                    group.ready = true;
-                    return group;
-                });
-            })
-        })
-    })
-}
-
-function addShadows(obj3d, singleSide) {
-    obj3d.scene.traverse( n => {
-        if(n.material){
-            if(singleSide)n.material.side = THREE.FrontSide; //only render front side
-            n.material.format = THREE.RGBAFormat; // fixes a bug in GLTF import
-            n.castShadow = true;
-            n.receiveShadow = true;
-        }
-    });
-}
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 let maxAvatars = 12;
