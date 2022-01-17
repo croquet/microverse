@@ -234,8 +234,7 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLa
 
         this.group = new THREE.Group();
         this.perlinGroup = new THREE.Group();
-        this.group.add(this.perlinGroup);
-
+       
         this.buttonSphere = new THREE.Mesh(new THREE.SphereGeometry(0.5,32,16), 
             new THREE.MeshStandardMaterial());
         this.buttonSphere.position.y = 3;
@@ -269,7 +268,7 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLa
             this.rowGeometry.push(rGroup);
             this.perlinGroup.add(rGroup);
         }
-        this.perlinGroup.visible=this.actor.visible;
+        if(this.actor.visible) this.group.add(this.perlinGroup);
         this.isConstructed=true;
     }
 
@@ -291,6 +290,8 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLa
     }
     showMe(visible){
         console.log(visible);
-        this.perlinGroup.visible=visible;
+        if(this.actor.visible) this.group.add(this.perlinGroup);
+        else this.group.remove(this.perlinGroup);
+        //this.perlinGroup.visible=visible;
     }
 }

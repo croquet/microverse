@@ -206,7 +206,7 @@ class MyViewRoot extends ViewRoot {
         const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         scene.lightLayer.add(ambient);
 
-        const sun = this.sun = new THREE.DirectionalLight( 0xffa95c, 1 );
+        const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
         sun.position.set(-200, 800, 100);
 
         //Set up shadow properties for the light
@@ -224,7 +224,12 @@ class MyViewRoot extends ViewRoot {
         sun.shadow.camera.right = -side;
         scene.lightLayer.add(sun);
 
-        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0x080840, 0.2);
+        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
+        this.moon.position.set(200, 100, -100);
+        scene.lightLayer.add(this.moon);
+
+        const hemiLight = this.hemiLight = 
+            new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
         scene.lightLayer.add(hemiLight);
 
         const renderer = window.renderer = this.service("ThreeRenderManager").renderer;
