@@ -1,4 +1,4 @@
-const HtmlWebPackPlugin = require('html-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const webpack = require("webpack");
@@ -34,7 +34,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebPackPlugin({
+        new HtmlWebpackPlugin({
             template: 'index.html',   // input
             filename: 'index.html',   // output filename in dist/
         }),
