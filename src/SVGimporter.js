@@ -2,7 +2,7 @@ import { THREE } from "@croquet/worldcore";
 import { SVGLoader } from './three/examples/jsm/loaders/SVGLoader.js';
 let counter = 0;
 
-export function loadSVG( url, target, texture, color, fullBright, onComplete ) {
+export function loadSVG( url, target, texture, color, fullBright, rotation, shadow, onComplete ) {
 	const loader = new SVGLoader();
 	let group = new THREE.Group();
 	let depth = 0;
@@ -51,24 +51,30 @@ export function loadSVG( url, target, texture, color, fullBright, onComplete ) {
 				}
 			}
 		}
-		normalize(target, group, color);
+		console.log(url);
+		normalize(group, color, shadow);
+		let holderGroup = new THREE.Group();
+		holderGroup.add(group)
+		target.add(holderGroup);
+		if(rotation)holderGroup.setRotationFromQuaternion(new THREE.Quaternion(...rotation));
 		if(texture)addTexture(texture, group);
 		if(onComplete)onComplete(group);
 	} );
 }
 
-export function normalize(target, svgGroup, color){
-	target.add(svgGroup);
+export function normalize(svgGroup, color, shadow){
 	let bb = boundingBox(svgGroup);
 	let ext = extent3D(svgGroup, bb);
 	let cen = center3D(svgGroup, bb);
+	console.log(ext, cen)
 	svgGroup.scale.y *= -1;
 	cen.y *=-1;
 	let mx = Math.max(ext.x, ext.y);
 	if(mx>0){ 
 		svgGroup.position.set(-cen.x, -cen.y, -cen.z);
 		let sc = 1/mx;
-		target.scale.set(sc,sc,sc);
+		svgGroup.position.multiplyScalar(sc);
+		svgGroup.scale.multiplyScalar(sc);
 	}
 	let c;
 	if(color)c = new THREE.Color(...color);
@@ -76,6 +82,10 @@ export function normalize(target, svgGroup, color){
 		if(obj.material){
 			normalizeUV(obj.geometry.attributes.uv.array, bb);
 			if(c)obj.material.color=c; 
+			if(shadow){ 
+				obj.castShadow = true;
+				obj.receiveShadow = true;
+			}
 	}});
 }
 

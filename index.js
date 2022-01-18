@@ -15,6 +15,7 @@ import { PerlinActor } from './src/PerlinMixin.js';
 import { Card } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
+import { createChess } from './src/chess.js';
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -123,24 +124,22 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
         this.perlin = PerlinActor.create(
-            {translation:[ 4, -2.75, -14],
+            {translation:[ 8, -2.75, -14],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
-        let chessLightSurface = TextureSurface.create({url: './assets/images/light-wood.jpg'});
-        let chessDarkSurface = TextureSurface.create({url: './assets/images/dark-wood.jpg'});
-        let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
+         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
-        let svgCards = ['CroquetSymbol_CMYK_NoShadow.svg', 'square.svg', 'chess-board-solid.svg', 'chess-board-solid.svg', 'credit-card.svg', 
-        'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'frown.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, chessLightSurface, chessDarkSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
+        let svgCards = ['CroquetSymbol_CMYK_NoShadow.svg', 'square.svg', 'credit-card.svg', 
+        'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'smile.svg', 'cog.svg'];
+        let surfaces = [tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
         for(let i =0; i<8; i++)
         Card.create(
             {
-                cardShape: './assets/SVG/'+svgCards[i],
+                cardShapeURL: './assets/SVG/'+svgCards[i],
                 cardSurface: surfaces[i],
                 cardFullBright: surfaces[i]===vSurface || surfaces[i]===cSurface || surfaces[i]===gSurface,
                 cardDepth: 0.1,
@@ -151,6 +150,9 @@ class MyModelRoot extends ModelRoot {
                 cardInstall: true
             }
         );
+
+        createChess([8, -2.5, -30], [6,6,6]);
+
         this.popup = TextPopupActor.create();
         this.popup.set({translation: [-5, 0, -5]});
     }

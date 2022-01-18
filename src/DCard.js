@@ -40,13 +40,15 @@ export class Card extends mix(Actor).with(AM_Spatial){
         let cardId = c.id?c.id:c;
         if (!this.children) this.children = new Set();
         this.children.add(cardId);
-        this.say("addChild", cardId);
+        let childActor = this.service("ActorManager").get(cardId);
+        childActor._parent = this;
+        this.say("addCard", cardId);
     }
 
     removeCard(c) { 
         let cardId = c.id?c.id:c;
         if (this.children) this.children.delete(cardId);
-        this.say("removeChild", cardId);
+        this.say("removeCard", cardId);
     }
 
     // check if user hasn't moved if pointer is down or over
@@ -154,7 +156,7 @@ export class Card extends mix(Actor).with(AM_Spatial){
     */
 }
 
-Card.register('CardActor');
+Card.register('Card');
 
 class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
     constructor(...args) {
@@ -170,8 +172,8 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.listen("doPointerOverCancel", this.doPointerLeave);
         this.listen("doPointerWheel", this.doPointerWheel);
         this.listen("addCard", this.addCard);
+        this.listen("removeCard", this.removeCard);
     }
-
 
     constructCard()
     {
@@ -193,14 +195,26 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
             this.surface = this.service("PawnManager").get(this.actor.surface.id);
             texture = this.surface.texture;
         }
-
-        loadSVG(this.actor._cardShape, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright);
+        if(this.actor._cardShapeURL)
+            loadSVG(this.actor._cardShapeURL, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
+        if(this.actor.children)
+            this.actor.children.forEach(cardId=>this.addCard(cardId));
         if(this.actor._cardInstall) this.addToWorld();
-        //this.future(1000).updateMaterial();
     }
 
-    addCard(){}
-    removeCard(){}
+    addCard(cardId){
+        let child = this.service("PawnManager").get(cardId);
+        if(!child)this.future(100).addCard(cardId);
+        else {
+            this.card3D.add(child.card3D);
+            child.card3D.position.set(...child.actor.translation);
+        }
+    }
+
+    removeCard(cardId){
+        let child = this.service("PawnManager").get(cardId);
+        this.card3D.remove(child.card3D);
+    }
 
     addToWorld(){
         // this part is to place in the scene
@@ -248,7 +262,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.say("onPointerWheel", p3d);
     }
     // communication from the Card_Actor
-    doPointerDown(p3d){ this.hilite(DownColor)}
+    doPointerDown(p3d){ console.log("XYZZY!!!"); this.hilite(DownColor)}
 
     doPointerMove(p3d){}
     

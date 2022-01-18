@@ -81,7 +81,6 @@ class VideoSurfacePawn extends SurfacePawn{
 export class CanvasSurface extends Surface{
     init(...args) {
         super.init(...args);
-        console.log(this)
         this.width = this._width || 1024;
         this.height = this._height || 1024;
     }
@@ -92,7 +91,6 @@ CanvasSurface.register('CanvasSurface');
 export class CanvasSurfacePawn extends SurfacePawn{
     constructor(...args){
         super(...args);
-        console.log(this);
         this.canvas = document.createElement('canvas');
         this.canvas.setAttribute("id", this._name);
 
