@@ -1,6 +1,7 @@
 // Copyright 2022 by Croquet Corporation. All Rights Reserved.
 // Collaborative Card Object
 // Also works with DSurface as a smart 2D object
+// This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { PM_Events } from './DEvents.js';
@@ -8,6 +9,8 @@ import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldco
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
 import { loadSVG } from './SVGimporter.js';
+import { loadGLB, addShadows } from '/src/LoadGLB.js'
+
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
 const DownColor = 0x081808; // green
@@ -195,10 +198,15 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
             this.surface = this.service("PawnManager").get(this.actor.surface.id);
             texture = this.surface.texture;
         }
-        if(this.actor._cardShapeURL)
+        if(this.actor._cardShapeURL){
             loadSVG(this.actor._cardShapeURL, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
-        if(this.actor.children)
+        }
+        if(this.actor._card3DURL){
+
+        }
+        if(this.actor.children){
             this.actor.children.forEach(cardId=>this.addCard(cardId));
+        }
         if(this.actor._cardInstall) this.addToWorld();
     }
 
@@ -262,7 +270,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.say("onPointerWheel", p3d);
     }
     // communication from the Card_Actor
-    doPointerDown(p3d){ console.log("XYZZY!!!"); this.hilite(DownColor)}
+    doPointerDown(p3d){this.hilite(DownColor)}
 
     doPointerMove(p3d){}
     

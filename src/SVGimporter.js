@@ -51,7 +51,6 @@ export function loadSVG( url, target, texture, color, fullBright, rotation, shad
 				}
 			}
 		}
-		console.log(url);
 		normalize(group, color, shadow);
 		let holderGroup = new THREE.Group();
 		holderGroup.add(group)
@@ -66,7 +65,6 @@ export function normalize(svgGroup, color, shadow){
 	let bb = boundingBox(svgGroup);
 	let ext = extent3D(svgGroup, bb);
 	let cen = center3D(svgGroup, bb);
-	console.log(ext, cen)
 	svgGroup.scale.y *= -1;
 	cen.y *=-1;
 	let mx = Math.max(ext.x, ext.y);

@@ -20,21 +20,6 @@ import { createChess } from './src/chess.js';
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
-const powerPlant = "./assets/refineryx.glb.zip";
-const alice  = "./assets/avatars/alice.zip";
-const cheshire = "./assets/avatars/cheshirecat.zip";
-const hatter = "./assets/avatars/fixmadhatter.zip";
-const hare = "./assets/avatars/marchhare.zip";
-const queen = "./assets/avatars/queenofhearts.zip";
-const rabbit = "./assets/avatars/newwhite.zip";
-
-const a1 = "./assets/avatars/generic/1.zip";
-const a2 = "./assets/avatars/generic/2.zip";
-const a3 = "./assets/avatars/generic/3.zip";
-const a4 = "./assets/avatars/generic/4.zip";
-const a5 = "./assets/avatars/generic/5.zip";
-const a6 = "./assets/avatars/generic/6.zip";
-
 import skyFront from "./assets/sky/sh_ft.png";
 import skyBack from "./assets/sky/sh_bk.png";
 import skyRight from "./assets/sky/sh_rt.png";
@@ -46,22 +31,20 @@ import skyDown from "./assets/sky/sh_dn.png";
 let maxAvatars = 12;
 let i = 0;
 const avatars = []; for(i=0; i<maxAvatars;i++) avatars[i]=new THREE.Group; 
-const genericAvatars = [a1,a2,a3,a4,a5,a6]; 
 for(i=0; i<6;i++){
-    let a = genericAvatars[i]; 
-    loadGLB(a, (i+1)+".glb", avatars[i], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/generic/"+(1+i)+".zip", avatars[i], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 }
 if(maxAvatars>6){
-    loadGLB(alice, "alice.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-    loadGLB(rabbit, "newwhite.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-    loadGLB(hatter, "fixmadhatter.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-    loadGLB(hare, "march.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-    loadGLB(queen, "queenofhearts.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-    loadGLB(cheshire, "cheshirecat.glb", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/alice.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/newwhite.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/fixmadhatter.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/marchhare.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/queenofhearts.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    loadGLB("./assets/avatars/cheshirecat.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
 }
 
 const plant = new THREE.Group();
-loadGLB(powerPlant, "refineryx.glb", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
+loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
 
 class Avatar extends AMVAvatar{
     init(options) {
@@ -129,7 +112,7 @@ class MyModelRoot extends ModelRoot {
         );
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
-         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
+        let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 

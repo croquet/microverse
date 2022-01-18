@@ -5,13 +5,15 @@ import { THREE } from "@croquet/worldcore";
 console.log("%cJSZip.Version",  'color: #f00', JSZip.version);
 
 // This will be replaced by the generic file load
-export async function loadGLB(zip, file, group, onComplete, position, scale, rotation, singleSide){
+export async function loadGLB(zip, group, onComplete, position, scale, rotation, singleSide){
     await fetch(zip)
     .then(res => res.blob())
     .then(blob => {
         let jsz = new JSZip();
         jsz.loadAsync(blob, {createFolders: true}).then(function(zip){
-            zip.file(file).async("ArrayBuffer").then(function(data) {
+            Object.values(zip.files)[0].async("ArrayBuffer").
+            //zip.file(file).async("ArrayBuffer").
+                then(function(data) {
                 (new GLTFLoader()).parse( data, null, function (gltf) {  
                     if(onComplete)onComplete(gltf, singleSide);
                     group.add( gltf.scene );
