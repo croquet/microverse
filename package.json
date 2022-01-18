@@ -2,7 +2,7 @@
   "name": "@croquet/microverse",
   "version": "0.0.2",
   "description": "Croquet Microverse",
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "webpack serve --mode development --devtool source-map",
     "build": "webpack --mode production",
