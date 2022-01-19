@@ -1,5 +1,5 @@
 import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeCamera,
-         v3_transform, v3_add, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+         v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_yaw, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
@@ -55,11 +55,18 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn will not see it
         super.init(options);
+        this.fall = true;
         this.listen("goHome", this.goHome);
+        this.listen("doubleDown", this.goThere);
+        this.listen("startMMotion", this.startFalling);
     }
     
     get lookPitch() { return this._lookPitch || 0 };
     get lookYaw() { return this._lookYaw || 0 };
+
+    startFalling(){
+        this.fall = true;
+    }
 
     onLookTo(e) {
         this.set({lookPitch: e[0], lookYaw: e[1]});
@@ -71,16 +78,26 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         this.set({translation: there[0], rotation: there[1]});
     }
 
-    goThere(there){
+    goThere(p3d){
        // this.moveTo(there[0]); 
        // this.rotateTo(there[1]);
+        const DISTANCE = 2;
+        this.fall = false;
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
-        console.log("start", this.vStart, this.qStart)
-        this.vEnd = there[0];
-        this.qEnd = there[1];
+        let normal = p3d.normalWorld;
+        let point = p3d.point;
+        this.vEnd = v3_add(point, v3_scale(normal, DISTANCE));
+        normal.y=0; // clear up and down
+        let nsq = v3_sqrMag(normal);
+        if(nsq < 0.0001){
+            this.qEnd = this._rotation; // use the current rotation
+        }else {
+            normal = v3_normalize(normal);
+            let theta = Math.atan2(normal[0], normal[2]);
+            this.qEnd = q_euler(0, theta, 0);
+        }
         this.goToStep(0.05);
-        
     }
 
     goToStep(t){
@@ -92,6 +109,7 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         //this.rotateTo(q);
         //console.log(t, v, q);
         if(t<1)this.future(50).goToStep(t+0.05);
+        else this.fall = true;
     }
 }
 
@@ -269,7 +287,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
                 this.orbitCamera.updateMatrixWorld();
                 this.orbitCamera.updateProjectionMatrix();
             }else{
-                if(!this.findFloor(eyeHeight*1.5,2))this.moveTo(this.lastTranslation);
+                if(this.actor.fall)
+                    if(!this.findFloor(eyeHeight*1.5,2))this.moveTo(this.lastTranslation);
             }
             this.refreshCameraTransform();
             this.lastTranslation = this.translation;
@@ -307,6 +326,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
         e.stopPropagation(); 
         this.knobX = e.clientX;
         this.knobY = e.clientY;
+        this.say("startMMotion");
         if(true || isWalking){
             this.activeMMotion = true;
             this.basePosition = e.xy;

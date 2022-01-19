@@ -8,7 +8,7 @@ import { PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
-import { loadSVG } from './SVGimporter.js';
+import { loadSVG } from './LoadSVG.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js'
 
 const CardColor = 0x9999cc;  // light blue
@@ -139,11 +139,15 @@ export class Card extends mix(Actor).with(AM_Spatial){
     }   
 
     onPointerWheel(p3d){
-        let s = this.scale;
-        let w = p3d.wheel < 0?-0.1:0.1;
-        if(s[0]+w >0.3){
-            this._scale = [s[0]+w, s[1]+w, s[2]+w];
-            this.scaleChanged();
+        if(this.parent && this.parent.onPointerWheel)
+            this.parent.onPointerWheel(p3d);
+        else{
+            let s = this.scale;
+            let w = p3d.wheel < 0?-0.1:0.1;
+            if(s[0]+w >0.3){
+                this._scale = [s[0]+w, s[1]+w, s[2]+w];
+                this.scaleChanged();
+            }
         }
         //this.say("doPointerWheel", p3d);
     }
@@ -202,7 +206,8 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
             loadSVG(this.actor._cardShapeURL, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
         }
         if(this.actor._card3DURL){
-
+            console.log(this.actor._card3DURL, this.card3D)
+            loadGLB(this.actor._card3DURL, this.card3D, this.actor._cardShadow?addShadows:null, this.actor._cardTranslation, this.actor._cardScale, this.actor._cardRotation, true);
         }
         if(this.actor.children){
             this.actor.children.forEach(cardId=>this.addCard(cardId));

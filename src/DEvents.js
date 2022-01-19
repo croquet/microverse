@@ -23,6 +23,9 @@ export const PM_Events = superclass => class extends superclass {
     _pointerDown(p3d){ 
         if(this.onPointerDown)this.onPointerDown(p3d);
     }
+    _pointerDoubleDown(p3d){ 
+        if(this.onPointerDoubleDown)this.onPointerDoubleDown(p3d);
+    }
     _pointerUp(p3d){ 
         if(this.onPointerUp)this.onPointerUp(p3d);
     }
@@ -71,6 +74,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         this.subscribe("input", "wheel", this._pointerWheel);
         this.subscribe("input", "keyDown", this._keyDown);
         this.subscribe("input", "keyUp", this._keyUp);
+        this.subscribe("input", "doubleDown", this._pointerDoubleDown);
         this._pointercaster = new THREE.Raycaster();
         this.xy = {x:0, y:0}; // reuse this
         this._pointer3D = {};
@@ -85,6 +89,12 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             this.focusTarget = this.downTarget;
         }
     }
+    _pointerDoubleDown(e){
+        if(this._updatePointer(e, this.scene.children)){
+            this.say("doubleDown", this._pointer3D);
+        }
+    }
+
     _pointerUp(e){
         if(this.downTarget){
             this._updatePointer(e); // we need to know if the pointerUp occurred ON the object
@@ -137,13 +147,15 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         if(this.focusTarget)this.focusTarget._keyUp(e);
     }
 
-    _updatePointer(e){
+    _updatePointer(e, targets){
         this.lastE=e;
+        let targeted = targets || this.scene.eventLayer.children;
+
         this.target = null;
         this.xy.x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         this.xy.y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
         this._pointercaster.setFromCamera( this.xy, this.camera );
-        const intersects = this._pointercaster.intersectObjects( this.scene.eventLayer.children, true );
+        const intersects = this._pointercaster.intersectObjects( targeted, true );
         if( intersects.length>0){
            // console.log(intersects[0])
             let idata = intersects[0];
@@ -156,7 +168,25 @@ export const PM_AvatarEvents = superclass => class extends superclass {
                 this._pointer3D.translation = this.actor.translation; 
                 this._pointer3D.button = e.button; // which button is pressed
                 this._pointer3D.distance = idata.distance; // how far away are we from the avatar start
+
                 this._pointer3D.point = idata.point.toArray(); // where on the target are we selecting?
+                this._pointer3D.normal = idata.face.normal.toArray();
+
+                if(targets){ //used by avatar to jump somehere
+                    /*
+                    let point = idata.point;
+                    let m = idata.object.matrixWorld;
+                    point = point.clone().applyMatrix3( m );
+                    this._pointer3D.pointWorld = point.toArray();
+                    */
+                    let normal = idata.face.normal;
+                    let m = new THREE.Matrix3().getNormalMatrix( idata.object.matrixWorld );
+                    normal = normal.clone().applyMatrix3( m ).normalize();
+                    this._pointer3D.normalWorld = normal.toArray(); // normal to the surface
+                }else{
+                    //this._pointer3D.pointWorld = undefined;
+                    delete this._pointer3D.normalWorld;
+                }
                 this._pointer3D.uv = idata.uv.toArray(); // where on the 2D face of the target are we selecting?
                 this._pointer3D.rayDirection = this._pointercaster.ray.direction.toArray(); 
                 return true;
