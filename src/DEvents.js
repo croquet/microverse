@@ -170,6 +170,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
                 this._pointer3D.distance = idata.distance; // how far away are we from the avatar start
 
                 this._pointer3D.point = idata.point.toArray(); // where on the target are we selecting?
+                this._pointer3D.localPoint = idata.object.worldToLocal(idata.point).toArray();
                 this._pointer3D.normal = idata.face.normal.toArray();
 
                 if(targets){ //used by avatar to jump somehere

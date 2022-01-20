@@ -80,8 +80,6 @@ export class Card extends mix(Actor).with(AM_Spatial){
 
     get surface(){return this._cardSurface}
 
-
-
     onPointerDown(p3d){
         if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
         if(this.multiUser() || this._downUsers.size === 0 ){
