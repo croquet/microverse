@@ -1,11 +1,10 @@
-import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_ThreeVisible, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
+import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
-
+import loadFont from "load-bmfont";
 import { PM_Events } from '../DEvents.js';
 import { PM_ThreeVisibleLayer } from '../DLayerManager.js';
 import { D } from '../DConstants.js';
 
-import loadFont from "load-bmfont";
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
 export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
@@ -152,8 +151,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.hiddenInput = document.createElement("input");
         this.hiddenInput.style.setProperty("position", "absolute");
 
-        this.hiddenInput.style.setProperty("left", "-120px"); //-120px
-        this.hiddenInput.style.setProperty("top", "-120px");  // -120px
+        this.hiddenInput.style.setProperty("left", "0px"); //-120px
+        this.hiddenInput.style.setProperty("top", "0px");  // -120px
         // this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
 
         this.hiddenInput.style.setProperty("width", "100px");
@@ -182,7 +181,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.listen("needsUpdate", "needsUpdate");
     }
 
-    _pointerDown(p3d){
+    _pointerDown(p3d) {
         return this.pointerDown(p3d);
     }
     /*
@@ -219,7 +218,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             }
         });
 
-        this.fonts.forEach((v, k) => {
+        this.fonts.forEach((v, _k) => {
             if (v.material) {
                 v.material.dispose();
                 v.material = null;
