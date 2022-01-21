@@ -105,11 +105,8 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t );   
         this.set({translation: v, rotation: q})
-        //this.moveTo(v); 
-        //this.rotateTo(q);
-        //console.log(t, v, q);
         if(t<1)this.future(50).goToStep(t+0.05);
-        else this.fall = true;
+      //  else this.fall = true;
     }
 }
 
