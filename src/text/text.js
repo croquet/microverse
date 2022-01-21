@@ -90,7 +90,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
     }
 
     needsUpdate() {
-        this.say("needsUpdate");
+        this.say("screenUpdate", this.content.timezone);
     }
 
     undoRequest(user) {
@@ -165,7 +165,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.isLoading = {};
 
         this.listen("fontAsked", "askFont");
-        this.listen("needsUpdate", "needsUpdate");
+        this.listen("screenUpdate", "screenUpdate");
 
         this.setupDefaultFont().then(() => {
             let fonts = Array.from(this.model.fonts.keys());
