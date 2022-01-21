@@ -159,7 +159,7 @@ class MyModelRoot extends ModelRoot {
 
         this.initialText = TextFieldActor.create();
         this.initialText.load([{text: "hello"}]);
-        this.initialText.set({translation: [-5, 0, -5]});
+        this.initialText.set({translation: [0, 0, -10]});
     }
 }
 
@@ -172,7 +172,7 @@ class MyViewRoot extends ViewRoot {
     constructor(model) {
         super(model);
         const TRM = this.service("ThreeRenderManager");
-        const scene = TRM.scene;
+        const scene = window.scene = TRM.scene;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );

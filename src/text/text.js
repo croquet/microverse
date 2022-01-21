@@ -27,6 +27,8 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         this.subscribe(this.sessionId, "view-exit", "viewExit");
 
         this.listen("askFont", "askFont");
+
+        this.setExtent({width: 500, height: 500});
     }
 
     get pawn() {return TextFieldPawn;}
@@ -172,18 +174,23 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         }).then(() => {
             this.needsUpdate();
         });
+        window.view = this;
     }
 
     _pointerDown(p3d) {
         return this.pointerDown(p3d);
     }
+
+    _pointerUp(p3d) {
+        return this.pointerUp(p3d);
+    }
+
+    _pointerMove(p3d) {
+        return this.pointerMove(p3d);
+    }
+
     /*
-    _pointerUp(p3d){
-        console.log("pointerUp", p3d);
-    }
-    _pointerMove(p3d){
-        console.log("pointerMove", p3d);
-    }
+
     _pointerCancel(p3d){
         console.log("pointerCancel", p3d);
     }
@@ -239,6 +246,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     }
 
     changeMaterial(name, makeNew) {
+        let textMesh;
         if (!this.fonts.get(name)) {return;}
         if (!this.fonts.get(name).material) {
             let texture = this.fonts.get(name).texture;
@@ -246,12 +254,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
                 map: texture,
                 textureSize: texture.image.width,
                 side: THREE.DoubleSide,
-                transparent: true,
+                transparent: true
             }, THREE));
         }
 
         if (makeNew) {
-            this.textMesh = new THREE.Mesh(this.textGeometry, this.fonts.get(name).material);
+            textMesh = new THREE.Mesh(this.textGeometry, this.fonts.get(name).material);
         } else {
             let m = this.textMesh.material;
             this.textMesh.material = this.fonts.get(name).material;
@@ -259,6 +267,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
                 m.dispose();
             }
         }
+        return textMesh;
     }
 
     setupTextMesh(name, font) {
@@ -266,7 +275,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             let TextGeometry = getTextGeometry(THREE);
             this.textGeometry = new TextGeometry({});
 
-            this.changeMaterial(name, true);
+            this.textMesh = this.changeMaterial(name, true);
             this.plane.add(this.textMesh);
         }
 
@@ -470,19 +479,21 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     }
 
     pointerDown(evt) {
-        console.log(evt.localPoint);
         let [x, y] = evt.localPoint;
         this.warota.mouseDown(x, y, y, this.user);
         // this.changed();
     }
 
     pointerMove(evt) {
-        this.warota.mouseMove(Math.max(evt.x, 0), evt.y, evt.y, this.user);
+        let [x, y] = evt.localPoint;
+        this.warota.mouseMove(Math.max(x, 0), y, y, this.user);
         this.changed();
     }
 
     pointerUp(evt) {
-        this.warota.mouseUp(evt.x, evt.y, evt.y, this.user);
+        console.log(evt.localPoint);
+        let [x, y] = evt.localPoint;
+        this.warota.mouseUp(x, y, y, this.user);
         this.changed();
     }
 
@@ -679,7 +690,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             drawnStrings.push(str);
         }
 
-        this.updateMesh({fontName: "DejaVu Sans Mono", extent: {width: 600, height: 600}, drawnStrings});
+        let extent = this.model.extent;
+
+        this.updateMesh({fontName: "DejaVu Sans Mono", extent, drawnStrings});
     }
 
     spanFor(text, style) {
@@ -743,8 +756,18 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
 
             bar.visible = false;
             this.plane.add(bar);
+            bar.name = "caret";
             // plane.onBeforeRender = this.selectionBeforeRender.bind(this);
-            sel = {bar, boxes: []};
+
+            let boxes = [];
+            for (let i = 0; i < 3; i++) {
+                let box = new THREE.Mesh(new THREE.PlaneBufferGeometry(0, 0), new THREE.MeshBasicMaterial({color}));
+                box.visible = false;
+                box.name = `box${i}`;
+                this.plane.add(box);
+                boxes.push(box);
+            }
+            sel = {bar, boxes};
         }
         this.selections[id] = sel;
         return sel;
@@ -762,44 +785,45 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             thisSelection.boxes.forEach(box => box.visible = false);
             let selection = this.model.content.selections[k];
 
+            let width = this.plane.geometry.parameters.width;
+            let height = this.plane.geometry.parameters.height;
+
             if (selection.end === selection.start) {
                 let caret = thisSelection.bar;
                 caret.visible = true;
                 let caretRect = this.warota.barRect(selection);
-                const geom = new THREE.PlaneBufferGeometry(caretRect.width * 0.01, caretRect.height * 0.01);
+                let geom = new THREE.PlaneBufferGeometry(caretRect.width * 0.01, caretRect.height * 0.01);
                 let old = caret.geometry;
                 caret.geometry = geom;
                 if (old) {
                     old.dispose();
                 }
 
-                let width = this.plane.geometry.parameters.width;
-                let height = this.plane.geometry.parameters.height;
-
                 let left = (-width / 2) + (caretRect.left + 4) * 0.01; // ?
                 let top = (height / 2) - (caretRect.top + caretRect.height / 2) * 0.01;
                 caret.position.set(left, top, 0.003);
-                // caret.style.setProperty("opacity", k === this.viewId ? "0.5" : "0.25");
             } else {
-                /*
-                caret.style.setProperty("visibility", "hidden");
                 let rects = this.warota.selectionRects(selection);
+                let boxes = thisSelection.boxes;
+                console.log(rects);
                 for (let i = 0; i < 3; i++) {
-                    let box = this.ensureSelection(k).boxes[i];
+                    let box = boxes[i];
                     let rect = rects[i];
+                    box.visible = false;
+                    
                     if (rect) {
-                        box.style.setProperty("left", rect.left + "px");
-                        box.style.setProperty("top", rect.top + "px");
-                        box.style.setProperty("width", rect.width + "px");
-                        box.style.setProperty("height", rect.height + "px");
-                        box.style.setProperty("background-color", selection.color);
-                        box.style.setProperty("opacity", k === this.viewId ? "0.25" : "0.08");
-                        box.style.removeProperty("visibility");
-                    } else {
-                        box.style.setProperty("visibility", "hidden");
+                        let left = (-width / 2) + ((rect.width / 2) + rect.left) * 0.01; // ?
+                        let top = (height / 2) - (rect.top + rect.height / 2) * 0.01;
+                        
+                        let rWidth = rect.width * 0.01; // ?
+                        let rHeight = rect.height * 0.01;
+
+                        let geom = new THREE.PlaneBufferGeometry(rWidth, rHeight, 2, 2);
+                        box.geometry = geom;
+                        box.position.set(left, top, 0.001);
+                        box.visible = true;
                     }
                 }
-                */
             }
         }
         for (let k in unused) {
