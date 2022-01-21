@@ -23,18 +23,10 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
         this.subscribe(this.id, "undoRequest", "undoRequest");
-        this.subscribe(this.id, "setWidth", "setWidth");
+        this.subscribe(this.id, "setExtent", "setExtent");
         this.subscribe(this.sessionId, "view-exit", "viewExit");
 
         this.listen("askFont", "askFont");
-
-        this.text = {
-            extent: {width: 500, height: 50},
-            fontName: "DejaVu Sans Mono",
-            drawnStrings: [
-                {x: 0, y: 0, string: "", style: "blue"}
-            ]
-        };
     }
 
     get pawn() {return TextFieldPawn;}
@@ -59,7 +51,9 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         return {runs: this.doc.runs, defaultFont: this.doc.defaultFont, defaultSize: this.doc.defaultSize};
     }
 
-    setWidth() {}
+    setExtent(ext) {
+        this.extent = ext;
+    }
 
     loadAndReset(string) {
         let runs = [{text: string}];
@@ -75,7 +69,6 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
             this.publishChanged();
         }
 
-        this.publish(this.id, "screenUpdate", timezone);
         this.needsUpdate();
     }
 
@@ -111,7 +104,6 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         if (!event) {return;}
 
         let timezone = this.doc.undoEvent(event, this.content, this.doc);
-        this.publish(this.id, "screenUpdate", timezone);
     }
 
     setDefault(font, size) {
@@ -145,7 +137,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     constructor(model) {
         super(model);
         this.model = model;
-        // this.subscribe(this.model.id, "screenUpdate", "screenUpdate");
 
         this.widgets = {};
         this.hiddenInput = document.createElement("input");
@@ -171,14 +162,16 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.fonts = new Map();
         this.isLoading = {};
 
-        this.setupDefaultFont();
-
-        this.model.fonts.forEach((_f, n) => {
-            this.askFont(n);
-        });
-
         this.listen("fontAsked", "askFont");
         this.listen("needsUpdate", "needsUpdate");
+
+        this.setupDefaultFont().then(() => {
+            let fonts = Array.from(this.model.fonts.keys());
+            let ps = fonts.map((v) => this.askFont(v));
+            return Promise.all(ps);
+        }).then(() => {
+            this.needsUpdate();
+        });
     }
 
     _pointerDown(p3d) {
@@ -275,7 +268,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
 
             this.changeMaterial(name, true);
             this.plane.add(this.textMesh);
-            this.updateString();
         }
 
         let layout = fontRegistry.hasLayout(name);
@@ -320,23 +312,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
-    updateString(retry) {
-        // will be this model.doc
-        let stringInfo = this.model.text;
-        let fontName = stringInfo.fontName;
-
-        if (!this.fonts.get(fontName)) {
-            this.askFont(fontName).then(() => {
-                if (!retry) {
-                    this.updateString(true);
-                }
-            });
-            return;
-        }
-
-        this.updateMesh(stringInfo);
-    }
-
     setupMesh() {
         this.geometry = new THREE.PlaneGeometry(0, 0);
         this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
@@ -374,8 +349,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
 
     setupDefaultFont() {
         let fontName = "DejaVu Sans Mono";
-        this.askFont(fontName, true).then((font) => {
-            this.setupTextMesh(fontName, font.font);
+        return this.askFont(fontName, true).then((font) => {
+            return this.setupTextMesh(fontName, font.font);
         });
     }
 
@@ -495,8 +470,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     }
 
     pointerDown(evt) {
-        console.log(evt);
-        // this.warota.mouseDown(evt.x, evt.y, evt.y, this.user);
+        console.log(evt.localPoint);
+        let [x, y] = evt.localPoint;
+        this.warota.mouseDown(x, y, y, this.user);
         // this.changed();
     }
 
@@ -689,8 +665,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             this.scrollSelectionToView();
         }
     }
-
-    ensureDiv(_index) {    }
 
     showText() {
         let drawnStrings = [];

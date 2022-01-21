@@ -3,14 +3,15 @@
 // https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit
 
 
-import { App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
-         ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
+import {
+    App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
+    ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
 import { DLayerManager, PM_ThreeVisibleLayer } from './src/DLayerManager.js';
 import { AMVAvatar, PMVAvatar } from './src/MVAvatar.js';
 import { D } from './src/DConstants.js';
 //import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
-import { TextPopupActor } from './src/popuptext.js';
+import { TextFieldActor } from './src/text/text.js';
 import { PerlinActor } from './src/PerlinMixin.js';
 import { Card } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
@@ -156,8 +157,9 @@ class MyModelRoot extends ModelRoot {
         createChess([8, -2.5, -30], [6,6,6]);
         */
 
-        this.popup = TextPopupActor.create();
-        this.popup.set({translation: [-5, 0, -5]});
+        this.initialText = TextFieldActor.create();
+        this.initialText.load([{text: "hello"}]);
+        this.initialText.set({translation: [-5, 0, -5]});
     }
 }
 
