@@ -8,8 +8,9 @@ import { PM_Events } from './DEvents.js';
 import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
-import { loadSVG } from './LoadSVG.js';
+import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js'
+import { Vector3 } from 'three';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -201,7 +202,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
             texture = this.surface.texture;
         }
         if(this.actor._cardShapeURL){
-            loadSVG(this.actor._cardShapeURL, this.card3D, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
+            loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
         }
         if(this.actor._card3DURL){
             console.log(this.actor._card3DURL, this.card3D)
@@ -336,6 +337,31 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         }
     }
 
+    // compute and return the position and distance the avatar should jump to to see the card full screen
+    getJumpToPose(){
+        let rval = [];
+        rval[0] = this.card3D.localToWorld(new Vector3()).toArray(); // this is where the card is
+        let camera = this.service("ThreeRenderManager").camera;
+        let fov = camera.fov;
+        let caspect = camera.aspect;
+        let taspect = this.aspect;
+        let d, w, h, s = this.scale[0];
+        if(taspect<1){
+            w = taspect*s;
+            h = s;
+        }else{
+            w = s;
+            h = s/taspect;
+        }
+
+        d = (h/2)/Math.tan( Math.PI*fov/360); // compute distance from card assuming vertical 
+
+        if(caspect <= taspect) d*= (taspect/caspect); // use width to fit instead
+        rval[1]=d; // avatar distance from card
+
+       return rval;
+    }
+
     makePlane(pEvt, useNorm) {
         // worldDirection is an optional direction vector if you don't want to
         // use the objects world direction
@@ -362,4 +388,3 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         return null;
     }
 }
-

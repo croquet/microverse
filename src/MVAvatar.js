@@ -12,9 +12,6 @@ export var myAvatar;
 export var isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
 
-const eyeHeight = 1.7; // height of eyes above ground in meters
-const eyeEpsilon = 0.1; // don't replicate the change unless it is sufficiently large
-
 // simple "click button, do this, nothing else"
 function setupButton( bttn, dothis ){ 
     bttn.addEventListener("click", dothis, false);
@@ -79,25 +76,34 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
     }
 
     goThere(p3d){
-       // this.moveTo(there[0]); 
-       // this.rotateTo(there[1]);
-        const DISTANCE = 2;
-        this.fall = false;
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
-        let normal = p3d.normalWorld;
-        let point = p3d.point;
-        this.vEnd = v3_add(point, v3_scale(normal, DISTANCE));
-        normal.y=0; // clear up and down
-        let nsq = v3_sqrMag(normal);
-        if(nsq < 0.0001){
-            this.qEnd = this._rotation; // use the current rotation
-        }else {
-            normal = v3_normalize(normal);
-            let theta = Math.atan2(normal[0], normal[2]);
-            this.qEnd = q_euler(0, theta, 0);
+
+        if(!this.fall && (p3d.targetId===this.restoreTargetId)){ // jumpback if you are  doubleclicking on the same target you did before
+            this.vEnd = this.restoreTranslation;
+            this.qEnd = this.restoreRotation;
+            this.restoreRotation = undefined;
+            this.restoreTranslation = undefined;
+            this.restoreTargetId = undefined;
+        }else{
+            this.fall = false; // sticky until we move
+            this.restoreRotation = p3d.rotation;
+            this.restoreTranslation = p3d.translation;
+            this.restoreTargetId = p3d.targetId;
+            let normal = p3d.normalWorld;
+            let point = p3d.point;
+            this.vEnd = v3_add(point, v3_scale(normal, p3d.offset));
+            normal[1]=0; // clear up and down
+            let nsq = v3_sqrMag(normal);
+            if(nsq < 0.0001){
+                this.qEnd = this.rotation; // use the current rotation
+            }else {
+                normal = v3_normalize(normal);
+                let theta = Math.atan2(normal[0], normal[2]);
+                this.qEnd = q_euler(0, theta, 0);
+            }
         }
-        this.goToStep(0.05);
+        this.goToStep(0.04);
     }
 
     goToStep(t){
@@ -128,7 +134,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
             this.scene = renderMgr.scene;
-            this.lastHeight = eyeHeight; // tracking the height above ground
+            this.lastHeight = D.EYE_HEIGHT; // tracking the height above ground
 
             //this.tweenCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             //this.walkCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -285,7 +291,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
                 this.orbitCamera.updateProjectionMatrix();
             }else{
                 if(this.actor.fall)
-                    if(!this.findFloor(eyeHeight*1.5,2))this.moveTo(this.lastTranslation);
+                    if(!this.findFloor(D.EYE_HEIGHT*1.5,2))this.moveTo(this.lastTranslation);
             }
             this.refreshCameraTransform();
             this.lastTranslation = this.translation;
@@ -302,8 +308,8 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
         const onObject = intersections.length > 0;
         if(onObject){
             let dFront = intersections[0].distance;
-            let delta = Math.min(dFront-eyeHeight, eyeHeight/8); // can only fall 1/8 eyeHeight at a time
-            if(Math.abs(delta)>eyeEpsilon){
+            let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
+            if(Math.abs(delta)>D.EYE_EPSILON){
                 if(delta>0 && !move){ // we are falling - check in front of us to see if there is a step
                     const moveForward = v3_add(this.translation, v3_transform([0,0,0.2], m4_rotationQ(this.rotation)));
                     return this.findFloor(maxDist, 1, moveForward);
