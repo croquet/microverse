@@ -108,7 +108,7 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
         this.perlin = PerlinActor.create(
-            {translation:[ -10, -2.75, -14],
+            {translation:[ 10, -2.75, -14],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
 
