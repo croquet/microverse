@@ -208,6 +208,7 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
+        renderer.localClippingEnabled = true;
     }
 
     destroy() {

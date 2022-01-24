@@ -1,4 +1,4 @@
-import {THREE, AM_Spatial, PM_Dynamic, PM_Spatial, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
+import {THREE, AM_Spatial, PM_Spatial, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 import { PM_Events } from '../DEvents.js';
@@ -135,7 +135,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer, PM_Dynamic, PM_Events) {
+export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer, PM_Events) {
     constructor(model) {
         super(model);
         this.model = model;
@@ -260,6 +260,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
 
         if (makeNew) {
             textMesh = new THREE.Mesh(this.textGeometry, this.fonts.get(name).material);
+            textMesh.name = "text";
         } else {
             let m = this.textMesh.material;
             this.textMesh.material = this.fonts.get(name).material;
@@ -285,6 +286,23 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             layout = new TextLayout({font});
             fontRegistry.addLayout(name, layout);
         }
+    }
+
+    setupScrollMesh() {
+        let geom = new THREE.PlaneGeometry(0.1, 5);
+        let mat = new THREE.MeshBasicMaterial({color: 0xFF0000, side: THREE.DoubleSide});
+        this.scrollMesh = new THREE.Mesh(geom, mat);
+        this.scrollMesh.name = "scroll";
+        this.scrollMesh.position.set(2.5, 0, 0.001);
+
+        let knobGeom = new THREE.PlaneGeometry(0.1, 0.1);
+        let knobMat = new THREE.MeshBasicMaterial({color: 0x00FF00, side: THREE.DoubleSide});
+        this.scrollKnobMesh = new THREE.Mesh(knobGeom, knobMat);
+        this.scrollKnobMesh.name = "scrollKnob";
+
+        this.scrollKnobMesh.position.set(0, 2.5, 0.001);
+        this.scrollMesh.add(this.scrollKnobMesh);
+        this.plane.add(this.scrollMesh);
     }
 
     updateMesh(stringInfo) {
@@ -323,10 +341,13 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
 
     setupMesh() {
         this.geometry = new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshBasicMaterial({color: 0xFCFCFC, side: THREE.DoubleSide});
+        this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
+        this.plane.name = "plane";
         this.layer = D.EVENT;
         this.setRenderObject(this.plane);
+
+        this.setupScrollMesh();
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
@@ -334,6 +355,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),
             new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)
         ];
+        
     }
 
     setupEditor() {
@@ -423,7 +445,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     computeClippingPlanes(ary) {
         //let [top, bottom, right, left] = ary; this is the order
         let planes = [];
-        let text = this.textMesh;
+        let text = this.plane;
         if (Number.isNaN(text.matrixWorld.elements[0])) return [];
         for (let i = 0; i < 4; i++) {
             planes[i] = new THREE.Plane();
@@ -695,38 +717,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.updateMesh({fontName: "DejaVu Sans Mono", extent, drawnStrings});
     }
 
-    spanFor(text, style) {
-        let span = document.createElement("span");
-        span.classList.add("text-no-select");
-        if (style) {
-            if (style.color) {
-                span.style.setProperty("color", style.color);
-            }
-            if (style.size) {
-                span.style.setProperty("font-size", style.size + "px");
-            }
-            if (style.font) {
-                span.style.setProperty("font-family", style.font);
-            }
-            if (style.bold) {
-                span.style.setProperty("font-weight", "700");
-            }
-            if (style.italic) {
-                span.style.setProperty("font-style", "italic");
-            }
-        }
-        if (text === " " || text === "\n" || text === "\r") {
-            span.textContent = "\u00a0";
-        } else if (text === "\t") {
-            span.classList.add("tab");
-        } else if (text === eof) {
-            return null;
-        } else {
-            span.textContent = text;
-        }
-        return span;
-    }
-
     setStyle(style) {
         this.warota.setStyle(this.user, style, false);
         this.changed();
@@ -754,6 +744,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         if (!sel) {
             const bar = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
 
+            bar.onBeforeRender = this.selectionBeforeRender.bind(this);
+
             bar.visible = false;
             this.plane.add(bar);
             bar.name = "caret";
@@ -762,6 +754,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             let boxes = [];
             for (let i = 0; i < 3; i++) {
                 let box = new THREE.Mesh(new THREE.PlaneBufferGeometry(0, 0), new THREE.MeshBasicMaterial({color}));
+                box.onBeforeRender = this.selectionBeforeRender.bind(this);
                 box.visible = false;
                 box.name = `box${i}`;
                 this.plane.add(box);
@@ -849,6 +842,28 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
             this.dom.scrollTop = caretRect.top;
         }
         */
+    }
+
+    selectionBeforeRender(renderer, scene, camera, geometry, material, group) {
+        /* 
+
+        
+        let meterInPixel = this.model.extent.width / 0.01;
+        let scrollT = this.warota.scrollTop;
+        let docHeight = this.warota.docHeight;
+        let docInMeter = docHeight * meterInPixel;
+        let top = -scrollT * docHeight;
+        let bottom = -(top - 0.01);
+        let right = 0.01 * (1.0 - this.warota.relativeScrollBarWidth);
+        let left = 0;
+        */
+
+        let left = 2.5;
+        let right = 2.5;
+        let bottom = 2.5;
+        let top = 2.5;
+        let planes = this.computeClippingPlanes([top, bottom, right, left]);
+        material.clippingPlanes = planes;
     }
 
     addWidget(name, dom) {
