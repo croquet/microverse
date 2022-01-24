@@ -13,6 +13,7 @@
 // - KeyDown - send KeyCancel instead of KeyUp.
 
 import { THREE } from "@croquet/worldcore";
+import { D } from './DConstants.js';
 
 export const PM_Events = superclass => class extends superclass {
     // the pawn can override these functions if it needs it executed immediately
@@ -161,10 +162,11 @@ export const PM_AvatarEvents = superclass => class extends superclass {
             let idata = intersects[0];
             this.target = this.getTarget(idata.object);
             if(this.target){
-                this._pointer3D.e = e; // keep the original event
+                // this._pointer3D.e = e; // keep the original event
                 // avatar info
                 this._pointer3D.playerId = this.actor.playerId;
                 this._pointer3D.rotation = this.actor.rotation;
+                this._pointer3D.targetId = this.target.actor.id;
                 this._pointer3D.translation = this.actor.translation; 
                 this._pointer3D.button = e.button; // which button is pressed
                 this._pointer3D.distance = idata.distance; // how far away are we from the avatar start
@@ -174,19 +176,23 @@ export const PM_AvatarEvents = superclass => class extends superclass {
                 this._pointer3D.normal = idata.face.normal.toArray();
 
                 if(targets){ //used by avatar to jump somehere
-                    /*
-                    let point = idata.point;
-                    let m = idata.object.matrixWorld;
-                    point = point.clone().applyMatrix3( m );
-                    this._pointer3D.pointWorld = point.toArray();
-                    */
-                    let normal = idata.face.normal;
+
+                    // the target object may have a preferred pose for users
+                    let pose = this.target.getJumpToPose?this.target.getJumpToPose():undefined;
+                    let normal;
+                    if(pose){
+                        this._pointer3D.point = pose[0]; // world coordinates
+                        this._pointer3D.offset = pose[1]; // distance from target
+                    } else this._pointer3D.offset = D.EYE_HEIGHT;
+                    normal = idata.face.normal;
                     let m = new THREE.Matrix3().getNormalMatrix( idata.object.matrixWorld );
                     normal = normal.clone().applyMatrix3( m ).normalize();
                     this._pointer3D.normalWorld = normal.toArray(); // normal to the surface
-                }else{
+
+                 }else{
                     //this._pointer3D.pointWorld = undefined;
                     delete this._pointer3D.normalWorld;
+                    delete this._pointer3D.offset;
                 }
                 this._pointer3D.uv = idata.uv.toArray(); // where on the 2D face of the target are we selecting?
                 this._pointer3D.rayDirection = this._pointercaster.ray.direction.toArray(); 

@@ -125,8 +125,8 @@ class MyModelRoot extends ModelRoot {
         /*
 
         this.perlin = PerlinActor.create(
-            {translation:[ 8, -2.75, -14],
-             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
+            {translation:[ 10, -2.75, -14],
+            rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
@@ -134,21 +134,19 @@ class MyModelRoot extends ModelRoot {
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
-        let svgCards = [
-            'CroquetSymbol_CMYK_NoShadow.svg', 'square.svg', 'credit-card.svg',
-            'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'smile.svg', 'cog.svg'];
-        let surfaces = [
-            tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
-
-        for (let i = 0; i < 8; i++) {
-            Card.create({
-                cardShapeURL: `./assets/SVG/${svgCards[i]}`,
+        let svgCards = ['credit-card.svg', 'square.svg', 'credit-card.svg', 
+        'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'smile.svg', 'cog.svg'];
+        let surfaces = [tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
+        for(let i =0; i<8; i++)
+        Card.create(
+            {
+                cardShapeURL: './assets/SVG/'+svgCards[i],
                 cardSurface: surfaces[i],
                 cardFullBright: surfaces[i] === vSurface || surfaces[i] === cSurface || surfaces[i] === gSurface,
                 cardDepth: 0.1,
-                cardBevel: 0.02,
-                cardColor: i > 0 ? [1,1,1] : undefined, // white
-                translation:[-2.5,0,-6 * (i + 1)],
+                cardBevel:0.02,
+                cardColor:[1,1,1], // white
+                translation:[0,-0.5,-6*(i+1)],
                 scale: [4,4,4],
                 cardInstall: true
             });
@@ -175,11 +173,14 @@ class MyViewRoot extends ViewRoot {
         const scene = window.scene = TRM.scene;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-        const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
+    // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
+        const ambient = new THREE.AmbientLight( 0xffffff, .75 );
+ 
         scene.lightLayer.add(ambient);
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
-        sun.position.set(-200, 800, 100);
+        //sun.position.set(-200, 800, 100);
+        sun.position.set(400, 500, 100);
 
         let side = 15;
 
@@ -197,7 +198,8 @@ class MyViewRoot extends ViewRoot {
         sun.shadow.camera.right = -side;
         scene.lightLayer.add(sun);
 
-        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
+        // xyzzy this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
+        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
         this.moon.position.set(200, 100, -100);
         scene.lightLayer.add(this.moon);
 

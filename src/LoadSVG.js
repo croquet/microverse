@@ -2,7 +2,7 @@ import { THREE } from "@croquet/worldcore";
 import { SVGLoader } from './three/examples/jsm/loaders/SVGLoader.js';
 let counter = 0;
 
-export function loadSVG( url, target, texture, color, fullBright, rotation, shadow, onComplete ) {
+export function loadSVG( target, url, texture, color, fullBright, rotation, shadow, onComplete ) {
 	const loader = new SVGLoader();
 	let group = new THREE.Group();
 	let depth = 0;
@@ -51,24 +51,31 @@ export function loadSVG( url, target, texture, color, fullBright, rotation, shad
 				}
 			}
 		}
-		normalize(group, color, shadow);
+		normalize(target, group, color, shadow);
 		let holderGroup = new THREE.Group();
-		holderGroup.add(group)
-		target.add(holderGroup);
+		holderGroup.add(group);
+		target.card3D.add(holderGroup);
 		if(rotation)holderGroup.setRotationFromQuaternion(new THREE.Quaternion(...rotation));
 		if(texture)addTexture(texture, group);
 		if(onComplete)onComplete(group);
 	} );
 }
 
-export function normalize(svgGroup, color, shadow){
+
+// SVGs are imported upside down and are often off center
+
+export function normalize(target, svgGroup, color, shadow){
 	let bb = boundingBox(svgGroup);
 	let ext = extent3D(svgGroup, bb);
 	let cen = center3D(svgGroup, bb);
+	console.log(bb, ext, cen)
 	svgGroup.scale.y *= -1;
 	cen.y *=-1;
 	let mx = Math.max(ext.x, ext.y);
+	// scale SVG object to 1 along largest axis
 	if(mx>0){ 
+		// need svgGroup.aspect for positioning in jump to card
+		if(ext.y)target.aspect = ext.x/ext.y;
 		svgGroup.position.set(-cen.x, -cen.y, -cen.z);
 		let sc = 1/mx;
 		svgGroup.position.multiplyScalar(sc);
@@ -100,25 +107,20 @@ export function normalizeUV(uvArray, bb){
 	}
 }
 
-export function boundingBox(obj, bigBox,depth) { 
+export function boundingBox(obj, bigBox, depth) { 
 	// this needs to recursively merge the bounding box of all of the objects it contains.
 	// computes the boundingBox in LOCAL coordinates.  if there's a parent, temporarily
 	// remove from the parent and reset position and orientation.
 	// the boundingBox reflects the extent after application of the current scale setting.
 
 	if(!bigBox){ bigBox = new THREE.Box3(); depth = 0}
-//console.log('depth:', depth, "children: ", obj.children.length)
-	if(obj.material){ //means it is a visible thing
-		obj.updateMatrixWorld();
-		obj.geometry.computeBoundingBox();
-//console.log("depth", depth, "boundingBox", obj.geometry.boundingBox)
-		const box = obj.geometry.boundingBox;
-		//console.log(box, obj.matrixWorld)
+	if(obj.geometry){ //means it is a visible thing
+		if(!obj.geometry.boundingBox)obj.geometry.computeBoundingBox();
+		const box = obj.geometry.boundingBox.clone();
 		box.applyMatrix4(obj.matrixWorld);
 		bigBox.union(box);
 	}
 	if(obj.children){obj.children.forEach(child=>boundingBox(child, bigBox, depth+1))}
-
 	return bigBox;
 }
 

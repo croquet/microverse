@@ -50,7 +50,7 @@ export function createChess(translation, scale, rotation){
             cardShadow:true,
             cardScale:[SCALE, SCALE, SCALE],
 //            cardTranslation: [0,0.028,0.035],
-            cardTranslation: [0,0,0],
+            cardTranslation: [-SQUARE*2.5,0,SQUARE*-2.5],
         });
     let king  = Card.create(
         {
@@ -63,7 +63,7 @@ export function createChess(translation, scale, rotation){
             cardScale:[SCALE, SCALE, SCALE],
             //cardTranslation: [0,-0.0004,-0.008],
             //cardTranslation: [0,-0.0004,0.108],
-            cardTranslation: [0,0,SQUARE],            
+            cardTranslation: [SQUARE*0.5,0,SQUARE*-3.5],            
         });
     let queen  = Card.create(
         {
@@ -76,7 +76,7 @@ export function createChess(translation, scale, rotation){
             cardScale:[SCALE, SCALE, SCALE],
             //cardTranslation: [0.008,-0.007,0],
             //cardTranslation: [0.008,-0.007,0.2],
-            cardTranslation: [0,0,SQUARE*2],
+            cardTranslation: [-SQUARE*0.5,0,SQUARE*-3.5],
        });
     let bishop  = Card.create(
         {
@@ -89,7 +89,7 @@ export function createChess(translation, scale, rotation){
             cardScale:[SCALE, SCALE, SCALE],
             //cardTranslation: [0,0.00,0],
             //cardTranslation: [0,0.00,0.3],
-            cardTranslation: [0,0,SQUARE*3],
+            cardTranslation: [-SQUARE*1.5,0,SQUARE*-3.5],
         });
     let knight  = Card.create(
         {
@@ -97,11 +97,11 @@ export function createChess(translation, scale, rotation){
             //cardSurface: chessLightSurface,
             cardFullBright: false,
             cardColor:[1,1,1], // white
-            //cardRotation:q_euler(-Math.PI/2, 0, 0),
+            cardRotation:q_euler(0, Math.PI/2, 0),
             cardShadow:true,
             cardScale:[SCALE, SCALE, SCALE],
             //cardTranslation: [0,0.02,0.4],
-            cardTranslation: [0,0,SQUARE*4],
+            cardTranslation: [-SQUARE*2.5,0,SQUARE*-3.5],
         });
     let rook  = Card.create(
         {
@@ -113,7 +113,7 @@ export function createChess(translation, scale, rotation){
             cardShadow:true,
             cardScale:[SCALE, SCALE, SCALE],
             //cardTranslation: [0,0.02,0.5],
-            cardTranslation: [0,0,SQUARE*5],
+            cardTranslation: [-SQUARE*3.5,0,SQUARE*-3.5],
         });
 console.log("--------CHESS--------")
     black.addCard(white);
