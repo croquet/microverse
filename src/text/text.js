@@ -28,6 +28,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
 
         this.listen("askFont", "askFont");
 
+        // the height part of this is optional, in the sense that the view may do something else
         this.setExtent({width: 500, height: 500});
     }
 
@@ -57,8 +58,13 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         this.extent = ext;
     }
 
-    loadAndReset(string) {
-        let runs = [{text: string}];
+    loadAndReset(stringOrArray) {
+        let runs;
+        if (typeof stringOrArray === "string") {
+            runs = [{text: stringOrArray}];
+        } else {
+            runs = stringOrArray;
+        }
         this.content = {runs: runs, selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.doc.load(runs);
         this.publishChanged();
@@ -105,7 +111,8 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
         }
         if (!event) {return;}
 
-        let timezone = this.doc.undoEvent(event, this.content, this.doc);
+        this.doc.undoEvent(event, this.content, this.doc);
+        this.needsUpdate();
     }
 
     setDefault(font, size) {
@@ -144,8 +151,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.hiddenInput = document.createElement("input");
         this.hiddenInput.style.setProperty("position", "absolute");
 
-        this.hiddenInput.style.setProperty("left", "0px"); //-120px
-        this.hiddenInput.style.setProperty("top", "0px");  // -120px
+        this.hiddenInput.style.setProperty("left", "-120px"); //-120px
+        this.hiddenInput.style.setProperty("top", "-120px");  // -120px
         // this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
 
         this.hiddenInput.style.setProperty("width", "100px");
@@ -174,6 +181,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         }).then(() => {
             this.needsUpdate();
         });
+
+        this.viewExtent = this.model.extent;
         window.view = this;
     }
 
@@ -347,7 +356,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.layer = D.EVENT;
         this.setRenderObject(this.plane);
 
-        this.setupScrollMesh();
+        // this.setupScrollMesh();
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
@@ -503,7 +512,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
     pointerDown(evt) {
         let [x, y] = evt.localPoint;
         this.warota.mouseDown(x, y, y, this.user);
-        // this.changed();
+        if (this.hiddenInput) {
+            this.hiddenInput.focus();
+        }
     }
 
     pointerMove(evt) {
@@ -691,8 +702,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         if (!this.isSynced) {return;}
         this.warota.layout();
         this.showText();
+        this.setExtent();
         this.showSelections();
-        this.setHeight();
         if (this.scrollNeeded) {
             this.scrollNeeded = false;
             this.scrollSelectionToView();
@@ -727,7 +738,26 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLay
         this.changed();
     }
 
-    setHeight() {
+    setExtent() {
+        let extent = this.viewExtent;
+        if (!this.textMesh) {return;}
+
+        let newWidth = extent.width * 0.01;
+        let newHeight = this.warota.docHeight * 0.01;
+
+        if (newWidth !== this.plane.geometry.parameters.width ||
+            newHeight !== this.plane.geometry.parameters.height) {
+            let geometry = new THREE.PlaneGeometry(newWidth, newHeight);
+            this.plane.geometry = geometry;
+            this.geometry.dispose();
+            this.geometry = geometry;
+
+            this.textMesh.position.x = -newWidth / 2;
+            this.textMesh.position.y = newHeight / 2;
+            this.textMesh.position.z = 0.005;
+        }
+        
+        
         /*
         this.text.style.setProperty("height", this.warota.docHeight + "px");
         this.holder.style.setProperty("height", this.warota.docHeight + "px");

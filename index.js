@@ -49,8 +49,9 @@ function loadBasicModels() {
         loadGLB("./assets/avatars/cheshirecat.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     }
 
-    // plant = new THREE.Group();
-    // loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
+    plant = new THREE.Group();
+    loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
+    //loadGLB("./assets/3D/ArizonaProject.glb.zip", plant, addShadows, [100, -3, 0], [.01,.01,.01], [0,0,0], false);
 }
 
 loadBasicModels();
@@ -98,7 +99,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
         super(...args);
 
         this.layer = D.WALK;
-        // this.setRenderObject(plant);
+        this.setRenderObject(plant);
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
 }
@@ -122,11 +123,9 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
 
-        /*
-
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
-            rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
+             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
@@ -134,29 +133,28 @@ class MyModelRoot extends ModelRoot {
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
-        let svgCards = ['credit-card.svg', 'square.svg', 'credit-card.svg', 
-        'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'smile.svg', 'cog.svg'];
+        let svgCards = [
+            'credit-card.svg', 'square.svg', 'credit-card.svg', 
+            'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'smile.svg', 'cog.svg'];
         let surfaces = [tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, tSurface];
-        for(let i =0; i<8; i++)
-        Card.create(
-            {
-                cardShapeURL: './assets/SVG/'+svgCards[i],
+        for (let i = 0; i < 8; i++) {
+            Card.create({
+                cardShapeURL: `./assets/SVG/${svgCards[i]}`,
                 cardSurface: surfaces[i],
                 cardFullBright: surfaces[i] === vSurface || surfaces[i] === cSurface || surfaces[i] === gSurface,
                 cardDepth: 0.1,
                 cardBevel:0.02,
                 cardColor:[1,1,1], // white
-                translation:[0,-0.5,-6*(i+1)],
+                translation:[0,-0.5, -6 * (i + 1)],
                 scale: [4,4,4],
                 cardInstall: true
             });
         }
 
         createChess([8, -2.5, -30], [6,6,6]);
-        */
 
         this.initialText = TextFieldActor.create();
-        this.initialText.load([{text: "hello"}]);
+        this.initialText.loadAndReset([{text: "Croquet is awesome!"}]);
         this.initialText.set({translation: [0, 0, -10]});
     }
 }
