@@ -132,13 +132,15 @@ class MyModelRoot extends ModelRoot {
         let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
        
         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
+        let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
+        
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
         let svgCards = [
             'credit-card.svg', 'square.svg', 'credit-card.svg', 
             'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'credit-card.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, tSurface, vSurface, cSurface, t2Surface];
+        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
         for (let i = 0; i < 8; i++) {
             Card.create({
                 cardShapeURL: `./assets/SVG/${svgCards[i]}`,
@@ -180,7 +182,7 @@ class MyViewRoot extends ViewRoot {
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
         //sun.position.set(-200, 800, 100);
-        sun.position.set(400, 500, 100);
+        sun.position.set(-400, 500, 100);
 
         let side = 15;
 
