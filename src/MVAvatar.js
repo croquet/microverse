@@ -22,6 +22,13 @@ function setupButton( bttn, dothis ){
 setupButton(document.getElementById("orbitingBttn"), switchControl);
 setupButton(document.getElementById("walkingBttn"), switchControl);
 setupButton(document.getElementById("fullscreenBttn"), toggleFullScreen);
+/*
+setupButton(document.getElementById("undoObject"), undoChange);
+setupButton(document.getElementById("deleteObject"), deleteObject);
+setupButton(document.getElementById("scalebject"), scaleObject);
+setupButton(document.getElementById("rotatebject"), rotateObject);
+setupButton(document.getElementById("dragbject"), dragObject);
+*/
 
 function switchControl(e){
     isWalking = !isWalking;

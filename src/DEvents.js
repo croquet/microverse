@@ -91,7 +91,7 @@ export const PM_AvatarEvents = superclass => class extends superclass {
         }
     }
     _pointerDoubleDown(e){
-        if(this._updatePointer(e, this.scene.children)){
+        if(this._updatePointer(e,[...this.scene.eventLayer.children,...this.scene.walkLayer.children ])){
             this.say("doubleDown", this._pointer3D);
         }
     }
