@@ -5,7 +5,7 @@
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { PM_Events } from './DEvents.js';
-import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
+import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, Data} from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
 import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
@@ -23,13 +23,14 @@ let counter = 0;
 
 export class Card extends mix(Actor).with(AM_Spatial){
     get pawn() {return CardPawn}
-    init(...args) {
+    init(options) {
         this.visible = true;
-        super.init(...args);
+        super.init(options);
 
         // managing multiple users
         this._downUsers = new Map(); 
         this._overUsers = new Map();
+        this._model3d = options.model3d;
         this.listen("onPointerDown", this.onPointerDown);
         this.listen("onPointerUp", this.onPointerUp);
         this.listen("onPointerEnter", this.onPointerEnter);
@@ -181,9 +182,18 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.listen("removeCard", this.removeCard);
     }
 
-    constructCard()
-    {
+    constructCard() {
         this.card3D = new THREE.Group();
+
+        if (this.actor._model3d) {
+            let handle = Data.fromId(this.actor._model3d);
+            Data.fetch(this.sessionId, handle).then((buffer) => {
+                window.assetManager.load(buffer, window.THREE).then((obj) => {
+                    obj.name = "light blub";
+                    this.card3D.add(obj);
+                });
+            });
+        }
         /*
        // this.color = new THREE.Color();
         this.card3D = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.1, 2, 2, 1),

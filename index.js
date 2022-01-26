@@ -4,7 +4,7 @@
 
 
 import {
-    App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
+    App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
     ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
 import { DLayerManager, PM_ThreeVisibleLayer } from './src/DLayerManager.js';
 import { AMVAvatar, PMVAvatar } from './src/MVAvatar.js';
@@ -17,6 +17,7 @@ import { Card } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 import { createChess } from './src/chess.js';
+import JSZip from 'jszip';
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -27,6 +28,9 @@ import skyRight from "./assets/sky/sh_rt.png";
 import skyLeft from "./assets/sky/sh_lf.png";
 import skyUp from "./assets/sky/sh_up.png";
 import skyDown from "./assets/sky/sh_dn.png";
+
+import {AssetManager} from "./src/drop.js";
+import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 
@@ -54,7 +58,22 @@ function loadBasicModels() {
     //loadGLB("./assets/3D/ArizonaProject.glb.zip", plant, addShadows, [100, -3, 0], [.01,.01,.01], [0,0,0], false);
 }
 
-loadBasicModels();
+function loadLoaders() {
+    let libs = [
+        "loaders/OBJLoader.js",
+        "loaders/MTLLoader.js"
+    ];
+
+    window.JSZip = JSZip;
+
+    return Promise.all(libs.map((file) => {
+        loadThreeJSLib(file, THREE);
+    }));
+}
+
+loadLoaders().then(() => {
+    loadBasicModels();
+});
 
 class Avatar extends AMVAvatar {
     init(options) {
@@ -123,6 +142,8 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
 
+        /*
+
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
@@ -160,6 +181,27 @@ class MyModelRoot extends ModelRoot {
         this.initialText = TextFieldActor.create();
         this.initialText.loadAndReset([{text: "Croquet is awesome!"}]);
         this.initialText.set({translation: [10, 0, -10]});
+        */
+
+        this.assets = new Map();
+        this.subscribe(this.id, "fileUploaded", "fileUploaded");
+    }
+
+    fileUploaded(data) {
+        let {dataId} = data;
+        console.log(data);
+        this.assets.set(dataId, dataId);
+
+        Card.create({
+            cardDepth: 0.1,
+            cardBevel:0.02,
+            cardColor:[1,1,1], // white
+            translation:[0,-0.5, -6 * (0 + 1)],
+            scale: [4,4,4],
+            model3d: dataId,
+            cardInstall: true
+        });
+        this.publish(this.id, "fileLoadRequested", dataId);
     }
 }
 
@@ -175,7 +217,7 @@ class MyViewRoot extends ViewRoot {
         const scene = window.scene = TRM.scene;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-    // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
+        // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         const ambient = new THREE.AmbientLight( 0xffffff, .75 );
  
         scene.lightLayer.add(ambient);
@@ -213,7 +255,28 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
+
+        this.assetManager = window.assetManager = new AssetManager(); // this would use the service thing
+        this.assetManager.setSessionId(this.sessionId);
+
+        this.assetManager.setupHandlersOn(window, ({buffer, fileName}) => {
+            return Data.store(this.sessionId, buffer, true).then((handle) => {
+                let dataId = Data.toId(handle);
+                this.assetManager.assetCache[dataId] = {buffer};
+                this.publish(this.model.id, "fileUploaded", {dataId, fileName});
+            });
+        });
+
+        this.subscribe(this.model.id, "fileLoadRequested", "fileLoadRequested");
     }
+
+    fileLoadRequested(dataId) {
+        let handle = Data.fromId(dataId);
+        Data.fetch(this.sessionId, handle).then((buffer) => {
+            let obj = this.assetManager.load(buffer, window.THREE);
+        });
+    }
+    
 
     destroy() {
         super.destroy();
