@@ -142,8 +142,6 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
 
-        /*
-
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
@@ -181,16 +179,14 @@ class MyModelRoot extends ModelRoot {
         this.initialText = TextFieldActor.create();
         this.initialText.loadAndReset([{text: "Croquet is awesome!"}]);
         this.initialText.set({translation: [10, 0, -10]});
-        */
 
-        this.assets = new Map();
+        // this.assets = new Map();
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }
 
     fileUploaded(data) {
         let {dataId} = data;
-        console.log(data);
-        this.assets.set(dataId, dataId);
+        // this.assets.set(dataId, dataId);
 
         Card.create({
             cardDepth: 0.1,
