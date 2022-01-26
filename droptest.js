@@ -26,11 +26,11 @@ class DropView extends Croquet.View {
         this.assetManager = new AssetManager();
         this.assetManager.setSessionId(this.sessionId);
 
-        this.assetManager.setupHandlersOn(window, ({buffer, fileName}) => {
+        this.assetManager.setupHandlersOn(window, ({buffer, fileName, type}) => {
             return Croquet.Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Croquet.Data.toId(handle);
-                this.assetManager.assetCache[dataId] = {buffer};
-                this.publish(this.model.id, "fileUploaded", {dataId, fileName});
+                this.assetManager.assetCache[dataId] = {buffer, type};
+                this.publish(this.model.id, "fileUploaded", {dataId, fileName, type});
             });
         });
 

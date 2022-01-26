@@ -38,6 +38,7 @@ export class AssetManager {
             return this.analyzeDirectory(entry, importSizeChecker).catch((err) => {
                 throw new Error("directory could not be zipped");
             });
+            // returns {zip, type}
         }
             
         const file = item.getAsFile(); // getAsFile() is a method of DataTransferItem
@@ -62,9 +63,9 @@ export class AssetManager {
 
         if (!entry) {return Promise.resolve(null);}
 
-        this.fullPath = entry.fullPath;
-
-        return this.checkFile(entry, item, importSizeChecker);
+        return this.checkFile(entry, item, importSizeChecker).then((obj) => {
+            return {...obj, fileName: entry.fullPath};
+        });
     }
 
     async analyzeDirectory(dirEntry, importSizeChecker) {
@@ -72,6 +73,8 @@ export class AssetManager {
         const todo = [{path: dirEntry.fullPath, entry: dirEntry, depth: 0}];
 
         let zip = new JSZip();
+
+        let maybeType;
 
         const processEntries = () => {
             const { path, entry, depth } = todo.pop();
@@ -90,6 +93,9 @@ export class AssetManager {
                     entry.file(async file => {
                         const fileType = this.getFileType(file.name);
                         const spec = await this.fetchSpecForDroppedFile(file, fileType);
+                        if (spec.type === ".obj") {
+                            maybeType = "obj";
+                        }
                         spec.path = path;
                         spec.depth = depth;
                         importSizeChecker.addItem(spec);
@@ -111,7 +117,7 @@ export class AssetManager {
                 await processEntries();
             }
             resolve(true);
-        }).then(() => zip);
+        }).then(() => ({zip, type: maybeType}));
     }
 
     getFileType(fileName) {
@@ -147,10 +153,15 @@ export class AssetManager {
 
         if (!isFileDrop(evt)) {return;}
 
-        return this.handleFileDrop(evt.dataTransfer.items).then((zip) => {
+        let fullPath;
+        let fileType;
+
+        return this.handleFileDrop(evt.dataTransfer.items).then(({zip, type, fileName}) => {
+            fullPath = fileName;
+            fileType = type;
             return zip.generateAsync({type : "uint8array"});
         }).then((buffer) => {
-            return {fileName: this.fullPath, buffer};
+            return {fileName: fullPath, type: fileType, buffer};
         });
     }
 
@@ -159,9 +170,9 @@ export class AssetManager {
         dom.ondrop = (evt) => {
             evt.preventDefault();
             this.drop(evt).then((obj) => {
-                let {buffer, fileName} = obj;
+                let {buffer, fileName, type} = obj;
                 if (callback) {
-                    callback(buffer, fileName);
+                    callback(buffer, fileName, type);
                 }
             });
         };

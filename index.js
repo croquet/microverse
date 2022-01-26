@@ -185,19 +185,20 @@ class MyModelRoot extends ModelRoot {
     }
 
     fileUploaded(data) {
-        let {dataId} = data;
-        // this.assets.set(dataId, dataId);
+        let {dataId, fileName, type} = data;
+        // this.assets.set(dataId, dataId, type);
+        console.log(dataId, fileName, type);
 
         Card.create({
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1,1,1], // white
             translation:[0,-0.5, -6 * (0 + 1)],
-            scale: [4,4,4],
+            scale: [1,1,1],
             model3d: dataId,
             cardInstall: true
         });
-        this.publish(this.id, "fileLoadRequested", dataId);
+        this.publish(this.id, "fileLoadRequested", data);
     }
 }
 
@@ -255,24 +256,23 @@ class MyViewRoot extends ViewRoot {
         this.assetManager = window.assetManager = new AssetManager(); // this would use the service thing
         this.assetManager.setSessionId(this.sessionId);
 
-        this.assetManager.setupHandlersOn(window, ({buffer, fileName}) => {
+        this.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Data.toId(handle);
-                this.assetManager.assetCache[dataId] = {buffer};
-                this.publish(this.model.id, "fileUploaded", {dataId, fileName});
+                this.assetManager.assetCache[dataId] = {buffer, type};
+                this.publish(this.model.id, "fileUploaded", {dataId, fileName, type});
             });
         });
 
-        this.subscribe(this.model.id, "fileLoadRequested", "fileLoadRequested");
+        // this.subscribe(this.model.id, "fileLoadRequested", "fileLoadRequested");
     }
 
     fileLoadRequested(dataId) {
-        let handle = Data.fromId(dataId);
-        Data.fetch(this.sessionId, handle).then((buffer) => {
-            let obj = this.assetManager.load(buffer, window.THREE);
-        });
+        // let handle = Data.fromId(dataId);
+        // Data.fetch(this.sessionId, handle).then((buffer) => {
+        // let obj = this.assetManager.load(buffer, THREE);
+        // });
     }
-    
 
     destroy() {
         super.destroy();
