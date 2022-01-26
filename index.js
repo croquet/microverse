@@ -29,7 +29,7 @@ import skyLeft from "./assets/sky/sh_lf.png";
 import skyUp from "./assets/sky/sh_up.png";
 import skyDown from "./assets/sky/sh_dn.png";
 
-import {AssetManager} from "./src/drop.js";
+import {AssetManager} from "./src/assetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.

@@ -1,6 +1,6 @@
 /* globals Croquet THREE */
 
-import {AssetManager} from "./src/drop.js";
+import {AssetManager} from "./src/assetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 class DropModel extends Croquet.Model {

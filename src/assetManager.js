@@ -256,23 +256,4 @@ export class Loader {
 
         return obj;
     }
-
-    /*
-        let materials;
-        const mtlURL = assetDescriptor.loadPaths.mtlSource;
-        if (mtlURL) {
-            const manager = await this.makeLoadingManager(assetDescriptor, firstLoad);
-            const mtlLoader = new THREE.MTLLoader(manager);
-            const mtlPathAndName = mtlURL.match(/^(.*\/)?([^/]*)$/);
-            const path = mtlPathAndName[1];
-            mtlLoader.setResourcePath(path); // new API (valid in feb 2019)
-            mtlLoader.crossOrigin = '';
-            materials = await new Promise(resolve => mtlLoader.load(mtlURL, resolve));
-            manager._croquetRevokeURLs();
-        }
-        const urlObjO = await this.objectURLForName(assetDescriptor, "objSource");
-        const objLoader = new THREE.OBJLoader();
-        if (materials) objLoader.setMaterials(materials);
-        return new Promise(resolve => objLoader.load(urlObjO.url, resolve, onProgress, onError)).then(result => urlObjO.revoke() || result);
-        */
 }
