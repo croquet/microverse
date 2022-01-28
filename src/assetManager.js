@@ -245,6 +245,9 @@ export class AssetManager {
             if (files.find((name) => name.endsWith(".obj"))) {
                 return new Loader().importOBJ(buffer, THREE);
             }
+            if (files.find((name) => name.endsWith(".fbx"))) {
+                return new Loader().importFBX(buffer, THREE);
+            }
 
             throw new Error("unknown file type");
         } else {
@@ -394,35 +397,89 @@ export class Loader {
         // While FBX might refer to other files, we don't deal with them here as we don't support multiple files dropped
         // (see https://archive.blender.org/wiki/index.php/User:Mont29/Foundation/FBX_File_Structure/)
 
-        const getBuffer = async () => {
-            if (isZip(buffer)) {
-                let zipFile = new JSZip();
-                let zip = await zipFile.loadAsync(buffer);
-                let files = Object.keys(zip.files);
-                let glbFile = files.find((name) => name.endsWith(".fbx"));
-                return zip.files[glbFile].async("ArrayBuffer");
-            } else {
-                return Promise.resolve(buffer);
+        let imgType = (n) => {
+            // returns a MIME-subtype string or null
+            if (n.endsWith(".png")) {
+                return "png";
             }
+            if (n.endsWith(".jpeg") || n.endsWith(".jpg")) {
+                return "jpeg";
+            }
+            return null;
         };
 
-        return getBuffer().then((data) => {
-            let fbxUrl;
-            return new Promise((resolve, reject) => {
-                fbxUrl = URL.createObjectURL(new Blob([data]));
-                const loader = new THREE.FBXLoader();
-                return loader.load(fbxUrl, resolve, null, reject);
-            }).then((object) => {
-                if (object.animations.length > 0) {
-                    const mixer = new THREE.AnimationMixer(object);
-                    mixer.clipAction(object.animations[0]).play();
-                    object._croquetAnimation = {
-                        lastTime: 0,
-                        mixer
-                    };
-                }
-                return object;
-            })
+        let fbxUrl;
+        let imgContents;
+        
+        const setupFiles = async () => {
+            if (!isZip(buffer)) {
+                fbxUrl = URL.createObjectURL(new Blob([buffer]));
+                return Promise.resolve(buffer);
+            }
+        
+            let zipFile = new JSZip();
+            let zip = await zipFile.loadAsync(buffer);
+
+            let files = Object.keys(zip.files);
+
+            let fbxFile = files.find((name) => name.endsWith(".fbx"));
+            let fbxContent = await zip.file(fbxFile).async("ArrayBuffer");
+            fbxUrl = URL.createObjectURL(new Blob([fbxContent]));
+
+            let imgFiles = files.map((n) => ({name: n, type: imgType(n)})).filter((o) => o.type);
+            imgContents = {}; // {[name after slash]: objectURL}
+
+            let imgPromises = imgFiles.map((obj) => {
+                let {name, type} = obj;
+                let localName = this.localName(name);
+                return zip.file(name).async("uint8array").then((content) => {
+                    let blob = new Blob([content], {type: `image/${type}`});
+                    let reader = new FileReader();
+                    return new Promise((resolve, reject) => {
+                        reader.addEventListener("load", () => {
+                            imgContents[localName] = reader.result;
+                            resolve(reader.result);
+                        });
+                        return reader.readAsDataURL(blob);
+                    });
+                });
+            });
+
+            return Promise.all(imgPromises);
+        };
+
+        await setupFiles();
+
+        const manager = new THREE.LoadingManager();
+
+        manager.setURLModifier(urlStr => {
+            console.log(`handling request for ${urlStr}`);
+
+            if (imgType(urlStr)) {
+                console.log(`returning imgUrl`);
+                let localName = this.localName(urlStr);
+                return imgContents[localName] || ""; // it may not have the file
+            }
+            console.log(`returning ${urlStr}`);
+            return urlStr;
         });
+
+        const fbxLoader = new THREE.FBXLoader(manager);
+        let obj = await new Promise((resolve, reject) => {
+            return fbxLoader.load(fbxUrl, resolve, null, reject);
+        }).then((object) => {
+            if (object.animations.length > 0) {
+                const mixer = new THREE.AnimationMixer(object);
+                mixer.clipAction(object.animations[0]).play();
+                object._croquetAnimation = {
+                    lastTime: 0,
+                    mixer
+                };
+            }
+            return object;
+        });
+
+        URL.revokeObjectURL(fbxUrl);
+        return obj;
     }
 }
