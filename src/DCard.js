@@ -32,6 +32,7 @@ export class Card extends mix(Actor).with(AM_Spatial){
         this._overUsers = new Map();
         if (options.model3d) {
             this._model3d = options.model3d;
+            this.creationTime = this.now();
         }
         if (options.modelType) {
             this._modelType = options.modelType;
@@ -189,17 +190,25 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
 
     constructCard() {
         this.card3D = new THREE.Group();
-
         if (this.actor._model3d && this.actor._modelType) {
             let handle = Data.fromId(this.actor._model3d);
             Data.fetch(this.sessionId, handle).then((buffer) => {
-                window.assetManager.load(buffer, this.actor._modelType, window.THREE).then((obj) => {
+                window.assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
                     this.card3D.add(obj);
+
+                    obj.updateMatrixWorld(true);
+                    obj.ready = true;
+
                     if (obj.traverse) {
                         addShadows2(obj, true);
                     }
-                    obj.updateMatrixWorld(true);
-                    obj.ready = true;
+
+                    if (obj._croquetAnimation) {
+                        const spec = obj._croquetAnimation;
+                        spec.startTime = this.actor.creationTime;
+                        this.animationSpec = spec;
+                        this.future(500).runAnimation();
+                    }
                 });
             });
         }
@@ -405,5 +414,18 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
             return vec0;
         }
         return null;
+    }
+
+    runAnimation() {
+        const spec = this.animationSpec;
+        if (!spec) return;
+
+        const { mixer, startTime, lastTime } = spec;
+        const now = this.now();
+        const newTime = (now - startTime) / 1000, delta = newTime - lastTime;
+        mixer.update(delta);
+        spec.lastTime = newTime;
+
+        this.future(1000 / 20).runAnimation();
     }
 }
