@@ -15,11 +15,12 @@
   ],
   "dependencies": {
     "@croquet/worldcore": "^1.0.8",
-    "three": "^0.134.0",
+    "fflate": "^0.7.3",
+    "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git",
     "jszip": "^3.7.1",
-    "pako": "^2.0.4",
     "load-bmfont": "^1.4.0",
-    "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git"
+    "pako": "^2.0.4",
+    "three": "^0.134.0"
   },
   "devDependencies": {
     "buffer": "^6.0.3",

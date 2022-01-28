@@ -101,7 +101,7 @@ export class AssetManager {
                     entry.file(async file => {
                         const fileType = this.getFileType(file.name);
                         const spec = await this.fetchSpecForDroppedFile(file, fileType);
-                        if (spec.type === ".obj") {
+                        if (spec.type === "obj") {
                             maybeType = "obj";
                         }
                         spec.path = path;
@@ -129,10 +129,13 @@ export class AssetManager {
     }
 
     getFileType(fileName) {
-        const fileExtensionTest = /\.([0-9a-z]+)(?=[?#])|(\.)(?:[\w]+)$/;
-        const match = fileName.match(fileExtensionTest);
-        return match ? match[0].toLowerCase() : "";
+        let index = fileName.lastIndexOf(".");
+        if (index >= 0) {
+            return fileName.slice(index + 1).toLowerCase();
+        }
+        return null;
     }
+
 
     async fetchSpecForDroppedFile(file, fileType) {
         const reader = new FileReader();
@@ -142,8 +145,7 @@ export class AssetManager {
             reader.onerror = reject;
             reader.readAsArrayBuffer(file);
         }).then((buffer) => {
-            const mimeType = fileType === ".mp4" ? "video/mp4" : null; // so far, mp4 is the only case that seems to matter (in Safari); see fetchSharedBlob()
-            return { name: file.name, type: fileType, blob: file, buffer, mimeType };
+            return { name: file.name, type: fileType, blob: file, buffer };
         }).catch((e) => {
             console.error(e);
             throw new Error("reading a file failed");
@@ -247,11 +249,14 @@ export class AssetManager {
             throw new Error("unknown file type");
         } else {
             // mostly trust the incoming type derived from the file name
-            if (type.endsWith("glb")) {
+            if (type === "glb") {
                 return new Loader().importGLB(buffer, THREE);
             }
-            if (type.endsWith("obj")) {
+            if (type === "obj") {
                 return new Loader().importOBJ(buffer, THREE);
+            }
+            if (type === "fbx") {
+                return new Loader().importFBX(buffer, THREE);
             }
         }
     }
@@ -382,6 +387,42 @@ export class Loader {
             return new Promise((resolve, reject) => {
                 return loader.parse(data, null, (obj) => resolve(obj.scene));
             });
+        });
+    }
+
+    async importFBX(buffer, THREE) {
+        // While FBX might refer to other files, we don't deal with them here as we don't support multiple files dropped
+        // (see https://archive.blender.org/wiki/index.php/User:Mont29/Foundation/FBX_File_Structure/)
+
+        const getBuffer = async () => {
+            if (isZip(buffer)) {
+                let zipFile = new JSZip();
+                let zip = await zipFile.loadAsync(buffer);
+                let files = Object.keys(zip.files);
+                let glbFile = files.find((name) => name.endsWith(".fbx"));
+                return zip.files[glbFile].async("ArrayBuffer");
+            } else {
+                return Promise.resolve(buffer);
+            }
+        };
+
+        return getBuffer().then((data) => {
+            let fbxUrl;
+            return new Promise((resolve, reject) => {
+                fbxUrl = URL.createObjectURL(new Blob([data]));
+                const loader = new THREE.FBXLoader();
+                return loader.load(fbxUrl, resolve, null, reject);
+            }).then((object) => {
+                if (object.animations.length > 0) {
+                    const mixer = new THREE.AnimationMixer(object);
+                    mixer.clipAction(object.animations[0]).play();
+                    object._croquetAnimation = {
+                        lastTime: 0,
+                        mixer
+                    };
+                }
+                return object;
+            })
         });
     }
 }

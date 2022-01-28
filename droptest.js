@@ -36,7 +36,9 @@ class DropView extends Croquet.View {
 
         let libs = [
             "loaders/OBJLoader.js",
-            "loaders/MTLLoader.js"
+            "loaders/MTLLoader.js",
+            "loaders/GLTFLoader.js",
+            "loaders/FBXLoader.js"
         ];
 
         libs.map(loadThreeJSLib);

@@ -18,6 +18,7 @@ import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.
 import { MultiBlaster } from './src/multiblaster.js';
 import { createChess } from './src/chess.js';
 import JSZip from 'jszip';
+import * as fflate from 'fflate';
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -62,10 +63,12 @@ function loadLoaders() {
     let libs = [
         "loaders/OBJLoader.js",
         "loaders/MTLLoader.js",
-        "loaders/GLTFLoader.js"
+        "loaders/GLTFLoader.js",
+        "loaders/FBXLoader.js"
     ];
 
     window.JSZip = JSZip;
+    window.fflate = fflate;
 
     return Promise.all(libs.map((file) => {
         loadThreeJSLib(file, THREE);
