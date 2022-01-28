@@ -2,6 +2,11 @@
 
 const MAX_IMPORT_MB = 100; // aggregate
 
+function isZip(buffer) {
+    return buffer[0] === 0x50 && buffer[1] === 0x4b &&
+        buffer[2] === 0x03 && buffer[3] === 0x04;
+}
+
 class ImportChecker {
     constructor() {
         this.totalSize = 0;
@@ -40,11 +45,14 @@ export class AssetManager {
             });
             // returns {zip, type}
         }
+
             
         const file = item.getAsFile(); // getAsFile() is a method of DataTransferItem
         const type = this.getFileType(file.name);
         if (file && type) {
-            return Promise.resolve({type, file});
+            return this.fetchSpecForDroppedFile(file, type).then((spec) => {
+                return {type, file: spec.buffer};
+            });
         }
         throw new Error("could not read a file");
     }
@@ -156,10 +164,13 @@ export class AssetManager {
         let fullPath;
         let fileType;
 
-        return this.handleFileDrop(evt.dataTransfer.items).then(({zip, type, fileName}) => {
+        return this.handleFileDrop(evt.dataTransfer.items).then(({zip, file, type, fileName}) => {
             fullPath = fileName;
             fileType = type;
-            return zip.generateAsync({type : "uint8array"});
+            if (zip) {
+                return zip.generateAsync({type : "uint8array"});
+            }
+            return Promise.resolve(file);
         }).then((buffer) => {
             return {fileName: fullPath, type: fileType, buffer};
         });
@@ -213,27 +224,70 @@ export class AssetManager {
         delete this.assetCache[dataId];
     }
 
-    load(buffer, THREE) {
-        return new Loader().importOBJ(buffer, THREE);
+    async load(buffer, type, THREE) {
+        // here is a bit of checks to do. The file dropped might have been a directory,
+        // and then we zipped it. But the file dropped might have been a zip file,
+        // The droppef file might have been named like
+        // abc.glb.zip, but it might have been abc.zip
+        // so we don't know for sure what it was.
+
+        if (isZip(buffer)) {
+            let zipFile = new JSZip();
+            let zip = await zipFile.loadAsync(buffer);
+            let files = Object.keys(zip.files);
+
+            if (files.find((name) => name.endsWith(".glb"))) {
+                return new Loader().importGLB(buffer, THREE);
+            }
+
+            if (files.find((name) => name.endsWith(".obj"))) {
+                return new Loader().importOBJ(buffer, THREE);
+            }
+
+            throw new Error("unknown file type");
+        } else {
+            // mostly trust the incoming type derived from the file name
+            if (type.endsWith("glb")) {
+                return new Loader().importGLB(buffer, THREE);
+            }
+        }
     }
 }
 
 export class Loader {
+    localName(str) {
+        // str can be  [blob:]https://.../... or /.../... such.
+        // It just take the last part after the last /
+        let index = str.lastIndexOf("/");
+        if (index >= 0) {
+            return str.slice(index + 1);
+        }
+        return str;
+    }
+
     async importOBJ(buffer, THREE) {
         let zipFile = new JSZip();
         let zip = await zipFile.loadAsync(buffer);
 
-        let mtlFile = Object.keys(zip.files).find((name) => name.endsWith(".mtl"));
+        let files = Object.keys(zip.files);
+
+        let mtlFile = files.find((name) => name.endsWith(".mtl"));
         let mtlContent = await zip.file(mtlFile).async("string");
         let mtlUrl = URL.createObjectURL(new Blob([mtlContent]));
 
-        let objFile = Object.keys(zip.files).find((name) => name.endsWith(".obj"));
+        let objFile = files.find((name) => name.endsWith(".obj"));
         let objContent = await zip.file(objFile).async("string");
         let objUrl = URL.createObjectURL(new Blob([objContent]));
 
-        let pngFile = Object.keys(zip.files).find((name) => name.endsWith(".png"));
-        let pngContent = await zip.file(objFile).async("uint8array");
-        let pngUrl = URL.createObjectURL(new Blob([pngContent]));
+        let pngContents = {}; // {[name after slash]: objectURL}
+        let pngPromises = files.map((name) => zip.file(mtlFile).async("uint8array"));
+
+        await Promise.all(pngPromises).then((contents) => {
+            for (let i = 0; i < files.length; i++) {
+                let localName = this.localName(files[i]);
+                pngContents[localName] = URL.createObjectURL(new Blob([contents[i]]));
+            }
+        });
 
         const manager = new THREE.LoadingManager();
 
@@ -242,7 +296,8 @@ export class Loader {
 
             if (urlStr.endsWith(".png")) {
                 console.log(`returning pngUrl`);
-                return pngUrl;
+                let localName = this.localName(urlStr);
+                return pngContents[localName] || ""; // it may not have the file
             }
             console.log(`returning ${urlStr}`);
             return urlStr;
@@ -263,8 +318,30 @@ export class Loader {
 
         URL.revokeObjectURL(mtlUrl);
         URL.revokeObjectURL(objUrl);
-        URL.revokeObjectURL(pngUrl);
-
+        for (let k in pngContents) {
+            URL.revokeObjectURL(pngContents[k]);
+        }
         return obj;
+    }
+
+    async importGLB(buffer, THREE) {
+        const getBuffer = async () => {
+            if (isZip(buffer)) {
+                let zipFile = new JSZip();
+                let zip = await zipFile.loadAsync(buffer);
+                let files = Object.keys(zip.files);
+                let glbFile = files.find((name) => name.endsWith(".glb"));
+                return zip.files[glbFile].async("ArrayBuffer");
+            } else {
+                return Promise.resolve(buffer);
+            }
+        };
+
+        return getBuffer().then((data) => {
+            let loader = new THREE.GLTFLoader();
+            return new Promise((resolve, reject) => {
+                return loader.parse(data, null, (obj) => resolve(obj.scene));
+            });
+        });
     }
 }

@@ -9,7 +9,7 @@ import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, Data} from "@croquet/w
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { D } from './DConstants.js';
 import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
-import { loadGLB, addShadows } from '/src/LoadGLB.js'
+import { loadGLB, addShadows, addShadows2 } from '/src/LoadGLB.js'
 import { Vector3 } from 'three';
 
 const CardColor = 0x9999cc;  // light blue
@@ -30,7 +30,12 @@ export class Card extends mix(Actor).with(AM_Spatial){
         // managing multiple users
         this._downUsers = new Map(); 
         this._overUsers = new Map();
-        this._model3d = options.model3d;
+        if (options.model3d) {
+            this._model3d = options.model3d;
+        }
+        if (options.modelType) {
+            this._modelType = options.modelType;
+        }
         this.listen("onPointerDown", this.onPointerDown);
         this.listen("onPointerUp", this.onPointerUp);
         this.listen("onPointerEnter", this.onPointerEnter);
@@ -185,12 +190,16 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
     constructCard() {
         this.card3D = new THREE.Group();
 
-        if (this.actor._model3d) {
+        if (this.actor._model3d && this.actor._modelType) {
             let handle = Data.fromId(this.actor._model3d);
             Data.fetch(this.sessionId, handle).then((buffer) => {
-                window.assetManager.load(buffer, window.THREE).then((obj) => {
-                    obj.name = "light blub";
+                window.assetManager.load(buffer, this.actor._modelType, window.THREE).then((obj) => {
                     this.card3D.add(obj);
+                    if (obj.traverse) {
+                        addShadows2(obj, true);
+                    }
+                    obj.updateMatrixWorld(true);
+                    obj.ready = true;
                 });
             });
         }

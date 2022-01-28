@@ -13,7 +13,7 @@ class DropModel extends Croquet.Model {
         let {dataId} = data;
         console.log(data);
         this.assets.set(dataId, dataId);
-        this.publish(this.id, "fileLoadRequested", dataId);
+        this.publish(this.id, "fileLoadRequested", data);
     }
 }
 
@@ -26,7 +26,7 @@ class DropView extends Croquet.View {
         this.assetManager = new AssetManager();
         this.assetManager.setSessionId(this.sessionId);
 
-        this.assetManager.setupHandlersOn(window, ({buffer, fileName, type}) => {
+        this.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Croquet.Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Croquet.Data.toId(handle);
                 this.assetManager.assetCache[dataId] = {buffer, type};
@@ -44,10 +44,11 @@ class DropView extends Croquet.View {
         this.subscribe(this.model.id, "fileLoadRequested", "fileLoadRequested");
     }
 
-    fileLoadRequested(dataId) {
+    fileLoadRequested(data) {
+        let {dataId, fileName, type} = data;
         let handle = Croquet.Data.fromId(dataId);
         Croquet.Data.fetch(this.sessionId, handle).then((buffer) => {
-            let obj = this.assetManager.load(buffer, window.THREE);
+            let obj = this.assetManager.load(buffer, type, window.THREE);
         });
     }
 }

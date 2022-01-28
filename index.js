@@ -61,7 +61,8 @@ function loadBasicModels() {
 function loadLoaders() {
     let libs = [
         "loaders/OBJLoader.js",
-        "loaders/MTLLoader.js"
+        "loaders/MTLLoader.js",
+        "loaders/GLTFLoader.js"
     ];
 
     window.JSZip = JSZip;
@@ -196,6 +197,7 @@ class MyModelRoot extends ModelRoot {
             translation:[0,-0.5, -6 * (0 + 1)],
             scale: [1,1,1],
             model3d: dataId,
+            modelType: type,
             cardInstall: true
         });
         this.publish(this.id, "fileLoadRequested", data);
