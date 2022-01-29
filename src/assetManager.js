@@ -276,72 +276,70 @@ export class Loader {
         return str;
     }
 
-    async importOBJ(buffer, THREE) {
-        let imgType = (n) => {
-            // returns a MIME-subtype string or null
-            if (n.endsWith(".png")) {
-                return "png";
-            }
-            if (n.endsWith(".jpeg") || n.endsWith(".jpg")) {
-                return "jpeg";
-            }
-            return null;
-        };
+    imgType(name) {
+        // returns a MIME-subtype string or null
+        if (name.endsWith(".png")) {
+            return "png";
+        }
+        if (name.endsWith(".jpeg") || name.endsWith(".jpg")) {
+            return "jpeg";
+        }
+        return null;
+    };
 
-        let mtlUrl;
-        let mtl;
-        let objUrl;
-        let imgContents;
+    async setupFilesInZip(buffer, required) {
+        // required: {[name]: dataType}
+        // returns {[type]: blob, ...imgContents}
+        let zipFile = new JSZip();
+        let zip = await zipFile.loadAsync(buffer);
+        let imgContents = {}; // {[name after slash]: dataURL}
+
+        let files = Object.keys(zip.files);
         
-        const setupFiles = async () => {
-            if (!isZip(buffer)) {
-                objUrl = URL.createObjectURL(new Blob([buffer]));
-                return Promise.resolve(buffer);
-            }
-        
-            let zipFile = new JSZip();
-            let zip = await zipFile.loadAsync(buffer);
+        let promises = Object.keys(required).map((req) => {
+            let dataType = required[req];
+            let file = files.find((name) => name.endsWith(`.${req}`));
+            return zip.file(file).async(dataType).then((content) => {
+                return {type: req, blob: URL.createObjectURL(new Blob([content]))};
+            });
+        });
 
-            let files = Object.keys(zip.files);
+        let result = {};
+        await Promise.all(promises).then((pairs) => {
+            pairs.forEach((pair) => {
+                result[pair.type] = pair.blob;
+            });
+        });
 
-            let mtlFile = files.find((name) => name.endsWith(".mtl"));
-            let mtlContent = await zip.file(mtlFile).async("string");
-            mtlUrl = URL.createObjectURL(new Blob([mtlContent]));
+        let imgFiles = files.map((n) => ({name: n, type: this.imgType(n)})).filter((o) => o.type);
 
-            let objFile = files.find((name) => name.endsWith(".obj"));
-            let objContent = await zip.file(objFile).async("string");
-            objUrl = URL.createObjectURL(new Blob([objContent]));
-
-            let imgFiles = files.map((n) => ({name: n, type: imgType(n)})).filter((o) => o.type);
-            imgContents = {}; // {[name after slash]: objectURL}
-
-            let imgPromises = imgFiles.map((obj) => {
-                let {name, type} = obj;
-                let localName = this.localName(name);
-                return zip.file(name).async("uint8array").then((content) => {
-                    let blob = new Blob([content], {type: `image/${type}`});
-                    let reader = new FileReader();
-                    return new Promise((resolve, reject) => {
-                        reader.addEventListener("load", () => {
-                            imgContents[localName] = reader.result;
-                            resolve(reader.result);
-                        });
-                        return reader.readAsDataURL(blob);
+        let imgPromises = imgFiles.map((obj) => {
+            let {name, type} = obj;
+            let localName = this.localName(name);
+            return zip.file(name).async("uint8array").then((content) => {
+                let blob = new Blob([content], {type: `image/${type}`});
+                let reader = new FileReader();
+                return new Promise((resolve, reject) => {
+                    reader.addEventListener("load", () => {
+                        imgContents[localName] = reader.result;
+                        resolve(reader.result);
                     });
+                    return reader.readAsDataURL(blob);
                 });
             });
+        });
 
-            return Promise.all(imgPromises);
-        };
+        await Promise.all(imgPromises);
 
-        await setupFiles();
+        return {...result, imgContents};
+    };
 
-        const manager = new THREE.LoadingManager();
-
+    setURLModifierFor(manager, imgContents) {
+        if (!imgContents) {return;}
         manager.setURLModifier(urlStr => {
             console.log(`handling request for ${urlStr}`);
 
-            if (imgType(urlStr)) {
+            if (this.imgType(urlStr)) {
                 console.log(`returning imgUrl`);
                 let localName = this.localName(urlStr);
                 return imgContents[localName] || ""; // it may not have the file
@@ -349,11 +347,28 @@ export class Loader {
             console.log(`returning ${urlStr}`);
             return urlStr;
         });
+    }
 
-        if (mtlUrl) {
+    async importOBJ(buffer, THREE) {
+        let mtl;
+
+        const setupFiles = async () => {
+            if (!isZip(buffer)) {
+                let c = {"obj": URL.createObjectURL(new Blob([buffer]))};
+                return Promise.resolve(c);
+            }
+
+            return this.setupFilesInZip(buffer, {"obj": "string", "mtl": "string"});
+        };
+
+        let contents = await setupFiles();
+        const manager = new THREE.LoadingManager();
+        this.setURLModifierFor(manager, contents.imgContents);
+
+        if (contents.mtl) {
             const mtlLoader = new THREE.MTLLoader(manager);
             mtl = await new Promise((resolve, reject) => {
-                mtlLoader.load(mtlUrl, resolve, null, reject);
+                mtlLoader.load(contents.mtl, resolve, null, reject);
             });//.catch((err) => console.log("laoding material failed"));
         }
                  
@@ -362,111 +377,38 @@ export class Loader {
             if (mtl) {
                 objLoader.setMaterials(mtl);
             }
-            objLoader.load(objUrl, resolve, null, reject);
+            objLoader.load(contents.obj, resolve, null, reject);
         });//.catch((err) => console.log("laoding material failed"));
 
-        if (mtlUrl) {
-            URL.revokeObjectURL(mtlUrl);
-        }
-        URL.revokeObjectURL(objUrl);
+        Object.keys(contents).forEach((k) => {
+            if (contents[k] && k !== "imgContents") {
+                URL.revokeObjectURL(contents[k]);
+            }
+        });
         return obj;
     }
 
-    async importGLB(buffer, THREE) {
-        const getBuffer = async () => {
-            if (isZip(buffer)) {
-                let zipFile = new JSZip();
-                let zip = await zipFile.loadAsync(buffer);
-                let files = Object.keys(zip.files);
-                let glbFile = files.find((name) => name.endsWith(".glb"));
-                return zip.files[glbFile].async("ArrayBuffer");
-            } else {
-                return Promise.resolve(buffer);
-            }
-        };
-
-        return getBuffer().then((data) => {
-            let loader = new THREE.GLTFLoader();
-            return new Promise((resolve, reject) => {
-                return loader.parse(data, null, (obj) => resolve(obj.scene));
-            });
-        });
-    }
-
     async importFBX(buffer, THREE) {
-        // While FBX might refer to other files, we don't deal with them here as we don't support multiple files dropped
-        // (see https://archive.blender.org/wiki/index.php/User:Mont29/Foundation/FBX_File_Structure/)
-
-        let imgType = (n) => {
-            // returns a MIME-subtype string or null
-            if (n.endsWith(".png")) {
-                return "png";
-            }
-            if (n.endsWith(".jpeg") || n.endsWith(".jpg")) {
-                return "jpeg";
-            }
-            return null;
-        };
-
         let fbxUrl;
         let imgContents;
         
         const setupFiles = async () => {
             if (!isZip(buffer)) {
-                fbxUrl = URL.createObjectURL(new Blob([buffer]));
-                return Promise.resolve(buffer);
+                let c = {"fbx": URL.createObjectURL(new Blob([buffer]))};
+                return Promise.resolve(c);
             }
-        
-            let zipFile = new JSZip();
-            let zip = await zipFile.loadAsync(buffer);
-
-            let files = Object.keys(zip.files);
-
-            let fbxFile = files.find((name) => name.endsWith(".fbx"));
-            let fbxContent = await zip.file(fbxFile).async("ArrayBuffer");
-            fbxUrl = URL.createObjectURL(new Blob([fbxContent]));
-
-            let imgFiles = files.map((n) => ({name: n, type: imgType(n)})).filter((o) => o.type);
-            imgContents = {}; // {[name after slash]: objectURL}
-
-            let imgPromises = imgFiles.map((obj) => {
-                let {name, type} = obj;
-                let localName = this.localName(name);
-                return zip.file(name).async("uint8array").then((content) => {
-                    let blob = new Blob([content], {type: `image/${type}`});
-                    let reader = new FileReader();
-                    return new Promise((resolve, reject) => {
-                        reader.addEventListener("load", () => {
-                            imgContents[localName] = reader.result;
-                            resolve(reader.result);
-                        });
-                        return reader.readAsDataURL(blob);
-                    });
-                });
-            });
-
-            return Promise.all(imgPromises);
+                
+            return this.setupFilesInZip(buffer, {"fbx": "ArrayBuffer"});
         };
-
-        await setupFiles();
+        
+        let contents = await setupFiles();
 
         const manager = new THREE.LoadingManager();
-
-        manager.setURLModifier(urlStr => {
-            console.log(`handling request for ${urlStr}`);
-
-            if (imgType(urlStr)) {
-                console.log(`returning imgUrl`);
-                let localName = this.localName(urlStr);
-                return imgContents[localName] || ""; // it may not have the file
-            }
-            console.log(`returning ${urlStr}`);
-            return urlStr;
-        });
+        this.setURLModifierFor(manager, contents.imgContents);
 
         const fbxLoader = new THREE.FBXLoader(manager);
         let obj = await new Promise((resolve, reject) => {
-            return fbxLoader.load(fbxUrl, resolve, null, reject);
+            return fbxLoader.load(contents.fbx, resolve, null, reject);
         }).then((object) => {
             if (object.animations.length > 0) {
                 const mixer = new THREE.AnimationMixer(object);
@@ -481,5 +423,26 @@ export class Loader {
 
         URL.revokeObjectURL(fbxUrl);
         return obj;
+    }
+
+    async importGLB(buffer, THREE) {
+        const getBuffer = async () => {
+            if (isZip(buffer)) {
+                let zipFile = new JSZip();
+                let zip = await zipFile.loadAsync(buffer);
+                let files = Object.keys(zip.files);
+                let glbFile = files.find((name) => name.endsWith(".glb"));
+                return zip.files[glbFile].async("ArrayBuffer");
+            } else {
+                return Promise.resolve(buffer.buffer);
+            }
+        };
+
+        return getBuffer().then((data) => {
+            let loader = new THREE.GLTFLoader();
+            return new Promise((resolve, reject) => {
+                return loader.parse(data, null, (obj) => resolve(obj.scene));
+            });
+        });
     }
 }
