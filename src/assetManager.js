@@ -229,38 +229,39 @@ export class AssetManager {
     async load(buffer, type, THREE) {
         // here is a bit of checks to do. The file dropped might have been a directory,
         // and then we zipped it. But the file dropped might have been a zip file,
-        // The droppef file might have been named like
+        // The dropped file might have been named like
         // abc.glb.zip, but it might have been abc.zip
         // so we don't know for sure what it was.
+
+        let types = [
+            {file: "glb", func: "importGLB"},
+            {file: "obj", func: "importOBJ"},
+            {file: "fbx", func: "importFBX"}
+        ];
 
         if (isZip(buffer)) {
             let zipFile = new JSZip();
             let zip = await zipFile.loadAsync(buffer);
             let files = Object.keys(zip.files);
 
-            if (files.find((name) => name.endsWith(".glb"))) {
-                return new Loader().importGLB(buffer, THREE);
-            }
-
-            if (files.find((name) => name.endsWith(".obj"))) {
-                return new Loader().importOBJ(buffer, THREE);
-            }
-            if (files.find((name) => name.endsWith(".fbx"))) {
-                return new Loader().importFBX(buffer, THREE);
+            for (let i = 0; i < types.length; i++) {
+                let {file, func} = types[i];
+                if (files.find((name) => name.endsWith(`.${file}`))) {
+                    let f = Loader.prototype[func];
+                    return f.call(new Loader(), buffer, THREE);
+                }
             }
 
             throw new Error("unknown file type");
         } else {
-            // mostly trust the incoming type derived from the file name
-            if (type === "glb") {
-                return new Loader().importGLB(buffer, THREE);
+            for (let i = 0; i < types.length; i++) {
+                let {file, func} = types[i];
+                if (type === file) {
+                    let f = Loader.prototype[func];
+                    return f.call(new Loader(), buffer, THREE);
+                }
             }
-            if (type === "obj") {
-                return new Loader().importOBJ(buffer, THREE);
-            }
-            if (type === "fbx") {
-                return new Loader().importFBX(buffer, THREE);
-            }
+            throw new Error("unknown file type");
         }
     }
 }
@@ -389,9 +390,6 @@ export class Loader {
     }
 
     async importFBX(buffer, THREE) {
-        let fbxUrl;
-        let imgContents;
-        
         const setupFiles = async () => {
             if (!isZip(buffer)) {
                 let c = {"fbx": URL.createObjectURL(new Blob([buffer]))};
@@ -421,7 +419,11 @@ export class Loader {
             return object;
         });
 
-        URL.revokeObjectURL(fbxUrl);
+        Object.keys(contents).forEach((k) => {
+            if (contents[k] && k !== "imgContents") {
+                URL.revokeObjectURL(contents[k]);
+            }
+        });
         return obj;
     }
 
