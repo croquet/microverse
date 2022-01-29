@@ -55,7 +55,7 @@ function loadBasicModels() {
     }
 
     plant = new THREE.Group();
-    loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
+    return loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
     //loadGLB("./assets/3D/ArizonaProject.glb.zip", plant, addShadows, [100, -3, 0], [.01,.01,.01], [0,0,0], false);
 }
 
@@ -64,19 +64,23 @@ function loadLoaders() {
         "loaders/OBJLoader.js",
         "loaders/MTLLoader.js",
         "loaders/GLTFLoader.js",
-        "loaders/FBXLoader.js"
+        "loaders/FBXLoader.js",
+        "loaders/DRACOLoader.js",
     ];
 
     window.JSZip = JSZip;
     window.fflate = fflate;
 
     return Promise.all(libs.map((file) => {
-        loadThreeJSLib(file, THREE);
+        return loadThreeJSLib(file, THREE);
     }));
 }
 
 loadLoaders().then(() => {
-    loadBasicModels();
+    loadBasicModels().then(() => {
+        window.THREE.DRACOLoader.prototype.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+        return;
+    });
 });
 
 class Avatar extends AMVAvatar {

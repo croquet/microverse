@@ -443,6 +443,10 @@ export class Loader {
         return getBuffer().then((data) => {
             let loader = new THREE.GLTFLoader();
             return new Promise((resolve, reject) => {
+                let draco = new THREE.DRACOLoader();
+                draco.setDecoderConfig({type: 'js'});
+                draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+                loader.setDRACOLoader(draco);
                 return loader.parse(data, null, (obj) => resolve(obj.scene));
             });
         });
