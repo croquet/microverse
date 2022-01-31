@@ -447,8 +447,19 @@ export class Loader {
                 draco.setDecoderConfig({type: 'js'});
                 draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
                 loader.setDRACOLoader(draco);
-                return loader.parse(data, null, (obj) => resolve(obj.scene));
-            });
+                return loader.parse(data, null, (obj) => resolve(obj));
+            }).then((loaded) => {
+                let {scene, scenes, cameras, animations} = loaded;
+                if (animations.length > 0) {
+                    const mixer = new THREE.AnimationMixer(scene);
+                    mixer.clipAction(animations[0]).play();
+                    scene._croquetAnimation = {
+                        lastTime: 0,
+                        mixer
+                    };
+                }
+                return scene;
+            })
         });
     }
 }
