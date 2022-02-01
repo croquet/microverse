@@ -99,10 +99,13 @@ export class BitcoinTrackerView extends ElectedView {
     handleElected() {
         super.handleElected();
 
-        if (Date.now() - this.model.latest.date < 60_000) this.fetchSpot();
+        this.count = 0;
+
+        if (Date.now() - this.model.latest.date < 60_000) this.fetchSpot("on-elected");
         else this.fetchHistory();
 
-        this.interval = setInterval(() => this.fetchSpot(), 30_000);
+        const id = setInterval(() => this.fetchSpot(id), 30_000);
+        this.interval = id;
     }
 
     handleUnelected() {
@@ -110,10 +113,12 @@ export class BitcoinTrackerView extends ElectedView {
         clearInterval(this.interval);
     }
 
-    async fetchSpot() {
-        console.log("Fetching BTC-USD from Coinbase...");
+    async fetchSpot(id) {
+        const count = ++this.count;
+        console.log("Fetching BTC-USD from Coinbase", id, count);
         const response = await fetch(`https://api.coinbase.com/v2/prices/BTC-USD/spot`);
         const json = await response.json();
+        console.log("Fetched BTC-USD from Coinbase", id, count, json);
         this.publish(this.model.id, "BTC-USD", { date: Date.now(), amount: +json.data.amount });
     }
 
