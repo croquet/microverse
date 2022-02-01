@@ -74,14 +74,14 @@ export class BitcoinTracker extends ElectedViewModel {
     get latest() { return this.history.length > 0 ? this.history[ this.history.length - 1] : { date: 0, amount: 0 }; }
 
     onBitcoinData({date, amount}) {
-        if (date - this.latest.date < 30_000) return;
+        if (date - this.latest.date < 25_000) return;
         this.history.push({date, amount});
         if (this.history.length > 300) this.history.shift();
         this.publish(this.id, "BTC-USD-changed");
     }
 
     onBitcoinHistory(prices) {
-        const newer = prices.filter(p => p.date - this.latest.date > 30_000);
+        const newer = prices.filter(p => p.date - this.latest.date > 25_000);
         this.history.push(...newer);
         while (this.history.length > 300) this.history.shift();
         this.publish(this.id, "BTC-USD-changed");
