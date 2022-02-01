@@ -263,7 +263,6 @@ class MyViewRoot extends ViewRoot {
         renderer.localClippingEnabled = true;
 
         this.assetManager = window.assetManager = new AssetManager(); // this would use the service thing
-        this.assetManager.setSessionId(this.sessionId);
 
         this.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Data.store(this.sessionId, buffer, true).then((handle) => {

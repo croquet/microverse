@@ -34,10 +34,6 @@ export class AssetManager {
         this.objectURLs = {}; // {[viewId]: [dataIds]}
     }
 
-    setSessionId(sessionId) {
-        this.sessionId = sessionId;
-    }
-
     checkFile(entry, item, importSizeChecker) {
         if (entry.isDirectory) {
             return this.analyzeDirectory(entry, importSizeChecker).catch((err) => {
