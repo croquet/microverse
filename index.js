@@ -17,6 +17,7 @@ import { Card } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 import { createChess } from './src/chess.js';
+import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
@@ -130,15 +131,15 @@ class MyModelRoot extends ModelRoot {
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
         let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
-       
+
         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
-        
+
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
         let svgCards = [
-            'credit-card.svg', 'square.svg', 'credit-card.svg', 
+            'credit-card.svg', 'square.svg', 'credit-card.svg',
             'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'credit-card.svg', 'cog.svg'];
         let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
         for (let i = 0; i < 8; i++) {
@@ -160,6 +161,8 @@ class MyModelRoot extends ModelRoot {
         this.initialText = TextFieldActor.create();
         this.initialText.loadAndReset([{text: "Croquet is awesome!"}]);
         this.initialText.set({translation: [10, 0, -10]});
+
+        this.bitcoinTracker = BitcoinTracker.create();
     }
 }
 
@@ -177,7 +180,7 @@ class MyViewRoot extends ViewRoot {
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
     // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         const ambient = new THREE.AmbientLight( 0xffffff, .75 );
- 
+
         scene.lightLayer.add(ambient);
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
@@ -213,6 +216,8 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
+
+        this.bitcoin = new BitcoinTrackerView(model.bitcoinTracker);
     }
 
     destroy() {
@@ -220,6 +225,7 @@ class MyViewRoot extends ViewRoot {
         this.background.dispose();
         this.sun.dispose();
         this.hemiLight.dispose();
+        this.bitcoin.dispose();
     }
 }
 
@@ -236,9 +242,9 @@ StartWorldcore({
 });
 
 
-console.log(` 
-  ________  ____  ____  __  ____________ 
+console.log(`
+  ________  ____  ____  __  ____________
  / ___/ _ \\/ __ \\/ __ \\/ / / / __/_  __/
-/ /__/ , _/ /_/ / /_/ / /_/ / _/  / /   
+/ /__/ , _/ /_/ / /_/ / /_/ / _/  / /
 \\___/_/|_|\\____/\\___\\_\\____/___/ /_/
 `);
