@@ -1,19 +1,17 @@
 // Microverse
-// TODO:
-// https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit
-
+// Project Plan:
+// https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit?usp=sharing
 
 import {
     App, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
-    ThreeRenderManager, AM_Spatial, PM_Spatial, toRad} from "@croquet/worldcore";
-import { DLayerManager, PM_ThreeVisibleLayer } from './src/DLayerManager.js';
-import { AMVAvatar, PMVAvatar } from './src/MVAvatar.js';
-import { D } from './src/DConstants.js';
-//import { GLTFLoader } from './src/three/examples/jsm/loaders/GLTFLoader.js';
+    ThreeRenderManager, AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad} from "@croquet/worldcore";
+import { PM_LayerTarget } from './src/DLayerManager.js';
+import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
+import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
 import { TextFieldActor } from './src/text/text.js';
 import { PerlinActor } from './src/PerlinMixin.js';
-import { Card } from './src/DCard.js';
+import { CardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 import { createChess } from './src/chess.js';
@@ -21,13 +19,6 @@ import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
-
-import skyFront from "./assets/sky/sh_ft.png";
-import skyBack from "./assets/sky/sh_bk.png";
-import skyRight from "./assets/sky/sh_rt.png";
-import skyLeft from "./assets/sky/sh_lf.png";
-import skyUp from "./assets/sky/sh_up.png";
-import skyDown from "./assets/sky/sh_dn.png";
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 
@@ -52,23 +43,22 @@ function loadBasicModels() {
 
     plant = new THREE.Group();
     loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
-    //loadGLB("./assets/3D/ArizonaProject.glb.zip", plant, addShadows, [100, -3, 0], [.01,.01,.01], [0,0,0], false);
-}
+};
 
 loadBasicModels();
 
-class Avatar extends AMVAvatar {
+class MyAvatar extends AvatarActor {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
     }
 
-    get pawn() {return AvatarPawn;}
+    get pawn() {return MyAvatarPawn;}
 }
 
-Avatar.register('Avatar');
+MyAvatar.register('MyAvatar');
 
-class AvatarPawn extends PMVAvatar {
+class MyAvatarPawn extends AvatarPawn {
 
     constructVisual() {
         this.setupAvatar(avatars[this.avatarIndex % avatars.length]);
@@ -82,7 +72,7 @@ class AvatarPawn extends PMVAvatar {
                     n.material = n.material.clone();
                 }
             });
-            this.layer = D.AVATAR;
+            this.layers=['avatar'];
             this.setRenderObject(a);  // note the extension
         } else {
             this.future(1000).setupAvatar(a);
@@ -95,22 +85,28 @@ class LevelActor extends mix(Actor).with(AM_Spatial) {
 }
 LevelActor.register('LevelActor');
 
-class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisibleLayer) {
+class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_LayerTarget) {
     constructor(...args) {
         super(...args);
 
-        this.layer = D.WALK;
+        this.layers = ['walk'];
         this.setRenderObject(plant);
         this.future(3000).publish(this.sessionId, "popup", {translation: [0, 0, -10]});
     }
 }
 
 class MyPlayerManager extends PlayerManager {
+    init(name) {
+        super.init(name);
+        this.avatarCount = 0;
+    }
     createPlayer(options) {
-        options.index = this.count;
+        options.index = this.avatarCount;
+        this.avatarCount++;
+        console.log("MyPlayerManager", this.avatarCount);
         options.lookYaw = toRad(45);
         options.color = [Math.random(), Math.random(), Math.random(), 1];
-        return Avatar.create(options);
+        return MyAvatar.create(options);
     }
 }
 
@@ -123,7 +119,7 @@ class MyModelRoot extends ModelRoot {
     init(...args) {
         super.init(...args);
         this.level = LevelActor.create();
-
+        this.lights = LightActor.create();
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
@@ -131,19 +127,19 @@ class MyModelRoot extends ModelRoot {
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
         let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
-
+       
         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
-
+        
         let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
         let svgCards = [
-            'credit-card.svg', 'square.svg', 'credit-card.svg',
+            'credit-card.svg', 'square.svg', 'credit-card.svg', 
             'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'credit-card.svg', 'cog.svg'];
         let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
         for (let i = 0; i < 8; i++) {
-            Card.create({
+            CardActor.create({
                 cardShapeURL: `./assets/SVG/${svgCards[i]}`,
                 cardSurface: surfaces[i],
                 cardFullBright: surfaces[i] === vSurface || surfaces[i] === cSurface || surfaces[i] === gSurface,
@@ -156,7 +152,7 @@ class MyModelRoot extends ModelRoot {
             });
         }
 
-        createChess([8, -2.5, -30], [6,6,6]);
+ //   createChess([8, -2.5, -30], [6,6,6]);
 
         this.initialText = TextFieldActor.create();
         this.initialText.loadAndReset([{text: "Croquet is awesome!"}]);
@@ -170,47 +166,10 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}, DLayerManager];
+        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}];
     }
     constructor(model) {
         super(model);
-        const TRM = this.service("ThreeRenderManager");
-        const scene = window.scene = TRM.scene;
-
-        this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-    // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
-        const ambient = new THREE.AmbientLight( 0xffffff, .75 );
-
-        scene.lightLayer.add(ambient);
-
-        const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
-        //sun.position.set(-200, 800, 100);
-        sun.position.set(-400, 500, 100);
-
-        let side = 15;
-
-        //Set up shadow properties for the light
-        sun.castShadow = true;
-        sun.shadow.camera.near = 0.5; // default
-        sun.shadow.camera.far = 1000; // default
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
-        sun.shadow.camera.zoom = 0.125;
-        sun.shadow.bias = -0.0001;
-        sun.shadow.camera.top = side;
-        sun.shadow.camera.bottom = -side;
-        sun.shadow.camera.left = side;
-        sun.shadow.camera.right = -side;
-        scene.lightLayer.add(sun);
-
-        // xyzzy this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
-        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
-        this.moon.position.set(200, 100, -100);
-        scene.lightLayer.add(this.moon);
-
-        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
-        scene.lightLayer.add(hemiLight);
-
         const renderer = window.renderer = this.service("ThreeRenderManager").renderer;
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
@@ -218,13 +177,10 @@ class MyViewRoot extends ViewRoot {
         renderer.localClippingEnabled = true;
 
         this.bitcoin = new BitcoinTrackerView(model.bitcoinTracker);
+        console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
     }
 
-    destroy() {
-        super.destroy();
-        this.background.dispose();
-        this.sun.dispose();
-        this.hemiLight.dispose();
+    destroy(){
         this.bitcoin.dispose();
     }
 }
@@ -241,10 +197,9 @@ StartWorldcore({
     eventRateLimit: 60,
 });
 
-
-console.log(`
-  ________  ____  ____  __  ____________
+console.log(` 
+  ________  ____  ____  __  ____________ 
  / ___/ _ \\/ __ \\/ __ \\/ / / / __/_  __/
-/ /__/ , _/ /_/ / /_/ / /_/ / _/  / /
+/ /__/ , _/ /_/ / /_/ / /_/ / _/  / /   
 \\___/_/|_|\\____/\\___\\_\\____/___/ /_/
 `);

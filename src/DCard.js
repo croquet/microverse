@@ -4,13 +4,12 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { PM_Events } from './DEvents.js';
-import { THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial} from "@croquet/worldcore";
-import { PM_ThreeVisibleLayer } from './DLayerManager.js';
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_ThreePointerTarget} from "@croquet/worldcore";
 import { D } from './DConstants.js';
 import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js'
-import { Vector3 } from 'three';
+
+const { Vector3 } = THREE;
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -21,168 +20,39 @@ const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
 let counter = 0;
 
-export class Card extends mix(Actor).with(AM_Spatial){
-    get pawn() {return CardPawn}
-    init(...args) {
-        this.visible = true;
-        super.init(...args);
+//------------------------------------------------------------------------------------------
+//-- CardActor ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 
-        // managing multiple users
-        this._downUsers = new Map(); 
-        this._overUsers = new Map();
-        this.listen("onPointerDown", this.onPointerDown);
-        this.listen("onPointerUp", this.onPointerUp);
-        this.listen("onPointerEnter", this.onPointerEnter);
-        this.listen("onPointerLeave", this.onPointerLeave);
-        this.listen("onPointerWheel", this.onPointerWheel);
-        this.future(1000).timeOutEvent(); // check once a second to see if user is alive
-    }
+export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
 
-    get parent() { return this._parent; }
-
-    addCard(c) {
-        let cardId = c.id?c.id:c;
-        if (!this.children) this.children = new Set();
-        this.children.add(cardId);
-        let childActor = this.service("ActorManager").get(cardId);
-        childActor._parent = this;
-        this.say("addCard", cardId);
-    }
-
-    removeCard(c) { 
-        let cardId = c.id?c.id:c;
-        if (this.children) this.children.delete(cardId);
-        this.say("removeCard", cardId);
-    }
-
-    // check if user hasn't moved if pointer is down or over
-    // cancel event if no action ins some period of time
-    timeOutEvent(){
-        let n = this.now();
-        let userId;
-        if(this._downUsers.size>0){
-            userId = this._downUsers.keys().next().value;
-            if(n-this._downUsers.get(userId)>timeOutDown){
-                this._downUsers.delete(userId);
-                this.onPointerDownCancel()
-            }
-        }
-        if(this._overUsers.size>0){
-            userId = this._overUsers.keys().next().value;
-            if(n-this._overUsers.get(userId)>timeOutOver){
-                this._overUsers.delete(userId);
-                this.onPointerOverCancel()
-            }   
-        }     
-        this.future(1000).timeOutEvent();
-    }
-
-    multiUser(){ return true; }
-
-    get surface(){return this._cardSurface}
-
-    onPointerDown(p3d){
-        if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
-        if(this.multiUser() || this._downUsers.size === 0 ){
-            this._downUsers.set(p3d.playerId, this.now());
-            this.say("doPointerDown", p3d);
-        }
-    }
-    onPointerUp(p3d){
-        if(this.surface && this.surface.onPointerUp)this.surface.onPointerUp(p3d);
-        if(this._downUsers.has(p3d.playerId)){
-            this._downUsers.delete(p3d.playerId);
-            this.say("doPointerUp", p3d);
-        }
-    }
-/*    
-    onPointerMove(p3d){
-        if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
-        if(this._downUsers.has(p3d.playerId)){
-            this._downUsers.set(p3d.playerId, this.now())// update the _downUser
-            this.say("doPointerMove", p3d);
-        }
-    }
-*/    
-    onPointerDownCancel(pId){
-        if(this.surface && this.surface.onPointerDownCancel)this.surface.onPointerDownCancel(pId);
-        this.say("doPointerDownCancel", pId);
-    }   
-
-    onPointerEnter(p3d){
-        if(this.surface && this.surface.onPointerEnter)this.surface.onPointerEnter(p3d);
-        if(this.multiUser() || this._overUsers.size === 0 ){
-            this._overUsers.set(p3d.playerId, this.now());
-            this.say("doPointerEnter", p3d);
-        }
-    }
- /*   
-    onPointerOver(p3d){
-        if(this._overUsers.has(p3d.playerId)){
-            if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
-            this._overUsers.set(p3d.playerId, this.now())// update the _overUser
-            this.say("doPointerOver", p3d);
-        }
-    }
- */   
-    onPointerLeave(p3d){
-        if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d);
-        if(this._overUsers.has(p3d.playerId)){
-            this._overUsers.delete(p3d.playerId);
-            this.say("doPointerLeave", p3d);
-        }
-    }    
-    onPointerOverCancel(pId){
-        if(this.surface && this.surface.onPointerOverCancel)this.surface.onPointerOverCancel(pId);
-        this.say("doPointerLeave", pId);
-    }   
+    get pawn() { return CardPawn; }
 
     onPointerWheel(p3d){
-        if(this.parent && this.parent.onPointerWheel)
-            this.parent.onPointerWheel(p3d);
-        else{
-            let s = this.scale;
-            let w = p3d.wheel < 0?-0.1:0.1;
-            if(s[0]+w >0.3){
-                this._scale = [s[0]+w, s[1]+w, s[2]+w];
-                this.scaleChanged();
-            }
+        let s = this.scale;
+        let w = p3d.wheel < 0?-0.1:0.1;
+        if(s[0]+w >0.3){
+            this._scale = [s[0]+w, s[1]+w, s[2]+w];
+            this.scaleChanged();
         }
-        //this.say("doPointerWheel", p3d);
     }
-    /*
-    onKeyDown(e){
-        if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
-        console.log(e)
-    }
-    onKeyUp(e){
-        if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
-        console.log(e)
-    }
-    */
 }
+CardActor.register('CardActor');
 
-Card.register('Card');
+//------------------------------------------------------------------------------------------
+//-- CardPawn ------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 
-class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer, ){
+export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_ThreePointerTarget) {
     constructor(...args) {
         super(...args);
+        this.layers=['pointer'];
         this.constructCard();
-        this.listen("doPointerDown", this.doPointerDown);
-        this.listen("doPointerMove", this.doPointerMove);
-        this.listen("doPointerUp", this.doPointerUp);
-        this.listen("doPointerDownCancel", this.doPointerUp);
-        this.listen("doPointerEnter", this.doPointerEnter);
-        this.listen("doPointerOver", this.doPointerOver);
-        this.listen("doPointerLeave", this.doPointerLeave);
-        this.listen("doPointerOverCancel", this.doPointerLeave);
-        this.listen("doPointerWheel", this.doPointerWheel);
-        this.listen("addCard", this.addCard);
-        this.listen("removeCard", this.removeCard);
     }
 
     constructCard()
     {
+        this.layers = ['pointer'];
         this.card3D = new THREE.Group();
         /*
        // this.color = new THREE.Color();
@@ -195,7 +65,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.cardSphere.position.z = 0.15;
         this.card3D.add(this.cardSphere);        
         */
-        this.layer = D.EVENT;
+
         let texture;
         if(this.actor.surface){
             this.surface = this.service("PawnManager").get(this.actor.surface.id);
@@ -211,21 +81,8 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         if(this.actor.children){
             this.actor.children.forEach(cardId=>this.addCard(cardId));
         }
-        if(this.actor._cardInstall) this.addToWorld();
-    }
-
-    addCard(cardId){
-        let child = this.service("PawnManager").get(cardId);
-        if(!child)this.future(100).addCard(cardId);
-        else {
-            this.card3D.add(child.card3D);
-            child.card3D.position.set(...child.actor.translation);
-        }
-    }
-
-    removeCard(cardId){
-        let child = this.service("PawnManager").get(cardId);
-        this.card3D.remove(child.card3D);
+        this.setRenderObject( this.card3D );
+    //    this.addToWorld();
     }
 
     addToWorld(){
@@ -235,44 +92,34 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
         this.setRenderObject( this.cardHolder );
     }
 
-    // communication with the Card_Actor and the Surface_Pawn
-    onPointerDown(p3d){
-        this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
-        this.say("onPointerDown", p3d);
-        if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
+    onFocus(pointerId) {
+        console.log("focused")
     }
-    onPointerMove(p3d){
-        this.say("onPointerMove", p3d);
-        if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
+
+    onFocusFailure(pointerId) {
+        console.log("already focused by another avatar")
     }
-    onPointerUp(p3d){
-        this.say("onPointerUp", p3d);
-        if(this.surface && this.surface.onPointerUp)this.surface.onPointerUp(p3d);
+
+    onBlur(pointerId) {
+        console.log("blurred")
     }
-    onPointerEnter(p3d){
-        this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
-        this.say("onPointerEnter", p3d);
-        if(this.surface && this.surface.onPointerEnter)this.surface.onPointerEnter(p3d);
+
+    onPointerEnter(pointerId) {
+        console.log(pointerId)
+    //    const pointerPawn = GetPawn(pointerId);
+    //    const pointerRotation = pointerPawn.actor.rotation;
+    //    this.localOffset = m4_rotationQ(pointerRotation);
     }
-    onPointerOver(p3d){
-        this.say("onPointerOver", p3d);
-        if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
+
+    onPointerLeave(pointerId) {
+        console.log("pointerLeave")
     }
-    onPointerLeave(p3d){
-        this.say("onPointerLeave", p3d);
-        if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d)
+
+    onPointerWheel(e){
+        console.log("XonPointerWeel")
+        this.say("onPointerWheel", e);
     }
-    onKeyDown(e){
-        this.say("onKeyDown", e);
-        if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
-    }
-    onKeyUp(e){
-        this.say("onKeyUp", e);
-        if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
-    }
-    onPointerWheel(p3d){
-        this.say("onPointerWheel", p3d);
-    }
+    /*
     // communication from the Card_Actor
     doPointerDown(p3d){this.hilite(DownColor)}
 
@@ -294,6 +141,7 @@ class CardPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLaye
     doPointerWheel(p3d){
 
     }
+    */
     hilite(color) { 
         //viewRoot.outlinePass.selectedObjects = [this.card3D];
         if(!this.actor._cardFullBright){

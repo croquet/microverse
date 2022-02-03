@@ -21,9 +21,8 @@
 // Instead of using 3D groups, we would need to use regular arrays to track the objects in the various layers.
 // An object could then be in multiple arrays.
 
-import { ViewService } from "@croquet/worldcore-kernel";
 import { D } from './DConstants.js';
-import { THREE } from "@croquet/worldcore";
+import { ViewService, THREE } from "@croquet/worldcore";
 //------------------------------------------------------------------------------------------
 //-- DLayerManager --------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -103,3 +102,32 @@ export const PM_ThreeVisibleLayer = superclass => class extends superclass {
     }
 
 };
+
+export const PM_LayerTarget = superclass => class extends superclass {
+    constructor(...args) {
+        super(...args);
+     }
+
+    destroy() {
+        super.destroy();
+        const render = this.service("ThreeRenderManager");
+
+        if(this.layers)
+        this.layers.forEach( layer => {
+            if (render.layers[layer]){
+                const i = render.layers[layer].indexOf(this.renderObject);
+                if(i>=0) render.layers[layer].splice(i,1);
+            }
+        });
+    }
+
+    onSetRenderObject(renderObject) {
+        if (super.onSetRenderObject) super.onSetRenderObject(renderObject);
+        const render = this.service("ThreeRenderManager");
+        if(this.layers)
+        this.layers.forEach( layer =>{
+            if(!render.layers[layer])render.layers[layer]=[];
+            render.layers[layer].push(renderObject);
+        })
+    }
+}
