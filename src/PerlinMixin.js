@@ -1,4 +1,4 @@
-import { THREE, Actor, Pawn, AM_Spatial, PM_Spatial, RegisterMixin, mix } from "@croquet/worldcore";
+import { THREE, Actor, Pawn, AM_Spatial, PM_ThreeVisible, PM_Spatial, RegisterMixin, mix } from "@croquet/worldcore";
 import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 import { PM_Events } from './DEvents.js';
 import { D } from './DConstants.js';
@@ -193,7 +193,7 @@ PerlinActor.register('PerlinActor');
 const maxHeight = 8;
 const barScale = 0.25;
 
-class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_Events, PM_ThreeVisibleLayer){
+class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
     constructor(...args) {
         super(...args);
         this.listen("updatePerlin", this.updatePerlin);

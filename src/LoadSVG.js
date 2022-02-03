@@ -68,7 +68,6 @@ export function normalize(target, svgGroup, color, shadow){
 	let bb = boundingBox(svgGroup);
 	let ext = extent3D(svgGroup, bb);
 	let cen = center3D(svgGroup, bb);
-	console.log(bb, ext, cen)
 	svgGroup.scale.y *= -1;
 	cen.y *=-1;
 	let mx = Math.max(ext.x, ext.y);

@@ -1,6 +1,6 @@
 
 
-import { Card } from './DCard.js';
+import { CardActor } from './DCard.js';
 import { TextureSurface } from './DSurface.js';
 import { q_euler } from "@croquet/worldcore";
 const SCALE = 0.025;
@@ -11,7 +11,7 @@ export function createChess(translation, scale, rotation){
 
     let chessDarkSurface = TextureSurface.create({url: './assets/images/dark-wood.jpg'});
     let svg = 'chess-board-solid.svg';
-    let black = Card.create(
+    let black = CardActor.create(
     {
         cardShapeURL: './assets/SVG/'+svg,
         cardSurface: chessDarkSurface,
@@ -27,7 +27,7 @@ export function createChess(translation, scale, rotation){
         cardShadow: true
     });
 
-    let white = Card.create(
+    let white = CardActor.create(
         {
             cardShapeURL: './assets/SVG/'+svg,
             cardSurface: chessLightSurface,
@@ -40,7 +40,7 @@ export function createChess(translation, scale, rotation){
             //cardTranslation: [1,0,0],
         });
     
-    let pawn  = Card.create(
+    let pawn  = CardActor.create(
         {
             card3DURL: './assets/3D/pawnlow.glb.zip',
             //cardSurface: chessLightSurface,
@@ -52,7 +52,7 @@ export function createChess(translation, scale, rotation){
 //            cardTranslation: [0,0.028,0.035],
             cardTranslation: [-SQUARE*2.5,0,SQUARE*-2.5],
         });
-    let king  = Card.create(
+    let king  = CardActor.create(
         {
             card3DURL: './assets/3D/kinglow.glb.zip',
             //cardSurface: chessLightSurface,
@@ -65,7 +65,7 @@ export function createChess(translation, scale, rotation){
             //cardTranslation: [0,-0.0004,0.108],
             cardTranslation: [SQUARE*0.5,0,SQUARE*-3.5],            
         });
-    let queen  = Card.create(
+    let queen  = CardActor.create(
         {
             card3DURL: './assets/3D/queenlow.glb.zip',
             //cardSurface: chessLightSurface,
@@ -78,7 +78,7 @@ export function createChess(translation, scale, rotation){
             //cardTranslation: [0.008,-0.007,0.2],
             cardTranslation: [-SQUARE*0.5,0,SQUARE*-3.5],
        });
-    let bishop  = Card.create(
+    let bishop  = CardActor.create(
         {
             card3DURL: './assets/3D/bishoplow.glb.zip',
             //cardSurface: chessLightSurface,
@@ -91,7 +91,7 @@ export function createChess(translation, scale, rotation){
             //cardTranslation: [0,0.00,0.3],
             cardTranslation: [-SQUARE*1.5,0,SQUARE*-3.5],
         });
-    let knight  = Card.create(
+    let knight  = CardActor.create(
         {
             card3DURL: './assets/3D/knightlow.glb.zip',
             //cardSurface: chessLightSurface,
@@ -103,7 +103,7 @@ export function createChess(translation, scale, rotation){
             //cardTranslation: [0,0.02,0.4],
             cardTranslation: [-SQUARE*2.5,0,SQUARE*-3.5],
         });
-    let rook  = Card.create(
+    let rook  = CardActor.create(
         {
             card3DURL: './assets/3D/rooklow.glb.zip',
             //cardSurface: chessLightSurface,

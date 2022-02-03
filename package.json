@@ -1,8 +1,9 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "Croquet Microverse",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "webpack serve --mode development --devtool source-map",
     "build": "webpack --mode production",
@@ -14,13 +15,12 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/worldcore": "^1.0.8",
+    "@croquet/worldcore": "file:///Users/ohshima/src/worldcore/packages/full",
     "fflate": "^0.7.3",
     "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git",
     "jszip": "^3.7.1",
     "load-bmfont": "^1.4.0",
-    "pako": "^2.0.4",
-    "three": "^0.134.0"
+    "pako": "^2.0.4"
   },
   "devDependencies": {
     "buffer": "^6.0.3",

@@ -1,12 +1,11 @@
-import { mix, Pawn, Actor, AM_Avatar, PM_Avatar, AM_Player, PM_Player, PM_ThreeCamera,
+import { mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_Pointer,
          v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_yaw, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
+import { PM_LayerTarget } from './DLayerManager.js';
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { PM_AvatarEvents } from './DEvents.js';
 import { D } from './DConstants.js';
-import { PM_ThreeVisibleLayer } from './DLayerManager.js';
 
 export var myAvatar; 
 export var isWalking = false; // switchControl() will make it true
@@ -54,7 +53,7 @@ function toggleFullScreen(e) {
   }
   
 
-export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
+export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     init(options) {
         // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn will not see it
@@ -64,7 +63,7 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
         this.listen("doubleDown", this.goThere);
         this.listen("startMMotion", this.startFalling);
     }
-    
+    get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
     get lookYaw() { return this._lookYaw || 0 };
 
@@ -94,11 +93,11 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
             this.restoreTargetId = undefined;
         }else{
             this.fall = false; // sticky until we move
-            this.restoreRotation = p3d.rotation;
-            this.restoreTranslation = p3d.translation;
+            this.restoreRotation = this.rotation;
+            this.restoreTranslation = this.translation;
             this.restoreTargetId = p3d.targetId;
-            let normal = p3d.normalWorld;
-            let point = p3d.point;
+            let normal = p3d.normal;
+            let point = p3d.xyz;
             this.vEnd = v3_add(point, v3_scale(normal, p3d.offset));
             normal[1]=0; // clear up and down
             let nsq = v3_sqrMag(normal);
@@ -110,23 +109,25 @@ export class AMVAvatar extends mix(Actor).with(AM_Player, AM_Avatar) {
                 this.qEnd = q_euler(0, theta, 0);
             }
         }
-        this.goToStep(0.04);
+        this.goToStep(0.1);
     }
 
-    goToStep(t){
+    goToStep(delta, t){
+        if(!t)t=delta;
         if(t>=1)t=1;
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t );   
         this.set({translation: v, rotation: q})
-        if(t<1)this.future(50).goToStep(t+0.05);
-      //  else this.fall = true;
+        if(t<1)this.future(50).goToStep(delta, t+delta);
     }
 }
+AvatarActor.register('AvatarActor');
 
-export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEvents, PM_ThreeVisibleLayer, PM_ThreeCamera){
+export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer, PM_LayerTarget){
     constructor(...args) {
         super(...args);
         this.isAvatar = true;
+        this.layers=['avatar'];
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
@@ -153,8 +154,7 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
             this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
             this.setControls(isWalking); // walking or orbiting?
 
-            this.raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
-            //this.raycaster.layers.set( D.WALK ); // only test against layer 1. Layer 2 is other players.
+            this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
@@ -309,9 +309,11 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
     // if not, allow a short distance fall
     findFloor(maxDist, recurse, move){
         if( recurse < 0 )return false; // never found the ground
-        this.raycaster.ray.origin.set( ...(move || this.translation));
-        this.raycaster.far = maxDist;
-        const intersections = this.raycaster.intersectObjects( this.scene.walkLayer.children, true );
+        const walkLayer = this.service("ThreeRenderManager").layers['walk'];
+        if(!walkLayer)return false;
+        this.walkcaster.ray.origin.set( ...(move || this.translation));
+        this.walkcaster.far = maxDist;
+        const intersections = this.walkcaster.intersectObjects( walkLayer, true );
         const onObject = intersections.length > 0;
         if(onObject){
             let dFront = intersections[0].distance;
@@ -395,6 +397,24 @@ export class PMVAvatar extends mix(Pawn).with(PM_Player, PM_Avatar, PM_AvatarEve
             }
         }
     }
+
+    doPointerDoubleDown(e) {
+        console.log("XdoPointerDoubleDown")
+        const render = this.service("ThreeRenderManager");
+        const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
+        const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
+        const rc = this.pointerRaycast([x,y], [...render.layers.walk,...render.layers.pointer]);
+        let pe = this.pointerEvent(rc);
+        if(pe.targetId){
+            let pawn = GetPawn(pe.targetId);
+            let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
+            if(pose){
+                pe.xyz = pose[0]; // world coordinates
+                pe.offset = pose[1]; // distance from target
+            } else pe.offset = D.EYE_HEIGHT;
+            this.say("doubleDown", pe);
+        }
+     }
 
     // from DEvents.js
     onPointerWheel(wheel){        
