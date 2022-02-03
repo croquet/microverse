@@ -71,7 +71,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     }
 
                     if (obj._croquetAnimation) {
-                        debugger;
                         const spec = obj._croquetAnimation;
                         spec.startTime = this.actor.creationTime;
                         this.animationSpec = spec;
