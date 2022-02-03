@@ -27,14 +27,9 @@ let counter = 0;
 export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
 
     get pawn() { return CardPawn; }
-
-    onPointerWheel(p3d){
-        let s = this.scale;
-        let w = p3d.wheel < 0?-0.1:0.1;
-        if(s[0]+w >0.3){
-            this._scale = [s[0]+w, s[1]+w, s[2]+w];
-            this.scaleChanged();
-        }
+    init(...args) {
+        this.visible = true;
+        super.init(...args);
     }
 }
 CardActor.register('CardActor');
@@ -82,14 +77,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.actor.children.forEach(cardId=>this.addCard(cardId));
         }
         this.setRenderObject( this.card3D );
-    //    this.addToWorld();
-    }
-
-    addToWorld(){
-        // this part is to place in the scene
-        this.cardHolder = new THREE.Group();
-        this.cardHolder.add(this.card3D);
-        this.setRenderObject( this.cardHolder );
     }
 
     onFocus(pointerId) {
@@ -115,9 +102,48 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         console.log("pointerLeave")
     }
 
+
+    // communication with the Card_Actor and the Surface_Pawn
+    onPointerDown(p3d){
+    //    this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
+        this.say("onPointerDown", p3d);
+        if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
+    }
+    onPointerMove(p3d){
+        this.say("onPointerMove", p3d);
+        if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
+    }
+    onPointerUp(p3d){
+        this.say("onPointerUp", p3d);
+        if(this.surface && this.surface.onPointerUp)this.surface.onPointerUp(p3d);
+    }
+    onPointerEnter(p3d){
+        //this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
+        this.say("onPointerEnter", p3d);
+        if(this.surface && this.surface.onPointerEnter)this.surface.onPointerEnter(p3d);
+    }
+    onPointerOver(p3d){
+        this.say("onPointerOver", p3d);
+        if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
+    }
+    onPointerLeave(p3d){
+        this.say("onPointerLeave", p3d);
+        if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d)
+    }
+    onKeyDown(e){
+        this.say("onKeyDown", e);
+        if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
+    }
+    onKeyUp(e){
+        this.say("onKeyUp", e);
+        if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
+    }
     onPointerWheel(e){
-        console.log("XonPointerWeel")
-        this.say("onPointerWheel", e);
+        console.log(this.scale)
+        let s = this.scale;
+        let w = e < 0?-0.1:0.1;
+        if(s[0]+w >0.3)
+            this.scaleTo([s[0]+w, s[1]+w, s[2]+w], 100);
     }
     /*
     // communication from the Card_Actor
