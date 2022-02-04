@@ -16,6 +16,7 @@ class SurfacePawn extends Pawn{
     constructor(...args){
         super(...args);
     }
+    uv2xy(uv){return [this.actor.width*uv[0],this.actor.height*(1-uv[1])]}
 }
 //------------------------------------------------------
 // TextureSurface

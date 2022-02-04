@@ -272,13 +272,14 @@ class MultiBlasterDisplay extends CanvasSurfacePawn {
         this.context = this.canvas.getContext("2d");
         this.future(50).update();
     }
+
     onPointerDown(p3d){
-        this.joystick = this.actor.uv2xy(p3d.uv);
+        this.joystick = this.uv2xy(p3d.uv);
         this.knob = this.joystick;
     }
 
     onPointerMove(p3d){ 
-        this.knob= this.actor.uv2xy(p3d.uv);
+        this.knob= this.uv2xy(p3d.uv);
         let dx = this.knob[0]- this.joystick[0];
         let dy = this.knob[1] - this.joystick[1];
         if (dx > 30) {

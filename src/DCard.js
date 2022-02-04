@@ -37,6 +37,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) 
     }
 
     get pawn() { return CardPawn; }
+
+    get surface(){return this._cardSurface}
 }
 CardActor.register('CardActor');
 
