@@ -20,7 +20,7 @@ import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
-import {AssetManager} from "./src/assetManager.js";
+import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -217,7 +217,7 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}];
+        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}, AssetManager];
     }
     constructor(model) {
         super(model);
@@ -230,12 +230,12 @@ class MyViewRoot extends ViewRoot {
         this.bitcoin = new BitcoinTrackerView(model.bitcoinTracker);
         console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
 
-        this.assetManager = window.assetManager = new AssetManager(); // this would use the service thing
+        this.assetManager = this.service("AssetManager");
+        window.assetManager = this.assetManager.assetManager;
 
-        this.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
+        this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Data.toId(handle);
-                this.assetManager.assetCache[dataId] = {buffer, type};
                 this.publish(this.model.id, "fileUploaded", {dataId, fileName, type});
             });
         });

@@ -95,8 +95,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (!this.actor._model3d || !this.actor._modelType) {return;}
 
         let handle = Data.fromId(this.actor._model3d);
+        let assetManager = this.service("AssetManager").assetManager;
+        
         Data.fetch(this.sessionId, handle).then((buffer) => {
-            window.assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
+            assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
                 this.card3D.add(obj);
 
                 obj.updateMatrixWorld(true);
