@@ -14,8 +14,9 @@
   "browserslist": [
     "> 5%"
   ],
+  "comment": "file:../worldcore/packages/full",
   "dependencies": {
-    "@croquet/worldcore": "^1.1.2",
+    "@croquet/worldcore": "file:../worldcore/packages/full",
     "fflate": "^0.7.3",
     "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git",
     "jszip": "^3.7.1",

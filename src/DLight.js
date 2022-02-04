@@ -1,9 +1,7 @@
 
 
 import {
-    THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, PM_ThreeVisible} from "@croquet/worldcore";
-
-import { PM_LayerTarget } from './DLayerManager.js';
+    THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, PM_ThreeVisible, PM_LayerTarget} from "@croquet/worldcore";
 
 import skyFront from "../assets/sky/sh_ft.png";
 import skyBack from "../assets/sky/sh_bk.png";

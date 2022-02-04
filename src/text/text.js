@@ -1,4 +1,4 @@
-import {THREE, PM_ThreeVisible, AM_Spatial, PM_Spatial, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, AM_Spatial, PM_Spatial, AM_PointerTarget, PM_ThreePointerTarget, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 import { PM_Events } from '../DEvents.js';
@@ -7,7 +7,7 @@ import { D } from '../DConstants.js';
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
-export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
+export class TextFieldActor extends mix(Actor).with(AM_Spatial, AM_PointerTarget) {
     init(...args) {
         this.doc = new Doc();
         this.doc.load([]);
@@ -142,7 +142,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial) {
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_LayerTarget) {
+export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_ThreePointerTarget, PM_LayerTarget) {
     constructor(model) {
         super(model);
         this.model = model;
@@ -185,37 +185,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.viewExtent = this.model.extent;
         window.view = this;
     }
-
-    _pointerDown(p3d) {
-        return this.pointerDown(p3d);
-    }
-
-    _pointerUp(p3d) {
-        return this.pointerUp(p3d);
-    }
-
-    _pointerMove(p3d) {
-        return this.pointerMove(p3d);
-    }
-
-    /*
-
-    _pointerCancel(p3d){
-        console.log("pointerCancel", p3d);
-    }
-    _pointerEnter(p3d){
-        console.log("pointerEnter", p3d);
-    }
-    _pointerOver(p3d){
-        console.log("pointerOver", p3d);
-    }
-    _pointerLeave(p3d){
-        console.log("pointerLeave", p3d);
-    }
-    _pointerWheel(p3d){
-        console.log("pointerWheel", p3d);
-    }
-    */
 
     destroy() {
         super.destroy();
@@ -506,27 +475,40 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
     }
 
     cookEvent(evt) {
-        console.log(evt);
+        if (!evt.xyz) {return;}
+        let vec = new THREE.Vector3(...evt.xyz);
+        let inv = this.renderObject.matrixWorld.clone().invert();
+        let vec2 = vec.applyMatrix4(inv);
+
+        let width = this.plane.geometry.parameters.width;
+        let height = this.plane.geometry.parameters.height;
+
+        let x = ((width / 2) + vec2.x) / 0.01;
+        let y = ((height / 2) - vec2.y) / 0.01;
+
+        return {x, y};
     }
 
-    pointerDown(evt) {
-        let [x, y] = evt.localPoint;
-        this.warota.mouseDown(x, y, y, this.user);
+    onPointerDown(evt) {
+        let cooked = this.cookEvent(evt);
+        if (!cooked) {return;}
+        this.warota.mouseDown(cooked.x, cooked.y, cooked.y, this.user);
         if (this.hiddenInput) {
             this.hiddenInput.focus();
         }
     }
 
-    pointerMove(evt) {
-        let [x, y] = evt.localPoint;
-        this.warota.mouseMove(Math.max(x, 0), y, y, this.user);
+    onPointerMove(evt) {
+        let cooked = this.cookEvent(evt);
+        if (!cooked) {return;}
+        this.warota.mouseMove(Math.max(cooked.x, 0), cooked.y, cooked.y, this.user);
         this.changed();
     }
 
-    pointerUp(evt) {
-        console.log(evt.localPoint);
-        let [x, y] = evt.localPoint;
-        this.warota.mouseUp(x, y, y, this.user);
+    onPointerUp(evt) {
+        let cooked = this.cookEvent(evt);
+        if (!cooked) {return;}
+        this.warota.mouseUp(cooked.x, cooked.y, cooked.y, this.user);
         this.changed();
     }
 

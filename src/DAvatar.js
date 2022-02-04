@@ -1,7 +1,6 @@
-import { mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_Pointer,
+import { mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_Pointer, PM_LayerTarget,
          v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_yaw, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
-import { PM_LayerTarget } from './DLayerManager.js';
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
