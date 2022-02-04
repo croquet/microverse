@@ -4,10 +4,12 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_ThreePointerTarget, Data} from "@croquet/worldcore";
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_ThreePointerTarget, Data, GetPawn} from "@croquet/worldcore";
 import { D } from './DConstants.js';
 import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js'
+import { TextFieldActor } from './text/text.js';
+
 const { Vector3 } = THREE;
 
 const CardColor = 0x9999cc;  // light blue
@@ -28,11 +30,12 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) 
         super.init(options);
         this.visible = true;
         if (options.model3d) {
-            this._model3d = options.model3d;
             this.creationTime = this.now();
         }
-        if (options.modelType) {
-            this._modelType = options.modelType;
+
+        if (this._text !== undefined) {
+            this.textActor = TextFieldActor.create({parent: this});
+            this.textActor.loadAndReset([{text: this._text}]);
         }
     }
 
@@ -59,32 +62,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.card3D = new THREE.Group();
 
         if (this.actor._model3d && this.actor._modelType) {
-            let handle = Data.fromId(this.actor._model3d);
-            Data.fetch(this.sessionId, handle).then((buffer) => {
-                window.assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
-                    this.card3D.add(obj);
-
-                    obj.updateMatrixWorld(true);
-                    obj.ready = true;
-
-                    if (obj.traverse) {
-                        addShadows({scene: obj}, true);
-                    }
-                    
-                    let size = new Vector3(0, 0, 0);
-                    new THREE.Box3().setFromObject(obj).getSize(size);
-                    let max = Math.max(size.x, size.y, size.z);
-                    let s = 4 / max;
-                    obj.scale.set(s, s, s);
-
-                    if (obj._croquetAnimation) {
-                        const spec = obj._croquetAnimation;
-                        spec.startTime = this.actor.creationTime;
-                        this.animationSpec = spec;
-                        this.future(500).runAnimation();
-                    }
-                });
-            });
+            this.construct3D();
         }
 
         /*
@@ -107,14 +85,51 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(this.actor._cardShapeURL){
             loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
         }
-        if(this.actor._card3DURL){
-            console.log(this.actor._card3DURL, this.card3D)
-            loadGLB(this.actor._card3DURL, this.card3D, this.actor._cardShadow?addShadows:null, this.actor._cardTranslation, this.actor._cardScale, this.actor._cardRotation, true);
-        }
-        if(this.actor.children){
-            this.actor.children.forEach(cardId=>this.addCard(cardId));
-        }
+        // if(this.actor.children){
+        // this.actor.children.forEach(cardId=>this.addCard(cardId));
+        //}
         this.setRenderObject( this.card3D );
+    }
+
+    construct3D() {
+        if (!this.actor._model3d || !this.actor._modelType) {return;}
+
+        let handle = Data.fromId(this.actor._model3d);
+        Data.fetch(this.sessionId, handle).then((buffer) => {
+            window.assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
+                this.card3D.add(obj);
+
+                obj.updateMatrixWorld(true);
+                obj.ready = true;
+
+                if (this.actor._card3DURL) {
+                    addShadows({scene: obj}, true);
+                }
+
+                if (this.actor._cardTranslation) {
+                    obj.translation.set(...this.actor._cardTranslation);
+                }
+                if (this.actor._cardScale) {
+                    obj.scale.set(...this.actor._cardScale);
+                }
+                if (this.actor._cardRotation) {
+                    obj.rotation.set(...this.actor._cardRotation);
+                }
+                    
+                let size = new Vector3(0, 0, 0);
+                new THREE.Box3().setFromObject(obj).getSize(size);
+                let max = Math.max(size.x, size.y, size.z);
+                let s = 4 / max;
+                obj.scale.set(s, s, s);
+
+                if (obj._croquetAnimation) {
+                    const spec = obj._croquetAnimation;
+                    spec.startTime = this.actor.creationTime;
+                    this.animationSpec = spec;
+                    this.future(500).runAnimation();
+                }
+            });
+        });
     }
 
     onFocus(pointerId) {
@@ -179,9 +194,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     onPointerWheel(e){
         console.log(this.scale)
         let s = this.scale;
-        let w = e < 0?-0.1:0.1;
-        if(s[0]+w >0.3)
-            this.scaleTo([s[0]+w, s[1]+w, s[2]+w], 100);
+        let w = e < 0 ? -0.1 : 0.1;
+        if (s[0] + w > 0.3) {
+            this.scaleTo([s[0] + w, s[1] + w, s[2] + w], 100);
+        }
     }
     /*
     // communication from the Card_Actor
@@ -210,7 +226,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         //viewRoot.outlinePass.selectedObjects = [this.card3D];
         if(!this.actor._cardFullBright){
             let c = new THREE.Color(color);
-            this.card3D.traverse(obj=>{if(obj.material)obj.material.emissive=c;});
+            this.card3D.traverse(obj=>{if(obj.material)obj.material.emissive = c;});
         }
     }
     tween(target, qEnd, onComplete){
@@ -225,19 +241,19 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             .to( { t : 1 }, 300 )
             //.easing( TWEEN.Easing.Quadratic.InOut )
             .easing( TWEEN.Easing.Linear.None )
-            .onStart( function() {
+            .onStart(() => {
                 qStart.copy(target.quaternion);
-            } )
-            .onUpdate( function() {
+            })
+            .onUpdate(() => {
                 target.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
                 target.updateMatrixWorld();
-            } )
-            .onComplete( function() {
+            })
+            .onComplete(() => {
                 target.quaternion.copy( qEnd ); // so it is exact  
                 target.updateMatrixWorld();
                 scope.isTweening = false;
                 if(onComplete)onComplete();
-            } )
+            })
             .start();
         this.future(100).updateTween();
     }
@@ -250,28 +266,26 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     // compute and return the position and distance the avatar should jump to to see the card full screen
-    getJumpToPose(){
-        let rval = [];
-        rval[0] = this.card3D.localToWorld(new Vector3()).toArray(); // this is where the card is
+    getJumpToPose() {
+        let current = this.card3D.localToWorld(new Vector3()).toArray(); // this is where the card is
         let camera = this.service("ThreeRenderManager").camera;
         let fov = camera.fov;
         let caspect = camera.aspect;
         let taspect = this.aspect;
         let d, w, h, s = this.scale[0];
-        if(taspect<1){
-            w = taspect*s;
+        if (taspect < 1) {
+            w = taspect * s;
             h = s;
-        }else{
+        } else {
             w = s;
-            h = s/taspect;
+            h = s / taspect;
         }
 
-        d = (h/2)/Math.tan( Math.PI*fov/360); // compute distance from card assuming vertical 
+        d = (h / 2) / Math.tan(Math.PI * fov / 360); // compute distance from card assuming vertical 
 
-        if(caspect <= taspect) d*= (taspect/caspect); // use width to fit instead
-        rval[1]=d; // avatar distance from card
+        if (caspect <= taspect) d *= (taspect / caspect); // use width to fit instead
 
-       return rval;
+        return [current, d];
     }
 
     makePlane(pEvt, useNorm) {
@@ -282,11 +296,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         //this.object3D.worldToLocal(vec0);
         //let offset = vec0.z;
         if (useNorm && pEvt.face && pEvt.face.normal) {
-          norm.copy(pEvt.face.normal);
-          let normalMatrix = new THREE.Matrix3().getNormalMatrix( this.object3D.matrixWorld );
-          norm.applyMatrix3( normalMatrix ).normalize();
+            norm.copy(pEvt.face.normal);
+            let normalMatrix = new THREE.Matrix3().getNormalMatrix( this.object3D.matrixWorld );
+            norm.applyMatrix3( normalMatrix ).normalize();
+        } else {
+            this.object3D.getWorldDirection(norm);
         }
-        else this.object3D.getWorldDirection(norm);
         let offset = norm.dot(pos); // direction dotted with position in world coords
         this.plane = new THREE.Plane(norm, -offset);
     }

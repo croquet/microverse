@@ -32,10 +32,10 @@ const avatars = [];
 let plant;
 
 function loadBasicModels() {
-    let maxAvatars = 12;
+    let maxAvatars = 1;
     let i = 0;
     for (i = 0; i < maxAvatars; i++) avatars[i] = new THREE.Group();
-    for (i = 0; i < 6; i++) {
+    for (i = 0; i < Math.min(maxAvatars, 6); i++) {
         loadGLB(`./assets/avatars/generic/${i + 1}.zip`, avatars[i], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     }
     if (maxAvatars > 6) {
@@ -47,8 +47,8 @@ function loadBasicModels() {
         loadGLB("./assets/avatars/cheshirecat.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     }
 
-    plant = new THREE.Group();
-    loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
+    //plant = new THREE.Group();
+    // loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
 
 };
 
@@ -114,7 +114,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_LayerTarg
         super(...args);
 
         this.layers = ['walk'];
-        this.setRenderObject(plant);
+        // this.setRenderObject(plant);
     }
 }
 
@@ -143,6 +143,8 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
         this.lights = LightActor.create();
+
+        /*
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
@@ -161,7 +163,6 @@ class MyModelRoot extends ModelRoot {
             'credit-card.svg', 'square.svg', 'credit-card.svg', 
             'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'credit-card.svg', 'cog.svg'];
         let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
-
         for (let i = 0; i < 8; i++) {
             CardActor.create({
                 cardShapeURL: `./assets/SVG/${svgCards[i]}`,
@@ -176,16 +177,19 @@ class MyModelRoot extends ModelRoot {
             });
         }
 
+        */
+
         CardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1,1,1], // white
-            translation:[5, 0.5, -1],
-            text: "Croquet is awesome",
-            cardInstall: true
+            translation:[0, -0.5, -6 * (0 + 1)],
+            cardInstall: true,
+            text: "hello"
         });
         
+
         //   createChess([8, -2.5, -30], [6,6,6]);
 
         this.bitcoinTracker = BitcoinTracker.create();

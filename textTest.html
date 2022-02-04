@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>Microverse</title>
+        <style>
+            body {
+                background-color: #bfe3dd;
+		color: #000;
+                margin: 0;
+                background-color: #000;
+                color: #fff;
+                font-size: 20px;
+                line-height: 24px;
+                overscroll-behavior: none;
+                overflow: hidden;
+            }
+            #info {
+                position: absolute;
+                top: 0px;
+                width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+                text-align: center;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                pointer-events: none;
+                z-index: 1; /* TODO Solve this in HTML */
+            }
+            #joystick {
+                box-sizing: border-box;
+                position: absolute;
+                left: 50%;
+                bottom: 50px;
+                -ms-transform: translate(-50%, 0%);
+                transform: translate(-50%, 0%);
+                width: 126px;
+                height: 126px;
+                border: 3px solid #F00;
+                border-radius: 60px;
+                box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); 
+                opacity: 0.75;
+                z-index:200;
+            }
+            #knob {
+                position: absolute;
+                left: 30px;
+                top: 30px;
+                width: 60px;
+                height: 60px;
+                border-radius: 40px;
+                background-color: #FFF;
+                opacity: 0.75;
+                z-index:200;
+            }
+            #hiddenknob {
+                position: absolute;
+                width: 120px;
+                height: 120px;
+                border-radius: 60px;
+                background-color: #FFF;
+                opacity: 0.25;
+                z-index:301;
+            }
+            .fa-circle {
+                color: lightgray;
+                opacity: 50%;
+                text-shadow: 0 0 4px #000;
+            }
+            .fa-stack:hover .fa-circle {
+                color:gray;
+            }
+            a {
+                color: #fff;
+                text-decoration: none;
+                z-index: 300;
+                text-shadow: 2px 2px #000000;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+        <link href="./assets/fonts/css/all.css" rel="stylesheet">
+    </head>
+    <body>
+        <div id="info">
+			<a>Use the joystick to move.</a>
+		</div>
+
+            <a href="https://github.com/croquet/microverse" target="_blank" title="View source code on GitHub" >
+                <button id="codeBttn">
+                    <span class="fa-stack fa-2x" id="codeBttn" style = "position:fixed; bottom:10px; right:10px; z-index:200">
+                        <i class="fas fa-circle fa-stack-2x"></i>
+                        <i class="fas fa-code fa-stack-1x fa-inverse"></i>
+                    </span>
+                </button>
+            </a>
+            <button id="walkingBttn">
+                <span class="fa-stack fa-2x" style = "position:fixed; top:10px; right:10px; z-index:200">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fas fa-walking fa-stack-1x fa-inverse"></i>
+                </span>
+            </button>
+            <button id="orbitingBttn">
+                <span class="fa-stack fa-2x"  style = "position:fixed; top:10px; right:10px; z-index:200">
+                <i class="fas fa-circle fa-stack-2x"></i>
+                <i class="fas fa-hand-paper fa-stack-1x fa-inverse"></i>
+                </span>
+            </button>
+            <button id="homeBttn">
+                <span class="fa-stack fa-2x"  style = "position:fixed; transform:translate(0%, -50%);  top:50%; right:10px; z-index:200">
+                <i class="fas fa-circle fa-stack-2x"></i>
+                <i class="fas fa-solid fa-home fa-stack-1x fa-inverse"></i>
+                </span>
+            </button>
+            <button id="fullscreenBttn">
+                <span class="fa-stack fa-2x"  style = "position:fixed; top:10px; left:10px; z-index:200">
+                <i class="fas fa-circle fa-stack-2x"></i>
+                <i class="fas fa-solid fa-expand fa-stack-1x fa-inverse"></i>
+                </span>
+            </button>
+            <div id="joystick"><div id="knob"></div><div id="hiddenknob"></div></div>
+    </body>
+</html>

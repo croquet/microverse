@@ -4,7 +4,10 @@ const path = require('path');
 const webpack = require("webpack");
 
 module.exports = {
-    entry : './index.js',
+    entry: {
+        'index': './index.js',
+        'textTest': './textTest.js',
+    },
     output: {
         path: path.join(__dirname, 'dist'),
         filename: '[name]-[contenthash:8].js',
@@ -13,7 +16,7 @@ module.exports = {
     },
     resolve: {
         fallback: {
-            "crypto": false,
+            'crypto': false,
             buffer: require.resolve('buffer/'),
         }
     },
@@ -22,7 +25,7 @@ module.exports = {
     },
     
     devServer: {
-        allowedHosts: "all",
+        allowedHosts: 'all',
         port: 9009
     },
     module: {
@@ -37,13 +40,20 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: 'index.html',   // input
             filename: 'index.html',   // output filename in dist/
+            chunks: ['index']
+        }),
+        new HtmlWebpackPlugin({
+            inject: true,
+            template: 'textTest.html',   // input
+            filename: 'textTest.html',   // output filename in dist/
+            chunks: ['textTest']
         }),
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer']
         }),
         new CopyPlugin({
             patterns: [
-                { from: "assets", to: "assets" },
+                { from: 'assets', to: 'assets' },
             ]
         }),
     ],

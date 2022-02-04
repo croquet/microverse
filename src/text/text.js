@@ -1,4 +1,4 @@
-import {THREE, PM_ThreeVisible, AM_Spatial, PM_Spatial, AM_PointerTarget, PM_ThreePointerTarget, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_ThreePointerTarget, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 import { PM_Events } from '../DEvents.js';
@@ -7,7 +7,7 @@ import { D } from '../DConstants.js';
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
-export class TextFieldActor extends mix(Actor).with(AM_Spatial, AM_PointerTarget) {
+export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
     init(...args) {
         this.doc = new Doc();
         this.doc.load([]);
@@ -142,7 +142,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Spatial, AM_PointerTarget
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_ThreePointerTarget, PM_LayerTarget) {
+export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_ThreePointerTarget, PM_LayerTarget) {
     constructor(model) {
         super(model);
         this.model = model;
@@ -183,7 +183,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         });
 
         this.viewExtent = this.model.extent;
-        window.view = this;
     }
 
     destroy() {
@@ -323,7 +322,16 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
         this.layer = D.EVENT;
+
         this.setRenderObject(this.plane);
+
+        if (this.actor._parent) {
+            let parent = this.service("PawnManager").get(this.actor._parent.id);
+            parent.renderObject.add(this.renderObject);
+        }
+        
+        // so, setRenderObject also adds it to the scene,
+        // regardless of the display scene structure
 
         // this.setupScrollMesh();
 
@@ -804,20 +812,19 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, P
                     old.dispose();
                 }
 
-                let left = (-width / 2) + (caretRect.left + 4) * 0.01; // ?
+                let left = (-width / 2) + (caretRect.left + 8) * 0.01; // ?
                 let top = (height / 2) - (caretRect.top + caretRect.height / 2) * 0.01;
                 caret.position.set(left, top, 0.003);
             } else {
                 let rects = this.warota.selectionRects(selection);
                 let boxes = thisSelection.boxes;
-                console.log(rects);
                 for (let i = 0; i < 3; i++) {
                     let box = boxes[i];
                     let rect = rects[i];
                     box.visible = false;
                     
                     if (rect) {
-                        let left = (-width / 2) + ((rect.width / 2) + rect.left) * 0.01; // ?
+                        let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * 0.01; // ?
                         let top = (height / 2) - (rect.top + rect.height / 2) * 0.01;
                         
                         let rWidth = rect.width * 0.01; // ?
