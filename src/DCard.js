@@ -48,12 +48,11 @@ CardActor.register('CardActor');
 export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_ThreePointerTarget) {
     constructor(...args) {
         super(...args);
-        this.layers=['pointer'];
+        this.layers = ['pointer'];
         this.constructCard();
     }
 
-    constructCard()
-    {
+    constructCard() {
         this.layers = ['pointer'];
         this.card3D = new THREE.Group();
 
@@ -69,6 +68,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     if (obj.traverse) {
                         addShadows({scene: obj}, true);
                     }
+                    
+                    let size = new Vector3(0, 0, 0);
+                    new THREE.Box3().setFromObject(obj).getSize(size);
+                    let max = Math.max(size.x, size.y, size.z);
+                    let s = 4 / max;
+                    obj.scale.set(s, s, s);
 
                     if (obj._croquetAnimation) {
                         const spec = obj._croquetAnimation;
