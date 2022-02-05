@@ -18,7 +18,9 @@ export class KeyFocusManager extends ViewService {
 
         if (!this.hiddenInput) {
             this.hiddenInput = document.createElement("input");
+            this.hiddenInput.id = "hiddenInput";
             document.body.appendChild(this.hiddenInput);
+            
             this.hiddenInput.addEventListener("input", evt => {
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.input(evt);
@@ -53,8 +55,7 @@ export class KeyFocusManager extends ViewService {
     }
 
     setKeyboardInput(obj) {
-        if (this.keyboardInput === obj) {return;}
-        if (this.hiddenInput) {
+        if (this.hiddenInput && !obj) {
             this.hiddenInput.blur();
         }
         this.keyboardInput = obj;
