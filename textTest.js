@@ -10,7 +10,7 @@ import { PM_LayerTarget } from './src/DLayerManager.js';
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
-import { TextFieldActor } from './src/text/text.js';
+import { TextFieldActor, KeyFocusManager } from './src/text/text.js';
 import { PerlinActor } from './src/PerlinMixin.js';
 import { CardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
@@ -20,7 +20,7 @@ import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
-import {AssetManager} from "./src/assetManager.js";
+import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -184,9 +184,19 @@ class MyModelRoot extends ModelRoot {
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1,1,1], // white
-            translation:[0, -0.5, -6 * (0 + 1)],
+            translation:[2, -0.5, -6 * (0 + 1)],
             cardInstall: true,
             text: "hello"
+        });
+        
+        CardActor.create({
+            cardFullBright: true,
+            cardDepth: 0.1,
+            cardBevel:0.02,
+            cardColor:[1,1,1], // white
+            translation:[-2, -0.5, -6 * (0 + 1)],
+            cardInstall: true,
+            text: "good bye"
         });
         
 
@@ -221,7 +231,12 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}];
+        return [
+            InputManager,
+            {service: ThreeRenderManager, options:{antialias:true}},
+            AssetManager,
+            KeyFocusManager
+        ];
     }
     constructor(model) {
         super(model);
@@ -234,9 +249,10 @@ class MyViewRoot extends ViewRoot {
         this.bitcoin = new BitcoinTrackerView(model.bitcoinTracker);
         console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
 
-        this.assetManager = window.assetManager = new AssetManager(); // this would use the service thing
+        this.assetManager = this.service("AssetManager");
+        window.assetManager = this.assetManager.assetManager;
 
-        this.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
+        this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Data.toId(handle);
                 this.assetManager.assetCache[dataId] = {buffer, type};

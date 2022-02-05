@@ -3,14 +3,15 @@
 // https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit?usp=sharing
 
 import {
-    App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix, InputManager, PlayerManager,
-    ThreeRenderManager, AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad
+    App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
+    InputManager, PlayerManager, ThreeRenderManager,
+    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad
 } from "@croquet/worldcore";
 import { PM_LayerTarget } from './src/DLayerManager.js';
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
-import { TextFieldActor } from './src/text/text.js';
+import { TextFieldActor, KeyFocusManager } from './src/text/text.js';
 import { PerlinActor } from './src/PerlinMixin.js';
 import { CardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
@@ -217,7 +218,12 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [InputManager, {service: ThreeRenderManager, options:{antialias:true}}, AssetManager];
+        return [
+            InputManager,
+            {service: ThreeRenderManager, options:{antialias:true}},
+            AssetManager,
+            KeyFocusManager
+        ];
     }
     constructor(model) {
         super(model);

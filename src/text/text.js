@@ -1,4 +1,4 @@
-import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_ThreePointerTarget, PM_Focusable, Actor, Pawn, mix} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_ThreePointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 import { PM_Events } from '../DEvents.js';
@@ -6,6 +6,63 @@ import { PM_LayerTarget } from '../DLayerManager.js';
 import { D } from '../DConstants.js';
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
+
+export class KeyFocusManager extends ViewService {
+    constructor(name) {
+        super(name || "KeyFocusManager");
+        this.setKeyboardInput(null);
+
+        this.hiddenInput = document.querySelector("#hiddenInput");
+
+        let newOne = false;
+
+        if (!this.hiddenInput) {
+            this.hiddenInput = document.createElement("input");
+            document.body.appendChild(this.hiddenInput);
+            this.hiddenInput.addEventListener("input", evt => {
+                if (!this.keyboardInput) {return;}
+                this.keyboardInput.input(evt);
+            }, true);
+
+            this.hiddenInput.addEventListener("keydown", evt => {
+                if (!this.keyboardInput) {return;}
+                this.keyboardInput.keyDown(evt);
+            }, true);
+
+            this.hiddenInput.addEventListener("copy", evt => {
+                if (!this.keyboardInput) {return;}
+                this.keyboardInput.copy(evt);
+            })
+
+            this.hiddenInput.addEventListener("paste", evt => {
+                if (!this.keyboardInput) {return;}
+                this.keyboardInput.paste(evt);
+            });
+        }
+
+        this.hiddenInput.style.setProperty("position", "absolute");
+
+        this.hiddenInput.style.setProperty("left", "-120px"); //-120px
+        this.hiddenInput.style.setProperty("top", "-120px");  // -120px
+        this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
+
+        this.hiddenInput.style.setProperty("width", "100px");
+        this.hiddenInput.style.setProperty("height", "100px");
+
+        this.hiddenInput.onfocus = (evt) => console.log("focus", evt);
+    }
+
+    setKeyboardInput(obj) {
+        if (this.keyboardInput === obj) {return;}
+        if (this.hiddenInput) {
+            this.hiddenInput.blur();
+        }
+        this.keyboardInput = obj;
+        if (obj) {
+            this.hiddenInput.focus();
+        }
+    }
+}
 
 export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
     init(...args) {
@@ -148,23 +205,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.model = model;
 
         this.widgets = {};
-        this.hiddenInput = document.createElement("input");
-        this.hiddenInput.style.setProperty("position", "absolute");
-
-        this.hiddenInput.style.setProperty("left", "-120px"); //-120px
-        this.hiddenInput.style.setProperty("top", "-120px");  // -120px
-        // this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
-
-        this.hiddenInput.style.setProperty("width", "100px");
-        this.hiddenInput.style.setProperty("height", "100px");
-
-        this.hiddenInput.addEventListener("input", evt => this.input(evt), true);
-        this.hiddenInput.addEventListener("keydown", evt => this.keyDown(evt), true);
-        this.hiddenInput.addEventListener("copy", evt => this.copy(evt));
-        this.hiddenInput.addEventListener("cut", evt => this.cut(evt));
-        this.hiddenInput.addEventListener("paste", evt => this.paste(evt));
-        document.body.appendChild(this.hiddenInput);
-
         this.setupEditor();
         this.setupMesh();
 
@@ -201,10 +241,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
                 v.material = null;
             }
         });
-
-        if (this.hiddenInput) {
-            this.hiddenInput.remove();
-        }
     }
 
     test() {
@@ -498,12 +534,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     }
 
     onPointerDown(evt) {
+        let fm = this.service("KeyFocusManager");
+        fm.setKeyboardInput(this);
+        
         let cooked = this.cookEvent(evt);
         if (!cooked) {return;}
         this.warota.mouseDown(cooked.x, cooked.y, cooked.y, this.user);
-        if (this.hiddenInput) {
-            this.hiddenInput.focus();
-        }
     }
 
     onPointerMove(evt) {
@@ -522,8 +558,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
     newCanonicalizeEvent(evt) {
         if (evt.type === "input" && evt.inputType === "insertText" && !evt.isComposing) {
-            let key = this.hiddenInput.value;
-            this.hiddenInput.value = "";
+            let fm = this.service("KeyFocusManager");
+            let key = fm.hiddenInput.value;
+            fm.hiddenInput.value = "";
             let spec = {
                 keyCombo: "",
                 key: key,
@@ -545,8 +582,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     }
 
     eventFromField() {
-        let key = this.hiddenInput.value;
-        this.hiddenInput.value = "";
+        let fm = this.service("KeyFocusManager");
+        let key = fm.hiddenInput.value;
+        fm.hiddenInput.value = "";
         let spec = {
             keyCombo: "",
             key: key,
@@ -591,8 +629,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     keyDown(evt) {
         let cEvt;
         if (evt.key === "Enter") {
-            if (this.hiddenInput.value !== "") {
-                this.hiddenInput.value = "";
+            let hiddenInput = this.service("KeyFocusManager").hiddenInput;
+            if (hiddenInput.value !== "") {
+                hiddenInput.value = "";
                 cEvt = this.eventFromField();
             } else {
                 cEvt = canonicalizeKeyboardEvent(evt);
