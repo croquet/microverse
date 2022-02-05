@@ -117,9 +117,13 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 obj.updateMatrixWorld(true);
                 obj.ready = true;
 
-                if (this.actor._card3DURL) {
-                    addShadows({scene: obj}, true);
-                }
+                addShadows({scene: obj}, true);
+
+                let size = new Vector3(0, 0, 0);
+                new THREE.Box3().setFromObject(obj).getSize(size);
+                let max = Math.max(size.x, size.y, size.z);
+                let s = 4 / max;
+                obj.scale.set(s, s, s);
 
                 if (this.actor._cardTranslation) {
                     obj.translation.set(...this.actor._cardTranslation);
@@ -131,12 +135,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     obj.rotation.set(...this.actor._cardRotation);
                 }
                     
-                let size = new Vector3(0, 0, 0);
-                new THREE.Box3().setFromObject(obj).getSize(size);
-                let max = Math.max(size.x, size.y, size.z);
-                let s = 4 / max;
-                obj.scale.set(s, s, s);
-
                 if (obj._croquetAnimation) {
                     const spec = obj._croquetAnimation;
                     spec.startTime = this.actor.creationTime;
