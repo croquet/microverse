@@ -187,6 +187,17 @@ class MyModelRoot extends ModelRoot {
             cardInstall: true
         });
         
+        CardActor.create({
+            cardFullBright: true,
+            cardDepth: 0.1,
+            cardBevel:0.02,
+            cardColor:[1,1,1], // white
+            translation:[3, 0.5, -2],
+            model3d: "./assets/avatars/alice.zip",
+            modelType: "glb",
+            cardInstall: true
+        });
+        
         //   createChess([8, -2.5, -30], [6,6,6]);
 
         this.bitcoinTracker = BitcoinTracker.create();

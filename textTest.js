@@ -255,7 +255,6 @@ class MyViewRoot extends ViewRoot {
         this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Data.toId(handle);
-                this.assetManager.assetCache[dataId] = {buffer, type};
                 this.publish(this.model.id, "fileUploaded", {dataId, fileName, type});
             });
         });

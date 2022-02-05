@@ -94,10 +94,23 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     construct3D() {
         if (!this.actor._model3d || !this.actor._modelType) {return;}
 
-        let handle = Data.fromId(this.actor._model3d);
-        let assetManager = this.service("AssetManager").assetManager;
-        
-        Data.fetch(this.sessionId, handle).then((buffer) => {
+        let getBuffer = () => {
+            if (this.actor._model3d.startsWith("http") ||
+                this.actor._model3d.startsWith(".") ||
+                this.actor._model3d.startsWith("/")) {
+                return fetch(this.actor._model3d).then((resp) => {
+                    return resp.arrayBuffer();
+                }).then((arrayBuffer) => {
+                    return new Uint8Array(arrayBuffer);
+                });
+            } else {
+                let handle = Data.fromId(this.actor._model3d);
+                let assetManager = this.service("AssetManager").assetManager;
+                return Data.fetch(this.sessionId, handle);
+            }
+        };
+            
+        getBuffer().then((buffer) => {
             assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
                 this.card3D.add(obj);
 
