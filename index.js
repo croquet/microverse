@@ -176,7 +176,6 @@ class MyModelRoot extends ModelRoot {
                 translation:[-4,-0.5, -6 * (i + 1)],
                 rotation: q_euler(0,Math.PI/2,0),
                 scale: [4,4,4],
-                cardInstall: true
             });
         }
 
@@ -187,7 +186,6 @@ class MyModelRoot extends ModelRoot {
             cardColor:[1,1,1], // white
             translation:[5, 0.5, -1],
             text: "Croquet is awesome",
-            cardInstall: true
         });
         
         DCardActor.create({
@@ -198,7 +196,6 @@ class MyModelRoot extends ModelRoot {
             translation:[3, 0.5, -2],
             model3d: "./assets/avatars/alice.zip",
             modelType: "glb",
-            cardInstall: true
         });
         
         //   createChess([8, -2.5, -30], [6,6,6]);
@@ -221,7 +218,6 @@ class MyModelRoot extends ModelRoot {
             scale: [1,1,1],
             model3d: dataId,
             modelType: type,
-            cardInstall: true
         });
         this.publish(this.id, "fileLoadRequested", data);
     }
