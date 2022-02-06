@@ -11,11 +11,14 @@ import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
 import { TextFieldActor, KeyFocusManager } from './src/text/text.js';
-import { PerlinActor } from './src/PerlinMixin.js';
 import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
-import { MultiBlaster } from './src/multiblaster.js';
-import { createChess } from './src/chess.js';
+
+//apps
+import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
+import { PerlinActor } from './apps/perlin.js';
+import { MultiBlaster } from './apps/multiblaster.js';
+import { createChess } from './apps/chess.js';
 import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
 
 import JSZip from 'jszip';

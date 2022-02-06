@@ -11,13 +11,15 @@ import { PM_LayerTarget } from './src/DLayerManager.js';
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
-import { TextFieldActor, KeyFocusManager } from './src/text/text.js';
-import { PerlinActor } from './src/PerlinMixin.js';
+import { KeyFocusManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
-import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
-import { MultiBlaster } from './src/multiblaster.js';
-import { createChess } from './src/chess.js';
+import { TextureSurface, VideoSurface } from './src/DSurface.js';
 import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
+// apps
+import { MultiBlaster } from './apps/multiblaster.js';
+import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
+import { createChess } from './apps/chess.js';
+import { PerlinActor } from './apps/perlin.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -155,7 +157,7 @@ class MyModelRoot extends ModelRoot {
         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
         
-        let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
+        let cSurface = SimpleCanvasSurface.create({name: 'SimpleCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
         let svgCards = [

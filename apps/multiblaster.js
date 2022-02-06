@@ -1,6 +1,6 @@
 
 import { Actor, Pawn } from "@croquet/worldcore";
-import { CanvasSurface, CanvasSurfacePawn} from "./DSurface.js";
+import { CanvasSurface, CanvasSurfacePawn} from "../src/DSurface.js";
 
 /////////// Model code is executed inside of synced VM /////////// 
 

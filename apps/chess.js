@@ -1,7 +1,7 @@
 
 
-import { DCardActor } from './DCard.js';
-import { TextureSurface } from './DSurface.js';
+import { DCardActor } from '../src/DCard.js';
+import { TextureSurface } from '../src/DSurface.js';
 import { q_euler } from "@croquet/worldcore";
 const SCALE = 0.025;
 const SQUARE = 0.125;

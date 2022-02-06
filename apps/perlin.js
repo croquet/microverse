@@ -1,7 +1,4 @@
-import { THREE, Actor, Pawn, AM_Spatial, PM_ThreeVisible, PM_Spatial, RegisterMixin, mix } from "@croquet/worldcore";
-import { PM_ThreeVisibleLayer } from './DLayerManager.js';
-import { PM_Events } from './DEvents.js';
-import { D } from './DConstants.js';
+import { THREE, Actor, Pawn, AM_Predictive, AM_PointerTarget, RegisterMixin, PM_Predictive, PM_ThreeVisible, PM_PointerTarget, mix } from "@croquet/worldcore";
 //------------------------------------------------------------------------------------------
 //-- Perlin Noise Mixin --------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -126,28 +123,27 @@ export const AM_PerlinNoise = superclass => class extends superclass {
 RegisterMixin(AM_PerlinNoise);
 
 
-export class PerlinActor extends mix(Actor).with(AM_Spatial, AM_PerlinNoise){
+export class PerlinActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_PerlinNoise){
     get pawn() {return PerlinPawn}
     init(...args) {
         this.visible = true;
         super.init(...args);
         this.initPerlin(); // call this before init. PerlinPawn requires this.
         this.future(1000).updatePerlin();
-        this.listen("onPointerDown", this.onPointerDown);
-        this.listen("onPointerUp", this.onPointerUp);
-        this.listen("onPointerEnter", this.onPointerEnter);
-        this.listen("onPointerLeave", this.onPointerLeave);
-        this.listen("showHide", this.showHide);
+        //this.listen("showHide", this.showHide);
         this.visible = false;
         //this._translation = [0, -2.75, -10];
         //this.group.rotation.y = Math.PI/2;
     }
 
     onPointerDown(p3d){
+        console.log("onPointerDown")
         this.say("hilite", 0x081808);
+        this.downTargetId = p3d.targetId;
     }
     onPointerUp(p3d){
-        if(p3d && p3d.sameTarget)this.showHide();
+        console.log("onPointerUp")
+        if(this.downTargetId === p3d.targetId)this.showHide();
         this.say("hilite", 0x000000);
     }
     onPointerEnter(p3d){
@@ -193,9 +189,10 @@ PerlinActor.register('PerlinActor');
 const maxHeight = 8;
 const barScale = 0.25;
 
-class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
+class PerlinPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget){
     constructor(...args) {
         super(...args);
+        this.addToLayers('pointer');
         this.listen("updatePerlin", this.updatePerlin);
         this.listen("showMe", this.showMe);
         this.isConstructed = false;
@@ -250,8 +247,6 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         this.base.castShadow = true;
         this.base.receiveShadow = true;
         this.perlinGroup.add(this.base);
-
-        this.layer = D.EVENT;
         this.setRenderObject( this.group );
 
         this.rowGeometry = [];
@@ -289,9 +284,7 @@ class PerlinPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible){
         this.buttonSphere.material.emissive = new THREE.Color(color);
     }
     showMe(visible){
-        console.log(visible);
-        if(this.actor.visible) this.group.add(this.perlinGroup);
+        if(visible) this.group.add(this.perlinGroup);
         else this.group.remove(this.perlinGroup);
-        //this.perlinGroup.visible=visible;
     }
 }
