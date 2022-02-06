@@ -120,6 +120,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         if(t<1)this.future(50).goToStep(delta, t+delta);
     }
 }
+
 AvatarActor.register('AvatarActor');
 
 export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer){
@@ -426,7 +427,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             } else pe.offset = D.EYE_HEIGHT;
             this.say("doubleDown", pe);
         }
-     }
+    }
 
     // from DEvents.js
     doPointerWheel(wheel){        

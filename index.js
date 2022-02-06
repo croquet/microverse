@@ -71,15 +71,26 @@ function loadLoaders() {
     }));
 }
 
-loadLoaders().then(loadBasicModels);
-
 class MyAvatar extends AvatarActor {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
+        this.listen("addSticky", this.addSticky);
     }
 
     get pawn() {return MyAvatarPawn;}
+
+    addSticky(pe) {
+        let [x, y, z] = pe.xyz;
+        DCardActor.create({
+            cardFullBright: true,
+            cardDepth: 0.1,
+            cardBevel:0.02,
+            cardColor:[1, 1, 1], // white
+            translation:[x - 1, y + 2, z - 1],
+            text: "Croquet is awesome",
+        });
+    }
 }
 
 MyAvatar.register('MyAvatar');
@@ -105,7 +116,8 @@ class MyAvatarPawn extends AvatarPawn {
         }
     }
 
-    shiftDouble(pe){
+    shiftDouble(pe) {
+        this.say("addSticky", pe);
         console.log("shiftDouble", pe)
     }
 }
@@ -266,15 +278,17 @@ class MyViewRoot extends ViewRoot {
 }
 
 App.makeWidgetDock();
-StartWorldcore({
-    appId: 'io.croquet.microverse',
-    apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
-    name: App.autoSession(),
-    password: 'password',
-    model: MyModelRoot,
-    view: MyViewRoot,
-    tps:60,
-    eventRateLimit: 60,
+loadLoaders().then(loadBasicModels).then(() => {
+    StartWorldcore({
+        appId: 'io.croquet.microverse',
+        apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
+        name: App.autoSession(),
+        password: 'password',
+        model: MyModelRoot,
+        view: MyViewRoot,
+        tps:60,
+        eventRateLimit: 60,
+    });
 });
 
 console.log(` 
