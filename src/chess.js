@@ -1,57 +1,43 @@
 
 
-import { CardActor } from './DCard.js';
+import { DCardActor } from './DCard.js';
 import { TextureSurface } from './DSurface.js';
 import { q_euler } from "@croquet/worldcore";
 const SCALE = 0.025;
 const SQUARE = 0.125;
 
 export function createChess(translation, scale, rotation){
-    let chessLightSurface = TextureSurface.create({url: './assets/images/light-wood.jpg'});
-
-    let chessDarkSurface = TextureSurface.create({url: './assets/images/dark-wood.jpg'});
-    let svg = 'chess-board-solid.svg';
-    let black = CardActor.create(
+    let chessSurface = TextureSurface.create({url: './assets/images/chessboard.webp'});
+    let svg = 'square-full.svg';
+    let board = DCardActor.create(
     {
         cardShapeURL: './assets/SVG/'+svg,
-        cardSurface: chessDarkSurface,
+        cardSurface: chessSurface,
         cardFullBright: false,
         cardDepth: 0.1,
         cardBevel:0.02,
         cardColor:[1,1,1], // white
-        cardRotation:q_euler(-Math.PI/2,0,0),
+        rotation:q_euler(-Math.PI/2,0,0),
         translation: translation,
         scale: scale,
-        rotation: rotation,
-        cardInstall: true,
+        //rotation: rotation,
         cardShadow: true
     });
 
-    let white = CardActor.create(
-        {
-            cardShapeURL: './assets/SVG/'+svg,
-            cardSurface: chessLightSurface,
-            cardFullBright: false,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1,1,1], // white
-            cardRotation:q_euler(Math.PI/2, 0, 0),
-            cardShadow:true
-            //cardTranslation: [1,0,0],
-        });
-    
-    let pawn  = CardActor.create(
-        {
-            card3DURL: './assets/3D/pawnlow.glb.zip',
+    let pawn  = DCardActor.create(
+        {       
+            model3d: './assets/3D/pawnlow.glb.zip',
             //cardSurface: chessLightSurface,
             cardFullBright: false,
             cardColor:[1,1,1], // white
-            //cardRotation:q_euler(-Math.PI/2, 0, 0),
+            rotation:q_euler(-Math.PI/2, 0, 0),
             cardShadow:true,
-            cardScale:[SCALE, SCALE, SCALE],
+            scale:[SCALE, SCALE, SCALE],
 //            cardTranslation: [0,0.028,0.035],
-            cardTranslation: [-SQUARE*2.5,0,SQUARE*-2.5],
+            parent:board,
+            translation: [-SQUARE*2.5,0,SQUARE*-2.5],
         });
+        /*
     let king  = CardActor.create(
         {
             card3DURL: './assets/3D/kinglow.glb.zip',
@@ -115,12 +101,13 @@ export function createChess(translation, scale, rotation){
             //cardTranslation: [0,0.02,0.5],
             cardTranslation: [-SQUARE*3.5,0,SQUARE*-3.5],
         });
-console.log("--------CHESS--------")
-    black.addCard(white);
+    console.log("--------CHESS--------")
     black.addCard(pawn);
     black.addCard(king);
     black.addCard(queen);
     black.addCard(bishop);
     black.addCard(knight);
     black.addCard(rook);
+    */
+
 }

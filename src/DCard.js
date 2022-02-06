@@ -22,10 +22,10 @@ const timeOutOver = 10000; // if no user action after enter event, then cancel
 let counter = 0;
 
 //------------------------------------------------------------------------------------------
-//-- CardActor ------------------------------------------------------------------------------
+//-- DCardActor ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
+export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
     init(options) {
         super.init(options);
         this.visible = true;
@@ -39,18 +39,18 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) 
         }
     }
 
-    get pawn() { return CardPawn; }
+    get pawn() { return DCardPawn; }
 
     get surface(){return this._cardSurface}
 }
-CardActor.register('CardActor');
+DCardActor.register('DCardActor');
 
 //------------------------------------------------------------------------------------------
-//-- CardPawn ------------------------------------------------------------------------------
+//-- DCardPawn ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
 
-export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_ThreePointerTarget) {
+export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_ThreePointerTarget) {
     constructor(...args) {
         super(...args);
         this.layers = ['pointer'];

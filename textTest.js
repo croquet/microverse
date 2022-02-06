@@ -12,7 +12,7 @@ import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
 import { TextFieldActor, KeyFocusManager } from './src/text/text.js';
 import { PerlinActor } from './src/PerlinMixin.js';
-import { CardActor } from './src/DCard.js';
+import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 import { createChess } from './src/chess.js';
@@ -179,7 +179,7 @@ class MyModelRoot extends ModelRoot {
 
         */
 
-        CardActor.create({
+        DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
@@ -189,7 +189,7 @@ class MyModelRoot extends ModelRoot {
             text: "hello"
         });
         
-        CardActor.create({
+        DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
@@ -212,7 +212,7 @@ class MyModelRoot extends ModelRoot {
         // this.assets.set(dataId, dataId, type);
         console.log(dataId, fileName, type);
 
-        CardActor.create({
+        DCardActor.create({
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1,1,1], // white

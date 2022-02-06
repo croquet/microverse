@@ -5,7 +5,7 @@
 import {
     App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
     InputManager, PlayerManager, ThreeRenderManager,
-    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad
+    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler
 } from "@croquet/worldcore";
 import { PM_LayerTarget } from './src/DLayerManager.js';
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
@@ -13,7 +13,7 @@ import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
 import { TextFieldActor, KeyFocusManager } from './src/text/text.js';
 import { PerlinActor } from './src/PerlinMixin.js';
-import { CardActor } from './src/DCard.js';
+import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface, DemoCanvasSurface } from './src/DSurface.js';
 import { MultiBlaster } from './src/multiblaster.js';
 import { createChess } from './src/chess.js';
@@ -164,20 +164,21 @@ class MyModelRoot extends ModelRoot {
         let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
 
         for (let i = 0; i < 8; i++) {
-            CardActor.create({
+            DCardActor.create({
                 cardShapeURL: `./assets/SVG/${svgCards[i]}`,
                 cardSurface: surfaces[i],
                 cardFullBright: surfaces[i] === vSurface || surfaces[i] === cSurface || surfaces[i] === gSurface,
                 cardDepth: 0.1,
                 cardBevel:0.02,
                 cardColor:[1,1,1], // white
-                translation:[0,-0.5, -6 * (i + 1)],
+                translation:[-4,-0.5, -6 * (i + 1)],
+                rotation: q_euler(0,Math.PI/2,0),
                 scale: [4,4,4],
                 cardInstall: true
             });
         }
 
-        CardActor.create({
+        DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
@@ -187,7 +188,7 @@ class MyModelRoot extends ModelRoot {
             cardInstall: true
         });
         
-        CardActor.create({
+        DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
@@ -210,7 +211,7 @@ class MyModelRoot extends ModelRoot {
         // this.assets.set(dataId, dataId, type);
         console.log(dataId, fileName, type);
 
-        CardActor.create({
+        DCardActor.create({
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1,1,1], // white

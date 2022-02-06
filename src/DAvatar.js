@@ -398,7 +398,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doPointerDoubleDown(e) {
-        console.log("XdoPointerDoubleDown")
         const render = this.service("ThreeRenderManager");
         const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
