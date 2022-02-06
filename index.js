@@ -7,7 +7,6 @@ import {
     InputManager, PlayerManager, ThreeRenderManager,
     AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler
 } from "@croquet/worldcore";
-import { PM_LayerTarget } from './src/DLayerManager.js';
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
@@ -112,7 +111,7 @@ class LevelActor extends mix(Actor).with(AM_Spatial) {
 }
 LevelActor.register('LevelActor');
 
-class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_LayerTarget) {
+class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
     constructor(...args) {
         super(...args);
 
@@ -237,7 +236,7 @@ class MyViewRoot extends ViewRoot {
     }
     constructor(model) {
         super(model);
-        const renderer = window.renderer = this.service("ThreeRenderManager").renderer;
+        const renderer = this.service("ThreeRenderManager").renderer;
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;

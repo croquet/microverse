@@ -128,7 +128,7 @@ export class PerlinActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget
     init(...args) {
         this.visible = true;
         super.init(...args);
-        this.initPerlin(); // call this before init. PerlinPawn requires this.
+        this.initPerlin();
         this.future(1000).updatePerlin();
         //this.listen("showHide", this.showHide);
         this.visible = false;
@@ -223,7 +223,6 @@ class PerlinPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_Point
     }
 
     constructPerlin(){
-        console.log("constructPerlin", this.actor, this.actor.rows, this.actor.columns);
         const data = this.actor.data;
         const r = this.actor.rows;
         const c = this.actor.columns;

@@ -243,7 +243,7 @@ class MyViewRoot extends ViewRoot {
     }
     constructor(model) {
         super(model);
-        const renderer = window.renderer = this.service("ThreeRenderManager").renderer;
+        const renderer = this.service("ThreeRenderManager").renderer;
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
