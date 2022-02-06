@@ -1,4 +1,4 @@
-import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_ThreePointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 import { PM_Events } from '../DEvents.js';
@@ -200,7 +200,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_ThreePointerTarget, PM_LayerTarget) {
+export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_PointerTarget) {
     constructor(model) {
         super(model);
         this.model = model;

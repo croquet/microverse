@@ -122,11 +122,11 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 }
 AvatarActor.register('AvatarActor');
 
-export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer, PM_LayerTarget){
+export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer){
     constructor(...args) {
         super(...args);
         this.isAvatar = true;
-        this.layers=['avatar'];
+        this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
@@ -308,7 +308,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     // if not, allow a short distance fall
     findFloor(maxDist, recurse, move){
         if( recurse < 0 )return false; // never found the ground
-        const walkLayer = this.service("ThreeRenderManager").layers['walk'];
+        const walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if(!walkLayer)return false;
         this.walkcaster.ray.origin.set( ...(move || this.translation));
         this.walkcaster.far = maxDist;
@@ -401,7 +401,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         const render = this.service("ThreeRenderManager");
         const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-        const rc = this.pointerRaycast([x,y], [...render.layers.walk,...render.layers.pointer]);
+        const rc = this.pointerRaycast([x,y], render.threeLayerUnion('pointer', 'walk'));
         let pe = this.pointerEvent(rc);
         if(pe.targetId){
             let pawn = GetPawn(pe.targetId);

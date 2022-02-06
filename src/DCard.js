@@ -4,7 +4,7 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_ThreePointerTarget, Data, GetPawn} from "@croquet/worldcore";
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_PointerTarget, Data, GetPawn} from "@croquet/worldcore";
 import { D } from './DConstants.js';
 import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js'
@@ -50,15 +50,14 @@ DCardActor.register('DCardActor');
 //------------------------------------------------------------------------------------------
 
 
-export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_ThreePointerTarget) {
+export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget) {
     constructor(...args) {
         super(...args);
-        this.layers = ['pointer'];
+        this.addToLayers('pointer');
         this.constructCard();
     }
 
     constructCard() {
-        this.layers = ['pointer'];
         this.card3D = new THREE.Group();
 
         if (this.actor._model3d && this.actor._modelType) {

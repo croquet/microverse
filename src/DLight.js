@@ -1,7 +1,7 @@
 
 
 import {
-    THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, PM_ThreeVisible, PM_LayerTarget} from "@croquet/worldcore";
+    THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, PM_ThreeVisible} from "@croquet/worldcore";
 
 import skyFront from "../assets/sky/sh_ft.png";
 import skyBack from "../assets/sky/sh_bk.png";
@@ -15,10 +15,10 @@ export class LightActor extends mix(Actor).with(AM_Spatial) {
 }
 LightActor.register('LightActor');
 
-class LightPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_LayerTarget) {
+class LightPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
     constructor(...args) {
         super(...args);
-        this.layers = ['light'];
+        this.addToLayers('light');
         let scene = window.scene =  this.service("ThreeRenderManager").scene;
 
         let group = new THREE.Group();

@@ -97,7 +97,7 @@ class MyAvatarPawn extends AvatarPawn {
                     n.material = n.material.clone();
                 }
             });
-            this.layers = ['avatar'];
+            this.addToLayers('avatar');
             this.setRenderObject(a);  // note the extension
         } else {
             this.future(1000).setupAvatar(a);
@@ -114,7 +114,7 @@ class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible, PM_LayerTarg
     constructor(...args) {
         super(...args);
 
-        this.layers = ['walk'];
+        this.addToLayers('walk');
         this.setRenderObject(plant);
     }
 }
