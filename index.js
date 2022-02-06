@@ -104,6 +104,10 @@ class MyAvatarPawn extends AvatarPawn {
             this.future(1000).setupAvatar(a);
         }
     }
+
+    shiftDouble(pe){
+        console.log("shiftDouble", pe)
+    }
 }
 
 class LevelActor extends mix(Actor).with(AM_Spatial) {

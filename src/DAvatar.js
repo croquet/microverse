@@ -397,13 +397,27 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
+    doKeyDown(e){
+        super.doKeyDown(e);
+        if(e.key==='Shift')
+            this.shiftKey = true;
+    }
+
+    doKeyUp(e){
+        super.doKeyUp(e);
+        if(e.key==='Shift')
+            this.shiftKey = false;
+    }
+
     doPointerDoubleDown(e) {
         const render = this.service("ThreeRenderManager");
         const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
         const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
         const rc = this.pointerRaycast([x,y], render.threeLayerUnion('pointer', 'walk'));
         let pe = this.pointerEvent(rc);
-        if(pe.targetId){
+        console.log(this.shiftKey)
+        if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
+        else if(pe.targetId){
             let pawn = GetPawn(pe.targetId);
             let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
             if(pose){
@@ -416,7 +430,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     // from DEvents.js
     doPointerWheel(wheel){        
-        if (this.focusPawn) this.focusPawn.say("pointerWheel", e);
+        if (this.focusPawn) this.focusPawn.say("pointerWheel", wheel);
         else{
             let z = this.lookOffset[2];
             z += wheel/1000.0;
