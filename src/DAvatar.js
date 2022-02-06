@@ -273,10 +273,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     get lookGlobal() { 
         if (this.isMyPlayerPawn) {
-            if(isTweening)return this.tweenCamera.matrixWorld.elements;
-            else if(isWalking)return this.walkLook;
-            else if(this.orbitCamera && this.orbitCamera.matrixWorld){return this.orbitCamera.matrixWorld.elements;}
-            else return this.global;
+            if(isTweening && this.tweenCamera.matrixWorld)return this.tweenCamera.matrixWorld.elements;
+            if(isWalking)return this.walkLook;
+            if(this.orbitCamera && this.orbitCamera.matrixWorld){return this.orbitCamera.matrixWorld.elements;}
+            return this.global;
         }else return this.global;
     }
 
@@ -415,13 +415,16 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
      }
 
     // from DEvents.js
-    onPointerWheel(wheel){        
-        let z = this.lookOffset[2];
-        z += wheel/1000.0;
-        z = Math.min(4, Math.max(z,0));
-        this.lookOffset[1]=z/3;
-        this.lookOffset[2]=z;
-        this.lookTo(-z/8, 0);
+    doPointerWheel(wheel){        
+        if (this.focusPawn) this.focusPawn.say("pointerWheel", e);
+        else{
+            let z = this.lookOffset[2];
+            z += wheel/1000.0;
+            z = Math.min(4, Math.max(z,0));
+            this.lookOffset[1]=z/3;
+            this.lookOffset[2]=z;
+            this.lookTo(-z/8, 0);
+        }
     }
 
     fadeNearby(){
