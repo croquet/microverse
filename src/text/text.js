@@ -79,7 +79,7 @@ export class SyncedStateManager extends ViewService {
 }
 
 export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
-    init(...args) {
+    init(options) {
         this.doc = new Doc();
         this.doc.load([]);
         // this.doc.load([
@@ -89,7 +89,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.fonts = new Map();
 
-        super.init(...args);
+        super.init(options);
 
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
@@ -379,12 +379,16 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.textGeometry.update({font, glyphs});
         // we will move this to setExtent()
         let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
-            this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
     setupMesh() {
+        let isSticky = this.actor._isSticky;
+
+        let color = isSticky ? 0xf4e056 : 0xFFFFFF;
+        
         this.geometry = new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide});
+        this.material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
 

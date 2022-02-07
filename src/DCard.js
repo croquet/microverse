@@ -34,7 +34,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
         }
 
         if (this._text !== undefined) {
-            this.textActor = TextFieldActor.create({parent: this});
+            this.textActor = TextFieldActor.create({parent: this, isSticky: true});
             this.textActor.loadAndReset([{text: this._text}]);
         }
     }
@@ -90,6 +90,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
     construct3D() {
         if (!this.actor._model3d || !this.actor._modelType) {return;}
+        let assetManager = this.service("AssetManager").assetManager;
 
         let getBuffer = () => {
             if (this.actor._model3d.startsWith("http") ||
@@ -102,7 +103,6 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
                 });
             } else {
                 let handle = Data.fromId(this.actor._model3d);
-                let assetManager = this.service("AssetManager").assetManager;
                 return Data.fetch(this.sessionId, handle);
             }
         };
