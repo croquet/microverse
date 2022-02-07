@@ -11,6 +11,9 @@ export class Surface extends Actor{
         super.init(...args);
     }
     uv2xy(uv){return [this.width*uv[0],this.height*(1-uv[1])]}
+    get width(){return this._width || 1024}
+    get height(){return this._height || 1024}
+    get fullBright(){return false;}
 }
 class SurfacePawn extends Pawn{
     constructor(...args){
@@ -46,6 +49,7 @@ class TextureSurfacePawn extends SurfacePawn{
 export class VideoSurface extends Surface{
     // this needs to synchronize the video
     get pawn(){return VideoSurfacePawn}
+    get fullBright(){return true;}
 }
 VideoSurface.register('VideoSurface');
 
@@ -82,10 +86,10 @@ class VideoSurfacePawn extends SurfacePawn{
 export class CanvasSurface extends Surface{
     init(...args) {
         super.init(...args);
-        this.width = this._width || 1024;
-        this.height = this._height || 1024;
     }
+
     get pawn(){return CanvasSurfacePawn}
+    get fullBright(){return true;}
 }
 CanvasSurface.register('CanvasSurface');
 
@@ -97,7 +101,7 @@ export class CanvasSurfacePawn extends SurfacePawn{
 
         this.canvas.width = this.actor.width;
         this.canvas.height = this.actor.height;
-        this.canvas.style.zIndex=2000;
+        //this.canvas.style.zIndex=2000;
         this.texture = new THREE.CanvasTexture(this.canvas);
     }
 }

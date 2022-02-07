@@ -419,7 +419,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
         const rc = this.pointerRaycast([x,y], render.threeLayerUnion('pointer', 'walk'));
         let pe = this.pointerEvent(rc);
-        console.log(this.shiftKey)
         if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
         else if(pe.targetId){
             let pawn = GetPawn(pe.targetId);
@@ -432,7 +431,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    // from DEvents.js
     doPointerWheel(wheel){        
         if (this.focusPawn) this.focusPawn.say("pointerWheel", wheel);
         else{

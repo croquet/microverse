@@ -13,12 +13,12 @@ import { loadGLB, addShadows } from '/src/LoadGLB.js';
 import { KeyFocusManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface } from './src/DSurface.js';
-import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
-// apps
+// apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
 import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
+import { BitcoinTracker } from './apps/bitcoinTracker.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -191,17 +191,17 @@ class MyModelRoot extends ModelRoot {
         
         let cSurface = SimpleCanvasSurface.create({name: 'SimpleCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
-
+        let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
         let svgCards = [
             'credit-card.svg', 'square.svg', 'credit-card.svg', 
-            'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'credit-card.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
+            'square.svg', 'square-full.svg', 'circle.svg', 'BitcoinSign.svg', 'rectangle.svg', 'cog.svg'];
+        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, bSurface];
 
         for (let i = 0; i < 8; i++) {
             DCardActor.create({
                 cardShapeURL: `./assets/SVG/${svgCards[i]}`,
                 cardSurface: surfaces[i],
-                cardFullBright: surfaces[i] === vSurface || surfaces[i] === cSurface || surfaces[i] === gSurface,
+                cardFullBright: surfaces[i].fullBright,
                 cardDepth: 0.1,
                 cardBevel:0.02,
                 cardColor:[1,1,1], // white
@@ -274,8 +274,6 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
-
-        this.bitcoin = new BitcoinTrackerView(model.bitcoinTracker);
         console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
 
         this.assetManager = this.service("AssetManager");
