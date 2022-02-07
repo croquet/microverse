@@ -1,4 +1,4 @@
-import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService, GetPawn} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, PM_Spatial, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService, GetPawn} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 
@@ -251,6 +251,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         });
 
         this.viewExtent = this.model.extent;
+        this.addToLayers("pointer");
     }
 
     destroy() {
@@ -392,6 +393,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
 
+        this.setRenderObject(this.plane);
+
+        /*
         this.plane.wcPawn = this;
         this.renderObject = this.plane;
 
@@ -400,11 +404,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.renderObject.matrixWorldNeedsUpdate = true;
 
         if (!this.actor._parent) {
-            // this.setRenderObject(this.plane);
         } else {
             const parent = GetPawn(this.actor._parent.id);
             parent.renderObject.add(this.plane);
         }
+
+        */
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
@@ -984,7 +989,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     }
 }
 
-export class DismissButtonActor extends mix(Actor).with(AM_PointerTarget) {
+export class DismissButtonActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
     init(options) {
         super.init(options);
     }
@@ -994,7 +999,7 @@ export class DismissButtonActor extends mix(Actor).with(AM_PointerTarget) {
 
 DismissButtonActor.register("DismissButtonActor");
 
-export class DismissButtonPawn extends mix(Pawn).with(PM_ThreeVisible, PM_PointerTarget) {
+export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_PointerTarget) {
     constructor(actor) {
         super(actor);
 
@@ -1003,15 +1008,7 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_ThreeVisible, PM_Pointe
         this.sphere = new THREE.Mesh(this.geometry, this.material);
         this.sphere.name = "dismiss";
 
-        this.sphere.wcPawn = this;
-        this.renderObject = this.sphere;
-
-        if (!this.actor._parent) {
-            // this.setRenderObject(this.plane);
-        } else {
-            const parent = GetPawn(this.actor._parent.id);
-            parent.renderObject.add(this.renderObject);
-        }
+        this.setRenderObject(this.sphere);
     }
 
     onPointerDown(evt) {

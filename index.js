@@ -220,7 +220,7 @@ class MyModelRoot extends ModelRoot {
             translation:[5, 0.5, -1],
             text: "Croquet is awesome",
         });
-        
+
         DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,

@@ -146,41 +146,6 @@ class MyModelRoot extends ModelRoot {
         this.level = LevelActor.create();
         this.lights = LightActor.create();
 
-        /*
-        this.perlin = PerlinActor.create(
-            {translation:[ 10, -2.75, -14],
-             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
-        );
-
-        let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
-        let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
-       
-        let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
-        let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
-        
-        let cSurface = DemoCanvasSurface.create({name: 'DemoCanvasSurface'});
-        let gSurface = MultiBlaster.create({name:'MultiBlaster'});
-
-        let svgCards = [
-            'credit-card.svg', 'square.svg', 'credit-card.svg', 
-            'square.svg', 'square-full.svg', 'circle.svg', 'compass.svg', 'credit-card.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, t2Surface];
-        for (let i = 0; i < 8; i++) {
-            CardActor.create({
-                cardShapeURL: `./assets/SVG/${svgCards[i]}`,
-                cardSurface: surfaces[i],
-                cardFullBright: surfaces[i] === vSurface || surfaces[i] === cSurface || surfaces[i] === gSurface,
-                cardDepth: 0.1,
-                cardBevel:0.02,
-                cardColor:[1,1,1], // white
-                translation:[0,-0.5, -6 * (i + 1)],
-                scale: [4,4,4],
-                cardInstall: true
-            });
-        }
-
-        */
-
         DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
