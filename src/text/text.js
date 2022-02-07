@@ -95,12 +95,15 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
         this.subscribe(this.id, "accept", "publishAccept");
         this.subscribe(this.id, "undoRequest", "undoRequest");
         this.subscribe(this.id, "setExtent", "setExtent");
+        this.subscribe(this.id, "dismiss", "dismiss");
         this.subscribe(this.sessionId, "view-exit", "viewExit");
 
         this.listen("askFont", "askFont");
 
         // the height part of this is optional, in the sense that the view may do something else
         this.setExtent({width: 500, height: 500});
+
+        this.setupDismissButton();
     }
 
     get pawn() {return TextFieldPawn;}
@@ -208,6 +211,17 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
 
     set value(text) {
         return this.load(text);
+    }
+
+    setupDismissButton() {
+        this.dismissButton = DismissButtonActor.create({parent: this});
+    }
+
+    dismiss() {
+        if (this._parent) {
+            //hmm
+            this._parent.destroy();
+        }
     }
 }
 
@@ -361,9 +375,11 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             this.textMesh.position.y = newHeight / 2;
             this.textMesh.position.z = 0.005;
         }
+
         this.textGeometry.update({font, glyphs});
+        // we will move this to setExtent()
         let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
-        this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+            this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
     setupMesh() {
@@ -393,7 +409,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),
             new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)
         ];
-        
     }
 
     setupEditor() {
@@ -809,7 +824,11 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             this.textMesh.position.y = newHeight / 2;
             this.textMesh.position.z = 0.005;
         }
-        
+
+        if (this.actor.dismissButton) {
+            let dismiss = GetPawn(this.actor.dismissButton.id);
+            dismiss.renderObject.position.set(newWidth / 2, newHeight / 2, 0);
+        }
         
         /*
         this.text.style.setProperty("height", this.warota.docHeight + "px");
@@ -959,5 +978,42 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     removeWidget(name, dom) {
         delete this.widgets[name];
         dom.remove();
+    }
+}
+
+export class DismissButtonActor extends mix(Actor).with(AM_PointerTarget) {
+    init(options) {
+        super.init(options);
+    }
+
+    get pawn() {return DismissButtonPawn;}
+}
+
+DismissButtonActor.register("DismissButtonActor");
+
+export class DismissButtonPawn extends mix(Pawn).with(PM_ThreeVisible, PM_PointerTarget) {
+    constructor(actor) {
+        super(actor);
+
+        this.geometry = new THREE.SphereGeometry(0.2, 32, 16);
+        this.material = new THREE.MeshStandardMaterial({color: 0xDD1111});
+        this.sphere = new THREE.Mesh(this.geometry, this.material);
+        this.sphere.name = "dismiss";
+
+        this.sphere.wcPawn = this;
+        this.renderObject = this.sphere;
+
+        if (!this.actor._parent) {
+            // this.setRenderObject(this.plane);
+        } else {
+            const parent = GetPawn(this.actor._parent.id);
+            parent.renderObject.add(this.renderObject);
+        }
+    }
+
+    onPointerDown(evt) {
+        if (this.actor._parent) {
+            this.publish(this.actor._parent.id, "dismiss");
+        }
     }
 }

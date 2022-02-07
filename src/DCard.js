@@ -37,7 +37,6 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
             this.textActor = TextFieldActor.create({parent: this});
             this.textActor.loadAndReset([{text: this._text}]);
         }
-
     }
 
     get pawn() { return DCardPawn; }
