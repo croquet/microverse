@@ -84,6 +84,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         }
         if(this.actor._cardShapeURL){
             loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
+            this.isFlat = true;
         }
         this.setRenderObject( this.card3D );
     }
@@ -201,7 +202,6 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
     }
     onPointerWheel(e){
-        console.log(this.scale)
         let s = this.scale;
         let w = e < 0 ? -0.1 : 0.1;
         if (s[0] + w > 0.3) {
@@ -276,6 +276,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
     // compute and return the position and distance the avatar should jump to to see the card full screen
     getJumpToPose() {
+        if(!this.isFlat)return;
         let current = this.card3D.localToWorld(new Vector3()).toArray(); // this is where the card is
         let camera = this.service("ThreeRenderManager").camera;
         let fov = camera.fov;

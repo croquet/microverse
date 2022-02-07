@@ -18,7 +18,7 @@ import { MultiBlaster } from './apps/multiblaster.js';
 import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
-import { constructBitcoin, BitcoinTracker } from './apps/bitcoinTracker.js';
+import { constructBitcoin } from './apps/bitcoinTracker.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -190,11 +190,11 @@ class MyModelRoot extends ModelRoot {
         
         let cSurface = SimpleCanvasSurface.create({name: 'SimpleCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
-        let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
+
         let svgCards = [
             'credit-card.svg', 'square.svg', 'credit-card.svg', 
             'square.svg', 'square-full.svg', 'circle.svg', 'BitcoinSign.svg', 'rectangle.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, bSurface];
+        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface];
 
         for (let i = 0; i < 6; i++) {
             DCardActor.create({
@@ -231,10 +231,8 @@ class MyModelRoot extends ModelRoot {
             modelType: "glb",
         });
         
-        //   createChess([8, -2.5, -30], [6,6,6]);
-
-        this.bitcoinTracker = BitcoinTracker.create();
-
+        //   constructChess([8, -2.5, -30], [6,6,6]);
+        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI/2,0), 4);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }
 
@@ -287,10 +285,6 @@ class MyViewRoot extends ViewRoot {
                 this.publish(this.model.id, "fileUploaded", {dataId, fileName, type});
             });
         });
-    }
-
-    destroy(){
-        this.bitcoin.dispose();
     }
 }
 

@@ -82,6 +82,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
         
         let amount = this.actor.latest.amount;
         let color;
+        if(this.lastAmount === amount)return;
         if(this.lastAmount>amount)color = "#FF2222";
         else color = "#22FF22";
         this.clear("#222222");
@@ -106,7 +107,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
 
 class BitLogoCard extends DCardActor{
     get pawn(){return BitLogoPawn}
-    get version(){return '0.05'}
+    get version(){return '0.06'}
 }
 BitLogoCard.register('BitLogoCard');
 
@@ -138,7 +139,7 @@ export function constructBitcoin(t, r, s){
     let logo = BitLogoCard.create({
         cardShapeURL: '../assets/SVG/BitcoinSign.svg',
         cardColor: [1,1,1],
-        translation: [-0.4, 0.4, 0.01],
+        translation: [-0.35, 0.35, 0.01],
         scale: [0.25, 0.25, 0.25],
         parent: main
     })
