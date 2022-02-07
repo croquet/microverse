@@ -372,6 +372,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
 
+        this.plane.wcPawn = this;
+        this.renderObject = this.plane;
+        this.renderObject.matrixAutoUpdate = false;
+        this.renderObject.matrix.fromArray(this.global);
+        this.renderObject.matrixWorldNeedsUpdate = true;
+        
         if (!this.actor._parent) {
             // this.setRenderObject(this.plane);
         } else {
