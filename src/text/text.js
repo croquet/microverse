@@ -1,4 +1,4 @@
-import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService, GetPawn} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
 
@@ -59,6 +59,22 @@ export class KeyFocusManager extends ViewService {
         if (obj) {
             this.hiddenInput.focus();
         }
+    }
+}
+
+export class SyncedStateManager extends ViewService {
+    constructor(name) {
+        super(name || "SyncedStateManager");
+        this.isSynced = false;
+        this.subscribe(this.viewId, "synced", "synced");
+    }
+
+    synced(value) {
+        console.log("synced manager", value);
+        this.isSynced = value;
+        // If a view object can handle synced, they can do it directly
+        // so there is no need to indirect it from here.
+        // this.publish(this.id, "synced", value);
     }
 }
 
@@ -356,15 +372,12 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
 
-        this.setRenderObject(this.plane);
-
-        if (this.actor._parent) {
-            let parent = this.service("PawnManager").get(this.actor._parent.id);
-            parent.renderObject.add(this.renderObject);
+        if (!this.actor._parent) {
+            // this.setRenderObject(this.plane);
+        } else {
+            const parent = GetPawn(this.actor._parent.id);
+            parent.renderObject.add(this.plane);
         }
-        
-        // so, setRenderObject also adds it to the scene,
-        // regardless of the display scene structure
 
         // this.setupScrollMesh();
 
@@ -394,7 +407,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.selections = {}; // {user: {bar: mesh, boxes: [mesh]}}
 
         this.subscribe(this.viewId, "synced", "synced");
-        this.screenUpdate(this.warota.timezone);
     }
 
     setupDefaultFont() {
@@ -490,6 +502,15 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         if (!this.isSynced) {return;}
         this.warota.resetMeasurer();
         this.screenUpdate(this.warota.timezone);
+    }
+
+    getSynced() {
+        let sm = this.service("SyncedStateManager");
+        if (sm) {
+            return sm.isSynced;
+        }
+
+        return this.isSynced;
     }
 
     accept() {
@@ -725,7 +746,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
     screenUpdate(timezone) {
         this.warota.timezone = timezone;
-        if (!this.isSynced) {return;}
+        if (!this.getSynced()) {return;}
         this.warota.layout();
         this.showText();
         this.setExtent();

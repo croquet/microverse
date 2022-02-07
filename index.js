@@ -10,7 +10,7 @@ import {
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
-import { KeyFocusManager } from './src/text/text.js';
+import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface } from './src/DSurface.js';
 // apps -------------------------------------------
@@ -85,7 +85,7 @@ class MyAvatar extends AvatarActor {
     addSticky(pe) {
         let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
         let normal = [...pe.normal]; // clear up and down
-        normal[1]=0;
+        normal[1] = 0;
         let nsq = v3_sqrMag(normal);
         let rotPoint;
         if(nsq > 0.0001){
@@ -94,18 +94,18 @@ class MyAvatar extends AvatarActor {
             rotPoint = q_euler(0, theta, 0);
         } else {
             rotPoint = this.rotation;
-            tackPoint[1]+=2;
+            tackPoint[1] += 2;
         }
 
         DCardActor.create({
-            cardShapeURL: `./assets/SVG/credit-card.svg`,
+            // cardShapeURL: `./assets/SVG/credit-card.svg`,
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1, 1, 1], // white
             translation: tackPoint,
             rotation: rotPoint,
-           // text: "Croquet is awesome",
+            text: "Croquet is awesome",
         });
     }
 }
@@ -135,7 +135,6 @@ class MyAvatarPawn extends AvatarPawn {
 
     shiftDouble(pe) {
         this.say("addSticky", pe);
-        console.log("shiftDouble", pe)
     }
 }
 
@@ -206,7 +205,7 @@ class MyModelRoot extends ModelRoot {
                 cardBevel:0.02,
                 cardColor:[1,1,1], // white
                 translation:[-4,-0.5, -6 * (i + 1)],
-                rotation: q_euler(0,Math.PI/2,0),
+                rotation: q_euler(0, Math.PI / 2, 0),
                 scale: [4,4,4],
             });
         }
@@ -266,7 +265,8 @@ class MyViewRoot extends ViewRoot {
             InputManager,
             {service: ThreeRenderManager, options:{antialias:true}},
             AssetManager,
-            KeyFocusManager
+            KeyFocusManager,
+            SyncedStateManager
         ];
     }
     constructor(model) {
