@@ -18,7 +18,7 @@ import { MultiBlaster } from './apps/multiblaster.js';
 import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
-import { BitcoinTracker } from './apps/bitcoinTracker.js';
+import { constructBitcoin, BitcoinTracker } from './apps/bitcoinTracker.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -197,7 +197,7 @@ class MyModelRoot extends ModelRoot {
             'square.svg', 'square-full.svg', 'circle.svg', 'BitcoinSign.svg', 'rectangle.svg', 'cog.svg'];
         let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface, bSurface];
 
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 6; i++) {
             DCardActor.create({
                 cardShapeURL: `./assets/SVG/${svgCards[i]}`,
                 cardSurface: surfaces[i],
@@ -210,6 +210,8 @@ class MyModelRoot extends ModelRoot {
                 scale: [4,4,4],
             });
         }
+
+        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI/2,0), 4);
 
         DCardActor.create({
             cardFullBright: true,

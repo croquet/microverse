@@ -18,7 +18,7 @@ import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { PerlinActor } from './apps/perlin.js';
 import { MultiBlaster } from './apps/multiblaster.js';
 import { createChess } from './apps/chess.js';
-import { BitcoinTracker, BitcoinTrackerView } from './src/extdata.js';
+
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -204,8 +204,6 @@ class MyModelRoot extends ModelRoot {
 
         //   createChess([8, -2.5, -30], [6,6,6]);
 
-        this.bitcoinTracker = BitcoinTracker.create();
-
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }
 
@@ -248,7 +246,6 @@ class MyViewRoot extends ViewRoot {
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
 
-        this.bitcoin = new BitcoinTrackerView(model.bitcoinTracker);
         console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
 
         this.assetManager = this.service("AssetManager");
@@ -263,7 +260,7 @@ class MyViewRoot extends ViewRoot {
     }
 
     destroy(){
-        this.bitcoin.dispose();
+
     }
 }
 

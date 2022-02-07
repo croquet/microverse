@@ -61,14 +61,14 @@ export class SimpleCanvasSurfacePawn extends CanvasSurfacePawn{
         this.listen("updatePosition", this.updatePosition);
     }
 
-    clear(){
+    clear(fill){
         let ctx = this.canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFFFF';
+        ctx.fillStyle = fill;
         ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
     }
 
     updatePosition(pos){
-        this.clear();
+        this.clear('#FFFFFF');
         let ctx = this.canvas.getContext('2d');
         ctx.fillStyle = '#000000';
         ctx.beginPath();

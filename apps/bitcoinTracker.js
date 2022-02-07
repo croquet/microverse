@@ -1,7 +1,7 @@
 import { mix } from "@croquet/worldcore";
 import { CanvasSurface, CanvasSurfacePawn} from "../src/DSurface.js";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
-
+import { DCardActor, DCardPawn } from '../src/DCard.js';
 export class BitcoinTracker extends mix(CanvasSurface).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay }
     init(...args) {
@@ -35,17 +35,19 @@ BitcoinTracker.register("BitcoinTracker");
 export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Elected) {
     constructor(...args) {
         super(...args);   // might call handleElected()
+        this.lastAmount = 0;
         this.listen("BTC-USD-changed", this.onBTCUSDChanged);
     }
 
     handleElected() {
+        console.log("I AM ELECTED!")
         super.handleElected();
 
         this.count = 0;
 
-        if (Date.now() - this.actor.latest.date < 60_000) this.fetchSpot("on-elected");
-        else this.fetchHistory();
-
+//        if (Date.now() - this.actor.latest.date < 60_000) this.fetchSpot("on-elected");
+//        else this.fetchHistory();
+        this.fetchHistory();
         const id = setInterval(() => this.fetchSpot(id), 30_000);
         this.interval = id;
     }
@@ -77,8 +79,67 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
 
     onBTCUSDChanged() {
         // this is called on all views, not just the elected one
-        console.log("BTC-USD changed to %s", this.actor.latest.amount);
+        
+        let amount = this.actor.latest.amount;
+        let color;
+        if(this.lastAmount>amount)color = "#FF2222";
+        else color = "#22FF22";
+        this.clear("#222222");
+        let ctx = this.canvas.getContext('2d');
+        ctx.textAlign = 'center';
+        ctx.fillStyle = color;
+        ctx.font = "60px Arial";
+        ctx.fillText("BTC-USD", this.canvas.width/2, 80);
+        ctx.font = "100px Arial";
+        ctx.fillText(amount, this.canvas.width/2, 50+this.canvas.height/2);
+        this.texture.needsUpdate=true;
+        this.lastAmount = amount;
+        this.publish("bitcoinChannel", 'setColor', color);
+    }
+
+    clear(fill){
+        let ctx = this.canvas.getContext('2d');
+        ctx.fillStyle = fill;
+        ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
     }
 }
 
+class BitLogoCard extends DCardActor{
+    get pawn(){return BitLogoPawn}
+    get version(){return '0.05'}
+}
+BitLogoCard.register('BitLogoCard');
 
+class BitLogoPawn extends DCardPawn{
+    constructor(...args) {
+        super(...args);
+        this.subscribe('bitcoinChannel', 'setColor', this.setColor);
+    }
+    setColor(color){
+        this.hilite(color);
+    }
+}
+
+export function constructBitcoin(t, r, s){
+
+    let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
+    let main = DCardActor.create({
+        cardShapeURL: `../assets/SVG/rectangle.svg`,
+        cardSurface: bSurface,
+        cardFullBright: bSurface.fullBright,
+        cardDepth: 0.1,
+        cardBevel:0.02,
+        cardColor:[1,1,1], // white
+        translation:t,
+        rotation: r,
+        scale: [s,s,s],
+    });
+
+    let logo = BitLogoCard.create({
+        cardShapeURL: '../assets/SVG/BitcoinSign.svg',
+        cardColor: [1,1,1],
+        translation: [-0.4, 0.4, 0.01],
+        scale: [0.25, 0.25, 0.25],
+        parent: main
+    })
+}
