@@ -377,13 +377,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.renderObject.matrixAutoUpdate = false;
         this.renderObject.matrix.fromArray(this.global);
         this.renderObject.matrixWorldNeedsUpdate = true;
-        
-        if (!this.actor._parent) {
-            // this.setRenderObject(this.plane);
-        } else {
-            const parent = GetPawn(this.actor._parent.id);
-            parent.renderObject.add(this.plane);
-        }
+        this.setRenderObject(this.plane);
 
         // this.setupScrollMesh();
 
