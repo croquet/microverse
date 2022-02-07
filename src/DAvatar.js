@@ -298,7 +298,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.orbitCamera.updateProjectionMatrix();
             }else{
                 if(this.actor.fall)
-                    if(!this.findFloor(D.EYE_HEIGHT*1.5,2))this.moveTo(this.lastTranslation);
+                    if(!this.findFloor(D.EYE_HEIGHT*1.5,2)){
+                        if(this.translation !== this.lastTranslation){
+                            this.moveTo(this.lastTranslation);
+                        }
+                    }
             }
             this.refreshCameraTransform();
             this.lastTranslation = this.translation;
@@ -326,7 +330,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     let t = this.translation;
                     let p = t[1]-delta;
                     this.moveTo([t[0], p, t[2]]);
-                    // console.log(delta, Math.atan(delta/2));
                     return true;
                 }
             }else return true; // we are on level ground

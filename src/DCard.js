@@ -84,9 +84,6 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         if(this.actor._cardShapeURL){
             loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
         }
-        // if(this.actor.children){
-        // this.actor.children.forEach(cardId=>this.addCard(cardId));
-        //}
         this.setRenderObject( this.card3D );
     }
 
@@ -166,7 +163,6 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
     onPointerLeave(pointerId) {
         console.log("pointerLeave")
     }
-
 
     // communication with the Card_Actor and the Surface_Pawn
     onPointerDown(p3d){

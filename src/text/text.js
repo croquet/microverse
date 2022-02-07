@@ -1,9 +1,6 @@
 import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import loadFont from "load-bmfont";
-import { PM_Events } from '../DEvents.js';
-import { PM_LayerTarget } from '../DLayerManager.js';
-import { D } from '../DConstants.js';
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
@@ -358,7 +355,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.material = new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
-        this.layer = D.EVENT;
 
         this.setRenderObject(this.plane);
 

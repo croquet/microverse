@@ -5,7 +5,7 @@
 import {
     App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
     InputManager, PlayerManager, ThreeRenderManager,
-    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler
+    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
 } from "@croquet/worldcore";
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
@@ -71,6 +71,8 @@ function loadLoaders() {
     }));
 }
 
+const tackOffset = 0.1;
+
 class MyAvatar extends AvatarActor {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
@@ -81,14 +83,29 @@ class MyAvatar extends AvatarActor {
     get pawn() {return MyAvatarPawn;}
 
     addSticky(pe) {
-        let [x, y, z] = pe.xyz;
+        let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
+        let normal = [...pe.normal]; // clear up and down
+        normal[1]=0;
+        let nsq = v3_sqrMag(normal);
+        let rotPoint;
+        if(nsq > 0.0001){
+            normal = v3_normalize(normal);
+            let theta = Math.atan2(normal[0], normal[2]);
+            rotPoint = q_euler(0, theta, 0);
+        } else {
+            rotPoint = this.rotation;
+            tackPoint[1]+=2;
+        }
+
         DCardActor.create({
+            cardShapeURL: `./assets/SVG/credit-card.svg`,
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1, 1, 1], // white
-            translation:[x - 1, y + 2, z - 1],
-            text: "Croquet is awesome",
+            translation: tackPoint,
+            rotation: rotPoint,
+           // text: "Croquet is awesome",
         });
     }
 }
