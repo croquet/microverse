@@ -394,12 +394,17 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
         this.plane.wcPawn = this;
         this.renderObject = this.plane;
+
         this.renderObject.matrixAutoUpdate = false;
         this.renderObject.matrix.fromArray(this.global);
         this.renderObject.matrixWorldNeedsUpdate = true;
-        this.setRenderObject(this.plane);
 
-        // this.setupScrollMesh();
+        if (!this.actor._parent) {
+            // this.setRenderObject(this.plane);
+        } else {
+            const parent = GetPawn(this.actor._parent.id);
+            parent.renderObject.add(this.plane);
+        }
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
