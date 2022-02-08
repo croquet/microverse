@@ -364,25 +364,32 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         this.textMesh.scale.x = TS;
         this.textMesh.scale.y = -TS;
 
-        let newWidth = extent.width * TS;
-        let newHeight = extent.height * TS;
-
-        if (newWidth !== this.plane.geometry.parameters.width ||
-            newHeight !== this.plane.geometry.parameters.height) {
-            let geometry = new THREE.PlaneGeometry(newWidth, newHeight);
-            this.plane.geometry = geometry;
-            this.geometry.dispose();
-            this.geometry = geometry;
-
-            this.textMesh.position.x = -newWidth / 2;
-            this.textMesh.position.y = newHeight / 2;
-            this.textMesh.position.z = 0.005;
-        }
-
         this.textGeometry.update({font, glyphs});
         // we will move this to setExtent()
         let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
         this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    }
+
+    roundedCornerPlane(width, height) {
+        let x = - width / 2;
+        let y = - height / 2;
+        let radius = 0.1;
+        
+        let shape = new THREE.Shape();
+        shape.moveTo(x, y + radius);
+        shape.lineTo(x, y + height - radius);
+        shape.quadraticCurveTo(x, y + height, x + radius, y + height);
+        shape.lineTo(x + width - radius, y + height);
+        shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
+        shape.lineTo(x + width, y + radius);
+        shape.quadraticCurveTo(x + width, y, x + width - radius, y);
+        shape.lineTo(x + radius, y);
+        shape.quadraticCurveTo( x, y, x, y + radius);
+
+        let geometry = new THREE.ShapeBufferGeometry(shape);
+        geometry.parameters.width = width;
+        geometry.parameters.height = height;
+        return geometry;
     }
 
     setupMesh() {
@@ -390,28 +397,13 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
         let color = isSticky ? 0xf4e056 : 0xFFFFFF;
         
-        this.geometry = new THREE.PlaneGeometry(0, 0);
+        // this.geometry = new THREE.PlaneGeometry(0, 0);
+        this.geometry = isSticky ? this.roundedCornerPlane(0, 0) : new THREE.PlaneGeometry(0, 0);
         this.material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
 
         this.setRenderObject(this.plane);
-
-        /*
-        this.plane.wcPawn = this;
-        this.renderObject = this.plane;
-
-        this.renderObject.matrixAutoUpdate = false;
-        this.renderObject.matrix.fromArray(this.global);
-        this.renderObject.matrixWorldNeedsUpdate = true;
-
-        if (!this.actor._parent) {
-        } else {
-            const parent = GetPawn(this.actor._parent.id);
-            parent.renderObject.add(this.plane);
-        }
-
-        */
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
@@ -829,15 +821,15 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height) {
-            let geometry = new THREE.PlaneGeometry(newWidth, newHeight);
+            let geometry = isSticky ? this.roundedCornerPlane(newWidth, newHeight) : new THREE.PlaneGeometry(newWidth, newHeight);
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;
-
-            this.textMesh.position.x = -newWidth / 2;
-            this.textMesh.position.y = newHeight / 2;
-            this.textMesh.position.z = 0.005;
         }
+
+        this.textMesh.position.x = -newWidth / 2;
+        this.textMesh.position.y = newHeight / 2;
+        this.textMesh.position.z = 0.005;
 
         if (this.actor.dismissButton) {
             let dismiss = GetPawn(this.actor.dismissButton.id);
@@ -1014,7 +1006,7 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
         this.radius = 0.08;
 
         let geometry = new THREE.SphereGeometry(this.radius, 32, 16);
-        let material = new THREE.MeshStandardMaterial({color: 0xCC1111});
+        let material = new THREE.MeshStandardMaterial({color: 0xaa2222});
         this.button = new THREE.Mesh(geometry, material);
         this.button.name = "dismiss";
 
