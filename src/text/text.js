@@ -363,11 +363,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
         this.textMesh.scale.x = TS;
         this.textMesh.scale.y = -TS;
-
         this.textGeometry.update({font, glyphs});
-        // we will move this to setExtent()
-        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
-        this.fonts.get(fontName).material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
     roundedCornerPlane(width, height) {
@@ -424,7 +420,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         }
 
         if (this.actor._isSticky) {
-            options.margins = {left: 12, top: 12, right: 12, bottom: 12};
+            options.margins = {left: 8, top: 8, right: 8, bottom: 8};
         }
 
         this.warota = new Warota(options, this.model.doc);
@@ -841,11 +837,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
                 dismiss.updatePosition(newWidth / 2, newHeight / 2, 0);
             }
         }
-        
-        /*
-        this.text.style.setProperty("height", this.warota.docHeight + "px");
-        this.holder.style.setProperty("height", this.warota.docHeight + "px");
-        */
+
+        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
+        this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
     ensureSelection(id) {
