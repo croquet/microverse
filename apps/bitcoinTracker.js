@@ -107,7 +107,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
 
 class BitLogoCard extends DCardActor{
     get pawn(){return BitLogoPawn}
-    get version(){return '0.06'}
+    get version(){return '0.08'}
 }
 BitLogoCard.register('BitLogoCard');
 
@@ -125,7 +125,7 @@ export function constructBitcoin(t, r, s){
 
     let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
     let main = DCardActor.create({
-        cardShapeURL: `../assets/SVG/rectangle.svg`,
+        cardShapeURL: `./assets/SVG/rectangle.svg`,
         cardSurface: bSurface,
         cardFullBright: bSurface.fullBright,
         cardDepth: 0.1,
@@ -137,7 +137,7 @@ export function constructBitcoin(t, r, s){
     });
 
     let logo = BitLogoCard.create({
-        cardShapeURL: '../assets/SVG/BitcoinSign.svg',
+        cardShapeURL: './assets/SVG/BitcoinSign.svg',
         cardColor: [1,1,1],
         translation: [-0.35, 0.35, 0.01],
         scale: [0.25, 0.25, 0.25],
