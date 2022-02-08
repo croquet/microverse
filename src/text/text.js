@@ -423,6 +423,10 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             options.singleLine = true;
         }
 
+        if (this.actor._isSticky) {
+            options.margins = {left: 12, top: 12, right: 12, bottom: 12};
+        }
+
         this.warota = new Warota(options, this.model.doc);
         this.warota.width(extent.width);
         this.options = options;
