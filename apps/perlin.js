@@ -198,6 +198,8 @@ class PerlinPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_Point
         this.isConstructed = false;
         this.perlin = true;
         this.listen("hilite", this.hilite);
+        this.group = new THREE.Group();
+        this.setRenderObject( this.group );
     }
 
     onPointerDown(p3d){this.say("onPointerDown", p3d)}
@@ -228,7 +230,6 @@ class PerlinPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_Point
         const c = this.actor.columns;
         const s = barScale;
 
-        this.group = new THREE.Group();
         this.perlinGroup = new THREE.Group();
        
         this.buttonSphere = new THREE.Mesh(new THREE.SphereGeometry(0.5,32,16), 
@@ -246,7 +247,6 @@ class PerlinPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_Point
         this.base.castShadow = true;
         this.base.receiveShadow = true;
         this.perlinGroup.add(this.base);
-        this.setRenderObject( this.group );
 
         this.rowGeometry = [];
         for(let i=0; i<r; i++){
