@@ -105,7 +105,9 @@ class MyAvatar extends AvatarActor {
             cardColor:[1, 1, 1], // white
             translation: tackPoint,
             rotation: rotPoint,
-            text: "Croquet is awesome",
+            text: "",
+            textWidth: 300,
+            textHeight: 300
         });
     }
 }
@@ -219,6 +221,8 @@ class MyModelRoot extends ModelRoot {
             cardColor:[1,1,1], // white
             translation:[5, 0.5, -1],
             text: "Croquet is awesome",
+            textWidth: 300,
+            textHeight: 300
         });
 
         DCardActor.create({

@@ -34,7 +34,12 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
         }
 
         if (this._text !== undefined) {
-            this.textActor = TextFieldActor.create({parent: this, isSticky: true});
+            this.textActor = TextFieldActor.create({
+                parent: this,
+                isSticky: true,
+                textWidth: options.textWidth,
+                textHeight: options.textHeight
+            });
             this.textActor.loadAndReset([{text: this._text}]);
         }
     }

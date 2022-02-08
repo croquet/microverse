@@ -4,6 +4,9 @@ import loadFont from "load-bmfont";
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
+const TS = 0.005;
+// "Text Scale" to reconcile the bitmap font size, which is typically in the range of 50 pixels, and the 3D geometry size, which we tend to think one unit equates to a meter.
+
 export class KeyFocusManager extends ViewService {
     constructor(name) {
         super(name || "KeyFocusManager");
@@ -101,7 +104,9 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
         this.listen("askFont", "askFont");
 
         // the height part of this is optional, in the sense that the view may do something else
-        this.setExtent({width: 500, height: 500});
+
+        
+        this.setExtent({width: options.textWidth || 500, height: options.textHeight || 500});
 
         this.setupDismissButton();
     }
@@ -250,7 +255,6 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             this.needsUpdate();
         });
 
-        this.viewExtent = this.model.extent;
         this.addToLayers("pointer");
     }
 
@@ -359,11 +363,11 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
         let glyphs = layout.computeGlyphs({font, drawnStrings});
 
-        this.textMesh.scale.x = 0.01;
-        this.textMesh.scale.y = -0.01;
+        this.textMesh.scale.x = TS;
+        this.textMesh.scale.y = -TS;
 
-        let newWidth = extent.width * 0.01;
-        let newHeight = extent.height * 0.01;
+        let newWidth = extent.width * TS;
+        let newHeight = extent.height * TS;
 
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height) {
@@ -422,14 +426,15 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     setupEditor() {
         let font = this.model.doc.defaultFont;
         let fontSize = this.model.doc.defaultSize;
-        let options = {width: 500, height: 500, font, fontSize};
+        let extent = this.model.extent;
+        let options = {width: extent.width, height: extent.height, font, fontSize};
         this.singleLine = false;
         if (this.singleLine) {
             options.singleLine = true;
         }
 
         this.warota = new Warota(options, this.model.doc);
-        this.warota.width(500);
+        this.warota.width(extent.width);
         this.options = options;
 
         this.user = {id: this.viewId, color: this.randomColor(this.viewId)};
@@ -574,8 +579,8 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         let width = this.plane.geometry.parameters.width;
         let height = this.plane.geometry.parameters.height;
 
-        let x = ((width / 2) + vec2.x) / 0.01;
-        let y = ((height / 2) - vec2.y) / 0.01;
+        let x = ((width / 2) + vec2.x) / TS;
+        let y = ((height / 2) - vec2.y) / TS;
 
         return {x, y};
     }
@@ -815,11 +820,11 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     }
 
     setExtent() {
-        let extent = this.viewExtent;
+        let extent = this.model.extent;
         if (!this.textMesh) {return;}
-
-        let newWidth = extent.width * 0.01;
-        let newHeight = this.warota.docHeight * 0.01;
+        let isSticky = this.actor._isSticky;
+        let newWidth = extent.width * TS;
+        let newHeight = (isSticky ? extent.height : this.warota.docHeight) * TS;
 
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height) {
@@ -897,15 +902,15 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
                 let caret = thisSelection.bar;
                 caret.visible = true;
                 let caretRect = this.warota.barRect(selection);
-                let geom = new THREE.PlaneBufferGeometry(caretRect.width * 0.01, caretRect.height * 0.01);
+                let geom = new THREE.PlaneBufferGeometry(caretRect.width * TS, caretRect.height * TS);
                 let old = caret.geometry;
                 caret.geometry = geom;
                 if (old) {
                     old.dispose();
                 }
 
-                let left = (-width / 2) + (caretRect.left + 8) * 0.01; // ?
-                let top = (height / 2) - (caretRect.top + caretRect.height / 2) * 0.01;
+                let left = (-width / 2) + (caretRect.left + 8) * TS; // ?
+                let top = (height / 2) - (caretRect.top + caretRect.height / 2) * TS;
                 caret.position.set(left, top, 0.003);
             } else {
                 let rects = this.warota.selectionRects(selection);
@@ -916,11 +921,11 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
                     box.visible = false;
                     
                     if (rect) {
-                        let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * 0.01; // ?
-                        let top = (height / 2) - (rect.top + rect.height / 2) * 0.01;
+                        let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * TS; // ?
+                        let top = (height / 2) - (rect.top + rect.height / 2) * TS;
                         
-                        let rWidth = rect.width * 0.01; // ?
-                        let rHeight = rect.height * 0.01;
+                        let rWidth = rect.width * TS; // ?
+                        let rHeight = rect.height * TS;
 
                         let geom = new THREE.PlaneBufferGeometry(rWidth, rHeight, 2, 2);
                         box.geometry = geom;
@@ -1020,7 +1025,7 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
         let geometry = this.button.geometry;
         geometry.dispose();
         
-        geometry = new THREE.SphereGeometry(0.2, 32, 16);
+        geometry = new THREE.SphereGeometry(0.15, 32, 16);
         geometry.translate(x, y, z);
         
         this.button.geometry = geometry;
