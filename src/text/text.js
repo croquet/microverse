@@ -4,7 +4,7 @@ import loadFont from "load-bmfont";
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
-const TS = 0.005;
+const TS = 0.0025;
 // "Text Scale" to reconcile the bitmap font size, which is typically in the range of 50 pixels, and the 3D geometry size, which we tend to think one unit equates to a meter.
 
 export class KeyFocusManager extends ViewService {
@@ -105,7 +105,6 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
 
         // the height part of this is optional, in the sense that the view may do something else
 
-        
         this.setExtent({width: options.textWidth || 500, height: options.textHeight || 500});
 
         this.setupDismissButton();
