@@ -34,7 +34,7 @@ const avatars = [];
 let plant;
 
 function loadBasicModels() {
-    let maxAvatars = 12;
+    let maxAvatars = 6;
     let i = 0;
     for (i = 0; i < maxAvatars; i++) avatars[i] = new THREE.Group();
     for (i = 0; i < 6; i++) {
@@ -222,7 +222,8 @@ class MyModelRoot extends ModelRoot {
             textWidth: 600,
             textHeight: 600
         });
-
+// demonstrates how to create an object
+/*
         DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
@@ -232,7 +233,7 @@ class MyModelRoot extends ModelRoot {
             model3d: "./assets/avatars/alice.zip",
             modelType: "glb",
         });
-        
+*/
         //   constructChess([8, -2.5, -30], [6,6,6]);
         constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI/2,0), 4);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");

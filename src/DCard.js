@@ -87,7 +87,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             texture = this.surface.texture;
         }
         if(this.actor._cardShapeURL){
-            loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardRotation, this.actor._cardShadow);
+            loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardShadow);
             this.isFlat = true;
         }
         this.setRenderObject( this.card3D );

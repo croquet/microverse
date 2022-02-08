@@ -2,7 +2,7 @@ import { THREE } from "@croquet/worldcore";
 import { SVGLoader } from './three/examples/jsm/loaders/SVGLoader.js';
 let counter = 0;
 
-export function loadSVG( target, url, texture, color, fullBright, rotation, shadow, onComplete ) {
+export function loadSVG( target, url, texture, color, fullBright, shadow, onComplete ) {
 	const loader = new SVGLoader();
 	let group = new THREE.Group();
 	let depth = 0;
@@ -17,9 +17,7 @@ export function loadSVG( target, url, texture, color, fullBright, rotation, shad
 				const material = new m( {
 					color: new THREE.Color().setStyle( fillColor ),
 					opacity: path.userData.style.fillOpacity,
-					//transparent: true,
 					side: THREE.DoubleSide,
-					//depthWrite: false,
 				} );
 				const shapes = SVGLoader.createShapes( path );
 				for ( let j = 0; j < shapes.length; j ++ ) {
@@ -55,7 +53,7 @@ export function loadSVG( target, url, texture, color, fullBright, rotation, shad
 		let holderGroup = new THREE.Group();
 		holderGroup.add(group);
 		target.card3D.add(holderGroup);
-		if(rotation)holderGroup.setRotationFromQuaternion(new THREE.Quaternion(...rotation));
+		//if(rotation)holderGroup.setRotationFromQuaternion(new THREE.Quaternion(...rotation));
 		if(texture)addTexture(texture, group);
 		if(onComplete)onComplete(group);
 	} );

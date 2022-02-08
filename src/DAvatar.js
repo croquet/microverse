@@ -405,6 +405,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doKeyDown(e){
+        console.log(e)
         super.doKeyDown(e);
         if(e.key==='Shift')
             this.shiftKey = true;
