@@ -50,8 +50,6 @@ export class KeyFocusManager extends ViewService {
 
         this.hiddenInput.style.setProperty("width", "100px");
         this.hiddenInput.style.setProperty("height", "100px");
-
-        this.hiddenInput.onfocus = (evt) => console.log("focus", evt);
     }
 
     setKeyboardInput(obj) {
@@ -251,6 +249,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             let ps = fonts.map((v) => this.askFont(v));
             return Promise.all(ps);
         }).then(() => {
+            this.warota.resetMeasurer();
             this.needsUpdate();
         });
 
@@ -446,6 +445,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
         let fontName = "DejaVu Sans Mono";
         return this.askFont(fontName, true).then((font) => {
             return this.setupTextMesh(fontName, font.font);
+        }).then(() => {
+            this.warota.resetMeasurer();
+            return this.screenUpdate(this.warota.timezone);
         });
     }
 
