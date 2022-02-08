@@ -7,7 +7,7 @@ import {
     InputManager, PlayerManager, ThreeRenderManager,
     AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
 } from "@croquet/worldcore";
-import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
+import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { loadGLB, addShadows } from '/src/LoadGLB.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
@@ -212,8 +212,6 @@ class MyModelRoot extends ModelRoot {
             });
         }
 
-        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI/2,0), 4);
-
         DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
@@ -241,16 +239,24 @@ class MyModelRoot extends ModelRoot {
     }
 
     fileUploaded(data) {
-        let {dataId, fileName, type} = data;
+        let {dataId, fileName, type, avatarId} = data;
         // this.assets.set(dataId, dataId, type);
-        console.log(dataId, fileName, type);
+        console.log(dataId, fileName, type, avatarId);
+        let avatar = this.service('ActorManager').get(avatarId);
+        
+        let n = avatar.lookNormal;
+        let t = avatar.translation;
+        let r = avatar.rotation;
+        console.log("drop here", n, t, r);
+        let p = v3_add(v3_scale(n, 6),t);
 
         DCardActor.create({
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1,1,1], // white
-            translation:[0, 0, -6 * (0 + 1)],
-            scale: [1,1,1],
+            //cardDepth: 0.1,
+            //cardBevel:0.02,
+            //cardColor:[1,1,1], // white
+            translation: p,
+            rotation: r,
+            //scale: [1,1,1],
             model3d: dataId,
             modelType: type,
         });
@@ -286,7 +292,8 @@ class MyViewRoot extends ViewRoot {
         this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
             return Data.store(this.sessionId, buffer, true).then((handle) => {
                 let dataId = Data.toId(handle);
-                this.publish(this.model.id, "fileUploaded", {dataId, fileName, type});
+                let avatarId = myAvatarId;
+                this.publish(this.model.id, "fileUploaded", {dataId, fileName, type, avatarId});
             });
         });
     }

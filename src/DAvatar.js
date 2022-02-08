@@ -6,7 +6,8 @@ import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { D } from './DConstants.js';
 
-export var myAvatar; 
+export var myAvatarId; 
+export var myAvatar;
 export var isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
 
@@ -65,6 +66,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
     get lookYaw() { return this._lookYaw || 0 };
+    get lookNormal(){ return v3_transform([0,0,-1], m4_rotationQ(this.rotation)); }
 
     startFalling(){
         this.fall = true;
@@ -138,6 +140,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
+            myAvatarId = this.actor.id;
             // create a dummy camera that will be moved by the OrbitControls
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
