@@ -835,7 +835,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
         if (this.actor.dismissButton) {
             let dismiss = GetPawn(this.actor.dismissButton.id);
-            dismiss.renderObject.position.set(newWidth / 2, newHeight / 2, 0);
+            if (dismiss) {
+                dismiss.updatePosition(newWidth / 2, newHeight / 2, 0);
+            }
         }
         
         /*
@@ -1003,12 +1005,25 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
     constructor(actor) {
         super(actor);
 
-        this.geometry = new THREE.SphereGeometry(0.2, 32, 16);
-        this.material = new THREE.MeshStandardMaterial({color: 0xDD1111});
-        this.sphere = new THREE.Mesh(this.geometry, this.material);
-        this.sphere.name = "dismiss";
+        let geometry = new THREE.SphereGeometry(0.2, 32, 16);
+        let material = new THREE.MeshStandardMaterial({color: 0xDD1111});
+        this.button = new THREE.Mesh(geometry, material);
+        this.button.name = "dismiss";
 
-        this.setRenderObject(this.sphere);
+        this.setRenderObject(this.button);
+        this.addToLayers("pointer");
+    }
+
+    updatePosition(x, y, z) {
+        if (!this.button || !this.button.geometry) {return;}
+        
+        let geometry = this.button.geometry;
+        geometry.dispose();
+        
+        geometry = new THREE.SphereGeometry(0.2, 32, 16);
+        geometry.translate(x, y, z);
+        
+        this.button.geometry = geometry;
     }
 
     onPointerDown(evt) {
