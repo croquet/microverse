@@ -306,7 +306,7 @@ loadLoaders().then(loadBasicModels).then(() => {
         appId: 'io.croquet.microverse',
         apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
         name: App.autoSession(),
-        password: 'password',
+        password: App.autoPassword(),
         model: MyModelRoot,
         view: MyViewRoot,
         tps:60,
