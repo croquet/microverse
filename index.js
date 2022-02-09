@@ -31,7 +31,6 @@ console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 
 const avatars = [];
-let plant;
 
 function loadBasicModels() {
     let maxAvatars = 6;
@@ -48,10 +47,6 @@ function loadBasicModels() {
         loadGLB("./assets/avatars/queenofhearts.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
         loadGLB("./assets/avatars/cheshirecat.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
     }
-
-    plant = new THREE.Group();
-    loadGLB("./assets/refineryx.glb.zip", plant, addShadows, [-152, -3, -228], [2,2,2], [0,0,0], false);
-
 };
 
 function loadLoaders() {
@@ -148,9 +143,6 @@ LevelActor.register('LevelActor');
 class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
     constructor(...args) {
         super(...args);
-
-        this.addToLayers('walk');
-        this.setRenderObject(plant);
     }
 }
 
@@ -179,10 +171,17 @@ class MyModelRoot extends ModelRoot {
         super.init(...args);
         this.level = LevelActor.create();
         this.lights = LightActor.create();
-        this.perlin = PerlinActor.create(
-            {translation:[ 10, -2.75, -14],
-             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
-        );
+
+
+        DCardActor.create({
+            translation:[-152, -3, -228],
+            cardScale:[2,2,2],
+           // translation:[0, 15, 0],
+            //scale: [20,20,20],
+            layers: ['walk'],
+            model3d: "./assets/refineryx.glb.zip",
+            modelType: "glb",
+        });
 
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
         let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
@@ -223,18 +222,12 @@ class MyModelRoot extends ModelRoot {
             textHeight: 600
         });
 // demonstrates how to create an object
-/*
-        DCardActor.create({
-            cardFullBright: true,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1,1,1], // white
-            translation:[3, 0.5, -2],
-            model3d: "./assets/avatars/alice.zip",
-            modelType: "glb",
-        });
-*/
+
         //   constructChess([8, -2.5, -30], [6,6,6]);
+        this.perlin = PerlinActor.create(
+            {translation:[ 10, -2.75, -14],
+             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
+        );
         constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI/2,0), 4);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }

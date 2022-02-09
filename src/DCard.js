@@ -28,7 +28,6 @@ let counter = 0;
 export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
     init(options) {
         super.init(options);
-        this._layers = ['pointer'];
         if (options.model3d) {
             this.creationTime = this.now();
         }
@@ -45,8 +44,8 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
     }
 
     get pawn() { return DCardPawn; }
-    get layers() { return this._layers; }
-    get surface(){return this._cardSurface}
+    get layers() { return this._layers || ['pointer']; }
+        get surface(){return this._cardSurface}
 }
 DCardActor.register('DCardActor');
 
