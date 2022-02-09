@@ -95,13 +95,15 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
     construct3D() {
         if (!this.actor._model3d || !this.actor._modelType) {return;}
+        let model3d = this.actor._model3d;
         let assetManager = this.service("AssetManager").assetManager;
 
         let getBuffer = () => {
-            if (this.actor._model3d.startsWith("http") ||
-                this.actor._model3d.startsWith(".") ||
-                this.actor._model3d.startsWith("/")) {
-                return fetch(this.actor._model3d).then((resp) => {
+            if (model3d.startsWith("http://") ||
+                model3d.startsWith("https://") ||
+                model3d.startsWith(".") ||
+                model3d.startsWith("/")) {
+                return fetch(model3d).then((resp) => {
                     return resp.arrayBuffer();
                 }).then((arrayBuffer) => {
                     return new Uint8Array(arrayBuffer);
