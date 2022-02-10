@@ -3,13 +3,13 @@
 // https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit?usp=sharing
 
 import {
-    App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
+    Constants, App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
     InputManager, PlayerManager, ThreeRenderManager,
     AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
 } from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
-import { loadGLB, addShadows } from '/src/LoadGLB.js';
+import { addShadows } from '/src/LoadGLB.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface } from './src/DSurface.js';
@@ -29,32 +29,13 @@ import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 //import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
-// these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
+Constants.MaxAvatars = 6;
+Constants.AvatarNames = [
+    "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
+    "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
+];
 
-let avatarModelPromises;
-
-function loadAvatarModels() {
-    let maxAvatars = 6;
-    let names = [
-        "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
-        "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
-    ];
-
-    function loadModel(fileName) {
-        return fetch(fileName)
-            .then((resp) => resp.arrayBuffer())
-            .then((arrayBuffer) => new Uint8Array(arrayBuffer))
-            .then((buffer) => new BasicAssetManager().load(buffer, "glb", THREE))
-            .then((obj) => {
-                addShadows({scene: obj}, true);
-                return obj;
-            });
-    }
-
-    return avatarModelPromises = names.slice(0, maxAvatars).map((name) => {
-        return loadModel(`./assets/avatars/${name}.zip`);
-    })
-}
+let avatarModelPromises = [];
 
 function loadLoaders() {
     let libs = [
@@ -119,7 +100,27 @@ MyAvatar.register('MyAvatar');
 class MyAvatarPawn extends AvatarPawn {
 
     constructVisual() {
-        this.setupAvatar(avatarModelPromises[this.avatarIndex % avatarModelPromises.length]);
+        this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
+    }
+
+    getAvatarModel(index) {
+        if (avatarModelPromises[index]) {
+            return avatarModelPromises[index];
+        }
+
+        let name = Constants.AvatarNames[index];
+        if (!name) {name = Constants.AvatarNames[0];}
+
+        let promise = fetch(`./assets/avatars/${name}.zip`)
+            .then((resp) => resp.arrayBuffer())
+            .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
+            .then((obj) => {
+                addShadows({scene: obj}, true);
+                return obj;
+            });
+
+        avatarModelPromises[index] = promise;
+        return promise;
     }
 
     setupAvatar(modelPromise) {// create the avatar (cloned from above)
@@ -231,8 +232,8 @@ class MyModelRoot extends ModelRoot {
             textWidth: 600,
             textHeight: 600
         });
-// demonstrates how to create an object
 
+        // demonstrates how to create an object
         //   constructChess([8, -2.5, -30], [6,6,6]);
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
@@ -304,7 +305,7 @@ class MyViewRoot extends ViewRoot {
 }
 
 App.makeWidgetDock();
-loadLoaders().then(loadAvatarModels).then(() => {
+loadLoaders().then(() => {
     StartWorldcore({
         appId: 'io.croquet.microverse',
         apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
