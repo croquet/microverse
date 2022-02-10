@@ -116,7 +116,11 @@ class MyAvatarPawn extends AvatarPawn {
             .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
             .then((obj) => {
                 addShadows({scene: obj}, true);
-                return obj;
+                obj.scale.set(0.4,0.4,0.4);
+                obj.rotation.set(0, Math.PI, 0);
+                let group = new THREE.Group();
+                group.add(obj);
+                return group;
             });
 
         avatarModelPromises[index] = promise;
@@ -131,10 +135,6 @@ class MyAvatarPawn extends AvatarPawn {
                     n.material = n.material.clone();
                 }
             });
-
-            model.position.set(0, -0.2, 0);
-            model.scale.set(0.4, 0.4, 0.4);
-            model.rotation.set(0, Math.PI, 0);
             
             this.addToLayers('avatar');
             this.setRenderObject(model);  // note the extension
@@ -143,6 +143,11 @@ class MyAvatarPawn extends AvatarPawn {
 
     shiftDouble(pe) {
         this.say("addSticky", pe);
+    }
+
+    destroy(){
+        console.log("Am I getting here?")
+        super.destroy();
     }
 }
 
