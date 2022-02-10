@@ -43,6 +43,7 @@ function loadLoaders() {
         "loaders/GLTFLoader.js",
         "loaders/FBXLoader.js",
         "loaders/DRACOLoader.js",
+        "loaders/SVGLoader.js",
     ];
 
     window.JSZip = JSZip;
@@ -113,7 +114,7 @@ class MyAvatarPawn extends AvatarPawn {
             .then((resp) => resp.arrayBuffer())
             .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
             .then((obj) => {
-                addShadows(obj, true);
+                addShadows(obj, true, THREE);
                 obj.scale.set(0.4,0.4,0.4);
                 obj.rotation.set(0, Math.PI, 0);
                 let group = new THREE.Group();

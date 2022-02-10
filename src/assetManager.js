@@ -2,6 +2,8 @@
 
 const MAX_IMPORT_MB = 100; // aggregate
 
+let THREE;
+
 function isZip(buffer) {
     return buffer[0] === 0x50 && buffer[1] === 0x4b &&
         buffer[2] === 0x03 && buffer[3] === 0x04;
@@ -222,43 +224,42 @@ export class AssetManager {
         delete this.assetCache[dataId];
     }
 
-    async load(buffer, type, THREE) {
+    async load(buffer, type, THREE, options) {
         // here is a bit of checks to do. The file dropped might have been a directory,
         // and then we zipped it. But the file dropped might have been a zip file,
         // The dropped file might have been named like
         // abc.glb.zip, but it might have been abc.zip
         // so we don't know for sure what it was.
 
-        let types = [
-            {file: "glb", func: "importGLB"},
-            {file: "obj", func: "importOBJ"},
-            {file: "fbx", func: "importFBX"}
-        ];
+        let types = {
+            "glb": "importGLB",
+            "obj": "importOBJ",
+            "fbx": "importFBX",
+            "svg": "importSVG"
+        };
 
         if (isZip(buffer)) {
             let zipFile = new JSZip();
             let zip = await zipFile.loadAsync(buffer);
             let files = Object.keys(zip.files);
 
-            for (let i = 0; i < types.length; i++) {
-                let {file, func} = types[i];
+            for (let file in types) {
                 if (files.find((name) => name.endsWith(`.${file}`))) {
-                    let f = Loader.prototype[func];
-                    return f.call(new Loader(), buffer, THREE);
+                    let loader = new Loader();
+                    return loader[types[file]](buffer, options, THREE);
                 }
             }
 
             throw new Error("unknown file type");
-        } else {
-            for (let i = 0; i < types.length; i++) {
-                let {file, func} = types[i];
-                if (type === file) {
-                    let f = Loader.prototype[func];
-                    return f.call(new Loader(), buffer, THREE);
-                }
-            }
-            throw new Error("unknown file type");
         }
+
+        for (let file in types) {
+            if (type === file) {
+                let loader = new Loader();
+                return loader[types[file]](buffer, options, THREE);
+            }
+        }
+        throw new Error("unknown file type");
     }
 }
 
@@ -346,7 +347,7 @@ export class Loader {
         });
     }
 
-    async importOBJ(buffer, THREE) {
+    async importOBJ(buffer, options, THREE) {
         let mtl;
 
         const setupFiles = async () => {
@@ -385,7 +386,7 @@ export class Loader {
         return obj;
     }
 
-    async importFBX(buffer, THREE) {
+    async importFBX(buffer, options, THREE) {
         const setupFiles = async () => {
             if (!isZip(buffer)) {
                 let c = {"fbx": URL.createObjectURL(new Blob([buffer]))};
@@ -423,7 +424,7 @@ export class Loader {
         return obj;
     }
 
-    async importGLB(buffer, THREE) {
+    async importGLB(buffer, options, THREE) {
         const getBuffer = async () => {
             if (isZip(buffer)) {
                 let zipFile = new JSZip();
@@ -458,17 +459,184 @@ export class Loader {
             })
         });
     }
+
+    async importSVG(buffer, options, THREE) {
+        this.THREE = THREE;
+        const setupFiles = async () => {
+            let c = {"svg": URL.createObjectURL(new Blob([buffer]))};
+            return Promise.resolve(c);
+        };
+
+        let contents = await setupFiles();
+
+        let svg = await new Promise((resolve, reject) => {
+            const {fullBright, color} = options;
+            const M = fullBright ? THREE.MeshBasicMaterial : THREE.MeshStandardMaterial;
+            const loader = new THREE.SVGLoader();
+
+            let depth = 0;
+            
+            loader.load(contents.svg, (data) => {
+                const paths = data.paths;
+                const group = new THREE.Group();
+                for ( let i = 0; i < paths.length; i ++) {
+                    const path = paths[ i ];
+                    const fillColor = path.userData.style.fill;
+                    if ( fillColor !== undefined && fillColor !== 'none' ) {
+                        const material = new M( {
+                            color: new THREE.Color().setStyle( fillColor ),
+                            opacity: path.userData.style.fillOpacity,
+                            side: THREE.DoubleSide,
+                        } );
+                        const shapes = THREE.SVGLoader.createShapes( path );
+                        for ( let j = 0; j < shapes.length; j ++ ) {
+                            const shape = shapes[ j ];
+                            const geometry = new THREE.ShapeGeometry( shape );
+                            const mesh = new THREE.Mesh( geometry, material );
+                            mesh.position.z += depth;
+                            depth += 0.002;
+                            group.add( mesh );
+                        }
+                    }
+                    const strokeColor = path.userData.style.stroke;
+                    if ( strokeColor !== undefined && strokeColor !== 'none' ) {
+                        const material = new M( {
+                            color: new THREE.Color().setStyle( strokeColor ),
+                            opacity: path.userData.style.strokeOpacity,
+                            //transparent: true,
+                            side: THREE.DoubleSide,
+                            //depthWrite: false,
+                        } );
+
+                        for ( let j = 0, jl = path.subPaths.length; j < jl; j ++ ) {
+                            const subPath = path.subPaths[ j ];
+                            const geometry = THREE.SVGLoader.pointsToStroke( subPath.getPoints(), path.userData.style );
+                            if ( geometry ) {
+                                const mesh = new THREE.Mesh( geometry, material );
+                                group.add( mesh );
+                            }
+                        }
+                    }
+                }
+                resolve(group);
+	    });
+        });
+
+        Object.keys(contents).forEach((k) => {
+            if (contents[k] && k !== "imgContents") {
+                URL.revokeObjectURL(contents[k]);
+            }
+        });
+        return svg;
+    }
+
 }
 
-export function addShadows(obj3d, singleSide) {
+export function addShadows(obj3d, singleSide, THREE) {
     obj3d.traverse(n => {
         if(n.material) {
-            if(singleSide)
+            if (singleSide) {
                 n.material.side = THREE.FrontSide; //only render front side
-             n.material.format = THREE.RGBAFormat; // fixes a bug in GLTF import
+            }
+            n.material.format = THREE.RGBAFormat; // fixes a bug in GLTF import
             n.castShadow = true;
             n.receiveShadow = true;
         }
     });
 }
 
+export function normalizeSVG(target, svgGroup, color, shadow, three) {
+    THREE = three;
+    let bb = boundingBox(svgGroup);
+    let ext = extent3D(svgGroup, bb);
+    let cen = center3D(svgGroup, bb);
+    svgGroup.scale.y *= -1;
+    cen.y *= -1;
+    let mx = Math.max(ext.x, ext.y);
+    // scale SVG object to 1 along largest axis
+    if (mx > 0) {
+        // need svgGroup.aspect for positioning in jump to card
+        if (ext.y) target.aspect = ext.x / ext.y;
+        svgGroup.position.set(-cen.x, -cen.y, -cen.z);
+        let sc = 1 / mx;
+        svgGroup.position.multiplyScalar(sc);
+        svgGroup.scale.multiplyScalar(sc);
+    }
+    let c;
+    if (color) c = new THREE.Color(...color);
+    svgGroup.traverse(obj => {
+        if (obj.material) {
+            normalizeUV(obj.geometry.attributes.uv.array, bb);
+            if (c) obj.material.color = c; 
+            if (shadow) { 
+                obj.castShadow = true;
+                obj.receiveShadow = true;
+            }
+        }
+    });
+}
+
+function normalizeUV(uvArray, bb) {
+    let s = [bb.max.x - bb.min.x, bb.max.y - bb.min.y];
+    s[0] = s[0] > 0 ? 1 / s[0] : 1;
+    s[1] = s[1] > 0 ? 1 / s[1] : 1;
+    let o = [bb.min.x, bb.min.y];
+    let index = 0;
+    for(let i = 0; i < uvArray.length;i++) {
+        uvArray[i] = (uvArray[i] - o[index]) * s[index];
+        if (index) uvArray[i] = 1 - uvArray[i];
+        index = index === 0 ? 1 : 0;
+    }
+}
+
+function boundingBox(obj, bigBox, depth) { 
+    // this needs to recursively merge the bounding box of all of the objects it contains.
+    // computes the boundingBox in LOCAL coordinates.  if there's a parent, temporarily
+    // remove from the parent and reset position and orientation.
+    // the boundingBox reflects the extent after application of the current scale setting.
+
+    if (!bigBox) {
+        bigBox = new THREE.Box3();
+        depth = 0;
+    }
+    if (obj.geometry) { //means it is a visible thing
+        if (!obj.geometry.boundingBox)obj.geometry.computeBoundingBox();
+        const box = obj.geometry.boundingBox.clone();
+        box.applyMatrix4(obj.matrixWorld);
+        bigBox.union(box);
+    }
+    if (obj.children) {
+        obj.children.forEach(child => boundingBox(child, bigBox, depth + 1));
+    }
+        return bigBox;
+}
+
+function extent3D(obj, bb) {
+    let rVec = new THREE.Vector3();
+    if (!bb) bb = boundingBox(obj);
+    //console.log("extent3D", bb)
+    if (bb) {
+        rVec.copy(bb.max);
+        rVec.sub(bb.min);
+    }
+    return rVec;
+}
+
+function center3D(obj, bb) {
+    let rVec = new THREE.Vector3();
+    if (!bb) bb = boundingBox(obj);
+    //console.log("center3D", bb)
+    if (bb) {
+        rVec.copy(bb.max);
+        rVec.add(bb.min);
+        rVec.multiplyScalar(0.5);
+    }
+    return rVec;
+}
+
+export function addTexture(texture, group) {
+    //const texture = new THREE.TextureLoader().load(url);
+    group.traverse((child) => {
+        if (child.material) child.material.map = texture;
+    });
+}

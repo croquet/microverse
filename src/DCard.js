@@ -6,11 +6,8 @@
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_PointerTarget, Data, GetPawn} from "@croquet/worldcore";
 import { D } from './DConstants.js';
-import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
-import { addShadows } from './assetManager.js'
+import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
-
-const { Vector3 } = THREE;
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -68,28 +65,48 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             this.construct3D();
         }
 
-        /*
-       // this.color = new THREE.Color();
-        this.card3D = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 0.1, 2, 2, 1),
-            new THREE.MeshStandardMaterial({color: CardColor}));
-        this.card3D.castShadow = true;
-        this.card3D.recieveShadow = true;
-        this.cardSphere = new THREE.Mesh(new THREE.SphereGeometry(0.1,32,16), 
-            new THREE.MeshStandardMaterial({color: CardColor}));
-        this.cardSphere.position.z = 0.15;
-        this.card3D.add(this.cardSphere);        
-        */
-
         let texture;
-        if(this.actor.surface){
+        if(this.actor.surface) {
             this.surface = this.service("PawnManager").get(this.actor.surface.id);
             texture = this.surface.texture;
         }
-        if(this.actor._cardShapeURL){
-            loadSVG(this, this.actor._cardShapeURL, texture, this.actor._cardColor, this.actor._cardFullBright, this.actor._cardShadow);
+        if (this.actor._cardShapeURL) {
+            let options = {
+                // target: this,
+                // texture: texture,
+                color: this.actor._cardColor,
+                fullBright: this.actor._cardFullBright,
+                // shadow: this.actor._cardShadow
+            };
+
             this.isFlat = true;
+
+            this.getBuffer(this.actor._cardShapeURL).then((buffer) => {
+                return assetManager.load(buffer, "svg", THREE, options);
+            }).then((obj) => {
+                normalizeSVG(this, obj, this.actor._cardColor, this.actor._cardShadow, THREE);
+                if (texture) addTexture(texture, obj);
+
+                let holderGroup = new THREE.Group();
+                holderGroup.add(obj);
+                this.card3D.add(holderGroup);
+            });
         }
         this.setRenderObject( this.card3D );
+    }
+
+    getBuffer(name) {
+        if (name.startsWith("http://") ||
+            name.startsWith("https://") ||
+            name.startsWith(".") ||
+            name.startsWith("/")) {
+            return fetch(name)
+                .then((resp) => resp.arrayBuffer())
+                .then((arrayBuffer) => new Uint8Array(arrayBuffer));
+        } else {
+            let handle = Data.fromId(name);
+            return Data.fetch(this.sessionId, handle);
+        }
     }
 
     construct3D() {
@@ -97,32 +114,16 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         let model3d = this.actor._model3d;
         let assetManager = this.service("AssetManager").assetManager;
 
-        let getBuffer = () => {
-            if (model3d.startsWith("http://") ||
-                model3d.startsWith("https://") ||
-                model3d.startsWith(".") ||
-                model3d.startsWith("/")) {
-                return fetch(model3d).then((resp) => {
-                    return resp.arrayBuffer();
-                }).then((arrayBuffer) => {
-                    return new Uint8Array(arrayBuffer);
-                });
-            } else {
-                let handle = Data.fromId(this.actor._model3d);
-                return Data.fetch(this.sessionId, handle);
-            }
-        };
-            
-        getBuffer().then((buffer) => {
+        this.getBuffer(model3d).then((buffer) => {
             assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
                 this.card3D.add(obj);
 
                 obj.updateMatrixWorld(true);
                 obj.ready = true;
 
-                addShadows(obj, true);
+                addShadows(obj, true, THREE);
 
-                let size = new Vector3(0, 0, 0);
+                let size = new THREE.Vector3(0, 0, 0);
                 new THREE.Box3().setFromObject(obj).getSize(size);
                 let max = Math.max(size.x, size.y, size.z);
                 let s = 4 / max;
@@ -282,7 +283,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
     // compute and return the position and distance the avatar should jump to to see the card full screen
     getJumpToPose() {
         if(!this.isFlat)return;
-        let current = this.card3D.localToWorld(new Vector3()).toArray(); // this is where the card is
+        let current = this.card3D.localToWorld(new THREE.Vector3()).toArray(); // this is where the card is
         let camera = this.service("ThreeRenderManager").camera;
         let fov = camera.fov;
         let caspect = camera.aspect;
