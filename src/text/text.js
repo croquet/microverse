@@ -90,7 +90,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarge
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.fonts = new Map();
 
-        super.init(options);
+        super.init({...options, multiuser: true});
 
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
@@ -989,7 +989,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
 
 export class DismissButtonActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
     init(options) {
-        super.init(options);
+        super.init({...options, multiusser: true});
     }
 
     get pawn() {return DismissButtonPawn;}
