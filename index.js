@@ -23,6 +23,7 @@ import { constructBitcoin } from './apps/bitcoinTracker.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
+import {AssetManager as BasicAssetManager} from "./src/assetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -30,24 +31,30 @@ console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
 // these are defined outside of the Worldcore objects, otherwise, they will need to be recreated when the app goes to sleep and restarts again.
 
-const avatars = [];
+let avatarModelPromises;
 
-function loadBasicModels() {
+function loadAvatarModels() {
     let maxAvatars = 6;
-    let i = 0;
-    for (i = 0; i < maxAvatars; i++) avatars[i] = new THREE.Group();
-    for (i = 0; i < 6; i++) {
-        loadGLB(`./assets/avatars/generic/${i + 1}.zip`, avatars[i], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
+    let names = [
+        "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
+        "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
+    ];
+
+    function loadModel(fileName) {
+        return fetch(fileName)
+            .then((resp) => resp.arrayBuffer())
+            .then((arrayBuffer) => new Uint8Array(arrayBuffer))
+            .then((buffer) => new BasicAssetManager().load(buffer, "glb", THREE))
+            .then((obj) => {
+                addShadows({scene: obj}, true);
+                return obj;
+            });
     }
-    if (maxAvatars > 6) {
-        loadGLB("./assets/avatars/alice.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-        loadGLB("./assets/avatars/newwhite.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-        loadGLB("./assets/avatars/fixmadhatter.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-        loadGLB("./assets/avatars/marchhare.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-        loadGLB("./assets/avatars/queenofhearts.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-        loadGLB("./assets/avatars/cheshirecat.zip", avatars[i++], addShadows, [0,-0.2,0], [0.4, 0.4, 0.4], [0, Math.PI, 0], true);
-    }
-};
+
+    return avatarModelPromises = names.slice(0, maxAvatars).map((name) => {
+        return loadModel(`./assets/avatars/${name}.zip`);
+    })
+}
 
 function loadLoaders() {
     let libs = [
@@ -112,22 +119,25 @@ MyAvatar.register('MyAvatar');
 class MyAvatarPawn extends AvatarPawn {
 
     constructVisual() {
-        this.setupAvatar(avatars[this.avatarIndex % avatars.length]);
+        this.setupAvatar(avatarModelPromises[this.avatarIndex % avatarModelPromises.length]);
     }
 
-    setupAvatar(a) {// create the avatar (cloned from above)
-        if (a.ready) {
-            a = this.avatar = a.clone();
-            a.traverse(n => {
+    setupAvatar(modelPromise) {// create the avatar (cloned from above)
+        modelPromise.then((model) => {
+            model = this.avatar = model.clone();
+            model.traverse(n => {
                 if (n.material) {
                     n.material = n.material.clone();
                 }
             });
+
+            model.position.set(0, -0.2, 0);
+            model.scale.set(0.4, 0.4, 0.4);
+            model.rotation.set(0, Math.PI, 0);
+            
             this.addToLayers('avatar');
-            this.setRenderObject(a);  // note the extension
-        } else {
-            this.future(1000).setupAvatar(a);
-        }
+            this.setRenderObject(model);  // note the extension
+        });
     }
 
     shiftDouble(pe) {
@@ -176,7 +186,7 @@ class MyModelRoot extends ModelRoot {
         DCardActor.create({
             translation:[-152, -3, -228],
             cardScale:[2,2,2],
-           // translation:[0, 15, 0],
+            // translation:[0, 15, 0],
             //scale: [20,20,20],
             layers: ['walk'],
             model3d: "./assets/refineryx.glb.zip",
@@ -228,7 +238,7 @@ class MyModelRoot extends ModelRoot {
             {translation:[ 10, -2.75, -14],
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
-        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI/2,0), 4);
+        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI / 2,0), 4);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }
 
@@ -294,7 +304,7 @@ class MyViewRoot extends ViewRoot {
 }
 
 App.makeWidgetDock();
-loadLoaders().then(loadBasicModels).then(() => {
+loadLoaders().then(loadAvatarModels).then(() => {
     StartWorldcore({
         appId: 'io.croquet.microverse',
         apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
