@@ -9,7 +9,6 @@ import {
 } from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
-import { addShadows } from '/src/LoadGLB.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface } from './src/DSurface.js';
@@ -23,7 +22,7 @@ import { constructBitcoin } from './apps/bitcoinTracker.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
-import {AssetManager as BasicAssetManager} from "./src/assetManager.js";
+import {addShadows, AssetManager as BasicAssetManager} from "./src/assetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -98,7 +97,6 @@ class MyAvatar extends AvatarActor {
 MyAvatar.register('MyAvatar');
 
 class MyAvatarPawn extends AvatarPawn {
-
     constructVisual() {
         this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
     }
@@ -115,7 +113,7 @@ class MyAvatarPawn extends AvatarPawn {
             .then((resp) => resp.arrayBuffer())
             .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
             .then((obj) => {
-                addShadows({scene: obj}, true);
+                addShadows(obj, true);
                 obj.scale.set(0.4,0.4,0.4);
                 obj.rotation.set(0, Math.PI, 0);
                 let group = new THREE.Group();

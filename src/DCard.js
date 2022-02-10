@@ -7,7 +7,7 @@ import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_PointerTarget, Data, GetPawn} from "@croquet/worldcore";
 import { D } from './DConstants.js';
 import { loadSVG, boundingBox, extent3D, center3D } from './LoadSVG.js';
-import { loadGLB, addShadows } from '/src/LoadGLB.js'
+import { addShadows } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 
 const { Vector3 } = THREE;
@@ -45,7 +45,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
 
     get pawn() { return DCardPawn; }
     get layers() { return this._layers || ['pointer']; }
-        get surface(){return this._cardSurface}
+    get surface() { return this._cardSurface; }
 }
 DCardActor.register('DCardActor');
 
@@ -120,7 +120,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
                 obj.updateMatrixWorld(true);
                 obj.ready = true;
 
-                addShadows({scene: obj}, true);
+                addShadows(obj, true);
 
                 let size = new Vector3(0, 0, 0);
                 new THREE.Box3().setFromObject(obj).getSize(size);
