@@ -22,7 +22,6 @@ import { constructBitcoin } from './apps/bitcoinTracker.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
-import {addShadows, AssetManager as BasicAssetManager} from "./src/assetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -33,8 +32,6 @@ Constants.AvatarNames = [
     "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
-
-let avatarModelPromises = [];
 
 function loadLoaders() {
     let libs = [
@@ -102,44 +99,6 @@ class MyAvatarPawn extends AvatarPawn {
         this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
     }
 
-    getAvatarModel(index) {
-        if (avatarModelPromises[index]) {
-            return avatarModelPromises[index];
-        }
-
-        let name = Constants.AvatarNames[index];
-        if (!name) {name = Constants.AvatarNames[0];}
-
-        let promise = fetch(`./assets/avatars/${name}.zip`)
-            .then((resp) => resp.arrayBuffer())
-            .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
-            .then((obj) => {
-                addShadows(obj, true, THREE);
-                obj.scale.set(0.4,0.4,0.4);
-                obj.rotation.set(0, Math.PI, 0);
-                let group = new THREE.Group();
-                group.add(obj);
-                return group;
-            });
-
-        avatarModelPromises[index] = promise;
-        return promise;
-    }
-
-    setupAvatar(modelPromise) {// create the avatar (cloned from above)
-        modelPromise.then((model) => {
-            model = this.avatar = model.clone();
-            model.traverse(n => {
-                if (n.material) {
-                    n.material = n.material.clone();
-                }
-            });
-            
-            this.addToLayers('avatar');
-            this.setRenderObject(model);  // note the extension
-        });
-    }
-
     shiftDouble(pe) {
         this.say("addSticky", pe);
     }
@@ -147,17 +106,6 @@ class MyAvatarPawn extends AvatarPawn {
     destroy(){
         console.log("Am I getting here?")
         super.destroy();
-    }
-}
-
-class LevelActor extends mix(Actor).with(AM_Spatial) {
-    get pawn() {return LevelPawn;}
-}
-LevelActor.register('LevelActor');
-
-class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
-    constructor(...args) {
-        super(...args);
     }
 }
 
@@ -184,7 +132,7 @@ class MyModelRoot extends ModelRoot {
     }
     init(...args) {
         super.init(...args);
-        this.level = LevelActor.create();
+
         this.lights = LightActor.create();
 
         DCardActor.create({
@@ -232,6 +180,7 @@ class MyModelRoot extends ModelRoot {
                 cardColor:[1,1,1], // white
                 translation:[-4,-0.5, -6 * (i + 1)],
                 rotation: q_euler(0, Math.PI / 2, 0),
+                multiuser: true,
                 scale: [4,4,4],
             });
         }

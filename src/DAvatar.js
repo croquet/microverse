@@ -1,4 +1,4 @@
-import { mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_Pointer, PM_LayerTarget,
+import { Constants, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_Pointer, PM_LayerTarget,
          v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
@@ -6,9 +6,13 @@ import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { D } from './DConstants.js';
 import { defaultKeyBindings } from "./text/text-commands.js";
+import {AssetManager} from "./wcAssetManager.js";
+import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
 export var myAvatarId; 
 export var myAvatar;
+let avatarModelPromises = [];
+
 export var isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
 
@@ -202,6 +206,44 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     get lookOffset(){return this._lookOffset || [0,0,0]}
     get lookPitch() { return this._lookPitch}
     get lookYaw() { return this._lookYaw}
+
+    getAvatarModel(index) {
+        if (avatarModelPromises[index]) {
+            return avatarModelPromises[index];
+        }
+
+        let name = Constants.AvatarNames[index];
+        if (!name) {name = Constants.AvatarNames[0];}
+
+        let promise = fetch(`./assets/avatars/${name}.zip`)
+            .then((resp) => resp.arrayBuffer())
+            .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
+            .then((obj) => {
+                addShadows(obj, true, THREE);
+                obj.scale.set(0.4,0.4,0.4);
+                obj.rotation.set(0, Math.PI, 0);
+                let group = new THREE.Group();
+                group.add(obj);
+                return group;
+            });
+
+        avatarModelPromises[index] = promise;
+        return promise;
+    }
+
+    setupAvatar(modelPromise) {// create the avatar (cloned from above)
+        modelPromise.then((model) => {
+            model = this.avatar = model.clone();
+            model.traverse(n => {
+                if (n.material) {
+                    n.material = n.material.clone();
+                }
+            });
+            
+            this.addToLayers('avatar');
+            this.setRenderObject(model);  // note the extension
+        });
+    }
 
     lookTo(pitch, yaw) {
         this._lookPitch = pitch;

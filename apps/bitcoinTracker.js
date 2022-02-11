@@ -107,7 +107,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
 
 class BitLogoCard extends DCardActor{
     get pawn(){return BitLogoPawn}
-    get version(){return '0.08'}
+    get version(){return '0.09'}
 }
 BitLogoCard.register('BitLogoCard');
 
