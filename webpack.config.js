@@ -6,7 +6,7 @@ const webpack = require("webpack");
 module.exports = {
     entry: {
         'index': './index.js',
-        'textTest': './textTest.js',
+        'test': './test.js',
     },
     output: {
         path: path.join(__dirname, 'dist'),
@@ -44,9 +44,9 @@ module.exports = {
         }),
         new HtmlWebpackPlugin({
             inject: true,
-            template: 'textTest.html',   // input
-            filename: 'textTest.html',   // output filename in dist/
-            chunks: ['textTest']
+            template: 'test.html',   // input
+            filename: 'test.html',   // output filename in dist/
+            chunks: ['test']
         }),
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer']

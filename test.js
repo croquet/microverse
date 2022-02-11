@@ -22,7 +22,6 @@ import { constructBitcoin } from './apps/bitcoinTracker.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
-import {addShadows, AssetManager as BasicAssetManager} from "./src/assetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -34,8 +33,6 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-let avatarModelPromises = [];
-
 function loadLoaders() {
     let libs = [
         "loaders/OBJLoader.js",
@@ -43,6 +40,7 @@ function loadLoaders() {
         "loaders/GLTFLoader.js",
         "loaders/FBXLoader.js",
         "loaders/DRACOLoader.js",
+        "loaders/SVGLoader.js",
     ];
 
     window.JSZip = JSZip;
@@ -97,62 +95,17 @@ class MyAvatar extends AvatarActor {
 MyAvatar.register('MyAvatar');
 
 class MyAvatarPawn extends AvatarPawn {
-
     constructVisual() {
         this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
-    }
-
-    getAvatarModel(index) {
-        if (avatarModelPromises[index]) {
-            return avatarModelPromises[index];
-        }
-
-        let name = Constants.AvatarNames[index];
-        if (!name) {name = Constants.AvatarNames[0];}
-
-        let promise = fetch(`./assets/avatars/${name}.zip`)
-            .then((resp) => resp.arrayBuffer())
-            .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
-            .then((obj) => {
-                addShadows(obj, true);
-                return obj;
-            });
-
-        avatarModelPromises[index] = promise;
-        return promise;
-    }
-
-    setupAvatar(modelPromise) {// create the avatar (cloned from above)
-        modelPromise.then((model) => {
-            model = this.avatar = model.clone();
-            model.traverse(n => {
-                if (n.material) {
-                    n.material = n.material.clone();
-                }
-            });
-
-            model.position.set(0, -0.2, 0);
-            model.scale.set(0.4, 0.4, 0.4);
-            model.rotation.set(0, Math.PI, 0);
-            
-            this.addToLayers('avatar');
-            this.setRenderObject(model);  // note the extension
-        });
     }
 
     shiftDouble(pe) {
         this.say("addSticky", pe);
     }
-}
 
-class LevelActor extends mix(Actor).with(AM_Spatial) {
-    get pawn() {return LevelPawn;}
-}
-LevelActor.register('LevelActor');
-
-class LevelPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
-    constructor(...args) {
-        super(...args);
+    destroy(){
+        console.log("Am I getting here?")
+        super.destroy();
     }
 }
 
@@ -179,69 +132,31 @@ class MyModelRoot extends ModelRoot {
     }
     init(...args) {
         super.init(...args);
-        this.level = LevelActor.create();
+
         this.lights = LightActor.create();
-
-        /*
-
-        DCardActor.create({
-            translation:[-152, -3, -228],
-            cardScale:[2,2,2],
-            // translation:[0, 15, 0],
-            //scale: [20,20,20],
-            layers: ['walk'],
-            model3d: "./assets/refineryx.glb.zip",
-            modelType: "glb",
-        });
-
-        let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
-        let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
-       
-        let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
-        let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
-        
-        let cSurface = SimpleCanvasSurface.create({name: 'SimpleCanvasSurface'});
-        let gSurface = MultiBlaster.create({name:'MultiBlaster'});
-
-        let svgCards = [
-            'credit-card.svg', 'square.svg', 'credit-card.svg', 
-            'square.svg', 'square-full.svg', 'circle.svg', 'BitcoinSign.svg', 'rectangle.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface];
-
-        for (let i = 0; i < 6; i++) {
-            DCardActor.create({
-                cardShapeURL: `./assets/SVG/${svgCards[i]}`,
-                cardSurface: surfaces[i],
-                cardFullBright: surfaces[i].fullBright,
-                cardDepth: 0.1,
-                cardBevel:0.02,
-                cardColor:[1,1,1], // white
-                translation:[-4,-0.5, -6 * (i + 1)],
-                rotation: q_euler(0, Math.PI / 2, 0),
-                scale: [4,4,4],
-            });
-        }
-
-        */
 
         DCardActor.create({
             cardFullBright: true,
             cardDepth: 0.1,
             cardBevel:0.02,
             cardColor:[1,1,1], // white
-            translation:[5, 0.5, -1],
-            text: "Croquet is awesome",
+            translation:[-1, 0.5, -5],
+            text: "Hello",
             textWidth: 600,
             textHeight: 600
         });
 
-        // demonstrates how to create an object
-        //   constructChess([8, -2.5, -30], [6,6,6]);
-        this.perlin = PerlinActor.create(
-            {translation:[ 10, -2.75, -14],
-             rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
-        );
-        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI / 2,0), 4);
+        DCardActor.create({
+            cardFullBright: true,
+            cardDepth: 0.1,
+            cardBevel:0.02,
+            cardColor:[1,1,1], // white
+            translation:[1, 0.5, -5],
+            text: "Good bye",
+            textWidth: 600,
+            textHeight: 600
+        });
+
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }
 
