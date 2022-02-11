@@ -1,10 +1,11 @@
 import { mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_Pointer, PM_LayerTarget,
-         v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_yaw, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+         v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
          m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { D } from './DConstants.js';
+import { defaultKeyBindings } from "./text/text-commands.js";
 
 export var myAvatarId; 
 export var myAvatar;
@@ -405,16 +406,27 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doKeyDown(e){
-        console.log(e)
         super.doKeyDown(e);
-        if(e.key==='Shift')
-            this.shiftKey = true;
+        switch(e.key){
+            case 'Shift': this.shiftKey = true; break;
+            case 'Control': this.ctrlKey = true; break;
+            case 'Alt': this.altKey = true; break;
+            case 'i': 
+                console.log("translation: ",this.actor.translation);
+                console.log("rotation:", q_pitch(this.actor.rotation),
+                    q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
+                console.log("scale:", this.actor.scale);
+            default: console.log(e)
+        }
     }
 
     doKeyUp(e){
         super.doKeyUp(e);
-        if(e.key==='Shift')
-            this.shiftKey = false;
+        switch(e.key){
+            case 'Shift': this.shiftKey = false; break;
+            case 'Control': this.ctrlKey = false; break;
+            case 'Alt': this.altKey = false; break;
+        }
     }
 
     doPointerDoubleDown(e) {
@@ -433,6 +445,18 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             } else pe.offset = D.EYE_HEIGHT;
             this.say("doubleDown", pe);
         }
+    }
+
+    doPointerDown(p3e){
+        super.doPointerDown(p3e);
+    }
+
+    doPointerMove(p3e){
+        super.doPointerMove(p3e);
+    }
+
+    doPointerUp(p3e){
+        super.doPointerUp(p3e);
     }
 
     doPointerWheel(wheel){        

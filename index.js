@@ -187,7 +187,17 @@ class MyModelRoot extends ModelRoot {
         this.level = LevelActor.create();
         this.lights = LightActor.create();
 
-
+        DCardActor.create({
+            //translation:[-152, -3, -228],
+            cardScale:[40,40,40],
+            translation:[30, -65, -40],
+            rotation: q_euler(0, Math.PI, 0),
+            //scale: [20,20,20],
+            layers: ['walk'],
+            model3d: "./assets/3D/Refinery.glb.zip",
+            modelType: "glb",
+        });
+        /*
         DCardActor.create({
             translation:[-152, -3, -228],
             cardScale:[2,2,2],
@@ -197,7 +207,7 @@ class MyModelRoot extends ModelRoot {
             model3d: "./assets/refineryx.glb.zip",
             modelType: "glb",
         });
-
+*/
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
         let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
        
