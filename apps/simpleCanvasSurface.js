@@ -56,8 +56,8 @@ export class SimpleCanvasSurfacePawn extends CanvasSurfacePawn{
     constructor(...args){
         super(...args);
         this.updatePosition(this.actor.position);
-        var body = document.getElementsByTagName("body")[0];
-        body.appendChild(this.canvas);
+        // var body = document.getElementsByTagName("body")[0];
+        // body.appendChild(this.canvas);
         this.listen("updatePosition", this.updatePosition);
     }
 

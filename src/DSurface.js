@@ -84,8 +84,8 @@ class VideoSurfacePawn extends SurfacePawn{
 // DemoCanvasSurface below demonstrates how to use this.
 
 export class CanvasSurface extends Surface{
-    init(...args) {
-        super.init(...args);
+    init(options) {
+        super.init(options);
     }
 
     get pawn(){return CanvasSurfacePawn}
@@ -94,15 +94,13 @@ export class CanvasSurface extends Surface{
 CanvasSurface.register('CanvasSurface');
 
 export class CanvasSurfacePawn extends SurfacePawn{
-    constructor(...args){
-        super(...args);
+    constructor(actor) {
+        super(actor);
         this.canvas = document.createElement('canvas');
-        this.canvas.setAttribute("id", this._name);
+        this.canvas.id = this._name || this.id;
 
         this.canvas.width = this.actor.width;
         this.canvas.height = this.actor.height;
-        //this.canvas.style.zIndex=2000;
         this.texture = new THREE.CanvasTexture(this.canvas);
     }
 }
-
