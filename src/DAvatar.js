@@ -162,7 +162,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
             this.setControls(isWalking); // walking or orbiting?
 
-            this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
+            this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ));
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
@@ -344,7 +344,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.orbitCamera.updateProjectionMatrix();
             }else{
                 if(this.actor.fall)
-                    if(!this.findFloor(D.EYE_HEIGHT*1.5,2)){
+                    if(!this.findFloor()){
                         if(this.translation !== this.lastTranslation){
                             this.moveTo(this.lastTranslation);
                         }
@@ -355,23 +355,19 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    // check if we are standing on an object or about to be
-    // if not, allow a short distance fall
-    findFloor(maxDist, recurse, move){
-        if( recurse < 0 )return false; // never found the ground
+    findFloor(move){
         const walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if(!walkLayer)return false;
         this.walkcaster.ray.origin.set( ...(move || this.translation));
-        this.walkcaster.far = maxDist;
         const intersections = this.walkcaster.intersectObjects( walkLayer, true );
-        const onObject = intersections.length > 0;
-        if(onObject){
+
+        if(intersections.length > 0){
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
-            if(Math.abs(delta)>D.EYE_EPSILON){
+            if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
                 if(delta>0 && !move){ // we are falling - check in front of us to see if there is a step
                     const moveForward = v3_add(this.translation, v3_transform([0,0,0.2], m4_rotationQ(this.rotation)));
-                    return this.findFloor(maxDist, 1, moveForward);
+                    return this.findFloor(moveForward);
                 }else { // move up or down
                     let t = this.translation;
                     let p = t[1]-delta;
@@ -379,7 +375,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     return true;
                 }
             }else return true; // we are on level ground
-        }else{ return this.findFloor(maxDist*1.5, recurse-1, move); } // try to find the ground...
+        }return false // try to find the ground...
     }
 
     startMMotion( e ){
