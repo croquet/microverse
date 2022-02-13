@@ -134,6 +134,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     constructor(...args) {
         super(...args);
         this.isAvatar = true;
+        this.speed = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
@@ -375,7 +376,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     return true;
                 }
             }else return true; // we are on level ground
-        }return false // try to find the ground...
+        }return false; // try to find the ground...
     }
 
     startMMotion( e ){
@@ -396,6 +397,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if(true || isWalking){
             this.activeMMotion =false;
             this.setVelocity([0, 0, 0]);
+            this.speed = 0;
             this.setSpin(q_identity());
             this.hiddenknob.style.left = `0px`;
             this.hiddenknob.style.top = `0px`;
@@ -414,7 +416,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let v = dy*0.00005;
             v = Math.min(Math.max(v, -0.008),0.008);
             this.setVelocity([0, 0, v]);
-
+            this.speed = v;
             const yaw = dx * -0.000005;
             const qyaw = q_euler(0, yaw ,0);
             this.setSpin(qyaw);
