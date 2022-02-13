@@ -79,10 +79,10 @@ class MyAvatar extends AvatarActor {
 
         DCardActor.create({
             // cardShapeURL: `./assets/SVG/credit-card.svg`,
-            cardFullBright: true,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1, 1, 1], // white
+            fullBright: true,
+            depth: 0.1,
+            shadow: true,
+            color:[1, 1, 1], // white
             translation: tackPoint,
             rotation: rotPoint,
             text: "",
@@ -136,11 +136,9 @@ class MyModelRoot extends ModelRoot {
         this.lights = LightActor.create();
 
         DCardActor.create({
-            //translation:[-152, -3, -228],
-            cardScale:[40,40,40],
-            translation:[30, -65, -40],
+            translation:[25, -90, -60],
+            scale:[200, 200, 200],
             rotation: q_euler(0, Math.PI, 0),
-            //scale: [20,20,20],
             layers: ['walk'],
             model3d: "./assets/3D/Refinery.glb.zip",
             modelType: "glb",
@@ -148,7 +146,7 @@ class MyModelRoot extends ModelRoot {
         /*
         DCardActor.create({
             translation:[-152, -3, -228],
-            cardScale:[2,2,2],
+            scale:[2,2,2],
             // translation:[0, 15, 0],
             //scale: [20,20,20],
             layers: ['walk'],
@@ -172,12 +170,12 @@ class MyModelRoot extends ModelRoot {
 
         for (let i = 0; i < 6; i++) {
             DCardActor.create({
-                cardShapeURL: `./assets/SVG/${svgCards[i]}`,
-                cardSurface: surfaces[i],
-                cardFullBright: surfaces[i].fullBright,
-                cardDepth: 0.1,
-                cardBevel:0.02,
-                cardColor:[1,1,1], // white
+                shapeURL: `./assets/SVG/${svgCards[i]}`,
+                surface: surfaces[i],
+                fullBright: surfaces[i].fullBright,
+                shadow: true,
+                depth: 0.1,
+                color:[1,1,1], // white
                 translation:[-4,-0.5, -6 * (i + 1)],
                 rotation: q_euler(0, Math.PI / 2, 0),
                 multiuser: true,
@@ -186,10 +184,10 @@ class MyModelRoot extends ModelRoot {
         }
 
         DCardActor.create({
-            cardFullBright: true,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1,1,1], // white
+            fullBright: true,
+            depth: 0.1,
+            shadow: true,
+            color:[1,1,1], // white
             translation:[5, 0.5, -1],
             text: "Croquet is awesome",
             textWidth: 600,
@@ -219,12 +217,9 @@ class MyModelRoot extends ModelRoot {
         let p = v3_add(v3_scale(n, 6),t);
 
         DCardActor.create({
-            //cardDepth: 0.1,
-            //cardBevel:0.02,
-            //cardColor:[1,1,1], // white
+            shadow: true,
             translation: p,
             rotation: r,
-            //scale: [1,1,1],
             model3d: dataId,
             modelType: type,
         });

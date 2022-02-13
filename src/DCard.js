@@ -42,7 +42,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
 
     get pawn() { return DCardPawn; }
     get layers() { return this._layers || ['pointer']; }
-    get surface() { return this._cardSurface; }
+    get surface() { return this._surface; }
 }
 DCardActor.register('DCardActor');
 
@@ -70,26 +70,22 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             this.surface = this.service("PawnManager").get(this.actor.surface.id);
             texture = this.surface.texture;
         }
-        if (this.actor._cardShapeURL) {
+        if (this.actor._shapeURL) {
             let options = {
-                // target: this,
                 // texture: texture,
-                color: this.actor._cardColor,
-                fullBright: this.actor._cardFullBright,
-                // shadow: this.actor._cardShadow
+                color: this.actor._color,
+                fullBright: this.actor._fullBright,
+                depth: this.actor._depth,
             };
 
             this.isFlat = true;
 
-            this.getBuffer(this.actor._cardShapeURL).then((buffer) => {
+            this.getBuffer(this.actor._shapeURL).then((buffer) => {
                 return assetManager.load(buffer, "svg", THREE, options);
             }).then((obj) => {
-                normalizeSVG(this, obj, this.actor._cardColor, this.actor._cardShadow, THREE);
+                normalizeSVG(this, obj, this.actor._color, this.actor._shadow, THREE);
                 if (texture) addTexture(texture, obj);
-
-                let holderGroup = new THREE.Group();
-                holderGroup.add(obj);
-                this.card3D.add(holderGroup);
+                this.card3D.add(obj);
             });
         }
         this.setRenderObject( this.card3D );
@@ -112,23 +108,24 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
     construct3D() {
         if (!this.actor._model3d || !this.actor._modelType) {return;}
         let model3d = this.actor._model3d;
+        console.log(this, model3d)
         let assetManager = this.service("AssetManager").assetManager;
 
         this.getBuffer(model3d).then((buffer) => {
             assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
-                this.card3D.add(obj);
 
                 obj.updateMatrixWorld(true);
                 obj.ready = true;
 
-                addShadows(obj, true, THREE);
+                addShadows(obj, this.actor._shadow, this.actor._singleSided, THREE);
 
                 let size = new THREE.Vector3(0, 0, 0);
                 new THREE.Box3().setFromObject(obj).getSize(size);
                 let max = Math.max(size.x, size.y, size.z);
                 let s = 4 / max;
                 obj.scale.set(s, s, s);
-
+                this.card3D.add(obj);
+/*
                 if (this.actor._cardTranslation) {
                     obj.translation.set(...this.actor._cardTranslation);
                 }
@@ -138,7 +135,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
                 if (this.actor._cardRotation) {
                     obj.rotation.set(...this.actor._cardRotation);
                 }
-                    
+*/                    
                 if (obj._croquetAnimation) {
                     const spec = obj._croquetAnimation;
                     spec.startTime = this.actor.creationTime;
@@ -214,32 +211,9 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             this.scaleTo([s[0] + w, s[1] + w, s[2] + w], 100);
         }
     }
-    /*
-    // communication from the Card_Actor
-    doPointerDown(p3d){this.hilite(DownColor)}
-
-    doPointerMove(p3d){}
-    
-    doPointerUp(p3d){
-        if(p3d && p3d.sameTarget)console.log("Do something");
-        else console.log("Don't do anything");
-        this.hilite(NoColor);
-    }
-    doPointerCancel(p3d){}
-    doPointerEnter(p3d){
-       // if(myAvatar.actor.playerId === p3d.playerId)
-       //     this.tween(this.card3D, new THREE.Quaternion(...p3d.rotation));
-        this.hilite(OverColor);
-    }
-    doPointerOver(p3d){}
-    doPointerLeave(p3d){this.hilite(NoColor)}
-    doPointerWheel(p3d){
-
-    }
-    */
     hilite(color) { 
         //viewRoot.outlinePass.selectedObjects = [this.card3D];
-        if(!this.actor._cardFullBright){
+        if(!this.actor._fullBright){
             let c = new THREE.Color(color);
             this.card3D.traverse(obj=>{if(obj.material)obj.material.emissive = c;});
         }

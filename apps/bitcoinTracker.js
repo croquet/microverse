@@ -125,12 +125,12 @@ export function constructBitcoin(t, r, s){
 
     let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
     let main = DCardActor.create({
-        cardShapeURL: `./assets/SVG/rectangle.svg`,
-        cardSurface: bSurface,
-        cardFullBright: bSurface.fullBright,
-        cardDepth: 0.1,
-        cardBevel:0.02,
-        cardColor:[1,1,1], // white
+        shapeURL: `./assets/SVG/rectangle.svg`,
+        surface: bSurface,
+        fullBright: bSurface.fullBright,
+        depth: 0.1,
+        color:[1,1,1], // white
+        shadow: true,
         translation:t,
         rotation: r,
         scale: [s,s,s],
@@ -138,7 +138,8 @@ export function constructBitcoin(t, r, s){
 
     let logo = BitLogoCard.create({
         cardShapeURL: './assets/SVG/BitcoinSign.svg',
-        cardColor: [1,1,1],
+        shadow: true,
+        color: [1,1,1],
         translation: [-0.35, 0.35, 0.01],
         scale: [0.25, 0.25, 0.25],
         parent: main

@@ -470,14 +470,14 @@ export class Loader {
         let contents = await setupFiles();
 
         let svg = await new Promise((resolve, reject) => {
-            const {fullBright, color} = options;
+            const {fullBright, color, depth, shadow, singleSided} = options;
             const M = fullBright ? THREE.MeshBasicMaterial : THREE.MeshStandardMaterial;
             const loader = new THREE.SVGLoader();
-
-            let depth = 0;
+            let offset = 0;
             
             loader.load(contents.svg, (data) => {
                 const paths = data.paths;
+                console.log(paths)
                 const group = new THREE.Group();
                 for ( let i = 0; i < paths.length; i ++) {
                     const path = paths[ i ];
@@ -491,10 +491,13 @@ export class Loader {
                         const shapes = THREE.SVGLoader.createShapes( path );
                         for ( let j = 0; j < shapes.length; j ++ ) {
                             const shape = shapes[ j ];
-                            const geometry = new THREE.ShapeGeometry( shape );
+                            let geometry;
+                            if(depth)
+                                geometry = new THREE.ExtrudeGeometry( shape, {depth:1+offset, bevelEnabled:false})
+                            else geometry = new THREE.ShapeGeometry( shape );
                             const mesh = new THREE.Mesh( geometry, material );
                             mesh.position.z += depth;
-                            depth += 0.002;
+                            offset += 0.002;
                             group.add( mesh );
                         }
                     }
@@ -532,15 +535,17 @@ export class Loader {
 
 }
 
-export function addShadows(obj3d, singleSide, THREE) {
+export function addShadows(obj3d, shadow, singleSide, THREE) {
     obj3d.traverse(n => {
         if(n.material) {
             if (singleSide) {
                 n.material.side = THREE.FrontSide; //only render front side
             }
             n.material.format = THREE.RGBAFormat; // fixes a bug in GLTF import
-            n.castShadow = true;
-            n.receiveShadow = true;
+            if(shadow){
+                n.castShadow = true;
+                n.receiveShadow = true;
+            }
         }
     });
 }
