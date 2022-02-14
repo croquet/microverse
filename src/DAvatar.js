@@ -413,8 +413,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let dy = e.clientY - this.knobY;
 
             // move the avatar
-            let v = dy*0.00005;
-            v = Math.min(Math.max(v, -0.008),0.008);
+            let v = dy*0.000075;
+            v = Math.min(Math.max(v, -0.01),0.01);
             this.setVelocity([0, 0, v]);
             this.speed = v;
             const yaw = dx * -0.000005;
