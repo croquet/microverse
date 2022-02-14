@@ -15,7 +15,7 @@ import { TextureSurface, VideoSurface } from './src/DSurface.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
 import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
-import { createChess } from './apps/chess.js';
+import { constructChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { constructBitcoin } from './apps/bitcoinTracker.js';
 import { constructFlamingo } from './apps/flamingo.js';
@@ -137,10 +137,11 @@ class MyModelRoot extends ModelRoot {
         this.lights = LightActor.create();
 
         DCardActor.create({
-            translation:[25, -90, -60],
+            translation:[25, -90.5, -60],
             scale:[200, 200, 200],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['walk'],
+            shadow: true,
             model3d: "./assets/3D/Refinery.glb.zip",
             modelType: "glb",
         });
@@ -181,18 +182,19 @@ class MyModelRoot extends ModelRoot {
             shadow: true,
             color:0xffffff, // white
             frameColor:0x666666,
-            translation:[5, 0.5, -1],
-            text: "Croquet is awesome",
+            translation:[5, 0.25, -1],
+            text: "Croquet is awesome!",
             textWidth: 600,
             textHeight: 600
         });
 
         // demonstrates how to create an object
-        //   constructChess([8, -2.5, -30], [6,6,6]);
+
         this.perlin = PerlinActor.create(
             {translation:[ 10, -2.75, -14],
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
+        constructChess([8, -2.5, -30], [6,6,6]);
         constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI / 2,0), 4);
         constructFlamingo(3, 8);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");

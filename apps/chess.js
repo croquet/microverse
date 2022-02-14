@@ -6,36 +6,32 @@ import { q_euler } from "@croquet/worldcore";
 const SCALE = 0.025;
 const SQUARE = 0.125;
 
-export function createChess(translation, scale, rotation){
+export function constructChess(translation, scale, rotation){
     let chessSurface = TextureSurface.create({url: './assets/images/chessboard.webp'});
     let svg = 'square-full.svg';
     let board = DCardActor.create(
     {
-        cardShapeURL: './assets/SVG/'+svg,
-        cardSurface: chessSurface,
-        cardFullBright: false,
-        cardDepth: 0.1,
-        cardBevel:0.02,
-        cardColor:[1,1,1], // white
-        rotation:q_euler(-Math.PI/2,0,0),
+        shapeURL: './assets/SVG/'+svg,
+        surface: chessSurface,
+        fullBright: false,
+        depth: 0.05,
+        color:0xffffff, // white
+        frameColor:0x666666,
+        rotation:q_euler(Math.PI/2,0,0),
         translation: translation,
         scale: scale,
-        //rotation: rotation,
-        cardShadow: true
+        shadow: true
     });
 
     let pawn  = DCardActor.create(
         {       
             model3d: './assets/3D/pawnlow.glb.zip',
-            //cardSurface: chessLightSurface,
-            cardFullBright: false,
-            cardColor:[1,1,1], // white
-            rotation:q_euler(-Math.PI/2, 0, 0),
-            cardShadow:true,
-            scale:[SCALE, SCALE, SCALE],
-//            cardTranslation: [0,0.028,0.035],
-            parent:board,
+            modelType: 'glb',            
+            rotation: q_euler(-Math.PI/2, 0, 0), //flip it 90 degrees
             translation: [-SQUARE*2.5,0,SQUARE*-2.5],
+            shadow: true,
+            scale:[SCALE, SCALE, SCALE],
+            parent: board
         });
         /*
     let king  = CardActor.create(
