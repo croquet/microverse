@@ -18,7 +18,7 @@ import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { constructBitcoin } from './apps/bitcoinTracker.js';
-
+import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
@@ -144,17 +144,7 @@ class MyModelRoot extends ModelRoot {
             model3d: "./assets/3D/Refinery.glb.zip",
             modelType: "glb",
         });
-        /*
-        DCardActor.create({
-            translation:[-152, -3, -228],
-            scale:[2,2,2],
-            // translation:[0, 15, 0],
-            //scale: [20,20,20],
-            layers: ['walk'],
-            model3d: "./assets/refineryx.glb.zip",
-            modelType: "glb",
-        });
-*/
+
         let tSurface = TextureSurface.create({url: './assets/images/Kay.jpg'});
         let t2Surface = TextureSurface.create({url: './assets/images/Colony.png'});
        
@@ -204,6 +194,7 @@ class MyModelRoot extends ModelRoot {
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
         constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI / 2,0), 4);
+        constructFlamingo(3, 8);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }
 

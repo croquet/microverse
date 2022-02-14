@@ -4,7 +4,7 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_PointerTarget, Data, GetPawn} from "@croquet/worldcore";
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_PointerTarget, Data, GetPawn} from '@croquet/worldcore';
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
@@ -25,7 +25,6 @@ let counter = 0;
 export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
     init(options) {
         super.init(options);
-        console.log(this, options)
         if (options.model3d) {
             this.creationTime = this.now();
         }
@@ -60,7 +59,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
     }
 
     constructCard() {
-        this.card3D = new THREE.Group();
+        this.card3D = new THREE.Group()
         if (this.actor._model3d && this.actor._modelType) {
             this.construct3D();
         }
@@ -87,6 +86,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
                 normalizeSVG(obj, this.actor._depth, this.actor._shadow, THREE);
                 this.aspect = obj.aspect;
                 if (texture) addTexture(texture, obj);
+                if(this.actor._offset)obj.position.set(...this.actor._offset);
                 this.card3D.add(obj);
             });
         }
@@ -125,6 +125,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
                 let max = Math.max(size.x, size.y, size.z);
                 let s = 4 / max;
                 obj.scale.set(s, s, s);
+                if(this.actor._offset)obj.position.set(...this.actor._offset);
                 this.card3D.add(obj);
                  
                 if (obj._croquetAnimation) {

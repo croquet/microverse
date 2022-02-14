@@ -92,7 +92,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
         ctx.font = "60px Arial";
         ctx.fillText("BTC-USD", this.canvas.width/2, 80);
         ctx.font = "100px Arial";
-        ctx.fillText(amount, this.canvas.width/2, 50+this.canvas.height/2);
+        ctx.fillText("$"+amount, this.canvas.width/2, 50+this.canvas.height/2);
         this.texture.needsUpdate=true;
         this.lastAmount = amount;
         this.publish("bitcoinChannel", 'setColor', color);
