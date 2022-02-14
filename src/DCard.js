@@ -25,6 +25,7 @@ let counter = 0;
 export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
     init(options) {
         super.init(options);
+        console.log(this, options)
         if (options.model3d) {
             this.creationTime = this.now();
         }
@@ -60,7 +61,6 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
     constructCard() {
         this.card3D = new THREE.Group();
-
         if (this.actor._model3d && this.actor._modelType) {
             this.construct3D();
         }
@@ -126,17 +126,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
                 let s = 4 / max;
                 obj.scale.set(s, s, s);
                 this.card3D.add(obj);
-/*
-                if (this.actor._cardTranslation) {
-                    obj.translation.set(...this.actor._cardTranslation);
-                }
-                if (this.actor._cardScale) {
-                    obj.scale.set(...this.actor._cardScale);
-                }
-                if (this.actor._cardRotation) {
-                    obj.rotation.set(...this.actor._cardRotation);
-                }
-*/                    
+                 
                 if (obj._croquetAnimation) {
                     const spec = obj._croquetAnimation;
                     spec.startTime = this.actor.creationTime;
@@ -212,13 +202,32 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             this.scaleTo([s[0] + w, s[1] + w, s[2] + w], 100);
         }
     }
+
+    setColor(color){
+        let c = new THREE.Color(color);
+        this.card3D.traverse(obj=>{
+            if(obj.material){
+                if(Array.isArray(obj.material))
+                    obj.material[0].color=c;
+                else obj.material.color=c;
+            }
+        });
+    }
+
     hilite(color) { 
         //viewRoot.outlinePass.selectedObjects = [this.card3D];
         if(!this.actor._fullBright){
             let c = new THREE.Color(color);
-            this.card3D.traverse(obj=>{if(obj.material)obj.material.emissive = c;});
+            this.card3D.traverse(obj=>{
+                if(obj.material){
+                if(Array.isArray(obj.material))
+                    obj.material[0].emissive=c;
+                else obj.material.emissive = c;
+                }
+            });
         }
     }
+
     tween(target, qEnd, onComplete){
         if(this.isTweening)return;
 

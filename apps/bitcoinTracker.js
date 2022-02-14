@@ -107,7 +107,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
 
 class BitLogoCard extends DCardActor{
     get pawn(){return BitLogoPawn}
-    get version(){return '0.09'}
+    get version(){return '0.11'}
 }
 BitLogoCard.register('BitLogoCard');
 
@@ -115,9 +115,6 @@ class BitLogoPawn extends DCardPawn{
     constructor(...args) {
         super(...args);
         this.subscribe('bitcoinChannel', 'setColor', this.setColor);
-    }
-    setColor(color){
-        this.hilite(color);
     }
 }
 
@@ -143,7 +140,7 @@ export function constructBitcoin(t, r, s){
         depth: 0.05,
         color: 0xffffff,
         frameColor: 0x666666,
-        translation: [-0.35, 0.35, 0.01],
+        translation: [-0.35, 0.35, 0.1],
         scale: [0.25, 0.25, 0.25],
         parent: main
     })
