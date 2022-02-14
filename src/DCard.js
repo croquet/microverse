@@ -110,7 +110,6 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
     construct3D() {
         if (!this.actor._model3d || !this.actor._modelType) {return;}
         let model3d = this.actor._model3d;
-        console.log(this, model3d)
         let assetManager = this.service("AssetManager").assetManager;
 
         this.getBuffer(model3d).then((buffer) => {

@@ -474,7 +474,6 @@ export class Loader {
             const M = fullBright ? THREE.MeshBasicMaterial : THREE.MeshStandardMaterial;
             const loader = new THREE.SVGLoader();
             let offset = 0;
-            console.log("FrameColor", frameColor)
             loader.load(contents.svg, (data) => {
                 const paths = data.paths;
                 const group = new THREE.Group();
@@ -522,7 +521,6 @@ export class Loader {
                         }
                     }
                 }
-                console.log(group)
                 resolve(group);
 	    });
         });
@@ -568,11 +566,9 @@ export function normalizeSVG(svgGroup, depth, shadow, three) {
         let sc = 1 / mx;
         svgGroup.position.multiplyScalar(sc);
         let sg = svgGroup.scale;
-        console.log(depth, sg)
         if(depth)
             svgGroup.scale.set(sg.x*sc, sg.y*sc, depth);
         else svgGroup.scale.multiplyScale(sc);
-        console.log(svgGroup.scale)
     }
 
     svgGroup.traverse(obj => {
@@ -624,7 +620,7 @@ function boundingBox(obj, bigBox, depth) {
 function extent3D(obj, bb) {
     let rVec = new THREE.Vector3();
     if (!bb) bb = boundingBox(obj);
-    //console.log("extent3D", bb)
+
     if (bb) {
         rVec.copy(bb.max);
         rVec.sub(bb.min);
@@ -635,7 +631,6 @@ function extent3D(obj, bb) {
 function center3D(obj, bb) {
     let rVec = new THREE.Vector3();
     if (!bb) bb = boundingBox(obj);
-    //console.log("center3D", bb)
     if (bb) {
         rVec.copy(bb.max);
         rVec.add(bb.min);
@@ -649,9 +644,8 @@ export function addTexture(texture, group) {
     group.traverse((child) => {
         if (child.material) {
             if(Array.isArray(child.material)){
-                console.log("I AM HERE!",child.material);
                 child.material[0].map = texture;
-               // child.material[2].map = texture;
+                //child.material[2].map = texture;
             }
             else child.material.map = texture;
         }

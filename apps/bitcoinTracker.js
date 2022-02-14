@@ -138,7 +138,7 @@ export function constructBitcoin(t, r, s){
     });
 
     let logo = BitLogoCard.create({
-        cardShapeURL: './assets/SVG/BitcoinSign.svg',
+        shapeURL: './assets/SVG/BitcoinSign.svg',
         shadow: true,
         depth: 0.05,
         color: 0xffffff,
