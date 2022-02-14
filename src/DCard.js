@@ -74,6 +74,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             let options = {
                 // texture: texture,
                 color: this.actor._color,
+                frameColor: this.actor._frameColor,
                 fullBright: this.actor._fullBright,
                 depth: this.actor._depth,
             };
@@ -83,7 +84,8 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
             this.getBuffer(this.actor._shapeURL).then((buffer) => {
                 return assetManager.load(buffer, "svg", THREE, options);
             }).then((obj) => {
-                normalizeSVG(this, obj, this.actor._color, this.actor._shadow, THREE);
+                normalizeSVG(obj, this.actor._depth, this.actor._shadow, THREE);
+                this.aspect = obj.aspect;
                 if (texture) addTexture(texture, obj);
                 this.card3D.add(obj);
             });

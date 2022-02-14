@@ -128,8 +128,9 @@ export function constructBitcoin(t, r, s){
         shapeURL: `./assets/SVG/rectangle.svg`,
         surface: bSurface,
         fullBright: bSurface.fullBright,
-        depth: 0.1,
-        color:[1,1,1], // white
+        depth: 0.05,
+        color:0xffffff, // white
+        frameColor: 0x666666,
         shadow: true,
         translation:t,
         rotation: r,
@@ -139,7 +140,9 @@ export function constructBitcoin(t, r, s){
     let logo = BitLogoCard.create({
         cardShapeURL: './assets/SVG/BitcoinSign.svg',
         shadow: true,
-        color: [1,1,1],
+        depth: 0.05,
+        color: 0xffffff,
+        frameColor: 0x666666,
         translation: [-0.35, 0.35, 0.01],
         scale: [0.25, 0.25, 0.25],
         parent: main

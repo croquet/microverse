@@ -470,24 +470,25 @@ export class Loader {
         let contents = await setupFiles();
 
         let svg = await new Promise((resolve, reject) => {
-            const {fullBright, color, depth, shadow, singleSided} = options;
+            const {fullBright, color, frameColor, depth, shadow, singleSided} = options;
             const M = fullBright ? THREE.MeshBasicMaterial : THREE.MeshStandardMaterial;
             const loader = new THREE.SVGLoader();
             let offset = 0;
-            
+            console.log("FrameColor", frameColor)
             loader.load(contents.svg, (data) => {
                 const paths = data.paths;
-                console.log(paths)
                 const group = new THREE.Group();
                 for ( let i = 0; i < paths.length; i ++) {
                     const path = paths[ i ];
                     const fillColor = path.userData.style.fill;
                     if ( fillColor !== undefined && fillColor !== 'none' ) {
-                        const material = new M( {
+                        let material = new M( {
                             color: new THREE.Color().setStyle( fillColor ),
                             opacity: path.userData.style.fillOpacity,
-                            side: THREE.DoubleSide,
+                            side: (depth?THREE.FrontSide:THREE.DoubleSide),
                         } );
+                        if(color)material.color=new THREE.Color(color);
+                        if(depth)material = [material, new THREE.MeshStandardMaterial({color:frameColor})];
                         const shapes = THREE.SVGLoader.createShapes( path );
                         for ( let j = 0; j < shapes.length; j ++ ) {
                             const shape = shapes[ j ];
@@ -521,6 +522,7 @@ export class Loader {
                         }
                     }
                 }
+                console.log(group)
                 resolve(group);
 	    });
         });
@@ -550,7 +552,7 @@ export function addShadows(obj3d, shadow, singleSide, THREE) {
     });
 }
 
-export function normalizeSVG(target, svgGroup, color, shadow, three) {
+export function normalizeSVG(svgGroup, depth, shadow, three) {
     THREE = three;
     let bb = boundingBox(svgGroup);
     let ext = extent3D(svgGroup, bb);
@@ -561,18 +563,21 @@ export function normalizeSVG(target, svgGroup, color, shadow, three) {
     // scale SVG object to 1 along largest axis
     if (mx > 0) {
         // need svgGroup.aspect for positioning in jump to card
-        if (ext.y) target.aspect = ext.x / ext.y;
+        if (ext.y) svgGroup.aspect = ext.x / ext.y;
         svgGroup.position.set(-cen.x, -cen.y, -cen.z);
         let sc = 1 / mx;
         svgGroup.position.multiplyScalar(sc);
-        svgGroup.scale.multiplyScalar(sc);
+        let sg = svgGroup.scale;
+        console.log(depth, sg)
+        if(depth)
+            svgGroup.scale.set(sg.x*sc, sg.y*sc, depth);
+        else svgGroup.scale.multiplyScale(sc);
+        console.log(svgGroup.scale)
     }
-    let c;
-    if (color) c = new THREE.Color(...color);
+
     svgGroup.traverse(obj => {
         if (obj.material) {
             normalizeUV(obj.geometry.attributes.uv.array, bb);
-            if (c) obj.material.color = c; 
             if (shadow) { 
                 obj.castShadow = true;
                 obj.receiveShadow = true;
@@ -642,6 +647,13 @@ function center3D(obj, bb) {
 export function addTexture(texture, group) {
     //const texture = new THREE.TextureLoader().load(url);
     group.traverse((child) => {
-        if (child.material) child.material.map = texture;
+        if (child.material) {
+            if(Array.isArray(child.material)){
+                console.log("I AM HERE!",child.material);
+                child.material[0].map = texture;
+               // child.material[2].map = texture;
+            }
+            else child.material.map = texture;
+        }
     });
 }

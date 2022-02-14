@@ -80,9 +80,10 @@ class MyAvatar extends AvatarActor {
         DCardActor.create({
             // cardShapeURL: `./assets/SVG/credit-card.svg`,
             fullBright: true,
-            depth: 0.1,
+            depth: 0.05,
             shadow: true,
-            color:[1, 1, 1], // white
+            color:0xffffff, // white
+            frameColor:0x666666,
             translation: tackPoint,
             rotation: rotPoint,
             text: "",
@@ -174,8 +175,9 @@ class MyModelRoot extends ModelRoot {
                 surface: surfaces[i],
                 fullBright: surfaces[i].fullBright,
                 shadow: true,
-                depth: 0.1,
-                color:[1,1,1], // white
+                depth: 0.05,
+                color:0xffffff, // white
+                frameColor:0x666666,
                 translation:[-4,-0.5, -6 * (i + 1)],
                 rotation: q_euler(0, Math.PI / 2, 0),
                 multiuser: true,
@@ -185,9 +187,10 @@ class MyModelRoot extends ModelRoot {
 
         DCardActor.create({
             fullBright: true,
-            depth: 0.1,
+            depth: 0.05,
             shadow: true,
-            color:[1,1,1], // white
+            color:0xffffff, // white
+            frameColor:0x666666,
             translation:[5, 0.5, -1],
             text: "Croquet is awesome",
             textWidth: 600,
