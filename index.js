@@ -8,13 +8,13 @@ import {
     AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
 } from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
-import { LightActor } from './src/DLight.js';
+//import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
 import { TextureSurface, VideoSurface } from './src/DSurface.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
-import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
+//import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { constructChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { constructBitcoin } from './apps/bitcoinTracker.js';
@@ -134,7 +134,7 @@ class MyModelRoot extends ModelRoot {
     init(...args) {
         super.init(...args);
 
-        this.lights = LightActor.create();
+        //this.lights = LightActor.create();
 
         DCardActor.create({
             translation:[25, -90.5, -60],
@@ -152,13 +152,13 @@ class MyModelRoot extends ModelRoot {
         let vSurface = VideoSurface.create({url:'./assets/videos/fromPCtoHMD.mp4'});
         let v2Surface = VideoSurface.create({url:'./assets/videos/Colony.mp4'});
         
-        let cSurface = SimpleCanvasSurface.create({name: 'SimpleCanvasSurface'});
+        //let cSurface = SimpleCanvasSurface.create({name: 'SimpleCanvasSurface'});
         let gSurface = MultiBlaster.create({name:'MultiBlaster'});
 
         let svgCards = [
             'credit-card.svg', 'square.svg', 'credit-card.svg', 
             'square.svg', 'square-full.svg', 'circle.svg', 'BitcoinSign.svg', 'rectangle.svg', 'cog.svg'];
-        let surfaces = [tSurface, cSurface, vSurface, gSurface, v2Surface, vSurface, cSurface];
+        let surfaces = [tSurface, tSurface, vSurface, gSurface, v2Surface, vSurface, cSurface];
 
         for (let i = 0; i < 6; i++) {
             DCardActor.create({

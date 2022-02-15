@@ -8,13 +8,14 @@ import {
     AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
 } from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
-import { LightActor } from './src/DLight.js';
+//import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
 import { DynaverseAppManager } from './src/DSurface.js';
+import { register as registerLight } from './src/DLight.js';
 // apps -------------------------------------------
 import { register as registerMultiblaster } from './apps/multiblaster.js';
-import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
+import { register as registerBoundingBall } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { constructBitcoin } from './apps/bitcoinTracker.js';
@@ -105,9 +106,33 @@ class MyModelRoot extends ModelRoot {
     init(options, persistentData) {
         super.init(options);
 
-        registerMultiblaster("MultiBlaster", this.service("DynaverseAppManager"));
+        let appManager = this.service("DynaverseAppManager");
+
+        registerMultiblaster("MultiBlaster", appManager);
+        registerLight("Light", appManager);
+        registerBoundingBall("BouncingBall", appManager);
+
+        DCardActor.create({
+            translation:[25, -90.5, -60],
+            scale:[200, 200, 200],
+            rotation: q_euler(0, Math.PI, 0),
+            layers: ['walk'],
+            shadow: true,
+            options: {
+                type: "model",
+                model3d: "./assets/3D/Refinery.glb.zip",
+                singleSided: true,
+                shadow: true,
+            }
+        });
+
+        DCardActor.create({
+            options: {
+                type: "lighting",
+                name: "Light"
+            }
+        });
         
-        this.lights = LightActor.create();
         DCardActor.create({
             translation: [0, 0, -5],
             options: {
@@ -115,8 +140,6 @@ class MyModelRoot extends ModelRoot {
                 runs: [{text: "hello"}]
             }
         });
-
-        /*
 
         DCardActor.create({
             translation: [1, 0, -3],
@@ -158,8 +181,6 @@ class MyModelRoot extends ModelRoot {
             }
         });
 
-        */
-
         DCardActor.create({
             translation: [-10, -5, -31],
             options: {
@@ -173,6 +194,21 @@ class MyModelRoot extends ModelRoot {
                 color: 0xffffff,
                 depth: 0.05,
                 fullBright: true
+            }
+        });
+        DCardActor.create({
+            translation: [-5, -5, -31],
+            options: {
+                type: "app",
+                name: "BouncingBall",
+                textureType: "canvas",
+                width: 400,
+                height: 400,
+                shapeURL: './assets/SVG/square.svg',
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true,
             }
         });
     }

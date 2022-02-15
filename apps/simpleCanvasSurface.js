@@ -1,13 +1,13 @@
-import { CanvasSurface, CanvasSurfacePawn} from "../src/DSurface.js";
+import { ShapeSurface, ShapeSurfacePawn} from "../src/DSurface.js";
 
 //------------------------------------------------------
 // SimpleCanvasSurface
 // A very simple demonstration of how to create a Surface application.
 
 const SPEED = 10;   
-export class SimpleCanvasSurface extends CanvasSurface{
-    init(...args) {
-        super.init(...args);
+export class SimpleCanvasSurface extends ShapeSurface {
+    init(options) {
+        super.init(options);
         this.position = [512,512];
         this.velocity = this.randomVelocity();
         this.radius = 50;
@@ -15,6 +15,14 @@ export class SimpleCanvasSurface extends CanvasSurface{
         this.future(100).bounce();
     }
     get pawn(){return SimpleCanvasSurfacePawn}
+
+    set velocity(v) {
+        this._velocity = v;
+    }
+
+    get velocity() {
+        return this._velocity;
+    }
     
     randomVelocity() {
         const r = this.random() * 2 * Math.PI;
@@ -52,9 +60,9 @@ export class SimpleCanvasSurface extends CanvasSurface{
 }
 SimpleCanvasSurface.register('SimpleCanvasSurface');
 
-export class SimpleCanvasSurfacePawn extends CanvasSurfacePawn{
-    constructor(...args){
-        super(...args);
+export class SimpleCanvasSurfacePawn extends ShapeSurfacePawn {
+    constructor(options) {
+        super(options);
         this.updatePosition(this.actor.position);
         // var body = document.getElementsByTagName("body")[0];
         // body.appendChild(this.canvas);
@@ -80,4 +88,8 @@ export class SimpleCanvasSurfacePawn extends CanvasSurfacePawn{
     onPointerDown(p3d){
         this.say("set", p3d.uv);
     }
+}
+
+export function register(name, registry) {
+    registry.set(name, SimpleCanvasSurface);
 }

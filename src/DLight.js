@@ -1,7 +1,9 @@
 
 
 import {
-    THREE, Actor, Pawn, mix, AM_Spatial, PM_Spatial, PM_ThreeVisible} from "@croquet/worldcore";
+    THREE, Actor, Pawn, mix, AM_Smoothed, PM_Smoothed, PM_ThreeVisible} from "@croquet/worldcore";
+
+import { Surface, SurfacePawn } from "./DSurface.js";
 
 import skyFront from "../assets/sky/sh_ft.png";
 import skyBack from "../assets/sky/sh_bk.png";
@@ -10,21 +12,21 @@ import skyLeft from "../assets/sky/sh_lf.png";
 import skyUp from "../assets/sky/sh_up.png";
 import skyDown from "../assets/sky/sh_dn.png";
 
-export class LightActor extends mix(Actor).with(AM_Spatial) {
-    get pawn() {return LightPawn;}
+export class LightSurface extends mix(Surface).with(AM_Smoothed) {
+    get pawn() {return LightSurfacePawn;}
 }
-LightActor.register('LightActor');
+LightSurface.register('LightSurface');
 
-class LightPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
-    constructor(...args) {
-        super(...args);
+class LightSurfacePawn extends mix(SurfacePawn).with(PM_Smoothed, PM_ThreeVisible) {
+    constructor(options) {
+        super(options);
         this.addToLayers('light');
         let scene = window.scene =  this.service("ThreeRenderManager").scene;
 
         let group = new THREE.Group();
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
-    // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
+        // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         const ambient = new THREE.AmbientLight( 0xffffff, .75 );
  
         group.add(ambient);
@@ -59,10 +61,14 @@ class LightPawn extends mix(Pawn).with(PM_Spatial, PM_ThreeVisible) {
         this.setRenderObject(group);
     }
 
-    destroy(){
+    destroy() {
         super.destroy();
         this.background.dispose();
         this.sun.dispose();
         this.hemiLight.dispose();
     }
+}
+
+export function register(name, registry) {
+    registry.set(name, LightSurface);
 }

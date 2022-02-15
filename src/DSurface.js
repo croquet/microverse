@@ -56,6 +56,12 @@ export function surfaceFrom(options, card) {
     if (options.type === "shape") {
         return ShapeSurface.create(options);
     }
+
+    if (options.type === "lighting") {
+        // we will have to redo this.
+        let Cls = card.service("DynaverseAppManager").get(options.name);
+        return Cls.create(options);
+    }
 }
 
 export class Surface extends Actor {
@@ -70,7 +76,8 @@ export class Surface extends Actor {
     get fullBright(){return false;}
 
 }
-class SurfacePawn extends Pawn {
+
+export class SurfacePawn extends Pawn {
     constructor(actor) {
         super(actor);
     }
@@ -208,7 +215,7 @@ export class ModelSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_Th
     construct3D() {
         let model3d = this.actor._model3d;
         let modelType = this.actor._modelType;
-        if (!model3d || !modelType) {return;}
+        if (!model3d) {return;}
         let assetManager = this.service("AssetManager").assetManager;
 
         this.getBuffer(model3d).then((buffer) => {
