@@ -8,7 +8,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
-import { Surface } from './DSurface.js';
+import { Surface, surfaceFrom } from './DSurface.js';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -30,7 +30,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
     }
 
     createSurface(options) {
-        this._surface = Surface.from(options);
+        this._surface = surfaceFrom(options, this);
         this._surface.set({parent: parent = options.parent || this}); // or null
     }
 

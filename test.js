@@ -11,9 +11,9 @@ import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor } from './src/DCard.js';
-import { TextureSurface, VideoSurface } from './src/DSurface.js';
+import { DynaverseAppManager } from './src/DSurface.js';
 // apps -------------------------------------------
-import { MultiBlaster } from './apps/multiblaster.js';
+import { register as registerMultiblaster } from './apps/multiblaster.js';
 import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
@@ -32,6 +32,8 @@ Constants.AvatarNames = [
     "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
+
+let apps = new Map();
 
 function loadLoaders() {
     let libs = [
@@ -98,10 +100,13 @@ MyPlayerManager.register("MyPlayerManager");
 
 class MyModelRoot extends ModelRoot {
     static modelServices() {
-        return [MyPlayerManager];
+        return [MyPlayerManager, {service: DynaverseAppManager, options: {registry: apps}}];
     }
     init(options, persistentData) {
         super.init(options);
+
+        registerMultiblaster("MultiBlaster", this.service("DynaverseAppManager"));
+        
         this.lights = LightActor.create();
         DCardActor.create({
             translation: [0, 0, -5],
@@ -110,6 +115,8 @@ class MyModelRoot extends ModelRoot {
                 runs: [{text: "hello"}]
             }
         });
+
+        /*
 
         DCardActor.create({
             translation: [1, 0, -3],
@@ -144,6 +151,24 @@ class MyModelRoot extends ModelRoot {
                 width: 400,
                 height: 400,
                 shapeURL: './assets/SVG/credit-card.svg',
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true
+            }
+        });
+
+        */
+
+        DCardActor.create({
+            translation: [-10, -5, -31],
+            options: {
+                type: "app",
+                name: "MultiBlaster",
+                textureType: "canvas",
+                width: 400,
+                height: 400,
+                shapeURL: './assets/SVG/square.svg',
                 frameColor: 0x666666,
                 color: 0xffffff,
                 depth: 0.05,

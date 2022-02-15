@@ -7,10 +7,56 @@ import {
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 
+export class DynaverseAppManager extends ModelService {
+    init(options) {
+        super.init("DynaverseAppManager");
+        this.$apps = options.registry; // new Map() {[name]: cls}
+    }
+
+    set(name, cls) {
+        this.$apps.set(name, cls);
+    }
+    get(name) {
+        return this.$apps.get(name);
+    }
+    delete(name) {
+        return this.$apps.delete(name);
+    }
+}
+
+DynaverseAppManager.register("DynaverseAppManager");
+
 //------------------------------------------------------
 // Surface
 // Base class for all surface classes.
 // A smart texture added to a card.
+
+export function surfaceFrom(options, card) {
+    if (options.type === "text") {
+        let surfaceOptions = {
+            isSticky: options.isSticky || true,
+            color: options.color || 0xf4e056,
+            textWidth: options.textWidth || 500,
+            textHeight: options.textHeight || 500,
+            runs: options.runs || []
+        };
+
+        return TextFieldSurface.create({options: surfaceOptions});
+    }
+
+    if (options.type === "app") {
+        let Cls = card.service("DynaverseAppManager").get(options.name);
+        return Cls.create(options);
+    }
+
+    if (options.type === "model") {
+        return ModelSurface.create(options);
+    }
+
+    if (options.type === "shape") {
+        return ShapeSurface.create(options);
+    }
+}
 
 export class Surface extends Actor {
     get pawn(){return SurfacePawn}
@@ -23,32 +69,6 @@ export class Surface extends Actor {
     get height(){return this._height || 1024;}
     get fullBright(){return false;}
 
-    static from(options) {
-        if (options.type === "text") {
-            let surfaceOptions = {
-                isSticky: options.isSticky || true,
-                color: options.color || 0xf4e056,
-                textWidth: options.textWidth || 500,
-                textHeight: options.textHeight || 500,
-                runs: options.runs || []
-            };
-
-            return TextFieldSurface.create({options: surfaceOptions});
-        }
-
-        if (options.type === "app") {
-            let Cls = this.service("DynaverseAppRegistry").get(options.name);
-            return new Cls(options.appOptions);
-        }
-
-        if (options.type === "model") {
-            return ModelSurface.create(options);
-        }
-
-        if (options.type === "shape") {
-            return ShapeSurface.create(options);
-        }
-    }
 }
 class SurfacePawn extends Pawn {
     constructor(actor) {
@@ -216,23 +236,6 @@ export class ModelSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_Th
     }
 }
         
-export class DynaverseAppRegistry extends ModelService {
-    init(name) {
-        super.init(name || "DynaverseAppRegistry");
-        this.apps = new Map(); // {[name]: cls}
-    }
-
-    set(name, cls) {
-        this.apps.set(name, cls);
-    }
-    get(name) {
-        return this.apps.get(name);
-    }
-    delete(name) {
-        return this.apps.delete(name);
-    }
-}
-
 //------------------------------------------------------
 // ShapeSurface
 // An SVG shape that may be extruded

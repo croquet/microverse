@@ -1,13 +1,13 @@
 
 import { Actor, Pawn } from "@croquet/worldcore";
-import { CanvasSurface, CanvasSurfacePawn} from "../src/DSurface.js";
+import { ShapeSurface, ShapeSurfacePawn} from "../src/DSurface.js";
 
 /////////// Model code is executed inside of synced VM /////////// 
 
-export class MultiBlaster extends CanvasSurface {
-    get pawn(){ return MultiBlasterDisplay }
-    init(...args) {
-        super.init(...args);
+export class MultiBlaster extends ShapeSurface {
+    get pawn(){ return MultiBlasterDisplay; }
+    init(options) {
+        super.init(options);
         this.beWellKnownAs("multiBlaster");
         this.ships = new Map();
         this.asteroids = new Set();
@@ -264,9 +264,9 @@ Blast.register("Blast");
 /////////// Code below is executed outside of synced VM /////////// 
 
 
-class MultiBlasterDisplay extends CanvasSurfacePawn {
-    constructor(...args) {
-        super(...args);
+class MultiBlasterDisplay extends ShapeSurfacePawn {
+    constructor(options) {
+        super(options);
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 
         this.context = this.canvas.getContext("2d");
@@ -466,4 +466,8 @@ class MultiBlasterDisplay extends CanvasSurfacePawn {
         this.context.closePath();
         this.context.stroke();
     }
+}
+
+export function register(name, registry) {
+    registry.set(name, MultiBlaster);
 }
