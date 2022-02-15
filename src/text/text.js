@@ -82,7 +82,7 @@ export class SyncedStateManager extends ViewService {
 export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
     init(options) {
         this.doc = new Doc();
-        this.doc.load([]);
+        this.doc.load(options.runs || []);
         // this.doc.load([
         // {text: "ab c ke eke ekeke ekek eke ek eke ke ek eke ek ek ee  ke kee ke", style: {size: 24}},
         // ]);

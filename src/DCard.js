@@ -8,6 +8,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
+import { Surface } from './DSurface.js';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -25,19 +26,12 @@ let counter = 0;
 export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
     init(options) {
         super.init(options);
-        if (options.model3d) {
-            this.creationTime = this.now();
-        }
+        this.createSurface(options.options);
+    }
 
-        if (this._text !== undefined) {
-            this.textActor = TextFieldActor.create({
-                parent: this,
-                isSticky: true,
-                textWidth: options.textWidth,
-                textHeight: options.textHeight
-            });
-            this.textActor.loadAndReset([{text: this._text}]);
-        }
+    createSurface(options) {
+        this._surface = Surface.from(options);
+        this._surface.set({parent: parent = options.parent || this}); // or null
     }
 
     get pawn() { return DCardPawn; }
@@ -60,82 +54,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
     constructCard() {
         this.card3D = new THREE.Group()
-        if (this.actor._model3d && this.actor._modelType) {
-            this.construct3D();
-        }
-
-        let texture;
-        if(this.actor.surface) {
-            this.surface = this.service("PawnManager").get(this.actor.surface.id);
-            texture = this.surface.texture;
-        }
-        if (this.actor._shapeURL) {
-            let options = {
-                // texture: texture,
-                color: this.actor._color,
-                frameColor: this.actor._frameColor,
-                fullBright: this.actor._fullBright,
-                depth: this.actor._depth,
-            };
-
-            this.isFlat = true;
-
-            this.getBuffer(this.actor._shapeURL).then((buffer) => {
-                return assetManager.load(buffer, "svg", THREE, options);
-            }).then((obj) => {
-                normalizeSVG(obj, this.actor._depth, this.actor._shadow, THREE);
-                this.aspect = obj.aspect;
-                if (texture) addTexture(texture, obj);
-                if(this.actor._offset)obj.position.set(...this.actor._offset);
-                this.card3D.add(obj);
-            });
-        }
         this.setRenderObject( this.card3D );
-    }
-
-    getBuffer(name) {
-        if (name.startsWith("http://") ||
-            name.startsWith("https://") ||
-            name.startsWith(".") ||
-            name.startsWith("/")) {
-            return fetch(name)
-                .then((resp) => resp.arrayBuffer())
-                .then((arrayBuffer) => new Uint8Array(arrayBuffer));
-        } else {
-            let handle = Data.fromId(name);
-            return Data.fetch(this.sessionId, handle);
-        }
-    }
-
-    construct3D() {
-        if (!this.actor._model3d || !this.actor._modelType) {return;}
-        let model3d = this.actor._model3d;
-        let assetManager = this.service("AssetManager").assetManager;
-
-        this.getBuffer(model3d).then((buffer) => {
-            assetManager.load(buffer, this.actor._modelType, THREE).then((obj) => {
-
-                obj.updateMatrixWorld(true);
-                obj.ready = true;
-
-                addShadows(obj, this.actor._shadow, this.actor._singleSided, THREE);
-
-                let size = new THREE.Vector3(0, 0, 0);
-                new THREE.Box3().setFromObject(obj).getSize(size);
-                let max = Math.max(size.x, size.y, size.z);
-                let s = 4 / max;
-                obj.scale.set(s, s, s);
-                if(this.actor._offset)obj.position.set(...this.actor._offset);
-                this.card3D.add(obj);
-                 
-                if (obj._croquetAnimation) {
-                    const spec = obj._croquetAnimation;
-                    spec.startTime = this.actor.creationTime;
-                    this.animationSpec = spec;
-                    this.future(500).runAnimation();
-                }
-            });
-        });
     }
 
     onFocus(pointerId) {

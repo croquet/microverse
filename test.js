@@ -18,7 +18,7 @@ import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { constructBitcoin } from './apps/bitcoinTracker.js';
-
+import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
@@ -57,39 +57,9 @@ class MyAvatar extends AvatarActor {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
-        this.listen("addSticky", this.addSticky);
     }
 
     get pawn() {return MyAvatarPawn;}
-
-    addSticky(pe) {
-        let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
-        let normal = [...pe.normal]; // clear up and down
-        normal[1] = 0;
-        let nsq = v3_sqrMag(normal);
-        let rotPoint;
-        if(nsq > 0.0001){
-            normal = v3_normalize(normal);
-            let theta = Math.atan2(normal[0], normal[2]);
-            rotPoint = q_euler(0, theta, 0);
-        } else {
-            rotPoint = this.rotation;
-            tackPoint[1] += 2;
-        }
-
-        DCardActor.create({
-            // cardShapeURL: `./assets/SVG/credit-card.svg`,
-            cardFullBright: true,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1, 1, 1], // white
-            translation: tackPoint,
-            rotation: rotPoint,
-            text: "",
-            textWidth: 600,
-            textHeight: 600
-        });
-    }
 }
 
 MyAvatar.register('MyAvatar');
@@ -130,61 +100,57 @@ class MyModelRoot extends ModelRoot {
     static modelServices() {
         return [MyPlayerManager];
     }
-    init(...args) {
-        super.init(...args);
-
+    init(options, persistentData) {
+        super.init(options);
         this.lights = LightActor.create();
-
         DCardActor.create({
-            cardFullBright: true,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1,1,1], // white
-            translation:[-1, 0.5, -5],
-            text: "Hello",
-            textWidth: 600,
-            textHeight: 600
+            translation: [0, 0, -5],
+            options: {
+                type: "text",
+                runs: [{text: "hello"}]
+            }
         });
 
         DCardActor.create({
-            cardFullBright: true,
-            cardDepth: 0.1,
-            cardBevel:0.02,
-            cardColor:[1,1,1], // white
-            translation:[1, 0.5, -5],
-            text: "Good bye",
-            textWidth: 600,
-            textHeight: 600
+            translation: [1, 0, -3],
+            options: {
+                type: "model",
+                model3d: "./assets/avatars/generic/1.zip",
+                modelType: "glb",
+                shadow: true,
+                singleSided: true,
+            }
         });
 
-        this.subscribe(this.id, "fileUploaded", "fileUploaded");
+        DCardActor.create({
+            translation: [-1, -5, -30],
+            options: {
+                type: "shape",
+                textureType: "video",
+                textureURL: "./assets/videos/fromPCtoHMD.mp4",
+                shapeURL: './assets/SVG/credit-card.svg',
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true
+            }
+        });
+
+        DCardActor.create({
+            translation: [-10, -5, -31],
+            options: {
+                type: "shape",
+                textureType: "canvas",
+                width: 400,
+                height: 400,
+                shapeURL: './assets/SVG/credit-card.svg',
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true
+            }
+        });
     }
-
-    fileUploaded(data) {
-        let {dataId, fileName, type, avatarId} = data;
-        // this.assets.set(dataId, dataId, type);
-        console.log(dataId, fileName, type, avatarId);
-        let avatar = this.service('ActorManager').get(avatarId);
-        
-        let n = avatar.lookNormal;
-        let t = avatar.translation;
-        let r = avatar.rotation;
-        console.log("drop here", n, t, r);
-        let p = v3_add(v3_scale(n, 6),t);
-
-        DCardActor.create({
-            //cardDepth: 0.1,
-            //cardBevel:0.02,
-            //cardColor:[1,1,1], // white
-            translation: p,
-            rotation: r,
-            //scale: [1,1,1],
-            model3d: dataId,
-            modelType: type,
-        });
-        this.publish(this.id, "fileLoadRequested", data);
-    }
-    
 }
 
 MyModelRoot.register("MyModelRoot");
