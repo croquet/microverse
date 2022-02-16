@@ -182,7 +182,7 @@ class MyModelRoot extends ModelRoot {
             shadow: true,
             color:0xffffff, // white
             frameColor:0x666666,
-            translation:[5, 0.25, -1],
+            translation:[5, -0.5, -10],
             text: "Croquet is awesome!",
             textWidth: 600,
             textHeight: 600
