@@ -1,10 +1,10 @@
 
-import { Actor, Pawn } from "@croquet/worldcore";
+import { Actor, Pawn, mix, AM_PointerTarget, PM_PointerTarget } from "@croquet/worldcore";
 import { ShapeSurface, ShapeSurfacePawn} from "../src/DSurface.js";
 
 /////////// Model code is executed inside of synced VM /////////// 
 
-export class MultiBlaster extends ShapeSurface {
+export class MultiBlaster extends mix(ShapeSurface).with(AM_PointerTarget) {
     get pawn(){ return MultiBlasterDisplay; }
     init(options) {
         super.init(options);
@@ -264,13 +264,15 @@ Blast.register("Blast");
 /////////// Code below is executed outside of synced VM /////////// 
 
 
-class MultiBlasterDisplay extends ShapeSurfacePawn {
-    constructor(options) {
-        super(options);
+class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
+    constructor(actor) {
+        super(actor);
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 
         this.context = this.canvas.getContext("2d");
         this.future(50).update();
+
+        this.renderObject.name = "multiblaster";
     }
 
     onPointerDown(p3d){

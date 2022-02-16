@@ -9,21 +9,13 @@ export class SimpleCanvasSurface extends ShapeSurface {
     init(options) {
         super.init(options);
         this.position = [512,512];
-        this.velocity = this.randomVelocity();
+        this.ballVelocity = this.randomVelocity();
         this.radius = 50;
         this.listen("set", this.setPosition);
         this.future(100).bounce();
     }
     get pawn(){return SimpleCanvasSurfacePawn}
 
-    set velocity(v) {
-        this._velocity = v;
-    }
-
-    get velocity() {
-        return this._velocity;
-    }
-    
     randomVelocity() {
         const r = this.random() * 2 * Math.PI;
         return [Math.cos(r) * SPEED, Math.sin(r) * SPEED];
@@ -31,17 +23,18 @@ export class SimpleCanvasSurface extends ShapeSurface {
 
     bounce(){
         let px = this.position[0], py=this.position[1];
-        px+=this.velocity[0];
-        py+=this.velocity[1];
+        let vel = this.ballVelocity;
+        px+=vel[0];
+        py+=vel[1];
         let dx = 0, dy = 0;
         if(px<this.radius)dx = 1;
         else if (px>this.width-this.radius) dx = -1;
         if(py<this.radius)dy=1; 
         else if(py>this.height-this.radius)dy = -1;
         if(dx||dy){
-            this.velocity=this.randomVelocity();
-            if(dx)this.velocity[0]=Math.abs(this.velocity[0])*dx;
-            if(dy)this.velocity[1]=Math.abs(this.velocity[1])*dy;
+            this.ballVelocity=this.randomVelocity();
+            if(dx)this.ballVelocity[0]=Math.abs(this.ballVelocity[0])*dx;
+            if(dy)this.ballVelocity[1]=Math.abs(this.ballVelocity[1])*dy;
         }
         this.updatePosition([px,py]);
         this.future(50).bounce();

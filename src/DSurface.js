@@ -62,6 +62,17 @@ export function surfaceFrom(options, card) {
         let Cls = card.service("DynaverseAppManager").get(options.name);
         return Cls.create(options);
     }
+
+    if (options.type === "code") {
+        let surfaceOptions = {
+            isSticky: false,
+            color: 0xFFFFFF,
+            textWidth: options.textWidth || 500,
+            textHeight: options.textHeight || 500,
+            isExternal: true,
+        };
+        return TextFieldSurface.create({options: surfaceOptions});
+    }
 }
 
 export class Surface extends Actor {
@@ -210,6 +221,11 @@ export class ModelSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_Th
     constructor(actor) {
         super(actor);
         this.construct3D();
+        if (actor._layers) {
+            this.addToLayers(...actor._layers);
+        }
+        this.surface3d = new THREE.Group();
+        this.setRenderObject(this.surface3d);
     }
 
     construct3D() {
@@ -222,22 +238,28 @@ export class ModelSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_Th
             assetManager.load(buffer, modelType, THREE).then((obj) => {
                 obj.updateMatrixWorld(true);
                 addShadows(obj, this.actor._shadow, this.actor._singleSided, THREE);
-
-                let size = new THREE.Vector3(0, 0, 0);
-                new THREE.Box3().setFromObject(obj).getSize(size);
-                let max = Math.max(size.x, size.y, size.z);
-                let s = 4 / max;
-                obj.scale.set(s, s, s);
-                if (this.actor._offset) {
-                    obj.position.set(...this.actor._offset);
+                if (this.actor._scale) {
+                    obj.scale.set(...this.actor._scale);
+                } else {
+                    let size = new THREE.Vector3(0, 0, 0);
+                    new THREE.Box3().setFromObject(obj).getSize(size);
+                    let max = Math.max(size.x, size.y, size.z);
+                    let s = 4 / max;
+                    obj.scale.set(s, s, s);
                 }
-                this.setRenderObject(obj);
+                if (this.actor._translation) {
+                    obj.position.set(...this.actor._translation);
+                }
+                if (this.actor._rotation) {
+                    obj.rotation.set(...this.actor._rotation);
+                }
                 if (obj._croquetAnimation) {
                     const spec = obj._croquetAnimation;
                     spec.startTime = this.actor.creationTime;
                     this.animationSpec = spec;
                     this.future(500).runAnimation();
                 }
+                this.surface3d.add(obj);
             });
         });
     }
@@ -260,6 +282,13 @@ ShapeSurface.register('ShapeSurface');
 export class ShapeSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_ThreeVisible) {
     constructor(actor) {
         super(actor);
+        this.surface3d = new THREE.Group();
+        this.setRenderObject(this.surface3d);
+
+        if (actor._layers) {
+            this.addToLayers(...actor._layers);
+        }
+        
         if (actor._textureType === "video") {
             this.video = document.createElement('video');
             this.video.src = this.actor._textureURL;
@@ -296,7 +325,7 @@ export class ShapeSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_Th
             if (this.actor._offset) {
                 obj.position.set(...this.actor._offset);
             }
-            this.setRenderObject(obj);
+            this.surface3d.add(obj);
         });
     }
 }

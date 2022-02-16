@@ -6,8 +6,7 @@ export function constructFlamingo(height, radius){
         scale: [5,5,5],
         offset: [-radius,height,0], // offset the flamingo model from the center
         model3d: './assets/3D/Flamingo.glb.zip',
-        modelType: 'glb'
-    })
+    });
 }
 
 class FlamingoCard extends DCardActor{
