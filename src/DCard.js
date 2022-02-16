@@ -87,6 +87,20 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
     get height() {
         return this._shapeOptions.height || 1024;
     }
+
+    sayDeck(message, data) {
+        if (this._parent) {
+            return this.publish(this._parent.id, message, data);
+        }
+        this.publish(this.id, message, data);
+    }
+
+    listenDeck(message, method) {
+        if (this._parent) {
+            return this.subscribe(this._parent.id, message, method);
+        }
+        this.subscribe(this.id, message, method);
+    }
 }
 DCardActor.register('DCardActor');
 
@@ -415,6 +429,18 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
         this.future(1000 / 20).runAnimation();
     }
+
+    sayDeck(message, data) {
+        if (this.actor._parent) {
+            return this.publish(this.actor._parent.id, message, data);
+        }
+        this.publish(this.actor.id, message, data);
+    }
+
+    listenDeck(message, method) {
+        if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
+        else this.subscribe(this.actor.id, message, method);
+    }    
 }
 
 export class DynaverseAppManager extends ModelService {

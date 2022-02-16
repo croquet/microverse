@@ -106,7 +106,7 @@ export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
         ctx.fillText("$"+amount, this.canvas.width/2, 50+this.canvas.height/2);
         this.texture.needsUpdate=true;
         this.lastAmount = amount;
-        this.publish("bitcoinChannel", 'setColor', color);
+        this.sayDeck('setColor', color);
     }
 
     clear(fill){
@@ -126,6 +126,6 @@ class BitLogoPawn extends DCardPawn {
     constructor(actor) {
         super(actor);
         this.shape.name = "bitlogo";
-        this.subscribe('bitcoinChannel', 'setColor', this.setColor);
+        this.listenDeck('setColor', this.setColor);
     }
 }
