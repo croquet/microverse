@@ -17,7 +17,7 @@ import { MultiBlaster } from './apps/multiblaster.js';
 //import { SimpleCanvasSurface } from './apps/simpleCanvasSurface.js';
 import { constructChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
-import { constructBitcoin } from './apps/bitcoinTracker.js';
+//import { constructBitcoin } from './apps/bitcoinTracker.js';
 import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -195,7 +195,7 @@ class MyModelRoot extends ModelRoot {
              rotation:[ 0, -0.7071068, 0, 0.7071068 ]}
         );
         constructChess([8, -2.5, -30], [6,6,6]);
-        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI / 2,0), 4);
+//        constructBitcoin([-4,-0.5, -6 * 7], q_euler(0,Math.PI / 2,0), 4);
         constructFlamingo(3, 8);
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
     }

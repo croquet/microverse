@@ -10,15 +10,14 @@ import {
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 //import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
-import { DCardActor } from './src/DCard.js';
-import { DynaverseAppManager } from './src/DSurface.js';
-import { register as registerLight } from './src/DLight.js';
+import { DCardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { DLight } from './src/DLight.js';
 // apps -------------------------------------------
-import { register as registerMultiblaster } from './apps/multiblaster.js';
-import { register as registerBoundingBall } from './apps/simpleCanvasSurface.js';
+import { MultiBlaster } from './apps/multiblaster.js';
+import { BouncingBall } from './apps/bouncingBall.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
-import { constructBitcoin } from './apps/bitcoinTracker.js';
+import { BitcoinTracker } from './apps/bitcoinTracker.js';
 import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -106,11 +105,7 @@ class MyModelRoot extends ModelRoot {
     init(options, persistentData) {
         super.init(options);
 
-        let appManager = this.service("DynaverseAppManager");
-
-        registerMultiblaster("MultiBlaster", appManager);
-        registerLight("Light", appManager);
-        registerBoundingBall("BouncingBall", appManager);
+        //let appManager = this.service("DynaverseAppManager");
 
         DCardActor.create({
             translation:[25, -90.5, -60],
@@ -123,15 +118,35 @@ class MyModelRoot extends ModelRoot {
             shadow: true,
         });
 
-        DCardActor.create({
+        DLight.create({
             type: "lighting",
             name: "Light"
+        });
+
+        BitcoinTracker.create({
+            translation: [-4, -0.5, 0],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            type: "app",
+            name: "BitcoinTracker",
+            textureType: "canvas",
+            width: 1024,
+            height: 512,
+            shapeURL: './assets/SVG/credit-card.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
+        });
+
+        PerlinActor.create({
+            translation:[ 10, -2.75, -14],
+            rotation:[ 0, -0.7071068, 0, 0.7071068 ]
         });
 
         DCardActor.create({
             translation: [-4, -0.5, -6],
             rotation: q_euler(0, Math.PI / 2, 0),
-            type: "code",
+            type: "text",
             runs: [{text: "hello"}]
         });
 
@@ -172,7 +187,8 @@ class MyModelRoot extends ModelRoot {
             fullBright: true
         });
 
-        DCardActor.create({
+
+        MultiBlaster.create({
             translation: [-4, -0.5, -30],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
@@ -180,8 +196,8 @@ class MyModelRoot extends ModelRoot {
             type: "app",
             name: "MultiBlaster",
             textureType: "canvas",
-            width: 1000,
-            height: 1000,
+            width: 1024,
+            height: 1024,
             shapeURL: './assets/SVG/square.svg',
             frameColor: 0x666666,
             color: 0xffffff,
@@ -189,8 +205,8 @@ class MyModelRoot extends ModelRoot {
             fullBright: true
         });
 
-        DCardActor.create({
-            translation: [-5, -0.5, -36],
+        BouncingBall.create({
+            translation: [-4, -0.5, -36],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
@@ -217,7 +233,8 @@ class MyViewRoot extends ViewRoot {
             {service: ThreeRenderManager, options:{antialias:true}},
             AssetManager,
             KeyFocusManager,
-            SyncedStateManager
+            SyncedStateManager,
+            VideoManager, 
         ];
     }
     constructor(model) {

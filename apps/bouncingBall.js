@@ -1,11 +1,11 @@
-import { ShapeSurface, ShapeSurfacePawn} from "../src/DSurface.js";
+import { DCardActor, DCardPawn} from "../src/DCard.js";
 
 //------------------------------------------------------
-// SimpleCanvasSurface
+// BouncingBall
 // A very simple demonstration of how to create a Surface application.
 
 const SPEED = 10;   
-export class SimpleCanvasSurface extends ShapeSurface {
+export class BouncingBall extends DCardActor {
     init(options) {
         super.init(options);
         this.position = [512,512];
@@ -14,7 +14,7 @@ export class SimpleCanvasSurface extends ShapeSurface {
         this.listen("set", this.setPosition);
         this.future(100).bounce();
     }
-    get pawn(){return SimpleCanvasSurfacePawn}
+    get pawn(){return BouncingBallPawn;}
 
     randomVelocity() {
         const r = this.random() * 2 * Math.PI;
@@ -51,9 +51,9 @@ export class SimpleCanvasSurface extends ShapeSurface {
         this.updatePosition(p);
     }
 }
-SimpleCanvasSurface.register('SimpleCanvasSurface');
+BouncingBall.register('BouncingBall');
 
-export class SimpleCanvasSurfacePawn extends ShapeSurfacePawn {
+export class BouncingBallPawn extends DCardPawn {
     constructor(options) {
         super(options);
         this.updatePosition(this.actor.position);

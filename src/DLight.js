@@ -1,9 +1,7 @@
-
-
 import {
     THREE, Actor, Pawn, mix, AM_Smoothed, PM_Smoothed, PM_ThreeVisible} from "@croquet/worldcore";
 
-import { Surface, SurfacePawn } from "./DSurface.js";
+import { DCardActor, DCardPawn } from "./DCard.js";
 
 import skyFront from "../assets/sky/sh_ft.png";
 import skyBack from "../assets/sky/sh_bk.png";
@@ -12,12 +10,12 @@ import skyLeft from "../assets/sky/sh_lf.png";
 import skyUp from "../assets/sky/sh_up.png";
 import skyDown from "../assets/sky/sh_dn.png";
 
-export class LightSurface extends mix(Surface).with(AM_Smoothed) {
-    get pawn() {return LightSurfacePawn;}
+export class DLight extends DCardActor {
+    get pawn() {return DLightPawn;}
 }
-LightSurface.register('LightSurface');
+DLight.register('DLight');
 
-class LightSurfacePawn extends mix(SurfacePawn).with(PM_Smoothed, PM_ThreeVisible) {
+class DLightPawn extends DCardPawn {
     constructor(options) {
         super(options);
         this.addToLayers('light');
@@ -67,8 +65,4 @@ class LightSurfacePawn extends mix(SurfacePawn).with(PM_Smoothed, PM_ThreeVisibl
         this.sun.dispose();
         this.hemiLight.dispose();
     }
-}
-
-export function register(name, registry) {
-    registry.set(name, LightSurface);
 }

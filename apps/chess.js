@@ -1,5 +1,3 @@
-
-
 import { DCardActor } from '../src/DCard.js';
 import { TextureSurface } from '../src/DSurface.js';
 import { q_euler } from "@croquet/worldcore";

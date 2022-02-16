@@ -1,10 +1,10 @@
 
-import { Actor, Pawn, mix, AM_PointerTarget, PM_PointerTarget } from "@croquet/worldcore";
-import { ShapeSurface, ShapeSurfacePawn} from "../src/DSurface.js";
+import { Actor, Pawn } from "@croquet/worldcore";
+import { DCardActor, DCardPawn} from "../src/DCard.js";
 
 /////////// Model code is executed inside of synced VM /////////// 
 
-export class MultiBlaster extends mix(ShapeSurface).with(AM_PointerTarget) {
+export class MultiBlaster extends DCardActor {
     get pawn(){ return MultiBlasterDisplay; }
     init(options) {
         super.init(options);
@@ -20,7 +20,7 @@ export class MultiBlaster extends mix(ShapeSurface).with(AM_PointerTarget) {
         this.mainLoop();
     }
 
-    switchPause(){
+    switchPause() {
         console.log("switchPaused!!!!")
         this.active = !this.active;
     }
@@ -244,10 +244,10 @@ class Blast extends Actor {
         if (++this.t < 30) {
             this.x += this.dx;
             this.y += this.dy;
-            if (this.x < 0) this.x += 1000;
-            if (this.x > 1000) this.x -= 1000;
-            if (this.y < 0) this.y += 1000;
-            if (this.y > 1000) this.y -= 1000;
+            if (this.x < 0) this.x += 1024;
+            if (this.x > 1024) this.x -= 1024;
+            if (this.y < 0) this.y += 1024;
+            if (this.y > 1024) this.y -= 1024;
         } else {
             this.destroy();
         }
@@ -264,23 +264,23 @@ Blast.register("Blast");
 /////////// Code below is executed outside of synced VM /////////// 
 
 
-class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
+class MultiBlasterDisplay extends DCardPawn {
     constructor(actor) {
         super(actor);
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 
         this.context = this.canvas.getContext("2d");
         this.future(50).update();
-
-        this.renderObject.name = "multiblaster";
     }
 
-    onPointerDown(p3d){
+    onPointerDown(p3d) {
+        if (!p3d.uv) {return;}
         this.joystick = this.uv2xy(p3d.uv);
         this.knob = this.joystick;
     }
 
-    onPointerMove(p3d){ 
+    onPointerMove(p3d) {
+        if (!p3d.uv) {return;}
         this.knob= this.uv2xy(p3d.uv);
         let dx = this.knob[0]- this.joystick[0];
         let dy = this.knob[1] - this.joystick[1];
@@ -295,7 +295,8 @@ class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
         } else if (this.forward) { this.publish(this.viewId, "forward-thruster", false); this.forward = false; }
     }
 
-    onPointerUp(p3d){ 
+    onPointerUp(p3d) {
+        if (!p3d.uv) {return;}
         if (!this.right && !this.left && !this.forward) {
             this.publish(this.viewId, "fire-blaster");
         }
@@ -307,11 +308,11 @@ class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
         this.knob= null;
     }
 
-    onPointerCancel(p3d){
+    onPointerCancel(p3d) {
         this.onPointerUp(p3d);
     }
 
-    onKeyDown(e){
+    onKeyDown(e) {
         //joystick.style.display = "none";
         if (e.repeat) return;
         switch (e.key) {
@@ -323,7 +324,7 @@ class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
         }
     }
 
-    onKeyUp(e){
+    onKeyUp(e) {
         if (e.repeat) return;
         switch (e.key) {
             case "a": case "A": case "ArrowLeft":  this.publish(this.viewId, "left-thruster", false); break;
@@ -372,7 +373,7 @@ class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
                 this.context.restore();
             }
             if(this.joystick)this.drawJoystick();
-            this.texture.needsUpdate=true;
+            this.texture.needsUpdate = true;
         }
         this.future(50).update();
     }
@@ -396,12 +397,12 @@ class MultiBlasterDisplay extends mix(ShapeSurfacePawn).with(PM_PointerTarget) {
         return smoothed;
     }
 
-    drawJoystick(){
+    drawJoystick() {
         this.drawCircle(this.joystick, 50, false);
         this.drawCircle(this.knob, 25, true);
     }
 
-    drawCircle(pos, radius, filled){
+    drawCircle(pos, radius, filled) {
         this.context.fillStyle = '#ffffff';
         this.context.beginPath();
         this.context.arc(pos[0], pos[1], radius, 0, Math.PI*2, true);

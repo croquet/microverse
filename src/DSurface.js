@@ -7,25 +7,6 @@ import {
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 
-export class DynaverseAppManager extends ModelService {
-    init(options) {
-        super.init("DynaverseAppManager");
-        this.$apps = options.registry; // new Map() {[name]: cls}
-    }
-
-    set(name, cls) {
-        this.$apps.set(name, cls);
-    }
-    get(name) {
-        return this.$apps.get(name);
-    }
-    delete(name) {
-        return this.$apps.delete(name);
-    }
-}
-
-DynaverseAppManager.register("DynaverseAppManager");
-
 //------------------------------------------------------
 // Surface
 // Base class for all surface classes.

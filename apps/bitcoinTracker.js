@@ -1,29 +1,41 @@
 import { mix } from "@croquet/worldcore";
-import { CanvasSurface, CanvasSurfacePawn} from "../src/DSurface.js";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { DCardActor, DCardPawn } from '../src/DCard.js';
-export class BitcoinTracker extends mix(CanvasSurface).with(AM_Elected) {
-    get pawn(){ return BitcoinTrackerDisplay }
-    init(...args) {
-        super.init(...args);
+export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
+    get pawn(){ return BitcoinTrackerDisplay; }
+    init(options) {
+        super.init(options);
         this.listen("BTC-USD", this.onBitcoinData);
         this.listen("BTC-USD-history", this.onBitcoinHistory);
         this.history = [];
-        this._width = 1024;
-        this._height = 512;
+        this.setupLogo();
+    }
+
+    setupLogo() {
+        this.logo = BitLogoCard.create({
+            shapeURL: './assets/SVG/BitcoinSign.svg',
+            type: "shape",
+            shadow: true,
+            depth: 0.05,
+            color: 0xffffff,
+            frameColor: 0x666666,
+            translation: [-0.35, 0.35, 0.1],
+            scale: [0.25, 0.25, 0.25],
+            parent: this
+        });
     }
 
     get latest() { return this.history.length > 0 ? this.history[ this.history.length - 1] : { date: 0, amount: 0 }; }
 
     onBitcoinData({date, amount}) {
-        if (date - this.latest.date < 25_000) return;
+        if (date - this.latest.date < 25000) return;
         this.history.push({date, amount});
         if (this.history.length > 300) this.history.shift();
         this.say("BTC-USD-changed");
     }
 
     onBitcoinHistory(prices) {
-        const newer = prices.filter(p => p.date - this.latest.date > 25_000);
+        const newer = prices.filter(p => p.date - this.latest.date > 25000);
         this.history.push(...newer);
         while (this.history.length > 300) this.history.shift();
         this.say("BTC-USD-changed");
@@ -31,10 +43,9 @@ export class BitcoinTracker extends mix(CanvasSurface).with(AM_Elected) {
 }
 BitcoinTracker.register("BitcoinTracker");
 
-
-export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Elected) {
-    constructor(...args) {
-        super(...args);   // might call handleElected()
+export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
+    constructor(actor) {
+        super(actor);   // might call handleElected()
         this.lastAmount = 0;
         this.listen("BTC-USD-changed", this.onBTCUSDChanged);
     }
@@ -48,7 +59,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
 //        if (Date.now() - this.actor.latest.date < 60_000) this.fetchSpot("on-elected");
 //        else this.fetchHistory();
         this.fetchHistory();
-        const id = setInterval(() => this.fetchSpot(id), 30_000);
+        const id = setInterval(() => this.fetchSpot(id), 30000);
         this.interval = id;
     }
 
@@ -111,37 +122,10 @@ class BitLogoCard extends DCardActor{
 }
 BitLogoCard.register('BitLogoCard');
 
-class BitLogoPawn extends DCardPawn{
-    constructor(...args) {
-        super(...args);
+class BitLogoPawn extends DCardPawn {
+    constructor(actor) {
+        super(actor);
+        this.shape.name = "bitlogo";
         this.subscribe('bitcoinChannel', 'setColor', this.setColor);
     }
-}
-
-export function constructBitcoin(t, r, s){
-
-    let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
-    let main = DCardActor.create({
-        shapeURL: `./assets/SVG/rectangle.svg`,
-        surface: bSurface,
-        fullBright: bSurface.fullBright,
-        depth: 0.05,
-        color:0xffffff, // white
-        frameColor: 0x666666,
-        shadow: true,
-        translation:t,
-        rotation: r,
-        scale: [s,s,s],
-    });
-
-    let logo = BitLogoCard.create({
-        shapeURL: './assets/SVG/BitcoinSign.svg',
-        shadow: true,
-        depth: 0.05,
-        color: 0xffffff,
-        frameColor: 0x666666,
-        translation: [-0.35, 0.35, 0.1],
-        scale: [0.25, 0.25, 0.25],
-        parent: main
-    })
 }

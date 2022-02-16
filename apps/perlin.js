@@ -1,4 +1,6 @@
 import { THREE, Actor, Pawn, AM_Predictive, AM_PointerTarget, RegisterMixin, PM_Predictive, PM_ThreeVisible, PM_PointerTarget, mix } from "@croquet/worldcore";
+
+import { DCardActor, DCardPawn } from "../src/DCard.js";
 //------------------------------------------------------------------------------------------
 //-- Perlin Noise Mixin --------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -122,12 +124,11 @@ export const AM_PerlinNoise = superclass => class extends superclass {
 }
 RegisterMixin(AM_PerlinNoise);
 
-
-export class PerlinActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_PerlinNoise){
-    get pawn() {return PerlinPawn}
-    init(...args) {
+export class PerlinActor extends mix(DCardActor).with(AM_PerlinNoise) {
+    get pawn() {return PerlinPawn;}
+    init(options) {
+        super.init(options);
         this.visible = true;
-        super.init(...args);
         this.initPerlin();
         this.future(1000).updatePerlin();
         //this.listen("showHide", this.showHide);
@@ -189,9 +190,9 @@ PerlinActor.register('PerlinActor');
 const maxHeight = 8;
 const barScale = 0.25;
 
-class PerlinPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget){
-    constructor(...args) {
-        super(...args);
+class PerlinPawn extends DCardPawn {
+    constructor(actor) {
+        super(actor);
         this.addToLayers('pointer');
         this.listen("updatePerlin", this.updatePerlin);
         this.listen("showMe", this.showMe);
