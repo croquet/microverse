@@ -53,6 +53,12 @@ function loadLoaders() {
     }));
 }
 
+function shortId(id) {
+    let index = id.lastIndexOf("/");
+    if (index < 0) {return id;}
+    return id.slice(index + 1);
+}
+
 const tackOffset = 0.1;
 
 class MyAvatar extends AvatarActor {
@@ -146,6 +152,7 @@ class MyModelRoot extends ModelRoot {
         DCardActor.create({
             translation: [-4, -0.5, -6],
             rotation: q_euler(0, Math.PI / 2, 0),
+            multiuser: true,
             type: "text",
             runs: [{text: "hello"}]
         });
@@ -193,6 +200,7 @@ class MyModelRoot extends ModelRoot {
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
+            multiuser: true,
             type: "app",
             name: "MultiBlaster",
             textureType: "canvas",
@@ -210,6 +218,7 @@ class MyModelRoot extends ModelRoot {
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
+            multiuser: true,
             type: "app",
             name: "BouncingBall",
             textureType: "canvas",
@@ -220,6 +229,40 @@ class MyModelRoot extends ModelRoot {
             color: 0xffffff,
             depth: 0.05,
             fullBright: true,
+        });
+
+        /*
+        let code = DCardActor.create({
+            translation: [4, -0.5, -10],
+            rotation: q_euler(0, -Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            type: "code",
+            runs: [{text: `
+class Fly {
+    init() {
+        if (this.flying) {return;}
+        this.flying = true;
+        this.fly();
+    }
+
+    fly() {
+debugger;
+        this.future(20).call("Fly", "fly");
+        this.rotateTo(q_euler(0, this.now()/9000,0));
+    }
+}`}],
+            textWidth: 1024,
+            textHeight: 1024,
+        });
+        */
+
+        DCardActor.create({
+            rotation: q_euler(0, Math.PI / 2, 0),
+            offset: [8, 3, 0], // offset the flamingo model from the center
+            type: "model",
+            model3d: './assets/3D/Flamingo.glb.zip',
+            // actorCode: [shortId(code.id)]
         });
     }
 }

@@ -8,6 +8,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
+//import { AM_Code } from './code.js';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -17,6 +18,8 @@ const NoColor = 0x000000; // black
 const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
 let counter = 0;
+
+const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser"];
 
 //------------------------------------------------------------------------------------------
 //-- DCardActor ------------------------------------------------------------------------------
@@ -28,7 +31,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
         let shapeOptions = {};
 
         Object.keys(options).forEach((k) => {
-            if (["translation", "scale", "rotation", "layers", "parent"].indexOf(k) >= 0) {
+            if (intrinsicProperties.indexOf(k) >= 0) {
                 cardOptions[k] = options[k];
             } else {
                 shapeOptions[k] = options[k];
@@ -37,6 +40,13 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
         super.init(cardOptions);
         this.set({shapeOptions});
         this.createShape(shapeOptions);
+
+        if (options.actorCode) {
+            this.setModelCode(options.actorCode);
+        }
+        if (options.pawnCode) {
+            this.setViewCode(options.pawnCode);
+        }
     }
 
     createShape(options) {
@@ -67,9 +77,11 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
                 textWidth: options.textWidth || 500,
                 textHeight: options.textHeight || 500,
                 isExternal: true,
+                runs: options.runs || [],
                 parent: this,
             };
-            return this.textActor = TextFieldActor.create(textOptions);
+            this.textActor = TextFieldActor.create(textOptions);
+            this.subscribe(this.textActor.id, "text", "codeAccepted");
         }
     }
 
@@ -101,6 +113,11 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
         }
         this.subscribe(this.id, message, method);
     }
+
+    // placeholders. overwritten by AM_Code when it is mixed in
+    setModelCode() {}
+    setViewCode() {}
+    codeAccepted() {}
 }
 DCardActor.register('DCardActor');
 
@@ -113,7 +130,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
 
     constructor(actor) {
         super(actor);
-        this.addToLayers(...this.actor.layers);
+        this.addToLayers(...actor.layers);
         this.constructCard();
     }
 
