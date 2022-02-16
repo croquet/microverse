@@ -320,7 +320,6 @@ export class ShapeSurfacePawn extends mix(SurfacePawn).with(PM_Predictive, PM_Th
         }).then((obj) => {
             normalizeSVG(obj, this.actor._depth, this.actor._shadow, THREE);
             this.aspect = obj.aspect;
-            obj.scale.set(1, 1, 1);
             if (this.texture) addTexture(this.texture, obj);
             if (this.actor._offset) {
                 obj.position.set(...this.actor._offset);

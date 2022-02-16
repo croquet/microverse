@@ -25,8 +25,19 @@ let counter = 0;
 
 export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
     init(options) {
-        super.init(options);
-        this.createSurface(options.options);
+        let cardOptions = {};
+        let shapeOptions = {};
+
+        Object.keys(options).forEach((k) => {
+            if (["translation", "scale", "rotation"].indexOf(k) >= 0) {
+                cardOptions[k] = options[k];
+            } else {
+                shapeOptions[k] = options[k];
+            }
+        });
+        super.init(cardOptions);
+        this.set({shapeOptions});
+        this.createSurface(shapeOptions);
     }
 
     createSurface(options) {

@@ -116,110 +116,94 @@ class MyModelRoot extends ModelRoot {
             translation:[25, -90.5, -60],
             scale:[200, 200, 200],
             rotation: q_euler(0, Math.PI, 0),
-            options: {
-                layers: ['walk'],
-                type: "model",
-                model3d: "./assets/3D/Refinery.glb.zip",
-                singleSided: true,
-                shadow: true,
-            }
+            layers: ['walk'],
+            type: "model",
+            model3d: "./assets/3D/Refinery.glb.zip",
+            singleSided: true,
+            shadow: true,
         });
 
         DCardActor.create({
-            options: {
-                type: "lighting",
-                name: "Light"
-            }
+            type: "lighting",
+            name: "Light"
         });
 
         DCardActor.create({
             translation: [-4, -0.5, -6],
             rotation: q_euler(0, Math.PI / 2, 0),
-            options: {
-                type: "code",
-                runs: [{text: "hello"}]
-            }
+            type: "code",
+            runs: [{text: "hello"}]
         });
 
         DCardActor.create({
             translation: [-4, -0.5, -12],
             rotation: q_euler(0, Math.PI / 2, 0),
-            options: {
-                type: "model",
-                model3d: "./assets/avatars/generic/1.zip",
-                shadow: true,
-                singleSided: true,
-            }
+            type: "model",
+            model3d: "./assets/avatars/generic/1.zip",
+            shadow: true,
+            singleSided: true,
         });
 
         DCardActor.create({
             translation: [-4, -0.5, -18],
             rotation: q_euler(0, Math.PI / 2, 0),
-            options: {
-                width: 1,
-                height: 1,
-                type: "shape",
-                textureType: "video",
-                textureURL: "./assets/videos/fromPCtoHMD.mp4",
-                shapeURL: './assets/SVG/credit-card.svg',
-                frameColor: 0x666666,
-                color: 0xffffff,
-                depth: 0.05,
-                fullBright: true
-            }
+            scale: [4, 4, 4],
+            type: "shape",
+            textureType: "video",
+            textureURL: "./assets/videos/fromPCtoHMD.mp4",
+            shapeURL: './assets/SVG/credit-card.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
         });
 
         DCardActor.create({
-            translation: [-4, -5, -24],
+            translation: [-4, -0.5, -24],
             rotation: q_euler(0, Math.PI / 2, 0),
-            options: {
-                width: 1,
-                height: 1,
-                type: "shape",
-                textureType: "texture",
-                textureURL: './assets/images/Colony.png',
-                shapeURL: './assets/SVG/credit-card.svg',
-                frameColor: 0x666666,
-                color: 0xffffff,
-                depth: 0.05,
-                fullBright: true
-            }
+            scale: [4, 4, 4],
+            type: "shape",
+            textureType: "texture",
+            textureURL: './assets/images/Colony.png',
+            shapeURL: './assets/SVG/credit-card.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
         });
 
         DCardActor.create({
-            translation: [-4, -5, -30],
+            translation: [-4, -0.5, -30],
             rotation: q_euler(0, Math.PI / 2, 0),
-            options: {
-                layers: ['pointer'],
-                type: "app",
-                name: "MultiBlaster",
-                textureType: "canvas",
-                width: 1000,
-                height: 1000,
-                shapeURL: './assets/SVG/square.svg',
-                frameColor: 0x666666,
-                color: 0xffffff,
-                depth: 0.05,
-                fullBright: true
-            }
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            type: "app",
+            name: "MultiBlaster",
+            textureType: "canvas",
+            width: 1000,
+            height: 1000,
+            shapeURL: './assets/SVG/square.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
         });
 
         DCardActor.create({
-            translation: [-5, -0.5, -40],
+            translation: [-5, -0.5, -36],
             rotation: q_euler(0, Math.PI / 2, 0),
-            options: {
-                layers: ['pointer'],
-                type: "app",
-                name: "BouncingBall",
-                textureType: "canvas",
-                width: 1024,
-                height: 1024,
-                shapeURL: './assets/SVG/credit-card.svg',
-                frameColor: 0x666666,
-                color: 0xffffff,
-                depth: 0.05,
-                fullBright: true,
-            }
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            type: "app",
+            name: "BouncingBall",
+            textureType: "canvas",
+            width: 1024,
+            height: 1024,
+            shapeURL: './assets/SVG/square.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true,
         });
     }
 }
