@@ -2,6 +2,8 @@ import { mix } from "@croquet/worldcore";
 import { CanvasSurface, CanvasSurfacePawn} from "../src/DSurface.js";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { DCardActor, DCardPawn } from '../src/DCard.js';
+import { DBarGraphCard } from '../src/DBar.js';
+
 export class BitcoinTracker extends mix(CanvasSurface).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay }
     init(...args) {
@@ -19,14 +21,14 @@ export class BitcoinTracker extends mix(CanvasSurface).with(AM_Elected) {
         if (date - this.latest.date < 25_000) return;
         this.history.push({date, amount});
         if (this.history.length > 300) this.history.shift();
-        this.say("BTC-USD-changed");
+        this.sayDeck("value-changed", amount);
     }
 
     onBitcoinHistory(prices) {
         const newer = prices.filter(p => p.date - this.latest.date > 25_000);
         this.history.push(...newer);
         while (this.history.length > 300) this.history.shift();
-        this.say("BTC-USD-changed");
+        this.sayDeck("value-init", newer.map(v=>v.amount));
     }
 }
 BitcoinTracker.register("BitcoinTracker");
@@ -36,7 +38,8 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
     constructor(...args) {
         super(...args);   // might call handleElected()
         this.lastAmount = 0;
-        this.listen("BTC-USD-changed", this.onBTCUSDChanged);
+        this.listenDeck("value-changed", this.onBTCUSDChanged);
+        this.listenDeck("value-init", this.onBTCUSDChanged);
     }
 
     handleElected() {
@@ -87,12 +90,15 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
         else color = "#22FF22";
         this.clear("#222222");
         let ctx = this.canvas.getContext('2d');
-        ctx.textAlign = 'center';
+        ctx.textAlign = 'right';
         ctx.fillStyle = color;
-        ctx.font = "60px Arial";
-        ctx.fillText("BTC-USD", this.canvas.width/2, 80);
-        ctx.font = "100px Arial";
-        ctx.fillText("$"+amount, this.canvas.width/2, 50+this.canvas.height/2);
+
+        ctx.font = "40px Arial";
+        ctx.fillText("BTC-USD", this.canvas.width-40, 85);
+
+        ctx.textAlign = 'center';        
+        ctx.font = "90px Arial";
+        ctx.fillText("$"+amount, this.canvas.width/2, 100); //50+this.canvas.height/2);
         this.texture.needsUpdate=true;
         this.lastAmount = amount;
         this.sayDeck('setColor', color);
@@ -122,7 +128,7 @@ export function constructBitcoin(t, r, s){
 
     let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
 
-    let main = DCardActor.create({
+    let mainCard = DCardActor.create({
         shapeURL: `./assets/SVG/rectangle.svg`,
         surface: bSurface,
         fullBright: bSurface.fullBright,
@@ -136,6 +142,14 @@ export function constructBitcoin(t, r, s){
         scale: [s,s,s],
     });
 
+    let bar = DBarGraphCard.create({
+        color: 0x8888ff,
+        translation:[0, -0.3, 0.1],
+        shadow: true,
+        height: 0.4,
+        parent: mainCard
+    });
+
     let logo = BitLogoCard.create({
         shapeURL: './assets/SVG/BitcoinSign.svg',
         shadow: true,
@@ -144,6 +158,6 @@ export function constructBitcoin(t, r, s){
         frameColor: 0x666666,
         translation: [-0.35, 0.35, 0.1],
         scale: [0.25, 0.25, 0.25],
-        parent: main
+        parent: mainCard
     })
 }
