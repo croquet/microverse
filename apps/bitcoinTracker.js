@@ -95,7 +95,7 @@ export class BitcoinTrackerDisplay extends mix(CanvasSurfacePawn).with(PM_Electe
         ctx.fillText("$"+amount, this.canvas.width/2, 50+this.canvas.height/2);
         this.texture.needsUpdate=true;
         this.lastAmount = amount;
-        this.publish("bitcoinChannel", 'setColor', color);
+        this.sayDeck('setColor', color);
     }
 
     clear(fill){
@@ -114,13 +114,14 @@ BitLogoCard.register('BitLogoCard');
 class BitLogoPawn extends DCardPawn{
     constructor(...args) {
         super(...args);
-        this.subscribe('bitcoinChannel', 'setColor', this.setColor);
+        this.listenDeck('setColor', this.setColor);
     }
 }
 
 export function constructBitcoin(t, r, s){
 
     let bSurface = BitcoinTracker.create({name: 'BitcoinTracker'});
+
     let main = DCardActor.create({
         shapeURL: `./assets/SVG/rectangle.svg`,
         surface: bSurface,
@@ -128,6 +129,7 @@ export function constructBitcoin(t, r, s){
         depth: 0.05,
         color:0xffffff, // white
         frameColor: 0x666666,
+        fullBright: false,
         shadow: true,
         translation:t,
         rotation: r,

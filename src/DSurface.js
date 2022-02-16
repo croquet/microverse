@@ -11,6 +11,17 @@ export class Surface extends Actor{
         super.init(...args);
     }
     uv2xy(uv){return [this.width*uv[0],this.height*(1-uv[1])]}
+
+    sayDeck(message, vars){
+        if(this._parent !== undefined)this.publish(this._parent.id, message, vars);
+        else this.publish(this.id, message, vars);
+    }
+    
+    listenDeck(message, method){
+        if(this._parent !== undefined)this.subscribe(this._parent.id, message, method);
+        else this.subscribe(this.id, message, method);
+    }
+
     get width(){return this._width || 1024}
     get height(){return this._height || 1024}
     get fullBright(){return false;}
@@ -19,7 +30,18 @@ class SurfacePawn extends Pawn{
     constructor(...args){
         super(...args);
     }
+
     uv2xy(uv){return [this.actor.width*uv[0],this.actor.height*(1-uv[1])]}
+
+    sayDeck(message, vars){
+        if(this.actor._parent !== undefined)this.publish(this.actor._parent.id, message, vars);
+        else this.publish(this.actor.id, message, vars);
+    }
+    
+    listenDeck(message, method){
+        if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
+        else this.subscribe(this.actor.id, message, method);
+    }
 }
 //------------------------------------------------------
 // TextureSurface

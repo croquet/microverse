@@ -38,11 +38,27 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
             });
             this.textActor.loadAndReset([{text: this._text}]);
         }
+
+        if(this._surface !== undefined){
+            this._surface._parent = this;
+        }
+    }
+
+    sayDeck(message, vars){
+        if(this._parent !== undefined)this.publish(this._parent.id, message, vars);
+        else this.publish(this.id, message, vars);
+    }
+
+    listenDeck(message, method){
+        if(this._parent !== undefined)this.subscribe(this._parent.id, message, method);
+        else this.subscribe(this.id, message, method);
     }
 
     get pawn() { return DCardPawn; }
     get layers() { return this._layers || ['pointer']; }
     get surface() { return this._surface; }
+    get color(){ return this._color || 0xffffff; }
+    get frameColor(){ return this._frameColor || 0x666666; }
 }
 DCardActor.register('DCardActor');
 
@@ -56,6 +72,16 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         super(...args);
         this.addToLayers(...this.actor.layers);
         this.constructCard();
+    }
+
+    sayDeck(message, vars){
+        if(this.actor._parent !== undefined)this.publish(this.actor._parent.id, message, vars);
+        else this.publish(this.actor.id, message, vars);
+    }
+    
+    listenDeck(message, method){
+        if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
+        else this.subscribe(this.actor.id, message, method);
     }
 
     constructCard() {
