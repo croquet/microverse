@@ -1,7 +1,7 @@
-import { mix } from "@croquet/worldcore";
+import { mix, q_euler } from "@croquet/worldcore";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { DCardActor, DCardPawn } from '../src/DCard.js';
-import { DBarGraphCard } from '../src/DBar.js';
+// import { DBarGraphCard } from '../src/DBar.js';
 
 export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay; }
@@ -10,33 +10,6 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
         this.listen("BTC-USD", this.onBitcoinData);
         this.listen("BTC-USD-history", this.onBitcoinHistory);
         this.history = [];
-        this.setupParts();
-    }
-
-    setupParts() {
-        this.logo = BitLogoCard.create({
-            shapeURL: './assets/SVG/BitcoinSign.svg',
-            type: "shape",
-            shadow: true,
-            depth: 0.05,
-            color: 0xffffff,
-            frameColor: 0x666666,
-            translation: [-0.35, 0.35, 0.1],
-            scale: [0.25, 0.25, 0.25],
-            parent: this,
-            noSave: true,
-        });
-
-        this.bar = DBarGraphCard.create({
-            color: 0x8888ff,
-            translation:[0, -0.3, 0.1],
-            type: "other",
-            name: "BarGraph",
-            shadow: true,
-            height: 0.4,
-            parent: this,
-            noSave: true,
-        });
     }
 
     get latest() { return this.history.length > 0 ? this.history[ this.history.length - 1] : { date: 0, amount: 0 }; }
@@ -57,7 +30,7 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
 }
 BitcoinTracker.register("BitcoinTracker");
 
-export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
+class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
     constructor(actor) {
         super(actor);   // might call handleElected()
         this.lastAmount = 0;
@@ -134,7 +107,7 @@ export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
     }
 }
 
-class BitLogoCard extends DCardActor{
+export class BitLogoCard extends DCardActor {
     get pawn(){return BitLogoPawn}
     get version(){return '0.11'}
 }
@@ -146,4 +119,53 @@ class BitLogoPawn extends DCardPawn {
         this.shape.name = "bitlogo";
         this.listenDeck('setColor', this.setColor);
     }
+}
+
+export function constructBitcoinTraker() {
+    return [
+        {
+            data: {
+                className: "BitcoinTracker",
+                translation: [-4, -0.5, 0],
+                rotation: q_euler(0, Math.PI / 2, 0),
+                type: "app",
+                name: "BitcoinTracker",
+                textureType: "canvas",
+                width: 1024,
+                height: 512,
+                shapeURL: './assets/SVG/credit-card.svg',
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true
+            },
+            id: "main",
+        },
+        {
+            data: {
+                className: "BitLogoCard",
+                shapeURL: './assets/SVG/BitcoinSign.svg',
+                translation: [-0.35, 0.35, 0.1],
+                scale: [0.25, 0.25, 0.25],
+                parent: "main",
+                type: "shape",
+                shadow: true,
+                depth: 0.05,
+                color: 0xffffff,
+                frameColor: 0x666666,
+            }
+        },
+        {
+            data: {
+                className: "DBarGraphCard",
+                translation:[0, -0.3, 0.1],
+                color: 0x8888ff,
+                type: "other",
+                name: "BarGraph",
+                shadow: true,
+                height: 0.4,
+                parent: "main",
+            }
+        }
+    ];   
 }

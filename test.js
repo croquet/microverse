@@ -18,7 +18,8 @@ import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall } from './apps/bouncingBall.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
-import { BitcoinTracker } from './apps/bitcoinTracker.js';
+import { BitcoinTracker, BitLogoCard, constructBitcoinTraker } from './apps/bitcoinTracker.js';
+import { DBarGraphCard } from './src/DBar.js';
 import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -52,23 +53,6 @@ Constants.DefaultCards = [
             type: "lighting",
             name: "Light",
             className: "DLight",
-        }
-    },
-    {
-        data: {
-            className: "BitcoinTracker",
-            translation: [-4, -0.5, 0],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            type: "app",
-            name: "BitcoinTracker",
-            textureType: "canvas",
-            width: 1024,
-            height: 512,
-            shapeURL: './assets/SVG/credit-card.svg',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
         }
     },
     {
@@ -289,6 +273,8 @@ class MyModelRoot extends ModelRoot {
 
         let appManager = this.service("DynaverseAppManager");
         appManager.add(BitcoinTracker);
+        appManager.add(DBarGraphCard);
+        appManager.add(BitLogoCard);
         appManager.add(MultiBlaster);
         appManager.add(BouncingBall);
         appManager.add(PerlinActor);
@@ -300,6 +286,7 @@ class MyModelRoot extends ModelRoot {
         }
 
         this.load(Constants.DefaultCards, "1");
+        this.load(constructBitcoinTraker(), "1");
     }
 
     ensurePersistenceProps() {
@@ -358,7 +345,6 @@ class MyModelRoot extends ModelRoot {
                 } else {
                     Cls = DCardActor;
                 }
-
                 if (data.parent) {
                     let parent = map.get(data.parent);
                     data = {...data};
@@ -366,7 +352,7 @@ class MyModelRoot extends ModelRoot {
                 }
                 
                 let card = Cls.create(data);
-                if (!id) { // could be the default content
+                if (id) { // could be the default content
                     map.set(id, card);
                 }
             });
@@ -402,7 +388,6 @@ class MyModelRoot extends ModelRoot {
         console.log("drop here", n, t, r);
         let p = v3_add(v3_scale(n, 6),t);
 
-        debugger;
         DCardActor.create({
             translation: p,
             rotation: r,
