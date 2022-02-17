@@ -281,6 +281,7 @@ class MyModelRoot extends ModelRoot {
         appManager.add(DLight);
 
         if (persistentData) {
+            console.log("foo");
             this.loadPersistentData(persistentData);
             return;
         }
