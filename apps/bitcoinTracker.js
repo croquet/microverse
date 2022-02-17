@@ -21,7 +21,8 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
             frameColor: 0x666666,
             translation: [-0.35, 0.35, 0.1],
             scale: [0.25, 0.25, 0.25],
-            parent: this
+            parent: this,
+            noSave: true,
         });
     }
 

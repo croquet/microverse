@@ -19,7 +19,7 @@ const timeOutDown = 5000; // if no user action after down event, then cancel
 const timeOutOver = 10000; // if no user action after enter event, then cancel
 let counter = 0;
 
-const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser"];
+export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "noSave"];
 
 //------------------------------------------------------------------------------------------
 //-- DCardActor ------------------------------------------------------------------------------
@@ -66,6 +66,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
                 parent: this
             };
             this.textActor = TextFieldActor.create(text);
+            this.subscribe(this.textActor.id, "changed", "textChanged");
         } else if (options.type === "model") {
             this.creationTime = this.now();
         } else if (options.type === "shape") {
@@ -87,8 +88,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
 
     get pawn() { return DCardPawn; }
     get layers() { return this._layers || ['pointer']; }
-    get surface() { throw new Error("no");}
-    get shape() { return this._shapeOptions;}
+    get isCard() {return true;}
 
     uv2xy(uv) {
         return [this.width * uv[0],this.height * (1 - uv[1])];
@@ -98,6 +98,11 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
     }
     get height() {
         return this._shapeOptions.height || 1024;
+    }
+
+    textChanged() {
+        this._shapeOptions.runs = this.textActor.content.runs;
+        this.publish(this.sessionId, "triggerPersist");
     }
 
     sayDeck(message, data) {
@@ -466,6 +471,9 @@ export class DynaverseAppManager extends ModelService {
         this.$apps = options.registry; // new Map() {[name]: cls}
     }
 
+    add(cls) {
+        this.set(cls.name, cls);
+    }
     set(name, cls) {
         this.$apps.set(name, cls);
     }

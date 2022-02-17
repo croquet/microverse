@@ -82,7 +82,3 @@ export class BouncingBallPawn extends DCardPawn {
         this.say("set", p3d.uv);
     }
 }
-
-export function register(name, registry) {
-    registry.set(name, SimpleCanvasSurface);
-}

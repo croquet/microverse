@@ -12,6 +12,7 @@ import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
 import { DLight } from './src/DLight.js';
+import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall } from './apps/bouncingBall.js';
@@ -31,6 +32,176 @@ Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
     "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
+];
+
+Constants.DefaultCards = [
+    {
+        data: {
+            translation:[25, -90.5, -60],
+            scale:[200, 200, 200],
+            rotation: q_euler(0, Math.PI, 0),
+            layers: ['walk'],
+            type: "model",
+            model3d: "./assets/3D/Refinery.glb.zip",
+            singleSided: true,
+            shadow: true,
+        }
+    },
+    {
+        data: {
+            type: "lighting",
+            name: "Light",
+            className: "DLight",
+        }
+    },
+    {
+        data: {
+            className: "BitcoinTracker",
+            translation: [-4, -0.5, 0],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            type: "app",
+            name: "BitcoinTracker",
+            textureType: "canvas",
+            width: 1024,
+            height: 512,
+            shapeURL: './assets/SVG/credit-card.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
+        }
+    },
+    {
+        data: {
+            className: "PerlinActor",
+            translation:[ 10, -2.75, -14],
+            rotation:[ 0, -0.7071068, 0, 0.7071068 ],
+        }
+    },
+    {
+        data: {
+            translation: [-4, -0.5, -6],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            multiuser: true,
+            type: "text",
+            runs: [{text: "hello"}]
+        }
+    },
+    {
+        data: {
+            translation: [-4, -0.5, -12],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            type: "model",
+            model3d: "./assets/avatars/generic/1.zip",
+            shadow: true,
+            singleSided: true,
+        }
+    },
+    {
+        data: {
+            translation: [-4, -0.5, -18],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            type: "shape",
+            textureType: "video",
+            textureURL: "./assets/videos/fromPCtoHMD.mp4",
+            shapeURL: './assets/SVG/credit-card.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
+        }
+    },
+    {
+        data: {
+            translation: [-4, -0.5, -24],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            type: "shape",
+            textureType: "texture",
+            textureURL: './assets/images/Colony.png',
+            shapeURL: './assets/SVG/credit-card.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
+        }
+    },
+    {
+        data: {
+            name: "MultiBlaster",
+            translation: [-4, -0.5, -30],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            multiuser: true,
+            type: "app",
+            name: "MultiBlaster",
+            textureType: "canvas",
+            width: 1024,
+            height: 1024,
+            shapeURL: './assets/SVG/square.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true
+        }
+    },
+    {
+        data: {
+            className: "BouncingBall",
+            translation: [-4, -0.5, -36],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            multiuser: true,
+            type: "app",
+            name: "BouncingBall",
+            textureType: "canvas",
+            width: 1024,
+            height: 1024,
+            shapeURL: './assets/SVG/square.svg',
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true,
+        }
+    },
+    /*
+    {
+        data: {
+            translation: [4, -0.5, -10],
+            rotation: q_euler(0, -Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            type: "code",
+            runs: [{text: `
+class Fly {
+    init() {
+        if (this.flying) {return;}
+        this.flying = true;
+        this.fly();
+    }
+
+    fly() {
+debugger;
+        this.future(20).call("Fly", "fly");
+        this.rotateTo(q_euler(0, this.now()/9000,0));
+    }
+}`}],
+            textWidth: 1024,
+            textHeight: 1024,
+        });            
+    */
+    {
+        data: {
+            rotation: q_euler(0, Math.PI / 2, 0),
+            offset: [8, 3, 0], // offset the flamingo model from the center
+            type: "model",
+            model3d: './assets/3D/Flamingo.glb.zip',
+            // actorCode: [shortId(code.id)]
+        }
+    }
 ];
 
 let apps = new Map();
@@ -111,159 +282,138 @@ class MyModelRoot extends ModelRoot {
     init(options, persistentData) {
         super.init(options);
 
-        //let appManager = this.service("DynaverseAppManager");
+        this.ensurePersistenceProps();
+        this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
 
-        DCardActor.create({
-            translation:[25, -90.5, -60],
-            scale:[200, 200, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['walk'],
-            type: "model",
-            model3d: "./assets/3D/Refinery.glb.zip",
-            singleSided: true,
-            shadow: true,
-        });
+        this.subscribe(this.id, "fileUploaded", "fileUploaded");
 
-        DLight.create({
-            type: "lighting",
-            name: "Light"
-        });
+        let appManager = this.service("DynaverseAppManager");
+        appManager.add(BitcoinTracker);
+        appManager.add(MultiBlaster);
+        appManager.add(BouncingBall);
+        appManager.add(PerlinActor);
+        appManager.add(DLight);
 
-        BitcoinTracker.create({
-            translation: [-4, -0.5, 0],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            type: "app",
-            name: "BitcoinTracker",
-            textureType: "canvas",
-            width: 1024,
-            height: 512,
-            shapeURL: './assets/SVG/credit-card.svg',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        });
+        if (persistentData) {
+            this.loadPersistentData(persistentData);
+            return;
+        }
 
-        PerlinActor.create({
-            translation:[ 10, -2.75, -14],
-            rotation:[ 0, -0.7071068, 0, 0.7071068 ]
-        });
-
-        DCardActor.create({
-            translation: [-4, -0.5, -6],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            multiuser: true,
-            type: "text",
-            runs: [{text: "hello"}]
-        });
-
-        DCardActor.create({
-            translation: [-4, -0.5, -12],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            type: "model",
-            model3d: "./assets/avatars/generic/1.zip",
-            shadow: true,
-            singleSided: true,
-        });
-
-        DCardActor.create({
-            translation: [-4, -0.5, -18],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            type: "shape",
-            textureType: "video",
-            textureURL: "./assets/videos/fromPCtoHMD.mp4",
-            shapeURL: './assets/SVG/credit-card.svg',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        });
-
-        DCardActor.create({
-            translation: [-4, -0.5, -24],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            type: "shape",
-            textureType: "texture",
-            textureURL: './assets/images/Colony.png',
-            shapeURL: './assets/SVG/credit-card.svg',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        });
-
-
-        MultiBlaster.create({
-            translation: [-4, -0.5, -30],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            layers: ['pointer'],
-            multiuser: true,
-            type: "app",
-            name: "MultiBlaster",
-            textureType: "canvas",
-            width: 1024,
-            height: 1024,
-            shapeURL: './assets/SVG/square.svg',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        });
-
-        BouncingBall.create({
-            translation: [-4, -0.5, -36],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            layers: ['pointer'],
-            multiuser: true,
-            type: "app",
-            name: "BouncingBall",
-            textureType: "canvas",
-            width: 1024,
-            height: 1024,
-            shapeURL: './assets/SVG/square.svg',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true,
-        });
-
-        /*
-        let code = DCardActor.create({
-            translation: [4, -0.5, -10],
-            rotation: q_euler(0, -Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            layers: ['pointer'],
-            type: "code",
-            runs: [{text: `
-class Fly {
-    init() {
-        if (this.flying) {return;}
-        this.flying = true;
-        this.fly();
+        this.load(Constants.DefaultCards, "1");
     }
 
-    fly() {
-debugger;
-        this.future(20).call("Fly", "fly");
-        this.rotateTo(q_euler(0, this.now()/9000,0));
-    }
-}`}],
-            textWidth: 1024,
-            textHeight: 1024,
-        });
-        */
+    ensurePersistenceProps() {
+        if (!this.persistPeriod) {
+            let period = 1 * 60 * 1000;
+            this.persistPeriod = period;
+        }
+        if (this.lastPersistTime === undefined) {
+            this.lastPersistTime = 0;
+        }
 
+        if (this.persistRequested === undefined) {
+            this.persistRequested = false;
+        }
+    }
+
+    loadPersistentData({ _name, version, data }) {
+        try {
+            delete this.loadingPersistentDataErrored;
+            this.loadingPersistentData = true;
+
+            let saver = new WorldSaver(DCardActor);
+            let json = saver.parse(data);
+            this.load(json, version);
+        } catch (error) {
+            console.error("error in loading persistent data", error);
+            this.loadingPersistentDataErrored = true;
+        } finally {
+            delete this.loadingPersistentData;
+        }
+    }
+
+    savePersistentData() {
+        if (this.loadingPersistentData) {return;}
+        if (this.loadingPersistentDataErrored) {return;}
+        this.lastPersistTime = this.now();
+        let func = () => {
+            let name = this.sessionName || "Unknown";
+            let saver = new WorldSaver(DCardActor);
+            let json = saver.save(this);
+            return {name, version: "1", data: saver.stringify(json)};
+        };
+        this.persistSession(func);
+    }
+
+    load(data, version) {
+        if (version === "1") {
+            let map = new Map();
+            data.forEach(({id, data}) => {
+                let Cls;
+                if (data.className) {
+                    let appManager = this.service("DynaverseAppManager");
+                    Cls = appManager.get(data.className);
+                    data = {...data};
+                    delete data.className;
+                } else {
+                    Cls = DCardActor;
+                }
+
+                if (data.parent) {
+                    let parent = map.get(data.parent);
+                    data = {...data};
+                    data.parent = parent;
+                }
+                
+                let card = Cls.create(data);
+                if (!id) { // could be the default content
+                    map.set(id, card);
+                }
+            });
+        }
+    }
+
+    triggerPersist() {
+        let now = this.now();
+        let diff = now - this.lastPersistTime;
+        let period = this.persistPeriod;
+        if (diff < period) {
+            if (!this.persistRequested) {
+                this.persistRequested = true;
+                this.future(period - diff).triggerPersist();
+            }
+            //console.log("persist not ready");
+            return;
+        }
+        this.lastPersistTime = now;
+        this.persistRequested = false;
+        this.savePersistentData();
+    }
+
+    fileUploaded(data) {
+        let {dataId, fileName, type, avatarId} = data;
+        // this.assets.set(dataId, dataId, type);
+        console.log(dataId, fileName, type, avatarId);
+        let avatar = this.service('ActorManager').get(avatarId);
+        
+        let n = avatar.lookNormal;
+        let t = avatar.translation;
+        let r = avatar.rotation;
+        console.log("drop here", n, t, r);
+        let p = v3_add(v3_scale(n, 6),t);
+
+        debugger;
         DCardActor.create({
-            rotation: q_euler(0, Math.PI / 2, 0),
-            offset: [8, 3, 0], // offset the flamingo model from the center
+            translation: p,
+            rotation: r,
             type: "model",
-            model3d: './assets/3D/Flamingo.glb.zip',
-            // actorCode: [shortId(code.id)]
+            model3d: dataId,
+            modelType: type,
+            shadow: true,
+            singleSided: true
         });
+        this.publish(this.id, "fileLoadRequested", data);
+        this.publish(this.sessionId, "triggerPersist");
     }
 }
 

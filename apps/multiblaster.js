@@ -470,7 +470,3 @@ class MultiBlasterDisplay extends DCardPawn {
         this.context.stroke();
     }
 }
-
-export function register(name, registry) {
-    registry.set(name, MultiBlaster);
-}
