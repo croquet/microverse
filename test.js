@@ -129,7 +129,7 @@ Constants.DefaultCards = [
     },
     {
         data: {
-            name: "MultiBlaster",
+            className: "MultiBlaster",
             translation: [-4, -0.5, -30],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
