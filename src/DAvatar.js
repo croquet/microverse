@@ -135,6 +135,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         super(...args);
         this.isAvatar = true;
         this.speed = 0;
+        this.lastUpdateTime = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
@@ -338,6 +339,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
+        if(time-this.lastUpdateTime < 100)return; // 10 Hz
+        this.lastUpdateTime = time;
         if(this.isMyPlayerPawn){
             if(isTweening) TWEEN.update();
             if(!isWalking){
