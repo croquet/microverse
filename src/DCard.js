@@ -84,6 +84,20 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
             this.textActor = TextFieldActor.create(textOptions);
             this.subscribe(this.textActor.id, "text", "codeAccepted");
         }
+
+        if(this._surface !== undefined){
+            this._surface._parent = this;
+        }
+    }
+
+    sayDeck(message, vars){
+        if(this._parent !== undefined)this.publish(this._parent.id, message, vars);
+        else this.publish(this.id, message, vars);
+    }
+
+    listenDeck(message, method){
+        if(this._parent !== undefined)this.subscribe(this._parent.id, message, method);
+        else this.subscribe(this.id, message, method);
     }
 
     get pawn() { return DCardPawn; }
@@ -137,6 +151,16 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         super(actor);
         this.addToLayers(...actor.layers);
         this.constructCard();
+    }
+
+    sayDeck(message, vars){
+        if(this.actor._parent !== undefined)this.publish(this.actor._parent.id, message, vars);
+        else this.publish(this.actor.id, message, vars);
+    }
+    
+    listenDeck(message, method){
+        if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
+        else this.subscribe(this.actor.id, message, method);
     }
 
     constructCard() {

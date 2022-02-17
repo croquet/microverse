@@ -2,6 +2,7 @@ import { mix } from "@croquet/worldcore";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { DCardActor, DCardPawn } from '../src/DCard.js';
 import { DBarGraphCard } from '../src/DBar.js';
+
 export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay; }
     init(options) {
@@ -118,8 +119,8 @@ export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
         ctx.font = "40px Arial";
         ctx.fillText("BTC-USD", this.canvas.width-40, 85);
 
-        ctx.textAlign = 'center';
-        ctx.font = "100px Arial";
+        ctx.textAlign = 'center';        
+        ctx.font = "90px Arial";
         ctx.fillText("$"+amount, this.canvas.width/2, 100); //50+this.canvas.height/2);
         this.texture.needsUpdate=true;
         this.lastAmount = amount;
