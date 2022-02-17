@@ -175,15 +175,16 @@ debugger;
 }`}],
             textWidth: 1024,
             textHeight: 1024,
-        });            
-    */
+        },
+        id: "fly"
+    },*/
     {
         data: {
             rotation: q_euler(0, Math.PI / 2, 0),
             offset: [8, 3, 0], // offset the flamingo model from the center
             type: "model",
             model3d: './assets/3D/Flamingo.glb.zip',
-            // actorCode: [shortId(code.id)]
+            actorCode: ["fly"]
         }
     }
 ];
@@ -379,6 +380,25 @@ class MyModelRoot extends ModelRoot {
                     let parent = map.get(data.parent);
                     data = {...data};
                     data.parent = parent;
+                }
+
+                if (data.actorCode) {
+                    let actorCode = data.actorCode.map((n) => {
+                        let a = map.get(n);
+                        if (a) {return a.id;}
+                        return null;
+                    });
+                    data = {...data};
+                    data.actorCode = actorCode;
+                }
+                if (data.pawnCode) {
+                    let pawn = data.pawnCode.map((n) => {
+                        let a = map.get(n);
+                        if (a) {return a.id;}
+                        return null;
+                    });
+                    data = {...data};
+                    data.pawnCode = pawnCode;
                 }
                 
                 let card = Cls.create(data);

@@ -8,7 +8,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
-//import { AM_Code } from './code.js';
+// import { AM_Code } from './code.js';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -83,10 +83,6 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
             };
             this.textActor = TextFieldActor.create(textOptions);
             this.subscribe(this.textActor.id, "text", "codeAccepted");
-        }
-
-        if(this._surface !== undefined){
-            this._surface._parent = this;
         }
     }
 
