@@ -1,6 +1,7 @@
 import { mix } from "@croquet/worldcore";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { DCardActor, DCardPawn } from '../src/DCard.js';
+import { DBarGraphCard } from '../src/DBar.js';
 export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay; }
     init(options) {
@@ -8,10 +9,10 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
         this.listen("BTC-USD", this.onBitcoinData);
         this.listen("BTC-USD-history", this.onBitcoinHistory);
         this.history = [];
-        this.setupLogo();
+        this.setupParts();
     }
 
-    setupLogo() {
+    setupParts() {
         this.logo = BitLogoCard.create({
             shapeURL: './assets/SVG/BitcoinSign.svg',
             type: "shape",
@@ -24,6 +25,17 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
             parent: this,
             noSave: true,
         });
+
+        this.bar = DBarGraphCard.create({
+            color: 0x8888ff,
+            translation:[0, -0.3, 0.1],
+            type: "other",
+            name: "BarGraph",
+            shadow: true,
+            height: 0.4,
+            parent: this,
+            noSave: true,
+        });
     }
 
     get latest() { return this.history.length > 0 ? this.history[ this.history.length - 1] : { date: 0, amount: 0 }; }
@@ -32,14 +44,14 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
         if (date - this.latest.date < 25000) return;
         this.history.push({date, amount});
         if (this.history.length > 300) this.history.shift();
-        this.say("BTC-USD-changed");
+        this.sayDeck("value-changed", amount);
     }
 
     onBitcoinHistory(prices) {
         const newer = prices.filter(p => p.date - this.latest.date > 25000);
         this.history.push(...newer);
         while (this.history.length > 300) this.history.shift();
-        this.say("BTC-USD-changed");
+        this.sayDeck("value-init", newer.map(v=>v.amount));
     }
 }
 BitcoinTracker.register("BitcoinTracker");
@@ -48,7 +60,8 @@ export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
     constructor(actor) {
         super(actor);   // might call handleElected()
         this.lastAmount = 0;
-        this.listen("BTC-USD-changed", this.onBTCUSDChanged);
+        this.listenDeck("value-changed", this.onBTCUSDChanged);
+        this.listenDeck("value-init", this.onBTCUSDChanged);
     }
 
     handleElected() {
@@ -99,12 +112,15 @@ export class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
         else color = "#22FF22";
         this.clear("#222222");
         let ctx = this.canvas.getContext('2d');
-        ctx.textAlign = 'center';
+        ctx.textAlign = 'right';
         ctx.fillStyle = color;
-        ctx.font = "60px Arial";
-        ctx.fillText("BTC-USD", this.canvas.width/2, 80);
+
+        ctx.font = "40px Arial";
+        ctx.fillText("BTC-USD", this.canvas.width-40, 85);
+
+        ctx.textAlign = 'center';
         ctx.font = "100px Arial";
-        ctx.fillText("$"+amount, this.canvas.width/2, 50+this.canvas.height/2);
+        ctx.fillText("$"+amount, this.canvas.width/2, 100); //50+this.canvas.height/2);
         this.texture.needsUpdate=true;
         this.lastAmount = amount;
         this.sayDeck('setColor', color);
