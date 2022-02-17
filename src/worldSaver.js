@@ -68,7 +68,7 @@ export class WorldSaver {
             }
             if (card[`_${prop}`]) {
                 if (prop === "parent") {
-                    result[prop] = this.map.get(card).id;
+                    result[prop] = this.map.get(card[prop]).id;
                 } else {
                     result[prop] = card[`_${prop}`];
                 }

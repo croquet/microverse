@@ -220,9 +220,39 @@ class MyAvatar extends AvatarActor {
     init(options) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
         super.init(options);
+        this.listen("addSticky", this.addSticky);
     }
 
     get pawn() {return MyAvatarPawn;}
+
+    addSticky(pe) {
+        let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
+        let normal = [...pe.normal]; // clear up and down
+        normal[1] = 0;
+        let nsq = v3_sqrMag(normal);
+        let rotPoint;
+        if(nsq > 0.0001){
+            normal = v3_normalize(normal);
+            let theta = Math.atan2(normal[0], normal[2]);
+            rotPoint = q_euler(0, theta, 0);
+        } else {
+            rotPoint = this.rotation;
+            tackPoint[1] += 2;
+        }
+
+        DCardActor.create({
+            translation: tackPoint,
+            rotation: rotPoint,
+            type: "text",
+            depth: 0.05,
+            color:0xffffff, // white
+            frameColor: 0x666666,
+            text: "",
+            textWidth: 600,
+            textHeight: 600
+        });
+        this.publish(this.sessionId, "triggerPersist");
+    }
 }
 
 MyAvatar.register('MyAvatar');
@@ -281,7 +311,6 @@ class MyModelRoot extends ModelRoot {
         appManager.add(DLight);
 
         if (persistentData) {
-            console.log("foo");
             this.loadPersistentData(persistentData);
             return;
         }
