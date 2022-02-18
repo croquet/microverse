@@ -1,4 +1,6 @@
-import { THREE, Actor, Pawn, AM_Predictive, AM_PointerTarget, RegisterMixin, PM_Predictive, PM_ThreeVisible, PM_PointerTarget, mix } from "@croquet/worldcore";
+import { THREE, Actor, Pawn, AM_Predictive, RegisterMixin, PM_Predictive, PM_ThreeVisible, mix } from "@croquet/worldcore";
+
+import { PM_PointerTarget } from "../src/Pointer.js";
 
 import { DCardActor, DCardPawn } from "../src/DCard.js";
 //------------------------------------------------------------------------------------------
@@ -135,24 +137,30 @@ export class PerlinActor extends mix(DCardActor).with(AM_PerlinNoise) {
         this.visible = false;
         //this._translation = [0, -2.75, -10];
         //this.group.rotation.y = Math.PI/2;
+
+        this.listen("onPointerDown", "onPointerDown");
+        this.listen("onPointerUp", "onPointerUp");
+        this.listen("onPointerEnter", "onPointerEnter");
+        this.listen("onPointerLeave", "onPointerLeave");
     }
 
-    onPointerDown(p3d){
+    onPointerDown(p3d) {
         console.log("onPointerDown")
         this.say("hilite", 0x081808);
         this.downTargetId = p3d.targetId;
     }
-    onPointerUp(p3d){
+    onPointerUp(p3d) {
         console.log("onPointerUp")
         if(this.downTargetId === p3d.targetId)this.showHide();
         this.say("hilite", 0x000000);
     }
-    onPointerEnter(p3d){
+    onPointerEnter(p3d) {
         this.say("hilite", 0x181808);
     }
-    onPointerLeave(p3d){
+    onPointerLeave(p3d) {
         this.say("hilite", 0x000000);
     }    
+
     initPerlin(){
         let r = this.currentRow = this.rows=20;
         let c = this.columns=20;
@@ -201,6 +209,11 @@ class PerlinPawn extends DCardPawn {
         this.listen("hilite", this.hilite);
         this.group = new THREE.Group();
         this.setRenderObject( this.group );
+
+        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerUp", "onPointerUp");
+        this.addEventListener("pointerEnter", "onPointerEnter");
+        this.addEventListener("pointerLeave", "onPointerLeave");
     }
 
     onPointerDown(p3d){this.say("onPointerDown", p3d)}
