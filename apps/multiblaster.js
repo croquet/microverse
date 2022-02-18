@@ -141,10 +141,10 @@ class Ship extends Actor {
         // drift through space
         this.x += this.dx;
         this.y += this.dy;
-        if (this.x < 0) this.x += 1000;
-        if (this.x > 1000) this.x -= 1000;
-        if (this.y < 0) this.y += 1000;
-        if (this.y > 1000) this.y -= 1000;
+        if (this.x < 0) this.x += 1024;
+        if (this.x > 1024) this.x -= 1024;
+        if (this.y < 0) this.y += 1024;
+        if (this.y > 1024) this.y -= 1024;
     }
 
     hitBy(asteroid) {
@@ -190,10 +190,10 @@ class Asteroid extends Actor {
         }
         this.x += this.dx;
         this.y += this.dy;
-        if (this.x < 0) this.x += 1000;
-        if (this.x > 1000) this.x -= 1000;
-        if (this.y < 0) this.y += 1000;
-        if (this.y > 1000) this.y -= 1000;
+        if (this.x < 0) this.x += 1024;
+        if (this.x > 1024) this.x -= 1024;
+        if (this.y < 0) this.y += 1024;
+        if (this.y > 1024) this.y -= 1024;
         if (!this.wasHit) {
             this.a += this.da;
             if (this.a < 0) this.a += Math.PI * 2;
