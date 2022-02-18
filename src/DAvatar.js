@@ -68,6 +68,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("doubleDown", this.goThere);
         this.listen("startMMotion", this.startFalling);
         this.listen("setTranslation", this.setTranslation);
+        this.listen("avatarLookTo", this.onLookTo);
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
@@ -375,6 +376,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
             if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
+                console.log("FALLING?")
                 if(delta>0 && !move){ // we are falling - check in front of us to see if there is a step
                     const moveForward = v3_add(this.translation, v3_transform([0,0,0.2], m4_rotationQ(this.rotation)));
                     return this.findFloor(moveForward);
@@ -497,16 +499,38 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
+    xy2yp(xy){
+        let camera = this.service("ThreeRenderManager").camera;
+        let fov = camera.fov/2;
+        let h = window.innerHeight/2;
+        let w = window.innerWidth/2;
+        let c = (fov*Math.PI/180)/h;
+        return[c*(w-xy[0]), c*(h-xy[1])];
+    }
+
     doPointerDown(p3e){
         super.doPointerDown(p3e);
+        if(isWalking && !this.focusPawn){
+            this.dragWorld = this.xy2yp(p3e.xy);
+            this._lookYaw = q_yaw(this._rotation);
+        }
     }
 
     doPointerMove(p3e){
         super.doPointerMove(p3e);
+        if(isWalking && !this.focusPawn && this.isPointerDown){
+            let yp = this.xy2yp(p3e.xy);
+            let yaw = this._lookYaw + this.dragWorld[0] - yp[0];
+            let pitch = this._lookPitch + this.dragWorld[1] -yp[1];
+            pitch = pitch>1 ? 1 : (pitch<-1 ? -1: pitch);
+            this.dragWorld = yp;
+            this.lookTo(pitch, yaw);
+        }
     }
 
     doPointerUp(p3e){
         super.doPointerUp(p3e);
+
     }
 
     doPointerWheel(wheel){        
