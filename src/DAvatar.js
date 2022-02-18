@@ -68,6 +68,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("doubleDown", this.goThere);
         this.listen("startMMotion", this.startFalling);
         this.listen("setTranslation", this.setTranslation);
+        this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
     }
     get pawn() {return AvatarPawn};
@@ -77,6 +78,12 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     setTranslation(v){
         this._translation = v;
+    }
+
+    setFloor(p){
+        let t=this.translation;
+        t[1]=p;
+        this._translation=t;
     }
 
     startFalling(){
@@ -357,7 +364,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     if(this.actor.fall)
                         if(!this.findFloor()){
                             if(this.translation !== this.lastTranslation){
-                                this.moveTo(this.lastTranslation);
+                                this.setTranslation(this.lastTranslation);
                             }
                         }
                 }
@@ -377,7 +384,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
             if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
-                console.log("FALLING?")
                 if(delta>0 && !move){ // we are falling - check in front of us to see if there is a step
                     const moveForward = v3_add(this.translation, v3_transform([0,0,0.2], m4_rotationQ(this.rotation)));
                     return this.findFloor(moveForward);
@@ -385,7 +391,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     let t = this.translation;
                     let p = t[1]-delta;
                     this.isFalling  = true;
-                    this.setTranslation([t[0], p, t[2]]);
+                    this.setFloor(p);
                     return true;
                 }
             }else {this.isFalling = false; return true; }// we are on level ground
@@ -582,6 +588,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     setTranslation(v){
         this._translation = v;
+        this.onLocalChanged();
         this.say("setTranslation", v);
+    }
+
+    setFloor(p){
+        this._translation[1] = p;
+        this.onLocalChanged();
+        this.say("setFloor", p);
     }
 }
