@@ -67,11 +67,16 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("goHome", this.goHome);
         this.listen("doubleDown", this.goThere);
         this.listen("startMMotion", this.startFalling);
+        this.listen("setTranslation", this.setTranslation);
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
     get lookYaw() { return this._lookYaw || 0 };
     get lookNormal(){ return v3_transform([0,0,-1], m4_rotationQ(this.rotation)); }
+
+    setTranslation(v){
+        this._translation = v;
+    }
 
     startFalling(){
         this.fall = true;
@@ -339,23 +344,24 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
-        if(time-this.lastUpdateTime < 100)return; // 10 Hz
-        this.lastUpdateTime = time;
-        if(this.isMyPlayerPawn){
-            if(isTweening) TWEEN.update();
-            if(!isWalking){
-                this.orbitCamera.updateMatrixWorld();
-                this.orbitCamera.updateProjectionMatrix();
-            }else{
-                if(this.actor.fall)
-                    if(!this.findFloor()){
-                        if(this.translation !== this.lastTranslation){
-                            this.moveTo(this.lastTranslation);
+        if(time-this.lastUpdateTime > (this.isFalling ? 25:100)){
+            this.lastUpdateTime = time;
+            if(this.isMyPlayerPawn){
+                if(isTweening) TWEEN.update();
+                if(!isWalking){
+                    this.orbitCamera.updateMatrixWorld();
+                    this.orbitCamera.updateProjectionMatrix();
+                }else{
+                    if(this.actor.fall)
+                        if(!this.findFloor()){
+                            if(this.translation !== this.lastTranslation){
+                                this.moveTo(this.lastTranslation);
+                            }
                         }
-                    }
+                }
+                this.refreshCameraTransform();
+                this.lastTranslation = this.translation;
             }
-            this.refreshCameraTransform();
-            this.lastTranslation = this.translation;
         }
     }
 
@@ -375,10 +381,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 }else { // move up or down
                     let t = this.translation;
                     let p = t[1]-delta;
-                    this.moveTo([t[0], p, t[2]]);
+                    this.isFalling  = true;
+                    this.setTranslation([t[0], p, t[2]]);
                     return true;
                 }
-            }else return true; // we are on level ground
+            }else {this.isFalling = false; return true; }// we are on level ground
         }return false; // try to find the ground...
     }
 
@@ -546,5 +553,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     goHome(){ // in a callback, so use myAvatar
         console.log("goHome")
         myAvatar.say("goHome", [[0,0,0], [0,0,0,1]])
+    }
+
+    setTranslation(v){
+        this._translation = v;
+        this.say("setTranslation", v);
     }
 }

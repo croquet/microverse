@@ -9,7 +9,7 @@ export const D_CONSTANTS ={LIGHT_LAYER:1, EVENT_LAYER:2, WALK_LAYER:3,
     POINTER_DOWN: 1001, POINTER_UP: 1002, 
     POINTER_MOVE:1003, POINTER_CANCEL:1004,
     EYE_HEIGHT:1.7, // height of eyes above ground in meters
-    EYE_EPSILON: 0.1 // don't replicate the change unless it is sufficiently large
+    EYE_EPSILON: 0.01 // don't replicate the change unless it is sufficiently large
     };
 
 export const D = D_CONSTANTS;
