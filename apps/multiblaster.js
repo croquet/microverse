@@ -270,7 +270,7 @@ class MultiBlasterDisplay extends DCardPawn {
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 
         this.context = this.canvas.getContext("2d");
-        this.future(50).update();
+        this.future(50).doUpdate();
     }
 
     onPointerDown(p3d) {
@@ -339,7 +339,7 @@ class MultiBlasterDisplay extends DCardPawn {
     setup() {
     }
 
-    update() {
+    doUpdate() {
         if(this.actor.active){
             this.context.clearRect(0, 0, 1024, 1024);
             this.context.font = '40px sans-serif';
@@ -375,7 +375,7 @@ class MultiBlasterDisplay extends DCardPawn {
             if(this.joystick)this.drawJoystick();
             this.texture.needsUpdate = true;
         }
-        this.future(50).update();
+        this.future(50).doUpdate();
     }
 
     smoothPos(obj) {
