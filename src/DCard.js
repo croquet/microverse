@@ -8,7 +8,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
-// import { AM_Code } from './code.js';
+import { AM_Code } from './code.js';
 
 const CardColor = 0x9999cc;  // light blue
 const OverColor = 0x181808; //0xffff77;   // yellow
@@ -25,7 +25,7 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 //-- DCardActor ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget) {
+export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
     init(options) {
         let cardOptions = {};
         let shapeOptions = {};
@@ -41,12 +41,6 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
         this.set({shapeOptions});
         this.createShape(shapeOptions);
 
-        if (options.actorCode) {
-            this.setModelCode(options.actorCode);
-        }
-        if (options.pawnCode) {
-            this.setViewCode(options.pawnCode);
-        }
     }
 
     createShape(options) {
@@ -130,9 +124,9 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget)
     }
 
     // placeholders. overwritten by AM_Code when it is mixed in
-    setModelCode() {}
-    setViewCode() {}
-    codeAccepted() {}
+    // setCode() {}
+    // setViewCode() {}
+    // codeAccepted() {}
 }
 DCardActor.register('DCardActor');
 

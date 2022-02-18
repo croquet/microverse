@@ -168,23 +168,23 @@ class Fly {
     }
 
     fly() {
-debugger;
         this.future(20).call("Fly", "fly");
-        this.rotateTo(q_euler(0, this.now()/9000,0));
+        this.rotateTo(WorldCore.q_euler(0, this.now()/9000,0));
     }
 }`}],
             textWidth: 1024,
             textHeight: 1024,
         },
-        id: "fly"
-    },*/
+        id: "Fly"
+    },
+    */
     {
         data: {
             rotation: q_euler(0, Math.PI / 2, 0),
             offset: [8, 3, 0], // offset the flamingo model from the center
             type: "model",
             model3d: './assets/3D/Flamingo.glb.zip',
-            actorCode: ["fly"]
+            actorCode: ["Fly"]
         }
     }
 ];
@@ -382,28 +382,16 @@ class MyModelRoot extends ModelRoot {
                     data.parent = parent;
                 }
 
-                if (data.actorCode) {
-                    let actorCode = data.actorCode.map((n) => {
-                        let a = map.get(n);
-                        if (a) {return a.id;}
-                        return null;
-                    });
-                    data = {...data};
-                    data.actorCode = actorCode;
-                }
-                if (data.pawnCode) {
-                    let pawn = data.pawnCode.map((n) => {
-                        let a = map.get(n);
-                        if (a) {return a.id;}
-                        return null;
-                    });
-                    data = {...data};
-                    data.pawnCode = pawnCode;
-                }
-                
                 let card = Cls.create(data);
                 if (id) { // could be the default content
                     map.set(id, card);
+                }
+
+                if (data.type === "code") {
+                    let string = card.getCode();
+                    card.setCode(string);
+                    // cannot be this as its name can conflict.
+                    card.beWellKnownAs(card.$expanderName);
                 }
             });
         }
