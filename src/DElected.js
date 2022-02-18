@@ -1,4 +1,4 @@
-import { mix, RegisterMixin} from "@croquet/worldcore" 
+import { mix, RegisterMixin} from "@croquet/worldcore"
 
 export const AM_Elected = superclass => class extends superclass {
     init(...options) {
@@ -42,19 +42,21 @@ export const PM_Elected = superclass => class extends superclass {
             if (wasElected) this.handleUnelected();
             else this.handleElected();
         } else {
-            console.log('%cView Elected: %s (this view %s unaffected)', 'color: #CC0', this.electedViewId, this.viewId);
+            console.log('%cView Elected: %s (this view %s %s)', 'color: #CC0', this.electedViewId || '<none>', this.viewId,
+                wasElected ? 'still elected ✅' : 'unaffected ❌');
         }
     }
 
     handleElected() {
-        console.log('%cView Elected: %s (this view %s elected ✅)', 'color: #0C0', this.electedViewId, this.viewId);
+        console.log('%cView Elected: %s (this view %s elected ✅)', 'color: #0C0', this.electedViewId || '<none>', this.viewId);
     }
 
     handleUnelected() {
-        console.log('%cView Elected: %s (this view %s unelected ❌)', 'color: #C00', this.electedViewId, this.viewId);
+        console.log('%cView Elected: %s (this view %s unelected ❌)', 'color: #C00', this.electedViewId || '<none>', this.viewId);
     }
 
-    dispose() {
+    destroy() {
         this.onViewElected("");
+        super.destroy();
     }
 }
