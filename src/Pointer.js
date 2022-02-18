@@ -281,7 +281,7 @@ export const PM_Pointer = superclass => class extends superclass {
             if (this.hoverPawn) rc.pawn.say("pointerEnter", this.actor.id)
         }
 
-        if (this.isPointerDown && this.focusPawn === rc.pawn) { // dubious check
+        if (this.isPointerDown && this.focusPawn && this.focusPawn === rc.pawn) { // dubious check
             this.invokeListeners("pointerMove", rc);
         }
     }
