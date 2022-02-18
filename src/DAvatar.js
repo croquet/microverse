@@ -86,6 +86,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     onLookTo(e) {
         this.set({lookPitch: e[0], lookYaw: e[1]});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
+        this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
     goHome( there ){
