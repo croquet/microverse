@@ -1,17 +1,18 @@
+import * as WorldCore from "@croquet/worldcore";
+
 let isProxy = Symbol("isProxy");
-function newProxy(object, handler, trait) {
-    if (object[isProxy] && object._trait === trait) {
+function newProxy(object, handler) {
+    if (object[isProxy]) {
         return object;
     }
     return new Proxy(object, {
         get(target, property) {
             if (property === isProxy) {return true;}
             if (property === "_target") {return object;}
-            if (property === "_trait") {return trait;}
-            if (trait && trait.hasOwnProperty(property)) {
-                return new Proxy(trait[property], {
+            if (handler && handler.hasOwnProperty(property)) {
+                return new Proxy(handler[property], {
                     apply: function(_target, thisArg, argumentList) {
-                        return trait[property].apply(thisArg, argumentList);
+                        return handler[property].apply(thisArg, argumentList);
                     }
                 });
             }
@@ -20,137 +21,99 @@ function newProxy(object, handler, trait) {
     });
 }
 
+// this is a bit problematic as the one that handles code (the code editor) and
+// the one that uses it both use this one.  But then, you can script a editor
+// so it is kind of okay
 export const AM_Code = superclass => class extends superclass {
+    init(options) {
+        super.init(options);
+        if (options.actorCode) {
+            options.actorCode.forEach((code) => {
+                let codeActor = this.wellKnownModel(code);
+                if (codeActor) {
+                    if (codeActor.ensureHandler().init) {
+                        codeActor.invoke(this, "init");
+                    }
+                }
+            });
+        }
+
+        // if (options.pawnCode) {
+        // this.setViewCode(options.pawnCode);
+        // }
+    }
+            
     codeAccepted(data) {
-        console.log(data.text);
-        this.setModelCode([data.text]);
+        this.setCode(data.text);
     }
 
-    call(traitOrNull, name, ...values) {
-        let myHandler = this.ensureMyHandler();
-        let trait;
+    future(time) {
+        if (this[isProxy]) {
+            return this._target.future(time);
+        }
+        return super.future(time);
+    }
+
+    invoke(receiver, name, ...values) {
+        let myHandler = this.ensureHandler();
+        let trait = this.$expanderName;
         let result;
-        if (traitOrNull) {
-            trait = myHandler[traitOrNull];
-        }
 
-        if (traitOrNull && !trait) {
-            throw new Error(`an expander named ${traitOrNull} is not installed`);
-        }
-
-        let proxy = newProxy(this, myHandler, trait);
+        let proxy = newProxy(receiver, myHandler);
         try {
             let f = proxy[name];
             if (!f) {
-                throw new Error(`a method named ${name} not found in ${traitOrNull || this}`);
+                throw new Error(`a method named ${name} not found in ${trait || this}`);
             }
             result = f.apply(proxy, values);
         } catch (e) {
-            console.error("an error occured in", this, traitOrNull, name, e);
+            console.error("an error occured in", this, trait, name, e);
         }
         return result;
     }
 
-    ensureMyHandler() {
-        if (!this.$handlers) {
-            this.$handlers = {};
+    call(expanderName, name, ...values) {
+        let expander = this.wellKnownModel(expanderName);
+        if (!expander) {
+            throw new Error(`epxander named ${expanderName} not found`);
+        }
+        return expander.invoke(this, name, ...values);
+    }
+
+    ensureHandler() {
+        if (!this.$handler) {
             let maybeCode = this.getCode();
-            if (maybeCode.length > 0) {// always an array
-                this.setCode(maybeCode, true);
-            }
-            maybeCode = this.getViewCode();
-            if (maybeCode.length > 0) {// always an array
-                this.setViewCode(maybeCode);
-            }
-            maybeCode = this.getStyleString();
-            if (maybeCode.length > 0) {
-                this.setStyleString(maybeCode);
-            }
+            this.setCode(maybeCode, true);
         }
-        return this.$handlers;
+        return this.$handler;
     }
 
-    hasHandler(traitName) {
-        let myHandler = this.ensureMyHandler();
-        return !!myHandler[traitName];
+    getCode() {
+        return this._shapeOptions.runs.map((run) => run.text).join("");
     }
 
-    setModelCode(stringOrArray, notCallInit) {
-        if (!stringOrArray) {
+    setCode(string, notCallInit) {
+        if (!string) {
             console.log("code is empty for ", this);
             return;
         }
 
-        let array;
-        let result = [];
-        if (typeof stringOrArray === "string") {
-            array = [stringOrArray];
-        } else {
-            array = stringOrArray;
+        let trimmed = string.trim();
+        let source;
+        if (trimmed.length === 0) {return;}
+        if (/^class[ \t]/.test(trimmed)) {
+            source = trimmed;
         }
 
-        this._code = array;
-        array.forEach((str) => {
-            let trimmed = str.trim();
-            let source;
-            if (trimmed.length === 0) {return;}
-            if (/^class[ \t]/.test(trimmed)) {
-                source = trimmed;
-            } else {
-                let codeActor = this.service("ActorManager").get(`${this.sessionId}/${str}`);
-                if (codeActor) {
-                    source = codeActor.text;
-                }
-            }
-
-            if (!source) {
-                console.log(`code specified as ${trimmed} is empty for`, this);
-            }
-
-            let code = `let x = ${source}; return x;`;
-            let cls = new Function(code)();
-            if (typeof cls !== "function") {
-                console.log("error occured while compiling");
-                return;
-            }
-            result.push(cls);
-        });
-
-        if (!this.$handlers) {
-            this.$handlers = {};
-        }
-        let myHandler = this.$handlers;
-
-        Object.keys(myHandler).forEach((k) => {
-            if (myHandler[k] && myHandler["_" + k]) {
-                delete myHandler[k];
-                delete myHandler["_" + k];
-            }
-        });
-
-        result.forEach((cls) => {
-            let name = cls.name;
-            myHandler[name] = cls.prototype;
-            myHandler["_" + name] = cls;
-            if (!notCallInit && cls.prototype.init) {
-                this.call(cls.name, "init");
-            }
-        });
-    }
-
-    setViewCode(stringOrArray) {
-        if (!stringOrArray) {
-            console.log("code is empty for ", this);
+        //let code = `let x = ${source}; return x;`;
+        let code = `return (${source})`;
+        let cls = new Function("WorldCore", code)(WorldCore);
+        if (typeof cls !== "function") {
+            console.log("error occured while compiling");
             return;
         }
 
-        let array;
-        if (typeof stringOrArray === "string") {
-            array = [stringOrArray];
-        } else {
-            array = stringOrArray;
-        }
-        this.set({viewCode: array});
-        this.say("viewCodeUpdated");
+        this.$handler = cls.prototype;
+        this.$expanderName = cls.name;
     }
 }
