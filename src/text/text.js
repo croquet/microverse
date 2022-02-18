@@ -1,5 +1,6 @@
-import {THREE, PM_ThreeVisible, PM_Spatial, AM_Smoothed, PM_Smoothed, AM_PointerTarget, PM_PointerTarget, PM_Focusable, Actor, Pawn, mix, ViewService, GetPawn} from "@croquet/worldcore";
+import {THREE, PM_ThreeVisible, PM_Spatial, AM_Smoothed, PM_Smoothed, PM_Focusable, Actor, Pawn, mix, ViewService, GetPawn} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
+import { PM_PointerTarget } from "../Pointer.js";
 import loadFont from "load-bmfont";
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
@@ -79,7 +80,7 @@ export class SyncedStateManager extends ViewService {
     }
 }
 
-export class TextFieldActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
+export class TextFieldActor extends mix(Actor).with(AM_Smoothed) {
     init(options) {
         this.doc = new Doc();
         this.doc.load(options.runs || []);
@@ -233,6 +234,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     constructor(model) {
         super(model);
         this.model = model;
+        this.addToLayers("pointer");
 
         this.widgets = {};
         this.setupEditor();
@@ -253,7 +255,9 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
             this.needsUpdate();
         });
 
-        this.addToLayers("pointer");
+        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerMove", "onPointerMove");
+        this.addEventListener("pointerUp", "onPointerUp");
     }
 
     destroy() {
@@ -987,7 +991,7 @@ export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, 
     }
 }
 
-export class DismissButtonActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget) {
+export class DismissButtonActor extends mix(Actor).with(AM_Smoothed) {
     init(options) {
         super.init({...options, multiusser: true});
     }
@@ -1002,6 +1006,8 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
         super(actor);
 
         this.radius = 0.08;
+
+        this.addEventListener("pointerDown", "onPointerDown");
 
         let geometry = new THREE.SphereGeometry(this.radius, 32, 16);
         let material = new THREE.MeshStandardMaterial({color: 0xaa2222});

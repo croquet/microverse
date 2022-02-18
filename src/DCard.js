@@ -4,7 +4,8 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, AM_PointerTarget, PM_PointerTarget, Data, ModelService, ViewService } from '@croquet/worldcore';
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService } from '@croquet/worldcore';
+import { AM_PointerTarget, PM_PointerTarget } from "./Pointer.js";
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
@@ -140,6 +141,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
     constructor(actor) {
         super(actor);
         this.addToLayers(...actor.layers);
+        this.addEventListener("pointerWheel", "onPointerWheel");
         this.constructCard();
     }
 
@@ -283,53 +285,7 @@ export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM
         console.log("blurred")
     }
 
-    onPointerEnter(pointerId) {
-        console.log(pointerId)
-    //    const pointerPawn = GetPawn(pointerId);
-    //    const pointerRotation = pointerPawn.actor.rotation;
-    //    this.localOffset = m4_rotationQ(pointerRotation);
-    }
-
-    onPointerLeave(pointerId) {
-        console.log("pointerLeave")
-    }
-
-    // communication with the Card_Actor and the Surface_Pawn
-    onPointerDown(p3d){
-    //    this.tween(this.shape, new THREE.Quaternion(...p3d.rotation));
-        this.say("onPointerDown", p3d);
-        if(this.surface && this.surface.onPointerDown)this.surface.onPointerDown(p3d);
-    }
-    onPointerMove(p3d){
-        this.say("onPointerMove", p3d);
-        if(this.surface && this.surface.onPointerMove)this.surface.onPointerMove(p3d);
-    }
-    onPointerUp(p3d){
-        this.say("onPointerUp", p3d);
-        if(this.surface && this.surface.onPointerUp)this.surface.onPointerUp(p3d);
-    }
-    onPointerEnter(p3d){
-        //this.tween(this.shape, new THREE.Quaternion(...p3d.rotation));
-        this.say("onPointerEnter", p3d);
-        if(this.surface && this.surface.onPointerEnter)this.surface.onPointerEnter(p3d);
-    }
-    onPointerOver(p3d){
-        this.say("onPointerOver", p3d);
-        if(this.surface && this.surface.onPointerOver)this.surface.onPointerOver(p3d);
-    }
-    onPointerLeave(p3d){
-        this.say("onPointerLeave", p3d);
-        if(this.surface && this.surface.onPointerLeave)this.surface.onPointerLeave(p3d)
-    }
-    onKeyDown(e){
-        this.say("onKeyDown", e);
-        if(this.surface && this.surface.onKeyDown)this.surface.onKeyDown(e);
-    }
-    onKeyUp(e){
-        this.say("onKeyUp", e);
-        if(this.surface && this.surface.onKeyUp)this.surface.onKeyUp(e);
-    }
-    onPointerWheel(e){
+    onPointerWheel(e) {
         let s = this.scale;
         let w = e < 0 ? -0.1 : 0.1;
         if (s[0] + w > 0.3) {

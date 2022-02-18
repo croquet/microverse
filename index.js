@@ -151,10 +151,9 @@ Constants.DefaultCards = [
             fullBright: true,
         }
     },
-    /*
     {
         data: {
-            translation: [4, -0.5, -10],
+            translation: [4, -10, -10],
             rotation: q_euler(0, -Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
@@ -177,10 +176,9 @@ class Fly {
         },
         id: "Fly"
     },
-    */
     {
         data: {
-            rotation: q_euler(0, Math.PI / 2, 0),
+            rotation: q_euler(0, 0, 0),
             offset: [8, 3, 0], // offset the flamingo model from the center
             type: "model",
             model3d: './assets/3D/Flamingo.glb.zip',
@@ -484,7 +482,7 @@ loadLoaders().then(() => {
         password: App.autoPassword(),
         model: MyModelRoot,
         view: MyViewRoot,
-        tps:60,
+        tps: 30,
         eventRateLimit: 60,
     });
 });

@@ -267,6 +267,11 @@ Blast.register("Blast");
 class MultiBlasterDisplay extends DCardPawn {
     constructor(actor) {
         super(actor);
+
+        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerMove", "onPointerMove");
+        this.addEventListener("pointerUp", "onPointerUp");
+
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 
         this.context = this.canvas.getContext("2d");
