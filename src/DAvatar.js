@@ -157,6 +157,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.avatarIndex = args[0].avatarIndex;
         this._lookPitch = this.actor.lookPitch;
         this._lookYaw = this.actor.lookYaw;
+        this.rotateTo(q_euler(0, this.lookYaw, 0));
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
 
         if (this.isMyPlayerPawn) {
@@ -220,8 +221,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     get lookOffset(){return this._lookOffset || [0,0,0]}
-    get lookPitch() { return this._lookPitch}
-    get lookYaw() { return this._lookYaw}
+    get lookPitch() { return this._lookPitch || 0}
+    get lookYaw() { return this._lookYaw || 0}
 
     getAvatarModel(index) {
         if (avatarModelPromises[index]) {
@@ -548,7 +549,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             z = Math.min(4, Math.max(z,0));
             this.lookOffset[1]=z/3;
             this.lookOffset[2]=z;
-            this.lookTo(-z/8, 0);
+            this.lookTo(-z/8, this._lookYaw);
         }
     }
 

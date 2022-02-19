@@ -282,7 +282,7 @@ class MyPlayerManager extends PlayerManager {
         options.index = this.avatarCount;
         this.avatarCount++;
         console.log("MyPlayerManager", this.avatarCount);
-        options.lookYaw = toRad(45);
+        // options.lookYaw = toRad(45); for testing
         options.color = [Math.random(), Math.random(), Math.random(), 1];
         return MyAvatar.create(options);
     }
