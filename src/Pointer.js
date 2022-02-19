@@ -82,15 +82,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
         this.eventListeners = new Map();
 
         this.addEventListener("focusFailure", "onFocusFailure");
-        
-        if (this.onPointerDown) this.listen("pointerDown", this.onPointerDown);
-        if (this.onPointerUp) this.listen("pointerUp", this.onPointerUp);
-        if (this.onPointerOver) this.listen("pointerOver", this.onPointerOver);
-        if (this.onPointerMove) this.listen("pointerMove", this.onPointerMove);
-        if (this.onPointerEnter) this.listen("pointerEnter", this.onPointerEnter);
-        if (this.onPointerLeave) this.listen("pointerLeave", this.onPointerLeave);
-        if (this.onPointerWheel) this.listen("pointerWheel", this.onPointerWheel);
-        if (this.onPointerDoubleDown) this.listen("pointerDoubleDown", this.onPointerDoubleDown);
+
         if (this.onFocus) this.listen("focusSuccess", this.onFocus);
         if (this.onBlur) this.listen("blur", this.onBlur);
         if (this.onKeyDown) this.listen("keyDown", this.onKeyDown);
@@ -155,21 +147,6 @@ export const PM_PointerTarget = superclass => class extends superclass {
         const pointerPawn = GetPawn(pointerId);
         if (pointerPawn) pointerPawn.focusPawn = null;
     }
-
-    // onPointerEnter(pointerId) {}
-    // onPointerLeave(pointerId) {}
-    // onFocus(pointerId) {}
-    // onFocusFailure(pointerId) {}
-    // onBlur(pointerId) {}
-
-    // onPointerDown(pe) {}
-    // onPointerUp(pe) {}
-    // onPointerMove(pe) {}
-    // onPointerWheel(e) {}
-    // onPointerDoubleDown(pe) {}
-    // onKeyDown(e) {}
-    // onKeyUp(e) {}
-
 }
 
 //------------------------------------------------------------------------------------------
@@ -226,14 +203,14 @@ export const PM_Pointer = superclass => class extends superclass {
         });
     }
 
-    invokeListeners(type, rc, optEvent) {
-        let array = this.focusPawn.eventListeners.get(type);
+    invokeListeners(type, target, rc, optEvent) {
+        let array = target.eventListeners.get(type);
         let event = optEvent;
         if (!event) {
             event = this.pointerEvent(rc);
         }
         if (array) {
-            array.forEach((n) => this.focusPawn[n](event));
+            array.forEach((n) => target[n](event));
         }
     }
 
@@ -252,7 +229,7 @@ export const PM_Pointer = superclass => class extends superclass {
             }
         }
         if (this.focusPawn) {
-            this.invokeListeners("pointerDown", rc);
+            this.invokeListeners("pointerDown", this.focusPawn, rc);
         }
     }
 
@@ -263,7 +240,7 @@ export const PM_Pointer = superclass => class extends superclass {
         const rc = this.pointerRaycast([x,y], this.getTargets("pointerUp"));
 
         if (this.focusPawn) {
-            this.invokeListeners("pointerUp", rc);
+            this.invokeListeners("pointerUp", this.focusPawn, rc);
         }
         this.isPointerDown = false;
         // this.focusPawn = null;
@@ -276,20 +253,28 @@ export const PM_Pointer = superclass => class extends superclass {
 
         const rc = this.pointerRaycast([x,y], this.getTargets("pointerMove"));
         if (this.hoverPawn !== rc.pawn) {
-            if (this.hoverPawn) this.hoverPawn.say("pointerLeave", this.actor.id)
+            if (this.hoverPawn) {
+                this.invokeListeners("pointerLeave", this.hoverPawn, rc);
+            }
             this.hoverPawn = rc.pawn
-            if (this.hoverPawn) rc.pawn.say("pointerEnter", this.actor.id)
+            if (this.hoverPawn) {
+                this.invokeListeners("pointerEnter", this.hoverPawn, rc);
+            }
         }
 
         if (this.isPointerDown && this.focusPawn && this.focusPawn === rc.pawn) { // dubious check
-            this.invokeListeners("pointerMove", rc);
+            this.invokeListeners("pointerMove", this.focusPawn, rc);
         }
     }
 
     doPointerWheel(e) {
-        if (this.focusPawn) {
-            this.invokeListeners("pointerWheel", null, e);
+        if (!this.focusPawn) {return false;}
+        this.focusTimeout = this.now();
+        const rc = {pawn: this.focusPawn};
+        if (!rc.pawn) { // dubious check
+            this.invokeListeners("pointerWheel", this.focusPawn, rc);
         }
+        return true;
     }
 
     doPointerDoubleDown(e) {
@@ -298,14 +283,14 @@ export const PM_Pointer = superclass => class extends superclass {
         const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
         const rc = this.pointerRaycast([x,y], this.getTargets("pointerDoubleDown"));
         if (this.focusPawn) {
-            this.invokeListeners("pointerDoubleDown", rc);
+            this.invokeListeners("pointerDoubleDown", this.focusPawn, rc);
         }
     }
 
     doKeyDown(e) {
         this.focusTime = this.now();
         if (this.focusPawn) {
-            this.invokeListeners("keyDown", null, e);
+            this.invokeListeners("keyDown", this.focusPawn, null, e);
         }
     }
 
@@ -313,7 +298,7 @@ export const PM_Pointer = superclass => class extends superclass {
         this.focusTime = this.now();
         
         if (this.focusPawn) {
-            this.invokeListeners("keyUp", null, e);
+            this.invokeListeners("keyUp", this.focusPawn, null, e);
         }
     }
 

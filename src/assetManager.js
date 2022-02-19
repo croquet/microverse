@@ -159,7 +159,7 @@ export class AssetManager {
             return false;
         }
 
-        if (!isFileDrop(evt)) {return;}
+        if (!isFileDrop(evt)) {return Promise.resolve(null);}
 
         let fullPath;
         let fileType;
@@ -181,6 +181,10 @@ export class AssetManager {
         dom.ondrop = (evt) => {
             evt.preventDefault();
             this.drop(evt).then((obj) => {
+                if (!obj) {
+                    console.log("not a file");
+                    return;
+                }
                 let {buffer, fileName, type} = obj;
                 if (callback) {
                     callback(buffer, fileName, type);
