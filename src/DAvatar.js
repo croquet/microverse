@@ -493,14 +493,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doPointerDoubleDown(e) {
         const render = this.service("ThreeRenderManager");
-        const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
-        const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-        const rc = this.pointerRaycast([x,y], render.threeLayerUnion('pointer', 'walk'));
+        const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
         let pe = this.pointerEvent(rc);
         if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
         else if(pe.targetId){
             let pawn = GetPawn(pe.targetId);
             let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
+            console.log(pawn, pose)
             if(pose){
                 pe.xyz = pose[0]; // world coordinates
                 pe.offset = pose[1]; // distance from target
@@ -520,7 +519,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doPointerDown(p3e){
         super.doPointerDown(p3e);
-        if(isWalking && !this.focusPawn){
+        if(this.ctrlKey){
+            console.log("doPointerDown + ctrl", this.focusPawn )
+
+        } else if(isWalking && !this.focusPawn){
             this.dragWorld = this.xy2yp(p3e.xy);
             this._lookYaw = q_yaw(this._rotation);
         }
