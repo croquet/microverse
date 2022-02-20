@@ -1,7 +1,7 @@
 import * as WorldCore from "@croquet/worldcore";
 
 let isProxy = Symbol("isProxy");
-function newProxy(object, handler) {
+function newProxy(object, handler, expander) {
     if (object[isProxy]) {
         return object;
     }
@@ -9,6 +9,7 @@ function newProxy(object, handler) {
         get(target, property) {
             if (property === isProxy) {return true;}
             if (property === "_target") {return object;}
+            if (property === "_expander") {return expander;}
             if (handler && handler.hasOwnProperty(property)) {
                 return new Proxy(handler[property], {
                     apply: function(_target, thisArg, argumentList) {
@@ -56,18 +57,18 @@ export const AM_Code = superclass => class extends superclass {
 
     invoke(receiver, name, ...values) {
         let myHandler = this.ensureHandler();
-        let trait = this.$expanderName;
+        let expander = this.$expanderName;
         let result;
 
-        let proxy = newProxy(receiver, myHandler);
+        let proxy = newProxy(receiver, myHandler, expander);
         try {
             let f = proxy[name];
             if (!f) {
-                throw new Error(`a method named ${name} not found in ${trait || this}`);
+                throw new Error(`a method named ${name} not found in ${expander || this}`);
             }
             result = f.apply(proxy, values);
         } catch (e) {
-            console.error("an error occured in", this, trait, name, e);
+            console.error("an error occured in", this, expander, name, e);
         }
         return result;
     }

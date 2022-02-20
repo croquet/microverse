@@ -164,6 +164,7 @@ class Fly {
         if (this.flying) {return;}
         this.flying = true;
         this.fly();
+        this.addEventListener("pointerDown", "toggle");
     }
 
     fly() {

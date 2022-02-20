@@ -10,6 +10,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
     init(options) {
         super.init(options);
         this.eventListeners = new Map();
+        this.listen("dispatchEvent", this.dispatchEvent);
         this.hovered = new Set();
         this.focused = new Set();
         this.listen("hoverRequested", this.hoverRequested);
@@ -26,6 +27,61 @@ export const AM_PointerTarget = superclass => class extends superclass {
     get isMultiuser() { return this._multiuser; }
     get isHovered() { return this.hovered.size};
     get isFocused() { return this.focused.size};
+
+    dispatchEvent(data) {
+        let {eventName, evt} = data;
+        let array = this.eventListeners.get(eventName);
+        if (!array) {return;}
+
+        array.forEach((obj) => {
+            let {expander, listener} = obj;
+            if (expander) {
+                this.call(expander, listener, evt);
+            } else {
+                this[listener](evt);
+            }
+        });
+    }
+
+    addEventListener(eventName, listener) {
+        let expander = this._expander;
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
+        let array = this.eventListeners.get(eventName);
+        if (!array) {
+            array = [];
+            this.eventListeners.set(eventName, array);
+        }
+        if (array.indexOf(listener) >= 0) {
+            console.log("multiple registration of the same function");
+            return;
+        }
+        array.push({expander, listener});
+
+        this.say("registerEventListener", {eventName, listener});
+    }
+
+    removeEventListener(eventName, listener) {
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
+        let array = this.eventListeners.get(eventName);
+        if (!array) {
+            console.log("try to remove non-existent listener");
+            return;
+        }
+        let ind = array.indexOf(listener);
+        if (ind < 0) {
+            console.log("try to remove non-existent listener");
+            return;
+        }
+        array.splice(ind, 1);
+        if (array.length === 0) {
+            this.eventListeners.delete(eventName);
+            this.say("unregisterEventListener", {eventName, listener});
+        }
+    }
 
     dropoutTick() {
         const am = this.service("ActorManager");
@@ -80,6 +136,10 @@ export const PM_PointerTarget = superclass => class extends superclass {
     constructor(actor) {
         super(actor);
         this.eventListeners = new Map();
+        this.modelListeners = new Map();
+
+        this.listen("registerEventListener", "registerEventListener");
+        this.listen("unregisterEventListener", "unregisterEventListener");
 
         this.addEventListener("focusFailure", "onFocusFailure");
 
@@ -87,7 +147,8 @@ export const PM_PointerTarget = superclass => class extends superclass {
         if (this.onBlur) this.listen("blur", this.onBlur);
         if (this.onKeyDown) this.listen("keyDown", this.onKeyDown);
         if (this.onKeyUp) this.listen("keyUp", this.onKeyUp);
-        this.listen("focusFailure", this.onFocusFailure);
+
+        this.registerAllEventListeners();
     }
 
     destroy() {
@@ -106,37 +167,70 @@ export const PM_PointerTarget = superclass => class extends superclass {
         });
     }
 
-    addEventListener(eventName, listener) {
-        if (typeof listener === "function") {
-            listener = listener.name;
+    addEventListener(eventName, listener, name) {
+        if (typeof listener === "string") {
+            name = listener;
+            listener = (evt) => this[name](evt);
+        } else {
+            if (!name) {
+                name = listener.name;
+            }
         }
         let array = this.eventListeners.get(eventName);
         if (!array) {
             array = [];
             this.eventListeners.set(eventName, array);
         }
-        if (array.indexOf(listener) >= 0) {
+        if (array.find((obj) => obj.name === name)) {
             console.log("multiple registration of the same function");
             return;
         }
-        array.push(listener);
+        array.push({name, listener});
     }
 
     removeEventListener(eventName, listener) {
-        if (typeof listener === "function") {
-            listener = listener.name;
+        let name;
+        if (typeof listener === "string") {
+            listener = (evt) => this[listener](evt);
+            name = listener;
+        } else {
+            name = listener.name;
         }
         let array = this.eventListeners.get(eventName);
         if (!array) {
             console.log("try to remove non-existent listener");
             return;
         }
-        let ind = array.indexOf(listener);
+        let ind = array.findIndex((obj) => obj.name === name);
         if (ind < 0) {
             console.log("try to remove non-existent listener");
             return;
         }
         array.splice(ind, 1);
+    }
+
+    registerEventListener(data) {
+        window.flpawn = this;
+        let {eventName} = data;
+        if (!this.modelListeners.get(eventName)) {
+            let func = (evt) => this.say("dispatchEvent", {eventName, evt});
+            this.modelListeners.set(eventName, func);
+            this.addEventListener(eventName, func, `dispatch_${eventName}`);
+        }
+    }
+
+    unregisterEventListener(data) {
+        let {eventName, listener} = data;
+        let func = this.modelListeners.get(eventName);
+        if (!func) {return;}
+        this.removeEventListener(eventName, func);
+    }
+
+    registerAllEventListeners() {
+        if (!this.actor.eventListeners) {return;}
+        for (let eventName of this.actor.eventListeners.keys()) {
+            this.registerEventListener({eventName});
+        }
     }
 
     get isMultiuser() { return this.actor.isMultiuser; }
@@ -210,7 +304,7 @@ export const PM_Pointer = superclass => class extends superclass {
             event = this.pointerEvent(rc);
         }
         if (array) {
-            array.forEach((n) => target[n](event));
+            array.forEach((n) => n.listener.call(target, event));
         }
     }
 
