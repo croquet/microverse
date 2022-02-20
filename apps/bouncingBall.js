@@ -1,11 +1,11 @@
-import { DCardActor, DCardPawn} from "../src/DCard.js";
+import { CardActor, CardPawn} from "../src/DCard.js";
 
 //------------------------------------------------------
 // BouncingBall
 // A very simple demonstration of how to create a Surface application.
 
 const SPEED = 10;   
-export class BouncingBall extends DCardActor {
+export class BouncingBall extends CardActor {
     init(options) {
         super.init(options);
         this.position = [512,512];
@@ -53,7 +53,7 @@ export class BouncingBall extends DCardActor {
 }
 BouncingBall.register('BouncingBall');
 
-export class BouncingBallPawn extends DCardPawn {
+export class BouncingBallPawn extends CardPawn {
     constructor(options) {
         super(options);
         this.updatePosition(this.actor.position);

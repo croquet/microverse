@@ -1,7 +1,7 @@
-import { DCardActor, DCardPawn } from '../src/DCard.js';
+import { CardActor, CardPawn } from '../src/DCard.js';
 import { THREE } from '@croquet/worldcore';
 
-export class DBarGraphCard extends DCardActor{
+export class DBarGraphCard extends CardActor{
     init(...args){
         super.init(...args);
         this.values = [];
@@ -33,7 +33,7 @@ export class DBarGraphCard extends DCardActor{
 }
 DBarGraphCard.register('DBarGraphCard');
 
-class DBarGraphPawn extends DCardPawn{
+class DBarGraphPawn extends CardPawn{
     constructor(args) {
         super(args);
         this.constructBars();

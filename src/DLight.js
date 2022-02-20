@@ -1,7 +1,7 @@
 import {
     THREE, Actor, Pawn, mix, AM_Smoothed, PM_Smoothed, PM_ThreeVisible} from "@croquet/worldcore";
 
-import { DCardActor, DCardPawn } from "./DCard.js";
+import { CardActor, CardPawn } from "./DCard.js";
 
 import skyFront from "../assets/sky/sh_ft.png";
 import skyBack from "../assets/sky/sh_bk.png";
@@ -10,12 +10,12 @@ import skyLeft from "../assets/sky/sh_lf.png";
 import skyUp from "../assets/sky/sh_up.png";
 import skyDown from "../assets/sky/sh_dn.png";
 
-export class DLight extends DCardActor {
+export class DLight extends CardActor {
     get pawn() {return DLightPawn;}
 }
 DLight.register('DLight');
 
-class DLightPawn extends DCardPawn {
+class DLightPawn extends CardPawn {
     constructor(options) {
         super(options);
         this.addToLayers('light');

@@ -1,4 +1,4 @@
-import { DCardActor } from '../src/DCard.js';
+import { CardActor } from '../src/DCard.js';
 //import { TextureSurface } from '../src/DSurface.js';
 import { q_euler } from "@croquet/worldcore";
 const SCALE = 0.025;
@@ -7,7 +7,7 @@ const SQUARE = 0.125;
 export function constructChess(translation, scale, rotation){
     let chessSurface = TextureSurface.create({url: './assets/images/chessboard.webp'});
     let svg = 'square-full.svg';
-    let board = DCardActor.create(
+    let board = CardActor.create(
     {
         shapeURL: './assets/SVG/'+svg,
         surface: chessSurface,
@@ -21,7 +21,7 @@ export function constructChess(translation, scale, rotation){
         shadow: true
     });
 
-    let pawn  = DCardActor.create(
+    let pawn  = CardActor.create(
         {       
             model3d: './assets/3D/pawnlow.glb.zip',
             modelType: 'glb',            

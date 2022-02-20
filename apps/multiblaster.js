@@ -1,10 +1,10 @@
 
 import { Actor, Pawn } from "@croquet/worldcore";
-import { DCardActor, DCardPawn} from "../src/DCard.js";
+import { CardActor, CardPawn} from "../src/DCard.js";
 
 /////////// Model code is executed inside of synced VM /////////// 
 
-export class MultiBlaster extends DCardActor {
+export class MultiBlaster extends CardActor {
     get pawn(){ return MultiBlasterDisplay; }
     init(options) {
         super.init(options);
@@ -264,7 +264,7 @@ Blast.register("Blast");
 /////////// Code below is executed outside of synced VM /////////// 
 
 
-class MultiBlasterDisplay extends DCardPawn {
+class MultiBlasterDisplay extends CardPawn {
     constructor(actor) {
         super(actor);
 

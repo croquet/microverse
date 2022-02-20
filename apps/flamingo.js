@@ -1,4 +1,4 @@
-import { DCardActor, DCardPawn } from '../src/DCard.js';
+import { CardActor, CardPawn } from '../src/DCard.js';
 import { q_euler } from '@croquet/worldcore';
 
 export function constructFlamingo(height, radius){
@@ -9,7 +9,7 @@ export function constructFlamingo(height, radius){
     });
 }
 
-class FlamingoCard extends DCardActor{
+class FlamingoCard extends CardActor{
     init(options){
         super.init(options);
         this.fly();

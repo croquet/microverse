@@ -2,7 +2,7 @@ import { THREE, Actor, Pawn, AM_Predictive, RegisterMixin, PM_Predictive, PM_Thr
 
 import { PM_PointerTarget } from "../src/Pointer.js";
 
-import { DCardActor, DCardPawn } from "../src/DCard.js";
+import { CardActor, CardPawn } from "../src/DCard.js";
 //------------------------------------------------------------------------------------------
 //-- Perlin Noise Mixin --------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ export const AM_PerlinNoise = superclass => class extends superclass {
 }
 RegisterMixin(AM_PerlinNoise);
 
-export class PerlinActor extends mix(DCardActor).with(AM_PerlinNoise) {
+export class PerlinActor extends mix(CardActor).with(AM_PerlinNoise) {
     get pawn() {return PerlinPawn;}
     init(options) {
         super.init(options);
@@ -198,7 +198,7 @@ PerlinActor.register('PerlinActor');
 const maxHeight = 8;
 const barScale = 0.25;
 
-class PerlinPawn extends DCardPawn {
+class PerlinPawn extends CardPawn {
     constructor(actor) {
         super(actor);
         this.addToLayers('pointer');
