@@ -1,0 +1,16 @@
+{
+  "name": "expander-server",
+  "version": "0.0.1",
+  "description": "A server to serve expander files for microverse",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "ws": "^8.5.0"
+  }
+}
