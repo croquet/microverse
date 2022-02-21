@@ -11,15 +11,6 @@ import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { AM_Code } from './code.js';
 
-const CardColor = 0x9999cc;  // light blue
-const OverColor = 0x181808; //0xffff77;   // yellow
-const DownColor = 0x081808; // green
-const NoColor = 0x000000; // black
-
-const timeOutDown = 5000; // if no user action after down event, then cancel
-const timeOutOver = 10000; // if no user action after enter event, then cancel
-let counter = 0;
-
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "noSave"];
 
 //------------------------------------------------------------------------------------------
@@ -142,6 +133,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         super(actor);
         this.addToLayers(...actor.layers);
         this.addEventListener("pointerWheel", "onPointerWheel");
+        this.addEventListener("pointerTap", "onPointerTap");
         this.constructCard();
     }
 
@@ -293,6 +285,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
+    onPointerTap(p3e){
+        console.log("onPointerTap", p3e)
+    }
+    
     setColor(color) {
         let c = new THREE.Color(color);
         this.shape.traverse(obj=>{
@@ -433,6 +429,24 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
         else this.subscribe(this.actor.id, message, method);
     }    
+
+    selectEdit(){
+        console.log(this.service("ThreeRenderManager").outlinePass.selectedObjects);
+        if(this.renderObject){
+            let outline = this.service("ThreeRenderManager").outlinePass;
+            outline.selectedSet.add(this.renderObject);
+            outline.selectedObjects = Array.from(outline.selectedSet);
+        }
+     }
+
+    unselectEdit(){
+        if(this.renderObject){
+            let outline = this.service("ThreeRenderManager").outlinePass;
+            outline.selectedSet.delete(this.renderObject);
+            outline.selectedObjects = Array.from(outline.selectedSet);
+        }
+
+    }
 }
 
 export class DynaverseAppManager extends ModelService {
