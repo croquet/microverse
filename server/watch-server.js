@@ -38,7 +38,7 @@ function loadFile(name) {
         });
     }).then((file) => {
         files[basename] = file;
-        console.log(files);
+        console.log(name);
     });
 }
 

@@ -1,5 +1,5 @@
 import * as WorldCore from "@croquet/worldcore";
-const ViewService = WorldCore.ViewService;
+const {ViewService, ModelService, GetPawn} = WorldCore;
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, expander) {
@@ -30,8 +30,10 @@ export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
         if (options.actorCode) {
-            options.actorCode.forEach((code) => {
-                let codeActor = this.wellKnownModel(code);
+            let expanderManager = this.service("ExpanderModelManager");
+            options.actorCode.forEach((name) => {
+                expanderManager.modelUse(this.id, name);
+                let codeActor = this.wellKnownModel(name);
                 if (codeActor) {
                     if (codeActor.ensureHandler().setup) {
                         codeActor.invoke(this, "setup");
@@ -39,14 +41,22 @@ export const AM_Code = superclass => class extends superclass {
                 }
             });
         }
-
-        // if (options.pawnCode) {
-        // this.setViewCode(options.pawnCode);
-        // }
     }
-            
+
+    // for the code editor probably better be split into a separate mixin
     codeAccepted(data) {
         this.setCode(data.text);
+
+        let expanderModelManager = this.service("ExpanderModelManager");
+        let modelUsers = expanderModelManager.modelUses.get(this.$expanderName);
+        let actorManager = this.service("ActorManager");
+        modelUsers.forEach((modelId) => {
+            let model = actorManager.get(modelId);
+            if (model) {
+                this.invoke(model, "setup");
+            }
+        });
+        this.say("codeAccepted");
     }
 
     codeLoaded(data) {
@@ -126,31 +136,80 @@ export const AM_Code = superclass => class extends superclass {
     }
 }
 
-export class ExpanderManager extends ViewService {
+export const PM_Code = superclass => class extends superclass {
+    constructor(actor) {
+        super(actor);
+        this.listen("codeAccepted", this.codeAccepted);
+
+        if (actor._pawnCode) {
+            actor._pawnCode.forEach((name) => {
+                let codeActor = this.wellKnownModel(name);
+                if (codeActor) {
+                    let expanderManager = this.service("ExpanderViewManager");
+                    expanderManager.viewUse(this.id, name);
+                }
+            });
+        }
+    }
+        
+    codeAccepted() {
+        if (!this._actor.$handler.setup) {return;}
+        let expanderManager = this.service("ExpanderViewManager");
+        let viewUsers = this.viewUses.get(this.$expanderName);
+        viewUsers.forEach((modelId) => {
+            let pawn = GetPawn(modelId);
+            this.invoke(pawn, "setup");
+        });
+    }
+}
+
+export class ExpanderModelManager extends ModelService {
+    init(name) {
+        super.init(name || "ExpanderModelManager");
+        this.modelUses = new Map(); // {modelId: [names]}
+        this.viewUses = new Map();  // {modelId: [names]}
+    }
+
+    modelUse(modelId, name) {
+        let array = this.modelUses.get(name);
+        if (!array) {
+            array = [];
+            this.modelUses.set(name, array);
+        }
+        if (array.indexOf(modelId) < 0) {
+            array.push(modelId);
+        }
+    }
+
+    viewUse(modelId, name) {
+        let array = this.viewUsers.get(name);
+        if (!array) {
+            array = [];
+            this.viewUses.set(name, array);
+        }
+        if (array.indexOf(modelId) < 0) {
+            array.push(modelId);
+        }
+    }
+}
+
+ExpanderModelManager.register("ExpanderModelManager");
+
+export class ExpanderViewManager extends ViewService {
     constructor(name) {
         super(name || "ExpanderManager");
         this.url = null;
         this.socket = null;
-        this.modelUses = new Map(); // {modelId: [names]}
-        this.viewUses = new Map();  // {modelId: [names]}
-        window.ExpanderManager = this;
-    }
-
-    modelUse(model, name) {
-        let array = this.modelUsers.get(model.id);
-        if (!array) {
-            array = [];
-            this.modelUses.set(model.id, array);
-        }
-        if (array.indexOf(name) < 0) {
-            array.push(name);
-        }
+        window.ExpanderViewManager = this;
     }
 
     setURL(url) {
         if (this.socket) {
-            this.socket.terminate();
-            this.socket = null;
+            try {
+                this.socket.close();
+            } finally {
+                this.socket = null;
+            }
         }
         this.url = url;
         this.socket = new WebSocket(url);
@@ -176,7 +235,6 @@ export class ExpanderManager extends ViewService {
             if (codeActor) {
                 if (action === "add") {
                     this.publish(codeActor.id, "load", content);
-                // ... maybe call setup
                 } else if (action === "remove") {
                     this.publish(codeActor.id, "load", "");
                 }

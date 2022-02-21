@@ -77,6 +77,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 parent: this,
             };
             this.textActor = TextFieldActor.create(textOptions);
+            // this is a weird inter mixins dependency but not sure how to write it
             this.subscribe(this.id, "load", "codeLoaded");
             this.subscribe(this.textActor.id, "text", "codeAccepted");
         }

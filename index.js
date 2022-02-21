@@ -11,7 +11,7 @@ import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 //import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
-import { ExpanderManager } from './src/code.js';
+import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
 import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
@@ -300,7 +300,11 @@ MyPlayerManager.register("MyPlayerManager");
 
 class MyModelRoot extends ModelRoot {
     static modelServices() {
-        return [MyPlayerManager, {service: DynaverseAppManager, options: {registry: apps}}];
+        return [
+            MyPlayerManager,
+            {service: DynaverseAppManager, options: {registry: apps}},
+            ExpanderModelManager
+        ];
     }
     init(options, persistentData) {
         super.init(options);
@@ -459,7 +463,7 @@ class MyViewRoot extends ViewRoot {
             KeyFocusManager,
             SyncedStateManager,
             VideoManager,
-            ExpanderManager
+            ExpanderViewManager
         ];
     }
     constructor(model) {
