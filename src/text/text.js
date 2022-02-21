@@ -93,6 +93,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed) {
 
         super.init({...options, multiuser: true});
 
+        this.subscribe(this.id, "load", "loadAndReset");
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
         this.subscribe(this.id, "undoRequest", "undoRequest");
@@ -144,7 +145,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed) {
         }
         this.content = {runs: runs, selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.doc.load(runs);
-        this.publishChanged();
+        this.publishAccept();
         this.needsUpdate();
     }
 

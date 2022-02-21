@@ -24,11 +24,11 @@ watcher.on('change', name => {
     });
 });
 watcher.on('unlink', name => {
-    delete files[path.basename(name)];
+    delete files[path.basename(name, ".js")];
 });
 
 function loadFile(name) {
-    let basename = path.basename(name);
+    let basename = path.basename(name, ".js");
     return new Promise((resolve, reject) => {
         fs.readFile(name, 'utf8', (err, data) => {
             if (err) {

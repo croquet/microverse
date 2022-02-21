@@ -11,6 +11,7 @@ import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 //import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { DCardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { ExpanderManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
 import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
@@ -153,14 +154,14 @@ Constants.DefaultCards = [
     },
     {
         data: {
-            translation: [4, -10, -10],
-            rotation: q_euler(0, -Math.PI / 2, 0),
+            translation: [4, 0, -10],
+            rotation: q_euler(0, 0, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
             type: "code",
             runs: [{text: `
 class Fly {
-    init() {
+    setup() {
         if (this.flying) {return;}
         this.flying = true;
         this.fly();
@@ -457,7 +458,8 @@ class MyViewRoot extends ViewRoot {
             AssetManager,
             KeyFocusManager,
             SyncedStateManager,
-            VideoManager, 
+            VideoManager,
+            ExpanderManager
         ];
     }
     constructor(model) {

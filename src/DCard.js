@@ -77,6 +77,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget,
                 parent: this,
             };
             this.textActor = TextFieldActor.create(textOptions);
+            this.subscribe(this.id, "load", "codeLoaded");
             this.subscribe(this.textActor.id, "text", "codeAccepted");
         }
     }

@@ -1,5 +1,7 @@
 import * as WorldCore from "@croquet/worldcore";
 
+const ViewService = WorldCore.ViewService;
+
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, expander) {
     if (object[isProxy]) {
@@ -32,8 +34,8 @@ export const AM_Code = superclass => class extends superclass {
             options.actorCode.forEach((code) => {
                 let codeActor = this.wellKnownModel(code);
                 if (codeActor) {
-                    if (codeActor.ensureHandler().init) {
-                        codeActor.invoke(this, "init");
+                    if (codeActor.ensureHandler().setup) {
+                        codeActor.invoke(this, "setup");
                     }
                 }
             });
@@ -46,6 +48,12 @@ export const AM_Code = superclass => class extends superclass {
             
     codeAccepted(data) {
         this.setCode(data.text);
+    }
+
+    codeLoaded(data) {
+        if (this.textActor) {
+            this.publish(this.textActor.id, "load", data);
+        }
     }
 
     future(time) {
@@ -118,3 +126,63 @@ export const AM_Code = superclass => class extends superclass {
         this.$expanderName = cls.name;
     }
 }
+
+export class ExpanderManager extends ViewService {
+    constructor(name) {
+        super(name || "ExpanderManager");
+        this.url = null;
+        this.socket = null;
+        this.modelUses = new Map(); // {modelId: [names]}
+        this.viewUses = new Map();  // {modelId: [names]}
+        window.ExpanderManager = this;
+    }
+
+    modelUse(model, name) {
+        let array = this.modelUsers.get(model.id);
+        if (!array) {
+            array = [];
+            this.modelUses.set(model.id, array);
+        }
+        if (array.indexOf(name) < 0) {
+            array.push(name);
+        }
+    }
+
+    setURL(url) {
+        if (this.socket) {
+            this.socket.terminate();
+            this.socket = null;
+        }
+        this.url = url;
+        this.socket = new WebSocket(url);
+        this.socket.onmessage = (event) => this.load(event.data);
+    }
+
+    load(string) {
+        let array;
+        try {
+            array = JSON.parse(string);
+        } catch(e) {
+            console.error(e);
+            return;
+        }
+        if (!array || !Array.isArray(array)) {
+            console.log("not an array");
+            return;
+        }
+
+        array.forEach((obj) => {
+            let {action, name, content} = obj;
+            let codeActor = this.wellKnownModel(name);
+            if (codeActor) {
+                if (action === "add") {
+                    this.publish(codeActor.id, "load", content);
+                // ... maybe call setup
+                } else if (action === "remove") {
+                    this.publish(codeActor.id, "load", "");
+                }
+            }
+        });
+    }
+}
+
