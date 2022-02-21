@@ -271,6 +271,8 @@ class MultiBlasterDisplay extends CardPawn {
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerMove", "onPointerMove");
         this.addEventListener("pointerUp", "onPointerUp");
+        this.addEventListener("keyDown", "onKeyDown");
+        this.addEventListener("keyUp", "onKeyUp");
 
         this.smoothing = new WeakMap(); // position cache for interpolated rendering
 

@@ -15,12 +15,9 @@ export const AM_PointerTarget = superclass => class extends superclass {
         this.focused = new Set();
         this.listen("hoverRequested", this.hoverRequested);
         this.listen("unhoverRequested", this.unhoverRequested);
-        /*
-          this.listen("focusRequested", this.focusRequested);
-        this.listen("unfocusRequested", this.unfocusRequested);
-        */
-        this.listen("tryFocus", this.onTryFocus);
-        this.listen("blur", this.onBlur);
+
+        this.listen("blur", this._onBlur);
+        this.listen("tryFocus", this._onTryFocus);
         this.future(0).dropoutTick();
     }
 
@@ -97,27 +94,27 @@ export const AM_PointerTarget = superclass => class extends superclass {
     }
 
     hoverRequested(pointerId) {
-        this.hovered.add(pointerId)
+        this.hovered.add(pointerId);
     }
 
     unhoverRequested(pointerId) {
-        this.hovered.delete(pointerId)
+        this.hovered.delete(pointerId);
     }
 
-    onTryFocus(pointerId) {
+    _onTryFocus(pointerId) {
         if (this.focused.has(pointerId)) return;
         if (!this.isMultiuser && this.focused.size > 0) {
             this.say("focusFailure", pointerId);
         } else {
-            this.focused.add(pointerId)
-            this.say("focusSuccess", pointerId)
-            // this.onFocus(pointerId);
+            this.focused.add(pointerId);
+            this.say("focusSuccess", pointerId);
+            this.dispatchEvent({eventName: "focus", evt: pointerId});
         }
     }
 
-    onBlur(pointerId) {
-        this.focused.delete(pointerId)
-        // this.onBlur(pointerId);
+    _onBlur(pointerId) {
+        this.focused.delete(pointerId);
+        this.dispatchEvent({eventName: "blur", evt: pointerId});
     }
 
     checkFocus(pe) {
@@ -141,10 +138,11 @@ export const PM_PointerTarget = superclass => class extends superclass {
         this.listen("registerEventListener", "registerEventListener");
         this.listen("unregisterEventListener", "unregisterEventListener");
 
-        this.addEventListener("focusFailure", "onFocusFailure");
+        // send from model to indicate that non multiuser object was already busy
+        // the user of this mixin needs to add event listeners
+        this.listen("focusFailure", this._onFocusFailure);
+        this.listen("focusSuccess", this._onFocusSuccess);
 
-        if (this.onFocus) this.listen("focusSuccess", this.onFocus);
-        if (this.onBlur) this.listen("blur", this.onBlur);
         if (this.onKeyDown) this.listen("keyDown", this.onKeyDown);
         if (this.onKeyUp) this.listen("keyUp", this.onKeyUp);
 
@@ -237,9 +235,26 @@ export const PM_PointerTarget = superclass => class extends superclass {
     get isHovered() { return this.actor.isHovered; }
     get isFocused() { return this.actor.isFocused; }
 
-    onFocusFailure(pointerId) {
+    _onFocusFailure(pointerId) {
         const pointerPawn = GetPawn(pointerId);
         if (pointerPawn) pointerPawn.focusPawn = null;
+        let array = this.eventListeners.get("focusFailure");
+        if (array) {
+            array.forEach((obj) => {
+                obj.listner.call(this, pointerId);
+            });
+        }
+    }
+
+    _onFocusSuccess(pointerId) {
+        const pointerPawn = GetPawn(pointerId);
+        if (pointerPawn) pointerPawn.focusPawn = this;
+        let array = this.eventListeners.get("focusSuccess");
+        if (array) {
+            array.forEach((obj) => {
+                obj.listner.call(this, pointerId);
+            });
+        }
     }
 }
 
@@ -264,12 +279,14 @@ export const PM_Pointer = superclass => class extends superclass {
             this.subscribe("ui", "pointerDown", this.doPointerDown);
             this.subscribe("ui", "pointerUp", this.doPointerUp);
             this.subscribe("ui", "pointerMove", this.doPointerMove);
+            // this.subscribe("ui", "click", this.doClick);
             this.subscribe("ui", "wheel", this.doPointerWheel);
             this.subscribe("ui", "doubleDown", this.doPointerDoubleDown);
         } else {
             this.subscribe("input", "pointerDown", this.doPointerDown);
             this.subscribe("input", "pointerUp", this.doPointerUp);
             this.subscribe("input", "pointerMove", this.doPointerMove);
+            // this.subscribe("input", "click", this.doClick);
             this.subscribe("input", "wheel", this.doPointerWheel);
             this.subscribe("input", "doubleDown", this.doPointerDoubleDown);
         }
@@ -351,6 +368,22 @@ export const PM_Pointer = superclass => class extends superclass {
             this.invokeListeners("pointerMove", this.focusPawn, rc);
         }
     }
+
+    /*
+      Input.js of worldcore needs to publish the event in onClick()
+
+    doClick(e) {
+        this.focusTime = this.now();
+        const rc = this.pointerRaycast(e.xy, this.getTargets("click"));
+        if (e.button === 0) {
+            this.isPointerDown = true;
+            this.focusPawn = rc.pawn;
+        }
+        if (this.focusPawn) {
+            this.invokeListeners("click", this.focusPawn, rc);
+        }
+    }
+    */
 
     doPointerWheel(e) {
         if (!this.focusPawn) {return false;}
