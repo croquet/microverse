@@ -23,10 +23,10 @@ let counter = 0;
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "noSave"];
 
 //------------------------------------------------------------------------------------------
-//-- DCardActor ------------------------------------------------------------------------------
+//-- CardActor ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
+export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
     init(options) {
         let cardOptions = {};
         let shapeOptions = {};
@@ -92,7 +92,7 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget,
         else this.subscribe(this.id, message, method);
     }
 
-    get pawn() { return DCardPawn; }
+    get pawn() { return CardPawn; }
     get layers() { return this._layers || ['pointer']; }
     get isCard() {return true;}
 
@@ -130,14 +130,14 @@ export class DCardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget,
     // setViewCode() {}
     // codeAccepted() {}
 }
-DCardActor.register('DCardActor');
+CardActor.register('CardActor');
 
 //------------------------------------------------------------------------------------------
-//-- DCardPawn ------------------------------------------------------------------------------
+//-- CardPawn ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
 
-export class DCardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget) {
+export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget) {
 
     constructor(actor) {
         super(actor);

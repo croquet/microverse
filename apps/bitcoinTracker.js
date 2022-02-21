@@ -1,9 +1,9 @@
 import { mix, q_euler } from "@croquet/worldcore";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
-import { DCardActor, DCardPawn } from '../src/DCard.js';
+import { CardActor, CardPawn } from '../src/DCard.js';
 // import { DBarGraphCard } from '../src/DBar.js';
 
-export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
+export class BitcoinTracker extends mix(CardActor).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay; }
     init(options) {
         super.init(options);
@@ -30,7 +30,7 @@ export class BitcoinTracker extends mix(DCardActor).with(AM_Elected) {
 }
 BitcoinTracker.register("BitcoinTracker");
 
-class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
+class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
     constructor(actor) {
         super(actor);   // might call handleElected()
         this.lastAmount = 0;
@@ -107,13 +107,13 @@ class BitcoinTrackerDisplay extends mix(DCardPawn).with(PM_Elected) {
     }
 }
 
-export class BitLogoCard extends DCardActor {
+export class BitLogoCard extends CardActor {
     get pawn(){return BitLogoPawn}
     get version(){return '0.11'}
 }
 BitLogoCard.register('BitLogoCard');
 
-class BitLogoPawn extends DCardPawn {
+class BitLogoPawn extends CardPawn {
     constructor(actor) {
         super(actor);
         this.shape.name = "bitlogo";
@@ -128,6 +128,7 @@ export function constructBitcoinTraker() {
                 className: "BitcoinTracker",
                 translation: [-4, -0.5, 0],
                 rotation: q_euler(0, Math.PI / 2, 0),
+                scale: [4, 4, 4],
                 type: "app",
                 name: "BitcoinTracker",
                 textureType: "canvas",

@@ -10,7 +10,7 @@ import {
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 //import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
-import { DCardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
 import { ExpanderManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
 import { WorldSaver } from './src/worldSaver.js';
@@ -249,7 +249,7 @@ class MyAvatar extends AvatarActor {
             tackPoint[1] += 2;
         }
 
-        DCardActor.create({
+        CardActor.create({
             translation: tackPoint,
             rotation: rotPoint,
             type: "text",
@@ -347,7 +347,7 @@ class MyModelRoot extends ModelRoot {
             delete this.loadingPersistentDataErrored;
             this.loadingPersistentData = true;
 
-            let saver = new WorldSaver(DCardActor);
+            let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
             this.load(json, version);
         } catch (error) {
@@ -364,7 +364,7 @@ class MyModelRoot extends ModelRoot {
         this.lastPersistTime = this.now();
         let func = () => {
             let name = this.sessionName || "Unknown";
-            let saver = new WorldSaver(DCardActor);
+            let saver = new WorldSaver(CardActor);
             let json = saver.save(this);
             return {name, version: "1", data: saver.stringify(json)};
         };
@@ -382,7 +382,7 @@ class MyModelRoot extends ModelRoot {
                     data = {...data};
                     delete data.className;
                 } else {
-                    Cls = DCardActor;
+                    Cls = CardActor;
                 }
                 if (data.parent) {
                     let parent = map.get(data.parent);
@@ -434,7 +434,7 @@ class MyModelRoot extends ModelRoot {
         console.log("drop here", n, t, r);
         let p = v3_add(v3_scale(n, 6),t);
 
-        DCardActor.create({
+        CardActor.create({
             translation: p,
             rotation: r,
             type: "model",

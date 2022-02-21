@@ -1,5 +1,4 @@
 import * as WorldCore from "@croquet/worldcore";
-
 const ViewService = WorldCore.ViewService;
 
 let isProxy = Symbol("isProxy");
@@ -185,4 +184,3 @@ export class ExpanderManager extends ViewService {
         });
     }
 }
-

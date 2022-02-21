@@ -291,7 +291,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     getTargets(type) {
         const render = this.service("ThreeRenderManager");
-        let targets = render.threeLayer("pointer").filter((obj) => {
+        return render.threeLayer("pointer").filter((obj) => {
             let array = obj.wcPawn.eventListeners.get(type);
             return array && array.length !== 0;
         });
@@ -310,10 +310,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDown(e) {
         this.focusTime = this.now();
-        const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
-        const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-        const rc = this.pointerRaycast([x,y], this.getTargets("pointerDown"));
-
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDown"));
         if (e.button === 0) {
             this.isPointerDown = true;
             if (this.focusPawn !== rc.pawn) {
@@ -329,10 +326,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerUp(e) {
         this.focusTime = this.now();
-        const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
-        const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-        const rc = this.pointerRaycast([x,y], this.getTargets("pointerUp"));
-
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerUp"));
         if (this.focusPawn) {
             this.invokeListeners("pointerUp", this.focusPawn, rc);
         }
@@ -342,10 +336,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerMove(e) {
         this.focusTimeout = this.now();
-        const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
-        const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-
-        const rc = this.pointerRaycast([x,y], this.getTargets("pointerMove"));
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerMove"));
         if (this.hoverPawn !== rc.pawn) {
             if (this.hoverPawn) {
                 this.invokeListeners("pointerLeave", this.hoverPawn, rc);
@@ -373,9 +364,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDoubleDown(e) {
         this.focusTimeout = this.now();
-        const x = ( e.xy[0] / window.innerWidth ) * 2 - 1;
-        const y = - ( e.xy[1] / window.innerHeight ) * 2 + 1;
-        const rc = this.pointerRaycast([x,y], this.getTargets("pointerDoubleDown"));
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown"));
         if (this.focusPawn) {
             this.invokeListeners("pointerDoubleDown", this.focusPawn, rc);
         }
