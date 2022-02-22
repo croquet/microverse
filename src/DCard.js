@@ -4,7 +4,7 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService } from '@croquet/worldcore';
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, v3_dot, v3_sub, v3_add } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from "./Pointer.js";
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
@@ -35,6 +35,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.createShape(shapeOptions);
         this.listen("selectEdit", ()=>this.say("doSelectEdit"));
         this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
+        this.listen("setTranslation", this.setTranslation);
     }
 
     createShape(options) {
@@ -98,6 +99,12 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         return this._shapeOptions.height || 1024;
     }
 
+    setTranslation(v){
+        this._translation = v;
+        this.localChanged();
+        this.say("updateTranslation", v);
+    }
+
     textChanged() {
         this._shapeOptions.runs = this.textActor.content.runs;
         this.publish(this.sessionId, "triggerPersist");
@@ -138,6 +145,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.addEventListener("pointerTap", "onPointerTap");
         this.listen("doSelectEdit", this.doSelectEdit);
         this.listen("doUnselectEdit", this.doUnselectEdit);
+        this.listen("updateTranslation", this.updateTranslation);
         this.constructCard();
     }
 
@@ -382,31 +390,18 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         return [current, d];
     }
 
-    makePlane(pEvt, useNorm) {
-        // worldDirection is an optional direction vector if you don't want to
-        // use the objects world direction
-        let pos = new THREE.Vector3(), norm = new THREE.Vector3();
-        pos.copy(pEvt.point);
-        //this.object3D.worldToLocal(vec0);
-        //let offset = vec0.z;
-        if (useNorm && pEvt.face && pEvt.face.normal) {
-            norm.copy(pEvt.face.normal);
-            let normalMatrix = new THREE.Matrix3().getNormalMatrix( this.object3D.matrixWorld );
-            norm.applyMatrix3( normalMatrix ).normalize();
-        } else {
-            this.object3D.getWorldDirection(norm);
+    dragPlane(rayCaster, p3e){
+         if(!this._plane){
+            let offset = v3_dot(p3e.xyz, p3e.normal);
+            this._plane = new THREE.Plane(new THREE.Vector3(...p3e.normal), -offset);
+            this.lastDrag = p3e.xyz;
         }
-        let offset = norm.dot(pos); // direction dotted with position in world coords
-        this.plane = new THREE.Plane(norm, -offset);
-    }
-
-    trackPlane(pEvt, vec) {
-        if (this.plane) {
-            let vec0 = vec || new THREE.Vector3();
-            pEvt.ray3D.ray.intersectPlane(this.plane, vec0);
-            return vec0;
-        }
-        return null;
+        let p = new THREE.Vector3();
+        rayCaster.ray.intersectPlane(this._plane, p);
+        let here = p.toArray();
+        let delta = v3_sub(this.lastDrag, here);
+        this.lastDrag = here;
+        this.setTranslation(v3_sub(this._translation, delta));
     }
 
     runAnimation() {
@@ -440,6 +435,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     unselectEdit(){
         this.say('unselectEdit')
+        this._plane = undefined;
     }
 
     doSelectEdit(){
@@ -453,6 +449,19 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         console.log("doUnselectEdit")
         if(this.renderObject){
             removeWire(this.renderObject);
+        }
+    }
+
+    setTranslation(v){
+        this._translation = v;
+        this.onLocalChanged();
+        this.say("setTranslation", v);
+    }
+
+    updateTranslation(v){
+        if(!this._plane){ // only do this if you are not dragging
+            this._translation = v;
+            this.onLocalChanged();
         }
     }
 }
@@ -471,10 +480,10 @@ function addWire(obj3d)
             let mat;
             if(Array.isArray(m))mat = m;
             else mat = [m];
-            console.log("AddWire, material", mat);
+            //console.log("AddWire, material", mat);
             mat.forEach(m=>{
                 let c=m.color; 
-                console.log(c);
+                //console.log(c);
                 if(c){
                     m._oldColor=c;
                     let gray = (c.r*0.299 +c.g*0.587+c.b*0.114)*0.50;
@@ -499,7 +508,7 @@ function removeWire(obj3d){
         else if(obj.geometry){
             if(Array.isArray(obj.material)){mat = obj.material}
             else mat = [obj.material];
-            console.log("removeWire, material",mat);
+            //console.log("removeWire, material",mat);
             mat.forEach(m=>{ 
                 m.color = m._oldColor; 
                 m._oldColor = undefined;
