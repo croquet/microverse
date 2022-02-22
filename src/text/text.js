@@ -1,6 +1,7 @@
 import {THREE, PM_ThreeVisible, PM_Spatial, AM_Smoothed, PM_Smoothed, PM_Focusable, Actor, Pawn, mix, ViewService, GetPawn} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
 import { PM_PointerTarget } from "../Pointer.js";
+import { CardActor, CardPawn } from "../DCard.js";
 import loadFont from "load-bmfont";
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
@@ -80,8 +81,9 @@ export class SyncedStateManager extends ViewService {
     }
 }
 
-export class TextFieldActor extends mix(Actor).with(AM_Smoothed) {
+export class TextFieldActor extends CardActor {
     init(options) {
+        super.init(options);
         this.doc = new Doc();
         this.doc.load(options.runs || []);
         // this.doc.load([
@@ -90,8 +92,6 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed) {
 
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.fonts = new Map();
-
-        super.init({...options, multiuser: true});
 
         this.subscribe(this.id, "load", "loadAndReset");
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
@@ -231,7 +231,7 @@ export class TextFieldActor extends mix(Actor).with(AM_Smoothed) {
 
 TextFieldActor.register("TextFieldActor");
 
-export class TextFieldPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_PointerTarget) {
+export class TextFieldPawn extends CardPawn {
     constructor(model) {
         super(model);
         this.model = model;

@@ -19,6 +19,7 @@ import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall } from './apps/bouncingBall.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
+import { TextFieldActor } from './src/text/text.js';
 import { BitcoinTracker, BitLogoCard, constructBitcoinTraker } from './apps/bitcoinTracker.js';
 import { DBarGraphCard } from './src/DBar.js';
 import { constructFlamingo } from './apps/flamingo.js';
@@ -66,11 +67,18 @@ Constants.DefaultCards = [
     },
     {
         data: {
+            className: "TextFieldActor",
             translation: [-4, -0.5, -6],
             rotation: q_euler(0, Math.PI / 2, 0),
             multiuser: true,
+            depth: 0.05,
             type: "text",
-            runs: [{text: "hello"}]
+            shapeURL: './assets/SVG/credit-card.svg',
+            runs: [{text: "hello"}],
+            isSticky: true,
+            color: 0xf4e056,
+            textWidth: 500,
+            textHeight: 500,
         }
     },
     {
@@ -327,6 +335,7 @@ class MyModelRoot extends ModelRoot {
         appManager.add(BouncingBall);
         appManager.add(PerlinActor);
         appManager.add(DLight);
+        appManager.add(TextFieldActor);
 
         if (persistentData) {
             this.loadPersistentData(persistentData);

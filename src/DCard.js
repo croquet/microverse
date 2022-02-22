@@ -45,16 +45,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
         
         if (options.type === "text") {
-            let text = {
-                isSticky: options.isSticky || true,
-                color: options.color || 0xf4e056,
-                textWidth: options.textWidth || 500,
-                textHeight: options.textHeight || 500,
-                runs: options.runs || [],
-                parent: this
-            };
-            this.textActor = TextFieldActor.create(text);
-            this.subscribe(this.textActor.id, "changed", "textChanged");
+            this.set(this._shapeOptions);
         } else if (options.type === "model") {
             this.creationTime = this.now();
         } else if (options.type === "shape") {
@@ -161,11 +152,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     constructShape(options) {
-        if (options.type === "text") {
-        } else if (options.type === "model") {
+        if (options.type === "model") {
             this.construct3D(options);
         } else if (options.type === "shape") {
             this.constructSurface(options);
+        } else if (options.type === "text") {
+            //this.constructSurface(options);
         } else if (options.type === "app") {
             this.constructSurface(options);
         }
