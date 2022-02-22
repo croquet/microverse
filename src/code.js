@@ -35,7 +35,7 @@ export const AM_Code = superclass => class extends superclass {
                 expanderManager.modelUse(this.id, name);
                 let codeActor = this.wellKnownModel(name);
                 if (codeActor) {
-                    if (codeActor.ensureHandler().setup) {
+                    if (codeActor.ensureExpander().setup) {
                         codeActor.invoke(this, "setup");
                     }
                 }
@@ -53,7 +53,9 @@ export const AM_Code = superclass => class extends superclass {
         modelUsers.forEach((modelId) => {
             let model = actorManager.get(modelId);
             if (model) {
-                this.invoke(model, "setup");
+                if (this.$expander.setup) {
+                    this.invoke(model, "setup");
+                }
             }
         });
         this.say("codeAccepted");
@@ -73,7 +75,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     invoke(receiver, name, ...values) {
-        let myHandler = this.ensureHandler();
+        let myHandler = this.ensureExpander();
         let expander = this.$expanderName;
         let result;
 
@@ -98,12 +100,12 @@ export const AM_Code = superclass => class extends superclass {
         return expander.invoke(this, name, ...values);
     }
 
-    ensureHandler() {
-        if (!this.$handler) {
+    ensureExpander() {
+        if (!this.$expander) {
             let maybeCode = this.getCode();
             this.setCode(maybeCode, true);
         }
-        return this.$handler;
+        return this.$expander;
     }
 
     getCode() {
@@ -131,7 +133,7 @@ export const AM_Code = superclass => class extends superclass {
             return;
         }
 
-        this.$handler = cls.prototype;
+        this.$expander = cls.prototype;
         this.$expanderName = cls.name;
     }
 }
@@ -153,7 +155,7 @@ export const PM_Code = superclass => class extends superclass {
     }
         
     codeAccepted() {
-        if (!this._actor.$handler.setup) {return;}
+        if (!this._actor.$expander.setup) {return;}
         let expanderManager = this.service("ExpanderViewManager");
         let viewUsers = this.viewUses.get(this.$expanderName);
         viewUsers.forEach((modelId) => {

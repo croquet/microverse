@@ -5,6 +5,10 @@ const path = require('path');
 
 const wss = new ws.WebSocketServer({port: 9011});
 
+let directory = path.join(path.dirname(process.argv[1]), "..");
+console.log(directory);
+process.chdir(directory);
+
 let files = {}; // {filename: content}
 let sentFiles = new Map();// {ws: {filename: content}}
 
