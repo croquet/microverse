@@ -491,9 +491,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doPointerDoubleDown(p3e) {
+    doPointerDoubleDown(e) {
         const render = this.service("ThreeRenderManager");
-        const rc = this.pointerRaycast(p3e.xy, render.threeLayerUnion('pointer', 'walk'));
+        const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
         let pe = this.pointerEvent(rc);
         if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
         else if(pe.targetId){
@@ -517,10 +517,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         return[c*(w-xy[0]), c*(h-xy[1])];
     }
 
-    doPointerTap(p3e){
-        if(this.editPawn){
+    doPointerTap(e){
+        if(this.editPawn){ // this gets set in doPointerDown
             if(this.editMode){ // if we are in edit mode, clear it
-                console.log(this.editPawn)
                 this.editPawn.unselectEdit();
                 this.editPawn = undefined;
                 this.editMode = false;
@@ -532,10 +531,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doPointerDown(p3e){
+    doPointerDown(e){
         if(this.ctrlKey || this.editPawn){
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(p3e.xy, render.threeLayerUnion('pointer', 'walk'));
+            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
             let pe = this.pointerEvent(rc);
             let pawn = GetPawn(pe.targetId);
 
@@ -556,15 +555,15 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 console.log("doPointerDown in editMode")
             }
         } else {       
-            super.doPointerDown(p3e);
+            super.doPointerDown(e);
             if(isWalking && !this.focusPawn){
-                this.dragWorld = this.xy2yp(p3e.xy);
+                this.dragWorld = this.xy2yp(e.xy);
                 this._lookYaw = q_yaw(this._rotation);
             }
         }
     }
 
-    doPointerMove(p3e){
+    doPointerMove(e){
         if(this.editMode){ // pawn is in an edit mode
             if(this.isPointerDown){ 
                 console.log('doPointerMove editMode')
@@ -573,9 +572,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             console.log('doPointerMove dragMode');
             // pawn is in drag mode
         }else {
-            super.doPointerMove(p3e);
+            super.doPointerMove(e);
             if(isWalking && !this.focusPawn && this.isPointerDown){
-                let yp = this.xy2yp(p3e.xy);
+                let yp = this.xy2yp(e.xy);
                 let yaw = this._lookYaw + this.dragWorld[0] - yp[0];
                 let pitch = this._lookPitch + this.dragWorld[1] -yp[1];
                 pitch = pitch>1 ? 1 : (pitch<-1 ? -1: pitch);
@@ -585,7 +584,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doPointerUp(p3e){
+    doPointerUp(e){
         this.isPointerDown = false;
         if(this.editMode){
             console.log("doPointerUp editMode");
@@ -594,7 +593,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.editPawn.unselectEdit();
             this.editPawn =undefined;
         }
-        else super.doPointerUp(p3e);
+        else super.doPointerUp(e);
     }
 
     doPointerWheel(wheel){        
