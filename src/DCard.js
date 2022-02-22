@@ -161,7 +161,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.shape = new THREE.Group()
         this.setRenderObject(this.shape);
 
-        this.constructShape(this.actor._shapeOptions)
+        this.constructShape(this.actor._shapeOptions);
     }
 
     constructShape(options) {
@@ -178,36 +178,50 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     construct3D(options) {
         let model3d = options.model3d;
         let modelType = options.modelType;
+
+        if (options.placeholder) {
+            let pGeometry = new THREE.BoxGeometry(40, 1, 40);
+            let pMaterial = new THREE.MeshBasicMaterial({color: 0x808080, side: THREE.DoubleSide});
+            this.placeholder = new THREE.Mesh(pGeometry, pMaterial);
+            this.placeholder.position.set(0, -0.065, 0);
+            this.placeholder.name = "placeholder";
+            this.shape.add(this.placeholder);
+            this.shape.name = "terrain";
+        }
+        
         if (!model3d) {return;}
         let assetManager = this.service("AssetManager").assetManager;
 
         this.getBuffer(model3d).then((buffer) => {
-            assetManager.load(buffer, modelType, THREE).then((obj) => {
-                obj.updateMatrixWorld(true);
-                addShadows(obj, options.shadow, options.singleSided, THREE);
-                if (options.scale) {
-                    obj.scale.set(...options.scale);
-                } else {
-                    let size = new THREE.Vector3(0, 0, 0);
-                    new THREE.Box3().setFromObject(obj).getSize(size);
-                    let max = Math.max(size.x, size.y, size.z);
-                    let s = 4 / max;
-                    obj.scale.set(s, s, s);
-                }
-                if (options.offset) {
-                    obj.position.set(...options.offset);
-                }
-                if (options.rotation) {
-                    obj.rotation.set(...options.rotation);
-                }
-                if (obj._croquetAnimation) {
-                    const spec = obj._croquetAnimation;
-                    spec.startTime = this.actor.creationTime;
-                    this.animationSpec = spec;
-                    this.future(500).runAnimation();
-                }
-                this.shape.add(obj);
-            });
+            return assetManager.load(buffer, modelType, THREE);
+        }).then((obj) => {
+            obj.updateMatrixWorld(true);
+            addShadows(obj, options.shadow, options.singleSided, THREE);
+            if (options.scale) {
+                obj.scale.set(...options.scale);
+            } else {
+                let size = new THREE.Vector3(0, 0, 0);
+                new THREE.Box3().setFromObject(obj).getSize(size);
+                let max = Math.max(size.x, size.y, size.z);
+                let s = 4 / max;
+                obj.scale.set(s, s, s);
+            }
+            if (options.offset) {
+                obj.position.set(...options.offset);
+            }
+            if (options.rotation) {
+                obj.rotation.set(...options.rotation);
+            }
+            if (obj._croquetAnimation) {
+                const spec = obj._croquetAnimation;
+                spec.startTime = this.actor.creationTime;
+                this.animationSpec = spec;
+                this.future(500).runAnimation();
+            }
+            this.shape.add(obj);
+            if (options.placeholder) {
+                this.shape.remove(this.placeholder);
+            }
         });
     }
 

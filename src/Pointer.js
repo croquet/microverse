@@ -358,7 +358,7 @@ export const PM_Pointer = superclass => class extends superclass {
             if (this.hoverPawn) {
                 this.invokeListeners("pointerLeave", this.hoverPawn, rc);
             }
-            this.hoverPawn = rc.pawn
+            this.hoverPawn = rc.pawn;
             if (this.hoverPawn) {
                 this.invokeListeners("pointerEnter", this.hoverPawn, rc);
             }

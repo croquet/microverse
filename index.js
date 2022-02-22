@@ -47,6 +47,7 @@ Constants.DefaultCards = [
             model3d: "./assets/3D/Refinery.glb.zip",
             singleSided: true,
             shadow: true,
+            placeholder: true
         }
     },
     {
