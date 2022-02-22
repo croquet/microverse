@@ -262,14 +262,17 @@ class MyAvatar extends AvatarActor {
             tackPoint[1] += 2;
         }
 
-        CardActor.create({
+        TextFieldActor.create({
+            className: "TextFieldActor",
             translation: tackPoint,
             rotation: rotPoint,
+            multiuser: true,
             type: "text",
             depth: 0.05,
-            color:0xffffff, // white
+            isSticky: true,
+            color: 0xf4e056,
             frameColor: 0x666666,
-            text: "",
+            runs: [],
             textWidth: 600,
             textHeight: 600
         });
