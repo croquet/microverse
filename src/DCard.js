@@ -10,15 +10,7 @@ import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { AM_Code } from './code.js';
-
-const CardColor = 0x9999cc;  // light blue
-const OverColor = 0x181808; //0xffff77;   // yellow
-const DownColor = 0x081808; // green
-const NoColor = 0x000000; // black
-
-const timeOutDown = 5000; // if no user action after down event, then cancel
-const timeOutOver = 10000; // if no user action after enter event, then cancel
-let counter = 0;
+import { forEach } from 'jszip';
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "noSave"];
 
@@ -41,7 +33,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         super.init(cardOptions);
         this.set({shapeOptions});
         this.createShape(shapeOptions);
-
+        this.listen("selectEdit", ()=>this.say("doSelectEdit"));
+        this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
     }
 
     createShape(options) {
@@ -144,6 +137,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         super(actor);
         this.addToLayers(...actor.layers);
         this.addEventListener("pointerWheel", "onPointerWheel");
+        this.addEventListener("pointerTap", "onPointerTap");
+        this.listen("doSelectEdit", this.doSelectEdit);
+        this.listen("doUnselectEdit", this.doUnselectEdit);
         this.constructCard();
     }
 
@@ -309,6 +305,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
+    onPointerTap(p3e){
+        console.log("onPointerTap", p3e)
+    }
+    
     setColor(color) {
         let c = new THREE.Color(color);
         this.shape.traverse(obj=>{
@@ -449,6 +449,85 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
         else this.subscribe(this.actor.id, message, method);
     }    
+
+    selectEdit(){
+        this.say('selectEdit');
+    }
+
+    unselectEdit(){
+        this.say('unselectEdit')
+    }
+
+    doSelectEdit(){
+        console.log("doSelectEdit")
+        if(this.renderObject){
+            addWire(this.renderObject);
+        }
+     }
+
+    doUnselectEdit(){
+        console.log("doUnselectEdit")
+        if(this.renderObject){
+            removeWire(this.renderObject);
+        }
+    }
+}
+
+function addWire(obj3d)
+{
+    let parts = [];
+    let lines = [];
+    obj3d.traverse((obj)=>{
+        if(obj.geometry){
+            let edges = new THREE.EdgesGeometry(obj.geometry);
+            let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x44ff44} ));
+            line.raycast = function(){};
+            lines.push(line);
+            let m = obj.material;
+            let mat;
+            if(Array.isArray(m))mat = m;
+            else mat = [m];
+            console.log("AddWire, material", mat);
+            mat.forEach(m=>{
+                let c=m.color; 
+                console.log(c);
+                if(c){
+                    m._oldColor=c;
+                    let gray = (c.r*0.299 +c.g*0.587+c.b*0.114)*0.50;
+                    m.color = new THREE.Color(gray, gray, gray);
+                }
+            })
+            parts.push( obj );
+        }
+    });
+    for(let i=0; i<lines.length; i++){
+        let line = lines[i];
+        line.type = '_lineHighlight';
+        parts[i].add(line);
+    }
+}
+
+function removeWire(obj3d){
+    let lines = [];
+    let mat;
+    obj3d.traverse((obj)=>{
+        if(obj.type === '_lineHighlight')lines.push(obj);
+        else if(obj.geometry){
+            if(Array.isArray(obj.material)){mat = obj.material}
+            else mat = [obj.material];
+            console.log("removeWire, material",mat);
+            mat.forEach(m=>{ 
+                m.color = m._oldColor; 
+                m._oldColor = undefined;
+            });
+        }
+    })
+    for(let i=0; i<lines.length;i++){
+        let line = lines[i];
+        line.removeFromParent();
+        line.geometry.dispose();
+        line.material.dispose();
+    }
 }
 
 export class DynaverseAppManager extends ModelService {

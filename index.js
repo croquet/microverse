@@ -201,21 +201,25 @@ class Fly {
 let apps = new Map();
 
 function loadLoaders() {
-    let libs = [
-        "loaders/OBJLoader.js",
-        "loaders/MTLLoader.js",
-        "loaders/GLTFLoader.js",
-        "loaders/FBXLoader.js",
-        "loaders/DRACOLoader.js",
-        "loaders/SVGLoader.js",
-    ];
+    return loadThreeJSLib("postprocessing/Pass.js", THREE).then
+    (loadThreeJSLib("shaders/CopyShader.js", THREE)).then
+    (()=>{
+        let libs = [
+            "loaders/OBJLoader.js",
+            "loaders/MTLLoader.js",
+            "loaders/GLTFLoader.js",
+            "loaders/FBXLoader.js",
+            "loaders/DRACOLoader.js",
+            "loaders/SVGLoader.js",  
+        ];
 
-    window.JSZip = JSZip;
-    window.fflate = fflate;
+        window.JSZip = JSZip;
+        window.fflate = fflate;
 
-    return Promise.all(libs.map((file) => {
-        return loadThreeJSLib(file, THREE);
-    }));
+        return Promise.all(libs.map((file) => {
+            return loadThreeJSLib(file, THREE);
+        }));
+    });
 }
 
 function shortId(id) {
@@ -469,7 +473,9 @@ class MyViewRoot extends ViewRoot {
     }
     constructor(model) {
         super(model);
-        const renderer = this.service("ThreeRenderManager").renderer;
+        const threeRenderManager = this.service("ThreeRenderManager");
+        const renderer = threeRenderManager.renderer;
+
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
@@ -490,7 +496,7 @@ class MyViewRoot extends ViewRoot {
 }
 
 App.makeWidgetDock();
-loadLoaders().then(() => {
+loadLoaders().then(()=>{
     StartWorldcore({
         appId: 'io.croquet.microverse',
         apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',

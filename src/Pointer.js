@@ -282,6 +282,7 @@ export const PM_Pointer = superclass => class extends superclass {
             // this.subscribe("ui", "click", this.doClick);
             this.subscribe("ui", "wheel", this.doPointerWheel);
             this.subscribe("ui", "doubleDown", this.doPointerDoubleDown);
+            this.subscribe("ui", "tap", this.doPointerTap);
         } else {
             this.subscribe("input", "pointerDown", this.doPointerDown);
             this.subscribe("input", "pointerUp", this.doPointerUp);
@@ -289,6 +290,7 @@ export const PM_Pointer = superclass => class extends superclass {
             // this.subscribe("input", "click", this.doClick);
             this.subscribe("input", "wheel", this.doPointerWheel);
             this.subscribe("input", "doubleDown", this.doPointerDoubleDown);
+            this.subscribe("input", "tap", this.doPointerTap);
         }
 
         this.subscribe("input", "keyDown", this.doKeyDown);
@@ -400,6 +402,15 @@ export const PM_Pointer = superclass => class extends superclass {
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown"));
         if (this.focusPawn) {
             this.invokeListeners("pointerDoubleDown", this.focusPawn, rc);
+        }
+    }
+
+    doPointerTap(e) {
+        this.focusTimeout = this.now();
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerTap"));
+        console.log("doPointerTap", this.focusPawn)
+        if (this.focusPawn) {
+            this.invokeListeners("pointerTap", this.focusPawn, rc);
         }
     }
 
