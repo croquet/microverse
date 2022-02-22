@@ -27,6 +27,7 @@
     "buffer": "^6.0.3",
     "copy-webpack-plugin": "^10.0.0",
     "html-webpack-plugin": "^5.5.0",
+    "terser-webpack-plugin": "^5.3.1",
     "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.5.0"
