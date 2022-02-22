@@ -198,15 +198,16 @@ class Fly {
 let apps = new Map();
 
 function loadLoaders() {
-    return loadThreeJSLib("postprocessing/Pass.js", THREE).then(loadThreeJSLib("shaders/CopyShader.js", THREE)).then(()=>{
+    return loadThreeJSLib("postprocessing/Pass.js", THREE).then
+    (loadThreeJSLib("shaders/CopyShader.js", THREE)).then
+    (()=>{
         let libs = [
             "loaders/OBJLoader.js",
             "loaders/MTLLoader.js",
             "loaders/GLTFLoader.js",
             "loaders/FBXLoader.js",
             "loaders/DRACOLoader.js",
-            "loaders/SVGLoader.js",
-            "postprocessing/OutlinePass.js"
+            "loaders/SVGLoader.js",  
         ];
 
         window.JSZip = JSZip;
@@ -467,12 +468,6 @@ class MyViewRoot extends ViewRoot {
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
 
-        threeRenderManager.outlinePass = new window.THREE.OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), threeRenderManager.scene, threeRenderManager.camera );
-        threeRenderManager.outlinePass.edgeStrength = 10;
-        threeRenderManager.outlinePass.selectedSet = new Set();
-        //threeRenderManager.outlinePass.selectedObjects = new Set();
-        threeRenderManager.composer.addPass( threeRenderManager.outlinePass );
-console.log("OutlinePass",  threeRenderManager.outlinePass)
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;

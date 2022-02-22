@@ -10,6 +10,7 @@ import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { AM_Code } from './code.js';
+import { forEach } from 'jszip';
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "noSave"];
 
@@ -32,7 +33,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         super.init(cardOptions);
         this.set({shapeOptions});
         this.createShape(shapeOptions);
-
+        this.listen("selectEdit", ()=>this.say("doSelectEdit"));
+        this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
     }
 
     createShape(options) {
@@ -134,6 +136,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.addToLayers(...actor.layers);
         this.addEventListener("pointerWheel", "onPointerWheel");
         this.addEventListener("pointerTap", "onPointerTap");
+        this.listen("doSelectEdit", this.doSelectEdit);
+        this.listen("doUnselectEdit", this.doUnselectEdit);
         this.constructCard();
     }
 
@@ -431,21 +435,82 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }    
 
     selectEdit(){
-        console.log(this.service("ThreeRenderManager").outlinePass.selectedObjects);
+        this.say('selectEdit');
+    }
+
+    unselectEdit(){
+        this.say('unselectEdit')
+    }
+
+    doSelectEdit(){
+        console.log("doSelectEdit")
         if(this.renderObject){
-            let outline = this.service("ThreeRenderManager").outlinePass;
-            outline.selectedSet.add(this.renderObject);
-            outline.selectedObjects = Array.from(outline.selectedSet);
+            //let outline = this.service("ThreeRenderManager").outlinePass;
+            //outline.selectedSet.add(this.renderObject);
+            //outline.selectedObjects = Array.from(outline.selectedSet);
+            addWire(this.renderObject);
         }
      }
 
-    unselectEdit(){
+    doUnselectEdit(){
+        console.log("doUnselectEdit")
         if(this.renderObject){
-            let outline = this.service("ThreeRenderManager").outlinePass;
-            outline.selectedSet.delete(this.renderObject);
-            outline.selectedObjects = Array.from(outline.selectedSet);
+            removeWire(this.renderObject);
+            //let outline = this.service("ThreeRenderManager").outlinePass;
+            //outline.selectedSet.delete(this.renderObject);
+            //outline.selectedObjects = Array.from(outline.selectedSet);
         }
+    }
+}
 
+function addWire(obj3d)
+{
+    let parts = [];
+    let lines = [];
+    obj3d.traverse((obj)=>{
+        if(obj.geometry){
+            let edges = new THREE.EdgesGeometry(obj.geometry);
+            let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x44ff44} ));
+            line.raycast = function(){};
+            lines.push(line);
+            let m = obj.material;
+            let mat;
+            if(Array.isArray(m))mat = m;
+            else mat = [m];
+            mat.forEach(m=>{
+                let c=m.color; 
+                if(c){
+                    m._oldColor=c;
+                    let gray = (c.r*0.299 +c.g*0.587+c.b*0.114)*0.50;
+                    m.color = new THREE.Color(gray, gray, gray);
+                }
+            })
+            parts.push( obj );
+        }
+    });
+    for(let i=0; i<lines.length; i++){
+        let line = lines[i];
+        line.type = '_lineHighlight';
+        parts[i].add(line);
+    }
+}
+
+function removeWire(obj3d){
+    let lines = [];
+    let mat;
+    obj3d.traverse((obj)=>{
+        if(obj.type === '_lineHighlight')lines.push(obj);
+        else if(obj.geometry){
+            if(Array.isArray(obj.material)){mat = obj.material}
+            else mat = [obj.material];
+            mat.forEach(m=>{ m.color = m._oldColor; m._oldColor = undefined});
+        }
+    })
+    for(let i=0; i<lines.length;i++){
+        let line = lines[i];
+        line.removeFromParent();
+        line.geometry.dispose();
+        line.material.dispose();
     }
 }
 

@@ -57,6 +57,7 @@ class DBarGraphPawn extends CardPawn{
         this.bars = [];
         for(let i=0; i<len; i++){
             let bar = this.bar.clone();
+            bar.material = bar.material.clone();
             bar.position.set((0.5+i-len/2)*size, 0,0);
             this.barGroup.add(bar);
             this.bars.push(bar);
