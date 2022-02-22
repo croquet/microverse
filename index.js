@@ -163,8 +163,8 @@ Constants.DefaultCards = [
     },
     {
         data: {
-            translation: [4, 0, -10],
-            rotation: q_euler(0, 0, 0),
+            translation: [10, 0, 5],
+            rotation: q_euler(0, -Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
             type: "code",
