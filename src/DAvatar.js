@@ -520,6 +520,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     doPointerTap(p3e){
         if(this.editPawn){
             if(this.editMode){ // if we are in edit mode, clear it
+                console.log(this.editPawn)
                 this.editPawn.unselectEdit();
                 this.editPawn = undefined;
                 this.editMode = false;
@@ -537,17 +538,20 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             const rc = this.pointerRaycast(p3e.xy, render.threeLayerUnion('pointer', 'walk'));
             let pe = this.pointerEvent(rc);
             let pawn = GetPawn(pe.targetId);
-            
+
             if(this.editPawn !== pawn){
                 if(this.editPawn){
                     console.log('doPointerDown clear old editPawn')
                     this.editPawn.unselectEdit(); 
+                    this.editPawn = undefined; 
                 }
-                console.log('doPointerDown set new editPawn')
-                this.editPawn = pawn;
-                this.editPawn.selectEdit();
+                console.log('doPointerDown set new editPawn', pawn)
                 this.editMode = false; // this gets set later
-                this.isPointerDown = true;
+                if(pawn){
+                    this.editPawn = pawn;
+                    this.editPawn.selectEdit();
+                    this.isPointerDown = true;
+                }
             }else{
                 console.log("doPointerDown in editMode")
             }

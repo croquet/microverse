@@ -445,9 +445,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     doSelectEdit(){
         console.log("doSelectEdit")
         if(this.renderObject){
-            //let outline = this.service("ThreeRenderManager").outlinePass;
-            //outline.selectedSet.add(this.renderObject);
-            //outline.selectedObjects = Array.from(outline.selectedSet);
             addWire(this.renderObject);
         }
      }
@@ -456,9 +453,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         console.log("doUnselectEdit")
         if(this.renderObject){
             removeWire(this.renderObject);
-            //let outline = this.service("ThreeRenderManager").outlinePass;
-            //outline.selectedSet.delete(this.renderObject);
-            //outline.selectedObjects = Array.from(outline.selectedSet);
         }
     }
 }
@@ -477,8 +471,10 @@ function addWire(obj3d)
             let mat;
             if(Array.isArray(m))mat = m;
             else mat = [m];
+            console.log("AddWire, material", mat);
             mat.forEach(m=>{
                 let c=m.color; 
+                console.log(c);
                 if(c){
                     m._oldColor=c;
                     let gray = (c.r*0.299 +c.g*0.587+c.b*0.114)*0.50;
@@ -503,7 +499,11 @@ function removeWire(obj3d){
         else if(obj.geometry){
             if(Array.isArray(obj.material)){mat = obj.material}
             else mat = [obj.material];
-            mat.forEach(m=>{ m.color = m._oldColor; m._oldColor = undefined});
+            console.log("removeWire, material",mat);
+            mat.forEach(m=>{ 
+                m.color = m._oldColor; 
+                m._oldColor = undefined;
+            });
         }
     })
     for(let i=0; i<lines.length;i++){
