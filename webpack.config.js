@@ -4,7 +4,7 @@ const TerserPlugin = require("terser-webpack-plugin");
 const path = require('path');
 const webpack = require("webpack");
 
-module.exports = {
+const config = {
     entry: {
         'index': './index.js',
         'test': './test.js',
@@ -58,15 +58,22 @@ module.exports = {
             ]
         }),
     ],
-    optimization: {
-        minimize: true,
-        minimizer: [
-            new TerserPlugin({
-                terserOptions: {
-                    keep_classnames: true,
-                    keep_fnames: true
-                }
-            }),
-        ]
-    }
 };
+
+
+module.exports = (env, argv) => {
+    if (argv.mode === 'production') {
+        config.optimization = {
+            minimize: true,
+            minimizer: [
+                new TerserPlugin({
+                    terserOptions: {
+                        keep_classnames: true,
+                        keep_fnames: true
+                    }
+                }),
+            ]
+        };
+    }
+    return config;
+}
