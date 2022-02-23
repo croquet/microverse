@@ -83,7 +83,6 @@ export class SyncedStateManager extends ViewService {
 
 export class TextFieldActor extends CardActor {
     init(options) {
-        super.init(options);
         this.doc = new Doc();
         this.doc.load(options.runs || []);
         // this.doc.load([
@@ -92,6 +91,8 @@ export class TextFieldActor extends CardActor {
 
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.fonts = new Map();
+
+        super.init(options);
 
         this.subscribe(this.id, "load", "loadAndReset");
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
