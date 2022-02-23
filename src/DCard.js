@@ -30,6 +30,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 shapeOptions[k] = options[k];
             }
         });
+
         super.init(cardOptions);
         this.set({shapeOptions});
         this.createShape(shapeOptions);

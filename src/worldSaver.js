@@ -62,10 +62,10 @@ export class WorldSaver {
 
     collectCardData(card) {
         let result = {};
+        if (card.constructor !== this.defaultClass) {
+            result.className = card.constructor.name;
+        }
         intrinsicProperties.forEach((prop) => {
-            if (card.constructor !== this.defaultClass) {
-                result.className = card.constructor.name;
-            }
             if (card[`_${prop}`]) {
                 if (prop === "parent") {
                     result[prop] = this.map.get(card[prop]).id;
