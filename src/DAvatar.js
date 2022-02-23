@@ -161,7 +161,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._lookYaw = this.actor.lookYaw;
         this.rotateTo(q_euler(0, this.lookYaw, 0));
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
-
+        this._lastMove = 0;
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
             myAvatarId = this.actor.id;
@@ -430,7 +430,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     continueMMotion( e ){
         e.preventDefault();
         e.stopPropagation(); 
-        if( this.activeMMotion ){
+
+        if( this.now()-this._lastMove > D.THROTTLE && this.activeMMotion ){
+            this._lastMove = this.now();
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
 
