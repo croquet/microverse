@@ -98,9 +98,10 @@ export class TextFieldActor extends CardActor {
         this.subscribe(this.id, "accept", "publishAccept");
         this.subscribe(this.id, "undoRequest", "undoRequest");
         this.subscribe(this.id, "setExtent", "setExtent");
-        this.subscribe(this.id, "dismiss", "dismiss");
         this.subscribe(this.sessionId, "view-exit", "viewExit");
 
+
+        this.listen("dismiss", "dismiss");
         this.listen("askFont", "askFont");
 
         // the height part of this is optional, in the sense that the view may do something else
@@ -222,10 +223,7 @@ export class TextFieldActor extends CardActor {
     }
 
     dismiss() {
-        if (this._parent) {
-            //hmm
-            this._parent.destroy();
-        }
+        this.destroy();
     }
 }
 
@@ -1008,7 +1006,7 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
 
         this.radius = 0.08;
 
-        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerDown", "dismiss");
 
         let geometry = new THREE.SphereGeometry(this.radius, 32, 16);
         let material = new THREE.MeshStandardMaterial({color: 0xaa2222});
@@ -1032,9 +1030,9 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
         this.button.geometry = geometry;
     }
 
-    onPointerDown(evt) {
-        if (this.actor._parent) {
-            this.publish(this.actor._parent.id, "dismiss");
+    dismiss(evt) {
+        if (this._parent) {
+            this._parent.say("dismiss");
         }
     }
 }

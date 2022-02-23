@@ -30,6 +30,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 shapeOptions[k] = options[k];
             }
         });
+            debugger;
         super.init(cardOptions);
         this.set({shapeOptions});
         this.createShape(shapeOptions);
@@ -46,6 +47,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
         
         if (options.type === "text") {
+            debugger;
             this.set(this._shapeOptions);
         } else if (options.type === "model") {
             this.creationTime = this.now();
