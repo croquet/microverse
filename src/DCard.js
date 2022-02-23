@@ -479,6 +479,7 @@ function addWire(obj3d)
 {
     let parts = [];
     let lines = [];
+
     obj3d.traverse((obj)=>{
         if(obj.geometry){
             let edges = new THREE.EdgesGeometry(obj.geometry);
@@ -489,11 +490,11 @@ function addWire(obj3d)
             let mat;
             if(Array.isArray(m))mat = m;
             else mat = [m];
-            //console.log("AddWire, material", mat);
+            
             mat.forEach(m=>{
                 let c=m.color; 
-                //console.log(c);
-                if(c){
+                
+                if(c && !m._oldColor){ // check for reused color
                     m._oldColor=c;
                     let gray = (c.r*0.299 +c.g*0.587+c.b*0.114)*0.50;
                     m.color = new THREE.Color(gray, gray, gray);
@@ -519,8 +520,10 @@ function removeWire(obj3d){
             else mat = [obj.material];
             //console.log("removeWire, material",mat);
             mat.forEach(m=>{ 
-                m.color = m._oldColor; 
-                m._oldColor = undefined;
+                if(m._oldColor){
+                    m.color = m._oldColor; 
+                    m._oldColor = undefined;
+                }
             });
         }
     })
