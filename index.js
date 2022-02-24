@@ -80,8 +80,9 @@ Constants.DefaultCards = [
             runs: [{text: "hello"}],
             isSticky: true,
             color: 0xf4e056,
-            textWidth: 500,
-            textHeight: 500,
+            width: 1,
+            height: 1,
+            textScale: 0.0025
         }
     },
     {
@@ -191,8 +192,9 @@ class Fly {
         }
     }
 }`}],
-            textWidth: 1024,
-            textHeight: 1024,
+            textScale: 0.001,
+            width: 2,
+            height: 2,
         },
         id: "Fly"
     },
@@ -274,8 +276,9 @@ class MyAvatar extends AvatarActor {
             color: 0xf4e056,
             frameColor: 0x666666,
             runs: [],
-            textWidth: 600,
-            textHeight: 600
+            width: 1,
+            height: 1,
+            textScale: 0.004
         });
         this.publish(this.sessionId, "triggerPersist");
     }

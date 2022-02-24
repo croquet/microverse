@@ -6,8 +6,8 @@ import loadFont from "load-bmfont";
 
 import {Doc, Warota, canonicalizeKeyboardEvent, eof, fontRegistry} from "./warota.js";
 
-const TS = 0.0025;
 // "Text Scale" to reconcile the bitmap font size, which is typically in the range of 50 pixels, and the 3D geometry size, which we tend to think one unit equates to a meter.
+const TS = 0.0025;
 
 export class KeyFocusManager extends ViewService {
     constructor(name) {
@@ -92,8 +92,12 @@ export class TextFieldActor extends CardActor {
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         this.fonts = new Map();
 
-        super.init(options);
+        if (!options.textScale) {
+            options.textScale =  TS;
+        }
 
+
+        super.init(options);
         this.subscribe(this.id, "load", "loadAndReset");
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
         this.subscribe(this.id, "accept", "publishAccept");
@@ -107,7 +111,9 @@ export class TextFieldActor extends CardActor {
 
         // the height part of this is optional, in the sense that the view may do something else
 
-        this.setExtent({width: options.textWidth || 500, height: options.textHeight || 500});
+        let textWidth = options.width / options.textScale;
+        let textHeight = options.height / options.textScale;
+        this.setExtent({width: textWidth, height: textHeight});
 
         this.setupDismissButton();
     }
@@ -278,6 +284,10 @@ export class TextFieldPawn extends CardPawn {
         });
     }
 
+    textScale() {
+        return this.actor._cardData.textScale;
+    }
+
     test() {
         // this.warota.insert(user, [{text: cEvt.key}]);
     }
@@ -365,8 +375,8 @@ export class TextFieldPawn extends CardPawn {
 
         let glyphs = layout.computeGlyphs({font, drawnStrings});
 
-        this.textMesh.scale.x = TS;
-        this.textMesh.scale.y = -TS;
+        this.textMesh.scale.x = this.textScale();
+        this.textMesh.scale.y = -this.textScale();
         this.textGeometry.update({font, glyphs});
     }
 
@@ -557,8 +567,8 @@ export class TextFieldPawn extends CardPawn {
         let width = this.plane.geometry.parameters.width;
         let height = this.plane.geometry.parameters.height;
 
-        let x = ((width / 2) + vec2.x) / TS;
-        let y = ((height / 2) - vec2.y) / TS;
+        let x = ((width / 2) + vec2.x) / this.textScale();
+        let y = ((height / 2) - vec2.y) / this.textScale();
 
         return {x, y};
     }
@@ -801,8 +811,8 @@ export class TextFieldPawn extends CardPawn {
         let extent = this.actor.extent;
         if (!this.textMesh) {return;}
         let isSticky = this.actor._cardData.isSticky;
-        let newWidth = extent.width * TS;
-        let newHeight = (isSticky ? extent.height : this.warota.docHeight) * TS;
+        let newWidth = extent.width * this.textScale();
+        let newHeight = (isSticky ? extent.height : this.warota.docHeight) * this.textScale();
 
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height) {
@@ -865,6 +875,8 @@ export class TextFieldPawn extends CardPawn {
             unused[k] = this.selections[k];
         }
 
+        let ts = this.textScale();
+
         for (let k in this.actor.content.selections) {
             delete unused[k];
             let thisSelection = this.ensureSelection(k);
@@ -878,15 +890,15 @@ export class TextFieldPawn extends CardPawn {
                 let caret = thisSelection.bar;
                 caret.visible = true;
                 let caretRect = this.warota.barRect(selection);
-                let geom = new THREE.PlaneBufferGeometry(caretRect.width * TS, caretRect.height * TS);
+                let geom = new THREE.PlaneBufferGeometry(caretRect.width * ts, caretRect.height * ts);
                 let old = caret.geometry;
                 caret.geometry = geom;
                 if (old) {
                     old.dispose();
                 }
 
-                let left = (-width / 2) + (caretRect.left + 8) * TS; // ?
-                let top = (height / 2) - (caretRect.top + caretRect.height / 2) * TS;
+                let left = (-width / 2) + (caretRect.left + 8) * ts; // ?
+                let top = (height / 2) - (caretRect.top + caretRect.height / 2) * ts;
                 caret.position.set(left, top, 0.001);
             } else {
                 let rects = this.warota.selectionRects(selection);
@@ -897,11 +909,11 @@ export class TextFieldPawn extends CardPawn {
                     box.visible = false;
                     
                     if (rect) {
-                        let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * TS; // ?
-                        let top = (height / 2) - (rect.top + rect.height / 2) * TS;
+                        let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * ts; // ?
+                        let top = (height / 2) - (rect.top + rect.height / 2) * ts;
                         
-                        let rWidth = rect.width * TS; // ?
-                        let rHeight = rect.height * TS;
+                        let rWidth = rect.width * ts; // ?
+                        let rHeight = rect.height * ts;
 
                         let geom = new THREE.PlaneBufferGeometry(rWidth, rHeight, 2, 2);
                         box.geometry = geom;
