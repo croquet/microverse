@@ -12,7 +12,7 @@ import { TextFieldActor } from './text/text.js';
 import { AM_Code } from './code.js';
 import { forEach } from 'jszip';
 
-export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "noSave"];
+export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser"];
 
 //------------------------------------------------------------------------------------------
 //-- CardActor ------------------------------------------------------------------------------
@@ -40,12 +40,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     createShape(options) {
-        if (!options.parent) {
-            options = {...options, parent: this};
-        } else {
-            // look up and set
-        }
-        
         if (options.type === "text") {
             this.subscribe(this.id, "changed", "textChanged");
         } else if (options.type === "model") {
@@ -53,6 +47,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         } else if (options.type === "svg") {
         } else if (options.type === "lighting") {
         } else if (options.type === "code") {
+            this.subscribe(this.id, "changed", "textChanged");
             // this is a weird inter mixins dependency but not sure how to write it
             this.subscribe(this.id, "load", "codeLoaded");
             this.subscribe(this.id, "text", "codeAccepted");
