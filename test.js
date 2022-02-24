@@ -18,7 +18,7 @@ import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall } from './apps/bouncingBall.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
-import { BitcoinTracker, BitLogoCard, constructBitcoinTraker } from './apps/bitcoinTracker.js';
+import { BitcoinTracker, BitLogoCard, constructBitcoinTracker } from './apps/bitcoinTracker.js';
 import { DBarGraphCard } from './src/DBar.js';
 import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
@@ -286,8 +286,8 @@ class MyModelRoot extends ModelRoot {
             return;
         }
 
-        this.load(Constants.DefaultCards, "1");
-        this.load(constructBitcoinTraker(), "1");
+        this.load(Constants.DefaultCards, this, "1");
+        this.load(constructBitcoinTraker(), this, "1");
     }
 
     ensurePersistenceProps() {

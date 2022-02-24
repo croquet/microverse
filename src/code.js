@@ -48,7 +48,7 @@ export const AM_Code = superclass => class extends superclass {
         this.setCode(data.text);
 
         let expanderModelManager = this.service("ExpanderModelManager");
-        let modelUsers = expanderModelManager.modelUses.get(this.$expanderName);
+        let modelUsers = expanderModelManager.modelUses.get(this.expanderName);
         let actorManager = this.service("ActorManager");
         modelUsers.forEach((modelId) => {
             let model = actorManager.get(modelId);
@@ -76,7 +76,7 @@ export const AM_Code = superclass => class extends superclass {
 
     invoke(receiver, name, ...values) {
         let myHandler = this.ensureExpander();
-        let expander = this.$expanderName;
+        let expander = this.expanderName;
         let result;
 
         let proxy = newProxy(receiver, myHandler, expander);
@@ -109,7 +109,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     getCode() {
-        return this._shapeOptions.runs.map((run) => run.text).join("");
+        return this._cardData.runs.map((run) => run.text).join("");
     }
 
     setCode(string, notCallInit) {
@@ -134,7 +134,10 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         this.$expander = cls.prototype;
-        this.$expanderName = cls.name;
+        this.expanderName = cls.name;
+        let newOptions = {...this._cardData};
+        newOptions.expanderName = this.expanderName;
+        this.set({cardData: newOptions});
     }
 }
 
@@ -157,7 +160,7 @@ export const PM_Code = superclass => class extends superclass {
     codeAccepted() {
         if (!this._actor.$expander.setup) {return;}
         let expanderManager = this.service("ExpanderViewManager");
-        let viewUsers = this.viewUses.get(this.$expanderName);
+        let viewUsers = this.viewUses.get(this.expanderName);
         viewUsers.forEach((modelId) => {
             let pawn = GetPawn(modelId);
             this.invoke(pawn, "setup");

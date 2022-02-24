@@ -36,7 +36,7 @@ export class WorldSaver {
         while (toSort.length > 0) {
             let n = toSort.shift();
             if (!n._parent || result.get(n._parent.id)) {
-                // it is root child or its parent is already in result
+                // it is a root child, or its parent is already in result
                 result.set(n.id, n);
             } else {
                 // Its parent may be still in the toSort array
@@ -54,7 +54,7 @@ export class WorldSaver {
             let obj = {id: this.newId()};
             this.map.set(actor, obj);
             let data = this.collectCardData(actor);
-            obj.data = data;
+            obj.card = data;
             result.push(obj);
         };
         return result;
@@ -75,9 +75,9 @@ export class WorldSaver {
             }
         });
 
-        if (card._shapeOptions) {
-            for (let k in card._shapeOptions) {
-                result[k] = card._shapeOptions[k];
+        if (card._cardData) {
+            for (let k in card._cardData) {
+                result[k] = card._cardData[k];
             }
         }
         return result;

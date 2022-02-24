@@ -231,9 +231,9 @@ export class TextFieldActor extends CardActor {
 TextFieldActor.register("TextFieldActor");
 
 export class TextFieldPawn extends CardPawn {
-    constructor(model) {
-        super(model);
-        this.model = model;
+    constructor(actor) {
+        super(actor);
+
         this.addToLayers("pointer");
 
         this.widgets = {};
@@ -247,7 +247,7 @@ export class TextFieldPawn extends CardPawn {
         this.listen("screenUpdate", "screenUpdate");
 
         this.setupDefaultFont().then(() => {
-            let fonts = Array.from(this.model.fonts.keys());
+            let fonts = Array.from(actor.fonts.keys());
             let ps = fonts.map((v) => this.askFont(v));
             return Promise.all(ps);
         }).then(() => {
@@ -393,7 +393,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupMesh() {
-        let isSticky = this.actor._isSticky;
+        let isSticky = this.actor._cardData.isSticky;
 
         let color = isSticky ? 0xf4e056 : 0xFFFFFF;
         
@@ -414,9 +414,9 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupEditor() {
-        let font = this.model.doc.defaultFont;
-        let fontSize = this.model.doc.defaultSize;
-        let extent = this.model.extent;
+        let font = this.actor.doc.defaultFont;
+        let fontSize = this.actor.doc.defaultSize;
+        let extent = this.actor.extent;
         let options = {width: extent.width, height: extent.height, font, fontSize};
         this.singleLine = false;
         if (this.singleLine) {
@@ -427,7 +427,7 @@ export class TextFieldPawn extends CardPawn {
             options.margins = {left: 8, top: 8, right: 8, bottom: 8};
         }
 
-        this.warota = new Warota(options, this.model.doc);
+        this.warota = new Warota(options, this.actor.doc);
         this.warota.width(extent.width);
         this.options = options;
 
@@ -490,7 +490,7 @@ export class TextFieldPawn extends CardPawn {
                         this.fonts.set(name, {font, texture: processedTexture});
                         delete this.isLoading[name];
                         if (me) {
-                            let maybeFont = this.model.fonts.get(name) ? null : font;
+                            let maybeFont = this.actor.fonts.get(name) ? null : font;
                             this.say("askFont", {name, font: maybeFont});
                         }
                         resolve(this.fonts.get(name));
@@ -519,7 +519,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setWidth(pixels) {
-        this.publish(this.model.id, "setWidth", pixels);
+        this.publish(this.actor.id, "setWidth", pixels);
         this.width(pixels);
     }
 
@@ -545,26 +545,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     accept() {
-        this.publish(this.model.id, "accept");
-    }
-
-    apply(time, elem, world) {
-        super.apply(time, elem, world);
-        let w = elem.style.getPropertyValue("width");
-        this.width(parseInt(w, 10));
-
-        if (this._lastValues.get("enterToAccept") !== this.model["enterToAccept"]) {
-            let accept = this.model["enterToAccept"];
-            this._lastValues.set("enterToAccept", accept);
-            if (accept) {
-                this.dom.style.setProperty("overflow", "hidden");
-                this.text.style.setProperty("overflow", "hidden");
-            } else {
-                this.dom.style.removeProperty("overflow");
-                this.text.style.removeProperty("overflow");
-            }
-        }
-        this.screenUpdate(this.warota.timezone);
+        this.publish(this.actor.id, "accept");
     }
 
     cookEvent(evt) {
@@ -654,7 +635,7 @@ export class TextFieldPawn extends CardPawn {
 
     simpleInput(text, evt) {
         let user = this.user;
-        let selection = this.model.content.selections[this.viewId];
+        let selection = this.actor.content.selections[this.viewId];
         let style = this.model.styleAt(Math.max(selection ? selection.start - 1 : 0, 0));
 
         this.warota.insert(user, [{text, style}]);
@@ -667,8 +648,8 @@ export class TextFieldPawn extends CardPawn {
         let cEvt = this.newCanonicalizeEvent(evt);
         if (!cEvt) {return false;}
         let user = this.user;
-        let selection = this.model.content.selections[this.viewId];
-        let style = this.model.styleAt(Math.max(selection ? selection.start - 1 : 0, 0));
+        let selection = this.actor.content.selections[this.viewId];
+        let style = this.actor.styleAt(Math.max(selection ? selection.start - 1 : 0, 0));
         this.warota.insert(user, [{text: cEvt.key, style: style}]);
         this.changed(true);
         evt.preventDefault();
@@ -711,7 +692,7 @@ export class TextFieldPawn extends CardPawn {
         }
 
         if (cEvt.keyCode === 13) {
-            if (this.model["enterToAccept"]) {
+            if (this.actor["enterToAccept"]) {
                 evt.preventDefault();
                 this.accept();
                 return true;
@@ -763,7 +744,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     undo() {
-        this.publish(this.model.id, "undoRequest", this.user);
+        this.publish(this.actor.id, "undoRequest", this.user);
     }
 
     changed(toScroll) {
@@ -771,7 +752,7 @@ export class TextFieldPawn extends CardPawn {
         this.warota.resetEvents();
         if (events.length > 0) {
             this.scrollNeeded = !this.singleLine && toScroll;
-            this.publish(this.model.id, "editEvents", events);
+            this.publish(this.actor.id, "editEvents", events);
         }
     }
 
@@ -801,7 +782,7 @@ export class TextFieldPawn extends CardPawn {
             drawnStrings.push(str);
         }
 
-        let extent = this.model.extent;
+        let extent = this.actor.extent;
 
         this.updateMesh({fontName: "DejaVu Sans Mono", extent, drawnStrings});
     }
@@ -817,9 +798,9 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setExtent() {
-        let extent = this.model.extent;
+        let extent = this.actor.extent;
         if (!this.textMesh) {return;}
-        let isSticky = this.actor._isSticky;
+        let isSticky = this.actor._cardData.isSticky;
         let newWidth = extent.width * TS;
         let newHeight = (isSticky ? extent.height : this.warota.docHeight) * TS;
 
@@ -848,7 +829,7 @@ export class TextFieldPawn extends CardPawn {
 
     ensureSelection(id) {
         let sel = this.selections[id];
-        let modelSel = this.model.content.selections[id];
+        let modelSel = this.actor.content.selections[id];
         let color = modelSel.color;
         if (!color) {
             color = "blue";
@@ -884,11 +865,11 @@ export class TextFieldPawn extends CardPawn {
             unused[k] = this.selections[k];
         }
 
-        for (let k in this.model.content.selections) {
+        for (let k in this.actor.content.selections) {
             delete unused[k];
             let thisSelection = this.ensureSelection(k);
             thisSelection.boxes.forEach(box => box.visible = false);
-            let selection = this.model.content.selections[k];
+            let selection = this.actor.content.selections[k];
 
             let width = this.plane.geometry.parameters.width;
             let height = this.plane.geometry.parameters.height;

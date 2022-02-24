@@ -21,19 +21,19 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
     init(options) {
         let cardOptions = {};
-        let shapeOptions = {};
+        let cardData = {};
 
         Object.keys(options).forEach((k) => {
             if (intrinsicProperties.indexOf(k) >= 0) {
                 cardOptions[k] = options[k];
             } else {
-                shapeOptions[k] = options[k];
+                cardData[k] = options[k];
             }
         });
 
         super.init(cardOptions);
-        this.set({shapeOptions});
-        this.createShape(shapeOptions);
+        this.set({cardData});
+        this.createShape(cardData);
         this.listen("selectEdit", ()=>this.say("doSelectEdit"));
         this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
         this.listen("setTranslation", this.setTranslation);
@@ -47,25 +47,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
         
         if (options.type === "text") {
-            this.set(this._shapeOptions);
+            this.subscribe(this.id, "changed", "textChanged");
         } else if (options.type === "model") {
             this.creationTime = this.now();
-        } else if (options.type === "shape") {
+        } else if (options.type === "svg") {
         } else if (options.type === "lighting") {
         } else if (options.type === "code") {
-            let textOptions = {
-                isSticky: false,
-                color: 0xFFFFFF,
-                textWidth: options.textWidth || 500,
-                textHeight: options.textHeight || 500,
-                isExternal: true,
-                runs: options.runs || [],
-                parent: this,
-            };
-            this.textActor = TextFieldActor.create(textOptions);
             // this is a weird inter mixins dependency but not sure how to write it
             this.subscribe(this.id, "load", "codeLoaded");
-            this.subscribe(this.textActor.id, "text", "codeAccepted");
+            this.subscribe(this.id, "text", "codeAccepted");
         }
     }
 
@@ -87,10 +77,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         return [this.width * uv[0],this.height * (1 - uv[1])];
     }
     get width() {
-        return this._shapeOptions.width || 1024;
+        return this._cardData.width || 1024;
     }
     get height() {
-        return this._shapeOptions.height || 1024;
+        return this._cardData.height || 1024;
     }
 
     setTranslation(v){
@@ -100,7 +90,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     textChanged() {
-        this._shapeOptions.runs = this.textActor.content.runs;
+        this._cardData.runs = this.content.runs;
         this.publish(this.sessionId, "triggerPersist");
     }
 
@@ -122,6 +112,49 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     // setCode() {}
     // setViewCode() {}
     // codeAccepted() {}
+
+    static load(array, world, version) {
+        if (version === "1") {
+            let appManager = world.service("DynaverseAppManager");
+            let map = new Map();
+            array.forEach(({id, card}) => {
+                let Cls;
+                let options = {...card};
+                if (options.type === "code") {
+                    options = {...options, ...{
+                        isSticky: false,
+                        color: 0xFFFFFF,
+                        textWidth: options.textWidth || 500,
+                        textHeight: options.textHeight || 500,
+                        isExternal: true,
+                        runs: options.runs || [],
+                    }};
+                    Cls = TextFieldActor;
+                } else if (card.className) {
+                    Cls = appManager.get(card.className);
+                    delete options.className;
+                } else {
+                    Cls = CardActor;
+                }
+                if (card.parent) {
+                    let parent = map.get(card.parent);
+                    options.parent = parent;
+                }
+
+                let actor = Cls.create(options);
+                if (id) {
+                    map.set(id, actor);
+                }
+
+                if (card.type === "code") {
+                    let string = actor.getCode();
+                    actor.setCode(string);
+                    // cannot be this as its name can conflict with something else.
+                    actor.beWellKnownAs(actor.expanderName);
+                }
+            });
+        }
+    }
 }
 CardActor.register('CardActor');
 
@@ -157,35 +190,41 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.shape = new THREE.Group()
         this.setRenderObject(this.shape);
 
-        this.constructShape(this.actor._shapeOptions);
+        this.constructShape(this.actor._cardData);
     }
 
     constructShape(options) {
         if (options.type === "model") {
             this.construct3D(options);
-        } else if (options.type === "shape") {
-            this.constructSurface(options);
-        } else if (options.type === "text") {
-            //this.constructSurface(options);
-        } else if (options.type === "app") {
+        } else if (options.type === "svg") {
+            this.isFlat = true;
             this.constructSurface(options);
         }
     }
 
     construct3D(options) {
-        let model3d = options.model3d;
+        let model3d = options.dataLocation;
         let modelType = options.modelType;
 
+        /* this is really a hack to make it work with the current model. */
+
         if (options.placeholder) {
-            let pGeometry = new THREE.BoxGeometry(40, 1, 40);
-            let pMaterial = new THREE.MeshBasicMaterial({color: 0x808080, side: THREE.DoubleSide});
+            let size = options.placeholderSize || [40, 1, 40];
+            let color = options.placeholderColor || 0x808080;
+            let offset = options.placeholderOffset || [0, -0.065, 0];
+            
+            let pGeometry = new THREE.BoxGeometry(...size);
+            let pMaterial = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide});
             this.placeholder = new THREE.Mesh(pGeometry, pMaterial);
-            this.placeholder.position.set(0, -0.065, 0);
+            this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
             this.shape.add(this.placeholder);
-            this.shape.name = "terrain";
         }
-        
+
+        let name = options.name;
+        let shadow = options.shadow !== undefined ? options.shadow : true;
+        let singleSided = options.singleSided !== undefined ? options.singleSided : false;
+
         if (!model3d) {return;}
         let assetManager = this.service("AssetManager").assetManager;
 
@@ -193,7 +232,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
             obj.updateMatrixWorld(true);
-            addShadows(obj, options.shadow, options.singleSided, THREE);
+            addShadows(obj, shadow, singleSided, THREE);
             if (options.scale) {
                 obj.scale.set(...options.scale);
             } else {
@@ -216,6 +255,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 this.future(500).runAnimation();
             }
             this.shape.add(obj);
+            if (name) {
+                obj.name = name;
+            }
             if (options.placeholder) {
                 this.shape.remove(this.placeholder);
             }
@@ -223,36 +265,64 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     constructSurface(options) {
-        if (options.textureType === "video") {
+        let shapeURL = options.dataLocation;
+        if (!shapeURL) {
+            console.log("dataLocation is not defined in ", options);
+            return;
+        }
+
+        let textureURL = options.textureLocation;
+        let textureType = options.textureType;
+
+        let depth = (options.depth !== undefined) ? options.depth : 0.05;
+        let width = (options.width !== undefined) ? options.width : 512;
+        let height = (options.height !== undefined) ? options.height : 512;
+        let name = options.name || this.id;
+        let color = options.color || 0xFFFFFF;
+        let frameColor = options.frameColor || 0x666666;
+        let fullBright = options.fullBright !== undefined ? options.fullBright : true;
+        let shadow = options.shadow !== undefined ? options.shadow : true;
+        
+        if (textureType === "video") {
             this.video = document.createElement('video');
-            this.video.src = options.textureURL;
+
+            this.getBuffer(textureURL).then((buffer) => {
+                let objectURL = URL.createObjectURL(new Blob([buffer]));
+                this.video.src = objectURL;
+                this.objectURL = objectURL;
+                // need to be revoked when destroyed
+            });
             this.video.loop = true;
             let videoService = this.service("VideoManager");
             videoService.add(this.video);
-            // this.video.play();
             this.texture = new THREE.VideoTexture(this.video);
-        } else if (options.textureType === "canvas") {
-            this.canvas = document.createElement('canvas');
-            this.canvas.id = options.name || this.id;
-            this.canvas.width = options.width;
-            this.canvas.height = options.height;
+        } else if (textureType === "image") {
+            this.getBuffer(textureURL).then((buffer) => {
+                let objectURL = URL.createObjectURL(new Blob([buffer]));
+                this.objectURL = objectURL;
+                this.texture = new THREE.TextureLoader().load(objectURL);
+            });
+        } else if (textureType === "canvas") {
+            this.canvas = document.createElement("canvas");
+            this.canvas.id = name;
+            this.canvas.width = width;
+            this.canvas.height = height;
             this.texture = new THREE.CanvasTexture(this.canvas);
-        } else if (options.textureType === "texture") {
-            this.texture = new THREE.TextureLoader().load(options.textureURL);
         }
 
         let loadOptions = {
             texture: this.texture,
-            color: options.color,
-            frameColor: options.frameColor,
-            fullBright: options.fullBright,
-            depth: options.depth,
+            color,
+            frameColor,
+            fullBright,
+            shadow,
+            depth,
         };
         let assetManager = this.service("AssetManager").assetManager;
-        this.getBuffer(options.shapeURL).then((buffer) => {
+        this.getBuffer(shapeURL).then((buffer) => {
             return assetManager.load(buffer, "svg", THREE, loadOptions);
         }).then((obj) => {
-            normalizeSVG(obj, options.depth, options.shadow, THREE);
+            normalizeSVG(obj, depth, shadow, THREE);
             this.aspect = obj.aspect;
             if (this.texture) addTexture(this.texture, obj);
             if (options.offset) {
@@ -262,11 +332,15 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         });
     }
 
+    isDataId(name) {
+        return !(name.startsWith("http://") ||
+          name.startsWith("https://") ||
+          name.startsWith(".") ||
+          name.startsWith("/"));
+    }
+
     getBuffer(name) {
-        if (name.startsWith("http://") ||
-            name.startsWith("https://") ||
-            name.startsWith(".") ||
-            name.startsWith("/")) {
+        if (!this.isDataId(name)) {
             return fetch(name)
                 .then((resp) => resp.arrayBuffer())
                 .then((arrayBuffer) => new Uint8Array(arrayBuffer));
@@ -400,7 +474,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     dragPlane(rayCaster, p3e){
-         if(!this._plane){
+        if(!this._plane) {
             let offset = v3_dot(p3e.xyz, p3e.normal);
             this._plane = new THREE.Plane(new THREE.Vector3(...p3e.normal), -offset);
             this.lastDrag = p3e.xyz;
@@ -452,7 +526,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(this.renderObject){
             addWire(this.renderObject);
         }
-     }
+    }
 
     doUnselectEdit(){
         console.log("doUnselectEdit")
@@ -475,8 +549,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 }
 
-function addWire(obj3d)
-{
+function addWire(obj3d) {
     let parts = [];
     let lines = [];
     obj3d.traverse((obj)=>{
@@ -490,19 +563,19 @@ function addWire(obj3d)
             if(Array.isArray(m))mat = m;
             else mat = [m];
             //console.log("AddWire, material", mat);
-            mat.forEach(m=>{
-                let c=m.color; 
+            mat.forEach(m => {
+                let c = m.color; 
                 //console.log(c);
                 if(c){
-                    m._oldColor=c;
-                    let gray = (c.r*0.299 +c.g*0.587+c.b*0.114)*0.50;
+                    m._oldColor = c;
+                    let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;
                     m.color = new THREE.Color(gray, gray, gray);
                 }
             })
             parts.push( obj );
         }
     });
-    for(let i=0; i<lines.length; i++){
+    for(let i = 0; i < lines.length; i++){
         let line = lines[i];
         line.type = '_lineHighlight';
         parts[i].add(line);
@@ -513,18 +586,18 @@ function removeWire(obj3d){
     let lines = [];
     let mat;
     obj3d.traverse((obj)=>{
-        if(obj.type === '_lineHighlight')lines.push(obj);
-        else if(obj.geometry){
-            if(Array.isArray(obj.material)){mat = obj.material}
-            else mat = [obj.material];
+        if(obj.type === '_lineHighlight') {
+            lines.push(obj);
+        } else if(obj.geometry) {
+            mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
             //console.log("removeWire, material",mat);
-            mat.forEach(m=>{ 
+            mat.forEach(m=> {
                 m.color = m._oldColor; 
                 m._oldColor = undefined;
             });
         }
-    })
-    for(let i=0; i<lines.length;i++){
+    });
+    for(let i = 0; i < lines.length;i++) {
         let line = lines[i];
         line.removeFromParent();
         line.geometry.dispose();

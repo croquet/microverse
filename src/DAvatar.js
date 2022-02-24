@@ -146,9 +146,9 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
 AvatarActor.register('AvatarActor');
 
-export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer){
-    constructor(...args) {
-        super(...args);
+export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
+    constructor(actor) {
+        super(actor);
         this.isAvatar = true;
         this.speed = 0;
         this.lastUpdateTime = 0;
@@ -156,7 +156,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
-        this.avatarIndex = args[0].avatarIndex;
+        this.avatarIndex = actor.avatarIndex;
         this._lookPitch = this.actor.lookPitch;
         this._lookYaw = this.actor.lookYaw;
         this.rotateTo(q_euler(0, this.lookYaw, 0));

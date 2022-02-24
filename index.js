@@ -20,7 +20,7 @@ import { BouncingBall } from './apps/bouncingBall.js';
 import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { TextFieldActor } from './src/text/text.js';
-import { BitcoinTracker, BitLogoCard, constructBitcoinTraker } from './apps/bitcoinTracker.js';
+import { BitcoinTracker, BitLogoCard, constructBitcoinTracker } from './apps/bitcoinTracker.js';
 import { DBarGraphCard } from './src/DBar.js';
 import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
@@ -39,41 +39,44 @@ Constants.AvatarNames = [
 
 Constants.DefaultCards = [
     {
-        data: {
+        card: {
             translation:[25, -90.5, -60],
             scale:[200, 200, 200],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['walk'],
             type: "model",
-            model3d: "./assets/3D/Refinery.glb.zip",
+            dataLocation: "./assets/3D/Refinery.glb.zip",
             singleSided: true,
             shadow: true,
-            placeholder: true
+            placeholder: true,
+            placeholderSize: [40, 1, 40],
+            placeholderColor: 0x808080,
+            placeholderOffset: [0, -0.065, 0],
         }
     },
     {
-        data: {
+        card: {
             type: "lighting",
             name: "Light",
             className: "DLight",
         }
     },
     {
-        data: {
+        card: {
             className: "PerlinActor",
             translation:[ 10, -2.75, -14],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ],
         }
     },
     {
-        data: {
+        card: {
             className: "TextFieldActor",
             translation: [-4, -0.5, -6],
             rotation: q_euler(0, Math.PI / 2, 0),
             multiuser: true,
             depth: 0.05,
             type: "text",
-            shapeURL: './assets/SVG/credit-card.svg',
+            dataLocation: './assets/SVG/credit-card.svg',
             runs: [{text: "hello"}],
             isSticky: true,
             color: 0xf4e056,
@@ -82,24 +85,24 @@ Constants.DefaultCards = [
         }
     },
     {
-        data: {
+        card: {
             translation: [-4, -0.5, -12],
             rotation: q_euler(0, Math.PI / 2, 0),
             type: "model",
-            model3d: "./assets/avatars/generic/1.zip",
+            dataLocation: "./assets/avatars/generic/1.zip",
             shadow: true,
             singleSided: true,
         }
     },
     {
-        data: {
+        card: {
             translation: [-4, -0.5, -18],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
-            type: "shape",
+            type: "svg",
+            dataLocation: './assets/SVG/credit-card.svg',
             textureType: "video",
-            textureURL: "./assets/videos/fromPCtoHMD.mp4",
-            shapeURL: './assets/SVG/credit-card.svg',
+            textureLocation: "./assets/videos/fromPCtoHMD.mp4",
             frameColor: 0x666666,
             color: 0xffffff,
             depth: 0.05,
@@ -107,14 +110,14 @@ Constants.DefaultCards = [
         }
     },
     {
-        data: {
+        card: {
             translation: [-4, -0.5, -24],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
-            type: "shape",
-            textureType: "texture",
-            textureURL: './assets/images/Colony.png',
-            shapeURL: './assets/SVG/credit-card.svg',
+            type: "svg",
+            dataLocation: './assets/SVG/credit-card.svg',
+            textureType: "image",
+            textureLocation: './assets/images/Colony.png',
             frameColor: 0x666666,
             color: 0xffffff,
             depth: 0.05,
@@ -122,19 +125,18 @@ Constants.DefaultCards = [
         }
     },
     {
-        data: {
+        card: {
             className: "MultiBlaster",
             translation: [-4, -0.5, -30],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
             multiuser: true,
-            type: "app",
-            name: "MultiBlaster",
+            type: "svg",
+            dataLocation: './assets/SVG/square.svg',
             textureType: "canvas",
             width: 1024,
             height: 1024,
-            shapeURL: './assets/SVG/square.svg',
             frameColor: 0x666666,
             color: 0xffffff,
             depth: 0.05,
@@ -142,19 +144,18 @@ Constants.DefaultCards = [
         }
     },
     {
-        data: {
+        card: {
             className: "BouncingBall",
             translation: [-4, -0.5, -36],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
             multiuser: true,
-            type: "app",
-            name: "BouncingBall",
+            type: "svg",
+            dataLocation: './assets/SVG/square.svg',
             textureType: "canvas",
             width: 1024,
             height: 1024,
-            shapeURL: './assets/SVG/square.svg',
             frameColor: 0x666666,
             color: 0xffffff,
             depth: 0.05,
@@ -162,7 +163,7 @@ Constants.DefaultCards = [
         }
     },
     {
-        data: {
+        card: {
             translation: [10, 0, 5],
             rotation: q_euler(0, -Math.PI / 2, 0),
             scale: [4, 4, 4],
@@ -196,11 +197,11 @@ class Fly {
         id: "Fly"
     },
     {
-        data: {
+        card: {
             rotation: q_euler(0, 0, 0),
             offset: [8, 3, 0], // offset the flamingo model from the center
             type: "model",
-            model3d: './assets/3D/Flamingo.glb.zip',
+            dataLocation: './assets/3D/Flamingo.glb.zip',
             actorCode: ["Fly"]
         }
     }
@@ -266,7 +267,7 @@ class MyAvatar extends AvatarActor {
             className: "TextFieldActor",
             translation: tackPoint,
             rotation: rotPoint,
-            multiuser: true,
+            multiusexor: true,
             type: "text",
             depth: 0.05,
             isSticky: true,
@@ -346,7 +347,7 @@ class MyModelRoot extends ModelRoot {
         }
 
         this.load(Constants.DefaultCards, "1");
-        this.load(constructBitcoinTraker(), "1");
+        this.load(constructBitcoinTracker(), "1");
     }
 
     ensurePersistenceProps() {
@@ -391,38 +392,11 @@ class MyModelRoot extends ModelRoot {
         };
         this.persistSession(func);
     }
+    
 
-    load(data, version) {
+    load(array, version) {
         if (version === "1") {
-            let map = new Map();
-            data.forEach(({id, data}) => {
-                let Cls;
-                if (data.className) {
-                    let appManager = this.service("DynaverseAppManager");
-                    Cls = appManager.get(data.className);
-                    data = {...data};
-                    delete data.className;
-                } else {
-                    Cls = CardActor;
-                }
-                if (data.parent) {
-                    let parent = map.get(data.parent);
-                    data = {...data};
-                    data.parent = parent;
-                }
-
-                let card = Cls.create(data);
-                if (id) { // could be the default content
-                    map.set(id, card);
-                }
-
-                if (data.type === "code") {
-                    let string = card.getCode();
-                    card.setCode(string);
-                    // cannot be this as its name can conflict.
-                    card.beWellKnownAs(card.$expanderName);
-                }
-            });
+            return CardActor.load(array, this, version);
         }
     }
 
@@ -459,7 +433,8 @@ class MyModelRoot extends ModelRoot {
             translation: p,
             rotation: r,
             type: "model",
-            model3d: dataId,
+            dataLocation: dataId,
+            fileName,
             modelType: type,
             shadow: true,
             singleSided: true

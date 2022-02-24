@@ -1,7 +1,6 @@
 import { mix, q_euler } from "@croquet/worldcore";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { CardActor, CardPawn } from '../src/DCard.js';
-// import { DBarGraphCard } from '../src/DBar.js';
 
 export class BitcoinTracker extends mix(CardActor).with(AM_Elected) {
     get pawn(){ return BitcoinTrackerDisplay; }
@@ -44,8 +43,8 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
 
         this.count = 0;
 
-//        if (Date.now() - this.actor.latest.date < 60_000) this.fetchSpot("on-elected");
-//        else this.fetchHistory();
+        // if (Date.now() - this.actor.latest.date < 60_000) this.fetchSpot("on-elected");
+        // else this.fetchHistory();
         this.fetchHistory();
         const id = setInterval(() => this.fetchSpot(id), 30000);
         this.interval = id;
@@ -82,7 +81,7 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         let amount = this.actor.latest.amount;
         let color;
         if(this.lastAmount === amount)return;
-        if(this.lastAmount>amount)color = "#FF2222";
+        if(this.lastAmount > amount) color = "#FF2222";
         else color = "#22FF22";
         this.clear("#222222");
         let ctx = this.canvas.getContext('2d');
@@ -90,12 +89,12 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         ctx.fillStyle = color;
 
         ctx.font = "40px Arial";
-        ctx.fillText("BTC-USD", this.canvas.width-40, 85);
+        ctx.fillText("BTC-USD", this.canvas.width - 40, 85);
 
         ctx.textAlign = 'center';        
         ctx.font = "90px Arial";
-        ctx.fillText("$"+amount, this.canvas.width/2, 100); //50+this.canvas.height/2);
-        this.texture.needsUpdate=true;
+        ctx.fillText("$" + amount, this.canvas.width / 2, 100); //50+this.canvas.height/2);
+        this.texture.needsUpdate = true;
         this.lastAmount = amount;
         this.sayDeck('setColor', color);
     }
@@ -121,49 +120,45 @@ class BitLogoPawn extends CardPawn {
     }
 }
 
-export function constructBitcoinTraker() {
+export function constructBitcoinTracker() {
     return [
         {
-            data: {
+            card: {
                 className: "BitcoinTracker",
                 translation: [-4, -0.5, 0],
                 rotation: q_euler(0, Math.PI / 2, 0),
                 scale: [4, 4, 4],
-                type: "app",
-                name: "BitcoinTracker",
+                type: "svg",
+                dataLocation: './assets/SVG/credit-card.svg',
                 textureType: "canvas",
                 width: 1024,
                 height: 512,
-                shapeURL: './assets/SVG/credit-card.svg',
                 frameColor: 0x666666,
                 color: 0xffffff,
                 depth: 0.05,
-                fullBright: true
             },
             id: "main",
         },
         {
-            data: {
+            card: {
                 className: "BitLogoCard",
-                shapeURL: './assets/SVG/BitcoinSign.svg',
                 translation: [-0.35, 0.35, 0.1],
                 scale: [0.25, 0.25, 0.25],
                 parent: "main",
-                type: "shape",
-                shadow: true,
+                type: "svg",
+                dataLocation: './assets/SVG/BitcoinSign.svg',
                 depth: 0.05,
                 color: 0xffffff,
                 frameColor: 0x666666,
             }
         },
         {
-            data: {
+            card: {
                 className: "DBarGraphCard",
                 translation:[0, -0.3, 0.1],
                 color: 0x8888ff,
-                type: "other",
+                type: "object",
                 name: "BarGraph",
-                shadow: true,
                 height: 0.4,
                 parent: "main",
             }
