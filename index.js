@@ -239,7 +239,7 @@ class Drive {
     setup() {
         this.set({
             rotation: WorldCore.q_euler(-Math.PI/2, 0, 0),
-            translation: [0, -2.9, 0]});
+            translation: [0, -2.9, 10]});
         this.speed = 0;
         this.angle = 0;
         if (!this.running) {
@@ -284,7 +284,7 @@ class Drive {
             console.log("angle", this.angle);
         }
         if (key.key === "ArrowLeft") {
-            this.angle = Math.max(-0.05, this.angle - 0.004);
+            this.angle = Math.max(-0.05, this.angle - 0.04);
             console.log("angle", this.angle);
         }
         if (key.key === "ArrowUp") {
