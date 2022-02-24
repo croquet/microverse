@@ -310,7 +310,7 @@ class Drive {
             rotation: q_euler(0, 0, 0),
             layers: ['pointer'],
             type: "model",
-            dataLocation: "3jBJFSgQNOwHWbfyAJHuHDn_QSwjkXRRrp2epHUb1iTAAh4eGhlQRUUMAwYPGUQfGUQJGAUbHw8eRAMFRR9FPCYiDjBTWVsILAkwLh9bKwM-XR4kAygeUgAgWEUDBUQJGAUbHw8eRAcDCRgFHA8YGQ9FPBACIDAjBxwZCz4tJgRZEw45JgkAXRkDXSsSCFIPHiASAgA4DT4zAgMMHUUOCx4LRSE_EjBeOh4wCRxZMEc-PAMlMl5fA0c-LScfLSZZPg1ZOAwrUlgYUwszEg0",
+            dataLocation: '3rOc987yQKxlsvb8iD4LU5dwfpHsbxczvSos4YHTahwkGgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddJD46FihLQUMQNBEoNgdDMxsmRQY8GzAGShg4QF0bHVwRAB0DBxcGXB8bEQAdBBcAARddEwFBCkAGNhRGQT0eASEUPi1AEQc1BEAiKyUkFUQ5NzUHQRQ6AEIKIzofI10WEwYTXQs7AhA3CwsgGV84LUAaFT85CAA5OjYtNwc0LQsZKDwZN18dMAIEIQAZK0Y',
             actorCode: ["Drive"]
         }
     },
