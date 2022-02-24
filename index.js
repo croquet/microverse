@@ -176,7 +176,7 @@ class Fly {
         this.set({
             rotation: WorldCore.q_euler(0, 0, 0),
             translation: [0, 3, 0]});
-        if (!this.flyiing) {
+        if (!this.flying) {
             this.flying = true;
             this.fly();
         }
@@ -222,12 +222,98 @@ class Fly {
     {
         card: {
             rotation: q_euler(0, 0, 0),
-            // offset: [0, 0, 0], // offset the flamingo model from the center
             type: "model",
             dataLocation: './assets/3D/Flamingo.glb.zip',
             actorCode: ["Fly"]
         }
+    },
+    {
+        card: {
+            translation: [20, 3, 5],
+            rotation: q_euler(0, -Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            type: "code",
+            runs: [{text: `
+class Drive {
+    setup() {
+        this.set({
+            rotation: WorldCore.q_euler(-Math.PI/2, 0, 0),
+            translation: [0, -2.9, 0]});
+        this.speed = 0;
+        this.angle = 0;
+        if (!this.running) {
+            this.running = true;
+            this.run();
+        }
+        this.addEventListener("pointerDown", "turn");
+        this.addEventListener("keyDown", "turn");
     }
+
+    run() {
+        if (!this.running) {return;}
+        this.future(20).call("Drive", "run");
+        this.rotateBy([0, -this.angle, 0]);
+        this.forwardBy(-this.speed);
+    }
+
+    toggle() {
+        this.running = !this.running;
+        if (this.running) {
+            this.run();
+        }
+    }
+
+    rotateBy(angles) {
+        let q = WorldCore.q_euler(...angles);
+        q = WorldCore.q_multiply(this.rotation, q);
+        this.rotateTo(q);
+    }
+
+    forwardBy(dist) {
+        let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
+        this.translateTo([
+            this.translation[0] + v[0],
+            this.translation[1] + v[1],
+            this.translation[2] + v[2]]);
+    }
+
+    turn(key) {
+        if (key.key === "ArrowRight") {
+            this.angle = Math.min(0.05, this.angle + 0.004);
+            console.log("angle", this.angle);
+        }
+        if (key.key === "ArrowLeft") {
+            this.angle = Math.max(-0.05, this.angle - 0.004);
+            console.log("angle", this.angle);
+        }
+        if (key.key === "ArrowUp") {
+            this.speed = Math.min(1, this.speed + 0.05);
+            console.log("speed", this.speed);
+        }
+        if (key.key === "ArrowDown") {
+            this.speed = Math.max(-0.2, this.speed - 0.05);
+            console.log("speed", this.speed);
+        }
+    }
+}
+/*global WorldCore */    
+`}],
+            textScale: 0.001,
+            width: 2,
+            height: 2,
+        },
+        id: "Drive"
+    },
+    {
+        card: {
+            rotation: q_euler(0, 0, 0),
+            layers: ['pointer'],
+            type: "model",
+            dataLocation: "3jBJFSgQNOwHWbfyAJHuHDn_QSwjkXRRrp2epHUb1iTAAh4eGhlQRUUMAwYPGUQfGUQJGAUbHw8eRAMFRR9FPCYiDjBTWVsILAkwLh9bKwM-XR4kAygeUgAgWEUDBUQJGAUbHw8eRAcDCRgFHA8YGQ9FPBACIDAjBxwZCz4tJgRZEw45JgkAXRkDXSsSCFIPHiASAgA4DT4zAgMMHUUOCx4LRSE_EjBeOh4wCRxZMEc-PAMlMl5fA0c-LScfLSZZPg1ZOAwrUlgYUwszEg0",
+            actorCode: ["Drive"]
+        }
+    },
 ];
 
 let apps = new Map();

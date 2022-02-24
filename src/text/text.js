@@ -646,7 +646,7 @@ export class TextFieldPawn extends CardPawn {
     simpleInput(text, evt) {
         let user = this.user;
         let selection = this.actor.content.selections[this.viewId];
-        let style = this.model.styleAt(Math.max(selection ? selection.start - 1 : 0, 0));
+        let style = this.actor.styleAt(Math.max(selection ? selection.start - 1 : 0, 0));
 
         this.warota.insert(user, [{text, style}]);
         this.changed(true);
