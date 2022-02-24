@@ -161,7 +161,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._lookYaw = this.actor.lookYaw;
         this.rotateTo(q_euler(0, this.lookYaw, 0));
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
-
+        this._lastMove = 0;
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
             myAvatarId = this.actor.id;
@@ -356,7 +356,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
-        if(time-this.lastUpdateTime > (this.isFalling ? 25:100)){
+        if(time-this.lastUpdateTime > (this.isFalling ? 50:100)){
             this.lastUpdateTime = time;
             if(this.isMyPlayerPawn){
                 if(isTweening) TWEEN.update();
@@ -387,7 +387,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
             if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
-                if(delta>0 && !move){ // we are falling - check in front of us to see if there is a step
+                if(false && delta>0 && !move){ // we are falling - check in front of us to see if there is a step
                     const moveForward = v3_add(this.translation, v3_transform([0,0,0.2], m4_rotationQ(this.rotation)));
                     return this.findFloor(moveForward);
                 }else { // move up or down
@@ -430,7 +430,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     continueMMotion( e ){
         e.preventDefault();
         e.stopPropagation(); 
-        if( this.activeMMotion ){
+
+        if( this.now()-this._lastMove > D.THROTTLE && this.activeMMotion ){
+            this._lastMove = this.now();
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
 
@@ -498,6 +500,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
         else if(pe.targetId){
             let pawn = GetPawn(pe.targetId);
+            console.log(pawn, pawn.getJumpToPose)
             let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
             console.log(pawn, pose)
             if(pose){
