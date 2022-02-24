@@ -284,7 +284,7 @@ class Drive {
             console.log("angle", this.angle);
         }
         if (key.key === "ArrowLeft") {
-            this.angle = Math.max(-0.05, this.angle - 0.04);
+            this.angle = Math.max(-0.05, this.angle - 0.004);
             console.log("angle", this.angle);
         }
         if (key.key === "ArrowUp") {
