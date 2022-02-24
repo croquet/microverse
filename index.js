@@ -165,7 +165,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
-            translation: [10, 0, 5],
+            translation: [10, 3, 5],
             rotation: q_euler(0, -Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
@@ -173,25 +173,46 @@ Constants.DefaultCards = [
             runs: [{text: `
 class Fly {
     setup() {
-        if (this.flying) {return;}
-        this.flying = true;
-        this.fly();
+        this.set({
+            rotation: WorldCore.q_euler(0, 0, 0),
+            translation: [0, 3, 0]});
+        if (!this.flyiing) {
+            this.flying = true;
+            this.fly();
+        }
         this.addEventListener("pointerDown", "toggle");
     }
 
     fly() {
         if (!this.flying) {return;}
         this.future(20).call("Fly", "fly");
-        this.rotateTo(WorldCore.q_euler(0, this.now()/9000,0));
+        this.rotateBy([0, 0.01, 0]);
+        this.forwardBy(0.03);
     }
 
     toggle() {
         this.flying = !this.flying;
         if (this.flying) {
-           this.fly();
+            this.fly();
         }
     }
-}`}],
+
+    rotateBy(angles) {
+        let q = WorldCore.q_euler(...angles);
+        q = WorldCore.q_multiply(this.rotation, q);
+        this.rotateTo(q);
+    }
+
+    forwardBy(dist) {
+        let v = WorldCore.v3_rotate([0, 0, dist], this.rotation)
+        this.translateTo([
+            this.translation[0] + v[0],
+            this.translation[1] + v[1],
+            this.translation[2] + v[2]]);
+    }
+}
+/*global WorldCore */    
+`}],
             textScale: 0.001,
             width: 2,
             height: 2,
@@ -201,7 +222,7 @@ class Fly {
     {
         card: {
             rotation: q_euler(0, 0, 0),
-            offset: [8, 3, 0], // offset the flamingo model from the center
+            // offset: [0, 0, 0], // offset the flamingo model from the center
             type: "model",
             dataLocation: './assets/3D/Flamingo.glb.zip',
             actorCode: ["Fly"]

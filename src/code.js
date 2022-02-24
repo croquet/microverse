@@ -127,9 +127,14 @@ export const AM_Code = superclass => class extends superclass {
 
         //let code = `let x = ${source}; return x;`;
         let code = `return (${source})`;
-        let cls = new Function("WorldCore", code)(WorldCore);
+        let cls;
+        try {
+            cls = new Function("WorldCore", code)(WorldCore);
+        } catch(error) {
+            console.log("error occured while compiling", error);
+        }
+
         if (typeof cls !== "function") {
-            console.log("error occured while compiling");
             return;
         }
 
