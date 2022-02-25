@@ -536,7 +536,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     doPointerDown(e){
         if(this.ctrlKey || this.editPawn){
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
+            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer')); // add walk if you want to edit the world
             let p3e = this.pointerEvent(rc);
             p3e.lookNormal = this.actor.lookNormal;
             let pawn = GetPawn(p3e.targetId);
