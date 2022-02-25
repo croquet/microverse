@@ -458,18 +458,22 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     // compute and return the position and distance the avatar should jump to to see the card full screen
     getJumpToPose() {
         if(!this.isFlat)return;
-        let current = this.shape.localToWorld(new THREE.Vector3()).toArray(); // this is where the card is
+        let current = this.renderObject.localToWorld(new THREE.Vector3()).toArray(); // this is where the card is
         let camera = this.service("ThreeRenderManager").camera;
         let fov = camera.fov;
         let caspect = camera.aspect;
-        let taspect = this.aspect;
-        let d, w, h, s = this.scale[0];
+
+        let size = new THREE.Vector3(0, 0, 0);
+        new THREE.Box3().setFromObject(this.renderObject).getSize(size);
+        let taspect = size.z / size.y;
+        
+        let d, w, h;
         if (taspect < 1) {
-            w = taspect * s;
-            h = s;
+            w = size.y * taspect;
+            h = size.y;
         } else {
-            w = s;
-            h = s / taspect;
+            w = size.z;
+            h = size.z / taspect;
         }
 
         d = (h / 2) / Math.tan(Math.PI * fov / 360); // compute distance from card assuming vertical 
@@ -481,7 +485,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     dragPlane(rayCaster, p3e){
         if(!this._plane) {
-           let normal = p3e.normal || p3e.lookNormal; // normal may not exist
+            let normal = p3e.normal || p3e.lookNormal; // normal may not exist
             let offset = v3_dot(p3e.xyz, normal);
             this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
             this.lastDrag = p3e.xyz;
