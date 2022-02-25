@@ -387,16 +387,6 @@ export const PM_Pointer = superclass => class extends superclass {
     }
     */
 
-    doPointerWheel(e) {
-        if (!this.focusPawn) {return false;}
-        this.focusTimeout = this.now();
-        const rc = {pawn: this.focusPawn};
-        if (!rc.pawn) { // dubious check
-            this.invokeListeners("pointerWheel", this.focusPawn, rc);
-        }
-        return true;
-    }
-
     doPointerDoubleDown(e) {
         this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown"));

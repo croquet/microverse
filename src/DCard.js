@@ -379,8 +379,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     onPointerWheel(e) {
+        let wheel = e.deltaY;
         let s = this.scale;
-        let w = e < 0 ? -0.1 : 0.1;
+        let w = wheel < 0 ? -0.1 : 0.1;
         if (s[0] + w > 0.3) {
             this.scaleTo([s[0] + w, s[1] + w, s[2] + w], 100);
         }
@@ -502,7 +503,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(!this._plane) {
             // first
             let normal = p3e.lookNormal;
-            normal[1]=0;
+            normal[1] = 0;
             let nsq = v3_sqrMag(normal);
             normal = v3_normalize(normal);
             let offset = v3_dot(p3e.xyz, normal);
@@ -515,10 +516,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         rayCaster.ray.intersectPlane(this._plane, p);
         let here = p.toArray();
         let delta = v3_sub(this.startDrag, here);
-        delta[1]=0;
+        delta[1] = 0;
         let angle = v3_magnitude(delta);
         let sign = v3_cross(p3e.lookNormal, delta)[1];
-        if(sign<0)angle = -angle;
+        if(sign < 0)angle = -angle;
         let qAngle = q_euler(0,angle,0);
         this.setRotation(q_multiply(this.baseRotation, qAngle));
     }
@@ -614,8 +615,7 @@ function addWire(obj3d) {
             else mat = [m];
             
             mat.forEach(m=>{
-                let c=m.color; 
-                
+                let c = m.color; 
                 if(c && !m._oldColor) { // check for reused color
                     m._oldColor = c;
                     let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;

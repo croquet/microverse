@@ -595,26 +595,28 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doPointerUp(e){
         this.isPointerDown = false;
-        if(this.editMode){
+        if(this.editMode) {
             console.log("doPointerUp editMode");
-        }else if(this.editPawn){
+        } else if(this.editPawn) {
             this.editPawn.unselectEdit();
             this.editPawn = undefined;
             this.p3eDown = undefined;
-        }
-        else super.doPointerUp(e);
+        } else super.doPointerUp(e);
     }
 
-    doPointerWheel(wheel){        
-        if (this.focusPawn) this.focusPawn.say("pointerWheel", wheel);
-        else{
-            let z = this.lookOffset[2];
-            z += wheel/1000.0;
-            z = Math.min(4, Math.max(z,0));
-            this.lookOffset[1]=z/3;
-            this.lookOffset[2]=z;
-            this.lookTo(-z/8, q_yaw(this._rotation));
+    doPointerWheel(e) {
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
+        if (rc.pawn) {
+            this.invokeListeners("pointerWheel", rc.pawn, rc, e);
+            return;
         }
+
+        let z = this.lookOffset[2];
+        z += e.deltaY / 1000.0;
+        z = Math.min(4, Math.max(z,0));
+        this.lookOffset[1] = z / 3;
+        this.lookOffset[2] = z;
+        this.lookTo(-z / 8, q_yaw(this._rotation));
     }
 
     fadeNearby(){
@@ -625,7 +627,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
                 m = a.global; // avatar location
                 let av = new THREE.Vector3(m[12], m[13], m[14])
-                let d = Math.min(1, cv.distanceToSquared(av)/10);
+                let d = Math.min(1, cv.distanceToSquared(av) / 10);
                 a.setOpacity(d);
             }
         });
