@@ -29,8 +29,8 @@ function newProxy(object, handler, expander) {
 export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
+        let expanderManager = this.service("ExpanderModelManager");
         if (options.actorCode) {
-            let expanderManager = this.service("ExpanderModelManager");
             options.actorCode.forEach((name) => {
                 expanderManager.modelUse(this.id, name);
                 let codeActor = this.wellKnownModel(name);
@@ -39,6 +39,11 @@ export const AM_Code = superclass => class extends superclass {
                         codeActor.invoke(this, "setup");
                     }
                 }
+            });
+        }
+        if (options.pawnCode) {
+            options.pawnCode.forEach((name) => {
+                expanderManager.viewUse(this.id, name);
             });
         }
     }
@@ -50,14 +55,16 @@ export const AM_Code = superclass => class extends superclass {
         let expanderModelManager = this.service("ExpanderModelManager");
         let modelUsers = expanderModelManager.modelUses.get(this.expanderName);
         let actorManager = this.service("ActorManager");
-        modelUsers.forEach((modelId) => {
-            let model = actorManager.get(modelId);
-            if (model) {
-                if (this.$expander.setup) {
-                    this.invoke(model, "setup");
+        if (modelUsers) {
+            modelUsers.forEach((modelId) => {
+                let model = actorManager.get(modelId);
+                if (model) {
+                    if (this.$expander.setup) {
+                        this.invoke(model, "setup");
+                    }
                 }
-            }
-        });
+            });
+        }
         this.say("codeAccepted");
     }
 
@@ -150,26 +157,44 @@ export const PM_Code = superclass => class extends superclass {
     constructor(actor) {
         super(actor);
         this.listen("codeAccepted", this.codeAccepted);
-
-        if (actor._pawnCode) {
-            actor._pawnCode.forEach((name) => {
-                let codeActor = this.wellKnownModel(name);
-                if (codeActor) {
-                    let expanderManager = this.service("ExpanderViewManager");
-                    expanderManager.viewUse(this.id, name);
-                }
-            });
-        }
     }
         
     codeAccepted() {
-        if (!this._actor.$expander.setup) {return;}
-        let expanderManager = this.service("ExpanderViewManager");
-        let viewUsers = this.viewUses.get(this.expanderName);
-        viewUsers.forEach((modelId) => {
-            let pawn = GetPawn(modelId);
-            this.invoke(pawn, "setup");
-        });
+        if (!this.actor.$expander.setup) {return;}
+        let expanderManager = this.actor.service("ExpanderModelManager");
+        let viewUsers = expanderManager.viewUses.get(this.actor.expanderName);
+        if (viewUsers) {
+            viewUsers.forEach((modelId) => {
+                let pawn = GetPawn(modelId);
+                this.invoke(pawn, "setup");
+            });
+        }
+    }
+
+    invoke(receiver, name, ...values) {
+        let myHandler = this.actor.$expander;
+        let expander = this.actor.expanderName;
+        let result;
+
+        let proxy = newProxy(receiver, myHandler, expander);
+        try {
+            let f = proxy[name];
+            if (!f) {
+                throw new Error(`a method named ${name} not found in ${expander || this}`);
+            }
+            result = f.apply(proxy, values);
+        } catch (e) {
+            console.error("an error occured in", this, expander, name, e);
+        }
+        return result;
+    }
+
+    call(expanderName, name, ...values) {
+        let expander = this.wellKnownModel(expanderName);
+        if (!expander) {
+            throw new Error(`epxander named ${expanderName} not found`);
+        }
+        return expander.invoke(this, name, ...values);
     }
 }
 
@@ -192,7 +217,7 @@ export class ExpanderModelManager extends ModelService {
     }
 
     viewUse(modelId, name) {
-        let array = this.viewUsers.get(name);
+        let array = this.viewUses.get(name);
         if (!array) {
             array = [];
             this.viewUses.set(name, array);

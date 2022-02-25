@@ -310,10 +310,43 @@ class Drive {
             rotation: q_euler(0, 0, 0),
             layers: ['pointer'],
             type: "model",
-            dataLocation: '3rOc987yQKxlsvb8iD4LU5dwfpHsbxczvSos4YHTahwkGgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddJD46FihLQUMQNBEoNgdDMxsmRQY8GzAGShg4QF0bHVwRAB0DBxcGXB8bEQAdBBcAARddEwFBCkAGNhRGQT0eASEUPi1AEQc1BEAiKyUkFUQ5NzUHQRQ6AEIKIzofI10WEwYTXQs7AhA3CwsgGV84LUAaFT85CAA5OjYtNwc0LQsZKDwZN18dMAIEIQAZK0Y',
+            dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
             actorCode: ["Drive"]
         }
     },
+    /*
+    {
+        card: {
+            translation: [-5, 4, -5],
+            layers: ['pointer'],
+            type: "code",
+            runs: [{text: 'class BridgeActor {}'}],
+            textScale: 0.001,
+            width: 2,
+            height: 2.5,
+        },
+        id: "BridgeActor"
+    },
+    {
+        card: {
+            translation: [5, 4, -5],
+            layers: ['pointer'],
+            type: "code",
+            runs: [{text: 'class BridgePawn {}'}],
+            textScale: 0.001,
+            width: 2,
+            height: 2.5,
+        },
+        id: "BridgePawn"
+    },
+    {
+        card: {
+            rotation: q_euler(0, 0, 0),
+            actorCode: ["BridgeActor"],
+            pawnCode: ["BridgePawn"]
+        }
+    },
+    */
 ];
 
 let apps = new Map();

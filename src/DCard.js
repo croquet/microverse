@@ -11,8 +11,8 @@ import { AM_PointerTarget, PM_PointerTarget } from "./Pointer.js";
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
-import { AM_Code } from './code.js';
-import { forEach } from 'jszip';
+import { AM_Code, PM_Code } from './code.js';
+// import { forEach } from 'jszip';
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser"];
 
@@ -166,7 +166,7 @@ CardActor.register('CardActor');
 //------------------------------------------------------------------------------------------
 
 
-export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget) {
+export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget, PM_Code) {
 
     constructor(actor) {
         super(actor);
