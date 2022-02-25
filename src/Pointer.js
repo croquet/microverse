@@ -256,6 +256,8 @@ export const PM_PointerTarget = superclass => class extends superclass {
             });
         }
     }
+
+    _nop() {}
 }
 
 //------------------------------------------------------------------------------------------
