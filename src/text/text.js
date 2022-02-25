@@ -409,6 +409,8 @@ export class TextFieldPawn extends CardPawn {
         
         // this.geometry = new THREE.PlaneGeometry(0, 0);
         this.geometry = isSticky ? this.roundedCornerPlane(0, 0) : new THREE.PlaneGeometry(0, 0);
+        this.aspect = this.geometry.parameters.width / this.geometry.parameters.height;
+        
         this.material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
@@ -820,6 +822,7 @@ export class TextFieldPawn extends CardPawn {
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;
+            this.aspect = this.geometry.parameters.width / this.geometry.parameters.height;
         }
 
         this.textMesh.position.x = -newWidth / 2;

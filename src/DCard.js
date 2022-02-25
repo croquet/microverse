@@ -203,6 +203,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         } else if (options.type === "svg") {
             this.isFlat = true;
             this.constructSurface(options);
+        }  else if (options.type === "text" || options.type === "code") {
+            this.isFlat = true;
         }
     }
 
