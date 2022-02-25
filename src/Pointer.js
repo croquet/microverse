@@ -279,7 +279,7 @@ export const PM_Pointer = superclass => class extends superclass {
             this.subscribe("ui", "pointerDown", this.doPointerDown);
             this.subscribe("ui", "pointerUp", this.doPointerUp);
             this.subscribe("ui", "pointerMove", this.doPointerMove);
-            // this.subscribe("ui", "click", this.doClick);
+            this.subscribe("ui", "click", this.doPointerClick);
             this.subscribe("ui", "wheel", this.doPointerWheel);
             this.subscribe("ui", "doubleDown", this.doPointerDoubleDown);
             this.subscribe("ui", "tap", this.doPointerTap);
@@ -287,7 +287,7 @@ export const PM_Pointer = superclass => class extends superclass {
             this.subscribe("input", "pointerDown", this.doPointerDown);
             this.subscribe("input", "pointerUp", this.doPointerUp);
             this.subscribe("input", "pointerMove", this.doPointerMove);
-            // this.subscribe("input", "click", this.doClick);
+            this.subscribe("input", "click", this.doPointerClick);
             this.subscribe("input", "wheel", this.doPointerWheel);
             this.subscribe("input", "doubleDown", this.doPointerDoubleDown);
             this.subscribe("input", "tap", this.doPointerTap);
@@ -371,21 +371,13 @@ export const PM_Pointer = superclass => class extends superclass {
         }
     }
 
-    /*
-      Input.js of worldcore needs to publish the event in onClick()
-
-    doClick(e) {
+    doPointerClick(e) {
         this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("click"));
-        if (e.button === 0) {
-            this.isPointerDown = true;
-            this.focusPawn = rc.pawn;
-        }
-        if (this.focusPawn) {
-            this.invokeListeners("click", this.focusPawn, rc);
+        if (rc.pawn) {
+            this.invokeListeners("click", rc.pawn, rc);
         }
     }
-    */
 
     doPointerDoubleDown(e) {
         this.focusTimeout = this.now();
