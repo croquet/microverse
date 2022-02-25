@@ -118,7 +118,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             this.restoreRotation = this.rotation;
             this.restoreTranslation = this.translation;
             this.restoreTargetId = p3d.targetId;
-            let normal = p3d.normal;
+            let normal = p3d.normal || this.lookNormal; //target normal may not exist
             let point = p3d.xyz;
             this.vEnd = v3_add(point, v3_scale(normal, p3d.offset));
             normal[1]=0; // clear up and down
@@ -500,7 +500,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
         else if(pe.targetId){
             let pawn = GetPawn(pe.targetId);
-            console.log(pawn, pawn.getJumpToPose)
             let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
             console.log(pawn, pose)
             if(pose){
@@ -539,6 +538,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
             let p3e = this.pointerEvent(rc);
+            p3e.lookNormal = this.actor.lookNormal;
             let pawn = GetPawn(p3e.targetId);
 
             if(this.editPawn !== pawn){
@@ -553,6 +553,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     this.editPawn = pawn;
                     this.editPawn.selectEdit();
                     this.isPointerDown = true;
+                    this.buttonDown = e.button;
                     if(!p3e.normal){p3e.normal = this.actor.lookNormal}
                     this.p3eDown = p3e;
                 }
@@ -575,7 +576,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         }else if(this.editPawn){
             // pawn is in drag mode
-            this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
+            if(this.buttonDown === 0)
+                this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
+            else if(this.buttonDown == 2)
+                this.editPawn.rotatePlane(this.setRayCast(e.xy), this.p3eDown);
         }else {
             super.doPointerMove(e);
             if(isWalking && !this.focusPawn && this.isPointerDown){
@@ -609,7 +613,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             z = Math.min(4, Math.max(z,0));
             this.lookOffset[1]=z/3;
             this.lookOffset[2]=z;
-            this.lookTo(-z/8, this._lookYaw);
+            this.lookTo(-z/8, q_yaw(this._rotation));
         }
     }
 

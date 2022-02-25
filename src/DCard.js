@@ -4,7 +4,9 @@
 // This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, v3_dot, v3_sub, v3_add } from '@croquet/worldcore';
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, 
+    v3_dot, v3_cross, v3_sub, v3_sqrMag, v3_normalize, v3_magnitude,
+    q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from "./Pointer.js";
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
@@ -37,6 +39,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.listen("selectEdit", ()=>this.say("doSelectEdit"));
         this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
         this.listen("setTranslation", this.setTranslation);
+        this.listen("setRotation", this.setRotation);
     }
 
     createShape(options) {
@@ -82,6 +85,12 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this._translation = v;
         this.localChanged();
         this.say("updateTranslation", v);
+    }
+
+    setRotation(q){
+        this._rotation = q;
+        this.localChanged();
+        this.say("updateRotation", q);
     }
 
     textChanged() {
@@ -167,6 +176,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.listen("doSelectEdit", this.doSelectEdit);
         this.listen("doUnselectEdit", this.doUnselectEdit);
         this.listen("updateTranslation", this.updateTranslation);
+        this.listen("updateRotation", this.updateRotation);
         this.constructCard();
     }
 
@@ -469,8 +479,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     dragPlane(rayCaster, p3e){
         if(!this._plane) {
-            let offset = v3_dot(p3e.xyz, p3e.normal);
-            this._plane = new THREE.Plane(new THREE.Vector3(...p3e.normal), -offset);
+           let normal = p3e.normal || p3e.lookNormal; // normal may not exist
+            let offset = v3_dot(p3e.xyz, normal);
+            this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
             this.lastDrag = p3e.xyz;
         }
         let p = new THREE.Vector3();
@@ -479,6 +490,31 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let delta = v3_sub(this.lastDrag, here);
         this.lastDrag = here;
         this.setTranslation(v3_sub(this._translation, delta));
+    }
+
+    rotatePlane(rayCaster, p3e){
+        if(!this._plane) {
+            // first
+            let normal = p3e.lookNormal;
+            normal[1]=0;
+            let nsq = v3_sqrMag(normal);
+            normal = v3_normalize(normal);
+            let offset = v3_dot(p3e.xyz, normal);
+            this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
+            this.startDrag = p3e.xyz;
+            this.baseRotation = this._rotation;
+            this.rotAngle = 0;
+        }
+        let p = new THREE.Vector3();
+        rayCaster.ray.intersectPlane(this._plane, p);
+        let here = p.toArray();
+        let delta = v3_sub(this.startDrag, here);
+        delta[1]=0;
+        let angle = v3_magnitude(delta);
+        let sign = v3_cross(p3e.lookNormal, delta)[1];
+        if(sign<0)angle = -angle;
+        let qAngle = q_euler(0,angle,0);
+        this.setRotation(q_multiply(this.baseRotation, qAngle));
     }
 
     runAnimation() {
@@ -538,6 +574,19 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     updateTranslation(v){
         if(!this._plane){ // only do this if you are not dragging
             this._translation = v;
+            this.onLocalChanged();
+        }
+    }
+
+    setRotation(q){
+        this._rotation = q;
+        this.onLocalChanged();
+        this.say("setRotation", q);
+    }
+
+    updateRotation(q){
+        if(!this._plane){ // only do this if you are not dragging
+            this._rotation = q;
             this.onLocalChanged();
         }
     }
