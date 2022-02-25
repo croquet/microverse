@@ -165,7 +165,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
-            translation: [10, 3, 5],
+            translation: [13, 4, 5],
             rotation: q_euler(0, -Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
@@ -215,7 +215,7 @@ class Fly {
 `}],
             textScale: 0.001,
             width: 2,
-            height: 2,
+            height: 2.5,
         },
         id: "Fly"
     },
@@ -229,7 +229,7 @@ class Fly {
     },
     {
         card: {
-            translation: [20, 3, 5],
+            translation: [13, 4, 14],
             rotation: q_euler(0, -Math.PI / 2, 0),
             scale: [4, 4, 4],
             layers: ['pointer'],
@@ -301,7 +301,7 @@ class Drive {
 `}],
             textScale: 0.001,
             width: 2,
-            height: 2,
+            height: 3.5,
         },
         id: "Drive"
     },
