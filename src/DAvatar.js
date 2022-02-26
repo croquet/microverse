@@ -253,8 +253,17 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.constructVisual();
     }
 
-    setControl(){myAvatar.ctrlKey=true; console.log(myAvatar.ctrlKey)}
-    clearControl(){myAvatar.ctrlKey = false; console.log(myAvatar.ctrlKey)}
+    setControl(evt) {
+        evt.stopPropagation();
+        myAvatar.ctrlKey=true;
+        console.log(myAvatar.ctrlKey);
+    }
+
+    clearControl(evt) {
+        evt.stopPropagation();
+        myAvatar.ctrlKey = false;
+        console.log(myAvatar.ctrlKey);
+    }
 
     constructVisual(){
         // add the 3D avatar here using
