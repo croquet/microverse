@@ -890,6 +890,7 @@ export class TextFieldPawn extends CardPawn {
                 let caret = thisSelection.bar;
                 caret.visible = true;
                 let caretRect = this.warota.barRect(selection);
+                caretRect.width = ts <= 0.001 ? 5 : 2;
                 let geom = new THREE.PlaneBufferGeometry(caretRect.width * ts, caretRect.height * ts);
                 let old = caret.geometry;
                 caret.geometry = geom;

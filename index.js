@@ -165,9 +165,8 @@ Constants.DefaultCards = [
     },
     {
         card: {
-            translation: [13, 4, 5],
+            translation: [13, 0, 8],
             rotation: q_euler(0, -Math.PI / 2, 0),
-            scale: [4, 4, 4],
             layers: ['pointer'],
             type: "code",
             runs: [{text: `
@@ -229,9 +228,8 @@ class Fly {
     },
     {
         card: {
-            translation: [13, 4, 14],
+            translation: [13, 0, 14],
             rotation: q_euler(0, -Math.PI / 2, 0),
-            scale: [4, 4, 4],
             layers: ['pointer'],
             type: "code",
             runs: [{text: `
