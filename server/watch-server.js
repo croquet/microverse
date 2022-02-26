@@ -78,12 +78,14 @@ function sendFiles(socket) {
     
     newKeys.forEach((k) => {
         if (files[k] && files[k] !== sent[k]) {
+            sent[k] = files[k];
             toSend.push({action: "add", name: k, content: files[k]});
         }
     });
 
     sentKeys.forEach((k) => {
         if (files[k] === undefined && sent[k]) {
+            delete sent[k];
             toSend.push({action: "remove", name: k});
         }
     });
@@ -92,12 +94,13 @@ function sendFiles(socket) {
 }
 
 function sendAllFiles() {
+    debugger;
     for (let k of sentFiles.keys()) {
         sendFiles(k);
     }
 }
 
-wss.on('close', function close() {
+wss.on('close', () => {
     console.log("close", ws);
     clearInterval(interval);
 });
