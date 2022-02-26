@@ -35,7 +35,6 @@ function setUpDnButton(bttn, doThis, doThat){
 }
 
 // swith between walk and orbit
-setupButton(document.getElementById("orbitingBttn"), switchControl);
 setupButton(document.getElementById("walkingBttn"), switchControl);
 setupButton(document.getElementById("fullscreenBttn"), toggleFullScreen);
 /*
@@ -49,8 +48,10 @@ setupButton(document.getElementById("dragbject"), dragObject);
 function switchControl(e){
     isWalking = !isWalking;
     if(myAvatar)myAvatar.setControls(isWalking);
-    document.getElementById("walkingBttn" ).style.display=isWalking?"none":"inline-block";
-    document.getElementById("orbitingBttn").style.display=isWalking?"inline-block":"none";
+    let button = document.getElementById("walkingBttn");
+    if (button) {
+        button.setAttribute("isWalking", isWalking);
+    }
     if(e){e.stopPropagation(); e.preventDefault();}
 }
 switchControl(); //initialize the buttons (lazy me)
@@ -248,7 +249,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             setupButton(document.getElementById("homeBttn"), this.goHome);
             setupButton(document.getElementById("usersComeHereBttn"), this.comeToMe);
-            setUpDnButton(document.getElementById("controlBttn"), this.setControl, this.clearControl);
+            setUpDnButton(document.getElementById("editModeBttn"), this.setControl, this.clearControl);
             }
         this.constructVisual();
     }
@@ -469,10 +470,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.setVelocity([0, 0, 0]);
             this.speed = 0;
             this.setSpin(q_identity());
-            this.hiddenknob.style.left = `0px`;
-            this.hiddenknob.style.top = `0px`;
-            this.knob.style.left = `30px`;
-            this.knob.style.top = `30px`;        }
+            // this.hiddenknob.style.left = `0px`;
+            //this.hiddenknob.style.top = `0px`;
+            //this.knob.style.left = `30px`;
+            //this.knob.style.top = `30px`;
+
+            this.hiddenknob.style.transform = "translate(0px, 0px)";
+            this.knob.style.transform = "translate(30px, 30px)";
+        }
     }
 
     continueMMotion( e ){
@@ -493,8 +498,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             const qyaw = q_euler(0, yaw ,0);
             this.setSpin(qyaw);
 
-            hiddenknob.style.left = `${dx}px`;
-            hiddenknob.style.top = `${dy}px`;            
+            let ht = `translate(${dx}px, ${dy}px)`;
+            hiddenknob.style.transform = ht;
+            //left = `${dx}px`;
+            //hiddenknob.style.top = `${dy}px`;            
 
             let ds = dx*dx+dy*dy;
             if(ds>30*30){ 
@@ -502,8 +509,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 dx = 30*dx/ds;
                 dy = 30*dy/ds;
             }
-            knob.style.left = `${30 + dx}px`;
-            knob.style.top = `${30 + dy}px`;
+
+            let kt = `translate(${30 + dx}px, ${30 + dy}px)`;
+            knob.style.transform = kt;
+            
+            // knob.style.left = `${30 + dx}px`;
+            // knob.style.top = `${30 + dy}px`;
 
             if(!isWalking){
                 let look = this.walkLook;
@@ -571,7 +582,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if(this.editPawn){ // this gets set in doPointerDown
             if(this.editMode){ // if we are in edit mode, clear it
                 this.editPawn.unselectEdit();
-                this.editPawn = undefined;
+                this.editPawn = null;
+                this.editPointerId = null;
                 this.editMode = false;
                 console.log("doPointerTap clear editMode")
             } else {
@@ -593,12 +605,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 if(this.editPawn){
                     console.log('doPointerDown clear old editPawn')
                     this.editPawn.unselectEdit(); 
-                    this.editPawn = undefined; 
+                    this.editPawn = null;
+                    this.editPointerId = null;
                 }
                 console.log('doPointerDown set new editPawn', pawn)
                 this.editMode = false; // this gets set later
                 if(pawn){
                     this.editPawn = pawn;
+                    this.editPointerId = e.id;
                     this.editPawn.selectEdit();
                     this.isPointerDown = true;
                     this.buttonDown = e.button;
@@ -624,10 +638,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         }else if(this.editPawn){
             // pawn is in drag mode
-            if(this.buttonDown === 0)
-                this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
-            else if(this.buttonDown == 2)
-                this.editPawn.rotatePlane(this.setRayCast(e.xy), this.p3eDown);
+            if (e.id === this.editPointerId) {
+                if(this.buttonDown === 0)
+                    this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
+                else if(this.buttonDown == 2)
+                    this.editPawn.rotatePlane(this.setRayCast(e.xy), this.p3eDown);
+            }
         }else {
             super.doPointerMove(e);
             if(isWalking && !this.focusPawn && this.isPointerDown){
@@ -647,7 +663,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             console.log("doPointerUp editMode");
         } else if(this.editPawn) {
             this.editPawn.unselectEdit();
-            this.editPawn = undefined;
+            this.editPawn = null;
+            this.editPointerId = null;
             this.p3eDown = undefined;
         } else super.doPointerUp(e);
     }

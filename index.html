@@ -23,10 +23,6 @@
                 padding: 10px;
                 box-sizing: border-box;
                 text-align: center;
-                -moz-user-select: none;
-                -webkit-user-select: none;
-                -ms-user-select: none;
-                user-select: none;
                 pointer-events: none;
                 z-index: 1; /* TODO Solve this in HTML */
             }
@@ -47,8 +43,9 @@
             }
             #knob {
                 position: absolute;
-                left: 30px;
-                top: 30px;
+		transform: translate(30px, 30px);
+                left: 0px;
+                top: 0px;
                 width: 60px;
                 height: 60px;
                 border-radius: 40px;
@@ -58,6 +55,7 @@
             }
             #hiddenknob {
                 position: absolute;
+		transform: translate(0px, 0px);
                 width: 120px;
                 height: 120px;
                 border-radius: 60px;
@@ -65,67 +63,64 @@
                 opacity: 0.25;
                 z-index:301;
             }
-            .fa-circle {
-                color: lightgray;
-                opacity: 50%;
-                text-shadow: 0 0 4px #000;
-            }
-            .fa-stack:hover .fa-circle {
-                color:gray;
-            }
-            a {
+            .info-text {
                 color: #fff;
-                text-decoration: none;
-                z-index: 300;
+                z-index: 200;
                 text-shadow: 2px 2px #000000;
             }
-
-            a:hover {
-                text-decoration: underline;
+	    .no-select {
+		user-select: none;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+	    }
+	    .bttn {
+		position: fixed;
+                background-color: #d3d3d380;
+		z-index: 200;
+		border-radius: 50%;
+                color: white;
+		width: 1.8em;
+		height: 1.8em;
+		font-size: 1.5em;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+                box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2); 
             }
+            .bttn:hover {
+                background-color:#80808080;
+	    }
+	    #walkingBttn {top:10px; right:10px;}
+	    #walkingBttn[isWalking="false"] #walkingIcon {display: none;}
+	    #walkingBttn[isWalking=true] #orbitingIcon {display: none;}
+	    #orbitingBttn {top:10px; right:10px;}
+	    #homeBttn {top: 45%; right: 10px; transform: translate(0, -50%)}
+	    #usersComeHereBttn {top: 55%; right:10px; transform: translate(0, -50%)}
+	    #fullscreenBttn {top:10px; left:10px;}
+	    #editModeBttn {top: 50%; left:10px; transform: translate(0, -50%)}
         </style>
         <link href="./assets/fonts/css/all.css" rel="stylesheet">
     </head>
-    <body>
+    <body class="no-select">
         <div id="info">
-			<a>Use the joystick to move.</a>
-		</div>
-            <button id="walkingBttn">
-                <span class="fa-stack fa-2x" style = "position:fixed; top:10px; right:10px; z-index:200">
-                    <i class="fas fa-circle fa-stack-2x"></i>
-                    <i class="fas fa-walking fa-stack-1x fa-inverse"></i>
-                </span>
-            </button>
-            <button id="orbitingBttn">
-                <span class="fa-stack fa-2x"  style = "position:fixed; top:10px; right:10px; z-index:200">
-                <i class="fas fa-circle fa-stack-2x"></i>
-                <i class="fas fa-hand-paper fa-stack-1x fa-inverse"></i>
-                </span>
-            </button>
-            <button id="homeBttn">
-                <span class="fa-stack fa-2x"  style = "position:fixed; transform:translate(0%, -50%);  top:40%; right:10px; z-index:200">
-                <i class="fas fa-circle fa-stack-2x"></i>
-                <i class="fas fa-solid fa-house-user fa-stack-1x fa-inverse"></i>
-                </span>
-            </button>
-            <button id="usersComeHereBttn">
-                <span class="fa-stack fa-2x"  style = "position:fixed; transform:translate(0%, -50%);  top:60%; right:10px; z-index:200">
-                <i class="fas fa-circle fa-stack-2x"></i>
-                <i class="fas fa-solid fa-users fa-stack-1x fa-inverse"></i>
-                </span>
-            </button>
-            <button id="fullscreenBttn">
-                <span class="fa-stack fa-2x"  style = "position:fixed; top:10px; left:10px; z-index:200">
-                <i class="fas fa-circle fa-stack-2x"></i>
-                <i class="fas fa-solid fa-expand fa-stack-1x fa-inverse"></i>
-                </span>
-            </button>
-            <button id="controlBttn">
-                <span class="fa-stack fa-2x"  style = "position:fixed; top:50%;  left:10px; z-index:200">
-                <i class="fas fa-circle fa-stack-2x"></i>
-                <i class="fas fa-solid fa-angle-up fa-stack-1x fa-inverse"></i>
-                </span>
-            </button>
-            <div id="joystick"><div id="knob"></div><div id="hiddenknob"></div></div>
+	  <div class="info-text">Use the joystick to move.</div>
+	</div>
+        <div id="walkingBttn" class="bttn" isWalking="false">
+          <i id="walkingIcon" class="fas fa-walking"></i>
+          <i id="orbitingIcon" class="fas fa-hand-paper"></i>
+        </div>
+        <div id="homeBttn" class="bttn">
+          <i class="fas fa-solid fa-house-user"></i>
+        </div>
+        <div id="usersComeHereBttn" class="bttn">
+          <i class="fas fa-solid fa-users"></i>
+	</div>
+        <div id="fullscreenBttn" class="bttn">
+          <i class="fas fa-solid fa-expand"></i>
+	  </div>
+        <div id="editModeBttn" class="bttn">
+          <i class="fas fa-solid fa-angle-up"></i>
+        </div>
+        <div id="joystick"><div id="knob"></div><div id="hiddenknob"></div></div>
     </body>
 </html>
