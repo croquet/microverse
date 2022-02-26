@@ -1,0 +1,130 @@
+<meta charset="utf-8">
+**The Messenger Application Programming Interface**
+  Last Modified: 2020-08-10
+
+# Introduction
+
+The Q platform can launch Croquet apps. For such an app to fully take advantage of the Q platform, there are some information to send to and receive from the Q platform by using the Messenger API.
+
+## The API
+
+There are three kinds of messages:
+
+1. sent from an app to the container.
+2. sent from the container to an app.
+3  sent from the container to all apps.
+
+Notice that an app cannot directly send a message to another app. Also note that only views on both ends of communication can send and receive a message.
+
+The Messenger is accessible through the global Croquet.Messenger object. For an app to set up the Messenger, call the following from the top-level view object:
+~~~~~~~~~~~~~~~~~~~~~~~ JavaScript
+Croquet.Messenger.setReceiver(this);
+~~~~~~~~~~~~~~~~~~~~~~~
+where  "this" is a view-side object (typically the top-level view itself) to handle incoming messages.
+
+The app calls the following to listen on incoming messages:
+~~~~~~~~~~~~~~~~~~~~~~~ JavaScript
+    Croquet.Messenger.on(event<string>, callback<function or method name<string>>);
+~~~~~~~~~~~~~~~~~~~~~~~
+
+And to send a message, the app calls the following:
+~~~~~~~~~~~~~~~~~~~~~~~ JavaScript
+   Croquet.Messenger.send(event<string>, data<serializable object>);
+~~~~~~~~~~~~~~~~~~~~~~~
+  
+## Defined Messages
+
+There are two typical communication protocol.
+
+One kind of protocol is that a party sends a request to another, and handles the response when it arrives.  Another kind is a party sends a message spontaneously. An example of the former is a newly launched app sends a request to the Q platform to query the user information, and Q responds with the information.  An example of the latter is that an app can send the pointing device position to Q when the user moves it (and thus generates pointermove events) within the app.
+
+There is a convenience method at Messenger that sets up the pointermove publishing mechanism, and handle detach event so that the event handler is removed. An app can simply call
+~~~~~~~~~~~~~~~~~~~~~~~ JavaScript
+   Croquet.Messenger.startPublishingPointerMove();
+~~~~~~~~~~~~~~~~~~~~~~~
+to let the container know where the pointer is.
+	
+A request typically ends with "Request". A message to query certain information are as follows:
+
+- "sessionInfoRequest"
+- "userInfoRequest"
+- "userCursorRequest"
+- "transparencyRequest"
+- ...
+
+The Q platform sends a request to obtain the information about the application itself:
+
+- "appInfoRequest"
+
+The name of a response to a "Request" that contains actual data, or spontanous message should be in a short-form:
+
+- "sessionInfo"
+- "userInfo"
+- "userCursor"
+- "transparency"
+- ...
+- appInfo
+- ...
+- 
+- "allUserInfo"
+- "lastUserActivity"
+- ...
+
+## Example
+
+A typical top-level view initialization code has the following part:
+~~~~~~~~~~~~~~~~~~~~~~~ JavaScript
+if (window.parent !== window) {
+    Croquet.Messenger.startPublishingPointerMove();
+    Croquet.Messenger.setReceiver(this);
+    Croquet.Messenger.on("sessionInfo", "handleSessionInfo");
+    Croquet.Messenger.on("userInfo", "handleUserInfo");
+    Croquet.Messenger.on("userCursor", "handleUserCursor");
+    Croquet.Messenger.on("transparency", "handleTransparency");
+    Croquet.Messenger.send("sessionInfoRequest");
+    Croquet.Messenger.send("userInfoRequest");
+    Croquet.Messenger.send("userCursorRequest");
+    Croquet.Messenger.send("transparencyRequest");
+}
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Because an app may be launched as stand-alone, it has the guard to see if it is running in an iframe. (It may not be running in Q even when it is running in iframe; in the future, we need to make sure that a fake Q cannot extract information from an app.)
+
+## a higher-level API
+
+While it is not implemented yet, there will be a "one-stop" call to sets up above on and send pairs. It might look like:
+~~~~~~~~~~~~~~~~~~~~~~~ JavaScript
+Croquet.Messenger.setup(this, [
+    {type: "sessionInfo", handler: "handleSessionInfo"},
+    {type: "userInfo", handler: "handleUserInfo"},
+    ...
+    ], ["sessionInfoRequest", "userInfoRequest"]);
+~~~~~~~~~~~~~~~~~~~~~~~
+
+(But while this would reduce the number of lines of code, it may not reduce the complexity that much.)
+
+## Application Info
+The Q platform uses the icon definition (expected to be shown in "viewBox=24 24"), the name of the application (shown in the title bar as well as the favorites, the template string to generate a new unique session ("${q}" in the template will be replaced with a random hexadecimal string), and preferably the readable session name.  When an app is launched:
+
+1. the app creates an actual URL from the template and opens it.
+2. the app sends a message to Q to inform that it is ready to receive messages.
+3. the app may send some requests such as userCursorRequest and userInfoRequest.
+4. Q sends a request to query the application info  by sending a "appInfoRequest".
+5. Q may send responses to the requests.
+6. the app replies appInfo.
+7. Q sets up the frame with that info.
+
+There is an interesting timing issue when an app is being added to the favorites.  The current gesture is to drag a Q icon to favorites, but while that dragging action is underway, another user in the same Q session may change the URL.  Some mechanism to ensure that unwanted app is added to favorites would be desired.
+
+
+    
+<!-- Markdeep: --><style class="fallback">body{visibility:hidden;white-space:pre;font-family:monospace}</style><script src="https://casual-effects.com/markdeep/latest/markdeep.min.js"></script><script>window.alreadyProcessedMarkdeep||(document.body.style.visibility="visible")</script>
+
+<script src="https://unpkg.com/@croquet/croquet@0.5.0"></script>
+<script src="../turner.js"></script>
+<script type="text/javascript">
+if (window.location.search !== "") {
+    Croquet.Session.join(window.location.href, SimplePageModel, SimplePageView, {tps: 0})
+    	.then((session) => session.view.initCroquetMessenger());
+}
+</script>

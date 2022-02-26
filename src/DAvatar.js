@@ -72,6 +72,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("setTranslation", this.setTranslation);
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
+        this.listen("comeToMe", this.comeToMe);
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
@@ -100,7 +101,13 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     goHome( there ){
         console.log("goHome:", there, this.translation, this.rotation);
-        this.set({translation: there[0], rotation: there[1]});
+        this.vStart = [...this.translation];
+        this.qStart = [...this.rotation];
+        this.vEnd = there[0];
+        this.qEnd = there[1];
+        this.fall = true;
+        this.goToStep(0.1);
+        //this.set({translation: there[0], rotation: there[1]});
     }
 
     goThere(p3d){
@@ -134,6 +141,11 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.goToStep(0.1);
     }
 
+    comeToMe(){
+        console.log("comeToMe");
+        console.log(this.service("PlayerManager").players);
+    }
+    
     goToStep(delta, t){
         if(!t)t=delta;
         if(t>=1)t=1;
@@ -213,6 +225,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
             setupButton(document.getElementById("homeBttn"), this.goHome);
+            setupButton(document.getElementById("usersComeHere"), this.comeToMe);
         }
         this.constructVisual();
     }
@@ -651,6 +664,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     goHome(){ // in a callback, so use myAvatar
         console.log("goHome")
         myAvatar.say("goHome", [[0,0,0], [0,0,0,1]])
+    }
+
+    comeToMe(){
+        console.log("comeToMe");
+        myAvatar.say("comeToMe");
     }
 
     setTranslation(v){
