@@ -105,7 +105,8 @@ export const AM_Code = superclass => class extends superclass {
         if (!expander) {
             throw new Error(`epxander named ${expanderName} not found`);
         }
-        return expander.invoke(this, name, ...values);
+
+        return expander.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
     ensureExpander() {
@@ -209,7 +210,8 @@ export const PM_Code = superclass => class extends superclass {
         if (!expander) {
             throw new Error(`epxander named ${expanderName} not found`);
         }
-        return expander.invoke(this, name, ...values);
+
+        return expander.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
     scriptListen(eventName, listener) {

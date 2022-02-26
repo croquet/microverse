@@ -347,7 +347,53 @@ class Drive {
             actorCode: ["BridgeActor"],
             pawnCode: ["BridgePawn"]
         }
+    }
+    /*
+    {
+        card: {
+            translation: [2, 2, 14],
+            rotation: q_euler(0, Math.PI, 0),
+            type: "code",
+            runs: [{text: 'class PerlinNoise {}'}],
+            textScale: 0.001,
+            width: 2,
+            height: 2.5,
+        },
+        id: "PerlinNoise"
     },
+    {
+        card: {
+            translation: [-2, 2, 14],
+            rotation: q_euler(0, Math.PI, 0),
+            type: "code",
+            runs: [{text: 'class PerlinActor {}'}],
+            textScale: 0.001,
+            width: 2,
+            height: 2.5,
+        },
+        id: "PerlinActor"
+    },
+    {
+        card: {
+            translation: [-0, 2, 14],
+            rotation: q_euler(0, Math.PI, 0),
+            type: "code",
+            runs: [{text: 'class PerlinPawn {}'}],
+            textScale: 0.001,
+            width: 2,
+            height: 2.5,
+        },
+        id: "PerlinPawn"
+    },
+    {
+        card: {
+            translation: [0, 0, -5],
+            rotation: q_euler(0, 0, 0),
+            actorCode: ["PerlinNoise", "PerlinActor"],
+            pawnCode: ["PerlinPawn"]
+        }
+    }
+    */
 ];
 
 let apps = new Map();
