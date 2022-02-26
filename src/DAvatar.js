@@ -24,6 +24,16 @@ function setupButton( bttn, dothis ){
     bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
     bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
 }
+
+function setUpDnButton(bttn, doThis, doThat){
+    console.log(bttn, doThis, doThat)
+    bttn.addEventListener("pointerdown", doThis, false);
+    bttn.addEventListener("pointerup", doThat, false);
+
+//    bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
+//    bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
+}
+
 // swith between walk and orbit
 setupButton(document.getElementById("orbitingBttn"), switchControl);
 setupButton(document.getElementById("walkingBttn"), switchControl);
@@ -237,10 +247,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
             setupButton(document.getElementById("homeBttn"), this.goHome);
-            setupButton(document.getElementById("usersComeHere"), this.comeToMe);
-        }
+            setupButton(document.getElementById("usersComeHereBttn"), this.comeToMe);
+            setUpDnButton(document.getElementById("controlBttn"), this.setControl, this.clearControl);
+            }
         this.constructVisual();
     }
+
+    setControl(){myAvatar.ctrlKey=true; console.log(myAvatar.ctrlKey)}
+    clearControl(){myAvatar.ctrlKey = false; console.log(myAvatar.ctrlKey)}
 
     constructVisual(){
         // add the 3D avatar here using
@@ -630,9 +644,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doPointerWheel(e) {
-        console.log(e, this.getTargets("pointerWheel"))
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
-        console.log(rc)
         if (rc.pawn) {
             this.invokeListeners("pointerWheel", rc.pawn, rc, e);
             return;
