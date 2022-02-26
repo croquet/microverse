@@ -314,10 +314,10 @@ class Drive {
             actorCode: ["Drive"]
         }
     },
-    /*
     {
         card: {
-            translation: [-5, 4, -5],
+            translation: [-2, 2, 12],
+            rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
             type: "code",
             runs: [{text: 'class BridgeActor {}'}],
@@ -329,7 +329,8 @@ class Drive {
     },
     {
         card: {
-            translation: [5, 4, -5],
+            translation: [2, 2, 12],
+            rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
             type: "code",
             runs: [{text: 'class BridgePawn {}'}],
@@ -341,12 +342,12 @@ class Drive {
     },
     {
         card: {
+            translation: [0, 0, 10],
             rotation: q_euler(0, 0, 0),
             actorCode: ["BridgeActor"],
             pawnCode: ["BridgePawn"]
         }
     },
-    */
 ];
 
 let apps = new Map();

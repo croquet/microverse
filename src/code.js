@@ -29,6 +29,7 @@ function newProxy(object, handler, expander) {
 export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
+        this.scriptListeners = new Map();
         let expanderManager = this.service("ExpanderModelManager");
         if (options.actorCode) {
             options.actorCode.forEach((name) => {
@@ -151,11 +152,25 @@ export const AM_Code = superclass => class extends superclass {
         newOptions.expanderName = this.expanderName;
         this.set({cardData: newOptions});
     }
+
+    scriptListen(eventName, listener) {
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
+        
+        let had = this.scriptListeners.get(eventName);
+        if (had) {
+            return;
+        }
+        this.scriptListeners.set(eventName, listener);
+        super.listen(eventName, listener);
+    }
 }
 
 export const PM_Code = superclass => class extends superclass {
     constructor(actor) {
         super(actor);
+        this.scriptListeners = new Map();
         this.listen("codeAccepted", this.codeAccepted);
     }
         
@@ -195,6 +210,19 @@ export const PM_Code = superclass => class extends superclass {
             throw new Error(`epxander named ${expanderName} not found`);
         }
         return expander.invoke(this, name, ...values);
+    }
+
+    scriptListen(eventName, listener) {
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
+        
+        let had = this.scriptListeners.get(eventName);
+        if (had) {
+            this.ignore(eventName, listener);
+        }
+        this.scriptListeners.set(eventName, listener);
+        super.listen(eventName, this[listener]);
     }
 }
 
