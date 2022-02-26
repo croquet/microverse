@@ -158,13 +158,25 @@ export const AM_Code = superclass => class extends superclass {
         if (typeof listener === "function") {
             listener = listener.name;
         }
+
+        let expander = this._expander;
+        if (!expander) {
+            expander = expander.constructor.name;
+        }
+
+        let fullMethodName;
+        if (listener.indexOf(".") >= 1 || !expander) {
+            fullMethodName = listener;
+        } else {
+            fullMethodName = `${expander}.${listener}`;
+        }
         
-        let had = this.scriptListeners.get(eventName);
+        let had = this.scriptListeners.get(fullMethodName);
         if (had) {
             return;
         }
-        this.scriptListeners.set(eventName, listener);
-        super.listen(eventName, listener);
+        this.scriptListeners.set(eventName, fullMethodName);
+        super.listen(eventName, fullMethodName);
     }
 }
 
@@ -218,13 +230,31 @@ export const PM_Code = superclass => class extends superclass {
         if (typeof listener === "function") {
             listener = listener.name;
         }
-        
-        let had = this.scriptListeners.get(eventName);
-        if (had) {
-            this.ignore(eventName, listener);
+
+        let expander = this._expander;
+        if (!expander) {
+            expander = expander.constructor.name;
         }
-        this.scriptListeners.set(eventName, listener);
-        super.listen(eventName, this[listener]);
+
+        let fullMethodName;
+        if (listener.indexOf(".") >= 1 || !expander) {
+            fullMethodName = listener;
+        } else {
+            fullMethodName = `${expander}.${listener}`;
+        }
+
+        let had = this.scriptListeners.get(fullMethodName);
+        if (had) {
+            this.ignore(eventName, fullMethodName);
+        }
+        
+        this.scriptListeners.set(eventName, fullMethodName);
+        if (fullMethodName.indexOf(".") >= 1) {
+            let split = fullMethodName.split(".");
+            let func = (data) => this.call(split[0], split[1], data);
+            return super.subscribe(this.actor.id, eventName, func);
+        }
+        super.subscribe(this.actor.id, eventName, fullMethodName);
     }
 }
 
