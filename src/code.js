@@ -171,7 +171,7 @@ export const AM_Code = superclass => class extends superclass {
             fullMethodName = `${expander}.${listener}`;
         }
         
-        let had = this.scriptListeners.get(fullMethodName);
+        let had = this.scriptListeners.get(eventName, fullMethodName);
         if (had) {
             return;
         }
@@ -243,7 +243,7 @@ export const PM_Code = superclass => class extends superclass {
             fullMethodName = `${expander}.${listener}`;
         }
 
-        let had = this.scriptListeners.get(fullMethodName);
+        let had = this.scriptListeners.get(eventName);
         if (had) {
             this.ignore(eventName, fullMethodName);
         }

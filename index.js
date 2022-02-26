@@ -316,7 +316,7 @@ class Drive {
     },
     {
         card: {
-            translation: [-2, 2, 12],
+            translation: [-2, 2, 100],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
             type: "code",
@@ -329,7 +329,7 @@ class Drive {
     },
     {
         card: {
-            translation: [2, 2, 12],
+            translation: [2, 2, 100],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
             type: "code",
@@ -347,7 +347,7 @@ class Drive {
             actorCode: ["BridgeActor"],
             pawnCode: ["BridgePawn"]
         }
-    }
+    },
     /*
     {
         card: {
@@ -361,9 +361,10 @@ class Drive {
         },
         id: "PerlinNoise"
     },
+    */
     {
         card: {
-            translation: [-2, 2, 14],
+            translation: [-2, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
             runs: [{text: 'class PerlinActor {}'}],
@@ -375,7 +376,7 @@ class Drive {
     },
     {
         card: {
-            translation: [-0, 2, 14],
+            translation: [-0, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
             runs: [{text: 'class PerlinPawn {}'}],
@@ -387,13 +388,13 @@ class Drive {
     },
     {
         card: {
-            translation: [0, 0, -5],
+            translation: [0, -2, 20],
             rotation: q_euler(0, 0, 0),
-            actorCode: ["PerlinNoise", "PerlinActor"],
+            layers: ["pointer"],
+            actorCode: ["PerlinActor"],
             pawnCode: ["PerlinPawn"]
         }
     }
-    */
 ];
 
 let apps = new Map();
