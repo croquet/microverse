@@ -100,12 +100,15 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     goHome( there ){
-        console.log("goHome:", there, this.translation, this.rotation);
+        this.goTo( ...there, true );
+    }
+
+    goTo( v, q, fall ){
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
-        this.vEnd = there[0];
-        this.qEnd = there[1];
-        this.fall = true;
+        this.vEnd = v;
+        this.qEnd = q;
+        this.fall = fall;
         this.goToStep(0.1);
         //this.set({translation: there[0], rotation: there[1]});
     }
@@ -143,7 +146,16 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     comeToMe(){
         console.log("comeToMe");
-        console.log(this.service("PlayerManager").players);
+        this.norm = this.lookNormal;
+        let count = 0;
+        console.log(this.fall)
+        this.service("PlayerManager").players.forEach((value, key)=>{
+
+            if(this.playerId !== key){
+                count++;
+                value.goTo(this.translation, this.rotation, this.fall);
+            }
+        });
     }
     
     goToStep(delta, t){
@@ -618,7 +630,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doPointerWheel(e) {
+        console.log(e, this.getTargets("pointerWheel"))
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
+        console.log(rc)
         if (rc.pawn) {
             this.invokeListeners("pointerWheel", rc.pawn, rc, e);
             return;
