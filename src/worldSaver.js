@@ -1,6 +1,10 @@
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+//
 // enumerate all cards, including the ones that are embedded into others (that is, their parents are *not* model root.
 // save the json that would be used for create, but along with the class name (hopefully we can retire this field, but may not be true.
-
+//
 // loading time: in general, the parent needs to be created before a child
 
 import {intrinsicProperties} from "./DCard.js";

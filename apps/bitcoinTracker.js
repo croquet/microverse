@@ -1,3 +1,7 @@
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import { mix, q_euler } from "@croquet/worldcore";
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { CardActor, CardPawn } from '../src/DCard.js';

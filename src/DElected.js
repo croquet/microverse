@@ -1,3 +1,7 @@
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import { mix, RegisterMixin} from "@croquet/worldcore"
 
 export const AM_Elected = superclass => class extends superclass {

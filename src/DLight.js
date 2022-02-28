@@ -1,3 +1,7 @@
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import {
     THREE, Actor, Pawn, mix, AM_Smoothed, PM_Smoothed, PM_ThreeVisible} from "@croquet/worldcore";
 

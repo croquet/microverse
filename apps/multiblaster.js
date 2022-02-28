@@ -263,6 +263,9 @@ Blast.register("Blast");
 
 /////////// Code below is executed outside of synced VM /////////// 
 
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
 
 class MultiBlasterDisplay extends CardPawn {
     constructor(actor) {

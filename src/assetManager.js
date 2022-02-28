@@ -1,4 +1,6 @@
-/* globals JSZip Croquet */
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io/* globals JSZip Croquet */
 
 const MAX_IMPORT_MB = 100; // aggregate
 

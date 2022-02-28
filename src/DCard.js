@@ -1,7 +1,8 @@
-// Copyright 2022 by Croquet Corporation. All Rights Reserved.
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+//
 // Collaborative Card Object
-// Also works with DSurface as a smart 2D object
-// This needs to be redone to use Worldcore. 
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, 

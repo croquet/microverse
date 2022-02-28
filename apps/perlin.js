@@ -1,3 +1,7 @@
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import { THREE, Actor, Pawn, AM_Predictive, RegisterMixin, PM_Predictive, PM_ThreeVisible, mix } from "@croquet/worldcore";
 
 import { PM_PointerTarget } from "../src/Pointer.js";

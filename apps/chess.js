@@ -1,3 +1,7 @@
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import { CardActor } from '../src/DCard.js';
 //import { TextureSurface } from '../src/DSurface.js';
 import { q_euler } from "@croquet/worldcore";
