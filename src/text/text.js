@@ -409,7 +409,7 @@ export class TextFieldPawn extends CardPawn {
         
         // this.geometry = new THREE.PlaneGeometry(0, 0);
         this.geometry = isSticky ? this.roundedCornerPlane(0, 0) : new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
+        this.material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide, emissive: color});
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
 
