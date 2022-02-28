@@ -234,7 +234,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob = document.getElementById("hiddenknob"); 
             this.hiddenknob.onpointerdown = (e) => {
                 if (e.pointerId) {
-                    this.capturedPointers[e.pointerId] = true;
+                    this.capturedPointers[e.pointerId] = "hiddenKnob";
                     this.hiddenknob.setPointerCapture(e.pointerId);
                 }
                 this.startMMotion(e); // use the knob to start
@@ -249,18 +249,25 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             setupButton(document.getElementById("homeBttn"), this.goHome);
             setupButton(document.getElementById("usersComeHereBttn"), this.comeToMe);
-            setUpDnButton(document.getElementById("editModeBttn"), this.setControl, this.clearControl);
+            setUpDnButton(document.getElementById("editModeBttn"),
+                          (evt) => this.setEditMode(evt),
+                          (evt) => this.clearEditMode(evt));
             }
         this.constructVisual();
     }
 
-    setControl(evt) {
+    setEditMode(evt) {
+        evt.target.setPointerCapture(evt.pointerId);
+        this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
-        myAvatar.ctrlKey=true;
+        myAvatar.ctrlKey = true;
         console.log(myAvatar.ctrlKey);
     }
 
-    clearControl(evt) {
+    clearEditMode(evt) {
+        if (this.capturedPointers[evt.pointerId] !== "editModeBttn") {return;}
+        evt.target.releasePointerCapture(evt.pointerId);
+        delete this.capturedPointers[evt.pointerId];
         evt.stopPropagation();
         myAvatar.ctrlKey = false;
         console.log(myAvatar.ctrlKey);

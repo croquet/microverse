@@ -7,7 +7,7 @@
             body {
                 background-color: #bfe3dd;
                 font-family: Arial, sans-serif;
-		color: #000;
+                color: #000;
                 margin: 0;
                 background-color: #000;
                 color: #fff;
@@ -17,7 +17,7 @@
                 overflow: hidden;
             }
             #info {
-                position: absolute;
+                position: fixed;
                 top: 0px;
                 width: 100%;
                 padding: 10px;
@@ -28,7 +28,7 @@
             }
             #joystick {
                 box-sizing: border-box;
-                position: absolute;
+                position: fixed;
                 left: 50%;
                 bottom: 50px;
                 -ms-transform: translate(-50%, 0%);
@@ -42,8 +42,8 @@
                 z-index:200;
             }
             #knob {
-                position: absolute;
-		transform: translate(30px, 30px);
+                position: fixed;
+                transform: translate(30px, 30px);
                 left: 0px;
                 top: 0px;
                 width: 60px;
@@ -54,8 +54,8 @@
                 z-index:200;
             }
             #hiddenknob {
-                position: absolute;
-		transform: translate(0px, 0px);
+                position: fixed;
+                transform: translate(0px, 0px);
                 width: 120px;
                 height: 120px;
                 border-radius: 60px;
@@ -68,43 +68,43 @@
                 z-index: 200;
                 text-shadow: 2px 2px #000000;
             }
-	    .no-select {
-		user-select: none;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-	    }
-	    .bttn {
-		position: fixed;
+            .no-select {
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+            }
+            .bttn {
+                position: fixed;
                 background-color: #d3d3d380;
-		z-index: 200;
-		border-radius: 50%;
+                z-index: 200;
+                border-radius: 50%;
                 color: white;
-		width: 1.8em;
-		height: 1.8em;
-		font-size: 1.5em;
-		display: flex;
-		justify-content: center;
-		align-items: center;
+                width: 1.8em;
+                height: 1.8em;
+                font-size: 1.5em;
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2); 
             }
             .bttn:hover {
                 background-color:#80808080;
-	    }
-	    #walkingBttn {top:10px; right:10px;}
-	    #walkingBttn[isWalking="false"] #walkingIcon {display: none;}
-	    #walkingBttn[isWalking=true] #orbitingIcon {display: none;}
-	    #orbitingBttn {top:10px; right:10px;}
-	    #homeBttn {top: 45%; right: 10px; transform: translate(0, -50%)}
-	    #usersComeHereBttn {top: 55%; right:10px; transform: translate(0, -50%)}
-	    #fullscreenBttn {top:10px; left:10px;}
-	    #editModeBttn {top: 50%; left:10px; transform: translate(0, -50%)}
+            }
+            #walkingBttn {top:10px; right:10px;}
+            #walkingBttn[isWalking="false"] #walkingIcon {display: none;}
+            #walkingBttn[isWalking=true] #orbitingIcon {display: none;}
+            #orbitingBttn {top:10px; right:10px;}
+            #homeBttn {top: 45%; right: 10px; transform: translate(0, -50%)}
+            #usersComeHereBttn {top: 55%; right:10px; transform: translate(0, -50%)}
+            #fullscreenBttn {top:10px; left:10px;}
+            #editModeBttn {top: 50%; left:10px; transform: translate(0, -50%)}
         </style>
         <link href="./assets/fonts/css/all.css" rel="stylesheet">
     </head>
     <body class="no-select">
         <div id="info">
-	  <div class="info-text">Use the joystick to move.</div>
-	</div>
+          <div class="info-text">Use the joystick to move.</div>
+        </div>
         <div id="walkingBttn" class="bttn" isWalking="false">
           <i id="walkingIcon" class="fas fa-walking"></i>
           <i id="orbitingIcon" class="fas fa-hand-paper"></i>
@@ -114,10 +114,10 @@
         </div>
         <div id="usersComeHereBttn" class="bttn">
           <i class="fas fa-solid fa-users"></i>
-	</div>
+        </div>
         <div id="fullscreenBttn" class="bttn">
           <i class="fas fa-solid fa-expand"></i>
-	  </div>
+          </div>
         <div id="editModeBttn" class="bttn">
           <i class="fas fa-solid fa-angle-up"></i>
         </div>
