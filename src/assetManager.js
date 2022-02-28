@@ -341,14 +341,14 @@ export class Loader {
     setURLModifierFor(manager, imgContents) {
         if (!imgContents) {return;}
         manager.setURLModifier(urlStr => {
-            console.log(`handling request for ${urlStr}`);
+            // console.log(`handling request for ${urlStr}`);
 
             if (this.imgType(urlStr)) {
-                console.log(`returning imgUrl`);
+                // console.log(`returning imgUrl`);
                 let localName = this.localName(urlStr);
                 return imgContents[localName] || ""; // it may not have the file
             }
-            console.log(`returning ${urlStr}`);
+            // console.log(`returning ${urlStr}`);
             return urlStr;
         });
     }

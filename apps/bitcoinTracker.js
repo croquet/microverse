@@ -61,10 +61,10 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
 
     async fetchSpot(id) {
         const count = ++this.count;
-        console.log("Fetching BTC-USD from Coinbase", id, count);
+        // console.log("Fetching BTC-USD from Coinbase", id, count);
         const response = await fetch(`https://api.coinbase.com/v2/prices/BTC-USD/spot`);
         const json = await response.json();
-        console.log("Fetched BTC-USD from Coinbase", id, count, json);
+        // console.log("Fetched BTC-USD from Coinbase", id, count, json);
         this.say("BTC-USD", { date: Date.now(), amount: +json.data.amount });
     }
 

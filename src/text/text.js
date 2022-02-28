@@ -206,7 +206,7 @@ export class TextFieldActor extends CardActor {
     }
 
     askFont(data) {
-        console.log(data);
+        // console.log(data);
         if (data.font) {
             this.fonts.set(data.name, data.font);
         }

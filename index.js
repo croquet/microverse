@@ -9,10 +9,8 @@
 import {
     Constants, App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
     InputManager, PlayerManager, ThreeRenderManager,
-    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
-} from "@croquet/worldcore";
+    q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
-//import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
 import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
@@ -21,19 +19,16 @@ import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall } from './apps/bouncingBall.js';
-import { createChess } from './apps/chess.js';
 import { PerlinActor } from './apps/perlin.js';
 import { TextFieldActor } from './src/text/text.js';
 import { BitcoinTracker, BitLogoCard, constructBitcoinTracker } from './apps/bitcoinTracker.js';
 import { DBarGraphCard } from './src/DBar.js';
-import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
-//import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
