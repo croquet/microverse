@@ -14,11 +14,11 @@ import { defaultKeyBindings } from "./text/text-commands.js";
 import {AssetManager} from "./wcAssetManager.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
-export var myAvatarId; 
-export var myAvatar;
+export let myAvatarId; 
+export let myAvatar;
 let avatarModelPromises = [];
 
-export var isWalking = false; // switchControl() will make it true
+export let isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
 
 // simple "click button, do this, nothing else"
@@ -29,7 +29,6 @@ function setupButton( bttn, dothis ){
 }
 
 function setUpDnButton(bttn, doThis, doThat){
-    console.log(bttn, doThis, doThat)
     bttn.addEventListener("pointerdown", doThis, false);
     bttn.addEventListener("pointerup", doThat, false);
 
@@ -345,6 +344,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         super.destroy();
+        isTweening = false;
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
     }
 
@@ -365,28 +365,28 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     // This does not actually affect the avatar's position, just where you see him from.
     tween(fromCam, toCam, onComplete){
         isTweening = true;
-        var tweenCam = this.tweenCamera; 
-        var qStart = new THREE.Quaternion(), qEnd = new THREE.Quaternion();
-        var vStart = new THREE.Vector3(), vEnd = new THREE.Vector3();
+        let tweenCam = this.tweenCamera; 
+        let qStart = new THREE.Quaternion(), qEnd = new THREE.Quaternion();
+        let vStart = new THREE.Vector3(), vEnd = new THREE.Vector3();
         
         // tween
-        var time = { t: 0 };
+        let time = {t: 0};
         new TWEEN.Tween( time )
-            .to( { t : 1 }, 1000 )
+            .to( {t: 1}, 1000 )
             .easing( TWEEN.Easing.Quadratic.InOut )
             //.easing( TWEEN.Easing.Linear.None )
-            .onStart( function() {
+            .onStart( () => {
                 qStart.copy( fromCam.quaternion );
                 qEnd.copy( toCam.quaternion );
                 fromCam.getWorldPosition( vStart );
                 toCam.getWorldPosition( vEnd );
             } )
-            .onUpdate( function() {
+            .onUpdate( () => {
                 tweenCam.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
                 tweenCam.position.lerpVectors(vStart, vEnd, time.t);
                 tweenCam.updateMatrixWorld();
             } )
-            .onComplete( function() {
+            .onComplete( () => {
                 isTweening = false;
                 tweenCam.quaternion.copy( qEnd ); // so it is exact  
                 tweenCam.position.copy( vEnd );
@@ -415,25 +415,23 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
-        if(time-this.lastUpdateTime > (this.isFalling ? 50:100)){
-            this.lastUpdateTime = time;
-            if(this.isMyPlayerPawn){
-                if(isTweening) TWEEN.update();
-                if(!isWalking){
-                    this.orbitCamera.updateMatrixWorld();
-                    this.orbitCamera.updateProjectionMatrix();
-                }else{
-                    if(this.actor.fall)
-                        if(!this.findFloor()){
-                            if(this.translation !== this.lastTranslation){
-                                this.setTranslation(this.lastTranslation);
-                            }
-                        }
+        if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
+        this.lastUpdateTime = time;
+
+        if (!this.isMyPlayerPawn) {return;}
+        if (isTweening) TWEEN.update();
+        if (!isWalking) {
+            this.orbitCamera.updateMatrixWorld();
+            this.orbitCamera.updateProjectionMatrix();
+        } else {
+            if (this.actor.fall && !this.findFloor()) {
+                if (this.translation !== this.lastTranslation) {
+                    this.setTranslation(this.lastTranslation);
                 }
-                this.refreshCameraTransform();
-                this.lastTranslation = this.translation;
             }
         }
+        this.refreshCameraTransform();
+        this.lastTranslation = this.translation;
     }
 
     findFloor(move){
@@ -508,10 +506,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             const qyaw = q_euler(0, yaw ,0);
             this.setSpin(qyaw);
 
-            let ht = `translate(${dx}px, ${dy}px)`;
-            hiddenknob.style.transform = ht;
-            //left = `${dx}px`;
-            //hiddenknob.style.top = `${dy}px`;            
+            hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
             let ds = dx*dx+dy*dy;
             if(ds>30*30){ 
@@ -520,11 +515,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 dy = 30*dy/ds;
             }
 
-            let kt = `translate(${30 + dx}px, ${30 + dy}px)`;
-            knob.style.transform = kt;
-            
-            // knob.style.left = `${30 + dx}px`;
-            // knob.style.top = `${30 + dy}px`;
+            knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
 
             if(!isWalking){
                 let look = this.walkLook;

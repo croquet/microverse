@@ -461,7 +461,10 @@ export class TextFieldPawn extends CardPawn {
         if (this.fonts.get(name)) {return Promise.resolve(null);}
         if (this.isLoading[name]) {return Promise.resolve(null);}
         this.isLoading[name] = true;
-        console.log("start loading");
+        // console.log("start loading");
+        // so we are using isLoading flag on each text object.
+        // so if there are multiple text fields in the scene,
+        // they start loading the font at the same time.
 
         let path = "./assets/fonts";
         let image = `${path}/${name}.png`;
@@ -473,7 +476,7 @@ export class TextFieldPawn extends CardPawn {
                 loader.load(
                     image,
                     (tex) => {
-                        console.log('begin registering');
+                        // console.log('begin registering');
                         let preprocessor = new MSDFFontPreprocessor();
                         let img = new Image(font.common.scaleW, font.common.scaleH);
                         let canvas = document.createElement("canvas");
@@ -493,7 +496,6 @@ export class TextFieldPawn extends CardPawn {
 
                         img.src = canvas.toDataURL("image/png");
                         img.onload = () => {
-                            console.log('in onload for img');
                             processedTexture.needsUpdate = true;
                         };
 
