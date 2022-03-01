@@ -8,10 +8,11 @@ import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, 
     v3_dot, v3_cross, v3_sub, v3_sqrMag, v3_normalize, v3_magnitude,
     q_euler, q_multiply } from '@croquet/worldcore';
-import { AM_PointerTarget, PM_PointerTarget } from "./Pointer.js";
+import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
+import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
 // import { forEach } from 'jszip';
 
@@ -315,6 +316,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.canvas.width = width;
             this.canvas.height = height;
             this.texture = new THREE.CanvasTexture(this.canvas);
+        } else if (textureType === "dynamic"){
+            this.dynamic = new DynamicTexture(width, height, options.fillStyle, options.clearStyle);
+            this.texture = this.dynamic.texture;
         }
 
         let loadOptions = {

@@ -63,6 +63,7 @@ export class BouncingBallPawn extends CardPawn {
         this.updatePosition(this.actor.position);
         this.listen("updatePosition", this.updatePosition);
         this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerMove", "onPointerMove");    
     }
 
     clear(fill){
@@ -82,6 +83,10 @@ export class BouncingBallPawn extends CardPawn {
     }
 
     onPointerDown(p3d){
+        this.say("set", p3d.uv);
+    }
+
+    onPointerMove(p3d) {
         this.say("set", p3d.uv);
     }
 }
