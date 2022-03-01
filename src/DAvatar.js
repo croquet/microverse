@@ -179,6 +179,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
                 count++;
                 value.goTo(this.translation, this.rotation, this.fall);
                 value.follow = this.playerId;
+                value.fall = false;
             }
         });
     }
@@ -583,7 +584,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         else if(pe.targetId){
             let pawn = GetPawn(pe.targetId);
             let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
-            console.log(pawn, pose)
             if(pose){
                 pe.xyz = pose[0]; // world coordinates
                 pe.offset = pose[1]; // distance from target
