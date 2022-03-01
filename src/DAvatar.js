@@ -198,8 +198,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     tick(delta) {
         if( this.follow ){
             let followMe = this.service("PlayerManager").players.get(this.follow);
-            this.moveTo(followMe.translation);
-            this.rotateTo(followMe.rotation);
+            if(followMe){
+                this.moveTo(followMe.translation);
+                this.rotateTo(followMe.rotation);
+            }else this.follow = undefined;
         } 
         super.tick(delta);
     }
@@ -342,6 +344,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             });
             
             this.addToLayers('avatar');
+            model.name = "Avatar";
             this.setRenderObject(model);  // note the extension
         });
     }

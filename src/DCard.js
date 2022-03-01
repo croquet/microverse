@@ -16,7 +16,7 @@ import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
 // import { forEach } from 'jszip';
 
-export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser"];
+export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "name"];
 
 //------------------------------------------------------------------------------------------
 //-- CardActor ------------------------------------------------------------------------------
@@ -72,6 +72,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     get pawn() { return CardPawn; }
     get layers() { return this._layers || ['pointer']; }
     get isCard() {return true;}
+    get name() {return this._name || 'Card'}
 
     uv2xy(uv) {
         return [this.width * uv[0],this.height * (1 - uv[1])];
@@ -194,6 +195,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     constructCard() {
         this.shape = new THREE.Group()
+        this.shape.name = this.actor.name;
         this.setRenderObject(this.shape);
 
         this.constructShape(this.actor._cardData);

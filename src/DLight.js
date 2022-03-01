@@ -21,11 +21,13 @@ DLight.register('DLight');
 
 class DLightPawn extends CardPawn {
     constructor(options) {
+        console.log("construct lights")
         super(options);
         this.addToLayers('light');
         let scene = window.scene =  this.service("ThreeRenderManager").scene;
+        console.log(scene);
 
-        let group = new THREE.Group();
+        let group = this.shape;
 
         this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
@@ -60,13 +62,16 @@ class DLightPawn extends CardPawn {
 
         const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
         group.add(hemiLight);
-        this.setRenderObject(group);
+        group.name = "Light Card";
+       // this.setRenderObject(group);
     }
 
     destroy() {
+        console.log("destroy lights")
         super.destroy();
         this.background.dispose();
         this.sun.dispose();
         this.hemiLight.dispose();
+        this.moon.dispose();
     }
 }

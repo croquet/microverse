@@ -412,7 +412,7 @@ export class TextFieldPawn extends CardPawn {
         this.material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide, emissive: color});
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = "plane";
-
+        this.plane.name = this.actor.name;
         this.setRenderObject(this.plane);
 
         this.clippingPlanes = [

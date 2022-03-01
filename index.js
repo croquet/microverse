@@ -39,6 +39,7 @@ Constants.AvatarNames = [
 Constants.DefaultCards = [
     {
         card: {
+            name:'world model',
             translation:[25, -90.5, -60],
             scale:[200, 200, 200],
             rotation: q_euler(0, Math.PI, 0),
@@ -55,13 +56,14 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name: 'lighting #1',
             type: "lighting",
-            name: "Light",
             className: "DLight",
         }
     },
-    {
-        card: {
+     {
+       card: {
+            name: 'Perlin Demo',
             className: "PerlinActor",
             translation:[ 10, -2.75, -14],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ],
@@ -69,6 +71,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name: 'text editor',
             className: "TextFieldActor",
             translation: [-4, -0.5, -6],
             rotation: q_euler(0, Math.PI / 2, 0),
@@ -86,6 +89,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name:'simple 3D model',
             translation: [-4, -0.5, -12],
             rotation: q_euler(0, Math.PI / 2, 0),
             type: "model",
@@ -96,6 +100,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name: 'video card',
             translation: [-4, -0.5, -18],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
@@ -111,6 +116,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name: 'image card',
             translation: [-4, -0.5, -24],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
@@ -126,6 +132,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name: 'multiblaster',
             className: "MultiBlaster",
             translation: [-4, -0.5, -30],
             rotation: q_euler(0, Math.PI / 2, 0),
@@ -145,6 +152,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name:'bouncingball',
             className: "BouncingBall",
             translation: [-4, -0.5, -36],
             rotation: q_euler(0, Math.PI / 2, 0),
@@ -164,6 +172,7 @@ Constants.DefaultCards = [
     },
     {
         card: {
+            name:'code editor',
             translation: [13, 0, 8],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
@@ -219,6 +228,7 @@ class Fly {
     },
     {
         card: {
+            name:'flamingo model',
             rotation: q_euler(0, 0, 0),
             type: "model",
             dataLocation: './assets/3D/Flamingo.glb.zip',
@@ -227,6 +237,7 @@ class Fly {
     },
     {
         card: {
+            name: 'code editor',
             translation: [13, 0, 14],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
@@ -304,6 +315,7 @@ class Drive {
     },
     {
         card: {
+            name:'porsche',
             rotation: q_euler(0, 0, 0),
             layers: ['pointer'],
             type: "model",
@@ -313,6 +325,7 @@ class Drive {
     },
     {
         card: {
+            name:'bridge',
             translation: [-2, 2, 100],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
@@ -326,6 +339,7 @@ class Drive {
     },
     {
         card: {
+            name:'bridgePawn',
             translation: [2, 2, 100],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
@@ -339,6 +353,7 @@ class Drive {
     },
     {
         card: {
+            name:'bridge actor and pawn',
             translation: [0, 0, 10],
             rotation: q_euler(0, 0, 0),
             actorCode: ["BridgeActor"],
@@ -361,6 +376,7 @@ class Drive {
     */
     {
         card: {
+            name:'perlin actor',
             translation: [-2, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
@@ -373,6 +389,7 @@ class Drive {
     },
     {
         card: {
+            name:'perlin pawn',
             translation: [-0, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
@@ -385,6 +402,7 @@ class Drive {
     },
     {
         card: {
+            name: 'perlin actor and pawn',
             translation: [0, -2, 20],
             rotation: q_euler(0, 0, 0),
             layers: ["pointer"],
@@ -451,6 +469,7 @@ class MyAvatar extends AvatarActor {
         }
 
         TextFieldActor.create({
+            name:'sticky note',
             className: "TextFieldActor",
             translation: tackPoint,
             rotation: rotPoint,
@@ -618,6 +637,7 @@ class MyModelRoot extends ModelRoot {
         let p = v3_add(v3_scale(n, 6),t);
 
         CardActor.create({
+            name: fileName,
             translation: p,
             rotation: r,
             type: "model",
@@ -655,6 +675,7 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
+        console.log(renderer)
         console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
 
         this.assetManager = this.service("AssetManager");

@@ -47,7 +47,7 @@ class DBarGraphPawn extends CardPawn{
     }
 
     constructBars(){
-        this.barGroup = new THREE.Group();
+        this.barGroup = this.shape;
         let len = this.actor.length;
         let size = 1/len;
 
@@ -66,7 +66,8 @@ class DBarGraphPawn extends CardPawn{
             this.barGroup.add(bar);
             this.bars.push(bar);
         }
-        this.setRenderObject( this.barGroup );
+        this.barGroup.name = "bar graph";
+      //  this.setRenderObject( this.barGroup );
     }
 
     setColor(color){        

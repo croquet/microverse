@@ -211,7 +211,8 @@ class PerlinPawn extends CardPawn {
         this.isConstructed = false;
         this.perlin = true;
         this.listen("hilite", this.hilite);
-        this.group = new THREE.Group();
+        this.group = this.shape;
+        this.group.name  = this.actor.name;
         this.setRenderObject( this.group );
 
         this.addEventListener("pointerDown", "onPointerDown");
