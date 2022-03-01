@@ -127,7 +127,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     goTo( v, q, fall ){
-        this.follow = false;
+        this.follow = undefined;
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
         this.vEnd = v;
@@ -138,6 +138,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     goThere(p3d){
+        this.follow = undefined;
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
 
