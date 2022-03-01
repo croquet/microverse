@@ -92,6 +92,16 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     get lookYaw() { return this._lookYaw || 0 };
     get lookNormal(){ return v3_transform([0,0,-1], m4_rotationQ(this.rotation)); }
 
+    setSpin(q){
+        super.setSpin(q);
+        this.follow = undefined;
+    }
+
+    setVelocity(v){
+        super.setVelocity(v);
+        this.follow = undefined;
+    }
+
     setTranslation(v){
         this._translation = v;
     }
@@ -117,6 +127,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     goTo( v, q, fall ){
+        this.follow = false;
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
         this.vEnd = v;
@@ -167,6 +178,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             if(this.playerId !== key){
                 count++;
                 value.goTo(this.translation, this.rotation, this.fall);
+                value.follow = this.playerId;
             }
         });
     }
@@ -178,6 +190,16 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         let q = q_slerp(this.qStart, this.qEnd, t );   
         this.set({translation: v, rotation: q})
         if(t<1)this.future(50).goToStep(delta, t+delta);
+    }
+
+
+    tick(delta) {
+        if( this.follow ){
+            let followMe = this.service("PlayerManager").players.get(this.follow);
+            this.moveTo(followMe.translation);
+            this.rotateTo(followMe.rotation);
+        } 
+        super.tick(delta);
     }
 }
 
