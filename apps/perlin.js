@@ -218,7 +218,7 @@ class PerlinPawn extends CardPawn {
         this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("pointerEnter", "onPointerEnter");
         this.addEventListener("pointerLeave", "onPointerLeave");
-        this.addEventListener("pointerMove", "_nop");
+        this.addEventListener("pointerMove", "nop");
     }
 
     onPointerDown(p3d){this.say("onPointerDown", p3d)}

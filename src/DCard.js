@@ -115,10 +115,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.subscribe(this.id, message, method);
     }
 
-    // placeholders. overwritten by AM_Code when it is mixed in
-    // setCode() {}
-    // setViewCode() {}
-    // codeAccepted() {}
+    nop() {}
 
     static load(array, world, version) {
         if (version === "1") {
@@ -172,6 +169,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         super(actor);
         this.addToLayers(...actor.layers);
         this.addEventListener("pointerWheel", "onPointerWheel");
+        this.addEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addEventListener("pointerTap", "onPointerTap");
         this.listen("doSelectEdit", this.doSelectEdit);
         this.listen("doUnselectEdit", this.doUnselectEdit);
@@ -391,6 +389,19 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
+    onPointerDoubleDown(pe) {
+        if (!pe.targetId) {return;}
+        let pose = this.getJumpToPose ? this.getJumpToPose() : undefined;
+        if (pose) {
+            pe.xyz = pose[0]; // world coordinates
+            pe.offset = pose[1]; // distance from target
+        } else {
+            pe.offset = D.EYE_HEIGHT;
+        }
+        this.publish(pe.pointerId, "goThere", pe);
+    }
+        
+
     onPointerTap(p3e){
         console.log("onPointerTap", p3e)
     }
@@ -601,6 +612,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.onLocalChanged();
         }
     }
+    nop() {}
 }
 
 function addWire(obj3d) {

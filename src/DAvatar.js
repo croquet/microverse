@@ -82,7 +82,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         super.init(options);
         this.fall = true;
         this.listen("goHome", this.goHome);
-        this.listen("doubleDown", this.goThere);
+        this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
         this.listen("setTranslation", this.setTranslation);
         this.listen("setFloor", this.setFloor);
@@ -582,19 +582,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doPointerDoubleDown(e) {
-        const render = this.service("ThreeRenderManager");
-        const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
-        let pe = this.pointerEvent(rc);
-        if(this.shiftKey && this.shiftDouble) this.shiftDouble(pe);
-        else if(pe.targetId){
-            let pawn = GetPawn(pe.targetId);
-            let pose = pawn.getJumpToPose?pawn.getJumpToPose():undefined;
-            if(pose){
-                pe.xyz = pose[0]; // world coordinates
-                pe.offset = pose[1]; // distance from target
-            } else pe.offset = D.EYE_HEIGHT;
-            this.say("doubleDown", pe);
+        if (this.shiftKey && this.shiftDouble) {
+            const render = this.service("ThreeRenderManager");
+            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
+            let pe = this.pointerEvent(rc);
+            return this.shiftDouble(pe);
         }
+        super.doPointerDoubleDown(e);
     }
 
     xy2yp(xy){

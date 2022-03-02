@@ -26,7 +26,9 @@ class BridgePawn {
         });
         this.renderObject.add(this.group);
         this.scriptListen("updateDisplay", "updateDisplay");
-        window.Bridge = this;
+
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.addEventListener("pointerDoubleDown", "nop");
     }
 
     updateDisplay() {

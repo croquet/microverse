@@ -193,8 +193,8 @@ export const PM_PointerTarget = superclass => class extends superclass {
     removeEventListener(eventName, listener) {
         let name;
         if (typeof listener === "string") {
-            listener = (evt) => this[listener](evt);
             name = listener;
+            listener = (evt) => this[listener](evt);
         } else {
             name = listener.name;
         }
@@ -260,8 +260,6 @@ export const PM_PointerTarget = superclass => class extends superclass {
             });
         }
     }
-
-    _nop() {}
 }
 
 //------------------------------------------------------------------------------------------
@@ -314,9 +312,10 @@ export const PM_Pointer = superclass => class extends superclass {
         if (!this.doomed) this.future(1000).focusTick();
     }
 
-    getTargets(type) {
+    getTargets(type, optWalk) {
         const render = this.service("ThreeRenderManager");
-        return render.threeLayer("pointer").filter((obj) => {
+        let objects = optWalk ? render.threeLayerUnion('pointer', 'walk') : render.threeLayer("pointer");
+        return objects.filter((obj) => {
             let array = obj.wcPawn.eventListeners.get(type);
             return array && array.length !== 0;
         });
@@ -387,9 +386,9 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDoubleDown(e) {
         this.focusTimeout = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown"));
-        if (this.focusPawn) {
-            this.invokeListeners("pointerDoubleDown", this.focusPawn, rc);
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown", true));
+        if (rc.pawn) {
+            this.invokeListeners("pointerDoubleDown", rc.pawn, rc);
         }
     }
 
