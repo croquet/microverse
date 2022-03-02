@@ -215,7 +215,11 @@ class Expander extends Model {
         try {
             cls = new Function("WorldCore", code)(WorldCore);
         } catch(error) {
-            console.log("error occured while compiling", error);
+            console.log("error occured while compiling:", error);
+            try {
+                eval(source);
+            } finally {
+            }
         }
 
         if (typeof cls !== "function") {

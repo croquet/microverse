@@ -374,27 +374,25 @@ expander: "Drive",
     },    
     {
         card: {
-            name:'bridge actor and pawn',
-            translation: [0, 0, 10],
+            name:'bridge',
+            translation: [0, 0, 50],
             rotation: q_euler(0, 0, 0),
             actorCode: ["BridgeActor"],
             pawnCode: ["BridgePawn"]
         }
     },
-/*
     {
         card: {
-            translation: [2, 2, 14],
+            name:'perlin actor',
+            translation: [-4, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
-            runs: [{text: 'class PerlinNoise {}'}],
+            expander: "PerlinNoise",
             textScale: 0.001,
             width: 2,
             height: 2.5,
         },
-        id: "PerlinNoise"
     },
-    */
     {
         card: {
             name:'perlin actor',
@@ -406,7 +404,6 @@ expander: "Drive",
             width: 2,
             height: 2.5,
         },
-        id: "PerlinActor"
     },
     {
         card: {
@@ -419,15 +416,14 @@ expander: "Drive",
             width: 2,
             height: 2.5,
         },
-        id: "PerlinPawn"
     },
     {
         card: {
-            name: 'perlin actor and pawn',
-            translation: [0, -2, 20],
+            name: 'perlin',
+            translation: [0, -2, 100],
             rotation: q_euler(0, 0, 0),
             layers: ["pointer"],
-            actorCode: ["PerlinActor"],
+            actorCode: ["PerlinNoise", "PerlinActor"],
             pawnCode: ["PerlinPawn"]
         }
     }

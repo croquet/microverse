@@ -108,7 +108,6 @@ class PerlinPawn {
             this.perlinGroup.add(rGroup);
         }
         this.shape.name = "perlin";
-        if(this.actor.visible) this.shape.add(this.perlinGroup);
         this.isConstructed = true;
     }
 
