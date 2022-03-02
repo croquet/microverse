@@ -447,7 +447,7 @@ export class Loader {
             let loader = new THREE.GLTFLoader();
             return new Promise((resolve, reject) => {
                 let draco = new THREE.DRACOLoader();
-                draco.setDecoderConfig({type: 'js'});
+                draco.setDecoderConfig({type: 'wasm'});
                 draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
                 loader.setDRACOLoader(draco);
                 return loader.parse(data, null, (obj) => resolve(obj));
