@@ -218,9 +218,18 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             let color = options.placeholderColor || 0x808080;
             let offset = options.placeholderOffset || [0, -0.065, 0];
             
+            let psGeometry = new THREE.BoxGeometry(...size);
+            let psMaterial = new THREE.ShadowMaterial({color: 0x404040, opacity: 0.5, side: THREE.DoubleSide});
+
             let pGeometry = new THREE.BoxGeometry(...size);
             let pMaterial = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide});
-            this.placeholder = new THREE.Mesh(pGeometry, pMaterial);
+
+            this.placeholder = new THREE.Group();
+
+            let shadowMesh = new THREE.Mesh(psGeometry, psMaterial);
+            shadowMesh.receiveShadow = true;
+            this.placeholder.add(shadowMesh);
+            this.placeholder.add(new THREE.Mesh(pGeometry, pMaterial));
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
             this.shape.add(this.placeholder);
