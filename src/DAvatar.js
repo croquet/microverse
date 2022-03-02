@@ -224,7 +224,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.avatarIndex = actor.avatarIndex;
         this._lookPitch = this.actor.lookPitch;
         this._lookYaw = this.actor.lookYaw;
-        this.rotateTo(q_euler(0, this.lookYaw, 0));
+        this._rotation = q_euler(0, this.lookYaw, 0);
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
         this._lastMove = 0;
         if (this.isMyPlayerPawn) {
