@@ -408,11 +408,13 @@ export class ExpanderViewManager extends ViewService {
     setURL(url) {
         if (this.socket) {
             try {
+                this.socket.onmessage = null;
                 this.socket.close();
             } finally {
                 this.socket = null;
             }
         }
+        if (!url) {return;}
         this.url = url;
         this.socket = new WebSocket(url);
         this.socket.onmessage = (event) => this.load(event.data);

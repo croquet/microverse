@@ -5,14 +5,25 @@ const path = require('path');
 
 const wss = new ws.WebSocketServer({port: 9011});
 
-let directory = path.join(path.dirname(process.argv[1]), "..");
+let directory = process.argv[2];
+
+if (!directory) {
+    directory = path.join(path.dirname(process.argv[1]), "../expanders");
+}
 console.log(directory);
-process.chdir(directory);
+
+try {
+    process.chdir(directory);
+} catch(e) {
+    console.log("error occurred on setting the directory to serve");
+    console.log(e);
+    process.exit(1);
+}
 
 let files = {}; // {filename: content}
 let sentFiles = new Map();// {ws: {filename: content}}
 
-let watcher = chokidar.watch('./expanders/*.js' ,{
+let watcher = chokidar.watch('./*.js' ,{
     persistent: true,
     ignored: /^[#]/
 });
