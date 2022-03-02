@@ -18,7 +18,7 @@ class BridgePawn {
         this.spheres = [...Array(d).keys()].map(j => {
             return [...Array(d).keys()].map(i => {
                 let geometry = new WorldCore.THREE.SphereGeometry(0.1, 16, 16);
-                let material = new WorldCore.THREE.MeshStandardMaterial({color: (i / d * 200) * 0x10000 + (j / d * 200)});
+                let material = new WorldCore.THREE.MeshStandardMaterial({color: (i / d * 200) * 0x10000 + (j / d * 201)});
                 let sphere = new WorldCore.THREE.Mesh(geometry, material);
                 this.group.add(sphere);
                 return sphere;

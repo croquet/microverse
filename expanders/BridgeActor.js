@@ -101,7 +101,7 @@ class BridgeActor {
         console.log(d);
         d = Math.floor(d / 2);
         let m = this.ms[d][d];
-        m.v = WorldCore.v3_add(m.v, [0, -0.02, 0]);
+        m.v = WorldCore.v3_add(m.v, [0, 0.02, 0]);
         window.middle = m;
         console.log("sag", m);
     }

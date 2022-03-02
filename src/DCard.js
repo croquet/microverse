@@ -54,7 +54,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         } else if (options.type === "code") {
             this.subscribe(this.id, "changed", "textChanged");
             // this is a weird inter mixins dependency but not sure how to write it
-            this.subscribe(this.id, "load", "codeLoaded");
             this.subscribe(this.id, "text", "codeAccepted");
         }
     }
@@ -124,17 +123,21 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     static load(array, world, version) {
         if (version === "1") {
             let appManager = world.service("DynaverseAppManager");
+            let expanderManager = world.service("ExpanderModelManager");
             let map = new Map();
             array.forEach(({id, card}) => {
                 let Cls;
                 let options = {...card};
                 if (options.type === "code") {
+                    let expander = expanderManager.code.get(options.expander);
+                    let runs = [{text: expander ? expander.code : ""}];
+                    
                     options = {...options, ...{
                         isSticky: false,
                         color: 0xFFFFFF,
                         textScale: options.textScale || 0.002,
                         isExternal: true,
-                        runs: options.runs || [],
+                        runs: runs,
                     }};
                     Cls = TextFieldActor;
                 } else if (card.className) {
@@ -151,13 +154,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 let actor = Cls.create(options);
                 if (id) {
                     map.set(id, actor);
-                }
-
-                if (card.type === "code") {
-                    let string = actor.getCode();
-                    actor.setCode(string);
-                    // cannot be this as its name can conflict with something else.
-                    actor.beWellKnownAs(actor.expanderName);
                 }
             });
         }

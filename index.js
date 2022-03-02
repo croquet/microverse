@@ -36,6 +36,121 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
+Constants.DefaultScripts = [
+    {
+        action: "add",
+        name: "Fly",
+        content: `class Fly {
+    setup() {
+        this.set({
+            rotation: WorldCore.q_euler(0, 0, 0),
+            translation: [0, 3, 0]});
+        if (!this.flying) {
+            this.flying = true;
+            this.fly();
+        }
+        this.addEventListener("pointerDown", "toggle");
+    }
+
+    fly() {
+        if (!this.flying) {return;}
+        this.future(20).call("Fly", "fly");
+        this.rotateBy([0, 0.01, 0]);
+        this.forwardBy(0.03);
+    }
+
+    toggle() {
+        this.flying = !this.flying;
+        if (this.flying) {
+            this.fly();
+        }
+    }
+
+    rotateBy(angles) {
+        let q = WorldCore.q_euler(...angles);
+        q = WorldCore.q_multiply(this.rotation, q);
+        this.rotateTo(q);
+    }
+
+    forwardBy(dist) {
+        let v = WorldCore.v3_rotate([0, 0, dist], this.rotation)
+        this.translateTo([
+            this.translation[0] + v[0],
+            this.translation[1] + v[1],
+            this.translation[2] + v[2]]);
+    }
+}
+/*global WorldCore */
+`
+    }, {
+        action: "add",
+        name: "Drive",
+        content: `class Drive {
+    setup() {
+        this.set({
+            rotation: WorldCore.q_euler(-Math.PI/2, 0, 0),
+            translation: [0, -2.9, 10]});
+        this.speed = 0;
+        this.angle = 0;
+        if (!this.running) {
+            this.running = true;
+            this.run();
+        }
+        this.addEventListener("pointerDown", "turn");
+        this.addEventListener("keyDown", "turn");
+    }
+
+    run() {
+        if (!this.running) {return;}
+        this.future(20).call("Drive", "run");
+        this.rotateBy([0, -this.angle, 0]);
+        this.forwardBy(-this.speed);
+    }
+
+    toggle() {
+        this.running = !this.running;
+        if (this.running) {
+            this.run();
+        }
+    }
+
+    rotateBy(angles) {
+        let q = WorldCore.q_euler(...angles);
+        q = WorldCore.q_multiply(this.rotation, q);
+        this.rotateTo(q);
+    }
+
+    forwardBy(dist) {
+        let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
+        this.translateTo([
+            this.translation[0] + v[0],
+            this.translation[1] + v[1],
+            this.translation[2] + v[2]]);
+    }
+
+    turn(key) {
+        if (key.key === "ArrowRight") {
+            this.angle = Math.min(0.05, this.angle + 0.004);
+            console.log("angle", this.angle);
+        }
+        if (key.key === "ArrowLeft") {
+            this.angle = Math.max(-0.05, this.angle - 0.004);
+            console.log("angle", this.angle);
+        }
+        if (key.key === "ArrowUp") {
+            this.speed = Math.min(1, this.speed + 0.05);
+            console.log("speed", this.speed);
+        }
+        if (key.key === "ArrowDown") {
+            this.speed = Math.max(-0.2, this.speed - 0.05);
+            console.log("speed", this.speed);
+        }
+    }
+}
+/*global WorldCore */`
+    }
+];
+
 Constants.DefaultCards = [
     {
         card: {
@@ -177,54 +292,11 @@ Constants.DefaultCards = [
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
-            runs: [{text: `
-class Fly {
-    setup() {
-        this.set({
-            rotation: WorldCore.q_euler(0, 0, 0),
-            translation: [0, 3, 0]});
-        if (!this.flying) {
-            this.flying = true;
-            this.fly();
-        }
-        this.addEventListener("pointerDown", "toggle");
-    }
-
-    fly() {
-        if (!this.flying) {return;}
-        this.future(20).call("Fly", "fly");
-        this.rotateBy([0, 0.01, 0]);
-        this.forwardBy(0.03);
-    }
-
-    toggle() {
-        this.flying = !this.flying;
-        if (this.flying) {
-            this.fly();
-        }
-    }
-
-    rotateBy(angles) {
-        let q = WorldCore.q_euler(...angles);
-        q = WorldCore.q_multiply(this.rotation, q);
-        this.rotateTo(q);
-    }
-
-    forwardBy(dist) {
-        let v = WorldCore.v3_rotate([0, 0, dist], this.rotation)
-        this.translateTo([
-            this.translation[0] + v[0],
-            this.translation[1] + v[1],
-            this.translation[2] + v[2]]);
-    }
-}
-/*global WorldCore */    
-`}],
+            expander: "Fly",
             textScale: 0.001,
             width: 2,
             height: 2.5,
-        },
-        id: "Fly"
+        }
     },
     {
         card: {
@@ -241,78 +313,14 @@ class Fly {
             translation: [13, 0, 14],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
-            type: "code",
-            runs: [{text: `
-class Drive {
-    setup() {
-        this.set({
-            rotation: WorldCore.q_euler(-Math.PI/2, 0, 0),
-            translation: [0, -2.9, 10]});
-        this.speed = 0;
-        this.angle = 0;
-        if (!this.running) {
-            this.running = true;
-            this.run();
-        }
-        this.addEventListener("pointerDown", "turn");
-        this.addEventListener("keyDown", "turn");
-    }
-
-    run() {
-        if (!this.running) {return;}
-        this.future(20).call("Drive", "run");
-        this.rotateBy([0, -this.angle, 0]);
-        this.forwardBy(-this.speed);
-    }
-
-    toggle() {
-        this.running = !this.running;
-        if (this.running) {
-            this.run();
-        }
-    }
-
-    rotateBy(angles) {
-        let q = WorldCore.q_euler(...angles);
-        q = WorldCore.q_multiply(this.rotation, q);
-        this.rotateTo(q);
-    }
-
-    forwardBy(dist) {
-        let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
-        this.translateTo([
-            this.translation[0] + v[0],
-            this.translation[1] + v[1],
-            this.translation[2] + v[2]]);
-    }
-
-    turn(key) {
-        if (key.key === "ArrowRight") {
-            this.angle = Math.min(0.05, this.angle + 0.004);
-            console.log("angle", this.angle);
-        }
-        if (key.key === "ArrowLeft") {
-            this.angle = Math.max(-0.05, this.angle - 0.004);
-            console.log("angle", this.angle);
-        }
-        if (key.key === "ArrowUp") {
-            this.speed = Math.min(1, this.speed + 0.05);
-            console.log("speed", this.speed);
-        }
-        if (key.key === "ArrowDown") {
-            this.speed = Math.max(-0.2, this.speed - 0.05);
-            console.log("speed", this.speed);
-        }
-    }
-}
-/*global WorldCore */    
-`}],
+      type: "code",
+expander: "Drive",
             textScale: 0.001,
             width: 2,
             height: 3.5,
         },
         id: "Drive"
-    },
+    },    
     {
         card: {
             name:'porsche',
@@ -330,7 +338,7 @@ class Drive {
             rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
             type: "code",
-            runs: [{text: 'class BridgeActor {}'}],
+            expander: "BridgeActor",
             textScale: 0.001,
             width: 2,
             height: 2.5,
@@ -344,13 +352,13 @@ class Drive {
             rotation: q_euler(0, Math.PI, 0),
             layers: ['pointer'],
             type: "code",
-            runs: [{text: 'class BridgePawn {}'}],
+            expander: "BridgePawn",
             textScale: 0.001,
             width: 2,
             height: 2.5,
         },
         id: "BridgePawn"
-    },
+    },    
     {
         card: {
             name:'bridge actor and pawn',
@@ -360,7 +368,7 @@ class Drive {
             pawnCode: ["BridgePawn"]
         }
     },
-    /*
+/*
     {
         card: {
             translation: [2, 2, 14],
@@ -380,7 +388,7 @@ class Drive {
             translation: [-2, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
-            runs: [{text: 'class PerlinActor {}'}],
+            expander: "PerliinActor",
             textScale: 0.001,
             width: 2,
             height: 2.5,
@@ -393,7 +401,7 @@ class Drive {
             translation: [-0, 2, 200],
             rotation: q_euler(0, Math.PI, 0),
             type: "code",
-            runs: [{text: 'class PerlinPawn {}'}],
+            expander: "PerliinPawn",
             textScale: 0.001,
             width: 2,
             height: 2.5,
@@ -553,6 +561,7 @@ class MyModelRoot extends ModelRoot {
             return;
         }
 
+        this.loadScripts(Constants.DefaultScripts, "1");
         this.load(Constants.DefaultCards, "1");
         this.load(constructBitcoinTracker(), "1");
     }
@@ -578,7 +587,12 @@ class MyModelRoot extends ModelRoot {
 
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
-            this.load(json, version);
+            if (json.expanders) {
+                this.loadScripts(json.expanders, version);
+            }
+            if (json.cards) {
+                this.load(json.cards, version);
+            }
         } catch (error) {
             console.error("error in loading persistent data", error);
             this.loadingPersistentDataErrored = true;
@@ -599,7 +613,13 @@ class MyModelRoot extends ModelRoot {
         };
         this.persistSession(func);
     }
-    
+
+    loadScripts(array, version) {
+        if (version === "1") {
+            let expanderManager = this.service("ExpanderModelManager");
+            expanderManager.loadAll(array);
+        }
+    }
 
     load(array, version) {
         if (version === "1") {
