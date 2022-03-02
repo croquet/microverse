@@ -483,7 +483,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
                 let t = this.translation;
                 let p = t[1]-delta;
-                console.log(t,delta, p)
                 this.isFalling  = true;
                 this.setFloor(p);
                 return true;
