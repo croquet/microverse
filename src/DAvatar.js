@@ -17,13 +17,8 @@ import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 export let myAvatarId; 
 export let myAvatar;
 let avatarModelPromises = [];
-export let isMobile;
 
-if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
-    isMobile = true;
-  }else{
-    isMobile = false;
-  }
+export let isMobile = !!("ontouchstart" in window);
 
 export let isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
@@ -284,6 +279,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             setupButton(document.getElementById("homeBttn"), this.goHome);
             setupButton(document.getElementById("usersComeHereBttn"), this.comeToMe);
+            document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
             setUpDnButton(document.getElementById("editModeBttn"),
                           (evt) => this.setEditMode(evt),
                           (evt) => this.clearEditMode(evt));
