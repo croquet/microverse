@@ -334,9 +334,9 @@ export class ExpanderModelManager extends ModelService {
 
     save() {
         let result = [];
-        return this.code.forEach(([key, expander]) => {
+        for (let [key, expander] of this.code) {
             result.push({action: "add", name: key, content: expander.code});
-        });
+        };
         return result;
     }
             
@@ -392,7 +392,6 @@ export class ExpanderViewManager extends ViewService {
             this.justConstructed = false;
             for (let [key, array] of this.model.viewUses) {
                 let code = this.model.code.get(key);
-                debugger;
                 if (!code) {continue;}
                 code.ensureExpander();
                 if (!code.$expander.setup) {continue;}

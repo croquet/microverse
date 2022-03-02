@@ -30,7 +30,7 @@ export class WorldSaver {
         let sortedMap = this.topologicalSort(cards);
         let resultArray = this.collectData(sortedMap);
 
-        let expanders = model.service("ExpanderModelService").save();
+        let expanders = model.service("ExpanderModelManager").save();
 
         return {expanders, cards: resultArray};
     }
