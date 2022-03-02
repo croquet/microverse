@@ -386,7 +386,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDoubleDown(e) {
         this.focusTimeout = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown", true));
+        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown", true), true);
         if (rc.pawn) {
             this.invokeListeners("pointerDoubleDown", rc.pawn, rc);
         }
