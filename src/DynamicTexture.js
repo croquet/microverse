@@ -5,11 +5,12 @@
 // DynamicTexture is used to define and interact with an offscreen canvas that updates a texture object. In particular,
 // it is used as the text editing object.
 // Despite its name, it isn't a TObject.
-import { THREE, ViewRoot } from '@croquet/worldcore';
+import { THREE } from '@croquet/worldcore';
 
-export class DynamicTexture extends ViewRoot{
+export class DynamicTexture{
   //'initialize',{
     // width and height are in pixels, to be used to create the canvas
+    // width, height, options.fillStyle, options.clearStyle
     constructor(width, height, fillStyle, clearStyle){
         if (width>2048 || height>2048) console.warn("large texture: "+width+"x"+height); // @@ DEBUG
         var nearestPowerOfTwo = value=>2**(Math.round( Math.log( value ) / Math.LN2 ) );
@@ -277,8 +278,24 @@ export class DynamicTexture extends ViewRoot{
         this.texture.needsUpdate = true;
     }
 
+    // path is a Path2D object (SVG path)
+    // let path = new Path2D('M 100,100 h 50 v 50 h 50');
+    // dynamic.drawPath(path);
+    drawPath( path ){
+        this.context.stroke(path);
+        this.texture.needsUpdate = true;
+    }
+
+    // image is an HTMLImageElement 
+    // let img = new Image();
+    // img.src = "./assets/svg/CroquetSymbol_CMYK_NoShadow.svg";
+    // dynamic.drawImage(10,10, img);
+    drawImage(  image, x, y, width, height ){
+        this.context.drawImage( image, x, y, width, height );
+        this.texture.needsUpdate = true;
+    }
+
     changed(){this.texture.needsUpdate = true; this.mipmapTexture.dispose(); this.mipmapTexture = null;}
 
     setScale(scale){this.scale = scale; this.context.scale(scale, scale);}
 }
-

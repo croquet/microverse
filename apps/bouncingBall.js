@@ -6,7 +6,7 @@ import { CardActor, CardPawn} from "../src/DCard.js";
 
 //------------------------------------------------------
 // BouncingBall
-// A very simple demonstration of how to create a Surface application.
+// A very simple demonstration of how to create a canvas-card application.
 
 const SPEED = 10;   
 export class BouncingBall extends CardActor {
@@ -80,6 +80,90 @@ export class BouncingBallPawn extends CardPawn {
         ctx.arc(pos[0], pos[1], this.actor.radius, 0, Math.PI*2, true);
         ctx.fill();
         this.texture.needsUpdate=true;
+    }
+
+    onPointerDown(p3d){
+        this.say("set", p3d.uv);
+    }
+
+    onPointerMove(p3d) {
+        this.say("set", p3d.uv);
+    }
+}
+
+
+//------------------------------------------------------
+// BouncingLogo
+// A very simple demonstration of how to create a similar application
+// using the DynamicTexture surface.
+
+export class BouncingLogo extends CardActor {
+    init(options) {
+        super.init(options);
+        this.position = [512,512];
+        this.ballVelocity = this.randomVelocity();
+        this.radius = 50;
+        this.listen("set", this.setPosition);
+        this.future(100).bounce();
+    }
+    get pawn(){return BouncingLogoPawn;}
+
+    randomVelocity() {
+        const r = this.random() * 2 * Math.PI;
+        return [Math.cos(r) * SPEED, Math.sin(r) * SPEED];
+    }
+
+    bounce(){
+        let px = this.position[0], py=this.position[1];
+        let vel = this.ballVelocity;
+        px+=vel[0];
+        py+=vel[1];
+        let dx = 0, dy = 0;
+        if(px<this.radius)dx = 1;
+        else if (px>this.width-this.radius) dx = -1;
+        if(py<this.radius)dy=1; 
+        else if(py>this.height-this.radius)dy = -1;
+        if(dx||dy){
+            this.ballVelocity=this.randomVelocity();
+            if(dx)this.ballVelocity[0]=Math.abs(this.ballVelocity[0])*dx;
+            if(dy)this.ballVelocity[1]=Math.abs(this.ballVelocity[1])*dy;
+        }
+        this.updatePosition([px,py]);
+        this.future(50).bounce();
+    }
+
+    updatePosition(p){
+        this.position[0]=p[0];
+        this.position[1]=p[1];
+        this.say("updatePosition", this.position);
+    }
+
+    setPosition(uv){
+        let p = this.uv2xy(uv);
+        this.updatePosition(p);
+    }
+}
+BouncingLogo.register('BouncingLogo');
+
+export class BouncingLogoPawn extends CardPawn {
+    constructor(options) {
+        super(options);
+        this.updatePosition(this.actor.position);
+        this.listen("updatePosition", this.updatePosition);
+        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerMove", "onPointerMove");    
+        console.log("AM I HERE???");
+        let image = new Image();
+        image.src = "./assets/SVG/CroquetSymbol_CMYK_NoShadow.svg";
+        image.onload = () => { 
+            this.image = image;
+        }
+    }
+
+    updatePosition(pos){
+        this.dynamic.clear();
+        if(this.image)
+           this.dynamic.drawImage(this.image, pos[0]-64, pos[1]-64, 128, 128);
     }
 
     onPointerDown(p3d){

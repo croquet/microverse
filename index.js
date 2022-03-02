@@ -18,7 +18,7 @@ import { DLight } from './src/DLight.js';
 import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
-import { BouncingBall } from './apps/bouncingBall.js';
+import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
 import { PerlinActor } from './apps/perlin.js';
 import { TextFieldActor } from './src/text/text.js';
 import { BitcoinTracker, BitLogoCard, constructBitcoinTracker } from './apps/bitcoinTracker.js';
@@ -277,6 +277,26 @@ Constants.DefaultCards = [
             type: "svg",
             dataLocation: './assets/SVG/square.svg',
             textureType: "canvas",
+            width: 1024,
+            height: 1024,
+            frameColor: 0x666666,
+            color: 0xffffff,
+            depth: 0.05,
+            fullBright: true,
+        }
+    },
+    {
+        card: {
+            name:'bouncinglogo',
+            className: "BouncingLogo",
+            translation: [-4, -0.5, -42],
+            rotation: q_euler(0, Math.PI / 2, 0),
+            scale: [4, 4, 4],
+            layers: ['pointer'],
+            multiuser: true,
+            type: "svg",
+            dataLocation: './assets/SVG/square.svg',
+            textureType: "dynamic",
             width: 1024,
             height: 1024,
             frameColor: 0x666666,
@@ -552,6 +572,7 @@ class MyModelRoot extends ModelRoot {
         appManager.add(BitLogoCard);
         appManager.add(MultiBlaster);
         appManager.add(BouncingBall);
+        appManager.add(BouncingLogo);
         appManager.add(PerlinActor);
         appManager.add(DLight);
         appManager.add(TextFieldActor);
