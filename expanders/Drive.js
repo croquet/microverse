@@ -5,10 +5,6 @@ class Drive {
             translation: [0, -2.9, 10]});
         this.speed = 0;
         this.angle = 0;
-        if (!this.running) {
-            this.running = true;
-            this.run();
-        }
         this.addEventListener("pointerDown", "toggle");
         this.addEventListener("keyDown", "turn");
     }

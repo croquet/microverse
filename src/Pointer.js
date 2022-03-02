@@ -54,7 +54,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
             array = [];
             this.eventListeners.set(eventName, array);
         }
-        if (array.indexOf(listener) >= 0) {
+        if (array.findIndex((obj) => obj.listener === listener) >= 0) {
             console.log("multiple registration of the same function");
             return;
         }

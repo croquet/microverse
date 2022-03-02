@@ -92,11 +92,7 @@ Constants.DefaultScripts = [
             translation: [0, -2.9, 10]});
         this.speed = 0;
         this.angle = 0;
-        if (!this.running) {
-            this.running = true;
-            this.run();
-        }
-        this.addEventListener("pointerDown", "turn");
+        this.addEventListener("pointerDown", "toggle");
         this.addEventListener("keyDown", "turn");
     }
 
@@ -131,19 +127,15 @@ Constants.DefaultScripts = [
     turn(key) {
         if (key.key === "ArrowRight") {
             this.angle = Math.min(0.05, this.angle + 0.004);
-            console.log("angle", this.angle);
         }
         if (key.key === "ArrowLeft") {
             this.angle = Math.max(-0.05, this.angle - 0.004);
-            console.log("angle", this.angle);
         }
         if (key.key === "ArrowUp") {
             this.speed = Math.min(1, this.speed + 0.05);
-            console.log("speed", this.speed);
         }
         if (key.key === "ArrowDown") {
             this.speed = Math.max(-0.2, this.speed - 0.05);
-            console.log("speed", this.speed);
         }
     }
 }
