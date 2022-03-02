@@ -57,7 +57,6 @@ class DBarGraphPawn extends CardPawn{
         this.barGroup.add(this.base);
         this.bar = new THREE.Mesh(new THREE.BoxGeometry(size*0.8, 1, size*0.8, 2, 2, 2 ),
         new THREE.MeshStandardMaterial({color: this.actor.color}));
-        console.log("Actor color", this.actor.color)
         this.bars = [];
         for(let i=0; i<len; i++){
             let bar = this.bar.clone();
@@ -66,8 +65,6 @@ class DBarGraphPawn extends CardPawn{
             this.barGroup.add(bar);
             this.bars.push(bar);
         }
-        this.barGroup.name = "bar graph";
-      //  this.setRenderObject( this.barGroup );
     }
 
     setColor(color){        

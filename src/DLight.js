@@ -63,7 +63,6 @@ class DLightPawn extends CardPawn {
         const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
         group.add(hemiLight);
         group.name = "Light Card";
-       // this.setRenderObject(group);
     }
 
     destroy() {

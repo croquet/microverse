@@ -17,6 +17,13 @@ import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 export let myAvatarId; 
 export let myAvatar;
 let avatarModelPromises = [];
+export let isMobile;
+
+if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+    isMobile = true;
+  }else{
+    isMobile = false;
+  }
 
 export let isWalking = false; // switchControl() will make it true
 let isTweening = false; // transition between camera modes
@@ -471,16 +478,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
             if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
-                if(false && delta>0 && !move){ // we are falling - check in front of us to see if there is a step
-                    const moveForward = v3_add(this.translation, v3_transform([0,0,0.2], m4_rotationQ(this.rotation)));
-                    return this.findFloor(moveForward);
-                }else { // move up or down
-                    let t = this.translation;
-                    let p = t[1]-delta;
-                    this.isFalling  = true;
-                    this.setFloor(p);
-                    return true;
-                }
+                let t = this.translation;
+                let p = t[1]-delta;
+                console.log(t,delta, p)
+                this.isFalling  = true;
+                this.setFloor(p);
+                return true;
             }else {this.isFalling = false; return true; }// we are on level ground
         }return false; // try to find the ground...
     }
@@ -529,7 +532,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             v = Math.min(Math.max(v, -0.01),0.01);
             this.setVelocity([0, 0, v]);
             this.speed = v;
-            const yaw = dx * -0.000005;
+            const yaw = dx * (isMobile?-0.00001:-0.000005);
             const qyaw = q_euler(0, yaw ,0);
             this.setSpin(qyaw);
 

@@ -73,6 +73,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     get layers() { return this._layers || ['pointer']; }
     get isCard() {return true;}
     get name() {return this._name || 'Card'}
+    get color() {return this._color || 0xffffff}
 
     uv2xy(uv) {
         return [this.width * uv[0],this.height * (1 - uv[1])];
