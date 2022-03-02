@@ -449,6 +449,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
+        // this gets overwritten in super.update
+        if(this.isFalling)this._translation[1] = this.floor;
+
         if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
         this.lastUpdateTime = time;
 
@@ -763,6 +766,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         // we don't want to touch the x/z values because they are
         // computed from avatar velocity. _translation x/z values are old.
         this._translation[1] = p;
+        this.floor = p;
         this.onLocalChanged();
         this.say("setFloor", p);
     }
