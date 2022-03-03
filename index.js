@@ -1,10 +1,6 @@
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
-//
-// Microverse
-// Project Plan:
-// https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit?usp=sharing
 
 import {
     Constants, App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
@@ -546,7 +542,7 @@ class MyModelRoot extends ModelRoot {
     static modelServices() {
         return [
             MyPlayerManager,
-            {service: DynaverseAppManager, options: {registry: apps}},
+            DynaverseAppManager,
             ExpanderModelManager
         ];
     }
@@ -557,17 +553,6 @@ class MyModelRoot extends ModelRoot {
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
 
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
-
-        let appManager = this.service("DynaverseAppManager");
-        appManager.add(BitcoinTracker);
-        appManager.add(DBarGraphCard);
-        appManager.add(BitLogoCard);
-        appManager.add(MultiBlaster);
-        appManager.add(BouncingBall);
-        appManager.add(BouncingLogo);
-        appManager.add(PerlinActor);
-        appManager.add(DLight);
-        appManager.add(TextFieldActor);
 
         if (persistentData) {
             this.loadPersistentData(persistentData);

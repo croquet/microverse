@@ -45,9 +45,19 @@ export const AM_PointerTarget = superclass => class extends superclass {
     }
 
     addEventListener(eventName, listener) {
-        let expander = this._expander;
+        let expander;
         if (typeof listener === "function") {
             listener = listener.name;
+        }
+        
+        if (listener.indexOf(".") >= 1) {
+            let split = listener.split(".");
+            expander = split[0];
+            listener = split[1];
+        }
+
+        if (!expander) {
+            expander = this._expander;
         }
         let array = this.eventListeners.get(eventName);
         if (!array) {
@@ -67,12 +77,19 @@ export const AM_PointerTarget = superclass => class extends superclass {
         if (typeof listener === "function") {
             listener = listener.name;
         }
+
+        if (listener.indexOf(".") >= 1) {
+            let split = listener.split(".");
+            expander = split[0];
+            listener = split[1];
+        }
+        
         let array = this.eventListeners.get(eventName);
         if (!array) {
             console.log("try to remove non-existent listener");
             return;
         }
-        let ind = array.indexOf(listener);
+        let ind = array.findIndex((obj) => obj.expander === expander && obj.listener === listener);
         if (ind < 0) {
             console.log("try to remove non-existent listener");
             return;

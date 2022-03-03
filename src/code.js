@@ -2,8 +2,11 @@
 // https://croquet.io
 // info@croquet.io
 
-import * as WorldCore from "@croquet/worldcore";
-const {ViewService, ModelService, GetPawn, Model} = WorldCore;
+import * as DefaultWorldCore from "@croquet/worldcore";
+import {CardActor} from "./DCard.js";
+const {ViewService, ModelService, GetPawn, Model} = DefaultWorldCore;
+
+let WorldCore = {...DefaultWorldCore};
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, expander) {
@@ -112,6 +115,26 @@ export const AM_Code = superclass => class extends superclass {
         super.listen(eventName, fullMethodName);
     }
 
+    scriptSubscribe(scope, eventName, listener) {
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
+
+        let expander = this._expander;
+        if (!expander) {
+            expander = expander.constructor.name;
+        }
+
+        let fullMethodName;
+        if (listener.indexOf(".") >= 1 || !expander) {
+            fullMethodName = listener;
+        } else {
+            fullMethodName = `${expander}.${listener}`;
+        }
+        
+        super.subscribe(scope, eventName, fullMethodName);
+    }
+
     // this is for the code editor. Probably better be split into a separate mixin
     codeAccepted(data) {
         let match = /^class[\s]+([\S]+)/.exec(data.text.trim());
@@ -212,10 +235,11 @@ class Expander extends Model {
 
         let code = `return (${source})`;
         let cls;
+        WorldCore.CardActor = CardActor;
         try {
             cls = new Function("WorldCore", code)(WorldCore);
         } catch(error) {
-            console.log("error occured while compiling:", error);
+            console.log("error occured while compiling:", source, error);
             try {
                 eval(source);
             } finally {
@@ -302,6 +326,7 @@ export class ExpanderModelManager extends ModelService {
                 if (!expander) {
                     expander = Expander.create();
                     this.code.set(name, expander);
+                    console.log(this.code);
                 }
                 expander.setCode(content);
             }

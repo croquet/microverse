@@ -5,7 +5,25 @@ const path = require('path');
 
 const wss = new ws.WebSocketServer({port: 9011});
 
-let directory = process.argv[2];
+let args = [...process.argv];
+
+let debug = false;
+
+let numFlags = 0;
+
+if (args[2]) {
+    if (args[2] === "--debug") {
+        debug = true;
+        numFlags++;
+    } else {
+        if (args[2].startsWith("-")) {
+            console.log("unknown option: " + args[2]);
+            process.exit(1);
+        }
+    }
+}
+
+let directory = process.argv[2 + numFlags];
 
 if (!directory) {
     directory = path.join(path.dirname(process.argv[1]), "../expanders");
@@ -88,7 +106,7 @@ function sendFiles(socket) {
     let sentKeys = Object.keys(sent);
     
     newKeys.forEach((k) => {
-        if (files[k] && files[k] !== sent[k]) {
+        if (debug || (files[k] && files[k] !== sent[k])) {
             sent[k] = files[k];
             toSend.push({action: "add", name: k, content: files[k]});
         }
@@ -105,7 +123,6 @@ function sendFiles(socket) {
 }
 
 function sendAllFiles() {
-    debugger;
     for (let k of sentFiles.keys()) {
         sendFiles(k);
     }

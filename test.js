@@ -1,35 +1,30 @@
-// Microverse
-// Project Plan:
-// https://docs.google.com/document/d/1Z1FsTAEQI699HhTXHURN5aOMEPLFQ1-BDXgFBkcyUGw/edit?usp=sharing
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
 
 import {
     Constants, App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore, Actor, Pawn, mix,
     InputManager, PlayerManager, ThreeRenderManager,
-    AM_Spatial, PM_Spatial, PM_ThreeVisible, toRad, q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize
-} from "@croquet/worldcore";
+    q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
-//import { LightActor } from './src/DLight.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
-import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { CardActor, VideoManager, DynaverseAppManager, SVGtoBLOB } from './src/DCard.js';
 import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
 import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
-import { BouncingBall } from './apps/bouncingBall.js';
-import { createChess } from './apps/chess.js';
+import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
 import { PerlinActor } from './apps/perlin.js';
 import { TextFieldActor } from './src/text/text.js';
 import { BitcoinTracker, BitLogoCard, constructBitcoinTracker } from './apps/bitcoinTracker.js';
 import { DBarGraphCard } from './src/DBar.js';
-import { constructFlamingo } from './apps/flamingo.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
-//import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -37,140 +32,11 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.DefaultCards = [
+Constants.DefaultScripts = [
     {
-        card: {
-            translation:[25, -90.5, -60],
-            scale:[200, 200, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['walk'],
-            type: "model",
-            dataLocation: "./assets/3D/Refinery.glb.zip",
-            singleSided: true,
-            shadow: true,
-            placeholder: true,
-            placeholderSize: [40, 1, 40],
-            placeholderColor: 0x808080,
-            placeholderOffset: [0, -0.065, 0],
-        }
-    },
-    {
-        card: {
-            type: "lighting",
-            name: "Light",
-            className: "DLight",
-        }
-    },
-    {
-        card: {
-            className: "PerlinActor",
-            translation:[ 10, -2.75, -14],
-            rotation:[ 0, -0.7071068, 0, 0.7071068 ],
-        }
-    },
-    {
-        card: {
-            className: "TextFieldActor",
-            translation: [-4, -0.5, -6],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            multiuser: true,
-            depth: 0.05,
-            type: "text",
-            dataLocation: './assets/SVG/credit-card.svg',
-            runs: [{text: "hello"}],
-            isSticky: true,
-            color: 0xf4e056,
-            width: 1,
-            height: 1,
-            textScale: 0.0025
-        }
-    },
-    {
-        card: {
-            translation: [-4, -0.5, -12],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            type: "model",
-            dataLocation: "./assets/avatars/generic/1.zip",
-            shadow: true,
-            singleSided: true,
-        }
-    },
-    {
-        card: {
-            translation: [-4, -0.5, -18],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            type: "svg",
-            dataLocation: './assets/SVG/credit-card.svg',
-            textureType: "video",
-            textureLocation: "./assets/videos/fromPCtoHMD.mp4",
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        }
-    },
-    {
-        card: {
-            translation: [-4, -0.5, -24],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            type: "svg",
-            dataLocation: './assets/SVG/credit-card.svg',
-            textureType: "image",
-            textureLocation: './assets/images/Colony.png',
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        }
-    },
-    {
-        card: {
-            className: "MultiBlaster",
-            translation: [-4, -0.5, -30],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            layers: ['pointer'],
-            multiuser: true,
-            type: "svg",
-            dataLocation: './assets/SVG/square.svg',
-            textureType: "canvas",
-            width: 1024,
-            height: 1024,
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        }
-    },
-    {
-        card: {
-            className: "BouncingBall",
-            translation: [-4, -0.5, -36],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            layers: ['pointer'],
-            multiuser: true,
-            type: "svg",
-            dataLocation: './assets/SVG/square.svg',
-            textureType: "canvas",
-            width: 1024,
-            height: 1024,
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true,
-        }
-    },
-    {
-        card: {
-            translation: [13, 0, 8],
-            rotation: q_euler(0, -Math.PI / 2, 0),
-            layers: ['pointer'],
-            type: "code",
-            runs: [{text: `
-class Fly {
+        action: "add",
+        name: "Fly",
+        content: `class Fly {
     setup() {
         this.set({
             rotation: WorldCore.q_euler(0, 0, 0),
@@ -210,41 +76,19 @@ class Fly {
             this.translation[2] + v[2]]);
     }
 }
-/*global WorldCore */    
-`}],
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-        id: "Fly"
-    },
-    {
-        card: {
-            rotation: q_euler(0, 0, 0),
-            type: "model",
-            dataLocation: './assets/3D/Flamingo.glb.zip',
-            actorCode: ["Fly"]
-        }
-    },
-    {
-        card: {
-            translation: [13, 0, 14],
-            rotation: q_euler(0, -Math.PI / 2, 0),
-            layers: ['pointer'],
-            type: "code",
-            runs: [{text: `
-class Drive {
+/*global WorldCore */
+`
+    }, {
+        action: "add",
+        name: "Drive",
+        content: `class Drive {
     setup() {
         this.set({
             rotation: WorldCore.q_euler(-Math.PI/2, 0, 0),
             translation: [0, -2.9, 10]});
         this.speed = 0;
         this.angle = 0;
-        if (!this.running) {
-            this.running = true;
-            this.run();
-        }
-        this.addEventListener("pointerDown", "turn");
+        this.addEventListener("pointerDown", "toggle");
         this.addEventListener("keyDown", "turn");
     }
 
@@ -279,118 +123,55 @@ class Drive {
     turn(key) {
         if (key.key === "ArrowRight") {
             this.angle = Math.min(0.05, this.angle + 0.004);
-            console.log("angle", this.angle);
         }
         if (key.key === "ArrowLeft") {
             this.angle = Math.max(-0.05, this.angle - 0.004);
-            console.log("angle", this.angle);
         }
         if (key.key === "ArrowUp") {
             this.speed = Math.min(1, this.speed + 0.05);
-            console.log("speed", this.speed);
         }
         if (key.key === "ArrowDown") {
             this.speed = Math.max(-0.2, this.speed - 0.05);
-            console.log("speed", this.speed);
         }
     }
 }
-/*global WorldCore */    
-`}],
-            textScale: 0.001,
-            width: 2,
-            height: 3.5,
-        },
-        id: "Drive"
-    },
+/*global WorldCore */`
+    }
+];
+
+Constants.DefaultCards = [
     {
         card: {
-            rotation: q_euler(0, 0, 0),
-            layers: ['pointer'],
+            name:'world model',
+            translation:[25, -90.5, -60],
+            scale:[200, 200, 200],
+            rotation: q_euler(0, Math.PI, 0),
+            layers: ['walk'],
             type: "model",
-            dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
-            actorCode: ["Drive"]
+            dataLocation: "./assets/3D/Refinery.glb.zip",
+            singleSided: true,
+            shadow: true,
+            placeholder: true,
+            placeholderSize: [40, 1, 40],
+            placeholderColor: 0x808080,
+            placeholderOffset: [0, -0.065, 0],
         }
     },
     {
         card: {
-            translation: [-2, 2, 100],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['pointer'],
-            type: "code",
-            runs: [{text: 'class BridgeActor {}'}],
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-        id: "BridgeActor"
-    },
-    {
-        card: {
-            translation: [2, 2, 100],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['pointer'],
-            type: "code",
-            runs: [{text: 'class BridgePawn {}'}],
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-        id: "BridgePawn"
-    },
-    {
-        card: {
-            translation: [0, 0, 10],
-            rotation: q_euler(0, 0, 0),
-            actorCode: ["BridgeActor"],
-            pawnCode: ["BridgePawn"]
+            name: 'lighting #1',
+            type: "lighting",
+            className: "DLight",
         }
     },
-    /*
     {
         card: {
-            translation: [2, 2, 14],
-            rotation: q_euler(0, Math.PI, 0),
-            type: "code",
-            runs: [{text: 'class PerlinNoise {}'}],
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-        id: "PerlinNoise"
-    },
-    */
-    {
-        card: {
-            translation: [-2, 2, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            type: "code",
-            runs: [{text: 'class PerlinActor {}'}],
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-        id: "PerlinActor"
-    },
-    {
-        card: {
-            translation: [-0, 2, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            type: "code",
-            runs: [{text: 'class PerlinPawn {}'}],
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-        id: "PerlinPawn"
-    },
-    {
-        card: {
-            translation: [0, -2, 20],
+            name: 'menu tester',
+            translation: [0, -0, -5],
             rotation: q_euler(0, 0, 0),
             layers: ["pointer"],
-            actorCode: ["PerlinActor"],
-            pawnCode: ["PerlinPawn"]
+            actorCode: ["MenuTesterActor"],
+            pawnCode: []
         }
     }
 ];
@@ -452,6 +233,7 @@ class MyAvatar extends AvatarActor {
         }
 
         TextFieldActor.create({
+            name:'sticky note',
             className: "TextFieldActor",
             translation: tackPoint,
             rotation: rotPoint,
@@ -508,7 +290,7 @@ class MyModelRoot extends ModelRoot {
     static modelServices() {
         return [
             MyPlayerManager,
-            {service: DynaverseAppManager, options: {registry: apps}},
+            DynaverseAppManager,
             ExpanderModelManager
         ];
     }
@@ -520,21 +302,12 @@ class MyModelRoot extends ModelRoot {
 
         this.subscribe(this.id, "fileUploaded", "fileUploaded");
 
-        let appManager = this.service("DynaverseAppManager");
-        appManager.add(BitcoinTracker);
-        appManager.add(DBarGraphCard);
-        appManager.add(BitLogoCard);
-        appManager.add(MultiBlaster);
-        appManager.add(BouncingBall);
-        appManager.add(PerlinActor);
-        appManager.add(DLight);
-        appManager.add(TextFieldActor);
-
         if (persistentData) {
             this.loadPersistentData(persistentData);
             return;
         }
 
+        this.loadScripts(Constants.DefaultScripts, "1");
         this.load(Constants.DefaultCards, "1");
         this.load(constructBitcoinTracker(), "1");
     }
@@ -560,7 +333,12 @@ class MyModelRoot extends ModelRoot {
 
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
-            this.load(json, version);
+            if (json.expanders) {
+                this.loadScripts(json.expanders, version);
+            }
+            if (json.cards) {
+                this.load(json.cards, version);
+            }
         } catch (error) {
             console.error("error in loading persistent data", error);
             this.loadingPersistentDataErrored = true;
@@ -581,7 +359,13 @@ class MyModelRoot extends ModelRoot {
         };
         this.persistSession(func);
     }
-    
+
+    loadScripts(array, version) {
+        if (version === "1") {
+            let expanderManager = this.service("ExpanderModelManager");
+            expanderManager.loadAll(array);
+        }
+    }
 
     load(array, version) {
         if (version === "1") {
@@ -619,6 +403,7 @@ class MyModelRoot extends ModelRoot {
         let p = v3_add(v3_scale(n, 6),t);
 
         CardActor.create({
+            name: fileName,
             translation: p,
             rotation: r,
             type: "model",
@@ -656,6 +441,7 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
+        console.log(renderer)
         console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
 
         this.assetManager = this.service("AssetManager");

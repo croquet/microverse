@@ -122,7 +122,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
             let appManager = world.service("DynaverseAppManager");
             let expanderManager = world.service("ExpanderModelManager");
             let map = new Map();
-            array.forEach(({id, card}) => {
+            return array.map(({id, card}) => {
                 let Cls;
                 let options = {...card};
                 if (options.type === "code") {
@@ -152,8 +152,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 if (id) {
                     map.set(id, actor);
                 }
+                return actor;
             });
         }
+        return [];
     }
 }
 CardActor.register('CardActor');
@@ -686,20 +688,27 @@ function removeWire(obj3d){
 export class DynaverseAppManager extends ModelService {
     init(options) {
         super.init("DynaverseAppManager");
-        this.$apps = options.registry; // new Map() {[name]: cls}
+        // this.$apps = options.registry; // new Map() {[name]: cls}
     }
 
     add(cls) {
-        this.set(cls.name, cls);
+        // this.set(cls.name, cls);
     }
     set(name, cls) {
-        this.$apps.set(name, cls);
+        // this.$apps.set(name, cls);
     }
     get(name) {
-        return this.$apps.get(name);
+        // return this.$apps.get(name);
+        let classes = this.constructor.allClasses();
+        for (let i = 0; i < classes.length; i++) {
+            if (classes[i].name === name) {
+                return classes[i];
+            }
+        }
+        return null;
     }
     delete(name) {
-        return this.$apps.delete(name);
+        // return this.$apps.delete(name);
     }
 }
 

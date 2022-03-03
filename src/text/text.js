@@ -115,7 +115,10 @@ export class TextFieldActor extends CardActor {
         let textHeight = options.height / options.textScale;
         this.setExtent({width: textWidth, height: textHeight});
 
-        this.setupDismissButton();
+        if (!options.readOnly) {
+            // that means that a change in readOnly should trigger this
+            this.setupDismissButton();
+        }
     }
 
     get pawn() {return TextFieldPawn;}
@@ -576,6 +579,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     onPointerDown(evt) {
+        if (this.actor._cardData.readOnly) {return;}
         let fm = this.service("KeyFocusManager");
         fm.setKeyboardInput(this);
         
@@ -585,6 +589,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     onPointerMove(evt) {
+        if (this.actor._cardData.readOnly) {return;}
         let cooked = this.cookEvent(evt);
         if (!cooked) {return;}
         this.warota.mouseMove(Math.max(cooked.x, 0), cooked.y, cooked.y, this.user);
@@ -592,6 +597,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     onPointerUp(evt) {
+        if (this.actor._cardData.readOnly) {return;}
         let cooked = this.cookEvent(evt);
         if (!cooked) {return;}
         this.warota.mouseUp(cooked.x, cooked.y, cooked.y, this.user);
@@ -657,6 +663,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     input(evt) {
+        if (this.actor._cardData.readOnly) {return;}
         let cEvt = this.newCanonicalizeEvent(evt);
         if (!cEvt) {return false;}
         let user = this.user;
