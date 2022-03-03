@@ -430,11 +430,9 @@ export class TextFieldPawn extends CardPawn {
         let font = this.actor.doc.defaultFont;
         let fontSize = this.actor.doc.defaultSize;
         let extent = this.actor.extent;
-        let options = {width: extent.width, height: extent.height, font, fontSize};
-        this.singleLine = false;
-        if (this.singleLine) {
-            options.singleLine = true;
-        }
+        let autoResize = this.actor._cardData.autoResize;
+        let singleLine = this.actor._cardData.singleLine;
+        let options = {width: extent.width, height: extent.height, font, fontSize, autoResize, singleLine};
 
         if (this.actor._isSticky) {
             options.margins = {left: 8, top: 8, right: 8, bottom: 8};
@@ -818,9 +816,10 @@ export class TextFieldPawn extends CardPawn {
 
     setExtent() {
         let extent = this.actor.extent;
+        let autoResize = this.actor._cardData.autoResize;
         if (!this.textMesh) {return;}
         let isSticky = this.actor._cardData.isSticky;
-        let newWidth = extent.width * this.textScale();
+        let newWidth = (autoResize ? this.warota.newWidth : extent.width) * this.textScale();
         let newHeight = (isSticky ? extent.height : this.warota.docHeight) * this.textScale();
 
         if (newWidth !== this.plane.geometry.parameters.width ||
