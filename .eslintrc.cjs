@@ -15,6 +15,7 @@ module.exports = {
     'brace-style': ['error', '1tbs', {'allowSingleLine': true}],
     'max-len': 'off',
     'no-var': ['warn'],
+    'no-unused-vars': ['warn', {"argsIgnorePattern": "^_"}],
 
     'indent': ['warn', 4, {
       SwitchCase: 1,

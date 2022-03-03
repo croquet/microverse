@@ -6,7 +6,7 @@
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, 
-    v3_dot, v3_cross, v3_sub, v3_sqrMag, v3_normalize, v3_magnitude,
+    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude,
     q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { D } from './DConstants.js';
@@ -353,10 +353,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     isDataId(name) {
         return !(name.startsWith("http://") ||
-          name.startsWith("https://") ||
-          name.startsWith(".") ||
-          name.startsWith("/") ||
-          name.startsWith("blob:"));
+                 name.startsWith("https://") ||
+                 name.startsWith(".") ||
+                 name.startsWith("/"));
     }
 
     getBuffer(name) {
@@ -380,15 +379,15 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         return this.actor.height;
     }
 
-    onFocus(pointerId) {
+    onFocus(_pointerId) {
         console.log("focused")
     }
 
-    onFocusFailure(pointerId) {
+    onFocusFailure(_pointerId) {
         console.log("already focused by another avatar")
     }
 
-    onBlur(pointerId) {
+    onBlur(_pointerId) {
         console.log("blurred")
     }
 
@@ -451,10 +450,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(this.isTweening)return;
 
         this.isTweening = true;
-        var qStart = new THREE.Quaternion();
+        let qStart = new THREE.Quaternion();
         // tween
-        var time = { t: 0 };
-        var scope = this;
+        let time = { t: 0 };
+        let scope = this;
         new TWEEN.Tween( time )
             .to( { t : 1 }, 300 )
             //.easing( TWEEN.Easing.Quadratic.InOut )
@@ -495,12 +494,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         new THREE.Box3().setFromObject(this.renderObject).getSize(size);
         let taspect = size.z / size.y;
         
-        let d, w, h;
+        let d, h;
         if (taspect < 1) {
-            w = size.y * taspect;
+            // w = size.y * taspect;
             h = size.y;
         } else {
-            w = size.z;
+            // w = size.z;
             h = size.z / taspect;
         }
 
@@ -531,7 +530,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             // first
             let normal = p3e.lookNormal;
             normal[1] = 0;
-            let nsq = v3_sqrMag(normal);
+            // let nsq = v3_sqrMag(normal);
             normal = v3_normalize(normal);
             let offset = v3_dot(p3e.xyz, normal);
             this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
@@ -686,15 +685,15 @@ function removeWire(obj3d){
 }
 
 export class DynaverseAppManager extends ModelService {
-    init(options) {
+    init(_options) {
         super.init("DynaverseAppManager");
         // this.$apps = options.registry; // new Map() {[name]: cls}
     }
 
-    add(cls) {
+    add(_cls) {
         // this.set(cls.name, cls);
     }
-    set(name, cls) {
+    set(_name, _cls) {
         // this.$apps.set(name, cls);
     }
     get(name) {
@@ -707,7 +706,7 @@ export class DynaverseAppManager extends ModelService {
         }
         return null;
     }
-    delete(name) {
+    delete(_name) {
         // return this.$apps.delete(name);
     }
 }
@@ -735,9 +734,4 @@ export class VideoManager extends ViewService {
             delete this.handler;
         }
     }
-}
-
-export function SVGtoBLOB(svg){
-    const blob = new Blob([svg], {type: 'image/svg+xml'});
-    return URL.createObjectURL(blob);  
 }
