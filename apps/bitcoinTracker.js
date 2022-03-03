@@ -120,6 +120,7 @@ class BitLogoPawn extends CardPawn {
     constructor(actor) {
         super(actor);
         this.listenDeck('setColor', this.setColor);
+        this.removeEventListener("pointerWheel", "onPointerWheel");
     }
 }
 

@@ -44,6 +44,7 @@ class DBarGraphPawn extends CardPawn{
         this.listen('updateGraph', this.updateGraph);
         this.listenDeck('setColor', this.setColor);
         this.updateGraph();
+        this.removeEventListener("pointerWheel", "onPointerWheel");
     }
 
     constructBars(){
