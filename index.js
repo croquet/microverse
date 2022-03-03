@@ -12,7 +12,7 @@ import {
     q_euler, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
-import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { CardActor, VideoManager, DynaverseAppManager, SVGtoBLOB } from './src/DCard.js';
 import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
 import { WorldSaver } from './src/worldSaver.js';
@@ -287,7 +287,10 @@ Constants.DefaultCards = [
             layers: ['pointer'],
             multiuser: true,
             type: "svg",
-            dataLocation: './assets/SVG/square.svg',
+            dataLocation: SVGtoBLOB(`
+            <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50">
+            <circle cx="25" cy="25" r="20"/>
+            </svg>`),
             textureType: "dynamic",
             width: 1024,
             height: 1024,

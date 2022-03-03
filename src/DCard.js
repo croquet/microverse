@@ -353,7 +353,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         return !(name.startsWith("http://") ||
           name.startsWith("https://") ||
           name.startsWith(".") ||
-          name.startsWith("/"));
+          name.startsWith("/") ||
+          name.startsWith("blob:"));
     }
 
     getBuffer(name) {
@@ -725,4 +726,9 @@ export class VideoManager extends ViewService {
             delete this.handler;
         }
     }
+}
+
+export function SVGtoBLOB(svg){
+    const blob = new Blob([svg], {type: 'image/svg+xml'});
+    return URL.createObjectURL(blob);  
 }

@@ -102,7 +102,7 @@ export class BouncingLogo extends CardActor {
         super.init(options);
         this.position = [512,512];
         this.ballVelocity = this.randomVelocity();
-        this.radius = 50;
+        this.radius = (512-64)*(512-64);
         this.listen("set", this.setPosition);
         this.future(100).bounce();
     }
@@ -118,15 +118,14 @@ export class BouncingLogo extends CardActor {
         let vel = this.ballVelocity;
         px+=vel[0];
         py+=vel[1];
-        let dx = 0, dy = 0;
-        if(px<this.radius)dx = 1;
-        else if (px>this.width-this.radius) dx = -1;
-        if(py<this.radius)dy=1; 
-        else if(py>this.height-this.radius)dy = -1;
-        if(dx||dy){
+        let dx = px-512;
+        let dy = py-512;
+        if(dx*dx+dy*dy>this.radius){
+            dx = dx>0?-1:1;
+            dy = dy>0?-1:1;
             this.ballVelocity=this.randomVelocity();
-            if(dx)this.ballVelocity[0]=Math.abs(this.ballVelocity[0])*dx;
-            if(dy)this.ballVelocity[1]=Math.abs(this.ballVelocity[1])*dy;
+            this.ballVelocity[0]=Math.abs(this.ballVelocity[0])*dx;
+            this.ballVelocity[1]=Math.abs(this.ballVelocity[1])*dy;
         }
         this.updatePosition([px,py]);
         this.future(50).bounce();
@@ -152,7 +151,6 @@ export class BouncingLogoPawn extends CardPawn {
         this.listen("updatePosition", this.updatePosition);
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerMove", "onPointerMove");    
-        console.log("AM I HERE???");
         let image = new Image();
         image.src = "./assets/SVG/CroquetSymbol_CMYK_NoShadow.svg";
         image.onload = () => { 
