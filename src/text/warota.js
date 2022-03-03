@@ -690,10 +690,9 @@ export class Warota {
         } else {
             lastWord = lines[lines.length - 1][0];
         }
-        let meterInPixels = this.screenWidth / this.pixelX;
         if (options.autoResize) {
-            this.newWidth = (lastWord.left + lastWord.width + hMargin) * meterInPixels;
-            this.newHeight = (lastWord.top + lastWord.height + vMargin) * meterInPixels;
+            this.newWidth = (lastWord.left + lastWord.width + hMargin);
+            this.newHeight = (lastWord.top + lastWord.height + vMargin);
             this.docHeight = lastWord.top + lastWord.height;
         } else {
             this.docHeight = lastWord.top + lastWord.height;
