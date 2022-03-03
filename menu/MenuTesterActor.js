@@ -7,6 +7,7 @@ class MenuTesterActor {
             name: 'menu tester',
             translation: [0, 0, -5],
             actorCode: ["MenuActor"],
+            multiple: true,
         });
         this.menu.call("MenuActor", "setItems", [
             {label: "abc"},

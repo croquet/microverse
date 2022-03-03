@@ -228,6 +228,11 @@ export class TextFieldActor extends CardActor {
         return this.load(text);
     }
 
+    setData(options) {
+        let newOptions = {...this._cardData, ...options};
+        this.set({cardData: newOptions});
+    }
+
     setupDismissButton() {
         this.dismissButton = DismissButtonActor.create({parent: this});
     }
@@ -267,6 +272,8 @@ export class TextFieldPawn extends CardPawn {
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerMove", "onPointerMove");
         this.addEventListener("pointerUp", "onPointerUp");
+
+        this.listen("_cardData", "cardDataUpdated");
     }
 
     destroy() {
@@ -304,6 +311,15 @@ export class TextFieldPawn extends CardPawn {
         let s = "40%";
         let l = "40%";
         return `hsl(${h}, ${s}, ${l})`;
+    }
+
+    cardDataUpdated(data) {
+        if (data.o.backgroundColor !== data.v.backgroundColor) {
+            this.material.dispose();
+            let backgroundColor = data.v.backgroundColor;
+            this.material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
+            this.plane.material = this.material;
+        }
     }
 
     changeMaterial(name, makeNew) {
@@ -407,14 +423,15 @@ export class TextFieldPawn extends CardPawn {
 
     setupMesh() {
         let isSticky = this.actor._cardData.isSticky;
+        let backgroundColor = this.actor._cardData.backgroundColor;
+        if (!backgroundColor) {
+            backgroundColor = isSticky ? 0xf4e056 : 0xFFFFFF;
+        }
 
-        let color = isSticky ? 0xf4e056 : 0xFFFFFF;
-        
         // this.geometry = new THREE.PlaneGeometry(0, 0);
         this.geometry = isSticky ? this.roundedCornerPlane(0, 0) : new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide, emissive: color});
+        this.material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
         this.plane = new THREE.Mesh(this.geometry, this.material);
-        this.plane.name = "plane";
         this.plane.name = this.actor.name;
         this.setRenderObject(this.plane);
 
