@@ -24,7 +24,6 @@ const config = {
     experiments: {
         asyncWebAssembly: true
     },
-    
     devServer: {
         allowedHosts: 'all',
         port: 9009
@@ -34,7 +33,12 @@ const config = {
             {
                 test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
                 type: 'asset/resource',
-            }
+            },
+            {
+                test: /\.js$/,
+                enforce: "pre",
+                use: ["source-map-loader"],
+            },
         ]
     },
     plugins: [
