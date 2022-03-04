@@ -9,11 +9,11 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude,
     q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
-import { D } from './DConstants.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
+import { EYE_HEIGHT } from './DAvatar.js';
 // import { forEach } from 'jszip';
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "name"];
@@ -445,7 +445,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             pe.xyz = pose[0]; // world coordinates
             pe.offset = pose[1]; // distance from target
         } else {
-            pe.offset = D.EYE_HEIGHT;
+            pe.offset = EYE_HEIGHT;
         }
         this.publish(pe.pointerId, "goThere", pe);
         this.say("showMenu", {pe: pe, actor: this.actor.id});

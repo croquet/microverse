@@ -9,7 +9,7 @@ import { PM_Pointer} from "./Pointer.js";
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { D } from './DConstants.js';
+
 import { defaultKeyBindings } from "./text/text-commands.js";
 import {AssetManager} from "./wcAssetManager.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
@@ -17,7 +17,8 @@ import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 export let myAvatarId; 
 export let myAvatar;
 let avatarModelPromises = [];
-
+export let EYE_HEIGHT = 1.7;
+export let EYE_EPSILON = 0.01;
 export let isMobile = !!("ontouchstart" in window);
 
 export let isWalking = false; // switchControl() will make it true
@@ -235,7 +236,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
             this.scene = renderMgr.scene;
-            this.lastHeight = D.EYE_HEIGHT; // tracking the height above ground
+            this.lastHeight = EYE_HEIGHT; // tracking the height above ground
 
             //this.tweenCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             //this.walkCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -451,7 +452,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (!this.isMyPlayerPawn) {return;}
         if (isTweening) TWEEN.update();
 
-
         if(isWalking){
             if(this.isFalling)this._translation[1] = this.floor;
 
@@ -465,7 +465,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }else{
             this.orbitCamera.updateMatrixWorld();
             this.orbitCamera.updateProjectionMatrix();
-        }        
+        }
         this.refreshCameraTransform();
         this.lastTranslation = this.translation;
     }
@@ -478,8 +478,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
         if(intersections.length > 0){
             let dFront = intersections[0].distance;
-            let delta = Math.min(dFront-D.EYE_HEIGHT, D.EYE_HEIGHT/8); // can only fall 1/8 D.EYE_HEIGHT at a time
-            if(Math.abs(delta)>D.EYE_EPSILON){ // moving up or down...
+            let delta = Math.min(dFront-EYE_HEIGHT, EYE_HEIGHT/8); // can only fall 1/8 EYE_HEIGHT at a time
+            if(Math.abs(delta)>EYE_EPSILON){ // moving up or down...
                 let t = this.translation;
                 let p = t[1]-delta;
                 this.isFalling  = true;
