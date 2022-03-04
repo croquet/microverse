@@ -81,6 +81,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn will not see it
         super.init(options);
         this.fall = true;
+        this.tug = 0.05; // minimize effect of unstable wifi
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
@@ -446,23 +447,25 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     update(time, delta) {
         super.update(time, delta);
         // this gets overwritten in super.update
-        if(this.isFalling)this._translation[1] = this.floor;
-
-        if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
-        this.lastUpdateTime = time;
 
         if (!this.isMyPlayerPawn) {return;}
         if (isTweening) TWEEN.update();
-        if (!isWalking) {
-            this.orbitCamera.updateMatrixWorld();
-            this.orbitCamera.updateProjectionMatrix();
-        } else {
+
+
+        if(isWalking){
+            if(this.isFalling)this._translation[1] = this.floor;
+
+            if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
+            this.lastUpdateTime = time;
             if (this.actor.fall && !this.findFloor()) {
                 if (this.translation !== this.lastTranslation) {
                     this.setTranslation(this.lastTranslation);
                 }
             }
-        }
+        }else{
+            this.orbitCamera.updateMatrixWorld();
+            this.orbitCamera.updateProjectionMatrix();
+        }        
         this.refreshCameraTransform();
         this.lastTranslation = this.translation;
     }
@@ -520,7 +523,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         e.preventDefault();
         e.stopPropagation(); 
 
-        if( this.now()-this._lastMove > D.THROTTLE && this.activeMMotion ){
+        if( /*this.now()-this._lastMove > D.THROTTLE &&*/ this.activeMMotion ){
             this._lastMove = this.now();
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
