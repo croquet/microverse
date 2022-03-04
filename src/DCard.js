@@ -120,15 +120,14 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     showMenu() {
         if (!this.expanderManager.code.get("ExpanderMenuActor")) {return;}
-        let appManager = this.service("DynaverseAppManager");
-        let menu = appManager.get("CardActor").load([{
+        let menu = this.createCard({
             card: {
                 name: 'expander menu',
                 actorCode: ["ExpanderMenuActor"],
                 translation: [0, -0.5, -5],
                 target: this.id,
             }
-        }], this.wellKnownModel("ModelRoot"), "1")[0];
+        });
 
         menu.call("ExpanderMenuActor", "show");
         this.subscribe(menu.id, "setExpanders", "setExpanders");
@@ -153,7 +152,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     createCard(options) {
-        return this.constructor.load([options], this.wellKnownModel("ModelRoot"), "1");
+        return this.constructor.load([options], this.wellKnownModel("ModelRoot"), "1")[0];
     }
 
     static load(array, world, version) {
