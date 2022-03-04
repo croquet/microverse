@@ -43,7 +43,7 @@ let sentFiles = new Map();// {ws: {filename: content}}
 
 let watcher = chokidar.watch('./*.js' ,{
     persistent: true,
-    ignored: /^[#]/
+    ignored: /^[#_]/
 });
 
 watcher.on('add', name => {

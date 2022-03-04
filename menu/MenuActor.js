@@ -56,6 +56,7 @@ class MenuActor {
     }
 
     relay(data) {
+        let multiple = this._cardData.multiple;
         let card = this.service("ActorManager").get(data.id);
 
         let item = this.items.find((i) => i.card === card);
@@ -65,14 +66,18 @@ class MenuActor {
                 i.selected = !i.selected;
                 this.selectionChanged(i);
             } else {
-                if (!this._cardData.multiple) {
+                if (!multiple) {
                     i.selected = false;
                     this.selectionChanged(i);
                 }
             }
         });
 
-        this.say("fire", {id: this.id});
+        if (multiple && item.label === 'ok') {
+            item.selected = false;
+            let selected = this.items.filter(i => i.selected).map(i => i.label);
+            this.publish(this._parent.id, "fire", {selected: selected, id: this.id});
+        }
     }
 
     selectionChanged(item) {

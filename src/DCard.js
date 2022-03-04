@@ -42,6 +42,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
         this.listen("setTranslation", this.setTranslation);
         this.listen("setRotation", this.setRotation);
+        this.listen("showMenu", this.showMenu);
     }
 
     createShape(options) {
@@ -116,6 +117,40 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     nop() {}
+
+    showMenu() {
+        if (!this.expanderManager.code.get("ExpanderMenuActor")) {return;}
+        let appManager = this.service("DynaverseAppManager");
+        let menu = appManager.get("CardActor").load([{
+            card: {
+                name: 'expander menu',
+                actorCode: ["ExpanderMenuActor"],
+                translation: [0, -0.5, -5],
+                target: this.id,
+            }
+        }], this.wellKnownModel("ModelRoot"), "1")[0];
+
+        menu.call("ExpanderMenuActor", "show");
+        this.subscribe(menu.id, "setExpanders", "setExpanders");
+    }
+
+    setExpanders(data) {
+        console.log("setexpanders", data);
+        let {menuId, selected, _target} = data;
+        
+        let menu = this.service("ActorManager").get(menuId);
+        if (menu) {
+            menu.destroy();
+        }
+
+        selected.forEach((n) => {
+            if (n.endsWith("Actor")) {
+                this.addActorExpander(n);
+            } else if (n.endsWith("Pawn")) {
+                this.addPawnExpander(n);
+            }
+        });
+    }
 
     static load(array, world, version) {
         if (version === "1") {
@@ -410,8 +445,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             pe.offset = D.EYE_HEIGHT;
         }
         this.publish(pe.pointerId, "goThere", pe);
+        this.say("showMenu", {pe: pe, actor: this.actor.id});
     }
-        
 
     onPointerTap(p3e){
         console.log("onPointerTap", p3e)

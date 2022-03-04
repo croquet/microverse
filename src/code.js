@@ -379,9 +379,11 @@ export class ExpanderModelManager extends ModelService {
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
 
-            let code = this.code.get(name);
-            if (code && code.$expander.setup) {
-                code.invoke(model, "setup");
+            let expander = this.code.get(name);
+            if (!expander) {return;}
+            expander.ensureExpander();
+            if (expander.$expander.setup) {
+                expander.invoke(model, "setup");
             }
         }
     }
