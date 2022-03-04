@@ -8,7 +8,7 @@ class ExpanderMenuActor {
             translation: [2, 0.5, -4],
             actorCode: ["MenuActor"],
             multiple: true,
-            parent: this._target
+            parent: this
         });
 
         let codeMap = this.expanderManager.code;

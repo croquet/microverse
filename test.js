@@ -18,12 +18,12 @@ Constants.DefaultScripts = [{
         if (this.menu) {
             this.menu.destroy();
         }
-        this.menu = WorldCore.CardActor.create({
+        this.menu = this.createCard({
             name: 'expander menu',
             translation: [2, 0.5, -4],
             actorCode: ["MenuActor"],
             multiple: true,
-            parent: this._target
+            parent: this
         });
 
         let codeMap = this.expanderManager.code;
@@ -69,12 +69,11 @@ Constants.DefaultScripts = [{
 
             let labelCard = item.card;
             if (!labelCard) {
-                let world = this.wellKnownModel("ModelRoot");
-                labelCard = WorldCore.CardActor.load([{
-                    card: {
+                labelCard = this.createCard({
                         name: item.label,
                         className: "TextFieldActor",
                         translation: [0, top, 0],
+                        parent: this,
                         type: "text",
                         readOnly: true,
                         singleLine: true,
@@ -84,14 +83,10 @@ Constants.DefaultScripts = [{
                         width: 1,
                         height: 0.15,
                         backgroundColor: item.selected ? 0xFFFFFF : 0x606060,
-                    }
-                }], world, "1")[0];
+                });
             }
 
             top -= labelCard.height;
-            labelCard.addEventListener("click", "MenuItemActor.click");
-            console.log("7");
-            labelCard.set({parent: this._target});
             labelCard._cardData.name = item.label;
 
             this.items.push({label: item.label, card: labelCard, selected: !!item.selected});
@@ -134,11 +129,15 @@ Constants.DefaultScripts = [{
 `}, {
     action: "add",
     name: "MenuItemActor",
+    content: "MenuItemActor",
     content: `class MenuItemActor {
+    setup() {
+        this.addEventListener("click", "MenuItemActor.click");
+    }
+
     click(evt) {
         this.publish(this.id, "fire", {id: this.id, name: this._cardData.name});
     }
-    
 }
 `}
 ];

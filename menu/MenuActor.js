@@ -25,10 +25,10 @@ class MenuActor {
             let labelCard = item.card;
             if (!labelCard) {
                 labelCard = this.createCard({
-                    card: {
                         name: item.label,
                         className: "TextFieldActor",
                         translation: [0, top, 0],
+                        parent: this,
                         type: "text",
                         readOnly: true,
                         singleLine: true,
@@ -38,14 +38,10 @@ class MenuActor {
                         width: 1,
                         height: 0.15,
                         backgroundColor: item.selected ? 0xFFFFFF : 0x606060,
-                    }
                 });
             }
 
             top -= labelCard.height;
-            labelCard.addEventListener("click", "MenuItemActor.click");
-            console.log("7");
-            labelCard.set({parent: this._target});
             labelCard._cardData.name = item.label;
 
             this.items.push({label: item.label, card: labelCard, selected: !!item.selected});

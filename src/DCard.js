@@ -151,11 +151,9 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         });
     }
 
-    createCard(options) {
-        return this.constructor.load([options], this.wellKnownModel("ModelRoot"), "1")[0];
-    }
-
     static load(array, world, version) {
+        // it is supposed to load a JSONable structure from array, but a special case is made
+        // for the parent property where you can give an actual object
         if (version === "1") {
             let appManager = world.service("DynaverseAppManager");
             let expanderManager = world.service("ExpanderModelManager");
@@ -182,8 +180,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                     Cls = CardActor;
                 }
                 if (card.parent) {
-                    let parent = map.get(card.parent);
-                    options.parent = parent;
+                    if (typeof card.parent !== "object") {
+                        let parent = map.get(card.parent);
+                        options.parent = parent;
+                    }
                 }
 
                 let actor = Cls.create(options);

@@ -151,6 +151,20 @@ export const AM_Code = superclass => class extends superclass {
     getCode() {
         return this._cardData.runs.map((run) => run.text).join("");
     }
+
+    createCard(options) {
+        // this is only here because we don't want to export isProxy Symbol.
+        if (options.parent) {
+            if (options.parent[isProxy]) {
+                options = {...options, parent: options.parent._target};
+            }
+        }
+
+        // oh, boy
+        let rcvr = this[isProxy] ? this._target : this;
+            
+        return rcvr.constructor.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+    }
 }
 
 export const PM_Code = superclass => class extends superclass {
