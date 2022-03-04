@@ -20,17 +20,17 @@
     "fflate": "^0.7.3",
     "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git",
     "jszip": "^3.7.1",
-    "load-bmfont": "^1.4.0",
+    "load-bmfont": "^1.4.1",
     "pako": "^2.0.4"
   },
   "devDependencies": {
     "buffer": "^6.0.3",
-    "copy-webpack-plugin": "^10.0.0",
+    "copy-webpack-plugin": "^10.2.4",
     "html-webpack-plugin": "^5.5.0",
     "source-map-loader": "^3.0.1",
     "terser-webpack-plugin": "^5.3.1",
-    "webpack": "^5.64.1",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.5.0"
+    "webpack": "^5.70.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
   }
 }
