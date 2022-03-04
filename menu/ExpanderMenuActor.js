@@ -3,7 +3,7 @@ class ExpanderMenuActor {
         if (this.menu) {
             this.menu.destroy();
         }
-        this.menu = WorldCore.CardActor.create({
+        this.menu = this.createCard({
             name: 'expander menu',
             translation: [2, 0.5, -4],
             actorCode: ["MenuActor"],

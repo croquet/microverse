@@ -24,8 +24,7 @@ class MenuActor {
 
             let labelCard = item.card;
             if (!labelCard) {
-                let world = this.wellKnownModel("ModelRoot");
-                labelCard = WorldCore.CardActor.load([{
+                labelCard = this.createCard({
                     card: {
                         name: item.label,
                         className: "TextFieldActor",
@@ -40,7 +39,7 @@ class MenuActor {
                         height: 0.15,
                         backgroundColor: item.selected ? 0xFFFFFF : 0x606060,
                     }
-                }], world, "1")[0];
+                });
             }
 
             top -= labelCard.height;

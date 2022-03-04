@@ -152,6 +152,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         });
     }
 
+    createCard(options) {
+        return this.constructor.load([options], this.wellKnownModel("ModelRoot"), "1");
+    }
+
     static load(array, world, version) {
         if (version === "1") {
             let appManager = world.service("DynaverseAppManager");

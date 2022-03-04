@@ -5,19 +5,16 @@ const path = require('path');
 
 const wss = new ws.WebSocketServer({port: 9011});
 
-let args = [...process.argv];
-
 let debug = false;
-
 let numFlags = 0;
 
-if (args[2]) {
-    if (args[2] === "--debug") {
+if (process.argv[2]) {
+    if (process.argv[2] === "--debug") {
         debug = true;
         numFlags++;
     } else {
-        if (args[2].startsWith("-")) {
-            console.log("unknown option: " + args[2]);
+        if (process.argv[2].startsWith("-")) {
+            console.log("unknown option: " + process.argv[2]);
             process.exit(1);
         }
     }
