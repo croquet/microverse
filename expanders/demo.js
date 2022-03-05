@@ -68,7 +68,7 @@ class FlyActor {
     fly() {
         if (!this.flying) {return;}
         this.future(20).call("FlyActor", "fly");
-        this.rotateBy([0, 0.01, 0.01]);
+        this.rotateBy([0, 0.01, 0]);
         this.forwardBy(0.03);
     }
 
