@@ -59,6 +59,24 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         clearInterval(this.interval);
     }
 
+    async fetchSpot(id){
+        const host = "wss://ws.sfox.com/ws";
+        const sub_msg = {"type": "subscribe", "feeds": ["ticker.sfox.btcusd"]};
+
+        var socket = new WebSocket(host);
+
+        socket.onopen = function() {
+            socket.send(JSON.stringify(sub_msg));
+        };
+
+        socket.onmessage = function(evt){
+            let last_price = JSON.parse(evt.data).payload.last;
+            //console.log(last_price);
+            this.say("BTC-USD", { date: Date.now(), amount: + last_price });
+        };
+
+    }
+/*
     async fetchSpot(id) {
         const count = ++this.count;
         // console.log("Fetching BTC-USD from Coinbase", id, count);
@@ -67,7 +85,8 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         // console.log("Fetched BTC-USD from Coinbase", id, count, json);
         this.say("BTC-USD", { date: Date.now(), amount: +json.data.amount });
     }
-
+*/
+    
     async fetchHistory() {
         console.log("Fetching BTC-USD history from Coinbase...");
         const response = await fetch(`https://api.coinbase.com/v2/prices/BTC-USD/historic?period=day`);
