@@ -162,7 +162,7 @@ class MyModelRoot extends ModelRoot {
             return;
         }
 
-        this.loadScripts(Constants.DefaultScripts, "1");
+        this.loadExpanders(Constants.Library.expanders, "1");
         this.load(Constants.DefaultCards, "1");
     }
 
@@ -188,7 +188,7 @@ class MyModelRoot extends ModelRoot {
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
             if (json.expanders) {
-                this.loadScripts(json.expanders, version);
+                this.loadExpanders(json.expanders, version);
             }
             if (json.cards) {
                 this.load(json.cards, version);
@@ -214,9 +214,13 @@ class MyModelRoot extends ModelRoot {
         this.persistSession(func);
     }
 
-    loadScripts(array, version) {
+    loadExpanders(expanders, version) {
         if (version === "1") {
             let expanderManager = this.service("ExpanderModelManager");
+            let array = [];
+            for (let [k, v] of expanders) {
+                array.push({action: "add", name: k, content: v});
+            }
             expanderManager.loadAll(array);
         }
     }

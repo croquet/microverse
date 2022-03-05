@@ -1,0 +1,419 @@
+class DriveActor {
+    setup() {
+        this.set({
+            rotation: WorldCore.q_euler(-Math.PI / 2, 0, 0),
+            translation: [0, -2.9, 10]});
+        this.speed = 0;
+        this.angle = 0;
+        this.addEventListener("pointerDown", "toggle");
+        this.addEventListener("keyDown", "turn");
+    }
+
+    run() {
+        if (!this.running) {return;}
+        this.future(20).call("DriveActor", "run");
+        this.rotateBy([0, -this.angle, 0]);
+        this.forwardBy(-this.speed);
+    }
+
+    toggle() {
+        this.running = !this.running;
+        if (this.running) {
+            this.run();
+        }
+    }
+
+    rotateBy(angles) {
+        let q = WorldCore.q_euler(...angles);
+        q = WorldCore.q_multiply(this.rotation, q);
+        this.rotateTo(q);
+    }
+
+    forwardBy(dist) {
+        let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
+        this.translateTo([
+            this.translation[0] + v[0],
+            this.translation[1] + v[1],
+            this.translation[2] + v[2]]);
+    }
+
+    turn(key) {
+        if (key.key === "ArrowRight") {
+            this.angle = Math.min(0.05, this.angle + 0.004);
+        }
+        if (key.key === "ArrowLeft") {
+            this.angle = Math.max(-0.05, this.angle - 0.004);
+        }
+        if (key.key === "ArrowUp") {
+            this.speed = Math.min(1, this.speed + 0.05);
+        }
+        if (key.key === "ArrowDown") {
+            this.speed = Math.max(-0.2, this.speed - 0.05);
+        }
+    }
+}
+
+class FlyActor {
+    setup() {
+        this.set({
+            rotation: WorldCore.q_euler(0, 0, 0),
+            translation: [0, 3, 0]});
+        if (!this.flying) {
+            this.flying = true;
+            this.fly();
+        }
+        this.addEventListener("pointerDown", "toggle");
+    }
+
+    fly() {
+        if (!this.flying) {return;}
+        this.future(20).call("FlyActor", "fly");
+        this.rotateBy([0, 0.01, 0.01]);
+        this.forwardBy(0.03);
+    }
+
+    toggle() {
+        this.flying = !this.flying;
+        if (this.flying) {
+            this.fly();
+        }
+    }
+
+    rotateBy(angles) {
+        let q = WorldCore.q_euler(...angles);
+        q = WorldCore.q_multiply(this.rotation, q);
+        this.rotateTo(q);
+    }
+
+    forwardBy(dist) {
+        let v = WorldCore.v3_rotate([0, 0, dist], this.rotation)
+        this.translateTo([
+            this.translation[0] + v[0],
+            this.translation[1] + v[1],
+            this.translation[2] + v[2]]);
+    }
+}
+
+class PerlinActor {
+    setup() {
+        this.visible = false;
+        this.initPerlin();
+        this.updatePerlin();
+
+        this.scriptListen("hiliteRequest", "hilite");
+        this.scriptListen("unhiliteRequest", "unhilite");
+        this.scriptListen("showHideRequest", "showHide");
+        this.scriptListen("enterHiliteRequest", "enterHilite");
+        this.scriptListen("leaveHiliteRequest", "leaveHilite");
+    }
+
+    hilite(p3d) {
+        this.say("hilite", 0x081808);
+        this.downTargetId = p3d.targetId;
+    }
+
+    unhilite(_p3d) {
+        console.log("onPointerUp")
+        this.say("hilite", 0x000000);
+    }
+
+    enterHilite(_p3d) {
+        this.say("hilite", 0x181808);
+    }
+    leaveHilite(_p3d) {
+        this.say("hilite", 0x000000);
+    }
+
+    initPerlin() {
+        let r = this.currentRow = this.rows = 20;
+        let c = this.columns = 20;
+        let d = this.delta = 0.1;
+
+        this.data = [...Array(this.rows).keys()].map(i => {
+            return [...Array(this.columns).keys()].map(j => {
+                return this.call("PerlinNoise", "noise2D", i * d, j * d);
+            });
+        });
+    }
+
+    updatePerlin() {
+        this.data.shift(); // dump the first row
+        let d = this.delta;
+
+        let row = [...Array(this.columns).keys()].map(i => {
+            return this.call("PerlinNoise", "noise2D", this.currentRow * d, i * d);
+        });
+        this.data.push(row); 
+        this.currentRow++;
+        this.say("updatePerlin", row);
+        this.future(100).call("PerlinActor", "updatePerlin");
+    }
+
+    showHide() {
+        this.visible = !this.visible;
+        this.say("showMe", this.visible);
+    }
+}
+    
+class PerlinNoise {
+    generateHashTable() {
+        const table = [];
+        this.items = [];
+        for (let n = 0; n < 256; n++) {
+            this.push({key: Math.random(), value: n});
+        }
+        while (!this.isEmpty()) {
+            table.push(this.pop().value);
+        }
+        return table.concat(table);
+    }
+
+    signedNoise2D(x,y) {
+        return this.noise2D(x, y) - 0.5;
+    }
+
+    noise2D(x,y) {
+        if (!this.hashTable) {
+            this.hashTable = this.generateHashTable();
+        }
+        
+        const table = this.hashTable;
+        const xInt = Math.floor(x);
+        const yInt = Math.floor(y);
+        const xf = x - xInt;
+        const yf = y - yInt;
+        const u = this.fade(xf);
+        const v = this.fade(yf);
+        const xi = xInt & 0xff;
+        const yi = yInt & 0xff;
+        const aa = table[table[xi    ] + yi];
+        const ab = table[table[xi + 1] + yi];
+        const ba = table[table[xi    ] + yi + 1];
+        const bb = table[table[xi + 1] + yi + 1];
+
+        const aaGrad = this.grad(aa, xf, yf);
+        const abGrad = this.grad(ab, xf - 1, yf);
+        const baGrad = this.grad(ba, xf, yf - 1);
+        const bbGrad = this.grad(bb, xf - 1, yf - 1);
+
+        const lerp0 = this.lerp(aaGrad, abGrad, u);
+        const lerp1 = this.lerp(baGrad, bbGrad, u);
+
+        return (this.lerp(lerp0, lerp1, v) + 1) / 2;
+    }
+
+    lerp(a, b, t) {
+        return a + t * (b - a);
+    }
+
+    fade(t) {
+        return t * t * t * (t * (t * 6 - 15) + 10);
+    }
+
+    grad(hash, x, y) {
+        switch (hash & 0x3) {
+            case 0: return x + y;
+            case 1: return x - y;
+            case 2: return -x + y;
+            case 3: return -x - y;
+            default: return 0;
+        }
+    }
+
+    comparator(a, b){
+        return a.key < b.key;
+    }
+
+    isEmpty() {
+        return (this.items.length === 0);
+    }
+
+    clear() {
+        this.items.length = 0;
+    }
+
+    push(item) {
+        let n = this.items.length;
+        while (n > 0 && !this.comparator(this.items[n >> 1], item)) {
+            this.items[n] = this.items[n >> 1];
+            n >>= 1;
+        }
+        this.items[n] = item;
+    }
+
+    pop() {
+        const top = this.items[0];
+        const last = this.items.pop();
+        if (this.items.length > 0) {
+            this.items[0] = last;
+            this.heapify(0);
+        }
+        return top;
+    }
+
+    traverse(callback) {
+        this.items.forEach(callback);
+    }
+
+    heapify(n) {
+        let m = n;
+        const left = n << 1;
+        const right = left + 1;
+        if (left < this.items.length && this.comparator(this.items[left], this.items[m])) m = left;
+        if (right < this.items.length && this.comparator(this.items[right], this.items[m])) m = right;
+        if (m === n) return;
+        const swap = this.items[n];
+        this.items[n] = this.items[m];
+        this.items[m] = swap;
+        this.heapify(m);
+    }
+}
+
+class PerlinPawn {
+    setup() {
+        this.scriptListen("updatePerlin", "updatePerlin");
+        this.scriptListen("showMe", "showMe");
+        this.scriptListen("hilite", "hilite");
+        this.isConstructed = false;
+
+        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerUp", "onPointerUp");
+        this.addEventListener("pointerEnter", "onPointerEnter");
+        this.addEventListener("pointerLeave", "onPointerLeave");
+        this.addEventListener("click", "click");
+        
+        this.addEventListener("pointerMove", "_nop");
+
+        this.maxHeight = 8;
+        this.barScale = 0.25;
+
+        if (this.perlinGroup) {
+            this.shape.remove(this.perlinGroup);
+            this.perlinGroup = null;
+        }
+
+        if (this.perlinGroup) {
+            this.shape.remove(this.perlinGroup);
+            this.perlinGroup = null;
+        }
+
+        if (this.buttonSphere) {
+            this.shape.remove(this.buttonSphere);
+            this.buttonSphere = null;
+        }
+
+        this.constructPerlin();
+    }
+
+    onPointerDown(p3d) {
+        this.say("hiliteRequest", p3d);
+    }
+    onPointerUp(p3d) {
+        this.say("unhiliterequest", p3d);
+    }
+    onPointerEnter(p3d) {
+        this.say("enterHiliteRequest", p3d);
+    }
+    onPointerLeave(p3d) {
+        this.say("leaveHiliteRequest", p3d);
+    }
+
+    click(_p3d) {
+        this.say("showHideRequest");
+    }
+
+    updatePerlin(row) {
+        const r = this.actor.rows;
+        const s = this.barScale;
+
+        let rg = this.rowGeometry.shift();
+        this.rowGeometry.push(rg);
+        for(let i = 0; i < rg.children.length; i++) {
+            this.setBar(rg.children[i], row[i], r, i);
+        }
+        for(let i = 0; i < r; i++) {
+            this.rowGeometry[i].position.set(0, s / 4, (i - r / 2) * s);
+        }
+    }
+
+    constructPerlin() {
+        const data = this.actor.data;
+        const r = this.actor.rows;
+        const c = this.actor.columns;
+        const s = this.barScale;
+
+        this.perlinGroup = new WorldCore.THREE.Group();
+       
+        this.buttonSphere = new WorldCore.THREE.Mesh(
+            new WorldCore.THREE.SphereGeometry(0.5,32,16), 
+            new WorldCore.THREE.MeshStandardMaterial());
+        this.buttonSphere.name = "buttonSphere";
+        this.buttonSphere.position.y = 3;
+        this.shape.add(this.buttonSphere);
+
+        this.color = new WorldCore.THREE.Color();
+        this.base = new WorldCore.THREE.Mesh(
+            new WorldCore.THREE.BoxGeometry((r + 2) * s, s / 2, (c + 2) * s, 2, 10, 2),
+            new WorldCore.THREE.MeshStandardMaterial({color: this.color.getHex()}));
+        this.base.position.set(-s / 2, 0, -s / 2);
+        this.bar = new WorldCore.THREE.Mesh(
+            new WorldCore.THREE.BoxGeometry(s, s, s, 1, 10, 1 ),
+            new WorldCore.THREE.MeshStandardMaterial({color: this.color.getHex()}));
+        this.base.layers.enable(1); // use this for raycasting
+        this.base.castShadow = true;
+        this.base.receiveShadow = true;
+        this.perlinGroup.add(this.base);
+
+        this.rowGeometry = [];
+        for(let i = 0; i < r; i++) {
+            let rGroup = new WorldCore.THREE.Group();
+            rGroup.position.set(0, s / 4, (i - r / 2) * s);
+            for ( let j = 0; j < c; j++) {
+                let bar = this.bar.clone();
+                bar.material = bar.material.clone();
+                let d = data[i][j];
+                this.setBar(bar, d, r, j);
+                rGroup.add(bar);
+            }
+            this.rowGeometry.push(rGroup);
+            this.perlinGroup.add(rGroup);
+        }
+        this.shape.name = "perlin";
+        this.isConstructed = true;
+    }
+
+    setBar(bar, d, rlength, j) {
+        const s = this.barScale;
+        //bar.material.color.setRGB((1-d)/2, 1-d*d, (1+d)/2);
+        let b = Math.cos((1 - d) * Math.PI);
+        b = Math.min(1, (b + 1) / 1.25);
+        let g = Math.sin(d * Math.PI);
+        g = (g + 1) / 2.2;
+        let r = Math.cos(d * Math.PI);
+        r = Math.min(1, (r + 1) / 1.25);
+
+        bar.material.color.setRGB(r, g, b);
+        d = d * this.maxHeight;
+        bar.position.set((j - rlength / 2) * s, s * d / 2, 0);
+        bar.scale.set(1, d, 1);
+    }
+
+    hilite(color) { 
+        this.buttonSphere.material.emissive = new WorldCore.THREE.Color(color);
+    }
+
+    showMe(visible) {
+        if (visible) {
+            this.shape.add(this.perlinGroup);
+        } else {
+            this.shape.remove(this.perlinGroup);
+        }
+    }
+    
+}
+
+export let demo = {
+    expanders: [DriveActor, FlyActor, PerlinNoise, PerlinActor, PerlinPawn]
+}
+
+/* globals WorldCore */

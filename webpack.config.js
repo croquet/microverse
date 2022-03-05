@@ -26,7 +26,8 @@ const config = {
     },
     devServer: {
         allowedHosts: 'all',
-        port: 9009
+        watchFiles: ['./src/**.js', './index.js', './test.js', './root.js'],
+        port: 9009,
     },
     module: {
         rules: [
