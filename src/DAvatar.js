@@ -107,6 +107,11 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.follow = undefined;
     }
 
+    setVelocitySpin(vq){
+        super.setVelocitySpin(vq);
+        this.follow = undefined;
+    }
+    
     setTranslation(v){
         this._translation = v;
     }
