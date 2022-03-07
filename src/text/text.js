@@ -125,7 +125,6 @@ export class FontViewManager extends ViewService {
     }
 
     askFont(name) {
-        console.log("askFont", this.fonts.get(name), this.isLoading[name]);
         if (this.fonts.get(name)) {return Promise.resolve(this.fonts.get(name));}
         if (this.isLoading[name]) {return this.isLoading[name];}
 
