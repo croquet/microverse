@@ -7,7 +7,8 @@ import {
     InputManager, PlayerManager, ThreeRenderManager,
     q_euler as qe, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
 import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
-import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
+import { KeyFocusManager, SyncedStateManager,
+         FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
 import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
@@ -91,7 +92,7 @@ class MyAvatar extends AvatarActor {
             runs: [],
             width: 1,
             height: 1,
-            textScale: 0.004
+            textScale: 0.002
         });
         this.publish(this.sessionId, "triggerPersist");
     }
@@ -136,7 +137,8 @@ class MyModelRoot extends ModelRoot {
         return [
             MyPlayerManager,
             DynaverseAppManager,
-            ExpanderModelManager
+            ExpanderModelManager,
+            FontModelManager,
         ];
     }
     init(options, persistentData) {
@@ -285,6 +287,7 @@ class MyViewRoot extends ViewRoot {
             {service: ThreeRenderManager, options:{antialias:true}},
             AssetManager,
             KeyFocusManager,
+            FontViewManager,
             SyncedStateManager,
             VideoManager,
             ExpanderViewManager
@@ -295,12 +298,13 @@ class MyViewRoot extends ViewRoot {
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
 
+        this.service("FontViewManager").setModel(model.service("FontModelManager"));
+
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
-        console.log(renderer)
-        console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
+        console.log("ThreeRenderManager", threeRenderManager);
 
         this.assetManager = this.service("AssetManager");
         window.assetManager = this.assetManager.assetManager;

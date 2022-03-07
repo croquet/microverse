@@ -338,7 +338,6 @@ export class ExpanderModelManager extends ModelService {
                 if (!expander) {
                     expander = Expander.create();
                     this.code.set(name, expander);
-                    console.log(this.code);
                 }
                 expander.setCode(content);
             }

@@ -574,7 +574,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 console.log("rotation:", q_pitch(this.actor.rotation),
                     q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
                 console.log("scale:", this.actor.scale);
-            default: console.log(e)
+            default:
+            /* console.log(e) */
         }
     }
 
