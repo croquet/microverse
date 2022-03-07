@@ -111,7 +111,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         super.setVelocitySpin(vq);
         this.follow = undefined;
     }
-    
+
     setTranslation(v){
         this._translation = v;
     }
@@ -385,6 +385,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     setControls(isWalking){ // switch between walking and orbiting with a tween between
+        if(isTweening)return;
         const input = this.service("InputManager");
         let look = this.walkLook;
 
@@ -412,17 +413,20 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             .easing( TWEEN.Easing.Quadratic.InOut )
             //.easing( TWEEN.Easing.Linear.None )
             .onStart( () => {
+                //console.log("tween start", time.t)
                 qStart.copy( fromCam.quaternion );
                 qEnd.copy( toCam.quaternion );
                 fromCam.getWorldPosition( vStart );
                 toCam.getWorldPosition( vEnd );
             } )
             .onUpdate( () => {
+                //console.log('tween update', time.t)
                 tweenCam.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
                 tweenCam.position.lerpVectors(vStart, vEnd, time.t);
                 tweenCam.updateMatrixWorld();
             } )
             .onComplete( () => {
+                //console.log("tween end", time.t)
                 isTweening = false;
                 tweenCam.quaternion.copy( qEnd ); // so it is exact  
                 tweenCam.position.copy( vEnd );
@@ -451,12 +455,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
-        // this gets overwritten in super.update
-
         if (!this.isMyPlayerPawn) {return;}
         if (isTweening) TWEEN.update();
-
-        if(isWalking){
+        else if(isWalking){
             if(this.isFalling)this._translation[1] = this.floor;
 
             if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
@@ -762,6 +763,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._translation[1] = p;
         this.floor = p;
         this.onLocalChanged();
-        this.say("setFloor", p);
+        this.say("setFloor", p, 100);
     }
 }

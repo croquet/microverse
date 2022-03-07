@@ -74,9 +74,9 @@ Constants.DefaultCards = [
         card: {
             name:'simple 3D model',
             translation: [-4, -0.5, -12],
-            rotation: q_euler(0, Math.PI / 2, 0),
+            rotation: q_euler(Math.PI / 2, 0, 0),
             type: "model",
-            dataLocation: "./assets/avatars/generic/1.zip",
+            dataLocation: "./assets/3D/Gears+06.fbx.zip",
             shadow: true,
             singleSided: true,
         }
