@@ -254,6 +254,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         /* this is really a hack to make it work with the current model. */
 
         if (options.placeholder) {
+           // this.service("ThreeRenderManager").setRender(false);
             let size = options.placeholderSize || [40, 1, 40];
             let color = options.placeholderColor || 0x808080;
             let offset = options.placeholderOffset || [0, -0.065, 0];
@@ -313,6 +314,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 obj.name = name;
             }
             if (options.placeholder) {
+               // this.service("ThreeRenderManager").setRender(true)
                 this.shape.remove(this.placeholder);
             }
         });

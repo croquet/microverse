@@ -2,11 +2,9 @@
 // https://croquet.io
 // info@croquet.io
 
-import * as DefaultWorldCore from "@croquet/worldcore";
+import * as WorldCore from "@croquet/worldcore";
 import {CardActor} from "./DCard.js";
-const {ViewService, ModelService, GetPawn, Model} = DefaultWorldCore;
-
-let WorldCore = {...DefaultWorldCore};
+const {ViewService, ModelService, GetPawn, Model, Constants} = WorldCore;
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, expander) {
@@ -290,7 +288,7 @@ class Expander extends Model {
             }
             result = f.apply(proxy, values);
         } catch (e) {
-            console.error("an error occured in", this, expander, name, e);
+            console.error("an error occured in", expander, name, e);
         }
         return result;
     }
@@ -376,9 +374,9 @@ export class ExpanderModelManager extends ModelService {
     }
 
     save() {
-        let result = [];
+        let result = new Map();
         for (let [key, expander] of this.code) {
-            result.push({action: "add", name: key, content: expander.code});
+            result.set(key, expander.code);
         };
         return result;
     }
@@ -493,12 +491,146 @@ export class ExpanderViewManager extends ViewService {
             return;
         }
 
-        this.publish(this.model.id, "loadStart");
+        let dataURLs = [];
+        let promises = [];
+        let scripts = [];
+
+        if (!window._alLResolvers) {
+            window._allResolvers = new Map();
+        }
+
+        let key = Date.now() + "_" + Math.random().toString();
+
+        let current = new Map();
+
+        window._allResolvers.set(key, current);
 
         array.forEach((obj) => {
-            this.publish(this.model.id, "loadOne", obj);
+            if (obj.action === "add") {
+                let id = Math.random().toString();
+                let promise = new Promise((resolve, _reject) => {
+                    current.set(id, resolve);
+                    let script = document.createElement("script");
+                    scripts.push(script);
+                    script.type = "module";
+                    let dataURL = URL.createObjectURL(new Blob([obj.content], {type: "application/javascript"}));
+                    script.innerHTML = `
+import * as data from "${dataURL}";
+window._allResolvers.get("${key}").get("${id}")({data, key: ${key}});
+console.log(data)`;
+                    document.body.appendChild(script);
+                    dataURLs.push(dataURL);
+                }).catch((e) => {console.log(e); return null});
+                promises.push(promise);
+            }
         });
+
+        Promise.all(promises).then((allData) => {
+            dataURLs.forEach((url) => URL.revokeObjectURL(url));
+            scripts.forEach((s) => s.remove());
+            allData = allData.filter((o) => o);
+            if (allData.length === 0) {return;}
+
+            let keys = [...window._allResolvers.keys()];
+
+            let index = keys.indexOf(key);
+            window._allResolvers.delete(key);
+            
+            if (index !== keys.length - 1) {
+                // if it is not the last element,
+                // there was already another call so discard it
+            } else {
+                let files = [];
+                allData.forEach((obj) => {
+                    let keys = Object.keys(obj.data);
+                    keys.forEach((expName) => {
+                        if (obj.data[expName] && obj.data[expName].expanders) {
+                            files.push(...obj.data[expName].expanders.map(e => e.toString()));
+                        }
+                    });
+                });
+                this.publish(this.model.id, "loadStart");
+
+                files.forEach((str) => {
+                    let match = /^class[\s]+([\S]+)/.exec(str.trim());
+                    if (!match) {return;}
+                    let className = match[1];
+                    
+                    this.publish(this.model.id, "loadOne", {
+                        action: "add", name: className, content: str
+                    });
+                });
+                this.publish(this.model.id, "loadDone");
+            }
+        });
+    }
+}
+
+export class ExpanderLibrary {
+    constructor() {
+        this.expanders = new Map();
+        this.functions = new Map();
+        this.classes = new Map();
+    }
+
+    add(library, path) {
+        if (library.expanders) {
+            library.expanders.forEach(cls => {
+                let key = (path ? path + "." : "") + cls.name;
+                this.expanders.set(key, cls.toString());
+            });
+        }
+
+        if (library.functions) {
+            library.functions.forEach(f => {
+                let key = (path ? path + "." : "") + f.name;
+                let str = `return ${f.toString()};`;
+                this.functions.set(key, str);
+            });
+        }
+
+        if (library.classes) {
+            library.classes.forEach(cls => {
+                let key = (path ? path + "." : "") + cls.name;
+                this.classes.set(key, cls);
+            });
+        }
+    }
+
+    get(path) {
+        let ret = this.expanders.get(path);
+        if (ret) {return ret;}
+        ret = this.functions.get(path);
+        if (ret) {return ret;}
+        ret = this.classes.get(path);
+        if (ret) {return ret;}
+    }
+
+    delete(path) {
+        let ret = this.expanders.get(path);
+        if (ret) {
+            this.expanders.delete(path);
+            return;
+        }
         
-        this.publish(this.model.id, "loadDone");
+        ret = this.functions.get(path);
+        if (ret) {
+            this.functions.delete(path);
+            return;
+        }
+
+        ret = this.classes.get(path);
+        if (ret) {
+            this.classes.delete(path);
+            return;
+        }
+    }
+
+    installAsBaseLibrary() {
+        Constants.Library = this;
+    }
+
+    static getBaseLibrary() {
+        return Constants.Library;
     }
 }

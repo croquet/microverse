@@ -19,6 +19,7 @@ export let myAvatar;
 let avatarModelPromises = [];
 export let EYE_HEIGHT = 1.7;
 export let EYE_EPSILON = 0.01;
+export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
 
 export let isWalking = false; // switchControl() will make it true
@@ -103,6 +104,11 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     setVelocity(v){
         super.setVelocity(v);
+        this.follow = undefined;
+    }
+
+    setVelocitySpin(vq){
+        super.setVelocitySpin(vq);
         this.follow = undefined;
     }
 
@@ -217,7 +223,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     constructor(actor) {
         super(actor);
         this.isAvatar = true;
-        this.speed = 0;
         this.lastUpdateTime = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
@@ -228,7 +233,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._lookYaw = this.actor.lookYaw;
         this._rotation = q_euler(0, this.lookYaw, 0);
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
-        this._lastMove = 0;
         if (this.isMyPlayerPawn) {
             myAvatar = this; // set the global for callbacks
             myAvatarId = this.actor.id;
@@ -381,6 +385,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     setControls(isWalking){ // switch between walking and orbiting with a tween between
+        if(isTweening)return;
         const input = this.service("InputManager");
         let look = this.walkLook;
 
@@ -408,17 +413,20 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             .easing( TWEEN.Easing.Quadratic.InOut )
             //.easing( TWEEN.Easing.Linear.None )
             .onStart( () => {
+                //console.log("tween start", time.t)
                 qStart.copy( fromCam.quaternion );
                 qEnd.copy( toCam.quaternion );
                 fromCam.getWorldPosition( vStart );
                 toCam.getWorldPosition( vEnd );
             } )
             .onUpdate( () => {
+                //console.log('tween update', time.t)
                 tweenCam.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
                 tweenCam.position.lerpVectors(vStart, vEnd, time.t);
                 tweenCam.updateMatrixWorld();
             } )
             .onComplete( () => {
+                //console.log("tween end", time.t)
                 isTweening = false;
                 tweenCam.quaternion.copy( qEnd ); // so it is exact  
                 tweenCam.position.copy( vEnd );
@@ -447,16 +455,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
-        // this gets overwritten in super.update
-
         if (!this.isMyPlayerPawn) {return;}
         if (isTweening) TWEEN.update();
-
-        if(isWalking){
+        else if(isWalking){
             if(this.isFalling)this._translation[1] = this.floor;
 
             if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
             this.lastUpdateTime = time;
+            if(this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
             if (this.actor.fall && !this.findFloor()) {
                 if (this.translation !== this.lastTranslation) {
                     this.setTranslation(this.lastTranslation);
@@ -506,9 +512,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         e.stopPropagation(); 
         if(true || isWalking){
             this.activeMMotion =false;
-            this.setVelocity([0, 0, 0]);
-            this.speed = 0;
-            this.setSpin(q_identity());
+            this.vq = undefined;
+            this.setVelocitySpin([0, 0, 0],q_identity());
             // this.hiddenknob.style.left = `0px`;
             //this.hiddenknob.style.top = `0px`;
             //this.knob.style.left = `30px`;
@@ -523,19 +528,17 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         e.preventDefault();
         e.stopPropagation(); 
 
-        if( /*this.now()-this._lastMove > D.THROTTLE &&*/ this.activeMMotion ){
-            this._lastMove = this.now();
+        if( this.activeMMotion ){
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
 
             // move the avatar
             let v = dy*0.000075;
             v = Math.min(Math.max(v, -0.01),0.01);
-            this.setVelocity([0, 0, v]);
-            this.speed = v;
+
             const yaw = dx * (isMobile?-0.00001:-0.000005);
             const qyaw = q_euler(0, yaw ,0);
-            this.setSpin(qyaw);
+            this.vq = [[0,0,v], qyaw];
 
             hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
@@ -760,6 +763,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._translation[1] = p;
         this.floor = p;
         this.onLocalChanged();
-        this.say("setFloor", p);
+        this.say("setFloor", p, 100);
     }
 }

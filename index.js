@@ -3,7 +3,10 @@
 // info@croquet.io
 
 import { startWorld, Constants, q_euler } from "./root.js";
+import { ExpanderLibrary } from "./src/code.js";
+import { demo } from "./expanders/demo.js";
 import { constructBitcoinTracker } from  './apps/bitcoinTracker.js';
+/* import { menu } from "./demos/menu.js"; */
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -11,112 +14,10 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.DefaultScripts = [
-    {
-        action: "add",
-        name: "Fly",
-        content: `class Fly {
-    setup() {
-        this.set({
-            rotation: WorldCore.q_euler(0, 0, 0),
-            translation: [0, 3, 0]});
-        if (!this.flying) {
-            this.flying = true;
-            this.fly();
-        }
-        this.addEventListener("pointerDown", "toggle");
-    }
-
-    fly() {
-        if (!this.flying) {return;}
-        this.future(20).call("Fly", "fly");
-        this.rotateBy([0, 0.01, 0]);
-        this.forwardBy(0.03);
-    }
-
-    toggle() {
-        this.flying = !this.flying;
-        if (this.flying) {
-            this.fly();
-        }
-    }
-
-    rotateBy(angles) {
-        let q = WorldCore.q_euler(...angles);
-        q = WorldCore.q_multiply(this.rotation, q);
-        this.rotateTo(q);
-    }
-
-    forwardBy(dist) {
-        let v = WorldCore.v3_rotate([0, 0, dist], this.rotation)
-        this.translateTo([
-            this.translation[0] + v[0],
-            this.translation[1] + v[1],
-            this.translation[2] + v[2]]);
-    }
-}
-/*global WorldCore */
-`
-    }, {
-        action: "add",
-        name: "Drive",
-        content: `class Drive {
-    setup() {
-        this.set({
-            rotation: WorldCore.q_euler(-Math.PI/2, 0, 0),
-            translation: [0, -2.9, 10]});
-        this.speed = 0;
-        this.angle = 0;
-        this.addEventListener("pointerDown", "toggle");
-        this.addEventListener("keyDown", "turn");
-    }
-
-    run() {
-        if (!this.running) {return;}
-        this.future(20).call("Drive", "run");
-        this.rotateBy([0, -this.angle, 0]);
-        this.forwardBy(-this.speed);
-    }
-
-    toggle() {
-        this.running = !this.running;
-        if (this.running) {
-            this.run();
-        }
-    }
-
-    rotateBy(angles) {
-        let q = WorldCore.q_euler(...angles);
-        q = WorldCore.q_multiply(this.rotation, q);
-        this.rotateTo(q);
-    }
-
-    forwardBy(dist) {
-        let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
-        this.translateTo([
-            this.translation[0] + v[0],
-            this.translation[1] + v[1],
-            this.translation[2] + v[2]]);
-    }
-
-    turn(key) {
-        if (key.key === "ArrowRight") {
-            this.angle = Math.min(0.05, this.angle + 0.004);
-        }
-        if (key.key === "ArrowLeft") {
-            this.angle = Math.max(-0.05, this.angle - 0.004);
-        }
-        if (key.key === "ArrowUp") {
-            this.speed = Math.min(1, this.speed + 0.05);
-        }
-        if (key.key === "ArrowDown") {
-            this.speed = Math.max(-0.2, this.speed - 0.05);
-        }
-    }
-}
-/*global WorldCore */`
-    }
-];
+let library = new ExpanderLibrary();
+library.add(demo);
+/* library.add(menu); */
+library.installAsBaseLibrary();
 
 Constants.DefaultCards = [
     {
@@ -173,9 +74,9 @@ Constants.DefaultCards = [
         card: {
             name:'simple 3D model',
             translation: [-4, -0.5, -12],
-            rotation: q_euler(0, Math.PI / 2, 0),
+            rotation: q_euler(Math.PI / 2, 0, 0),
             type: "model",
-            dataLocation: "./assets/avatars/generic/1.zip",
+            dataLocation: "./assets/3D/Gears+06.fbx.zip",
             shadow: true,
             singleSided: true,
         }
@@ -279,7 +180,7 @@ Constants.DefaultCards = [
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
-            expander: "Fly",
+            expander: "FlyActor",
             textScale: 0.001,
             width: 2,
             height: 2.5,
@@ -291,7 +192,7 @@ Constants.DefaultCards = [
             rotation: q_euler(0, 0, 0),
             type: "model",
             dataLocation: './assets/3D/Flamingo.glb.zip',
-            actorCode: ["Fly"]
+            actorCode: ["FlyActor"]
         }
     },
     {
@@ -301,12 +202,11 @@ Constants.DefaultCards = [
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
-            expander: "Drive",
+            expander: "DriveActor",
             textScale: 0.001,
             width: 2,
             height: 3.5,
         },
-        id: "Drive"
     },    
     {
         card: {
@@ -316,7 +216,7 @@ Constants.DefaultCards = [
             type: "model",
             multiuser: true,
             dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
-            actorCode: ["Drive"]
+            actorCode: ["DriveActor"]
         }
     },
     {
@@ -330,8 +230,7 @@ Constants.DefaultCards = [
             textScale: 0.001,
             width: 2,
             height: 2.5,
-        },
-        id: "BridgeActor"
+        }
     },
     {
         card: {
@@ -344,8 +243,7 @@ Constants.DefaultCards = [
             textScale: 0.001,
             width: 2,
             height: 2.5,
-        },
-        id: "BridgePawn"
+        }
     },    
     {
         card: {
