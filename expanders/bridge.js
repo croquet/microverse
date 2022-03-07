@@ -93,7 +93,7 @@ class BridgeActor {
             }
         }
         this.say("updateDisplay");
-        this.future(20).call("BridgeActor", "step");
+        this.future(20).step();
     }
 
     sag() {

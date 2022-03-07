@@ -71,10 +71,36 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     future(time) {
-        if (this[isProxy]) {
-            return this._target.future(time);
-        }
-        return super.future(time);
+        if (!this[isProxy]) {return super.future(time);}
+
+        let rcvr = this._target;
+        let expanderName = this._expander;
+
+        return this.futureWithExpander(time, expanderName);
+    }
+
+    futureWithExpander(time, expanderName) {
+        let superFuture = (sel, args) => super.future(time, sel, args);
+        let expanderManager = this.expanderManager;
+        let basicCall = this.call;
+        
+        return new Proxy(this, {
+            get(_target, property) {
+                let expander = expanderManager.code.get(expanderName);
+
+                let func = property === "call" ? basicCall : expander.$expander[property];
+                let fullName = property === "call" ?  "call" : `${expanderName}.${property}`;
+                if (typeof func === "function") {
+                    const methodProxy = new Proxy(func, {
+                        apply(_method, _this, args) {
+                            return superFuture(fullName, args);
+                        }
+                    });
+                    return methodProxy;
+                }
+                throw Error("Tried to call " + property + "() on future of " + expanderName + " which is not a function");
+            }
+        });
     }
 
     call(expanderName, name, ...values) {
