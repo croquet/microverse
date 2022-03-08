@@ -18,7 +18,7 @@ export class BitcoinTracker extends mix(CardActor).with(AM_Elected) {
     get latest() { return this.history.length > 0 ? this.history[ this.history.length - 1] : { date: 0, amount: 0 }; }
 
     onBitcoinData({date, amount}) {
-        if (date - this.latest.date < 25000) return;
+        if (date - this.latest.date < 1000) return;
         this.history.push({date, amount});
         if (this.history.length > 300) this.history.shift();
         this.sayDeck("value-changed", amount);
@@ -63,16 +63,19 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         const host = "wss://ws.sfox.com/ws";
         const sub_msg = {"type": "subscribe", "feeds": ["ticker.sfox.btcusd"]};
 
-        var socket = new WebSocket(host);
+        let BTC_View = this;
+        let socket = new WebSocket(host);
 
         socket.onopen = function() {
             socket.send(JSON.stringify(sub_msg));
         };
 
         socket.onmessage = function(evt){
-            let last_price = JSON.parse(evt.data).payload.last;
-            //console.log(last_price);
-            this.say("BTC-USD", { date: Date.now(), amount: + last_price });
+            var last_price = JSON.parse(evt.data).payload.last;
+            if(typeof last_price !== "undefined"){
+                BTC_View.say("BTC-USD", { date: Date.now(), amount: + last_price });
+                console.log("last_price: ", last_price);
+            }
         };
 
     }
