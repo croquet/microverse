@@ -11,7 +11,7 @@ class DriveActor {
 
     run() {
         if (!this.running) {return;}
-        this.future(20).call("DriveActor", "run");
+        this.future(20).run();
         this.rotateBy([0, -this.angle, 0]);
         this.forwardBy(-this.speed);
     }
@@ -67,7 +67,7 @@ class FlyActor {
 
     fly() {
         if (!this.flying) {return;}
-        this.future(20).call("FlyActor", "fly");
+        this.future(20).fly();
         this.rotateBy([0, 0.01, 0]);
         this.forwardBy(0.03);
     }
@@ -146,7 +146,7 @@ class PerlinActor {
         this.data.push(row); 
         this.currentRow++;
         this.say("updatePerlin", row);
-        this.future(100).call("PerlinActor", "updatePerlin");
+        this.future(100).updatePerlin();
     }
 
     showHide() {

@@ -5,7 +5,6 @@ class ExpanderMenuActor {
         }
         this.menu = this.createCard({
             name: 'expander menu',
-            translation: [2, 0.5, -4],
             actorCode: ["MenuActor"],
             multiple: true,
             parent: this

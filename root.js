@@ -3,11 +3,13 @@
 // info@croquet.io
 
 import {
-    Constants as C, App, Data, THREE, ModelRoot, ViewRoot, StartWorldcore,
+    Constants as C, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, ThreeRenderManager,
     q_euler as qe, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
-import { myAvatarId, AvatarActor, AvatarPawn } from './src/DAvatar.js';
-import { KeyFocusManager, SyncedStateManager } from './src/text/text.js';
+import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
+import {
+    KeyFocusManager, SyncedStateManager,
+    FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
 import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
 import { DLight } from './src/DLight.js';
@@ -91,7 +93,7 @@ class MyAvatar extends AvatarActor {
             runs: [],
             width: 1,
             height: 1,
-            textScale: 0.004
+            textScale: 0.002
         });
         this.publish(this.sessionId, "triggerPersist");
     }
@@ -136,7 +138,8 @@ class MyModelRoot extends ModelRoot {
         return [
             MyPlayerManager,
             DynaverseAppManager,
-            ExpanderModelManager
+            ExpanderModelManager,
+            FontModelManager,
         ];
     }
     init(options, persistentData) {
@@ -155,7 +158,6 @@ class MyModelRoot extends ModelRoot {
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
-        this.subscribe(this.id, "fileUploaded", "fileUploaded");
 
         if (persistentData) {
             this.loadPersistentData(persistentData);
@@ -247,33 +249,6 @@ class MyModelRoot extends ModelRoot {
         this.persistRequested = false;
         this.savePersistentData();
     }
-
-    fileUploaded(data) {
-        let {dataId, fileName, type, avatarId} = data;
-        // this.assets.set(dataId, dataId, type);
-        console.log(dataId, fileName, type, avatarId);
-        let avatar = this.service('ActorManager').get(avatarId);
-        
-        let n = avatar.lookNormal;
-        let t = avatar.translation;
-        let r = avatar.rotation;
-        console.log("drop here", n, t, r);
-        let p = v3_add(v3_scale(n, 6),t);
-
-        CardActor.create({
-            name: fileName,
-            translation: p,
-            rotation: r,
-            type: "model",
-            dataLocation: dataId,
-            fileName,
-            modelType: type,
-            shadow: true,
-            singleSided: true
-        });
-        this.publish(this.id, "fileLoadRequested", data);
-        this.publish(this.sessionId, "triggerPersist");
-    }
 }
 
 MyModelRoot.register("MyModelRoot");
@@ -285,6 +260,7 @@ class MyViewRoot extends ViewRoot {
             {service: ThreeRenderManager, options:{antialias:true}},
             AssetManager,
             KeyFocusManager,
+            FontViewManager,
             SyncedStateManager,
             VideoManager,
             ExpanderViewManager
@@ -295,23 +271,14 @@ class MyViewRoot extends ViewRoot {
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
 
+        this.service("FontViewManager").setModel(model.service("FontModelManager"));
+
         renderer.toneMapping = THREE.ReinhardToneMapping;
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
-        console.log(renderer)
-        console.log("ThreeRenderManager", this.service("ThreeRenderManager"))
+        console.log("ThreeRenderManager", threeRenderManager);
 
-        this.assetManager = this.service("AssetManager");
-        window.assetManager = this.assetManager.assetManager;
-
-        this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
-            return Data.store(this.sessionId, buffer, true).then((handle) => {
-                let dataId = Data.toId(handle);
-                let avatarId = myAvatarId;
-                this.publish(this.model.id, "fileUploaded", {dataId, fileName, type, avatarId});
-            });
-        });
     }
 }
 
