@@ -267,18 +267,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
                 return Data.store(this.sessionId, buffer, true).then((handle) => {
                     let dataId = Data.toId(handle);
-
-                    let avatar = this.actor;
-                    let n = avatar.lookNormal;
-                    let t = avatar.translation;
-                    let r = avatar.rotation;
-                    console.log("drop here", n, t, r);
-                    let p = v3_add(v3_scale(n, 6),t);
-                
+                    let pose = this.dropPose(6);
                     this.publish(this.actor.id, "fileUploaded", {
                         dataId, fileName, type,
-                        translation: p,
-                        rotation: r
+                        translation: pose.translation,
+                        rotation: pose.rotation
                     });
                 });
             });
@@ -286,6 +279,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.constructVisual();
     }
 
+    dropPose(distance){ // compute the position in front of the avatar
+        let avatar = this.actor;
+        let n = avatar.lookNormal;
+        let t = avatar.translation;
+        let r = avatar.rotation;
+        let p = v3_add(v3_scale(n, distance),t);
+        return{translation:p,rotation:r};
+    }
     setEditMode(evt) {
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
