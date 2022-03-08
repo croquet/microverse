@@ -14,18 +14,22 @@ export class KeyFocusManager extends ViewService {
         super(name || "KeyFocusManager");
         this.setKeyboardInput(null);
 
-        this.random = Math.random();
-        // console.log("keyFocusManager", this.random);
-
         this.hiddenInput = document.querySelector("#hiddenInput");
 
         if (!this.hiddenInput) {
             this.hiddenInput = document.createElement("input");
             this.hiddenInput.id = "hiddenInput";
+            this.hiddenInput.style.setProperty("position", "absolute");
+
+            this.hiddenInput.style.setProperty("left", "-120px"); //-120px
+            this.hiddenInput.style.setProperty("top", "-120px");  // -120px
+            this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
+
+            this.hiddenInput.style.setProperty("width", "100px");
+            this.hiddenInput.style.setProperty("height", "100px");
             document.body.appendChild(this.hiddenInput);
-            
+
             this.hiddenInput.addEventListener("input", evt => {
-                // console.log("key input", this.random, this.keyboardInput);
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.input(evt);
             }, true);
@@ -38,26 +42,16 @@ export class KeyFocusManager extends ViewService {
             this.hiddenInput.addEventListener("copy", evt => {
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.copy(evt);
-            })
+            });
 
             this.hiddenInput.addEventListener("paste", evt => {
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.paste(evt);
             });
         }
-
-        this.hiddenInput.style.setProperty("position", "absolute");
-
-        this.hiddenInput.style.setProperty("left", "-120px"); //-120px
-        this.hiddenInput.style.setProperty("top", "-120px");  // -120px
-        this.hiddenInput.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
-
-        this.hiddenInput.style.setProperty("width", "100px");
-        this.hiddenInput.style.setProperty("height", "100px");
     }
 
     setKeyboardInput(obj) {
-        // console.log("setKeyboardInput", this.random, obj ? obj.id : null);
         if (this.hiddenInput && !obj) {
             this.hiddenInput.blur();
         }
@@ -65,6 +59,17 @@ export class KeyFocusManager extends ViewService {
         if (obj) {
             this.hiddenInput.focus();
         }
+    }
+
+    destroy() {
+        this.keyboardInput = null;
+
+        this.hiddenInput = document.querySelector("#hiddenInput");
+
+        if (this.hiddenInput) {
+            this.hiddenInput.remove();
+        }
+        super.destroy();
     }
 }
 
@@ -138,7 +143,6 @@ export class FontViewManager extends ViewService {
                 loader.load(
                     image,
                     (tex) => {
-                        console.log('begin registering');
                         let preprocessor = new MSDFFontPreprocessor();
                         let img = new Image(font.common.scaleW, font.common.scaleH);
                         let canvas = document.createElement("canvas");
@@ -179,7 +183,6 @@ export class FontViewManager extends ViewService {
     }
 
     destroy() {
-        // console.log("FontViewManager.destroy()");
         this.fonts.forEach((v, _k) => {
             if (v.material) {
                 v.material.dispose();
@@ -377,13 +380,13 @@ export class TextFieldPawn extends CardPawn {
     }
 
     destroy() {
-        super.destroy();
         ["geometry", "material", "textGeometry"].forEach((n) => {
             if (this[n]) {
                 this[n].dispose();
                 this[n] = null;
             }
         });
+        super.destroy();
     }
 
     textScale() {
