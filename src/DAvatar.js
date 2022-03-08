@@ -602,8 +602,16 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doPointerTap(e){
         if(this.editPawn){ // this gets set in doPointerDown
-            if(this.editMode){ // if we are in edit mode, clear it
+//            if(this.editMode){ // if we are in edit mode, clear it
+                console.log("am I HERE????")
                 this.editPawn.unselectEdit();
+                this.editPawn.showControls(this.actor.id);
+                this.editPawn = null;
+                this.editPointerId = null;
+                this.editMode = false;
+//            }
+        }
+        /*
                 this.editPawn = null;
                 this.editPointerId = null;
                 this.editMode = false;
@@ -614,7 +622,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 console.log("doPointerTap",this.actor.id);
                 this.editPawn.showControls(this.actor.id);
             }
-        }
+        }*/
     }
 
     doPointerDown(e){
