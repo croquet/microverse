@@ -1,81 +1,30 @@
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
-import { Constants, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible, PM_LayerTarget,
-         v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
-         m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
+import {
+    Constants, Data, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
+    v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+    m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
 
 import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-
-import { defaultKeyBindings } from "./text/text-commands.js";
-import {AssetManager} from "./wcAssetManager.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
-export let myAvatarId; 
-export let myAvatar;
 let avatarModelPromises = [];
 export let EYE_HEIGHT = 1.7;
 export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
 
-export let isWalking = false; // switchControl() will make it true
+export let isWalking = true;
 let isTweening = false; // transition between camera modes
 
-// simple "click button, do this, nothing else"
-function setupButton( bttn, dothis ){ 
-    bttn.addEventListener("click", dothis, false);
-    bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
-    bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
+function setUpDnButton(bttn, doThis, doThat) {
+    bttn.onpointerdown = doThis;
+    bttn.onpointerup = doThat;
 }
-
-function setUpDnButton(bttn, doThis, doThat){
-    bttn.addEventListener("pointerdown", doThis, false);
-    bttn.addEventListener("pointerup", doThat, false);
-
-//    bttn.addEventListener("pointerdown", e=>e.stopPropagation(), false);// button click passes through to world otherwise
-//    bttn.addEventListener("pointerup", e=>e.stopPropagation(), false);
-}
-
-// swith between walk and orbit
-setupButton(document.getElementById("walkingBttn"), switchControl);
-setupButton(document.getElementById("fullscreenBttn"), toggleFullScreen);
-/*
-setupButton(document.getElementById("undoObject"), undoChange);
-setupButton(document.getElementById("deleteObject"), deleteObject);
-setupButton(document.getElementById("scalebject"), scaleObject);
-setupButton(document.getElementById("rotatebject"), rotateObject);
-setupButton(document.getElementById("dragbject"), dragObject);
-*/
-
-function switchControl(e){
-    isWalking = !isWalking;
-    if(myAvatar)myAvatar.setControls(isWalking);
-    let button = document.getElementById("walkingBttn");
-    if (button) {
-        button.setAttribute("isWalking", isWalking);
-    }
-    if(e){e.stopPropagation(); e.preventDefault();}
-}
-switchControl(); //initialize the buttons (lazy me)
-
-function toggleFullScreen(e) {
-    if (!document.fullscreenElement) {
-      // If the document is not in full screen mode
-      // make the document full screen
-      document.body.requestFullscreen();
-    } else {
-      // Otherwise exit the full screen
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-    if(e){e.stopPropagation(); e.preventDefault();}
-  }
-  
 
 export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     init(options) {
@@ -91,6 +40,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
+        this.listen("fileUploaded", "fileUploaded");
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
@@ -215,6 +165,27 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         } 
         super.tick(delta);
     }
+
+    fileUploaded(data) {
+        let {dataId, fileName, type, translation, rotation} = data;
+        // this.assets.set(dataId, dataId, type);
+
+        let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
+        
+        CA.create({
+            name: fileName,
+            translation,
+            rotation,
+            type: "model",
+            dataLocation: dataId,
+            fileName,
+            modelType: type,
+            shadow: true,
+            singleSided: true
+        });
+        //this.publish(this.id, "fileLoadRequested", data);
+        this.publish(this.sessionId, "triggerPersist");
+    }
 }
 
 AvatarActor.register('AvatarActor');
@@ -222,7 +193,6 @@ AvatarActor.register('AvatarActor');
 export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
-        this.isAvatar = true;
         this.lastUpdateTime = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
@@ -234,8 +204,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._rotation = q_euler(0, this.lookYaw, 0);
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
         if (this.isMyPlayerPawn) {
-            myAvatar = this; // set the global for callbacks
-            myAvatarId = this.actor.id;
             // create a dummy camera that will be moved by the OrbitControls
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
@@ -283,13 +251,38 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
-            setupButton(document.getElementById("homeBttn"), this.goHome);
-            setupButton(document.getElementById("usersComeHereBttn"), this.comeToMe);
+            document.getElementById("walkingBttn").onclick = (e) => this.switchControl(e);
+            document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
+            document.getElementById("homeBttn").onclick = () => this.goHome();
+            document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
             document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
-            setUpDnButton(document.getElementById("editModeBttn"),
-                          (evt) => this.setEditMode(evt),
-                          (evt) => this.clearEditMode(evt));
-            }
+
+            let editButton = document.getElementById("editModeBttn");
+            editButton.onpointerdown = (evt) => this.setEditMode(evt);
+            editButton.onpointerup = (evt) => this.clearEditMode(evt);
+
+            this.assetManager = this.service("AssetManager");
+            window.assetManager = this.assetManager.assetManager;
+
+            this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
+                return Data.store(this.sessionId, buffer, true).then((handle) => {
+                    let dataId = Data.toId(handle);
+
+                    let avatar = this.actor;
+                    let n = avatar.lookNormal;
+                    let t = avatar.translation;
+                    let r = avatar.rotation;
+                    console.log("drop here", n, t, r);
+                    let p = v3_add(v3_scale(n, 6),t);
+                
+                    this.publish(this.actor.id, "fileUploaded", {
+                        dataId, fileName, type,
+                        translation: p,
+                        rotation: r
+                    });
+                });
+            });
+        }
         this.constructVisual();
     }
 
@@ -297,8 +290,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
-        myAvatar.ctrlKey = true;
-        console.log(myAvatar.ctrlKey);
+        this.ctrlKey = true;
+        console.log(this.ctrlKey);
     }
 
     clearEditMode(evt) {
@@ -306,8 +299,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         evt.target.releasePointerCapture(evt.pointerId);
         delete this.capturedPointers[evt.pointerId];
         evt.stopPropagation();
-        myAvatar.ctrlKey = false;
-        console.log(myAvatar.ctrlKey);
+        this.ctrlKey = false;
+        console.log(this.ctrlKey);
     }
 
     constructVisual(){
@@ -315,9 +308,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         // this.setRenderObject(a)
     }
 
-    get lookOffset(){return this._lookOffset || [0,0,0]}
-    get lookPitch() { return this._lookPitch || 0}
-    get lookYaw() { return this._lookYaw || 0}
+    get lookOffset(){ return this._lookOffset || [0,0,0]; }
+    get lookPitch() { return this._lookPitch || 0; }
+    get lookYaw() { return this._lookYaw || 0; }
 
     getAvatarModel(index) {
         if (avatarModelPromises[index]) {
@@ -386,7 +379,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     setControls(isWalking){ // switch between walking and orbiting with a tween between
         if(isTweening)return;
-        const input = this.service("InputManager");
         let look = this.walkLook;
 
         this.walkCamera.position.set( ...m4_getTranslation(look) );
@@ -510,21 +502,16 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     endMMotion( e ){
         e.preventDefault();
         e.stopPropagation(); 
-        if(true || isWalking){
-            this.activeMMotion =false;
+        if(true || isWalking) {
+            this.activeMMotion = false;
             this.vq = undefined;
             this.setVelocitySpin([0, 0, 0],q_identity());
-            // this.hiddenknob.style.left = `0px`;
-            //this.hiddenknob.style.top = `0px`;
-            //this.knob.style.left = `30px`;
-            //this.knob.style.top = `30px`;
-
             this.hiddenknob.style.transform = "translate(0px, 0px)";
             this.knob.style.transform = "translate(30px, 30px)";
         }
     }
 
-    continueMMotion( e ){
+    continueMMotion( e ) {
         e.preventDefault();
         e.stopPropagation(); 
 
@@ -551,7 +538,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
 
-            if(!isWalking){
+            if(!isWalking) {
                 let look = this.walkLook;
 
                 this.walkCamera.position.set( ...m4_getTranslation(look) );
@@ -574,6 +561,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 console.log("rotation:", q_pitch(this.actor.rotation),
                     q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
                 console.log("scale:", this.actor.scale);
+                break;
             default:
             /* console.log(e) */
         }
@@ -742,14 +730,42 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
     
-    goHome(){ // in a callback, so use myAvatar
+    goHome() {
         console.log("goHome")
-        myAvatar.say("goHome", [[0,0,0], [0,0,0,1]])
+        this.say("goHome", [[0,0,0], [0,0,0,1]])
     }
 
     comeToMe(){
         console.log("comeToMe");
-        myAvatar.say("comeToMe");
+        this.say("comeToMe");
+    }
+
+    switchControl(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    
+        isWalking = !isWalking;
+        this.setControls(isWalking);
+        let button = document.getElementById("walkingBttn");
+        if (button) {
+            button.setAttribute("isWalking", isWalking);
+        }
+    }
+
+    toggleFullScreen(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    
+        if (!document.fullscreenElement) {
+            // If the document is not in full screen mode
+            // make the document full screen
+            document.body.requestFullscreen();
+        } else {
+            // Otherwise exit the full screen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
     }
 
     setTranslation(v){
