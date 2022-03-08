@@ -6,7 +6,7 @@ import { startWorld, Constants, q_euler } from "./root.js";
 import { ExpanderLibrary } from "./src/code.js";
 import { demo } from "./expanders/demo.js";
 import { constructBitcoinTracker } from  './apps/bitcoinTracker.js';
-/* import { menu } from "./demos/menu.js"; */
+import { menu } from "./expanders/menu.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -16,7 +16,7 @@ Constants.AvatarNames = [
 
 let library = new ExpanderLibrary();
 library.add(demo);
-/* library.add(menu); */
+library.add(menu);
 library.installAsBaseLibrary();
 
 Constants.DefaultCards = [

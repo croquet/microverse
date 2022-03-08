@@ -186,6 +186,14 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         //this.publish(this.id, "fileLoadRequested", data);
         this.publish(this.sessionId, "triggerPersist");
     }
+
+    dropPose(distance){ // compute the position in front of the avatar
+        let n = this.lookNormal;
+        let t = this.translation;
+        let r = this.rotation;
+        let p = v3_add(v3_scale(n, distance),t);
+        return{translation:p,rotation:r};
+    }
 }
 
 AvatarActor.register('AvatarActor');
@@ -280,13 +288,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     dropPose(distance){ // compute the position in front of the avatar
-        let avatar = this.actor;
-        let n = avatar.lookNormal;
-        let t = avatar.translation;
-        let r = avatar.rotation;
-        let p = v3_add(v3_scale(n, distance),t);
-        return{translation:p,rotation:r};
+        return this.actor.dropPose();
     }
+    
     setEditMode(evt) {
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
@@ -607,6 +611,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             } else {
                 console.log("doPointerTap set editMode")
                 this.editMode = true; // otherwise, set it
+                console.log("doPointerTap",this.actor.id);
+                this.editPawn.showControls(this.actor.id);
             }
         }
     }

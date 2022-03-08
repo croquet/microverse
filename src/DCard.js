@@ -42,7 +42,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
         this.listen("setTranslation", this.setTranslation);
         this.listen("setRotation", this.setRotation);
-        this.listen("showMenu", this.showMenu);
+        this.listen("showControls", this.showControls);
     }
 
     createShape(options) {
@@ -118,19 +118,29 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     nop() {}
 
-    showMenu() {
-        if (!this.expanderManager.code.get("ExpanderMenuActor")) {return;}
-        let menu = this.createCard({
-            card: {
-                name: 'expander menu',
-                actorCode: ["ExpanderMenuActor"],
-                translation: [0, -0.5, -5],
-                target: this.id,
-            }
-        });
+    showControls(id) {
+        let avatar = this.service("ActorManager").actors.get(id);
+        console.log("showControls", id, avatar)
+      // console.log(id, avatar)
+        if(avatar){
+            let pose = avatar.dropPose(6);
+            console.log("showControls pose", pose)
+            console.log("expander", this.expanderManager.code.get("ExpanderMenuActor"))
 
-        menu.call("ExpanderMenuActor", "show");
-        this.subscribe(menu.id, "setExpanders", "setExpanders");
+            if (!this.expanderManager.code.get("ExpanderMenuActor")) {return;}
+            let menu = this.createCard({
+                
+                    name: 'expander menu',
+                    actorCode: ["ExpanderMenuActor"],
+                    translation: pose.translation,
+                    rotation: pose.rotation,
+                    target: this.id,
+              
+            });
+console.log("Expander menu", menu)
+            menu.call("ExpanderMenuActor", "show");
+            this.subscribe(menu.id, "setExpanders", "setExpanders");
+        }
     }
 
     setExpanders(data) {
@@ -450,7 +460,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             pe.offset = EYE_HEIGHT;
         }
         this.publish(pe.pointerId, "goThere", pe);
-        this.say("showMenu", {pe: pe, actor: this.actor.id});
+    }
+
+    showControls(actorId){
+        console.log("Pawn showControls", actorId)
+        this.say("showControls", actorId);
     }
 
     onPointerTap(p3e){
