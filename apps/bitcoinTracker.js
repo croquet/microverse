@@ -7,28 +7,34 @@ import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { CardActor, CardPawn } from '../src/DCard.js';
 
 export class BitcoinTracker extends mix(CardActor).with(AM_Elected) {
-    get pawn(){ return BitcoinTrackerDisplay; }
+    get pawn() {return BitcoinTrackerDisplay;}
     init(options) {
         super.init(options);
+        this.history = [{ date: 0, amount: 0 }];
         this.listen("BTC-USD", this.onBitcoinData);
         this.listen("BTC-USD-history", this.onBitcoinHistory);
-        this.history = [];
     }
 
-    get latest() { return this.history.length > 0 ? this.history[ this.history.length - 1] : { date: 0, amount: 0 }; }
+    get latest() {
+        return this.history[ this.history.length - 1];
+    }
 
     onBitcoinData({date, amount}) {
         if (date - this.latest.date < 1000) return;
-        this.history.push({date, amount});
-        if (this.history.length > 300) this.history.shift();
+        this.addEntries({date, amount});
         this.sayDeck("value-changed", amount);
     }
 
     onBitcoinHistory(prices) {
         const newer = prices.filter(p => p.date - this.latest.date > 25000);
-        this.history.push(...newer);
-        while (this.history.length > 300) this.history.shift();
+        this.addEntries(...newer);
         this.sayDeck("value-init", newer.map(v=>v.amount));
+    }
+
+    addEntries(...data) {
+        this.history.push(...data);
+        if (this.history[0].date === 0) {this.history.shift();}
+        if (this.history.length > 300) {this.history.shift();}
     }
 }
 BitcoinTracker.register("BitcoinTracker");
@@ -38,77 +44,72 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         super(actor);   // might call handleElected()
         this.lastAmount = 0;
         this.listenDeck("value-changed", this.onBTCUSDChanged);
-        this.listenDeck("value-init", this.onBTCUSDChanged);
+
+        this.onBTCUSDChanged();
     }
 
     handleElected() {
-        console.log("I AM ELECTED!")
         super.handleElected();
-
-        this.count = 0;
-
-        // if (Date.now() - this.actor.latest.date < 60_000) this.fetchSpot("on-elected");
-        // else this.fetchHistory();
-        this.fetchHistory();
-        const id = setInterval(() => this.fetchSpot(id), 30000);
-        this.interval = id;
+        this.fetchHistory().then(() => this.openSocket());
     }
 
     handleUnelected() {
         super.handleUnelected();
-        clearInterval(this.interval);
+        this.closeSocket();
     }
 
-    async fetchSpot(id){
+    openSocket() {
+        this.closeSocket();
+
         const host = "wss://ws.sfox.com/ws";
         const sub_msg = {"type": "subscribe", "feeds": ["ticker.sfox.btcusd"]};
 
-        let BTC_View = this;
-        let socket = new WebSocket(host);
+        this.socket = new WebSocket(host);
 
-        socket.onopen = function() {
-            socket.send(JSON.stringify(sub_msg));
+        this.socket.onopen = () => {
+            this.socket.send(JSON.stringify(sub_msg));
         };
 
-        socket.onmessage = function(evt){
-            var last_price = JSON.parse(evt.data).payload.last;
-            if(typeof last_price !== "undefined"){
-                BTC_View.say("BTC-USD", { date: Date.now(), amount: + last_price });
-                console.log("last_price: ", last_price);
+        this.socket.onmessage = (evt) => {
+            let last;
+            try {
+                last = JSON.parse(evt.data).payload.last;
+            } catch(e) {
+                console.log("invalid data");
             }
-        };
+            if (last !== undefined) {
+                this.say("BTC-USD", { date: Date.now(), amount: +last });
+            }
+        }
+    }
 
+    closeSocket() {
+        if (this.socket) {
+            this.socket.close();
+        }
     }
-/*
-    async fetchSpot(id) {
-        const count = ++this.count;
-        // console.log("Fetching BTC-USD from Coinbase", id, count);
-        const response = await fetch(`https://api.coinbase.com/v2/prices/BTC-USD/spot`);
-        const json = await response.json();
-        // console.log("Fetched BTC-USD from Coinbase", id, count, json);
-        this.say("BTC-USD", { date: Date.now(), amount: +json.data.amount });
-    }
-*/
-    
-    async fetchHistory() {
+
+    fetchHistory() {
         console.log("Fetching BTC-USD history from Coinbase...");
-        const response = await fetch(`https://api.coinbase.com/v2/prices/BTC-USD/historic?period=day`);
-        const json = await response.json();
-        const prices = json.data.prices.map(price => ({ date: +new Date(price.time), amount: +price.price }));
-        console.log("fetched %s prices", prices.length);
-        const newer = prices.filter(price => price.date > this.actor.latest.date);
-        console.log("publishing %s latest prices", newer.length);
-        this.say("BTC-USD-history", newer);
+        return fetch(`https://api.coinbase.com/v2/prices/BTC-USD/historic?period=day`).then((response) => {
+            return response.json();
+        }).then((json) => {
+            const prices = json.data.prices.map(price => ({ date: +new Date(price.time), amount: +price.price }));
+            console.log("fetched %s prices", prices.length);
+            const newer = prices.filter(price => price.date > this.actor.latest.date).slice(0, 20);
+            newer.sort((a, b) => a.date - b.date);
+            console.log("publishing %s latest prices", newer.length);
+            this.say("BTC-USD-history", newer);
+        });
     }
-
+    
     onBTCUSDChanged() {
         // this is called on all views, not just the elected one
-        
         let amount = this.actor.latest.amount;
-        let color;
-        if(this.lastAmount === amount)return;
-        if(this.lastAmount > amount) color = "#FF2222";
-        else color = "#22FF22";
+        if(this.lastAmount === amount) return;
+        let color = this.lastAmount > amount ? "#FF2222" : "#22FF22";
+        this.lastAmount = amount;
+
         this.clear("#222222");
         let ctx = this.canvas.getContext('2d');
         ctx.textAlign = 'right';
@@ -117,15 +118,14 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
         ctx.font = "40px Arial";
         ctx.fillText("BTC-USD", this.canvas.width - 40, 85);
 
-        ctx.textAlign = 'center';        
+        ctx.textAlign = 'center';
         ctx.font = "90px Arial";
-        ctx.fillText("$" + amount, this.canvas.width / 2, 100); //50+this.canvas.height/2);
+        ctx.fillText("$" + amount.toFixed(2), this.canvas.width / 2, 100); //50+this.canvas.height/2);
         this.texture.needsUpdate = true;
-        this.lastAmount = amount;
         this.sayDeck('setColor', color);
     }
 
-    clear(fill){
+    clear(fill) {
         let ctx = this.canvas.getContext('2d');
         ctx.fillStyle = fill;
         ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
@@ -133,8 +133,7 @@ class BitcoinTrackerDisplay extends mix(CardPawn).with(PM_Elected) {
 }
 
 export class BitLogoCard extends CardActor {
-    get pawn(){return BitLogoPawn}
-    get version(){return '0.11'}
+    get pawn() {return BitLogoPawn;}
 }
 BitLogoCard.register('BitLogoCard');
 
