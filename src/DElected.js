@@ -5,8 +5,8 @@
 import { mix, RegisterMixin} from "@croquet/worldcore"
 
 export const AM_Elected = superclass => class extends superclass {
-    init(...options) {
-        super.init(...options);
+    init(options) {
+        super.init(options);
         this.views = new Set();
         this.subscribe(this.sessionId, "view-join", this.viewJoined);
         this.subscribe(this.sessionId, "view-exit", this.viewExited);
@@ -30,8 +30,8 @@ RegisterMixin(AM_Elected);
 
 
 export const PM_Elected = superclass => class extends superclass {
-    constructor(...args) {
-        super(...args);
+    constructor(actor) {
+        super(actor);
         this.electedViewId = "";
         this.listen({event: "view-elected", handling: "oncePerFrame"}, this.onViewElected);
         this.onViewElected(this.actor.electedView);
