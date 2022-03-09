@@ -1,10 +1,7 @@
 class DriveActor {
     setup() {
-        this.set({
-            rotation: WorldCore.q_euler(-Math.PI / 2, 0, 0),
-            translation: [0, -2.9, 10]});
-        this.speed = 0;
-        this.angle = 0;
+        if (this.speed === undefined) this.speed = 0;
+        if (this.angle === undefined) this.angle = 0;
         this.addEventListener("pointerDown", "toggle");
         this.addEventListener("keyDown", "turn");
     }
@@ -40,14 +37,11 @@ class DriveActor {
     turn(key) {
         if (key.key === "ArrowRight") {
             this.angle = Math.min(0.05, this.angle + 0.004);
-        }
-        if (key.key === "ArrowLeft") {
+        } else if (key.key === "ArrowLeft") {
             this.angle = Math.max(-0.05, this.angle - 0.004);
-        }
-        if (key.key === "ArrowUp") {
+        } else if (key.key === "ArrowUp") {
             this.speed = Math.min(1, this.speed + 0.05);
-        }
-        if (key.key === "ArrowDown") {
+        } else if (key.key === "ArrowDown") {
             this.speed = Math.max(-0.2, this.speed - 0.05);
         }
     }
@@ -55,9 +49,6 @@ class DriveActor {
 
 class FlyActor {
     setup() {
-        this.set({
-            rotation: WorldCore.q_euler(0, 0, 0),
-            translation: [0, 3, 0]});
         if (!this.flying) {
             this.flying = true;
             this.fly();
@@ -96,9 +87,13 @@ class FlyActor {
 
 class PerlinActor {
     setup() {
-        this.visible = false;
-        this.initPerlin();
-        this.updatePerlin();
+        let firstTime = false;
+        if (this.visible === undefined) {
+            firstTime = true;
+            this.visible = false;
+        }
+
+        this.initPerlin(firstTime);
 
         this.scriptListen("hiliteRequest", "hilite");
         this.scriptListen("unhiliteRequest", "unhilite");
@@ -109,11 +104,9 @@ class PerlinActor {
 
     hilite(p3d) {
         this.say("hilite", 0x081808);
-        this.downTargetId = p3d.targetId;
     }
 
     unhilite(_p3d) {
-        console.log("onPointerUp")
         this.say("hilite", 0x000000);
     }
 
@@ -124,7 +117,7 @@ class PerlinActor {
         this.say("hilite", 0x000000);
     }
 
-    initPerlin() {
+    initPerlin(firstTime) {
         let r = this.currentRow = this.rows = 20;
         let c = this.columns = 20;
         let d = this.delta = 0.1;
@@ -134,6 +127,10 @@ class PerlinActor {
                 return this.call("PerlinNoise", "noise2D", i * d, j * d);
             });
         });
+
+        if (firstTime) {
+            this.updatePerlin();
+        }
     }
 
     updatePerlin() {
@@ -146,6 +143,7 @@ class PerlinActor {
         this.data.push(row); 
         this.currentRow++;
         this.say("updatePerlin", row);
+
         this.future(100).updatePerlin();
     }
 
@@ -378,6 +376,7 @@ class PerlinPawn {
             this.rowGeometry.push(rGroup);
             this.perlinGroup.add(rGroup);
         }
+        this.showMe(this.actor.visible);
         this.shape.name = "perlin";
         this.isConstructed = true;
     }

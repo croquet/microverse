@@ -298,8 +298,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }).then((obj) => {
             obj.updateMatrixWorld(true);
             addShadows(obj, shadow, singleSided, THREE);
-            if (options.scale) {
-                obj.scale.set(...options.scale);
+            if (options.dataScale) {
+                obj.scale.set(...options.dataScale);
             } else {
                 let size = new THREE.Vector3(0, 0, 0);
                 new THREE.Box3().setFromObject(obj).getSize(size);
@@ -307,11 +307,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 let s = 4 / max;
                 obj.scale.set(s, s, s);
             }
-            if (options.offset) {
-                obj.position.set(...options.offset);
+            if (options.dataTranslation) {
+                obj.position.set(...options.dataTranslation);
             }
-            if (options.rotation) {
-                obj.rotation.set(...options.rotation);
+            if (options.dataRotation) {
+                obj.quaternion.set(...options.dataRotation);
             }
             if (obj._croquetAnimation) {
                 const spec = obj._croquetAnimation;

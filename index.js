@@ -7,6 +7,7 @@ import { ExpanderLibrary } from "./src/code.js";
 import { demo } from "./expanders/demo.js";
 import { constructBitcoinTracker } from  './apps/bitcoinTracker.js';
 import { menu } from "./expanders/menu.js";
+import { bridge } from "./expanders/bridge.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -17,6 +18,7 @@ Constants.AvatarNames = [
 let library = new ExpanderLibrary();
 library.add(demo);
 library.add(menu);
+library.add(bridge);
 library.installAsBaseLibrary();
 
 Constants.DefaultCards = [
@@ -47,8 +49,10 @@ Constants.DefaultCards = [
     {
         card: {
             name: 'Perlin Demo',
-            className: "PerlinActor",
+            layers: ["pointer"],
             translation:[ 10, -2.75, -14],
+            actorCode: ["PerlinNoise", "PerlinActor"],
+            pawnCode: ["PerlinPawn"],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ],
         }
     },
@@ -176,7 +180,7 @@ Constants.DefaultCards = [
     {
         card: {
             name:'code editor',
-            translation: [13, 0, 8],
+            translation: [8, 0, 4],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
@@ -189,7 +193,7 @@ Constants.DefaultCards = [
     {
         card: {
             name:'flamingo model',
-            rotation: q_euler(0, 0, 0),
+            dataTranslation: [0, 3, 0],
             type: "model",
             dataLocation: './assets/3D/Flamingo.glb.zip',
             actorCode: ["FlyActor"]
@@ -198,7 +202,7 @@ Constants.DefaultCards = [
     {
         card: {
             name: 'code editor',
-            translation: [13, 0, 14],
+            translation: [8, 0, 10],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
@@ -211,7 +215,8 @@ Constants.DefaultCards = [
     {
         card: {
             name:'porsche',
-            rotation: q_euler(0, 0, 0),
+            dataRotation: q_euler(-Math.PI / 2, 0, 0),
+            dataTranslation: [0, -2.9, 10],
             layers: ['pointer'],
             type: "model",
             multiuser: true,
@@ -248,58 +253,12 @@ Constants.DefaultCards = [
     {
         card: {
             name:'bridge',
-            translation: [0, 0, 50],
+            translation: [4, 0, 20],
             rotation: q_euler(0, 0, 0),
             actorCode: ["BridgeActor"],
             pawnCode: ["BridgePawn"]
         }
     },
-    {
-        card: {
-            name:'perlin actor',
-            translation: [-4, 2, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            type: "code",
-            expander: "PerlinNoise",
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-    },
-    {
-        card: {
-            name:'perlin actor',
-            translation: [-2, 2, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            type: "code",
-            expander: "PerliinActor",
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-    },
-    {
-        card: {
-            name:'perlin pawn',
-            translation: [-0, 2, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            type: "code",
-            expander: "PerliinPawn",
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        },
-    },
-    {
-        card: {
-            name: 'perlin',
-            translation: [0, -2, 100],
-            rotation: q_euler(0, 0, 0),
-            layers: ["pointer"],
-            actorCode: ["PerlinNoise", "PerlinActor"],
-            pawnCode: ["PerlinPawn"]
-        }
-    }
 ].concat(constructBitcoinTracker());
 
 // Default parameters are filled in the body of startWorld
