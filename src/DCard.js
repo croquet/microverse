@@ -350,9 +350,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         
         if (textureType === "video") {
             this.video = document.createElement('video');
+            this.video.autoplay = true;
+            this.video.muted = true;
+            this.video.loop = true;
 
             this.getBuffer(textureURL).then((buffer) => {
-                let objectURL = URL.createObjectURL(new Blob([buffer]));
+                let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
                 this.objectURL = objectURL;
                 // need to be revoked when destroyed
