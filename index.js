@@ -22,7 +22,25 @@ library.add(bridge);
 library.installAsBaseLibrary();
 
 Constants.DefaultCards = [
-    {
+
+        {
+        card: {
+            name:'world model',
+            translation:[0, -11, -60],
+            scale:[200, 200, 200],
+            rotation: q_euler(0, Math.PI, 0),
+            layers: ['walk'],
+            type: "model",
+            dataLocation: "./assets/3D/Low Poly Oil Refinery.glb.zip",
+            singleSided: true,
+            shadow: true,
+            placeholder: true,
+            placeholderSize: [40, 1, 40],
+            placeholderColor: 0x808080,
+            placeholderOffset: [0, -0.065, 0],
+        }
+    },
+    /*{
         card: {
             name:'world model',
             translation:[25, -90.5, -60],
@@ -38,7 +56,7 @@ Constants.DefaultCards = [
             placeholderColor: 0x808080,
             placeholderOffset: [0, -0.065, 0],
         }
-    },
+    },*/
     {
         card: {
             name: 'lighting #1',
