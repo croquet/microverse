@@ -36,6 +36,7 @@ export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {buffer, dataURL, blob, userIds: [id]}}
         this.objectURLs = {}; // {[viewId]: [dataIds]}
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg"]);
     }
 
     checkFile(entry, item, importSizeChecker) {
@@ -49,8 +50,14 @@ export class AssetManager {
             
         const file = item.getAsFile(); // getAsFile() is a method of DataTransferItem
         const type = this.getFileType(file.name);
+
         if (file && type) {
             return this.fetchSpecForDroppedFile(file, type).then((spec) => {
+                debugger;
+                if (!this.supportedFileTypes.has(type)) {
+                    throw new Error("unsupported file type");
+                }
+                
                 return {type, file: spec.buffer};
             });
         }

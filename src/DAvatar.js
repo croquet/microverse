@@ -171,8 +171,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         // this.assets.set(dataId, dataId, type);
 
         let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
-        
-        CA.create({
+
+        let options = {
             name: fileName,
             translation,
             rotation,
@@ -182,8 +182,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             modelType: type,
             shadow: true,
             singleSided: true
-        });
-        //this.publish(this.id, "fileLoadRequested", data);
+        };
+
+        CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+
         this.publish(this.sessionId, "triggerPersist");
     }
 
@@ -276,7 +278,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 return Data.store(this.sessionId, buffer, true).then((handle) => {
                     let dataId = Data.toId(handle);
                     let pose = this.dropPose(6);
-                    this.publish(this.actor.id, "fileUploaded", {
+                    this.say("fileUploaded", {
                         dataId, fileName, type,
                         translation: pose.translation,
                         rotation: pose.rotation
@@ -288,7 +290,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     dropPose(distance){ // compute the position in front of the avatar
-        return this.actor.dropPose();
+        return this.actor.dropPose(distance);
     }
     
     setEditMode(evt) {
