@@ -89,7 +89,7 @@ Constants.DefaultCards = [
             color: 0xf4e056,
             width: 1,
             height: 1,
-            textScale: 0.0025
+            textScale: 0.002
         }
     },
     {
