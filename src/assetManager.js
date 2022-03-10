@@ -47,13 +47,11 @@ export class AssetManager {
             // returns {zip, type}
         }
 
-            
         const file = item.getAsFile(); // getAsFile() is a method of DataTransferItem
         const type = this.getFileType(file.name);
 
         if (file && type) {
             return this.fetchSpecForDroppedFile(file, type).then((spec) => {
-                debugger;
                 if (!this.supportedFileTypes.has(type)) {
                     throw new Error("unsupported file type");
                 }

@@ -176,7 +176,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             name: fileName,
             translation,
             rotation,
-            type: "model",
+            type,
             dataLocation: dataId,
             fileName,
             modelType: type,
