@@ -110,8 +110,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             this.restoreTargetId = undefined;
         }else{
             this.fall = false; // sticky until we move
-            this.restoreRotation = this.rotation;
-            this.restoreTranslation = this.translation;
+            this.restoreRotation = [...this.rotation];
+            this.restoreTranslation = [...this.translation];
             this.restoreTargetId = p3d.targetId;
             let normal = p3d.normal || this.lookNormal; //target normal may not exist
             let point = p3d.xyz;
