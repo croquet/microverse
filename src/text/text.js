@@ -15,6 +15,7 @@ export class KeyFocusManager extends ViewService {
         this.setKeyboardInput(null);
 
         this.hiddenInput = document.querySelector("#hiddenInput");
+        this.copyElement = document.querySelector("#copyElement");
 
         if (!this.hiddenInput) {
             this.hiddenInput = document.createElement("input");
@@ -30,11 +31,13 @@ export class KeyFocusManager extends ViewService {
             document.body.appendChild(this.hiddenInput);
 
             this.hiddenInput.addEventListener("input", evt => {
+                evt.stopPropagation();
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.input(evt);
             }, true);
 
             this.hiddenInput.addEventListener("keydown", evt => {
+                evt.stopPropagation();
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.keyDown(evt);
             }, true);
@@ -48,6 +51,20 @@ export class KeyFocusManager extends ViewService {
                 if (!this.keyboardInput) {return;}
                 this.keyboardInput.paste(evt);
             });
+        }
+
+        if (!this.copyElement) {
+            this.copyElement = document.createElement("input");
+            this.copyElement.id = "copyElement";
+            this.copyElement.style.setProperty("position", "absolute");
+
+            this.copyElement.style.setProperty("left", "-120px"); //-120px
+            this.copyElement.style.setProperty("top", "-120px");  // -120px
+            this.copyElement.style.setProperty("transform", "scale(0)"); // to make sure the user never sees a flashing caret, for example on iPad/Safari
+
+            this.copyElement.style.setProperty("width", "100px");
+            this.copyElement.style.setProperty("height", "100px");
+            document.body.appendChild(this.copyElement);
         }
     }
 
@@ -375,6 +392,7 @@ export class TextFieldPawn extends CardPawn {
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerMove", "onPointerMove");
         this.addEventListener("pointerUp", "onPointerUp");
+        this.addEventListener("keyDown", "keyDown");
 
         this.listen("_cardData", "cardDataUpdated");
     }
@@ -760,6 +778,24 @@ export class TextFieldPawn extends CardPawn {
             return true;
         }
 
+        if (cEvt.keyCombo === "Meta-C" || cEvt.keyCombo === "Ctrl-C") {
+            this.copy();
+            evt.preventDefault();
+            return true;
+        }
+
+        if (cEvt.keyCombo === "Meta-X" || cEvt.keyCombo === "Ctrl-X") {
+            this.cut();
+            evt.preventDefault();
+            return true;
+        }
+
+        if (cEvt.keyCombo === "Meta-V" || cEvt.keyCombo === "Ctrl-V") {
+            this.paste();
+            evt.preventDefault();
+            return true;
+        }
+
         if (cEvt.keyCode === 13) {
             if (this.actor["enterToAccept"]) {
                 evt.preventDefault();
@@ -790,11 +826,39 @@ export class TextFieldPawn extends CardPawn {
         return false;
     }
 
-    copy(evt) {
+    copy(_evt) {
+        let isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
         let text = this.warota.selectionText(this.user);
-        evt.clipboardData.setData("text/plain", text);
-        evt.preventDefault();
-        return true;
+
+        let clipboardAPI = () => {
+            if (navigator.clipboard) {
+                return navigator.clipboard.writeText(text).then(() => true, () => false);
+            }
+            return Promise.resolve(false);
+        };
+
+        clipboardAPI().then((result) => {
+            if (!result) {
+                if (!isiOSDevice) {
+                    this.copyElement.value = text;
+                    this.copyElement.select();
+                    this.copyElement.setSelectionRange(0, 99999);
+                    document.execCommand("copy");
+                    return;
+                }
+
+                let range = document.createRange();
+                range.selectNodeContents(this.copyElement);
+                this.copyElement.textContent = text;
+
+                let selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                this.copyElement.setSelectionRange(0, 100000);
+                document.execCommand('copy');
+            }
+        });
     }
 
     cut(evt) {
@@ -805,11 +869,28 @@ export class TextFieldPawn extends CardPawn {
     }
 
     paste(evt) {
-        let pasteChars = evt.clipboardData.getData("text");
-        this.warota.insert(this.user, [{text: pasteChars}]);
-        evt.preventDefault();
-        this.changed(true);
-        return true;
+        let isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+
+        let clipboardAPI = () => {
+            if (navigator.clipboard) {
+                return navigator.clipboard.readText().then((text) => text, () => null);
+            }
+            return Promise.resolve(null);
+        };
+
+        return clipboardAPI().then((result) => {
+            if (result === null) {
+                this.copyElement.focus();
+                this.copyElement.textContent = "";
+                document.execCommand("paste");
+                return this.copyElement.textContent;
+            }
+            return result;
+        }).then((text) => {
+            this.warota.insert(this.user, [{text: text}]);
+            // evtxo.preventDefault();
+            this.changed(true);
+        });
     }
 
     undo() {

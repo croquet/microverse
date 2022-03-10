@@ -202,7 +202,7 @@ Constants.DefaultCards = [
     {
         card: {
             name: 'code editor',
-            translation: [8, 0, 10],
+            translation: [8, -1, 10],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
