@@ -87,6 +87,7 @@ Constants.DefaultCards = [
             runs: [{text: "hello"}],
             isSticky: true,
             color: 0xf4e056,
+            frameColor: 0xfad912,
             width: 1,
             height: 1,
             textScale: 0.0025
@@ -206,6 +207,8 @@ Constants.DefaultCards = [
             textScale: 0.001,
             width: 2,
             height: 2.5,
+            depth: 0.05,
+            frameColor: 0x666666,
         }
     },
     {
@@ -228,6 +231,8 @@ Constants.DefaultCards = [
             textScale: 0.001,
             width: 2,
             height: 3.5,
+            depth: 0.05,
+            frameColor: 0x666666,
         },
     },    
     {

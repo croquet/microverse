@@ -54,67 +54,20 @@ function loadLoaders() {
         });
 }
 
+/*
 class MyAvatar extends AvatarActor {
-    init(options) {
-        this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn may not see it
-        super.init(options);
-        this.listen("addSticky", this.addSticky);
-    }
-
     get pawn() {return MyAvatarPawn;}
-
-    addSticky(pe) {
-        const tackOffset = 0.1;
-        let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
-        let normal = [...pe.normal]; // clear up and down
-        normal[1] = 0;
-        let nsq = v3_sqrMag(normal);
-        let rotPoint;
-        if(nsq > 0.0001){
-            normal = v3_normalize(normal);
-            let theta = Math.atan2(normal[0], normal[2]);
-            rotPoint = q_euler(0, theta, 0);
-        } else {
-            rotPoint = this.rotation;
-            tackPoint[1] += 2;
-        }
-
-        TextFieldActor.create({
-            name:'sticky note',
-            className: "TextFieldActor",
-            translation: tackPoint,
-            rotation: rotPoint,
-            multiusexor: true,
-            type: "text",
-            depth: 0.05,
-            isSticky: true,
-            color: 0xf4e056,
-            frameColor: 0x666666,
-            runs: [],
-            width: 1,
-            height: 1,
-            textScale: 0.002
-        });
-        this.publish(this.sessionId, "triggerPersist");
-    }
 }
 
 MyAvatar.register('MyAvatar');
 
 class MyAvatarPawn extends AvatarPawn {
-    constructVisual() {
-        this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
-    }
-
-    shiftDouble(pe) {
-        this.say("addSticky", pe);
-    }
-
-    destroy(){
+    destroy() {
         console.log("Am I getting here?")
         super.destroy();
     }
 }
+*/
 
 class MyPlayerManager extends PlayerManager {
     init(name) {
@@ -127,7 +80,7 @@ class MyPlayerManager extends PlayerManager {
         console.log("MyPlayerManager", this.avatarCount);
         // options.lookYaw = toRad(45); for testing
         options.color = [Math.random(), Math.random(), Math.random(), 1];
-        return MyAvatar.create(options);
+        return AvatarActor.create(options);
     }
 }
 

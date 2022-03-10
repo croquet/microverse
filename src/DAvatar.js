@@ -29,8 +29,9 @@ function setUpDnButton(bttn, doThis, doThat) {
 export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     init(options) {
         // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
-        this.avatarIndex = options.index; // set this BEFORE calling super. Otherwise, AvatarPawn will not see it
         super.init(options);
+        this.avatarIndex = options.index;
+        
         this.fall = true;
         this.tug = 0.05; // minimize effect of unstable wifi
         this.listen("goHome", this.goHome);
@@ -41,6 +42,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
         this.listen("fileUploaded", "fileUploaded");
+        this.listen("addSticky", this.addSticky);
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
@@ -154,7 +156,6 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         if(t<1)this.future(50).goToStep(delta, t+delta);
     }
 
-
     tick(delta) {
         if( this.follow ){
             let followMe = this.service("PlayerManager").players.get(this.follow);
@@ -164,6 +165,14 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             }else this.follow = undefined;
         } 
         super.tick(delta);
+    }
+
+    dropPose(distance){ // compute the position in front of the avatar
+        let n = this.lookNormal;
+        let t = this.translation;
+        let r = this.rotation;
+        let p = v3_add(v3_scale(n, distance),t);
+        return{translation:p,rotation:r};
     }
 
     fileUploaded(data) {
@@ -189,12 +198,43 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.publish(this.sessionId, "triggerPersist");
     }
 
-    dropPose(distance){ // compute the position in front of the avatar
-        let n = this.lookNormal;
-        let t = this.translation;
-        let r = this.rotation;
-        let p = v3_add(v3_scale(n, distance),t);
-        return{translation:p,rotation:r};
+    addSticky(pe) {
+        const tackOffset = 0.1;
+        let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
+        let normal = [...pe.normal]; // clear up and down
+        normal[1] = 0;
+        let nsq = v3_sqrMag(normal);
+        let rotPoint;
+        if(nsq > 0.0001){
+            normal = v3_normalize(normal);
+            let theta = Math.atan2(normal[0], normal[2]);
+            rotPoint = q_euler(0, theta, 0);
+        } else {
+            rotPoint = this.rotation;
+            tackPoint[1] += 2;
+        }
+
+        let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
+
+        let options = {
+            name:'sticky note',
+            className: "TextFieldActor",
+            translation: tackPoint,
+            rotation: rotPoint,
+            multiusexor: true,
+            type: "text",
+            depth: 0.05,
+            isSticky: true,
+            color: 0xf4e056,
+            frameColor: 0xfad912,
+            runs: [],
+            width: 1,
+            height: 1,
+            textScale: 0.002
+        };
+
+        CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        this.publish(this.sessionId, "triggerPersist");
     }
 }
 
@@ -310,9 +350,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         console.log(this.ctrlKey);
     }
 
-    constructVisual(){
-        // add the 3D avatar here using
-        // this.setRenderObject(a)
+    constructVisual() {
+        this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
     }
 
     get lookOffset(){ return this._lookOffset || [0,0,0]; }
@@ -379,9 +418,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
-        super.destroy();
         isTweening = false;
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
+        super.destroy();
     }
 
     setControls(isWalking){ // switch between walking and orbiting with a tween between
@@ -591,6 +630,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             return this.shiftDouble(pe);
         }
         super.doPointerDoubleDown(e);
+    }
+
+    shiftDouble(pe) {
+        this.say("addSticky", pe);
     }
 
     xy2yp(xy){

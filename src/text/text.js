@@ -243,6 +243,8 @@ export class TextFieldActor extends CardActor {
         let textHeight = options.height / options.textScale;
         this.setExtent({width: textWidth, height: textHeight});
 
+        this.depth = options.depth || 0;
+
         if (!options.readOnly) {
             // that means that a change in readOnly should trigger this
             this.setupDismissButton();
@@ -399,10 +401,12 @@ export class TextFieldPawn extends CardPawn {
 
     destroy() {
         ["geometry", "material", "textGeometry"].forEach((n) => {
-            if (this[n]) {
+            if (Array.isArray(this[n])) {
+                this[n].forEach((o) => o.dispose());
+            } else if (this[n]) {
                 this[n].dispose();
-                this[n] = null;
             }
+            this[n] = null;
         });
         super.destroy();
     }
@@ -426,11 +430,26 @@ export class TextFieldPawn extends CardPawn {
         return `hsl(${h}, ${s}, ${l})`;
     }
 
-    cardDataUpdated(data) {
-        if (data.o.backgroundColor !== data.v.backgroundColor) {
+    makePlaneMaterial(depth, backgroundColor, frameColor) {
+        if (Array.isArray(this.material)) {
+            this.material.forEach((m) => m.dispose());
+        } else if (this.material) {
             this.material.dispose();
-            let backgroundColor = data.v.backgroundColor;
-            this.material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
+        }
+
+        let material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
+
+        if (depth > 0) {
+            material = [material, new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, emissive: frameColor})];
+        }
+
+        return material;
+    }
+    
+    cardDataUpdated(data) {
+        if (data.o.backgroundColor !== data.v.backgroundColor || data.o.frameColor !== data.v.frameColor) {
+            let {depth, backgroundColor, frameColor} = data.v;
+            this.material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
             this.plane.material = this.material;
         }
     }
@@ -512,7 +531,7 @@ export class TextFieldPawn extends CardPawn {
         this.textGeometry.update({font, glyphs});
     }
 
-    roundedCornerPlane(width, height) {
+    roundedCornerPlane(width, height, depth) {
         let x = - width / 2;
         let y = - height / 2;
         let radius = 0.1;
@@ -528,25 +547,37 @@ export class TextFieldPawn extends CardPawn {
         shape.lineTo(x + radius, y);
         shape.quadraticCurveTo( x, y, x, y + radius);
 
-        let geometry = new THREE.ShapeBufferGeometry(shape);
+        let geometry = new THREE.ExtrudeGeometry(shape, {depth, bevelEnabled: false});
         geometry.parameters.width = width;
         geometry.parameters.height = height;
+        geometry.parameters.depth = depth;
         return geometry;
     }
 
     setupMesh() {
         let isSticky = this.actor._cardData.isSticky;
+        let depth = this.actor.depth;
         let backgroundColor = this.actor._cardData.backgroundColor;
         if (!backgroundColor) {
             backgroundColor = isSticky ? 0xf4e056 : 0xFFFFFF;
         }
 
-        // this.geometry = new THREE.PlaneGeometry(0, 0);
-        this.geometry = isSticky ? this.roundedCornerPlane(0, 0) : new THREE.PlaneGeometry(0, 0);
-        this.material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
+        let frameColor = this.actor._cardData.frameColor;
+        if (!frameColor) {
+            frameColor = isSticky ? 0xffffff : 0x666666;
+        }
+        
+        if (!isSticky && depth === 0) {
+            this.geometry = new THREE.PlaneGeometry(0, 0);
+        } else {
+            this.geometry = this.roundedCornerPlane(0, 0, depth);
+        }
+
+        let material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
+        this.material = material;
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.name = this.actor.name;
-        this.setRenderObject(this.plane);
+        this.shape.add(this.plane);
 
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
@@ -949,6 +980,7 @@ export class TextFieldPawn extends CardPawn {
 
     setExtent() {
         let extent = this.actor.extent;
+        let depth = this.actor.depth;
         let autoResize = this.actor._cardData.autoResize;
         if (!this.textMesh) {return;}
         let isSticky = this.actor._cardData.isSticky;
@@ -956,8 +988,9 @@ export class TextFieldPawn extends CardPawn {
         let newHeight = (isSticky ? extent.height : this.warota.docHeight) * this.textScale();
 
         if (newWidth !== this.plane.geometry.parameters.width ||
-            newHeight !== this.plane.geometry.parameters.height) {
-            let geometry = isSticky ? this.roundedCornerPlane(newWidth, newHeight) : new THREE.PlaneGeometry(newWidth, newHeight);
+            newHeight !== this.plane.geometry.parameters.height ||
+            depth !== this.plane.geometry.parameters.depth) {
+            let geometry = !isSticky && depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerPlane(newWidth, newHeight, depth);
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;
@@ -965,7 +998,7 @@ export class TextFieldPawn extends CardPawn {
 
         this.textMesh.position.x = -newWidth / 2;
         this.textMesh.position.y = newHeight / 2;
-        this.textMesh.position.z = 0.005;
+        this.textMesh.position.z = depth + 0.005;
 
         if (this.actor.dismissButton) {
             let dismiss = GetPawn(this.actor.dismissButton.id);
@@ -1011,6 +1044,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     showSelections() {
+        let depth = this.actor.depth || 0;
         let unused = {};
         for (let k in this.selections) {
             unused[k] = this.selections[k];
@@ -1041,7 +1075,7 @@ export class TextFieldPawn extends CardPawn {
 
                 let left = (-width / 2) + (caretRect.left + 8) * ts; // ?
                 let top = (height / 2) - (caretRect.top + caretRect.height / 2) * ts;
-                caret.position.set(left, top, 0.001);
+                caret.position.set(left, top, depth + 0.001);
             } else {
                 let rects = this.warota.selectionRects(selection);
                 let boxes = thisSelection.boxes;
@@ -1059,7 +1093,7 @@ export class TextFieldPawn extends CardPawn {
 
                         let geom = new THREE.PlaneBufferGeometry(rWidth, rHeight, 2, 2);
                         box.geometry = geom;
-                        box.position.set(left, top, 0.001);
+                        box.position.set(left, top, depth + 0.001);
                         box.visible = true;
                     }
                 }
