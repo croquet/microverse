@@ -324,7 +324,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 obj.name = name;
             }
             if (options.placeholder) {
-               // this.service("ThreeRenderManager").setRender(true)
                 this.shape.remove(this.placeholder);
             }
         });

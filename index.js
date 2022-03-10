@@ -37,7 +37,7 @@ Constants.DefaultCards = [
             placeholder: true,
             placeholderSize: [40, 1, 40],
             placeholderColor: 0x808080,
-            placeholderOffset: [0, -0.065, 0],
+            placeholderOffset: [0, -0.463, 0],
         }
     },
     /*{
@@ -198,7 +198,7 @@ Constants.DefaultCards = [
     {
         card: {
             name:'code editor',
-            translation: [8, 0, 4],
+            translation: [8, -1.5, 4],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
@@ -220,7 +220,7 @@ Constants.DefaultCards = [
     {
         card: {
             name: 'code editor',
-            translation: [8, -1, 10],
+            translation: [8, -1.2, 10],
             rotation: q_euler(0, -Math.PI / 2, 0),
             layers: ['pointer'],
             type: "code",
@@ -234,7 +234,7 @@ Constants.DefaultCards = [
         card: {
             name:'porsche',
             dataRotation: q_euler(-Math.PI / 2, 0, 0),
-            translation: [0, -2.9, 8],
+            translation: [0, -3.7, 8],
             layers: ['pointer'],
             type: "model",
             multiuser: true,
