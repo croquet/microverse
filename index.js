@@ -250,32 +250,6 @@ Constants.DefaultCards = [
     {
         card: {
             name:'bridge',
-            translation: [-2, 2, 100],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['pointer'],
-            type: "code",
-            expander: "BridgeActor",
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        }
-    },
-    {
-        card: {
-            name:'bridgePawn',
-            translation: [2, 2, 100],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['pointer'],
-            type: "code",
-            expander: "BridgePawn",
-            textScale: 0.001,
-            width: 2,
-            height: 2.5,
-        }
-    },    
-    {
-        card: {
-            name:'bridge',
             translation: [4, 0, 20],
             rotation: q_euler(0, 0, 0),
             actorCode: ["BridgeActor"],
