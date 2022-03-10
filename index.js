@@ -216,7 +216,7 @@ Constants.DefaultCards = [
         card: {
             name:'porsche',
             dataRotation: q_euler(-Math.PI / 2, 0, 0),
-            dataTranslation: [0, -2.9, 10],
+            translation: [0, -2.9, 8],
             layers: ['pointer'],
             type: "model",
             multiuser: true,
