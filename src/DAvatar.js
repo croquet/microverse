@@ -65,13 +65,14 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     setTranslation(v){
-        this._translation = v;
+        this.translation = v;
     }
 
     setFloor(p){
+        console.log("setFloor", p)
         let t=this.translation;
         t[1]=p;
-        this._translation=t;
+        this.translation=t;
     }
 
     startFalling(){
