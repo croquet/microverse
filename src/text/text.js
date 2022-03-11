@@ -1084,7 +1084,7 @@ export class TextFieldPawn extends CardPawn {
             }
         }
 
-        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
+        let bounds = {left: 0, top: 0, bottom: newHeight / this.textScale(), right: newWidth / this.textScale()};
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
