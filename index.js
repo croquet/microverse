@@ -68,7 +68,7 @@ Constants.DefaultCards = [
             type: "text",
             dataLocation: './assets/SVG/credit-card.svg',
             runs: [{text: "hello"}],
-            margins: {left: 30, top: 30, right: 30, bottom: 30},
+            margins: {left: 20, top: 20, right: 20, bottom: 20},
             isSticky: true,
             color: 0xf4e056,
             frameColor: 0xfad912,
