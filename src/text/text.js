@@ -111,6 +111,13 @@ export class FontModelManager extends ModelService {
         super.init(name || "FontModelManager");
         this.fonts = new Map();
         this.subscribe(this.id, "askFont", this.askFont);
+
+        this.loading = new Map();
+
+        this.subscribe(this.id, "fontLoadStart", "fontLoadStart");
+        this.subscribe(this.id, "fontLoadOne", "fontLoadOne");
+        this.subscribe(this.id, "fontLoadDone", "fontLoadDone");
+
     }
 
     get(name) {
@@ -127,6 +134,46 @@ export class FontModelManager extends ModelService {
         }
         this.publish(this.id, "fontAsked", data.name);
     }
+
+    fontLoadStart({key, name}) {
+        this.loading.set(key, {name, array: []});
+    }
+
+    fontLoadOne({key, buf}) {
+        let data = this.loading.get(key);
+        if (!data) {
+            console.log("inconsistent message");
+            return;
+        }
+
+        data.array.push(buf);
+    }
+                
+    fontLoadDone(key) {
+        let data = this.loading.get(key);
+        if (!data) {
+            console.log("inconsistent message");
+            return;
+        }
+
+        let ary = data.array;
+
+        let len = ary.reduce((acc, cur) => acc + cur.length, 0);
+
+        let all = new Uint8Array(len);
+
+        let ind = 0;
+
+        for (let i = 0; i < ary.length; i++) {
+            all.set(ary[i], ind);
+            ind += ary[i].length;
+        }
+
+        let result = new TextDecoder("utf-8").decode(all);
+        let font = JSON.parse(result);
+        this.askFont({name: data.name, font});
+        this.loading.delete(key);
+    }
 }
 
 FontModelManager.register("FontModelManager");
@@ -136,6 +183,8 @@ export class FontViewManager extends ViewService {
         super(name || "FontViewManager");
         this.fonts = new Map(); // {texture, material}
         this.isLoading = {};
+        this.fudgeFactors = new Map();
+        this.fudgeFactors.set("Roboto", {yoffset: 30});
     }
 
     setModel(model) {
@@ -161,10 +210,12 @@ export class FontViewManager extends ViewService {
                     image,
                     (tex) => {
                         let preprocessor = new MSDFFontPreprocessor();
-                        let img = new Image(font.common.scaleW, font.common.scaleH);
+                        let cWidth = font.common ? font.common.scaleW : font.atlas.width;
+                        let cHeight = font.common ? font.common.scaleH : font.atlas.height;
+                        let img = new Image(cWidth, cHeight);
                         let canvas = document.createElement("canvas");
-                        canvas.width = font.common.scaleW;
-                        canvas.height = font.common.scaleH;
+                        canvas.width = cWidth;
+                        canvas.height = cHeight;
                         let ctx = canvas.getContext("2d");
                         ctx.drawImage(tex.image, 0, 0);
                         let inBitmap = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -186,7 +237,11 @@ export class FontViewManager extends ViewService {
                         delete this.isLoading[name];
 
                         let maybeFont = this.model.fonts.get(name) ? null : font;
-                        this.publish(this.model.id, "askFont", {name, font: maybeFont});
+                        if (maybeFont) {
+                            this.sendLargeFont(name, font);
+                        } else {
+                            this.publish(this.model.id, "askFont", {name});
+                        }
                         resolve(this.fonts.get(name));
                     },
                     null,
@@ -197,6 +252,25 @@ export class FontViewManager extends ViewService {
             });
         });
         return this.isLoading[name];
+    }
+
+    sendLargeFont(name, font) {
+        let string = JSON.stringify(font);
+
+        let array = new TextEncoder().encode(string);
+
+        let ind = 0;
+
+        let key = Math.random();
+
+        this.publish(this.model.id, "fontLoadStart", {key, name});
+        while (ind < array.length) {
+            let buf = array.slice(ind, ind + 4000);
+            this.publish(this.model.id, "fontLoadOne", {key, buf});
+            ind += 4000;
+        }
+
+        this.publish(this.model.id, "fontLoadDone", key);
     }
 
     destroy() {
@@ -211,7 +285,7 @@ export class FontViewManager extends ViewService {
 
 export class TextFieldActor extends CardActor {
     init(options) {
-        this.doc = new Doc();
+        this.doc = new Doc({defaultFont: "Roboto", defaultSize: 10});
         this.doc.load(options.runs || []);
         // this.doc.load([
         // {text: "ab c ke eke ekeke ekek eke ek eke ke ek eke ek ek ee  ke kee ke", style: {size: 24}},
@@ -225,7 +299,6 @@ export class TextFieldActor extends CardActor {
             options.textScale =  TS;
         }
 
-
         super.init(options);
         this.subscribe(this.id, "load", "loadAndReset");
         this.subscribe(this.id, "editEvents", "receiveEditEvents");
@@ -233,7 +306,6 @@ export class TextFieldActor extends CardActor {
         this.subscribe(this.id, "undoRequest", "undoRequest");
         this.subscribe(this.id, "setExtent", "setExtent");
         this.subscribe(this.sessionId, "view-exit", "viewExit");
-
 
         this.listen("dismiss", "dismiss");
 
@@ -381,7 +453,7 @@ export class TextFieldPawn extends CardPawn {
         this.listen("fontAsked", "fontAsked");
         this.listen("screenUpdate", "screenUpdate");
 
-        let fontName = "DejaVu Sans Mono";
+        let fontName = this.actor.doc.defaultFont;
         this.fontAsked(fontName).then(() => {
             let fonts = Array.from(actor.fonts.keys());
             let ps = fonts.map((v) => this.fonts.askFont(v));
@@ -463,7 +535,7 @@ export class TextFieldPawn extends CardPawn {
                 map: texture,
                 textureSize: texture.image.width,
                 side: THREE.DoubleSide,
-                transparent: true
+                transparent: true,
             }, THREE));
         }
 
@@ -519,12 +591,12 @@ export class TextFieldPawn extends CardPawn {
         if (!this.fonts.get(fontName)) {return;}
         let font = this.fonts.get(fontName).font;
 
-        drawnStrings = drawnStrings.map(spec => ({...spec, font: font}));
+        let fudgeFactor = this.fonts.fudgeFactors.get(fontName);
 
         let layout = fontRegistry.hasLayout(fontName);
         if (!layout) {return;}
 
-        let glyphs = layout.computeGlyphs({font, drawnStrings});
+        let glyphs = layout.computeGlyphs({font, drawnStrings, fudgeFactor});
 
         this.textMesh.scale.x = this.textScale();
         this.textMesh.scale.y = -this.textScale();
@@ -593,11 +665,8 @@ export class TextFieldPawn extends CardPawn {
         let extent = this.actor.extent;
         let autoResize = this.actor._cardData.autoResize;
         let singleLine = this.actor._cardData.singleLine;
-        let options = {width: extent.width, height: extent.height, font, fontSize, autoResize, singleLine};
-
-        if (this.actor._isSticky) {
-            options.margins = {left: 8, top: 8, right: 8, bottom: 8};
-        }
+        let margins =  this.actor._cardData.margins;
+        let options = {width: extent.width, height: extent.height, font, fontSize, autoResize, singleLine, margins};
 
         this.warota = new Warota(options, this.actor.doc);
         this.warota.width(extent.width);
@@ -965,7 +1034,7 @@ export class TextFieldPawn extends CardPawn {
 
         let extent = this.actor.extent;
 
-        this.updateMesh({fontName: "DejaVu Sans Mono", extent, drawnStrings});
+        this.updateMesh({fontName: this.warota.doc.defaultFont, extent, drawnStrings});
     }
 
     setStyle(style) {
@@ -1073,8 +1142,8 @@ export class TextFieldPawn extends CardPawn {
                     old.dispose();
                 }
 
-                let left = (-width / 2) + (caretRect.left + 8) * ts; // ?
-                let top = (height / 2) - (caretRect.top + caretRect.height / 2) * ts;
+                let left = (-width / 2) + (caretRect.left + 6) * ts; // ?
+                let top = (height / 2) - (caretRect.top + caretRect.height / 2 + 4) * ts;
                 caret.position.set(left, top, depth + 0.001);
             } else {
                 let rects = this.warota.selectionRects(selection);
@@ -1086,7 +1155,7 @@ export class TextFieldPawn extends CardPawn {
                     
                     if (rect) {
                         let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * ts; // ?
-                        let top = (height / 2) - (rect.top + rect.height / 2) * ts;
+                        let top = (height / 2) - (rect.top + rect.height / 2 + 4) * ts;
                         
                         let rWidth = rect.width * ts; // ?
                         let rHeight = rect.height * ts;

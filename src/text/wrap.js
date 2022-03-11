@@ -111,7 +111,8 @@ export class Measurer {
     }
 
     lineHeight(font, fontSize) {
-        return fontRegistry.getInfo(font, fontSize).common.lineHeight;
+        let info = fontRegistry.getInfo(font, fontSize);
+        return info.common ? info.common.lineHeight : info.atlas.size;
     }
 }
 
