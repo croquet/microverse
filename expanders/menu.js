@@ -24,6 +24,14 @@ class ExpanderMenuActor {
     }
 }
 
+class MenuLayoutActor {
+    layout(items) {
+        items.forEach((item) => {
+            item.setCardData({autoresize: false});
+        });
+    }        
+}
+
 class MenuActor {
     setup() {
         if (!this.items) {
@@ -102,7 +110,7 @@ class MenuActor {
     }
 
     selectionChanged(item) {
-        item.card.setData({backgroundColor: item.selected ? 0xFFFFFF : 0x606060});
+        item.card.setCardData({backgroundColor: item.selected ? 0xFFFFFF : 0x606060});
     }
 }
 

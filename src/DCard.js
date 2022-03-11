@@ -45,6 +45,11 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.listen("showControls", this.showControls);
     }
 
+    setCardData(options) {
+        let newOptions = {...this._cardData, ...options};
+        this.set({cardData: newOptions});
+    }
+
     createShape(options) {
         if (options.type === "text") {
             this.subscribe(this.id, "changed", "textChanged");

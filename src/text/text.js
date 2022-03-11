@@ -309,6 +309,9 @@ export class TextFieldActor extends CardActor {
 
         this.listen("dismiss", "dismiss");
 
+        this.listen("newGeometry", "newGeometry");
+        
+
         // the height part of this is optional, in the sense that the view may do something else
 
         let textWidth = options.width / options.textScale;
@@ -422,9 +425,13 @@ export class TextFieldActor extends CardActor {
         return this.load(text);
     }
 
-    setData(options) {
-        let newOptions = {...this._cardData, ...options};
-        this.set({cardData: newOptions});
+    newGeometry(data) {
+        let {width, height} = data;
+        if (this.textWidth !== width || this.textHeight !== height) {
+            this.textWidth = width;
+            this.textHeight = height;
+            this.sayDeck("layoutChanged");
+        }
     }
 
     setupDismissButton() {
@@ -1063,6 +1070,7 @@ export class TextFieldPawn extends CardPawn {
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;
+            this.say("newGeometry", {width: newWidth, height: newHeight});
         }
 
         this.textMesh.position.x = -newWidth / 2;
