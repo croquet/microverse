@@ -31,7 +31,7 @@ Constants.DefaultCards = [
             rotation: q_euler(0, Math.PI, 0),
             layers: ['walk'],
             type: "model",
-            dataLocation: "./assets/3D/Low Poly Oil Refinery.glb.zip",
+            dataLocation: "./assets/3D/Oil Refinery No Logo.glb.zip",
             singleSided: true,
             shadow: true,
  /*           placeholder: true,
@@ -40,23 +40,6 @@ Constants.DefaultCards = [
             placeholderOffset: [0, -0.463, 0],*/
         }
     },
-    /*{
-        card: {
-            name:'world model',
-            translation:[25, -90.5, -60],
-            scale:[200, 200, 200],
-            rotation: q_euler(0, Math.PI, 0),
-            layers: ['walk'],
-            type: "model",
-            dataLocation: "./assets/3D/Refinery.glb.zip",
-            singleSided: true,
-            shadow: true,
-            placeholder: true,
-            placeholderSize: [40, 1, 40],
-            placeholderColor: 0x808080,
-            placeholderOffset: [0, -0.065, 0],
-        }
-    },*/
     {
         card: {
             name: 'lighting #1',
@@ -78,29 +61,30 @@ Constants.DefaultCards = [
         card: {
             name: 'text editor',
             className: "TextFieldActor",
-            translation: [-4, -0.5, -6],
+            translation: [-4, -0.5, -12],
             rotation: q_euler(0, Math.PI / 2, 0),
             multiuser: true,
             depth: 0.05,
             type: "text",
             dataLocation: './assets/SVG/credit-card.svg',
             runs: [{text: "hello"}],
-            margins: {left: 12, top: 12, right: 12, bottom: 12},
+            margins: {left: 30, top: 30, right: 30, bottom: 30},
             isSticky: true,
             color: 0xf4e056,
             frameColor: 0xfad912,
-            width: 1,
-            height: 1,
-            textScale: 0.002
+            width: 2,
+            height: 2,
+            textScale: 0.002,
+            shadow: true,
         }
     },
     {
         card: {
             name:'simple 3D model',
-            translation: [-4, -0.5, -12],
-            rotation: q_euler(Math.PI / 2, 0, 0),
+            translation: [-4, -0.5, -18],
+            rotation: q_euler(Math.PI / 2, Math.PI / 2, 0),
             type: "model",
-            dataLocation: "./assets/3D/Gears+06.fbx.zip",
+            dataLocation: "./assets/3D/Gears.glb.zip",
             shadow: true,
             singleSided: true,
         }
@@ -108,7 +92,7 @@ Constants.DefaultCards = [
     {
         card: {
             name: 'video card',
-            translation: [-4, -0.5, -18],
+            translation: [-4, -0.5, -24],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             type: "svg",
@@ -124,7 +108,7 @@ Constants.DefaultCards = [
     {
         card: {
             name: 'image card',
-            translation: [-4, -0.5, -24],
+            translation: [-4, -0.5, -30],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
             type: "svg",
@@ -141,26 +125,6 @@ Constants.DefaultCards = [
         card: {
             name: 'multiblaster',
             className: "MultiBlaster",
-            translation: [-4, -0.5, -30],
-            rotation: q_euler(0, Math.PI / 2, 0),
-            scale: [4, 4, 4],
-            layers: ['pointer'],
-            multiuser: true,
-            type: "svg",
-            dataLocation: './assets/SVG/square.svg',
-            textureType: "canvas",
-            width: 1024,
-            height: 1024,
-            frameColor: 0x666666,
-            color: 0xffffff,
-            depth: 0.05,
-            fullBright: true
-        }
-    },
-    {
-        card: {
-            name:'bouncingball',
-            className: "BouncingBall",
             translation: [-4, -0.5, -36],
             rotation: q_euler(0, Math.PI / 2, 0),
             scale: [4, 4, 4],
@@ -174,7 +138,7 @@ Constants.DefaultCards = [
             frameColor: 0x666666,
             color: 0xffffff,
             depth: 0.05,
-            fullBright: true,
+            fullBright: true
         }
     },
     {
@@ -205,7 +169,8 @@ Constants.DefaultCards = [
             layers: ['pointer'],
             type: "code",
             expander: "FlyActor",
-            margins: {left: 16, top: 16, right: 16, bottom: 16},
+            margins: {left: 32, top: 32, right: 32, bottom: 32},
+           // margins: {left: 16, top: 16, right: 16, bottom: 16},
             textScale: 0.001,
             width: 2,
             height: 2.5,
@@ -231,7 +196,7 @@ Constants.DefaultCards = [
             type: "code",
             expander: "DriveActor",
             textScale: 0.001,
-            margins: {left: 16, top: 16, right: 16, bottom: 16},
+            margins: {left: 32, top: 32, right: 32, bottom: 32},
             width: 2,
             height: 3.5,
             depth: 0.05,

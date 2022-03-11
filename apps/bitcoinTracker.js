@@ -151,7 +151,7 @@ export function constructBitcoinTracker() {
             card: {
                 name: 'bitcointracker',
                 className: "BitcoinTracker",
-                translation: [-4, -0.5, 0],
+                translation: [-4, -0.5, -6],
                 rotation: q_euler(0, Math.PI / 2, 0),
                 scale: [4, 4, 4],
                 type: "svg",
