@@ -87,6 +87,7 @@ class FlyActor {
 
 class PerlinActor {
     setup() {
+        console.log("PerlinActor");
         let firstTime = false;
         if (this.visible === undefined) {
             firstTime = true;
@@ -134,6 +135,8 @@ class PerlinActor {
     }
 
     updatePerlin() {
+        this.future(100).updatePerlin();
+        if (!this.data) {return;}
         this.data.shift(); // dump the first row
         let d = this.delta;
 
@@ -144,7 +147,6 @@ class PerlinActor {
         this.currentRow++;
         this.say("updatePerlin", row);
 
-        this.future(100).updatePerlin();
     }
 
     showHide() {
@@ -269,6 +271,7 @@ class PerlinNoise {
 
 class PerlinPawn {
     setup() {
+        console.log("PerlinPawn");
         this.scriptListen("updatePerlin", "updatePerlin");
         this.scriptListen("showMe", "showMe");
         this.scriptListen("hilite", "hilite");
