@@ -73,7 +73,6 @@ export const AM_Code = superclass => class extends superclass {
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
 
-        let rcvr = this._target;
         let expanderName = this._expander;
 
         return this.futureWithExpander(time, expanderName);
