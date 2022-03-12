@@ -629,6 +629,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let pe = this.pointerEvent(rc);
             return this.shiftDouble(pe);
         }
+        this.isFalling = false;
         super.doPointerDoubleDown(e);
     }
 
