@@ -3,7 +3,6 @@
 // info@croquet.io
 
 import * as WorldCore from "@croquet/worldcore";
-import {CardActor} from "./DCard.js";
 const {ViewService, ModelService, GetPawn, Model, Constants} = WorldCore;
 
 let isProxy = Symbol("isProxy");
@@ -67,13 +66,13 @@ export const AM_Code = superclass => class extends superclass {
         if (this._pawnCode.indexOf(name) < 0) {
             this._pawnCode.push(name);
             this.expanderManager.viewUse(this, name);
+            this.publish(this.id, "callSetup", name);
         }
     }
 
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
 
-        let rcvr = this._target;
         let expanderName = this._expander;
 
         return this.futureWithExpander(time, expanderName);
@@ -197,12 +196,15 @@ export const PM_Code = superclass => class extends superclass {
         this.scriptListeners = new Map();
         let expanderManager = this.actor.expanderManager;
 
-        this.publish(actor.id, "callSetup", "callSetup");
-        if (actor.pawnCode) {
-            actor.pawnCode.forEach((name) => {
+        this.subscribe(actor.id, "callSetup", "callSetup");
+        if (actor._pawnCode) {
+            actor._pawnCode.forEach((name) => {
                 let expander = expanderManager.code.get(name);
-                if (expander && expander.$expander.setup) {
-                    expander.invoke(this, "setup");
+                if (expander) {
+                    expander.ensureExpander();
+                }
+                if (expander.$expander.setup) {
+                    this.future(0).callSetup(name, "setup");
                 }
             });
         }
@@ -273,7 +275,6 @@ class Expander extends Model {
 
         let code = `return (${source})`;
         let cls;
-        WorldCore.CardActor = CardActor;
         try {
             cls = new Function("WorldCore", code)(WorldCore);
         } catch(error) {
@@ -435,7 +436,10 @@ export class ExpanderModelManager extends ModelService {
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
         }
-        this.publish(modelId, "callSetup", name);
+
+        let expander = this.code.get(name);
+        if (!expander) {return;}
+        expander.ensureExpander();
     }
 }
 
@@ -450,11 +454,12 @@ export class ExpanderViewManager extends ViewService {
         this.model = this.wellKnownModel("ExpanderModelManager");
         this.subscribe(this.model.id, "callViewSetupAll", "callViewSetupAll");
 
-        this.justConstructed = true;
+        // this.justConstructed = true;
 
-        this.subscribe(this.viewId, "synced", "synced");
+        // this.subscribe(this.viewId, "synced", "synced");
     }
 
+    /*
     synced(flag) {
         if (flag && this.justConstructed) {
             this.justConstructed = false;
@@ -471,7 +476,7 @@ export class ExpanderViewManager extends ViewService {
                 })
             };
         }
-    }
+    }*/
 
     setURL(url) {
         if (this.socket) {

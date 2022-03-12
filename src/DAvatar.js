@@ -225,7 +225,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             type: "text",
             depth: 0.05,
             isSticky: true,
-            color: 0xf4e056,
+            backgroundColor: 0xf4e056,
             frameColor: 0xfad912,
             runs: [],
             width: 1,

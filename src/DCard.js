@@ -134,13 +134,11 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
             if (!this.expanderManager.code.get("ExpanderMenuActor")) {return;}
             let menu = this.createCard({
-                
-                    name: 'expander menu',
-                    actorCode: ["ExpanderMenuActor"],
-                    translation: pose.translation,
-                    rotation: pose.rotation,
-                    target: this.id,
-              
+                name: 'expander menu',
+                actorCode: ["ExpanderMenuActor"],
+                translation: pose.translation,
+                rotation: pose.rotation,
+                target: this.id,
             });
 console.log("Expander menu", menu)
             menu.call("ExpanderMenuActor", "show");

@@ -430,7 +430,8 @@ export class TextFieldActor extends CardActor {
         if (this.textWidth !== width || this.textHeight !== height) {
             this.textWidth = width;
             this.textHeight = height;
-            this.sayDeck("layoutChanged");
+            let bottom = (-this.translation[1] + height / 2);
+            this.sayDeck("layoutChanged", {width, height, bottom, id: this.id});
         }
     }
 
@@ -516,20 +517,31 @@ export class TextFieldPawn extends CardPawn {
             this.material.dispose();
         }
 
-        let material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
+
+        let options = {color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor};
+        if (!backgroundColor) {
+            options.transparent = true;
+        }
+            
+        let material = new THREE.MeshStandardMaterial(options);
 
         if (depth > 0) {
-            material = [material, new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, emissive: frameColor})];
+            options = {...options, ...{
+                color: frameColor,
+                emissive: frameColor
+            }};
+            material = [material, new THREE.MeshStandardMaterial(options)];
         }
 
+        this.material = material;
         return material;
     }
     
     cardDataUpdated(data) {
         if (data.o.backgroundColor !== data.v.backgroundColor || data.o.frameColor !== data.v.frameColor) {
             let {depth, backgroundColor, frameColor} = data.v;
-            this.material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
-            this.plane.material = this.material;
+            let material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
+            this.plane.material = material;
         }
     }
 
@@ -637,13 +649,13 @@ export class TextFieldPawn extends CardPawn {
         let isSticky = this.actor._cardData.isSticky;
         let depth = this.actor.depth;
         let backgroundColor = this.actor._cardData.backgroundColor;
-        if (!backgroundColor) {
-            backgroundColor = isSticky ? 0xf4e056 : 0xFFFFFF;
+        if (backgroundColor === undefined) {
+            backgroundColor = 0xFFFFFF;
         }
 
         let frameColor = this.actor._cardData.frameColor;
-        if (!frameColor) {
-            frameColor = isSticky ? 0xffffff : 0x666666;
+        if (frameColor === undefined) {
+            frameColor = 0xffffff;
         }
         
         if (!isSticky && depth === 0) {
@@ -1084,7 +1096,7 @@ export class TextFieldPawn extends CardPawn {
             }
         }
 
-        let bounds = {left: 0, top: 0, bottom: newHeight / this.textScale(), right: newWidth / this.textScale()};
+        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
