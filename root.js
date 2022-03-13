@@ -4,7 +4,7 @@
 
 import {
     Constants as C, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, ThreeRenderManager,
+    InputManager, PlayerManager, ActorManager, ThreeRenderManager,
     q_euler as qe, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
 import { AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import {
@@ -86,6 +86,14 @@ class MyPlayerManager extends PlayerManager {
 
 MyPlayerManager.register("MyPlayerManager");
 
+class CardManager extends ActorManager {
+    init(name){
+        super.init(name || 'CardManager');
+    }
+}
+
+CardManager.register("CardManager");
+
 class MyModelRoot extends ModelRoot {
     static modelServices() {
         return [
@@ -93,6 +101,7 @@ class MyModelRoot extends ModelRoot {
             DynaverseAppManager,
             ExpanderModelManager,
             FontModelManager,
+            CardManager
         ];
     }
     init(options, persistentData) {

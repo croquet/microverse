@@ -498,7 +498,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         else if(isWalking){
             if(this.isFalling)this._translation[1] = this.floor;
 
-            if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 100)) {return;}
+            if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
             this.lastUpdateTime = time;
             if(this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
             if (this.actor.fall && !this.findFloor()) {
@@ -598,6 +598,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doKeyDown(e){
         super.doKeyDown(e);
+        console.log(e)
         switch(e.key){
             case 'Shift': this.shiftKey = true; break;
             case 'Control': this.ctrlKey = true; break;
@@ -605,7 +606,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             default:
                 if(this.ctrlKey){
                     switch(e.key){
-                        case 'i': 
+                        case 'a': 
                             console.log("MyAvatar");
                             console.log("translation: ",this.actor.translation);
                             console.log("rotation:", q_pitch(this.actor.rotation),
