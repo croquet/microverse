@@ -602,13 +602,29 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             case 'Shift': this.shiftKey = true; break;
             case 'Control': this.ctrlKey = true; break;
             case 'Alt': this.altKey = true; break;
-            case 'i': 
-                console.log("translation: ",this.actor.translation);
-                console.log("rotation:", q_pitch(this.actor.rotation),
-                    q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
-                console.log("scale:", this.actor.scale);
-                break;
             default:
+                if(this.ctrlKey){
+                    switch(e.key){
+                        case 'i': 
+                            console.log("MyAvatar");
+                            console.log("translation: ",this.actor.translation);
+                            console.log("rotation:", q_pitch(this.actor.rotation),
+                                q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
+                            console.log("scale:", this.actor.scale);
+                        break;
+                        case 'p':
+                            if(this.profiling){
+                                console.log("end profiling");
+                                console.profileEnd("profile");
+                                this.profiling = false;
+                            }else{
+                                this.profiling = true;
+                                console.log("start profiling");
+                                console.profile("profile");
+                            }
+                        break;
+                }
+            }
             /* console.log(e) */
         }
     }
