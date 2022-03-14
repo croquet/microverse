@@ -130,7 +130,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     showControls(toWhom) {
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
         let distance = (toWhom.distance || 6);
-        distance = Math.min(distance*0.7, 4);
+        distance = Math.min(distance * 0.7, 4);
         if(avatar){
             let pose = avatar.dropPose(distance);
             console.log("showControls pose", pose)
@@ -150,18 +150,28 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     setExpanders(data) {
-        let {menuId, selected, _target} = data;
+        let {menuId, selection, _target} = data;
         
         let menu = this.service("ActorManager").get(menuId);
         if (menu) {
             menu.destroy();
         }
+ 
+        selection.forEach((obj) => {
+            let {label, selected} = obj;
 
-        selected.forEach((n) => {
-            if (n.endsWith("Actor")) {
-                this.addActorExpander(n);
-            } else if (n.endsWith("Pawn")) {
-                this.addPawnExpander(n);
+            if (label.endsWith("Actor")) {
+                if (selected) {
+                    this.addActorExpander(label);
+                } else {
+                    this.removeActorExpander(label);
+                }
+            } else if (label.endsWith("Pawn")) {
+                if (selected) {
+                    this.addPawnExpander(label);
+                } else {
+                    this.removePawnExpander(label);
+                }
             }
         });
     }
@@ -269,7 +279,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         /* this is really a hack to make it work with the current model. */
 
         if (options.placeholder) {
-           // this.service("ThreeRenderManager").setRender(false);
+            // this.service("ThreeRenderManager").setRender(false);
             let size = options.placeholderSize || [40, 1, 40];
             let color = options.placeholderColor || 0x808080;
             let offset = options.placeholderOffset || [0, -0.065, 0];
@@ -568,7 +578,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
         if (caspect <= taspect) d *= (taspect / caspect); // use width to fit instead
 
-        return [current, d*1.1];
+        return [current, d * 1.1];
     }
 
     dragPlane(rayCaster, p3e){

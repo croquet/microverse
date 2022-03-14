@@ -58,6 +58,15 @@ export const AM_Code = superclass => class extends superclass {
         }
     }
 
+    removeActorExpander(name) {
+        if (!this._actorCode) {return;}
+        let ind = this._actorCode.indexOf(name);
+        if (ind >= 0) {
+            this._actorCode.splice(ind, 1);
+            this.expanderManager.modelUnuse(this, name);
+        }
+    }
+
     addPawnExpander(name) {
         if (!this._pawnCode) {
             this._pawnCode = [];
@@ -67,6 +76,15 @@ export const AM_Code = superclass => class extends superclass {
             this._pawnCode.push(name);
             this.expanderManager.viewUse(this, name);
             this.publish(this.id, "callSetup", name);
+        }
+    }
+
+    removePawnExpander(name) {
+        if (!this._pawnCode) {return;}
+        let ind = this._pawnCode.indexOf(name);
+        if (ind >= 0) {
+            this._pawnCode.splice(ind, 1);
+            this.expanderManager.viewUnuse(this, name);
         }
     }
 
@@ -426,6 +444,15 @@ export class ExpanderModelManager extends ModelService {
         }
     }
 
+    modelUnuse(model, name) {
+        let modelId = model.id;
+        let array = this.modelUses.get(name);
+        if (!array) {return;}
+        let ind = array.indexOf(modelId);
+        if (ind < 0) {return;}
+        array.splice(ind, 1);
+    }
+
     viewUse(model, name) {
         let modelId = model.id;
         let array = this.viewUses.get(name);
@@ -440,6 +467,15 @@ export class ExpanderModelManager extends ModelService {
         let expander = this.code.get(name);
         if (!expander) {return;}
         expander.ensureExpander();
+    }
+
+    viewUnuse(model, name) {
+        let modelId = model.id;
+        let array = this.viewUses.get(name);
+        if (!array) {return;}
+        let ind = array.indexOf(modelId);
+        if (ind < 0) {return;}
+        array.splice(ind, 1);
     }
 }
 

@@ -144,8 +144,9 @@ class MenuActor {
 
         if (multiple && item.label === 'ok') {
             item.selected = false;
-            let selected = this.items.filter(i => i.selected).map(i => i.label);
-            this.publish(this._parent.id, "fire", {selected: selected, id: this.id});
+
+            let selection = this.items.map((i) => ({label: i.label, selected: i.selected}));
+            this.publish(this._parent.id, "fire", {selection, id: this.id});
         }
     }
 
