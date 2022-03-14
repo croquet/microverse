@@ -31,7 +31,7 @@ Constants.DefaultCards = [
             rotation: q_euler(0, Math.PI, 0),
             layers: ['walk'],
             type: "model",
-            dataLocation: "./assets/3D/New Oil Refinery.glb.zip",
+            dataLocation: "./assets/3D/Oil Refinery.glb.zip",
             singleSided: true,
             shadow: true,
  /*           placeholder: true,

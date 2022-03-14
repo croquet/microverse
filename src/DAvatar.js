@@ -716,9 +716,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     doPointerTap(e){
         if(this.editPawn){ // this gets set in doPointerDown
 //            if(this.editMode){ // if we are in edit mode, clear it
-                console.log("am I HERE????")
                 this.editPawn.unselectEdit();
-                this.editPawn.showControls(this.actor.id);
+                this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
                 this.editPawn = null;
                 this.editPointerId = null;
                 this.editMode = false;
@@ -742,6 +741,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if(this.ctrlKey || this.editPawn){
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer')); // add walk if you want to edit the world
+            this.targetDistance = rc.distance;
             let p3e = this.pointerEvent(rc);
             p3e.lookNormal = this.actor.lookNormal;
             let pawn = GetPawn(p3e.targetId);

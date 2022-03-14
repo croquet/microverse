@@ -127,12 +127,12 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     nop() {}
 
-    showControls(id) {
-        let avatar = this.service("ActorManager").actors.get(id);
-        console.log("showControls", id, avatar)
-      // console.log(id, avatar)
+    showControls(toWhom) {
+        let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
+        let distance = (toWhom.distance || 6);
+        distance = Math.min(distance*0.7, 4);
         if(avatar){
-            let pose = avatar.dropPose(6);
+            let pose = avatar.dropPose(distance);
             console.log("showControls pose", pose)
             console.log("expander", this.expanderManager.code.get("ExpanderMenuActor"))
 
@@ -144,14 +144,12 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 rotation: pose.rotation,
                 target: this.id,
             });
-console.log("Expander menu", menu)
             menu.call("ExpanderMenuActor", "show");
             this.subscribe(menu.id, "setExpanders", "setExpanders");
         }
     }
 
     setExpanders(data) {
-        console.log("setexpanders", data);
         let {menuId, selected, _target} = data;
         
         let menu = this.service("ActorManager").get(menuId);
@@ -570,7 +568,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
         if (caspect <= taspect) d *= (taspect / caspect); // use width to fit instead
 
-        return [current, d];
+        return [current, d*1.1];
     }
 
     dragPlane(rayCaster, p3e){
