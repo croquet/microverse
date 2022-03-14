@@ -53,7 +53,7 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         if (this._actorCode.indexOf(name) < 0) {
-            this._actorCode.push(name);
+            this._actorCode = [...this._actorCode, name];
             this.expanderManager.modelUse(this, name);
         }
     }
@@ -73,7 +73,7 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         if (this._pawnCode.indexOf(name) < 0) {
-            this._pawnCode.push(name);
+            this._pawnCode = [...this._pawnCode, name];
             this.expanderManager.viewUse(this, name);
             this.publish(this.id, "callSetup", name);
         }
