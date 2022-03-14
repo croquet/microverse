@@ -112,23 +112,12 @@ export class SyncedStateManager extends ViewService {
 
 export class FontModelManager extends ModelService {
     static defaultFont() {return "Roboto";}
-    static async asyncStart() {
-        let name = FontModelManager.defaultFont();
-        return fetch(`../../assets/fonts/${name}.json`)
-            .then((response) => response.json())
-            .then((json) => window._defaultFont = {name, font: json});
-    }
-                 
     init(name) {
         super.init(name || "FontModelManager");
         this.fonts = new Map();
         this.subscribe(this.id, "askFont", this.askFont);
 
         this.loading = new Map();
-
-        if (window._defaultFont) {
-            this.fonts.set(window._defaultFont.name, window._defaultFont.font);
-        }
 
         this.subscribe(this.id, "fontLoadStart", "fontLoadStart");
         this.subscribe(this.id, "fontLoadOne", "fontLoadOne");
