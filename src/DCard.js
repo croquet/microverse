@@ -24,7 +24,6 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 
 export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
     init(options) {
-        this.service('CardManager').add(this);
         let cardOptions = {};
         let cardData = {};
 
@@ -47,10 +46,9 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     destroy(){
-        this.service('CardManager').delete(this);
         super.destroy();
     }
-    
+
     setCardData(options) {
         let newOptions = {...this._cardData, ...options};
         this.set({cardData: newOptions});

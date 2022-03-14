@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 import {
-    Constants, Data, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
+    Constants, Data, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
@@ -25,6 +25,33 @@ function setUpDnButton(bttn, doThis, doThat) {
     bttn.onpointerdown = doThis;
     bttn.onpointerup = doThat;
 }
+
+let avatarManager; // Local pointer for avatars
+
+export class AvatarManager extends ViewService {
+    constructor(name) {
+        super(name || "AvatarManager");
+        avatarManager = this;
+        this.avatars = new Map();
+    }
+
+    add(avatar) {
+        this.avatars.set(avatar.actor.id, avatar);
+    }
+
+    has(id) {
+        return this.avatars.has(id);
+    }
+
+    get(id) {
+        return this.avatars.get(id);
+    }
+
+    delete(avatar) {
+        this.avatars.delete(avatar.actor.id);
+    }
+}
+
 
 export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     init(options) {
@@ -243,6 +270,7 @@ AvatarActor.register('AvatarActor');
 export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
+        avatarManager.add(this);
         this.lastUpdateTime = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
@@ -329,6 +357,26 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.constructVisual();
     }
 
+    createSun(){
+        const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
+        //sun.position.set(-200, 800, 100);
+        let side = 15;
+        sun.position.set(-400, 500, 100);
+
+        sun.castShadow = true;
+        sun.shadow.camera.near = 0.5; // default
+        sun.shadow.camera.far = 1000; // default
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.zoom = 0.125;
+        sun.shadow.bias = -0.0001;
+        sun.shadow.camera.top = side;
+        sun.shadow.camera.bottom = -side;
+        sun.shadow.camera.left = side;
+        sun.shadow.camera.right = -side;
+        return sun;
+    }
+
     dropPose(distance){ // compute the position in front of the avatar
         return this.actor.dropPose(distance);
     }
@@ -393,6 +441,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             
             this.addToLayers('avatar');
             model.name = "Avatar";
+           // model.add(this.createSun());
             this.setRenderObject(model);  // note the extension
         });
     }
@@ -420,6 +469,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         isTweening = false;
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
+        avatarManager.delete(this); // delete from the avatarManager
         super.destroy();
     }
 
@@ -598,11 +648,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doKeyDown(e){
         super.doKeyDown(e);
-        console.log(e)
         switch(e.key){
             case 'Shift': this.shiftKey = true; break;
             case 'Control': this.ctrlKey = true; break;
             case 'Alt': this.altKey = true; break;
+            case 'Tab': this.jumpToNote(this.shiftKey); break;
             default:
                 if(this.ctrlKey){
                     switch(e.key){
@@ -612,7 +662,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                             console.log("rotation:", q_pitch(this.actor.rotation),
                                 q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
                             console.log("scale:", this.actor.scale);
-                        break;
+                            break;
                         case 'p':
                             if(this.profiling){
                                 console.log("end profiling");
@@ -623,7 +673,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                                 console.log("start profiling");
                                 console.profile("profile");
                             }
-                        break;
+                            break;
                 }
             }
             /* console.log(e) */
@@ -780,9 +830,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     fadeNearby(){
-        let pawnManager = this.service("PawnManager"); 
-        pawnManager.pawns.forEach(a => {
-            if( a.avatar ){
+        avatarManager.avatars.forEach(a => {
+            if( a.actor.follow ){
+                a.setOpacity(0); // get out of my way
+            }
+            else{
                 let m = this.lookGlobal; // camera location
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
                 m = a.global; // avatar location
@@ -798,13 +850,15 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let transparent = opacity!=1;
         if(this.opacity!==opacity){
             this.opacity = opacity;
-            this.avatar.traverse( n => {
-                if(n.material){
-                    n.material.opacity = opacity;
-                    n.material.transparent = transparent;
-                    n.material.needsUpdate = true;
-                }
-            });
+            if(this.avatar){
+                this.avatar.traverse( n => {
+                    if(n.material){
+                        n.material.opacity = opacity;
+                        n.material.transparent = transparent;
+                        n.material.needsUpdate = true;
+                    }
+                });
+            }
         }
     }
     
@@ -816,6 +870,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     comeToMe(){
         console.log("comeToMe");
         this.say("comeToMe");
+    }
+
+    jumpToNote(isShift){
+        // collect the notes
+    console.log(this.actor.service('CardManager').cards);
+        // jump to the next one or last 
+
     }
 
     switchControl(e) {
