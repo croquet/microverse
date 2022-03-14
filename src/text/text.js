@@ -677,6 +677,7 @@ export class TextFieldPawn extends CardPawn {
         let material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
         this.material = material;
         this.plane = new THREE.Mesh(this.geometry, this.material);
+        this.plane.castShadow = true;
         this.plane.name = this.actor.name;
         this.shape.add(this.plane);
 

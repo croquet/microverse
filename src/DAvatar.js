@@ -386,7 +386,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
         this.ctrlKey = true;
-        console.log(this.ctrlKey);
+        console.log("setEditMode", this.ctrlKey);
     }
 
     clearEditMode(evt) {
@@ -395,7 +395,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         delete this.capturedPointers[evt.pointerId];
         evt.stopPropagation();
         this.ctrlKey = false;
-        console.log(this.ctrlKey);
+        console.log("clearEditMode", this.ctrlKey);
     }
 
     constructVisual() {
