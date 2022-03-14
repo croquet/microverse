@@ -341,10 +341,16 @@ export class TextFieldActor extends CardActor {
         }
 
         if (options.readOnly) {
-            let result = defaultModelMeasurer.measureText(this.value);
+            let margins = options.margins;
+            let marginsLeft = margins && margins.left !== undefined ? margins.left : 0;
+            let marginsRight = margins && margins.right !== undefined ? margins.right : 0;
+
+            let hMargin = marginsLeft + marginsRight;
+
+            let measurement = defaultModelMeasurer.measureText(this.value);
             this.measurement = {
-                width: result.width * options.textScale,
-                height: result.height * options.textScale
+                width: (measurement.width + hMargin) * options.textScale,
+                height: measurement.height * options.textScale
             };
         }
     }

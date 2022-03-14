@@ -11,8 +11,18 @@ class ExpanderMenuActor {
             parent: this
         });
 
+        let target = this.service("ActorManager").get(this._cardData.target);
+
+        let items = [];
+
         let codeMap = this.expanderManager.code;
-        let items = [...codeMap.keys()].map((k) => ({label: k}));
+        for (let k of codeMap.keys()) {
+            let selected = target._actorCode && target._actorCode.indexOf(k) >=  0 ||
+                target._pawnCode && target._pawnCode.indexOf(k) >=  0;
+            let obj = {label: k, selected};
+            items.push(obj);
+        }
+
         items.push({label: 'ok'});
 
         this.menu.call("MenuActor", "setItems", items);
@@ -42,6 +52,7 @@ class MenuActor {
                 obj.card.destroy();
             });
         }
+        this.items = [];
     }
 
     setItems(list) {
@@ -73,6 +84,7 @@ class MenuActor {
                     translation: [0, 0, 0],
                     parent: this,
                     type: "text",
+                    margins: {left: 8, top: 0, right: 16, bottom: 0},
                     readOnly: true,
                     singleLine: true,
                     autoResize: true,
@@ -108,7 +120,7 @@ class MenuActor {
             top -= h !== undefined ? h : 0.15;
             maxHeight += h;
         });
-        this.maxHeight = maxHeight;
+        this.maxHeight = maxHeight + 0.10;
         this.say("itemsUpdated");
     }
 
@@ -147,7 +159,7 @@ class MenuPawn {
         this.clear();
         this.listen("updateBackDrop", "updateBackDrop");
 
-        if (this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
+        if (this.actor.items && this.actor.items.length > 0 && this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
             this.updateBackDrop();
         }
     }
@@ -162,10 +174,9 @@ class MenuPawn {
     }
 
     updateBackDrop() {
-        console.log("updateBackDrop");
         this.cardDataUpdated({
             v: {
-                width: this.actor.maxWidth,
+                width: this.actor.maxWidth + 0.2,
                 height: this.actor.maxHeight,
                 depth: 0.05,
                 color: 0xE0E0E0,
@@ -181,8 +192,9 @@ class MenuPawn {
             this.roundedCornerPlane(width, height, depth),
             this.makeMaterial(depth, color, frameColor)
         );
-        this.backdrop.position.set(0, - height / 2 + 1, -0.1);
+        this.backdrop.position.set(0, - height / 2 + 1.05, -0.1);
         this.shape.add(this.backdrop);
+        console.log("this.backdroup", this.backdrop);
     }
 
     roundedCornerPlane(width, height, depth) {
