@@ -4,10 +4,14 @@ import { PM_PointerTarget } from "../Pointer.js";
 import { CardActor, CardPawn } from "../DCard.js";
 import loadFont from "load-bmfont";
 
+import * as defaultFont from "../../assets/fonts/Roboto.json";
+
 import {Doc, Warota, canonicalizeKeyboardEvent, fontRegistry} from "./warota.js";
 
 // "Text Scale" to reconcile the bitmap font size, which is typically in the range of 50 pixels, and the 3D geometry size, which we tend to think one unit equates to a meter.
 const TS = 0.0025;
+
+const defaultModelMeasurer = new (getTextLayout(THREE))({font: defaultFont});
 
 export class KeyFocusManager extends ViewService {
     constructor(name) {
@@ -107,12 +111,24 @@ export class SyncedStateManager extends ViewService {
 }
 
 export class FontModelManager extends ModelService {
+    static defaultFont() {return "Roboto";}
+    static async asyncStart() {
+        let name = FontModelManager.defaultFont();
+        return fetch(`../../assets/fonts/${name}.json`)
+            .then((response) => response.json())
+            .then((json) => window._defaultFont = {name, font: json});
+    }
+                 
     init(name) {
         super.init(name || "FontModelManager");
         this.fonts = new Map();
         this.subscribe(this.id, "askFont", this.askFont);
 
         this.loading = new Map();
+
+        if (window._defaultFont) {
+            this.fonts.set(window._defaultFont.name, window._defaultFont.font);
+        }
 
         this.subscribe(this.id, "fontLoadStart", "fontLoadStart");
         this.subscribe(this.id, "fontLoadOne", "fontLoadOne");
@@ -181,7 +197,7 @@ FontModelManager.register("FontModelManager");
 export class FontViewManager extends ViewService {
     constructor(options, name) {
         super(name || "FontViewManager");
-        this.fonts = new Map(); // {texture, material}
+        this.fonts = new Map(); // {texture, _material}
         this.isLoading = {};
         this.fudgeFactors = new Map();
         this.fudgeFactors.set("Roboto", {yoffset: 30});
@@ -189,23 +205,37 @@ export class FontViewManager extends ViewService {
 
     setModel(model) {
         this.model = model;
+
+        for (let [name, font] of this.model.fonts.entries()) {
+            this.askFont(name, font);
+        }
     }
 
     get(name) {
         return this.fonts.get(name);
     }
 
-    askFont(name) {
+    askFont(name, optFont) {
         if (this.fonts.get(name)) {return Promise.resolve(this.fonts.get(name));}
         if (this.isLoading[name]) {return this.isLoading[name];}
 
         let path = "./assets/fonts";
         let image = `${path}/${name}.png`;
 
-        this.isLoading[name] = new Promise((resolve, reject) => {
-            loadFont(`${path}/${name}.json`, (err, font) => {
-                if (err) throw err;
-                let loader = new THREE.TextureLoader();
+        if (optFont) {
+            this.isLoading[name] = Promise.resolve(optFont);
+        } else {
+            this.isLoading[name] = new Promise((resolve, reject) => {
+                loadFont(`${path}/${name}.json`, (err, font) => {
+                    if (err) reject(err);
+                    resolve(font);
+                })
+            });
+        }
+
+        this.isLoading[name] = this.isLoading[name].then((font) => {
+            let loader = new THREE.TextureLoader();
+            return new Promise((resolve, reject) => {
                 loader.load(
                     image,
                     (tex) => {
@@ -285,7 +315,8 @@ export class FontViewManager extends ViewService {
 
 export class TextFieldActor extends CardActor {
     init(options) {
-        this.doc = new Doc({defaultFont: "Roboto", defaultSize: 10});
+        this.fonts = this.service("FontModelManager");
+        this.doc = new Doc({defaultFont: this.fonts.constructor.defaultFont(), defaultSize: 10});
         this.doc.load(options.runs || []);
         // this.doc.load([
         // {text: "ab c ke eke ekeke ekek eke ek eke ke ek eke ek ek ee  ke kee ke", style: {size: 24}},
@@ -293,8 +324,6 @@ export class TextFieldActor extends CardActor {
 
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
         
-        this.fonts = this.service("FontModelManager");
-
         if (!options.textScale) {
             options.textScale =  TS;
         }
@@ -309,9 +338,6 @@ export class TextFieldActor extends CardActor {
 
         this.listen("dismiss", "dismiss");
 
-        this.listen("newGeometry", "newGeometry");
-        
-
         // the height part of this is optional, in the sense that the view may do something else
 
         let textWidth = options.width / options.textScale;
@@ -323,6 +349,14 @@ export class TextFieldActor extends CardActor {
         if (!options.readOnly) {
             // that means that a change in readOnly should trigger this
             this.setupDismissButton();
+        }
+
+        if (options.readOnly) {
+            let result = defaultModelMeasurer.measureText(this.value);
+            this.measurement = {
+                width: result.width * options.textScale,
+                height: result.height * options.textScale
+            };
         }
     }
 
@@ -425,16 +459,6 @@ export class TextFieldActor extends CardActor {
         return this.load(text);
     }
 
-    newGeometry(data) {
-        let {width, height} = data;
-        if (this.textWidth !== width || this.textHeight !== height) {
-            this.textWidth = width;
-            this.textHeight = height;
-            let bottom = (-this.translation[1] + height / 2);
-            this.sayDeck("layoutChanged", {width, height, bottom, id: this.id});
-        }
-    }
-
     setupDismissButton() {
         this.dismissButton = DismissButtonActor.create({parent: this});
     }
@@ -480,7 +504,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     destroy() {
-        ["geometry", "material", "textGeometry"].forEach((n) => {
+        ["geometry", "material", "textGeometry", "textMaterial"].forEach((n) => {
             if (Array.isArray(this[n])) {
                 this[n].forEach((o) => o.dispose());
             } else if (this[n]) {
@@ -517,56 +541,42 @@ export class TextFieldPawn extends CardPawn {
             this.material.dispose();
         }
 
-
-        let options = {color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor};
-        if (!backgroundColor) {
-            options.transparent = true;
-        }
-            
-        let material = new THREE.MeshStandardMaterial(options);
+        let material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
 
         if (depth > 0) {
-            options = {...options, ...{
-                color: frameColor,
-                emissive: frameColor
-            }};
-            material = [material, new THREE.MeshStandardMaterial(options)];
+            material = [material, new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, emissive: frameColor})];
         }
 
-        this.material = material;
         return material;
     }
     
     cardDataUpdated(data) {
         if (data.o.backgroundColor !== data.v.backgroundColor || data.o.frameColor !== data.v.frameColor) {
             let {depth, backgroundColor, frameColor} = data.v;
-            let material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
-            this.plane.material = material;
+            this.material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
+            this.plane.material = this.material;
         }
     }
 
     changeMaterial(name, makeNew) {
+        // we may still able to share the same material for all text instances
+        // when we revive onbeforerender.
+        if (this.textMaterial) {
+            this.textMaterial.dispose();
+        }
         let textMesh;
         if (!this.fonts.get(name)) {return;}
-        if (!this.fonts.get(name).material) {
-            let texture = this.fonts.get(name).texture;
-            this.fonts.get(name).material = new THREE.RawShaderMaterial(HybridMSDFShader({
-                map: texture,
-                textureSize: texture.image.width,
-                side: THREE.DoubleSide,
-                transparent: true,
-            }, THREE));
-        }
+        let texture = this.fonts.get(name).texture;
+        this.textMaterial = new THREE.RawShaderMaterial(HybridMSDFShader({
+            map: texture,
+            textureSize: texture.image.width,
+            side: THREE.DoubleSide,
+            transparent: true,
+        }, THREE));
 
         if (makeNew) {
-            textMesh = new THREE.Mesh(this.textGeometry, this.fonts.get(name).material);
+            textMesh = new THREE.Mesh(this.textGeometry, this.textMaterial);
             textMesh.name = "text";
-        } else {
-            let m = this.textMesh.material;
-            this.textMesh.material = this.fonts.get(name).material;
-            if (m) {
-                m.dispose();
-            }
         }
         return textMesh;
     }
@@ -649,13 +659,13 @@ export class TextFieldPawn extends CardPawn {
         let isSticky = this.actor._cardData.isSticky;
         let depth = this.actor.depth;
         let backgroundColor = this.actor._cardData.backgroundColor;
-        if (backgroundColor === undefined) {
-            backgroundColor = 0xFFFFFF;
+        if (!backgroundColor) {
+            backgroundColor = isSticky ? 0xf4e056 : 0xFFFFFF;
         }
 
         let frameColor = this.actor._cardData.frameColor;
-        if (frameColor === undefined) {
-            frameColor = 0xffffff;
+        if (!frameColor) {
+            frameColor = isSticky ? 0xffffff : 0x666666;
         }
         
         if (!isSticky && depth === 0) {
@@ -1082,7 +1092,6 @@ export class TextFieldPawn extends CardPawn {
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;
-            this.say("newGeometry", {width: newWidth, height: newHeight});
         }
 
         this.textMesh.position.x = -newWidth / 2;
@@ -1096,7 +1105,7 @@ export class TextFieldPawn extends CardPawn {
             }
         }
 
-        let bounds = {left: 0, top: 0, bottom: extent.height, right: extent.width};
+        let bounds = {left: 0, top: 0, bottom: newHeight / this.textScale(), right: newWidth / this.textScale()};
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 

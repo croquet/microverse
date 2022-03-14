@@ -204,7 +204,7 @@ export const PM_Code = superclass => class extends superclass {
                     expander.ensureExpander();
                 }
                 if (expander.$expander.setup) {
-                    this.future(0).callSetup(name, "setup");
+                    this.future(0).callSetup(name);
                 }
             });
         }

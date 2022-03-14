@@ -103,8 +103,7 @@ export class Measurer {
     measureText(word, font, size) {
         let key = this.cache.makeKey(word, font, size);
         let m = this.cache.lookup(key);
-        if (m) {
-            return m;}
+        if (m) {return m;}
         m = fontRegistry.measureText(word, font, size);
         this.cache.update(key, m);
         return m;

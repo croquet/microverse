@@ -42,8 +42,6 @@ class MenuActor {
                 obj.card.destroy();
             });
         }
-        this.items = [];
-        this.scriptListen("layoutChanged", "layoutChanged");
     }
 
     setItems(list) {
@@ -60,8 +58,10 @@ class MenuActor {
         this.maxWidth = 0;
         this.maxHeight = 0;
 
-        let top = 0;
-
+        this.maxWidth = 0;
+        this.maxHeight = 0;
+        this.extentMap = new Map();
+        
         for (let i = 0; i < list.length; i++) {
             let item = list[i];
 
@@ -70,7 +70,7 @@ class MenuActor {
                 labelCard = this.createCard({
                     name: item.label,
                     className: "TextFieldActor",
-                    translation: [0, top, 0],
+                    translation: [0, 0, 0],
                     parent: this,
                     type: "text",
                     readOnly: true,
@@ -85,12 +85,30 @@ class MenuActor {
                 });
             }
 
-            top -= labelCard.height;
+            let measurement = labelCard.measurement;
+            this.extentMap.set(labelCard.id, measurement);
+
             labelCard._cardData.name = item.label;
+            this.maxWidth = Math.max(this.maxWidth, measurement.width);
 
             this.items.push({label: item.label, card: labelCard, selected: !!item.selected});
             this.scriptSubscribe(labelCard.id, "fire", "relay");
         }
+
+        let top = 1;
+        let maxHeight = 0;
+        this.items.forEach((obj) => {
+            let extent = this.extentMap.get(obj.card.id);
+            let h = extent ? extent.height : 0.15;
+            obj.card.set({translation: [
+                ((extent ? extent.width : 0) - this.maxWidth) / 2,
+                top - h / 2,
+                0
+            ]});
+            top -= h !== undefined ? h : 0.15;
+            maxHeight += h;
+        });
+        this.maxHeight = maxHeight;
         this.say("itemsUpdated");
     }
 
@@ -122,51 +140,16 @@ class MenuActor {
     selectionChanged(item) {
         item.card.setCardData({backgroundColor: item.selected ? 0x606060 : 0xFFFFFF});
     }
-
-    layoutChanged(data) {
-        let {width, height, id} = data;
-        let doLayout = false;
-        if (width > this.maxWidth) {
-            this.maxWidth = width;
-            doLayout = true;
-        }
-
-        if (!this.extentMap) {
-            this.extentMap = new Map();
-        }
-
-        this.extentMap.set(id, {height, width});
-
-        let newHeight = [...this.extentMap.values()].reduce((a, b) => a + b.height, 0);
-        if (newHeight !== this.maxHeight) {
-            this.maxHeight = newHeight;
-            doLayout = true;
-        }
-
-        if (doLayout) {
-            let top = 0;
-            this.items.forEach((obj) => {
-                let extent = this.extentMap.get(obj.card.id);
-                let h = extent ? extent.height : 0.15;
-                obj.card.set({translation: [
-                    ((extent ? extent.width : 0) - this.maxWidth) / 2,
-                    top - h / 2,
-                    0
-                ]});
-                top -= h !== undefined ? h : 0.15;
-            });
-
-            console.log("layoutChanged", this.maxWidth, this.maxHeight);
-            
-            this.say("updateBackDrop");
-        }
-    }
 }
 
 class MenuPawn {
     setup() {
         this.clear();
         this.listen("updateBackDrop", "updateBackDrop");
+
+        if (this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
+            this.updateBackDrop();
+        }
     }
 
     clear() {
@@ -198,7 +181,7 @@ class MenuPawn {
             this.roundedCornerPlane(width, height, depth),
             this.makeMaterial(depth, color, frameColor)
         );
-        this.backdrop.position.set(0, - height / 2, -0.1);
+        this.backdrop.position.set(0, - height / 2 + 1, -0.1);
         this.shape.add(this.backdrop);
     }
 
@@ -269,4 +252,3 @@ export let menu = {
     expanders: [ExpanderMenuActor, MenuActor, MenuPawn, MenuItemActor, MenuItemPawn]
 };
 
-/* globals WorldCore */
