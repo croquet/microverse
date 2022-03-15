@@ -62,6 +62,10 @@ export const AM_Code = superclass => class extends superclass {
         if (!this._actorCode) {return;}
         let ind = this._actorCode.indexOf(name);
         if (ind >= 0) {
+            let expander = this.expanderManager.code.get(name);
+            if (expander && expander.$expander && expander.$expander.destroy) {
+                expander.invoke(this[isProxy] ? this._target : this, "destroy");
+            }
             this._actorCode.splice(ind, 1);
             this.expanderManager.modelUnuse(this, name);
         }
@@ -83,6 +87,7 @@ export const AM_Code = superclass => class extends superclass {
         if (!this._pawnCode) {return;}
         let ind = this._pawnCode.indexOf(name);
         if (ind >= 0) {
+            this.publish(this.id, "callDestroy", name);
             this._pawnCode.splice(ind, 1);
             this.expanderManager.viewUnuse(this, name);
         }
@@ -90,9 +95,7 @@ export const AM_Code = superclass => class extends superclass {
 
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
-
         let expanderName = this._expander;
-
         return this.futureWithExpander(time, expanderName);
     }
 
@@ -215,6 +218,7 @@ export const PM_Code = superclass => class extends superclass {
         let expanderManager = this.actor.expanderManager;
 
         this.subscribe(actor.id, "callSetup", "callSetup");
+        this.subscribe(actor.id, "callDestroy", "callDestroy");
         if (actor._pawnCode) {
             actor._pawnCode.forEach((name) => {
                 let expander = expanderManager.code.get(name);
@@ -241,6 +245,10 @@ export const PM_Code = superclass => class extends superclass {
 
     callSetup(name) {
         return this.call(name, "setup");
+    }
+
+    callDestroy(name) {
+        return this.call(name, "destroy");
     }
 
     scriptListen(eventName, listener) {
