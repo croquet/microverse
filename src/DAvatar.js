@@ -287,7 +287,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.camera = renderMgr.camera;
             this.scene = renderMgr.scene;
             this.lastHeight = EYE_HEIGHT; // tracking the height above ground
-
+            this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
             //this.tweenCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             //this.walkCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             this.orbitCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
@@ -653,6 +653,22 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             case 'Control': this.ctrlKey = true; break;
             case 'Alt': this.altKey = true; break;
             case 'Tab': this.jumpToNote(this.shiftKey); break;
+            case 'w': case 'W': // forward
+                this.yawDirection = -2;
+                this.setVelocity([0,0,-0.01]);
+                break;
+            case 'a': case 'A': // left strafe
+                this.yawDirection = -2;
+                this.setVelocity([-0.01, 0, 0]);
+                break;
+            case 'd': case 'D': // right strafe
+                this.yawDirection = -2;
+                this.setVelocity([0.01, 0, 0]);
+                break;
+            case 's': case 'S': // backward
+                this.yawDirection = -2;
+                this.setVelocity([0, 0, 0.01]);
+                break;
             default:
                 if(this.ctrlKey){
                     switch(e.key){
@@ -686,6 +702,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             case 'Shift': this.shiftKey = false; break;
             case 'Control': this.ctrlKey = false; break;
             case 'Alt': this.altKey = false; break;
+            case 'w': case 'W': case 'a': case 'A':
+            case 'd': case 'D': case 's': case 'S':
+                this.yawDirection = -1;
+                this.setVelocity([0, 0, 0]);
+            break;
         }
     }
 
@@ -793,7 +814,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             super.doPointerMove(e);
             if(isWalking && !this.focusPawn && this.isPointerDown){
                 let yp = this.xy2yp(e.xy);
-                let yaw = this._lookYaw + this.dragWorld[0] - yp[0];
+                let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0])* this.yawDirection);
                 let pitch = this._lookPitch + this.dragWorld[1] -yp[1];
                 pitch = pitch>1 ? 1 : (pitch<-1 ? -1: pitch);
                 this.dragWorld = yp;
