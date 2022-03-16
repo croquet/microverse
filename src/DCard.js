@@ -55,16 +55,19 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     createShape(options) {
-        if (options.type === "text") {
+        let type = options.type;
+        if (type === "text") {
             this.subscribe(this.id, "changed", "textChanged");
-        } else if (options.type === "model") {
+        } else if (type === "3d") {
             this.creationTime = this.now();
-        } else if (options.type === "svg") {
-        } else if (options.type === "lighting") {
-        } else if (options.type === "code") {
+        } else if (type === "2d" || type === "2D" ) {
+        } else if (type === "lighting") {
+        } else if (type === "code") {
             this.subscribe(this.id, "changed", "textChanged");
             // this is a weird inter mixins dependency but not sure how to write it
             this.subscribe(this.id, "text", "codeAccepted");
+        } else {
+            console.log("unknown type for a card: ", options.type);
         }
     }
 
@@ -240,6 +243,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.listen("doUnselectEdit", this.doUnselectEdit);
         this.listen("updateTranslation", this.updateTranslation);
         this.listen("updateRotation", this.updateRotation);
+        this.listen("_cardData", this.cardDataUpdated);
         this.constructCard();
     }
 
@@ -262,12 +266,13 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     constructShape(options) {
-        if (options.type === "model") {
+        let type = options.type;
+        if (type === "3d" || type === "3D") {
             this.construct3D(options);
-        } else if (options.type === "svg") {
+        } else if (type === "2d" || type === "2D") {
             this.isFlat = true;
-            this.constructSurface(options);
-        }  else if (options.type === "text" || options.type === "code") {
+            this.construct2D(options);
+        }  else if (type === "text" || type === "code") {
             this.isFlat = true;
         }
     }
@@ -313,21 +318,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }).then((obj) => {
             obj.updateMatrixWorld(true);
             addShadows(obj, shadow, singleSided, THREE);
-            if (options.dataScale) {
-                obj.scale.set(...options.dataScale);
-            } else {
-                let size = new THREE.Vector3(0, 0, 0);
-                new THREE.Box3().setFromObject(obj).getSize(size);
-                let max = Math.max(size.x, size.y, size.z);
-                let s = 4 / max;
-                obj.scale.set(s, s, s);
-            }
-            if (options.dataTranslation) {
-                obj.position.set(...options.dataTranslation);
-            }
-            if (options.dataRotation) {
-                obj.quaternion.set(...options.dataRotation);
-            }
+            this.setupObj(obj, options);
             if (obj._croquetAnimation) {
                 const spec = obj._croquetAnimation;
                 spec.startTime = this.actor.creationTime;
@@ -344,15 +335,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         });
     }
 
-    constructSurface(options) {
-        let shapeURL = options.dataLocation;
-        if (!shapeURL) {
-            console.log("dataLocation is not defined in ", options);
-            return;
-        }
-
-        let textureURL = options.textureLocation;
+    construct2D(options) {
+        let dataLocation = options.dataLocation;
+        let textureLocation = options.textureLocation;
         let textureType = options.textureType;
+
+        let texturePromise; // resolves to texture and width and height
 
         let depth = (options.depth !== undefined) ? options.depth : 0.05;
         let width = (options.width !== undefined) ? options.width : 512;
@@ -362,6 +350,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let frameColor = options.frameColor || 0x666666;
         let fullBright = options.fullBright !== undefined ? options.fullBright : true;
         let shadow = options.shadow !== undefined ? options.shadow : true;
+        let cornerRadius = options.cornerRadius !== undefined ? options.cornerRadius : 0;
+
+        // You might want to parallelize the texture data loading and svg data loading by arranging
+        // promises cleverly, but this.texture should be set quite early
+        // (that is before returning from this method) to have apps like multiblaster function
         
         if (textureType === "video") {
             this.video = document.createElement('video');
@@ -369,7 +362,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.video.muted = true;
             this.video.loop = true;
 
-            this.getBuffer(textureURL).then((buffer) => {
+            this.getBuffer(textureLocation).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
                 this.objectURL = objectURL;
@@ -379,11 +372,22 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             let videoService = this.service("VideoManager");
             videoService.add(this.video);
             this.texture = new THREE.VideoTexture(this.video);
+            texturePromise = Promise.resolve({
+                width: this.video.width,
+                height: this.video.height,
+                texture: this.texture
+            });
         } else if (textureType === "image") {
-            this.getBuffer(textureURL).then((buffer) => {
+            texturePromise = this.getBuffer(textureLocation).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer]));
                 this.objectURL = objectURL;
-                this.texture = new THREE.TextureLoader().load(objectURL);
+                return new Promise((resolve, reject) => {
+                    this.texture = new THREE.TextureLoader().load(
+                        objectURL,
+                        (texture) => {
+                            resolve({width: texture.image.width, height: texture.image.height, texture})
+                        }, null, reject);
+                });
             });
         } else if (textureType === "canvas") {
             this.canvas = document.createElement("canvas");
@@ -391,10 +395,14 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.canvas.width = width;
             this.canvas.height = height;
             this.texture = new THREE.CanvasTexture(this.canvas);
-        } else if (textureType === "dynamic"){
+            texturePromise = Promise.resolve({width, height, texture: this.texture});
+        } else if (textureType === "dynamic") {
             this.dynamic = new DynamicTexture(width, height, options.fillStyle, options.clearStyle);
             this.texture = this.dynamic.texture;
+            texturePromise = Promise.resolve({width, height, texture: this.texture});
         }
+
+        if (!texturePromise) {texturePromise = Promise.resolve(undefined);}
 
         let loadOptions = {
             texture: this.texture,
@@ -404,18 +412,110 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             shadow,
             depth,
         };
+
         let assetManager = this.service("AssetManager").assetManager;
-        this.getBuffer(shapeURL).then((buffer) => {
-            return assetManager.load(buffer, "svg", THREE, loadOptions);
-        }).then((obj) => {
-            normalizeSVG(obj, depth, shadow, THREE);
-            this.aspect = obj.aspect;
-            if (this.texture) addTexture(this.texture, obj);
-            if (options.offset) {
-                obj.position.set(...options.offset);
+
+        if (dataLocation) {
+            return this.getBuffer(dataLocation).then((buffer) => {
+                return assetManager.load(buffer, "svg", THREE, loadOptions);
+            }).then((obj) => {
+                normalizeSVG(obj, depth, shadow, THREE);
+                return obj;
+            }).then((obj) => {
+                if (this.texture) {
+                    addTexture(this.texture, obj);
+                }
+                if (options.dataTranslation) {
+                    obj.position.set(...options.dataTranslation);
+                }
+                this.shape.add(obj);
+            });
+        } else {
+            return texturePromise.then((textureObj) => {
+                if (textureObj && textureObj.texture) {
+                    width = textureObj.width;
+                    height = textureObj.height;
+                    let max = Math.max(width, height);
+                    let scale = 1 / max;
+                    width *= scale;
+                    height *= scale;
+                    
+                }
+
+                let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius);
+                let material = [
+                    new THREE.MeshStandardMaterial({map: this.texture, color}),
+                    new THREE.MeshStandardMaterial({color: frameColor, emissive: frameColor})
+                ];
+
+                let obj = new THREE.Mesh(geometry, material);
+                obj.name = "image obj";
+                // this.setupObj(obj, options);
+                obj.castShadow = shadow;
+                this.shape.add(obj);
+            });
+        }
+    }
+
+    setupObj(obj, options) {
+        if (options.dataScale) {
+            obj.scale.set(...options.dataScale);
+        } else {
+            let size = new THREE.Vector3(0, 0, 0);
+            new THREE.Box3().setFromObject(obj).getSize(size);
+            let max = Math.max(size.x, size.y, size.z);
+            let s = 4 / max;
+            obj.scale.set(s, s, s);
+        }
+        if (options.dataTranslation) {
+            obj.position.set(...options.dataTranslation);
+        }
+        if (options.dataRotation) {
+            obj.quaternion.set(...options.dataRotation);
+        }
+    }
+
+    roundedCornerGeometry(width, height, depth, cornerRadius) {
+        let x = - width / 2;
+        let y = - height / 2;
+        let radius = cornerRadius === undefined ? 0 : cornerRadius;
+        
+        let shape = new THREE.Shape();
+        shape.moveTo(x, y + radius);
+        shape.lineTo(x, y + height - radius);
+        shape.quadraticCurveTo(x, y + height, x + radius, y + height);
+        shape.lineTo(x + width - radius, y + height);
+        shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
+        shape.lineTo(x + width, y + radius);
+        shape.quadraticCurveTo(x + width, y, x + width - radius, y);
+        shape.lineTo(x + radius, y);
+        shape.quadraticCurveTo( x, y, x, y + radius);
+
+        let geometry = new THREE.ExtrudeGeometry(shape, {depth, bevelEnabled: false});
+        geometry.parameters.width = width;
+        geometry.parameters.height = height;
+        geometry.parameters.depth = depth;
+
+        let normalizeUV = (uvArray, bb) => {
+            let s = [bb.max.x - bb.min.x, bb.max.y - bb.min.y];
+            s[0] = s[0] > 0 ? 1 / s[0] : 1;
+            s[1] = s[1] > 0 ? -1 / s[1] : -1;
+            let o = [bb.min.x, -bb.min.y];
+            let index = 0;
+            for(let i = 0; i < uvArray.length; i++) {
+                uvArray[i] = (uvArray[i] - o[index]) * s[index];
+                if (index) uvArray[i] = 1 - uvArray[i];
+                index = index === 0 ? 1 : 0;
             }
-            this.shape.add(obj);
-        });
+        };
+
+        let boundingBox = new THREE.Box3(
+            new THREE.Vector3(-width / 2, -height / 2, -depth / 2),
+            new THREE.Vector3(width / 2, height / 2, depth / 2));
+        
+        let uv = geometry.getAttribute('uv');
+        normalizeUV(uv.array, boundingBox);
+        return geometry;
     }
 
     isDataId(name) {
@@ -435,6 +535,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             return Data.fetch(this.sessionId, handle);
         }
     }
+
+    cardDataUpdated() {console.log("cardDataUpdated");}
 
     uv2xy(uv) {
         return this.actor.uv2xy(uv);

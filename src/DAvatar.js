@@ -208,17 +208,30 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
         let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
 
+        let cardType = type === "svg" || type === "img" ? "2d" : "3d";
+
         let options = {
             name: fileName,
             translation,
             rotation,
-            type: type === "svg" ? "svg" : "model",
-            dataLocation: dataId,
+            type: cardType,
             fileName,
             modelType: type,
             shadow: true,
             singleSided: true
         };
+
+        if (type === "img") {
+            options = {
+                ...options,
+                ...{
+                    textureLocation: dataId, textureType: "image", scale: [4, 4, 4],
+                    cornerRadius: 0.02
+                }
+            };
+        } else {
+            options = {...options, ...{dataLocation: dataId}};
+        }
 
         CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
 
@@ -347,7 +360,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     let dataId = Data.toId(handle);
                     let pose = this.dropPose(6);
                     this.say("fileUploaded", {
-                        dataId, fileName, type,
+                        dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
                         translation: pose.translation,
                         rotation: pose.rotation
                     });

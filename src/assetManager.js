@@ -36,7 +36,7 @@ export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {buffer, dataURL, blob, userIds: [id]}}
         this.objectURLs = {}; // {[viewId]: [dataIds]}
-        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg"]);
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif"]);
     }
 
     checkFile(entry, item, importSizeChecker) {
@@ -246,7 +246,11 @@ export class AssetManager {
             "glb": "importGLB",
             "obj": "importOBJ",
             "fbx": "importFBX",
-            "svg": "importSVG"
+            "svg": "importSVG",
+            "png": "importIMG",
+            "jpg": "importIMG",
+            "jpeg": "importIMG",
+            "gigf": "importIMG"
         };
 
         if (isZip(buffer)) {
@@ -544,6 +548,9 @@ export class Loader {
         return svg;
     }
 
+    importIMG(buffer, options, THREE) {
+        return {"img": URL.createObjectURL(new Blob([buffer]))};
+    }
 }
 
 export function addShadows(obj3d, shadow, singleSide, THREE) {

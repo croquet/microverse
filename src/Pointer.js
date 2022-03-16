@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { Actor, Pawn, GetPawn, mix, RegisterMixin, AM_Predictive, PM_Predictive } from "@croquet/worldcore";
+import { GetPawn, RegisterMixin } from "@croquet/worldcore";
 
 //------------------------------------------------------------------------------------------
 //-- AM_PointerTarget ----------------------------------------------------------------------
@@ -74,6 +74,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
     }
 
     removeEventListener(eventName, listener) {
+        let expander;
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -239,7 +240,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
     }
 
     unregisterEventListener(data) {
-        let {eventName, listener} = data;
+        let {eventName, _listener} = data;
         let func = this.modelListeners.get(eventName);
         if (!func) {return;}
         this.removeEventListener(eventName, func);

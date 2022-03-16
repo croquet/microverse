@@ -26,7 +26,7 @@ Constants.DefaultCards = [
             scale:[200, 200, 200],
             rotation: q_euler(0, Math.PI, 0),
             layers: ['walk'],
-            type: "model",
+            type: "3d",
             // dataLocation: "./assets/3D/Refinery.glb.zip",
             singleSided: true,
             shadow: true,
@@ -43,6 +43,52 @@ Constants.DefaultCards = [
             className: "DLight",
         }
     },
+
+        {
+            card: {
+                name: 'bitcointracker',
+                className: "BitcoinTracker",
+                translation: [-4, -0.5, -6],
+                rotation: q_euler(0, Math.PI / 2, 0),
+                scale: [4, 4, 4],
+                type: "2d",
+                cornerRadius: 0.03,
+                textureType: "canvas",
+                width: 1024,
+                height: 768,
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+            },
+            id: "main",
+        },
+        {
+            card: {
+                name:'bitlogo',
+                className: "BitLogoCard",
+                translation: [-0.35, 0.35, 0.1],
+                scale: [0.25, 0.25, 0.25],
+                parent: "main",
+                type: "2d",
+                dataLocation: './assets/SVG/BitcoinSign.svg',
+                depth: 0.05,
+                color: 0xffffff,
+                frameColor: 0x666666,
+            }
+        },
+        {
+            card: {
+                name:'bar graph',
+                className: "DBarGraphCard",
+                translation:[0, -0.3, 0.1],
+                color: 0x8888ff,
+                type: "object",
+                name: "BarGraph",
+                height: 0.4,
+                parent: "main",
+            }
+        }
+    
 ]
 
 // Default parameters are filled in the body of startWorld
