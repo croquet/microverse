@@ -8,7 +8,8 @@ class ExpanderMenuActor {
             actorCode: ["MenuActor"],
             pawnCode: ["MenuPawn"],
             multiple: true,
-            parent: this
+            parent: this,
+            type: "object",
         });
 
         let target = this.service("ActorManager").get(this._cardData.target);
@@ -246,7 +247,7 @@ class MenuPawn {
 
 class MenuItemActor {
     setup() {
-        this.addEventListener("click", "MenuItemActor.click");
+        this.addEventListener("pointerTap", "click");
     }
 
     click(_evt) {

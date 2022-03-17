@@ -52,6 +52,7 @@ Constants.DefaultCards = [
             name: 'Perlin Demo',
             layers: ["pointer"],
             translation:[ 10, -2.75, -14],
+            type: "object",
             actorCode: ["PerlinNoise", "PerlinActor"],
             pawnCode: ["PerlinPawn"],
             rotation:[ 0, -0.7071068, 0, 0.7071068 ],
@@ -218,6 +219,7 @@ Constants.DefaultCards = [
     {
         card: {
             name:'bridge',
+            type: "object",
             translation: [4, 0, 20],
             rotation: q_euler(0, 0, 0),
             actorCode: ["BridgeActor"],

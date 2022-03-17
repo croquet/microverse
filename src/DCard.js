@@ -36,7 +36,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         });
 
         super.init(cardOptions);
-        this.set({cardData});
+        this._cardData = cardData;
         this.createShape(cardData);
         this.listen("selectEdit", ()=>this.say("doSelectEdit"));
         this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
@@ -62,6 +62,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
             this.creationTime = this.now();
         } else if (type === "2d" || type === "2D" ) {
         } else if (type === "lighting") {
+        } else if (type === "object") {
         } else if (type === "code") {
             this.subscribe(this.id, "changed", "textChanged");
             // this is a weird inter mixins dependency but not sure how to write it
@@ -145,6 +146,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 actorCode: ["ExpanderMenuActor"],
                 translation: pose.translation,
                 rotation: pose.rotation,
+                type: "object",
                 target: this.id,
             });
             menu.call("ExpanderMenuActor", "show");
@@ -238,7 +240,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.addToLayers(...actor.layers);
         this.addEventListener("pointerWheel", "onPointerWheel");
         this.addEventListener("pointerDoubleDown", "onPointerDoubleDown");
-        this.addEventListener("pointerTap", "onPointerTap");
         this.listen("doSelectEdit", this.doSelectEdit);
         this.listen("doUnselectEdit", this.doUnselectEdit);
         this.listen("updateTranslation", this.updateTranslation);
@@ -586,10 +587,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.say("showControls", actorId);
     }
 
-    onPointerTap(p3e){
-        console.log("onPointerTap", p3e)
-    }
-    
     setColor(color) {
         let c = new THREE.Color(color);
         this.shape.traverse(obj=>{

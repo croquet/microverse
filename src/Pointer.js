@@ -230,7 +230,6 @@ export const PM_PointerTarget = superclass => class extends superclass {
     }
 
     registerEventListener(data) {
-        window.flpawn = this;
         let {eventName} = data;
         if (!this.modelListeners.get(eventName)) {
             let func = (evt) => this.say("dispatchEvent", {eventName, evt});

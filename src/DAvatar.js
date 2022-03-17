@@ -756,6 +756,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.editPointerId = null;
                 this.editMode = false;
 //            }
+        } else {
+            super.doPointerTap(e);
         }
         /*
                 this.editPawn = null;
@@ -779,6 +781,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let p3e = this.pointerEvent(rc);
             p3e.lookNormal = this.actor.lookNormal;
             let pawn = GetPawn(p3e.targetId);
+            pawn = pawn || null;
 
             if(this.editPawn !== pawn){
                 if(this.editPawn){

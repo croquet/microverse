@@ -93,6 +93,25 @@ export const AM_Code = superclass => class extends superclass {
         }
     }
 
+    destroy() {
+        if (this._actorCode) {
+            this._actorCode.forEach((name) => {
+                let expander = this.expanderManager.code.get(name);
+                if (expander && expander.$expander.destroy) {
+                    this.call(name, "destroy");
+                }
+                this.expanderManager.modelUnuse(this, name);
+            });
+        }
+        if  (this._pawnCode) {
+            this._pawnCode.forEach((name) => {
+                this.say("callDestroy", name);
+                this.expanderManager.viewUnuse(this, name);
+            });
+        }
+        super.destroy();
+    }
+
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
         let expanderName = this._expander;
