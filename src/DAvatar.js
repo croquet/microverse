@@ -96,9 +96,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     setFloor(p){
-        let t=this.translation;
-        t[1]=p;
-        this.translation=t;
+        let t = this.translation;
+        this.translation = [t[0], p, t[2]];
     }
 
     startFalling(){
@@ -142,10 +141,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             this.restoreRotation = [...this.rotation];
             this.restoreTranslation = [...this.translation];
             this.restoreTargetId = p3d.targetId;
-            let normal = p3d.normal || this.lookNormal; //target normal may not exist
+            let normal = [...(p3d.normal || this.lookNormal)]; //target normal may not exist
             let point = p3d.xyz;
             this.vEnd = v3_add(point, v3_scale(normal, p3d.offset));
-            normal[1]=0; // clear up and down
+            normal[1] = 0; // clear up and down
             let nsq = v3_sqrMag(normal);
             if(nsq < 0.0001){
                 this.qEnd = this.rotation; // use the current rotation
@@ -559,7 +558,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (!this.isMyPlayerPawn) {return;}
         if (isTweening) TWEEN.update();
         else if(isWalking){
-            if(this.isFalling)this._translation[1] = this.floor;
+            if(this.isFalling) {
+                let t = this._translation;
+                this._translation = [t[0], this.floor, t[2]];
+            }
 
             if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
             this.lastUpdateTime = time;
@@ -861,8 +863,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let z = this.lookOffset[2];
         z += e.deltaY / 1000.0;
         z = Math.min(4, Math.max(z,0));
-        this.lookOffset[1] = z / 3;
-        this.lookOffset[2] = z;
+        this.lookOffset = [this.lookOffset[0], z / 3, z];
         this.lookTo(-z / 8, q_yaw(this._rotation));
     }
 
@@ -953,7 +954,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     setFloor(p){
         // we don't want to touch the x/z values because they are
         // computed from avatar velocity. _translation x/z values are old.
-        this._translation[1] = p;
+        let t = this._translation;
+        this._translation = [t[0], p, t[2]];
         this.floor = p;
         this.onLocalChanged();
         this.say("setFloor", p, 100);
