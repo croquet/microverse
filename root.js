@@ -4,8 +4,8 @@
 
 import {
     Constants, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, ActorManager, ThreeRenderManager} from "@croquet/worldcore";
-import { AvatarManager, AvatarActor, AvatarPawn } from './src/DAvatar.js';
+    InputManager, PlayerManager, ThreeRenderManager} from "@croquet/worldcore";
+import { AvatarManager, AvatarActor, } from './src/DAvatar.js';
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
@@ -206,7 +206,7 @@ class MyViewRoot extends ViewRoot {
     static viewServices() {
         return [
             InputManager,
-            {service: ThreeRenderManager, options:{antialias:true}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias:true}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
