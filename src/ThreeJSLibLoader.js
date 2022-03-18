@@ -9,7 +9,15 @@ export function loadThreeJSLib(lib, THREE) {
     return new Promise((resolve, reject) => {
         let script = document.createElement("script");
         let version = window.__THREE__;
-        script.src = `https://unpkg.com/three@0.${version}/examples/js/${lib}`;
+
+        let src;
+        if (typeof lib === "string") {
+            src = `https://unpkg.com/three@0.${version}/examples/js/${lib}`;
+        } else {
+            src = `https://unpkg.com/${lib.package}@${lib.version}`;
+        }
+        
+        script.src = src;
         script.onload = () => {
             return resolve(window.THREE);
         };

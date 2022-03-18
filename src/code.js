@@ -526,30 +526,7 @@ export class ExpanderViewManager extends ViewService {
         window.ExpanderViewManager = this;
         this.model = this.wellKnownModel("ExpanderModelManager");
         this.subscribe(this.model.id, "callViewSetupAll", "callViewSetupAll");
-
-        // this.justConstructed = true;
-
-        // this.subscribe(this.viewId, "synced", "synced");
     }
-
-    /*
-    synced(flag) {
-        if (flag && this.justConstructed) {
-            this.justConstructed = false;
-            for (let [key, array] of this.model.viewUses) {
-                let code = this.model.code.get(key);
-                if (!code) {continue;}
-                code.ensureExpander();
-                if (!code.$expander.setup) {continue;}
-                array.forEach((modelId) => {
-                    let pawn = GetPawn(modelId);
-                    if (pawn) {
-                        code.invoke(pawn, "setup");
-                    }
-                })
-            };
-        }
-    }*/
 
     setURL(url) {
         if (this.socket) {
