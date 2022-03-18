@@ -9,7 +9,8 @@ class ExpanderMenuActor {
             pawnCode: ["MenuPawn"],
             multiple: true,
             parent: this,
-            type: "object",
+            type: "2d",
+            cornerRadius: 0.05,
         });
 
         let target = this.service("ActorManager").get(this._cardData.target);
@@ -94,6 +95,7 @@ class MenuActor {
                     pawnCode: ["MenuItemPawn"],
                     width: 1,
                     height: 0.15,
+                    fullBright: true,
                     backgroundColor: item.selected ? 0x606060 : 0xFFFFFF
                 });
             }
@@ -122,6 +124,16 @@ class MenuActor {
             maxHeight += h;
         });
         this.maxHeight = maxHeight + 0.10;
+
+        this.setCardData({
+            width: this.maxWidth + 0.2,
+            height: this.maxHeight,
+            depth: 0.05,
+            color: 0xFFFFFF,
+            frameColor: 0x666666,
+            fullBright: true,
+        });
+
         this.say("itemsUpdated");
     }
 
@@ -159,90 +171,23 @@ class MenuActor {
 class MenuPawn {
     setup() {
         this.clear();
-        this.listen("updateBackDrop", "updateBackDrop");
+        //this.listen("updateBackDrop", "updateBackDrop");
 
         if (this.actor.items && this.actor.items.length > 0 && this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
-            this.updateBackDrop();
+            this.cardDataUpdated();
         }
     }
 
     clear() {
-        if (this.backdrop) {
-            this.backdrop.geometry.dispose();
-            this.disposeMaterial();
-            this.shape.remove(this.backdrop);
-            this.backdrop = null;
-        }
-    }
-
-    updateBackDrop() {
-        this.cardDataUpdated({
-            v: {
-                width: this.actor.maxWidth + 0.2,
-                height: this.actor.maxHeight,
-                depth: 0.05,
-                color: 0xE0E0E0,
-                frameColor: 0x666666
-            }
-        });
+        console.log("clear");
     }
 
     cardDataUpdated(data) {
         this.clear();
-        let {width, height, depth, color, frameColor} = data.v;
-        this.backdrop = new WorldCore.THREE.Mesh(
-            this.roundedCornerPlane(width, height, depth),
-            this.makeMaterial(depth, color, frameColor)
-        );
-        this.backdrop.position.set(0, - height / 2 + 1.05, -0.1);
-        this.shape.add(this.backdrop);
-        console.log("this.backdroup", this.backdrop);
+        let obj = this.shape.children.find((o) => o.name === "2d");
+        obj.position.set(0, - this.properties2D.height / 2 + 1.05, -0.1);
     }
 
-    roundedCornerPlane(width, height, depth) {
-        let x = - width / 2;
-        let y = - height / 2;
-        let radius = 0.1;
-        
-        let shape = new WorldCore.THREE.Shape();
-        shape.moveTo(x, y + radius);
-        shape.lineTo(x, y + height - radius);
-        shape.quadraticCurveTo(x, y + height, x + radius, y + height);
-        shape.lineTo(x + width - radius, y + height);
-        shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
-        shape.lineTo(x + width, y + radius);
-        shape.quadraticCurveTo(x + width, y, x + width - radius, y);
-        shape.lineTo(x + radius, y);
-        shape.quadraticCurveTo( x, y, x, y + radius);
-
-        let geometry = new WorldCore.THREE.ExtrudeGeometry(shape, {depth, bevelEnabled: false});
-        geometry.parameters.width = width;
-        geometry.parameters.height = height;
-        geometry.parameters.depth = depth;
-        return geometry;
-    }
-
-    disposeMaterial() {
-        if (Array.isArray(this.material)) {
-            this.material.forEach((m) => m.dispose());
-        } else if (this.material) {
-            this.material.dispose();
-        }
-        this.material = null;
-    }
-
-    makeMaterial(depth, backgroundColor, frameColor) {
-        this.disposeMaterial();
-        
-        let material = new WorldCore.THREE.MeshStandardMaterial({color: backgroundColor, side: WorldCore.THREE.DoubleSide, emissive: backgroundColor});
-
-        if (depth > 0) {
-            material = [material, new WorldCore.THREE.MeshStandardMaterial({color: frameColor, side: WorldCore.THREE.DoubleSide, emissive: frameColor})];
-        }
-
-        this.material = material;
-        return material;
-    }
 }
 
 class MenuItemActor {

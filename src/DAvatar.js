@@ -21,11 +21,6 @@ export let isMobile = !!("ontouchstart" in window);
 export let isWalking = true;
 let isTweening = false; // transition between camera modes
 
-function setUpDnButton(bttn, doThis, doThat) {
-    bttn.onpointerdown = doThis;
-    bttn.onpointerup = doThat;
-}
-
 let avatarManager; // Local pointer for avatars
 
 export class AvatarManager extends ViewService {
@@ -225,7 +220,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
                 ...options,
                 ...{
                     textureLocation: dataId, textureType: "image", scale: [4, 4, 4],
-                    cornerRadius: 0.02
+                    cornerRadius: 0.02, fullBright: false
                 }
             };
         } else {

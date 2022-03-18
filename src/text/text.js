@@ -529,26 +529,10 @@ export class TextFieldPawn extends CardPawn {
         return `hsl(${h}, ${s}, ${l})`;
     }
 
-    makePlaneMaterial(depth, backgroundColor, frameColor) {
-        if (Array.isArray(this.material)) {
-            this.material.forEach((m) => m.dispose());
-        } else if (this.material) {
-            this.material.dispose();
-        }
-
-        let material = new THREE.MeshStandardMaterial({color: backgroundColor, side: THREE.DoubleSide, emissive: backgroundColor});
-
-        if (depth > 0) {
-            material = [material, new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, emissive: frameColor})];
-        }
-
-        return material;
-    }
-    
     cardDataUpdated(data) {
-        if (data.o.backgroundColor !== data.v.backgroundColor || data.o.frameColor !== data.v.frameColor) {
-            let {depth, backgroundColor, frameColor} = data.v;
-            this.material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
+        if (data.o.backgroundColor !== data.v.backgroundColor || data.o.frameColor !== data.v.frameColor || data.o.fullBright !== data.v.fullBright) {
+            let {depth, backgroundColor, frameColor, fullBright} = data.v;
+            this.material = this.makePlaneMaterial(depth, backgroundColor, frameColor, fullBright);
             this.plane.material = this.material;
         }
     }
@@ -627,49 +611,27 @@ export class TextFieldPawn extends CardPawn {
         this.textGeometry.update({font, glyphs});
     }
 
-    roundedCornerPlane(width, height, depth) {
-        let x = - width / 2;
-        let y = - height / 2;
-        let radius = 0.1;
-        
-        let shape = new THREE.Shape();
-        shape.moveTo(x, y + radius);
-        shape.lineTo(x, y + height - radius);
-        shape.quadraticCurveTo(x, y + height, x + radius, y + height);
-        shape.lineTo(x + width - radius, y + height);
-        shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
-        shape.lineTo(x + width, y + radius);
-        shape.quadraticCurveTo(x + width, y, x + width - radius, y);
-        shape.lineTo(x + radius, y);
-        shape.quadraticCurveTo( x, y, x, y + radius);
-
-        let geometry = new THREE.ExtrudeGeometry(shape, {depth, bevelEnabled: false});
-        geometry.parameters.width = width;
-        geometry.parameters.height = height;
-        geometry.parameters.depth = depth;
-        return geometry;
-    }
-
     setupMesh() {
         let isSticky = this.actor._cardData.isSticky;
         let depth = this.actor.depth;
-        let backgroundColor = this.actor._cardData.backgroundColor;
+        let {backgroundColor, frameColor, fullBright} = this.actor._cardData;
+
         if (!backgroundColor) {
             backgroundColor = isSticky ? 0xf4e056 : 0xFFFFFF;
         }
-
-        let frameColor = this.actor._cardData.frameColor;
         if (!frameColor) {
             frameColor = isSticky ? 0xffffff : 0x666666;
         }
-        
+        if (fullBright === undefined) {
+            fullBright = false;
+        }
         if (!isSticky && depth === 0) {
             this.geometry = new THREE.PlaneGeometry(0, 0);
         } else {
-            this.geometry = this.roundedCornerPlane(0, 0, depth);
+            this.geometry = this.roundedCornerGeometry(0, 0, depth, 0.1);
         }
 
-        let material = this.makePlaneMaterial(depth, backgroundColor, frameColor);
+        let material = this.makePlaneMaterial(depth, backgroundColor, frameColor, fullBright);
         this.material = material;
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.castShadow = true;
@@ -1084,7 +1046,7 @@ export class TextFieldPawn extends CardPawn {
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height ||
             depth !== this.plane.geometry.parameters.depth) {
-            let geometry = !isSticky && depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerPlane(newWidth, newHeight, depth);
+            let geometry = !isSticky && depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerGeometry(newWidth, newHeight, depth, 0.1);
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;

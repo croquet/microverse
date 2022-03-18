@@ -43,6 +43,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.listen("setTranslation", this.setTranslation);
         this.listen("setRotation", this.setRotation);
         this.listen("showControls", this.showControls);
+        this.listen("setCardData", this.setCardData);
     }
 
     destroy(){
@@ -344,14 +345,19 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let texturePromise; // resolves to texture and width and height
 
         let depth = (options.depth !== undefined) ? options.depth : 0.05;
-        let width = (options.width !== undefined) ? options.width : 512;
-        let height = (options.height !== undefined) ? options.height : 512;
+        let width = (options.width !== undefined) ? options.width : 1;
+        let height = (options.height !== undefined) ? options.height : 1;
+        let textureWidth = (options.textureWidth !== undefined) ? options.textureWidth : 512;
+        let textureHeight = (options.textureHeight !== undefined) ? options.textureHeight : 512;
+
         let name = options.name || this.id;
         let color = options.color || 0xFFFFFF;
         let frameColor = options.frameColor || 0x666666;
-        let fullBright = options.fullBright !== undefined ? options.fullBright : true;
+        let fullBright = options.fullBright !== undefined ? options.fullBright : false;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let cornerRadius = options.cornerRadius !== undefined ? options.cornerRadius : 0;
+
+        this.properties2D = {depth, width, height, textureWidth, textureHeight, name, color, frameColor, fullBright, shadow, cornerRadius};
 
         // You might want to parallelize the texture data loading and svg data loading by arranging
         // promises cleverly, but this.texture should be set quite early
@@ -393,14 +399,14 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         } else if (textureType === "canvas") {
             this.canvas = document.createElement("canvas");
             this.canvas.id = name;
-            this.canvas.width = width;
-            this.canvas.height = height;
+            this.canvas.width = textureWidth;
+            this.canvas.height = textureHeight;
             this.texture = new THREE.CanvasTexture(this.canvas);
-            texturePromise = Promise.resolve({width, height, texture: this.texture});
+            texturePromise = Promise.resolve({width: textureWidth, height: textureHeight, texture: this.texture});
         } else if (textureType === "dynamic") {
-            this.dynamic = new DynamicTexture(width, height, options.fillStyle, options.clearStyle);
+            this.dynamic = new DynamicTexture(textureWidth, textureHeight, options.fillStyle, options.clearStyle);
             this.texture = this.dynamic.texture;
-            texturePromise = Promise.resolve({width, height, texture: this.texture});
+            texturePromise = Promise.resolve({width: textureWidth, height: textureHeight, texture: this.texture});
         }
 
         if (!texturePromise) {texturePromise = Promise.resolve(undefined);}
@@ -429,30 +435,33 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 if (options.dataTranslation) {
                     obj.position.set(...options.dataTranslation);
                 }
+                obj.name = "2d";
                 this.shape.add(obj);
             });
         } else {
             return texturePromise.then((textureObj) => {
                 if (textureObj && textureObj.texture) {
-                    width = textureObj.width;
-                    height = textureObj.height;
-                    let max = Math.max(width, height);
+                    textureWidth = textureObj.width;
+                    textureHeight = textureObj.height;
+                    let max = Math.max(textureWidth, textureHeight);
                     let scale = 1 / max;
-                    width *= scale;
-                    height *= scale;
-                    
+                    width = textureWidth * scale;
+                    height = textureHeight * scale;
+
+                    this.properties2D = {...this.properties2D, ...{width, height, textureWidth, textureHeight}};
                 }
 
                 let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius);
-                let material = [
-                    new THREE.MeshStandardMaterial({map: this.texture, color}),
-                    new THREE.MeshStandardMaterial({color: frameColor, emissive: frameColor})
-                ];
+                let material = this.makePlaneMaterial(depth, color, frameColor, fullBright);
 
+                if (this.texture) {
+                    material[0].map = this.texture;
+                }
+                
+                this.material = material;
                 let obj = new THREE.Mesh(geometry, material);
-                obj.name = "image obj";
-                // this.setupObj(obj, options);
                 obj.castShadow = shadow;
+                obj.name = "2d";
                 this.shape.add(obj);
             });
         }
@@ -519,6 +528,34 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         return geometry;
     }
 
+    makePlaneMaterial(depth, color, frameColor, fullBright) {
+        if (Array.isArray(this.material)) {
+            this.material.forEach((m) => m.dispose());
+        } else if (this.material) {
+            this.material.dispose();
+        }
+
+        let material;
+        if (fullBright) {
+            material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide, emissive: color});
+        } else {
+            material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
+        }
+
+        if (depth > 0) {
+            let second;
+            if (fullBright) {
+                second = new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, emissive: frameColor});
+            } else {
+                second = new THREE.MeshBasicMaterial({color: frameColor, side: THREE.DoubleSide});
+            }
+            material = [material, second];
+        }
+
+        this.material = material;
+        return material;
+    }
+
     isDataId(name) {
         return !(name.startsWith("http://") ||
                  name.startsWith("https://") ||
@@ -537,7 +574,36 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
-    cardDataUpdated() {console.log("cardDataUpdated");}
+    cardDataUpdated(data) {
+        // it might be independently implemented in an expander, and independently subscribed
+
+        if (this.actor._cardData.type !== "2d") {return;}
+        let obj = this.shape.children.find((o) => o.name === "2d");
+        obj = obj.children[0];
+        if (data.o.color !== data.v.color || data.o.frameColor !== data.v.frameColor ||
+            data.o.depth !== data.v.depth || data.o.height !== data.v.height ||
+            data.o.width !== data.v.width || data.o.cornerRadius !== data.v.cornerRadius ||
+            data.o.fullBright !== data.v.fullBright) {
+            let {depth, width, height, color, frameColor, cornerRadius, fullBright} = data.v;
+
+            depth = (depth !== undefined) ? depth : 0.05;
+            width = (width !== undefined) ? width : 1;
+            height = (height !== undefined) ? height : 1;
+            color = color || 0xFFFFFF;
+            frameColor = frameColor || 0x666666;
+            cornerRadius = cornerRadius !== undefined ? cornerRadius : 0;
+            fullBright = fullBright !== undefined ? fullBright : false;
+
+            let material = this.makePlaneMaterial(depth, color, frameColor, fullBright);
+
+            if (data.o.depth !== data.v.depth || data.o.height !== data.v.height ||
+                data.o.width !== data.v.width || data.o.cornerRadius !== data.v.cornerRadius) {
+                let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius)
+                obj.geometry = geometry;
+            }
+            obj.material = material;
+        }
+    }
 
     uv2xy(uv) {
         return this.actor.uv2xy(uv);
@@ -588,16 +654,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     setColor(color) {
-        let c = new THREE.Color(color);
-        this.shape.traverse(obj=>{
-            if(obj.material){
-                if (Array.isArray(obj.material)) {
-                    obj.material[0].color = c;
-                } else {
-                    obj.material.color = c;
-                }
-            }
-        });
+        this.say("setCardData", {color});
     }
 
     hilite(color) { 

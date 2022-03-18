@@ -285,9 +285,9 @@ class PerlinPawn {
         this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("pointerEnter", "onPointerEnter");
         this.addEventListener("pointerLeave", "onPointerLeave");
-        this.addEventListener("click", "click");
+        this.addEventListener("pointerTap", "click");
         
-        this.addEventListener("pointerMove", "_nop");
+        this.addEventListener("pointerMove", "nop");
 
         this.maxHeight = 8;
         this.barScale = 0.25;

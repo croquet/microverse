@@ -121,7 +121,7 @@ Model.evaluate( () => {
                 color: 0xffffff,
                 cornerRadius: 0.05,
                 depth: 0.05,
-                fullBright: true
+                fullBright: false
             }
         },
         {
@@ -136,8 +136,8 @@ Model.evaluate( () => {
                 type: "2d",
                 dataLocation: './assets/SVG/square.svg',
                 textureType: "canvas",
-                width: 1024,
-                height: 1024,
+                textureWidth: 1024,
+                textureHeight: 1024,
                 frameColor: 0x666666,
                 color: 0xffffff,
                 depth: 0.05,
@@ -151,13 +151,15 @@ Model.evaluate( () => {
                 translation: [-4, -0.5, -42],
                 rotation: q_euler(0, Math.PI / 2, 0),
                 scale: [4, 4, 4],
+                width: 1,
+                height: 1,
                 layers: ['pointer'],
                 multiuser: true,
                 type: "2d",
                 dataLocation: "./assets/SVG/full-circle.svg",
                 textureType: "dynamic",
-                width: 1024,
-                height: 1024,
+                textureWidth: 1024,
+                textureHeight: 1024,
                 frameColor: 0x666666,
                 color: 0xffffff,
                 depth: 0.05,
