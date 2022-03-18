@@ -94,6 +94,9 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     destroy() {
+        if (this[isProxy]) {
+            return this._target.destroy();
+        }
         if (this._actorCode) {
             this._actorCode.forEach((name) => {
                 let expander = this.expanderManager.code.get(name);
@@ -260,6 +263,13 @@ export const PM_Code = superclass => class extends superclass {
         expander.ensureExpander();
 
         return expander.invoke(this[isProxy] ? this._target : this, name, ...values);
+    }
+
+    destroy() {
+        if (this[isProxy]) {
+            return this._target.destroy();
+        }
+        super.destroy();
     }
 
     callSetup(name) {

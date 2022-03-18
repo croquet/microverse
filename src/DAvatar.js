@@ -841,16 +841,22 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doPointerUp(e){
+    doPointerUp(e) {
         this.isPointerDown = false;
-        if(this.editMode) {
+        if (this.editMode) {
             console.log("doPointerUp editMode");
-        } else if(this.editPawn) {
+            return;
+        }
+
+        if (this.editPawn) {
             this.editPawn.unselectEdit();
             this.editPawn = null;
             this.editPointerId = null;
-            this.p3eDown = undefined;
-        } else super.doPointerUp(e);
+            this.p3eDown = null;
+            return;
+            
+        }
+        super.doPointerUp(e);
     }
 
     doPointerWheel(e) {

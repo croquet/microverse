@@ -65,7 +65,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
             this.eventListeners.set(eventName, array);
         }
         if (array.findIndex((obj) => obj.listener === listener) >= 0) {
-            console.log("multiple registration of the same function");
+            // console.log("multiple registration of the same function");
             return;
         }
         array.push({expander, listener});
@@ -84,15 +84,19 @@ export const AM_PointerTarget = superclass => class extends superclass {
             expander = split[0];
             listener = split[1];
         }
+
+        if (!expander) {
+            expander = this._expander;
+        }
         
         let array = this.eventListeners.get(eventName);
         if (!array) {
-            console.log("try to remove non-existent listener");
+            // console.log("try to remove non-existent listener");
             return;
         }
         let ind = array.findIndex((obj) => obj.expander === expander && obj.listener === listener);
         if (ind < 0) {
-            console.log("try to remove non-existent listener");
+            // console.log("try to remove non-existent listener");
             return;
         }
         array.splice(ind, 1);
@@ -202,28 +206,29 @@ export const PM_PointerTarget = superclass => class extends superclass {
             this.eventListeners.set(eventName, array);
         }
         if (array.find((obj) => obj.name === name)) {
-            console.log("multiple registration of the same function");
+            // console.log("multiple registration of the same function");
             return;
         }
         array.push({name, listener});
     }
 
-    removeEventListener(eventName, listener) {
-        let name;
+    removeEventListener(eventName, listener, name) {
         if (typeof listener === "string") {
             name = listener;
             listener = (evt) => this[listener](evt);
         } else {
-            name = listener.name;
+            if (!name) {
+                name = listener.name;
+            }
         }
         let array = this.eventListeners.get(eventName);
         if (!array) {
-            console.log("try to remove non-existent listener");
+            // console.log("try to remove non-existent listener");
             return;
         }
         let ind = array.findIndex((obj) => obj.name === name);
         if (ind < 0) {
-            console.log("try to remove non-existent listener");
+            // console.log("try to remove non-existent listener");
             return;
         }
         array.splice(ind, 1);
@@ -242,7 +247,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
         let {eventName, _listener} = data;
         let func = this.modelListeners.get(eventName);
         if (!func) {return;}
-        this.removeEventListener(eventName, func);
+        this.removeEventListener(eventName, func, `dispatch_${eventName}`);
     }
 
     registerAllEventListeners() {
@@ -327,6 +332,7 @@ export const PM_Pointer = superclass => class extends superclass {
     focusTick() {
         if (this.focusPawn && this.now() > this.focusTime + this.IdleTimeout) this.focusPawn.say("blur", this.actor.id);
         if (!this.doomed) this.future(1000).focusTick();
+        if (this.focusPawn && this.focusPawn.doomed) {this.focusPawn = null;}
     }
 
     getTargets(type, optWalk) {
@@ -412,9 +418,8 @@ export const PM_Pointer = superclass => class extends superclass {
     doPointerTap(e) {
         this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerTap"));
-        console.log("doPointerTap", this.focusPawn)
-        if (this.focusPawn) {
-            this.invokeListeners("pointerTap", this.focusPawn, rc);
+        if (rc.pawn) {
+            this.invokeListeners("pointerTap", rc.pawn, rc);
         }
     }
 
