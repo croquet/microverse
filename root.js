@@ -3,9 +3,8 @@
 // info@croquet.io
 
 import {
-    Constants as C, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, ActorManager, ThreeRenderManager,
-    q_euler as qe, v3_add, v3_scale, v3_sqrMag, v3_normalize} from "@croquet/worldcore";
+    Constants, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
+    InputManager, PlayerManager, ActorManager, ThreeRenderManager} from "@croquet/worldcore";
 import { AvatarManager, AvatarActor, AvatarPawn } from './src/DAvatar.js';
 import {
     KeyFocusManager, SyncedStateManager,
@@ -27,9 +26,6 @@ import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
-export let Constants = C;
-export let q_euler = qe;
-
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
 function loadLoaders() {
@@ -42,7 +38,7 @@ function loadLoaders() {
                 "loaders/GLTFLoader.js",
                 "loaders/FBXLoader.js",
                 "loaders/DRACOLoader.js",
-                "loaders/SVGLoader.js",  
+                "loaders/SVGLoader.js",
             ];
 
             window.JSZip = JSZip;
