@@ -176,8 +176,6 @@ export const PM_PointerTarget = superclass => class extends superclass {
     }
 
     destroy() {
-        super.destroy();
-
         const hoverEnd = new Set(this.actor.hovered);
         hoverEnd.forEach( pointerId => {
             const pointerPawn = GetPawn(pointerId);
@@ -189,6 +187,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
             const pointerPawn = GetPawn(pointerId);
             if (pointerPawn) pointerPawn.focusPawn = null;
         });
+        super.destroy();
     }
 
     addEventListener(eventName, listener, name) {
@@ -324,9 +323,9 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     destroy() {
-        super.destroy();
         if (this.hoverPawn) this.hoverPawn.say("hoverUnrequested", this.actor.id);
         if (this.focusPawn) this.focusPawn.say("blur", this.actor.id);
+        super.destroy();
     }
 
     focusTick() {

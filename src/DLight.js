@@ -67,10 +67,10 @@ class DLightPawn extends CardPawn {
 
     destroy() {
         console.log("destroy lights")
-        super.destroy();
         this.background.dispose();
         this.sun.dispose();
         this.hemiLight.dispose();
         this.moon.dispose();
+        super.destroy();
     }
 }
