@@ -38,8 +38,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         super.init(cardOptions);
         this._cardData = cardData;
         this.createShape(cardData);
-        this.listen("selectEdit", ()=>this.say("doSelectEdit"));
-        this.listen("unselectEdit", ()=>this.say("doUnselectEdit"));
+        this.listen("selectEdit", this.saySelectEdit);
+        this.listen("unselectEdit", this.sayUnselectEdit);
         this.listen("setTranslation", this.setTranslation);
         this.listen("setRotation", this.setRotation);
         this.listen("showControls", this.showControls);
@@ -180,6 +180,14 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 }
             }
         });
+    }
+
+    saySelectEdit() {
+        this.say("doSelectEdit");
+    }
+
+    sayUnselectEdit() {
+        this.say("doUnselectEdit");
     }
 
     static load(array, world, version) {

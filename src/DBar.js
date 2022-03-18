@@ -38,8 +38,8 @@ export class DBarGraphCard extends CardActor{
 DBarGraphCard.register('DBarGraphCard');
 
 class DBarGraphPawn extends CardPawn{
-    constructor(args) {
-        super(args);
+    constructor(actor) {
+        super(actor);
         this.constructBars();
         this.listen('updateGraph', this.updateGraph);
         this.listenDeck('setColor', this.setColor);
@@ -47,21 +47,23 @@ class DBarGraphPawn extends CardPawn{
         this.removeEventListener("pointerWheel", "onPointerWheel");
     }
 
-    constructBars(){
+    constructBars() {
         this.barGroup = this.shape;
         let len = this.actor.length;
         let size = 1/len;
-
-        this.base = new THREE.Mesh(new THREE.BoxGeometry(1, size/4, size, 2, 4, 2 ),
-            new THREE.MeshStandardMaterial({color: this.actor.frameColor}));
+        let color = this.actor._cardData.color;
+        this.base = new THREE.Mesh(
+            new THREE.BoxGeometry(1, size/4, size, 2, 4, 2 ),
+            new THREE.MeshStandardMaterial());
         this.base.position.set(0, -size/4, 0);        
         this.barGroup.add(this.base);
-        this.bar = new THREE.Mesh(new THREE.BoxGeometry(size*0.8, 1, size*0.8, 2, 2, 2 ),
-        new THREE.MeshStandardMaterial({color: this.actor.color}));
+        this.bar = new THREE.Mesh(
+            new THREE.BoxGeometry(size*0.8, 1, size*0.8, 2, 2, 2 ),
+            new THREE.MeshStandardMaterial({color: color, emmisive: color}));
         this.bars = [];
         for(let i=0; i<len; i++){
             let bar = this.bar.clone();
-            bar.material = bar.material.clone()
+            bar.material = bar.material.clone();
             bar.position.set((0.5+i-len/2)*size, 0,0);
             this.barGroup.add(bar);
             this.bars.push(bar);
@@ -71,6 +73,7 @@ class DBarGraphPawn extends CardPawn{
     setColor(color) {
         let c = new THREE.Color(color);
         this.base.material.color = c;
+        this.base.material.emissive = c;
     }
 
     updateGraph(){
