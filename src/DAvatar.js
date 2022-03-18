@@ -869,7 +869,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let z = this.lookOffset[2];
         z += e.deltaY / 1000.0;
         z = Math.min(4, Math.max(z,0));
-        this.lookOffset = [this.lookOffset[0], z / 3, z];
+        this._lookOffset = [this.lookOffset[0], z / 3, z];
         this.lookTo(-z / 8, q_yaw(this._rotation));
     }
 
