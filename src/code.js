@@ -685,6 +685,7 @@ window._allResolvers.get("${key}").get("${id}")({data, key: ${key}});
                 });
 
                 let sendBuffer = [];
+                let key = Math.random();
                 
                 files.forEach((obj) => {
                     let type = obj.type;
@@ -704,7 +705,6 @@ window._allResolvers.get("${key}").get("${id}")({data, key: ${key}});
                 let string = JSON.stringify(sendBuffer);
                 let array = new TextEncoder().encode(string);
                 let ind = 0;
-                let key = Math.random();
                 
                 this.publish(this.model.id, "loadStart", key);
 

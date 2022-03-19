@@ -16,6 +16,7 @@ module.exports = {
     'max-len': 'off',
     'no-var': ['warn'],
     'no-unused-vars': ['warn', {"argsIgnorePattern": "^_", "varsIgnorePattern": "^_"}],
+    'no-use-before-define': ['error', {variables: true}],
 
     'indent': ['warn', 4, {
       SwitchCase: 1,

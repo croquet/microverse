@@ -201,7 +201,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 let Cls;
                 let options = {...card};
                 let expander;
-                let type;
                 if (options.type === "code") {
                     if (options.actorExpander) {
                         expander = expanderManager.actorExpanders.get(options.actorExpander);
