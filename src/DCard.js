@@ -139,9 +139,9 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         if(avatar){
             let pose = avatar.dropPose(distance);
             console.log("showControls pose", pose)
-            console.log("expander", this.expanderManager.code.get("ExpanderMenuActor"))
+            console.log("expander", this.expanderManager.actorExpanders.get("ExpanderMenuActor"))
 
-            if (!this.expanderManager.code.get("ExpanderMenuActor")) {return;}
+            if (!this.expanderManager.actorExpanders.get("ExpanderMenuActor")) {return;}
             let menu = this.createCard({
                 name: 'expander menu',
                 actorCode: ["ExpanderMenuActor"],
@@ -200,8 +200,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
             return array.map(({id, card}) => {
                 let Cls;
                 let options = {...card};
+                let expander;
+                let type;
                 if (options.type === "code") {
-                    let expander = expanderManager.code.get(options.expander);
+                    if (options.actorExpander) {
+                        expander = expanderManager.actorExpanders.get(options.actorExpander);
+                    } else if (options.pawnExpander) {
+                        expander = expanderManager.pawnExpanders.get(options.pawnExpander);
+                    }
+                    
                     let runs = [{text: expander ? expander.code : ""}];
                     
                     options = {...options, ...{

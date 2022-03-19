@@ -208,6 +208,7 @@ class MenuItemPawn {
 }
 
 export let menu = {
-    expanders: [ExpanderMenuActor, MenuActor, MenuPawn, MenuItemActor, MenuItemPawn]
+    actorExpanders: [ExpanderMenuActor, MenuActor, MenuItemActor],
+    pawnExpanders: [MenuPawn,MenuItemPawn]
 };
 

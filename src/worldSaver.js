@@ -22,17 +22,17 @@ export class WorldSaver {
 
     save(model) {
         let cards = [];
-        for (let [key, actor] of model.service("ActorManager").actors) {
+        for (let [_id, actor] of model.service("ActorManager").actors) {
             if (actor.isCard && !actor._noSave) {
                 cards.push(actor);
             }
         }
         let sortedMap = this.topologicalSort(cards);
         let resultArray = this.collectData(sortedMap);
+        
+        let {actorExpanders, pawnExpanders} = model.service("ExpanderModelManager").save();
 
-        let expanders = model.service("ExpanderModelManager").save();
-
-        return {expanders, cards: resultArray};
+        return {actorExpanders, pawnExpanders, cards: resultArray};
     }
 
     topologicalSort(cards) {
@@ -57,7 +57,7 @@ export class WorldSaver {
     
     collectData(cardsMap) {
         let result = [];
-        for (let [id, actor] of cardsMap) {
+        for (let [_id, actor] of cardsMap) {
             let obj = {id: this.newId()};
             this.map.set(actor, obj);
             let data = this.collectCardData(actor);

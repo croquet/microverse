@@ -33,6 +33,7 @@ function newProxy(object, handler, expander) {
 export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
+        console.log("foo6");
         this.scriptListeners = new Map();
         this.expanderManager = this.service("ExpanderModelManager");
         if (options.actorCode) {
@@ -62,7 +63,7 @@ export const AM_Code = superclass => class extends superclass {
         if (!this._actorCode) {return;}
         let ind = this._actorCode.indexOf(name);
         if (ind >= 0) {
-            let expander = this.expanderManager.code.get(name);
+            let expander = this.expanderManager.actorExpanders.get(name);
             if (expander && expander.$expander && expander.$expander.destroy) {
                 expander.invoke(this[isProxy] ? this._target : this, "destroy");
             }
@@ -99,7 +100,7 @@ export const AM_Code = superclass => class extends superclass {
         }
         if (this._actorCode) {
             this._actorCode.forEach((name) => {
-                let expander = this.expanderManager.code.get(name);
+                let expander = this.expanderManager.actorExpanders.get(name);
                 if (expander && expander.$expander.destroy) {
                     this.call(name, "destroy");
                 }
@@ -128,7 +129,7 @@ export const AM_Code = superclass => class extends superclass {
         
         return new Proxy(this, {
             get(_target, property) {
-                let expander = expanderManager.code.get(expanderName);
+                let expander = expanderManager.actorExpanders.get(expanderName);
 
                 let func = property === "call" ? basicCall : expander.$expander[property];
                 let fullName = property === "call" ?  "call" : `${expanderName}.${property}`;
@@ -146,7 +147,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     call(expanderName, name, ...values) {
-        let expander = this.expanderManager.code.get(expanderName);
+        let expander = this.expanderManager.actorExpanders.get(expanderName);
         if (!expander) {
             throw new Error(`epxander named ${expanderName} not found`);
         }
@@ -210,8 +211,9 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         let name = match[1];
+        let type = this._cardData.actorExpander ? "actorExpanders" : "pawnExpanders";
         
-        this.expanderManager.loadAll([{action: "add", name, content: data.text}]);
+        this.expanderManager.loadAllCode([{action: "add", type, name, content: data.text}]);
     }
 
     getCode() {
@@ -243,7 +245,7 @@ export const PM_Code = superclass => class extends superclass {
         this.subscribe(actor.id, "callDestroy", "callDestroy");
         if (actor._pawnCode) {
             actor._pawnCode.forEach((name) => {
-                let expander = expanderManager.code.get(name);
+                let expander = expanderManager.pawnExpanders.get(name);
                 if (expander) {
                     expander.ensureExpander();
                 }
@@ -255,7 +257,7 @@ export const PM_Code = superclass => class extends superclass {
     }
         
     call(expanderName, name, ...values) {
-        let expander = this.actor.expanderManager.code.get(expanderName);
+        let expander = this.actor.expanderManager.pawnExpanders.get(expanderName);
         if (!expander) {
             throw new Error(`epxander named ${expanderName} not found`);
         }
@@ -388,7 +390,8 @@ export class ExpanderModelManager extends ModelService {
         this.modelUses = new Map(); // {name: [cardActorId]}
         this.viewUses = new Map();  // {name: [cardActorId]}
 
-        this.code = new Map(); // {name: Expander}
+        this.actorExpanders = new Map(); // {name: Expander}
+        this.pawnExpanders = new Map(); // {name: Expander}
 
         this.loadCache = null;
 
@@ -397,57 +400,102 @@ export class ExpanderModelManager extends ModelService {
         this.subscribe(this.id, "loadDone", "loadDone");
     }
 
-    loadStart() {
+    loadStart(key) {
+        // last one wins
+        this.key = key;
         this.loadCache = [];
     }
 
     loadOne(obj) {
-        this.loadCache.push(obj);
+        if (!this.key) {return;}
+        if (obj.key !== this.key) {
+            return;
+        }
+        this.loadCache.push(obj.buf);
     }
 
-    loadDone() {
+    loadDone(key) {
+        if (!this.key) {return;}
+        if (this.key !== key) {
+            return;
+        }
+        
         let array = this.loadCache;
         this.loadCache = [];
+        this.key = null;
         this.loadAll(array);
     }
 
     loadAll(array) {
-        array.forEach((obj) => {
-            let {action, name, content} = obj;
+        if (!array) {
+            console.log("inconsistent message");
+            return;
+        }
+
+        let len = array.reduce((acc, cur) => acc + cur.length, 0);
+        let all = new Uint8Array(len);
+        let ind = 0;
+        for (let i = 0; i < array.length; i++) {
+            all.set(array[i], ind);
+            ind += array[i].length;
+        }
+
+        let result = new TextDecoder("utf-8").decode(all);
+        let codeArray = JSON.parse(result);
+
+        this.loadAllCode(codeArray);
+    }
+
+    loadAllCode(codeArray) {
+        codeArray.forEach((obj) => {
+            let {action, type, name, content} = obj;
 
             if (action === "add") {
-                let expander = this.code.get(name);
-                if (!expander) {
-                    expander = Expander.create();
-                    this.code.set(name, expander);
+                if (type === "actorExpanders") {
+                    let expander = this.actorExpanders.get(name);
+                    if (!expander) {
+                        expander = Expander.create();
+                        this.actorExpanders.set(name, expander);
+                    }
+                    expander.setCode(content);
+                } else if (type === "pawnExpanders") {
+                    let expander = this.pawnExpanders.get(name);
+                    if (!expander) {
+                        expander = Expander.create();
+                        this.pawnExpanders.set(name, expander);
+                    }
+                    expander.setCode(content);
                 }
-                expander.setCode(content);
             }
-
             if (action === "remove") {
-                let codeModel = this.code.get(name);
-                if (codeModel) {
-                    this.code.delete(name);
+                if (type === "actorExpanders") {
+                    this.actorExpanders.delete(name);
+                }
+                if (type === "pawnExpanders") {
+                    this.pawnExpanders.delete(name);
                 }
             }
         });
 
         let toPublish = [];
-        array.forEach((obj) => {
-            let {action, name} = obj;
+        codeArray.forEach((obj) => {
+            let {action, type, name} = obj;
             if (action === "add") {
-                let code = this.code.get(name);
-                if (!code.$expander.setup) {return;}
-                toPublish.push(name);
-                let modelUsers = this.modelUses.get(name);
-                let actorManager = this.service("ActorManager");
-                if (modelUsers) {
-                    modelUsers.forEach((modelId) => {
-                        let model = actorManager.get(modelId);
-                        if (model) {
-                            code.invoke(model, "setup");
-                        }
-                    });
+                if (type === "actorExpanders") {
+                    let expander = this.actorExpanders.get(name);
+                    if (!expander.$expander.setup) {return;}
+                    let modelUsers = this.modelUses.get(name);
+                    let actorManager = this.service("ActorManager");
+                    if (modelUsers) {
+                        modelUsers.forEach((modelId) => {
+                            let model = actorManager.get(modelId);
+                            if (model) {
+                                expander.invoke(model, "setup");
+                            }
+                        });
+                    }
+                } else if (type === "pawnExpanders") {
+                    toPublish.push(name);
                 }
             }
         });
@@ -455,11 +503,15 @@ export class ExpanderModelManager extends ModelService {
     }
 
     save() {
-        let result = new Map();
-        for (let [key, expander] of this.code) {
-            result.set(key, expander.code);
+        let actorExpanders = new Map();
+        let pawnExpanders = new Map();
+        for (let [key, expander] of this.actorExpanders) {
+            actorExpanders.set(key, expander.code);
         };
-        return result;
+        for (let [key, expander] of this.pawnExpanders) {
+            pawnExpanders.set(key, expander.code);
+        };
+        return {actorExpanders, pawnExpanders};
     }
             
     modelUse(model, name) {
@@ -472,7 +524,7 @@ export class ExpanderModelManager extends ModelService {
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
 
-            let expander = this.code.get(name);
+            let expander = this.actorExpanders.get(name);
             if (!expander) {return;}
             expander.ensureExpander();
             if (expander.$expander.setup) {
@@ -501,7 +553,7 @@ export class ExpanderModelManager extends ModelService {
             array.push(modelId);
         }
 
-        let expander = this.code.get(name);
+        let expander = this.pawnExpanders.get(name);
         if (!expander) {return;}
         expander.ensureExpander();
     }
@@ -545,13 +597,13 @@ export class ExpanderViewManager extends ViewService {
 
     callViewSetupAll(names) {
         names.forEach((name) => {
-            let code = this.model.code.get(name);
+            let expander = this.model.pawnExpanders.get(name);
             let viewUsers = this.model.viewUses.get(name);
             if (viewUsers) {
                 viewUsers.forEach((modelId) => {
                     let pawn = GetPawn(modelId);
                     if (pawn) {
-                        code.invoke(pawn, "setup");
+                        expander.invoke(pawn, "setup");
                     }
                 });
             }
@@ -597,7 +649,7 @@ export class ExpanderViewManager extends ViewService {
                     script.innerHTML = `
 import * as data from "${dataURL}";
 window._allResolvers.get("${key}").get("${id}")({data, key: ${key}});
-console.log(data)`;
+`;
                     document.body.appendChild(script);
                     dataURLs.push(dataURL);
                 }).catch((e) => {console.log(e); return null});
@@ -624,23 +676,46 @@ console.log(data)`;
                 allData.forEach((obj) => {
                     let keys = Object.keys(obj.data);
                     keys.forEach((expName) => {
-                        if (obj.data[expName] && obj.data[expName].expanders) {
-                            files.push(...obj.data[expName].expanders.map(e => e.toString()));
+                        if (obj.data[expName] && obj.data[expName].actorExpanders) {
+                            files.push({type: "actorExpanders", contents: obj.data[expName].actorExpanders.map(e => e.toString())});;
+                        }
+                        if (obj.data[expName] && obj.data[expName].pawnExpanders) {
+                            files.push({type: "pawnExpanders", contents: obj.data[expName].pawnExpanders.map(e => e.toString())});
                         }
                     });
                 });
-                this.publish(this.model.id, "loadStart");
 
-                files.forEach((str) => {
-                    let match = /^class[\s]+([\S]+)/.exec(str.trim());
-                    if (!match) {return;}
-                    let className = match[1];
-                    
-                    this.publish(this.model.id, "loadOne", {
-                        action: "add", name: className, content: str
+                let sendBuffer = [];
+                
+                files.forEach((obj) => {
+                    let type = obj.type;
+                    let contents = obj.contents;
+
+                    contents.forEach((str) => {
+                        let match = /^class[\s]+([\S]+)/.exec(str.trim());
+                        if (!match) {return;}
+                        let className = match[1];
+
+                        sendBuffer.push({
+                            action: "add", type, name: className, content: str, key
+                        });
                     });
                 });
-                this.publish(this.model.id, "loadDone");
+
+                let string = JSON.stringify(sendBuffer);
+                let array = new TextEncoder().encode(string);
+                let ind = 0;
+                let key = Math.random();
+                
+                this.publish(this.model.id, "loadStart", key);
+
+                while (ind < array.length) {
+                    let buf = array.slice(ind, ind + 4000);
+                    this.publish(this.model.id, "loadOne", {key, buf});
+                    ind += 4000;
+                }
+                
+                this.publish(this.model.id, "loadDone", key);
             }
         });
     }
@@ -648,16 +723,24 @@ console.log(data)`;
 
 export class ExpanderLibrary {
     constructor() {
-        this.expanders = new Map();
+        this.actorExpanders = new Map();
+        this.pawnExpanders = new Map();
         this.functions = new Map();
         this.classes = new Map();
     }
 
     add(library, path) {
-        if (library.expanders) {
-            library.expanders.forEach(cls => {
+        if (library.actorExpanders) {
+            library.actorExpanders.forEach(cls => {
                 let key = (path ? path + "." : "") + cls.name;
-                this.expanders.set(key, cls.toString());
+                this.actorExpanders.set(key, cls.toString());
+            });
+        }
+
+        if (library.pawnExpanders) {
+            library.pawnExpanders.forEach(cls => {
+                let key = (path ? path + "." : "") + cls.name;
+                this.pawnExpanders.set(key, cls.toString());
             });
         }
 
@@ -678,7 +761,9 @@ export class ExpanderLibrary {
     }
 
     get(path) {
-        let ret = this.expanders.get(path);
+        let ret = this.actorExpanders.get(path);
+        if (ret) {return ret;}
+        ret = this.pawnExpanders.get(path);
         if (ret) {return ret;}
         ret = this.functions.get(path);
         if (ret) {return ret;}
@@ -687,9 +772,15 @@ export class ExpanderLibrary {
     }
 
     delete(path) {
-        let ret = this.expanders.get(path);
+        let ret = this.actorExpanders.get(path);
         if (ret) {
-            this.expanders.delete(path);
+            this.actorExpanders.delete(path);
+            return;
+        }
+        
+        ret = this.pawnExpanders.get(path);
+        if (ret) {
+            this.pawnExpanders.delete(path);
             return;
         }
         
