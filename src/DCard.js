@@ -828,14 +828,14 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     doSelectEdit(){
         console.log("doSelectEdit")
         if(this.renderObject){
-            addWire(this.renderObject);
+            this.addWire(this.renderObject);
         }
     }
 
     doUnselectEdit(){
         console.log("doUnselectEdit")
         if(this.renderObject){
-            removeWire(this.renderObject);
+            this.removeWire(this.renderObject);
         }
     }
 
@@ -865,63 +865,63 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
     nop() {}
-}
 
-function addWire(obj3d) {
-    let parts = [];
-    let lines = [];
+    addWire(obj3d) {
+        let parts = [];
+        let lines = [];
 
-    obj3d.traverse((obj)=>{
-        if(obj.geometry){
-            let edges = new THREE.EdgesGeometry(obj.geometry);
-            let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x44ff44} ));
-            line.raycast = function(){};
-            lines.push(line);
-            let m = obj.material;
-            let mat;
-            if(Array.isArray(m))mat = m;
-            else mat = [m];
+        obj3d.traverse((obj)=>{
+            if(obj.geometry){
+                let edges = new THREE.EdgesGeometry(obj.geometry);
+                let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x44ff44} ));
+                line.raycast = function(){};
+                lines.push(line);
+                let m = obj.material;
+                let mat;
+                if(Array.isArray(m))mat = m;
+                else mat = [m];
             
-            mat.forEach(m=>{
-                let c = m.color; 
-                if(c && !m._oldColor) { // check for reused color
-                    m._oldColor = c;
-                    let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;
-                    m.color = new THREE.Color(gray, gray, gray);
-                }
-            })
-            parts.push( obj );
+                mat.forEach(m=>{
+                    let c = m.color; 
+                    if(c && !m._oldColor) { // check for reused color
+                        m._oldColor = c;
+                        let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;
+                        m.color = new THREE.Color(gray, gray, gray);
+                    }
+                })
+                parts.push( obj );
+            }
+        });
+        for(let i = 0; i < lines.length; i++){
+            let line = lines[i];
+            line.type = '_lineHighlight';
+            parts[i].add(line);
         }
-    });
-    for(let i = 0; i < lines.length; i++){
-        let line = lines[i];
-        line.type = '_lineHighlight';
-        parts[i].add(line);
     }
-}
 
-function removeWire(obj3d){
-    let lines = [];
-    let mat;
-    obj3d.traverse((obj)=>{
-        if(obj.type === '_lineHighlight') {
-            lines.push(obj);
-        } else if(obj.geometry) {
-            mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
-            //console.log("removeWire, material",mat);
-            mat.forEach(m=>{ 
-                if(m._oldColor) {
-                    m.color = m._oldColor; 
-                    m._oldColor = undefined;
-                }
-            });
+    removeWire(obj3d) {
+        let lines = [];
+        let mat;
+        obj3d.traverse((obj)=>{
+            if(obj.type === '_lineHighlight') {
+                lines.push(obj);
+            } else if(obj.geometry) {
+                mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
+                //console.log("removeWire, material",mat);
+                mat.forEach(m=>{ 
+                    if(m._oldColor) {
+                        m.color = m._oldColor; 
+                        m._oldColor = undefined;
+                    }
+                });
+            }
+        });
+        for(let i = 0; i < lines.length;i++) {
+            let line = lines[i];
+            line.removeFromParent();
+            line.geometry.dispose();
+            line.material.dispose();
         }
-    });
-    for(let i = 0; i < lines.length;i++) {
-        let line = lines[i];
-        line.removeFromParent();
-        line.geometry.dispose();
-        line.material.dispose();
     }
 }
 

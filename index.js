@@ -36,10 +36,12 @@ Model.evaluate( () => {
                 dataLocation: "./assets/3D/New Oil Refinery.glb.zip",
                 singleSided: true,
                 shadow: true,
-    /*           placeholder: true,
-                placeholderSize: [40, 1, 40],
-                placeholderColor: 0x808080,
-                placeholderOffset: [0, -0.463, 0],*/
+                /*
+                  placeholder: true,
+                  placeholderSize: [40, 1, 40],
+                  placeholderColor: 0x808080,
+                  placeholderOffset: [0, -0.463, 0],
+                */
             }
         },
         {
@@ -175,7 +177,7 @@ Model.evaluate( () => {
                 type: "code",
                 actorExpander: "FlyActor",
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
-            // margins: {left: 16, top: 16, right: 16, bottom: 16},
+                // margins: {left: 16, top: 16, right: 16, bottom: 16},
                 textScale: 0.001,
                 width: 2,
                 height: 2.5,
