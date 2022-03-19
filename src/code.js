@@ -33,7 +33,6 @@ function newProxy(object, handler, expander) {
 export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
-        console.log("foo6");
         this.scriptListeners = new Map();
         this.expanderManager = this.service("ExpanderModelManager");
         if (options.actorCode) {
