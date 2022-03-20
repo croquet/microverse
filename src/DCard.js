@@ -14,6 +14,8 @@ import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
 import { EYE_HEIGHT } from './DAvatar.js';
+import {loadThreeJSLib} from './ThreeJSLibLoader.js';
+
 // import { forEach } from 'jszip';
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "name"];
@@ -277,7 +279,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.shape = new THREE.Group()
         this.shape.name = this.actor.name;
         this.setRenderObject(this.shape);
-
+        if(this.actor.layers.indexOf('walk')>=0){
+            console.log("ADD COLLIDER!")
+            let collider = new THREE.Group();
+            this.setColliderObject(collider);
+        }
         this.constructShape(this.actor._cardData);
     }
 
@@ -332,16 +338,25 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.getBuffer(model3d).then((buffer) => {
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
-            obj.updateMatrixWorld(true);
+
             addShadows(obj, shadow, singleSided, THREE);
             this.setupObj(obj, options);
+            obj.updateMatrixWorld(true);
             if (obj._croquetAnimation) {
                 const spec = obj._croquetAnimation;
                 spec.startTime = this.actor.creationTime;
                 this.animationSpec = spec;
                 this.future(500).runAnimation();
             }
+
+        if(this.actor.layers.indexOf('walk')>=0){
+                this.constructCollider(obj, THREE);
+            }
+
+            // place this after collider construction
+            // or collider incorporates shape transform            
             this.shape.add(obj);
+
             if (name) {
                 obj.name = name;
             }
@@ -479,6 +494,44 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 this.shape.add(obj);
             });
         }
+    }
+
+    constructCollider(obj, THREE){
+        let geometries = [];
+
+        obj.traverse(c =>{
+            if(c.geometry){
+                let cloned = c.geometry.clone();
+                cloned.applyMatrix4( c.matrixWorld );
+                for( const key in cloned.attributes) {
+                    if( key !== 'position')
+                        cloned.deleteAttribute( key );
+                }
+                geometries.push( cloned );
+            }
+        });
+        loadThreeJSLib("utils/BufferGeometryUtils.js", THREE)
+        .then(()=>{
+            console.log(THREE.BufferGeometryUtils)
+            const mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries( geometries, false);
+            let TRM = this.service("ThreeRenderManager");
+            mergedGeometry.boundsTree = new TRM.MeshBVH( mergedGeometry, { lazyGeneration: false } );
+            let collider = new THREE.Mesh( mergedGeometry );
+            collider.material.wireframe = true;
+            collider.material.opacity = 0.5;
+            //collider.material.transparent = true;
+            collider.matrixWorld = obj.matrixWorld.clone();
+            collider.updateMatrixWorld(true);
+            collider.visible = false;
+            this.colliderObject.add(collider);
+/*
+            let visualizer = new TRM.MeshBVHVisualizer( collider, 10 );
+            visualizer.visible = true;
+
+            this.shape.parent.add(visualizer)
+            */
+        });
+
     }
 
     setupObj(obj, options) {

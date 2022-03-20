@@ -26,6 +26,8 @@ import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 
+let isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
+
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
 function loadLoaders() {
@@ -208,7 +210,7 @@ class MyViewRoot extends ViewRoot {
     static viewServices() {
         return [
             InputManager,
-            {service: ThreeRenderManager, options:{useBVH: true, antialias:true}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias:!isSafari}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
