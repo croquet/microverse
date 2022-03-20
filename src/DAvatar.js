@@ -7,8 +7,6 @@ import {
     m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
-
-import { OrbitControls } from './three/examples/jsm/controls/OrbitControls.js';
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
@@ -289,7 +287,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._rotation = q_euler(0, this.lookYaw, 0);
         this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
         if (this.isMyPlayerPawn) {
-            // create a dummy camera that will be moved by the OrbitControls
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
             this.scene = renderMgr.scene;
@@ -297,13 +294,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
             //this.tweenCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             //this.walkCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-            this.orbitCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
             this.tweenCamera = new THREE.Object3D();
             this.walkCamera = new THREE.Object3D();
-            this.orbitCamera.position.set( 0, 20, 0 );
-
-            this.createOrbitControls( this.orbitCamera, renderMgr.renderer );
-            this.setControls(isWalking); // walking or orbiting?
 
             this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ));
             this.future(100).fadeNearby();
@@ -336,8 +328,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
-            document.getElementById("walkingBttn").onclick = (e) => this.switchControl(e);
-            document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
+             document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
             document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
@@ -462,35 +453,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.say("lookGlobalChanged");
     }
 
-    createOrbitControls( camera, renderer ) {
-        this.orbitControls = new OrbitControls( camera, renderer.domElement );
-        this.orbitControls.rotateSpeed = 1.0;
-        this.orbitControls.zoomSpeed = 1.0;
-        this.orbitControls.panSpeed = 0.8;
-        this.orbitControls.enablePan = false;
-        this.orbitControls.minDistance = 5;
-        this.orbitControls.maxDistance = 100;
-        this.orbitControls.maxPolarAngle = Math.PI / 2;
-    }
-
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         isTweening = false;
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
         avatarManager.delete(this); // delete from the avatarManager
         super.destroy();
-    }
-
-    setControls(isWalking){ // switch between walking and orbiting with a tween between
-        if(isTweening)return;
-        let look = this.walkLook;
-
-        this.walkCamera.position.set( ...m4_getTranslation(look) );
-        this.walkCamera.quaternion.set( ...m4_getRotation(look) );
-        this.walkCamera.updateMatrixWorld();
-        this.orbitControls.target = this.walkCamera.position;
-        this.orbitControls.update();
-        if(isWalking) this.tween(this.orbitCamera, this.walkCamera); //, ()=> input.addAllListeners());
-        else  this.tween(this.walkCamera, this.orbitCamera); //, ()=>input.removeAllListeners());
     }
 
     // This tween is only on the view side because we are transitioning between two cameras.
@@ -535,7 +502,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (this.isMyPlayerPawn) {
             if(isTweening && this.tweenCamera.matrixWorld)return this.tweenCamera.matrixWorld.elements;
             if(isWalking)return this.walkLook;
-            if(this.orbitCamera && this.orbitCamera.matrixWorld){return this.orbitCamera.matrixWorld.elements;}
             return this.global;
         }else return this.global;
     }
@@ -552,7 +518,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         super.update(time, delta);
         if (!this.isMyPlayerPawn) {return;}
         if (isTweening) TWEEN.update();
-        else if(isWalking){
+        else{
             if(this.isFalling) {
                 let t = this._translation;
                 this._translation = [t[0], this.floor, t[2]];
@@ -566,9 +532,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     this.setTranslation(this.lastTranslation);
                 }
             }
-        }else{
-            this.orbitCamera.updateMatrixWorld();
-            this.orbitCamera.updateProjectionMatrix();
         }
         this.refreshCameraTransform();
         this.lastTranslation = this.translation;
@@ -650,8 +613,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.walkCamera.position.set( ...m4_getTranslation(look) );
                 this.walkCamera.quaternion.set( ...m4_getRotation(look) );
                 this.walkCamera.updateMatrixWorld();
-                this.orbitControls.target = this.walkCamera.position;
-                this.orbitControls.update();
             }
         }
     }
@@ -862,10 +823,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
 
         let z = this.lookOffset[2];
-        z += e.deltaY / 1000.0;
-        z = Math.min(4, Math.max(z,0));
-        this._lookOffset = [this.lookOffset[0], z / 3, z];
-        this.lookTo(-z / 8, q_yaw(this._rotation));
+        z += Math.max(1,z) * e.deltaY / 1000.0;
+        z = Math.min(100, Math.max(z,0));
+        this._lookOffset = [this.lookOffset[0], z, z];
+        let pitch = (this._lookPitch*11+Math.max(-z / 2, -Math.PI/4))/12;
+        this.lookTo(pitch, q_yaw(this._rotation));
     }
 
     fadeNearby(){
@@ -916,18 +878,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     console.log(this.actor.service('CardManager').cards);
         // jump to the next one or last 
 
-    }
-
-    switchControl(e) {
-        e.stopPropagation();
-        e.preventDefault();
-    
-        isWalking = !isWalking;
-        this.setControls(isWalking);
-        let button = document.getElementById("walkingBttn");
-        if (button) {
-            button.setAttribute("isWalking", isWalking);
-        }
     }
 
     toggleFullScreen(e) {
