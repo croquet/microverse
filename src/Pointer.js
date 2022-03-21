@@ -30,6 +30,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
     get isFocused() { return this.focused.size};
 
     dispatchEvent(data) {
+        // console.log("dispatchEvent", data);
         let {eventName, evt} = data;
         let array = this.eventListeners.get(eventName);
         if (!array) {return;}
@@ -45,6 +46,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
     }
 
     addEventListener(eventName, listener) {
+        // console.log("addEventListener", eventName, listener);
         let expander;
         if (typeof listener === "function") {
             listener = listener.name;
@@ -74,6 +76,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
     }
 
     removeEventListener(eventName, listener) {
+        // console.log("removeEventListener", eventName, listener);
         let expander;
         if (typeof listener === "function") {
             listener = listener.name;
@@ -234,6 +237,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
     }
 
     registerEventListener(data) {
+        // console.log("registerEventLIstener", data);
         let {eventName} = data;
         if (!this.modelListeners.get(eventName)) {
             let func = (evt) => this.say("dispatchEvent", {eventName, evt});

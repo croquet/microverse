@@ -161,6 +161,8 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     scriptSubscribe(scope, eventName, listener) {
+        //console.log("model", scope, eventName, listener);
+        
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -268,6 +270,7 @@ export const PM_Code = superclass => class extends superclass {
     }
 
     scriptSubscribe(scope, subscription, listener) {
+        // console.log("view", scope, subscription, listener);
         let eventName;
         let handling;
         if (typeof subscription === "string") {
@@ -676,7 +679,7 @@ window._allResolvers.get("${key}").get("${id}")({data, key: ${key}});
 
             let index = keys.indexOf(key);
             window._allResolvers.delete(key);
-            
+
             if (index !== keys.length - 1) {
                 // if it is not the last element,
                 // there was already another call so discard it

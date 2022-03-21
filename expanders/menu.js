@@ -53,17 +53,6 @@ class MenuLayoutActor {
 }
 
 class MenuActor {
-    setup() {
-        console.log("MenuActor", this.id);
-        if (this.items) {
-            this.items.forEach((obj) => {
-                this.unsubscribe(obj.card.id, "fire", "fire");
-                obj.card.destroy();
-            });
-        }
-        this.items = [];
-    }
-
     setItems(list) {
         // list takes the form of:
         // [{label<string>, card?<card>, selected<boolean>}]
@@ -177,24 +166,17 @@ class MenuActor {
 
 class MenuPawn {
     setup() {
-        this.clear();
-        //this.listen("updateBackDrop", "updateBackDrop");
+        this.scriptListen("_cardData", "cardDataUpdated");
 
         if (this.actor.items && this.actor.items.length > 0 && this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
             this.cardDataUpdated();
         }
     }
 
-    clear() {
-        console.log("clear");
-    }
-
     cardDataUpdated(data) {
-        this.clear();
         let obj = this.shape.children.find((o) => o.name === "2d");
         obj.position.set(0, - this.properties2D.height / 2 + 1.05, -0.1);
     }
-
 }
 
 class MenuItemActor {
