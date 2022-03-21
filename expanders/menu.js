@@ -19,7 +19,7 @@ class ExpanderMenuActor {
 
         let actorExpanders = this.expanderManager.actorExpanders;
         let pawnExpanders = this.expanderManager.pawnExpanders;
-        
+
         for (let k of actorExpanders.keys()) {
             let selected = target._actorCode && target._actorCode.indexOf(k) >=  0;
             let obj = {label: k, selected};

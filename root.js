@@ -17,10 +17,7 @@ import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
-import { PerlinActor } from './apps/perlin.js';
-import { BitcoinTracker, BitLogoCard } from './apps/bitcoinTracker.js';
 import { FlightTracker } from './apps/flightTracker.js';
-import { DBarGraphCard } from './src/DBar.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -98,13 +95,9 @@ class MyModelRoot extends ModelRoot {
         super.init(options);
 
         let appManager = this.service("DynaverseAppManager");
-        appManager.add(BitcoinTracker);
-        appManager.add(DBarGraphCard);
-        appManager.add(BitLogoCard);
         appManager.add(MultiBlaster);
         appManager.add(BouncingBall);
         appManager.add(BouncingLogo);
-        appManager.add(PerlinActor);
         appManager.add(FlightTracker);
         appManager.add(DLight);
         appManager.add(TextFieldActor);

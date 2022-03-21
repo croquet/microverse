@@ -7,6 +7,8 @@ import { startWorld } from "./root.js";
 import { ExpanderLibrary } from "./src/code.js";
 import { demo } from "./expanders/demo.js";
 import { menu } from "./expanders/menu.js";
+import { elected } from "./expanders/elected.js";
+import { bitcoinTracker } from "./expanders/bitcoinTracker.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -15,8 +17,10 @@ Constants.AvatarNames = [
 ];
 
 let library = new ExpanderLibrary();
-library.add(demo);
 library.add(menu);
+library.add(demo);
+library.add(elected);
+library.add(bitcoinTracker);
 library.installAsBaseLibrary();
 
 // use bit-identical math for constant initialization
@@ -46,6 +50,55 @@ Model.evaluate( () => {
                 className: "DLight",
             }
         },
+        {
+            card: {
+                name: 'bitcointracker',
+                translation: [-4, -0.5, -6],
+                rotation: q_euler(0, Math.PI / 2, 0),
+                scale: [4, 4, 4],
+                type: "2d",
+                textureType: "canvas",
+                textureWidth: 1024,
+                textureHeight: 768,
+                width: 1,
+                height: 0.75,
+                frameColor: 0x666666,
+                color: 0xffffff,
+                depth: 0.05,
+                cornerRadius: 0.1,
+                actorCode: ["BitcoinTrackerActor", "ElectedActor"],
+                pawnCode: ["BitcoinTrackerPawn", "ElectedPawn"]
+            },
+            id: "main",
+        },
+        {
+            card: {
+                name:'bitlogo',
+                translation: [-0.35, 0.35, 0.1],
+                scale: [0.25, 0.25, 0.25],
+                parent: "main",
+                type: "2d",
+                dataLocation: './assets/SVG/BitcoinSign.svg',
+                depth: 0.05,
+                color: 0xffffff,
+                frameColor: 0x666666,
+                pawnCode: ["BitLogoPawn"]
+            }
+        },
+        {
+            card: {
+                name:'bar graph',
+                translation:[0, -0.3, 0.1],
+                color: 0xEEEEEE,
+                frameColor: 0x666666,
+                type: "object",
+                name: "BarGraph",
+                height: 0.4,
+                parent: "main",
+                actorCode: ["BarGraphActor"],
+                pawnCode: ["BarGraphPawn"]
+            }
+        }
     ];
 });
 

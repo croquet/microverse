@@ -157,28 +157,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     scriptListen(eventName, listener) {
-        if (typeof listener === "function") {
-            listener = listener.name;
-        }
-
-        let expander = this._expander;
-        if (!expander) {
-            expander = expander.constructor.name;
-        }
-
-        let fullMethodName;
-        if (listener.indexOf(".") >= 1 || !expander) {
-            fullMethodName = listener;
-        } else {
-            fullMethodName = `${expander}.${listener}`;
-        }
-        
-        let had = this.scriptListeners.get(eventName, fullMethodName);
-        if (had) {
-            return;
-        }
-        this.scriptListeners.set(eventName, fullMethodName);
-        super.listen(eventName, fullMethodName);
+        return this.scriptSubscribe(this.id, eventName, listener);
     }
 
     scriptSubscribe(scope, eventName, listener) {
@@ -197,7 +176,14 @@ export const AM_Code = superclass => class extends superclass {
         } else {
             fullMethodName = `${expander}.${listener}`;
         }
+
+        let listenerKey = `${scope}:${eventName}${fullMethodName}`;
+        let had = this.scriptListeners.get(listenerKey, fullMethodName);
+        if (had) {
+            return;
+        }
         
+        this.scriptListeners.set(listenerKey, fullMethodName);
         super.subscribe(scope, eventName, fullMethodName);
     }
 
@@ -281,7 +267,16 @@ export const PM_Code = superclass => class extends superclass {
         return this.call(name, "destroy");
     }
 
-    scriptListen(eventName, listener) {
+    scriptSubscribe(scope, subscription, listener) {
+        let eventName;
+        let handling;
+        if (typeof subscription === "string") {
+            eventName = subscription;
+        } else {
+            eventName = subscription.event;
+            handling = subscription.handling;
+        }
+        
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -298,19 +293,30 @@ export const PM_Code = superclass => class extends superclass {
             fullMethodName = `${expander}.${listener}`;
         }
 
-        let had = this.scriptListeners.get(eventName);
+        let listenerKey = `${scope}:${eventName}${fullMethodName}`;
+
+        let had = this.scriptListeners.get(listenerKey);
         if (had) {
-            this.ignore(eventName, fullMethodName);
+            this.unsubscribe(scope, eventName, fullMethodName);
         }
         
-        this.scriptListeners.set(eventName, fullMethodName);
+        this.scriptListeners.set(listenerKey, fullMethodName);
         if (fullMethodName.indexOf(".") >= 1) {
             let split = fullMethodName.split(".");
             let func = (data) => this.call(split[0], split[1], data);
-            return super.subscribe(this.actor.id, eventName, func);
+            return super.subscribe(scope, eventName, func);
         }
-        super.subscribe(this.actor.id, eventName, fullMethodName);
+        if (handling) {
+            super.subscribe(scope, {event: eventName, handling}, fullMethodName);
+        } else {
+            super.subscribe(scope, eventName, fullMethodName);
+        }
     }
+        
+    scriptListen(subscription, listener) {
+        return this.scriptSubscribe(this.actor.id, subscription, listener);
+    }
+
 }
 
 class Expander extends Model {
@@ -527,7 +533,7 @@ export class ExpanderModelManager extends ModelService {
             if (!expander) {return;}
             expander.ensureExpander();
             if (expander.$expander.setup) {
-                expander.invoke(model, "setup");
+                this.future(0).callSetup(expander, model);
             }
         }
     }
@@ -539,6 +545,10 @@ export class ExpanderModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
+    }
+
+    callSetup(expander, model) {
+        expander.invoke(model, "setup");
     }
 
     viewUse(model, name) {
