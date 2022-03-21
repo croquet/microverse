@@ -16,6 +16,25 @@ export class FlightTracker extends mix(CardActor).with(AM_Elected){
     init(options){
         super.init(options);
         this.listen("FlightUpdate", this.flightUpdate);
+        this.listen("startSpinning", this.startSpinning);
+        this.listen("stopSpinning", this.stopSpinning);
+    }
+
+    startSpinning(spin){
+        this.isSpinning = true;
+        this.qSpin = q_euler(0,spin,0);
+        this.doSpin();
+    }
+
+    doSpin(){
+        if(this.isSpinning){
+            this.setRotation(q_multiply(this._rotation, this.qSpin));
+            this.future(50).doSpin();
+        }
+    }
+
+    stopSpinning(){
+        this.isSpinning = false;
     }
 
     flightUpdate(flightData){
@@ -74,16 +93,23 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     onPointerDown(p3d){
         this._plane = true;
         this.base = this.theta(p3d.xyz);
+        this.deltaAngle = 0;
+        this.say("stopSpinning");
     }
 
     onPointerMove(p3d) {
         let next = this.theta(p3d.xyz);
-        let delta = (next - this.base)/2;
-        let qAngle = q_euler(0,delta,0);
+        this.deltaAngle = (next - this.base)/2;
+        let qAngle = q_euler(0,this.deltaAngle,0);
         this.setRotation(q_multiply(this._rotation, qAngle));
     }
 
     onPointerUp(p3d){
+        if(p3d.xyz){ // clean up and see if we can spin
+            this.onPointerMove(p3d);
+            if(Math.abs(this.deltaAngle)>0.001)
+                this.say("startSpinning", this.deltaAngle);
+        }
         this._plane = false;
     }
 
