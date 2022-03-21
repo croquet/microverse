@@ -167,7 +167,7 @@ Model.evaluate( () => {
                 depth: 0.05,
                 fullBright: true,
             }
-        },/*
+        },
         {
             card: {
                 name:'flightTracker',
@@ -189,7 +189,7 @@ Model.evaluate( () => {
                 //depth: 0.05,
                 //fullBright: true,
             }
-        },*/
+        },
         {
             card: {
                 name:'code editor',

@@ -675,6 +675,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     uv2xy(uv) {
         return this.actor.uv2xy(uv);
     }
+
+    world2local(xyz){
+        return this.shape.worldToLocal(new THREE.Vector3(...xyz)).toArray();
+    }
+
     get width() {
         return this.actor.width;
     }

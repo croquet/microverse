@@ -4,7 +4,7 @@
 
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { CardActor, CardPawn } from '../src/DCard.js';
-import { THREE, mix } from "@croquet/worldcore";
+import { THREE, mix, q_euler, q_multiply } from "@croquet/worldcore";
 import earthbase from "../assets/images/earthbase.png";
 import earthshadow from "../assets/images/earthshadow.jpg";
 
@@ -31,11 +31,15 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         super(actor);
         this.listenDeck("updateFlight", this.updateFlight);
         this.constructEarth();
+        this.addEventListener("pointerDown", "onPointerDown");
+        this.addEventListener("pointerUp", "onPointerUp");
+        this.addEventListener("pointerEnter", "onPointerEnter");
+        this.addEventListener("pointerLeave", "onPointerLeave");
+        this.addEventListener("pointerMove", "onPointerMove");
     }
 
     constructEarth(){
-        this.earth = new THREE.Group();
-            // Create the earth
+        // Create the earth
         const earthBaseTexture = new THREE.TextureLoader().load( earthbase );
         earthBaseTexture.wrapS = earthBaseTexture.wrapT = THREE.RepeatWrapping;
         earthBaseTexture.repeat.set(1,1);
@@ -44,20 +48,50 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         earthShadowTexture.wrapS = earthShadowTexture.wrapT = THREE.RepeatWrapping;
         earthShadowTexture.repeat.set(1,1);
 
-        const shadowSphere = new THREE.Mesh(
+        this.shadowSphere = new THREE.Mesh(
             new THREE.SphereGeometry(SHADOWRADIUS, 64, 64),
             new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: this.actor._color, roughness: 0.7, opacity:0.9, transparent: true }));
-        this.earth.add(shadowSphere);
+            this.shadowSphere.receiveShadow = true;
+        this.shape.add(this.shadowSphere);
 
-        const  baseSphere = new THREE.Mesh(
+        this.baseSphere = new THREE.Mesh(
             new THREE.SphereGeometry(BASERADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: this.actor_color, roughness: 0.7, opacity:0.9, transparent: true }));
-        this.earth.add(baseSphere);
-
-        this.setRenderObject( this.earth );
+            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: 0x44ff44, roughness: 0.7, opacity:0.9, transparent: true }));
+        this.baseSphere.receiveShadow = true;
+        this.baseSphere.castShadow = true;
+        this.shape.add(this.baseSphere);
     }
 
     updateFlight(){
 
+    }
+
+    theta(xyz){
+        let local = this.world2local(xyz);
+        return Math.atan2(local[0],local[2]);
+    }
+
+    onPointerDown(p3d){
+        this._plane = true;
+        this.base = this.theta(p3d.xyz);
+    }
+
+    onPointerMove(p3d) {
+        let next = this.theta(p3d.xyz);
+        let delta = (next - this.base)/2;
+        let qAngle = q_euler(0,delta,0);
+        this.setRotation(q_multiply(this._rotation, qAngle));
+    }
+
+    onPointerUp(p3d){
+        this._plane = false;
+    }
+
+    onPointerEnter(p3d){
+        this.shadowSphere.material.emissive = new THREE.Color(0x4444ff);
+    }
+
+    onPointerLeave(p3d){
+        this.shadowSphere.material.emissive = new THREE.Color(0);
     }
 }
