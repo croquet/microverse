@@ -33,7 +33,7 @@ Model.evaluate( () => {
                 rotation: q_euler(0, Math.PI, 0),
                 layers: ['walk'],
                 type: "3d",
-                dataLocation: "./assets/3D/New Oil Refinery.glb.zip",
+                dataLocation: "./assets/3D/Latest Oil Refinery.glb.zip",
                 singleSided: true,
                 shadow: true,
                 /*
@@ -167,7 +167,29 @@ Model.evaluate( () => {
                 depth: 0.05,
                 fullBright: true,
             }
-        },
+        },/*
+        {
+            card: {
+                name:'flightTracker',
+                className: "FlightTracker",
+                translation: [-4, 1.5, -50],
+                //rotation: q_euler(0, Math.PI / 2, 0),
+                //scale: [4, 4, 4],
+                //width: 1,
+                //height: 1,
+                layers: ['pointer'],
+                multiuser: true,
+                type: "3d",
+                //dataLocation: "./assets/SVG/full-circle.svg",
+                //textureType: "dynamic",
+                //textureWidth: 1024,
+                //textureHeight: 1024,
+                //frameColor: 0x666666,
+                color: 0xaaaaaa,
+                //depth: 0.05,
+                //fullBright: true,
+            }
+        },*/
         {
             card: {
                 name:'code editor',

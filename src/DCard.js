@@ -92,7 +92,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     get color() {return this._color || 0xffffff}
 
     uv2xy(uv) {
-        return [this.width * uv[0],this.height * (1 - uv[1])];
+        return [this._cardData.textureWidth * uv[0],this._cardData.textureHeight * (1 - uv[1])];
     }
     get width() {
         return this._cardData.width || 1024;

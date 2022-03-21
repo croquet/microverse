@@ -19,6 +19,7 @@ import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
 import { PerlinActor } from './apps/perlin.js';
 import { BitcoinTracker, BitLogoCard } from './apps/bitcoinTracker.js';
+import { FlightTracker } from './apps/flightTracker.js';
 import { DBarGraphCard } from './src/DBar.js';
 
 import JSZip from 'jszip';
@@ -104,6 +105,7 @@ class MyModelRoot extends ModelRoot {
         appManager.add(BouncingBall);
         appManager.add(BouncingLogo);
         appManager.add(PerlinActor);
+        appManager.add(FlightTracker);
         appManager.add(DLight);
         appManager.add(TextFieldActor);
 
