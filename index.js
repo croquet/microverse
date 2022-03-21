@@ -179,7 +179,7 @@ Model.evaluate( () => {
                 //height: 1,
                 layers: ['pointer'],
                 multiuser: true,
-                type: "3d",
+                type: "object",
                 //dataLocation: "./assets/SVG/full-circle.svg",
                 //textureType: "dynamic",
                 //textureWidth: 1024,
