@@ -17,10 +17,17 @@ class ExpanderMenuActor {
 
         let items = [];
 
-        let codeMap = this.expanderManager.code;
-        for (let k of codeMap.keys()) {
-            let selected = target._actorCode && target._actorCode.indexOf(k) >=  0 ||
-                target._pawnCode && target._pawnCode.indexOf(k) >=  0;
+        let actorExpanders = this.expanderManager.actorExpanders;
+        let pawnExpanders = this.expanderManager.pawnExpanders;
+        
+        for (let k of actorExpanders.keys()) {
+            let selected = target._actorCode && target._actorCode.indexOf(k) >=  0;
+            let obj = {label: k, selected};
+            items.push(obj);
+        }
+
+        for (let k of pawnExpanders.keys()) {
+            let selected = target._pawnCode && target._pawnCode.indexOf(k) >=  0;
             let obj = {label: k, selected};
             items.push(obj);
         }
