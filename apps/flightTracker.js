@@ -120,4 +120,41 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     onPointerLeave(p3d){
         this.shadowSphere.material.emissive = new THREE.Color(0);
     }
+
+    handleElected() {
+        super.handleElected();
+        this.getFlight();
+    //    this.fetchHistory().then(() => this.openSocket());
+    }
+
+    handleUnelected() {
+        super.handleUnelected();
+            this.closeSocket();
+    }
+
+    closeSocket() {
+        if (this.socket) {
+            this.socket.close();
+        }
+    }
+
+
+getFlight(){
+    let count = 0;
+    // https://opensky-network.org/apidoc/rest.html
+    fetch('https://opensky-network.org/api/states/all')
+    .then(response => {
+        if (response.ok) {
+            response.json().then(data => {
+            // Markers
+            data.states.forEach(plane => {
+                if (!plane[6] || !plane[5]) return;
+                console.log(count++, plane);
+            });
+
+            });
+        } else console.log('Network response was not ok.');
+    })
+    .catch(error => console.log(error));
+    }
 }

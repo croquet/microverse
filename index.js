@@ -33,7 +33,7 @@ Model.evaluate( () => {
                 rotation: q_euler(0, Math.PI, 0),
                 layers: ['walk'],
                 type: "3d",
-                dataLocation: "./assets/3D/Latest Oil Refinery.glb.zip",
+                dataLocation: "./assets/3D/Oil Refinery Platforms Fixed.glb.zip",
                 singleSided: true,
                 shadow: true,
                 /*
