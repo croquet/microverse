@@ -32,7 +32,7 @@ class ExpanderMenuActor {
             items.push(obj);
         }
 
-        items.push({label: 'ok'});
+        items.push({label: 'apply'});
 
         this.menu.call("MenuActor", "setItems", items);
 
@@ -93,6 +93,7 @@ class MenuActor {
                     actorCode: ["MenuItemActor"],
                     pawnCode: ["MenuItemPawn"],
                     width: 1,
+                    textScale: 0.0015,
                     height: 0.15,
                     fullBright: true,
                     backgroundColor: item.selected ? 0x606060 : 0xFFFFFF
@@ -154,7 +155,7 @@ class MenuActor {
             }
         });
 
-        if (multiple && item.label === 'ok') {
+        if (multiple && item.label === 'apply') {
             item.selected = false;
             this.selectionChanged(item);
 

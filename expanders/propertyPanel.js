@@ -1,10 +1,11 @@
 class PropertyPanelActor {
     setObject(target) {
         this.target = target;
+
         this.expanderMenu = this.createCard({
             name: 'expander menu',
             actorCode: ["ExpanderMenuActor"],
-            translation: [1, 0, 0],
+            translation: [0, 0.6, 0.055],
             type: "object",
             parent: this,
             target: target.id});
@@ -13,26 +14,27 @@ class PropertyPanelActor {
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
             name: 'card spec',
-            translation: [-1, 0, 0],
+            translation: [0, -1, -0.02],
             parent: this,
             type: "text",
             multiuser: true,
-            // margins: {left: 32, top: 32, right: 32, bottom: 32},
-            textScale: 0.002,
+            margins: {left: 8, top: 8, right: 8, bottom: 8},
+            textScale: 0.0012,
             backgroundColor: 0xffffff,
-            width: 2,
+            width: 1,
             height: 2,
             depth: 0.05,
             autoResize: false,
             noDismissButton: true,
-            borderRadius: 0.02,
-            runs: [{text: "hello\nbye"}]
+            borderRadius: 0.013,
+            fullBright: true,
+            runs: [{text: ""}],
         });
 
         this.dismissButton = this.createCard({
             className: "TextFieldActor",
-            name: 'dismiss button',
-            translation: [-1, 1.5, 1],
+            name: "dismiss button",
+            translation: [0.5, 1.65, 0.005],
             parent: this,
             type: "text",
             multiuser: true,

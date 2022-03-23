@@ -149,14 +149,21 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         let distance = (toWhom.distance || 6);
         distance = Math.min(distance * 0.7, 4);
         if(avatar){
-            let pose = avatar.dropPose(distance);
+            let pose = avatar.dropPose(distance, [2, 0, 0]);
             if (!this.expanderManager.actorExpanders.get("PropertyPanelActor")) {return;}
             let menu = this.createCard({
-                name: 'property panel',
+                name: "property panel",
                 actorCode: ["PropertyPanelActor"],
                 translation: pose.translation,
                 rotation: pose.rotation,
-                type: "object",
+                type: "2d",
+                fullBright: true,
+                color: 0xffffff,
+                frameColor: 0x666666,
+                width: 1,
+                height: 3.5,
+                cornerRadius: 0.02,
+                depth: 0.02,
                 target: this.id,
             });
             menu.call("PropertyPanelActor", "setObject", this);
@@ -356,18 +363,21 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.cleanupColliderObject();
 
         if (this.shape) {
-            this.shape.children.forEach((m) => {
+            this.shape.traverse((m) => {
                 // the idea here is that any data that should be disposed should be
                 // already accounted for.
+                if (m === this.shape) {return;}
 
-                m.geometry.dispose();
+                if (m.geometry) {
+                    m.geometry.dispose();
+                }
                 if (Array.isArray(m.material)) {
                     m.material.forEach((mm) => mm.dispose());
                 } else if (m.material) {
                     m.dispose();
                 }
-                this.shape.remove(m);
             });
+            this.shape.children.forEach((m) => this.shape.remove(m));
         }
     }
 

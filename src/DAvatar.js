@@ -3,7 +3,7 @@
 // info@croquet.io
 import {
     Constants, Data, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+    v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
@@ -186,12 +186,23 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         super.tick(delta);
     }
 
-    dropPose(distance){ // compute the position in front of the avatar
+    dropPose(distance, optOffset) {
+        // compute the position in front of the avatar
+        // optOffset is perpendicular (on the same xz plane) to the lookNormal 
+
         let n = this.lookNormal;
         let t = this.translation;
         let r = this.rotation;
-        let p = v3_add(v3_scale(n, distance),t);
-        return{translation:p,rotation:r};
+        if (!optOffset) {
+            let p = v3_add(v3_scale(n, distance), t);
+            return {translation: p, rotation: r};
+        }
+
+        let q = q_euler(0, -Math.PI / 2, 0);
+        let perpendicular = v3_rotate(n, q);
+        let offset = v3_multiply(optOffset, perpendicular);
+        let p = v3_add(v3_add(v3_scale(n, distance), t), offset);
+        return {translation:p, rotation:r};
     }
 
     fileUploaded(data) {
@@ -375,8 +386,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         return sun;
     }
 
-    dropPose(distance){ // compute the position in front of the avatar
-        return this.actor.dropPose(distance);
+    dropPose(distance, optOffset) { // compute the position in front of the avatar
+        return this.actor.dropPose(distance, optOffset);
     }
     
     setEditMode(evt) {
