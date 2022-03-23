@@ -660,7 +660,8 @@ export class ExpanderViewManager extends ViewService {
                     let dataURL = URL.createObjectURL(new Blob([obj.content], {type: "application/javascript"}));
                     script.innerHTML = `
 import * as data from "${dataURL}";
-window._allResolvers.get("${key}").get("${id}")({data, key: ${key}});
+let map = window._allResolvers.get("${key}");
+if (map) {map.get("${id}")({data, key: ${key}})};
 `;
                     document.body.appendChild(script);
                     dataURLs.push(dataURL);
