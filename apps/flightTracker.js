@@ -15,9 +15,11 @@ export class FlightTracker extends mix(CardActor).with(AM_Elected){
     get pawn() {return FlightDisplay;}
     init(options){
         super.init(options);
-        this.listen("FlightUpdate", this.flightUpdate);
+        this.listen("flightUpdate", this.flightUpdate);
         this.listen("startSpinning", this.startSpinning);
         this.listen("stopSpinning", this.stopSpinning);
+        this.listen("processFlight", this.processFlight);
+        this.planes = new Map();
     }
 
     startSpinning(spin){
@@ -37,9 +39,13 @@ export class FlightTracker extends mix(CardActor).with(AM_Elected){
         this.isSpinning = false;
     }
 
-    flightUpdate(flightData){
+    flightUpdate(flightData){      // addarray data to map
         this.flightData = flightData;
         this.sayDeck("updateFlight");
+    }
+
+    processFlight(){ //completed the map, now GC and inform view
+
     }
 }
 
@@ -55,6 +61,9 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         this.addEventListener("pointerEnter", "onPointerEnter");
         this.addEventListener("pointerLeave", "onPointerLeave");
         this.addEventListener("pointerMove", "onPointerMove");
+        this.rawPlanes=[];
+        this.chunkSize = 100; //number of plane records to send
+        this.processFlight();
     }
 
     constructEarth(){
@@ -81,8 +90,26 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         this.shape.add(this.baseSphere);
     }
 
-    updateFlight(){
+    processFlight(){
+        let len = this.rawPlanes.length;
+        let nextTime =100;
+        if(len===0){
+            if(!this.gettingFlight)this.getFlight();
+        }else{ //send the rawPlanes data to model
+            let sendArray = this.rawPlanes.slice(this.sendex, Math.min(len, this.sendex+this.chunkSize))
+            this.say("flightUpdate", sendArray);
+            this.sendex += this.chunkSize;
+            if(this.sendex>len){
+                this.rawPlanes = [];
+                this.say("processFlight");
+                nextTime = 5000;
+            }
+        }
+        this.future(nextTime).processFlight();
+    }
 
+    updateFlight(){
+ 
     }
 
     theta(xyz){
@@ -107,8 +134,11 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     onPointerUp(p3d){
         if(p3d.xyz){ // clean up and see if we can spin
             this.onPointerMove(p3d);
-            if(Math.abs(this.deltaAngle)>0.001)
-                this.say("startSpinning", this.deltaAngle);
+            if(Math.abs(this.deltaAngle)>0.001){
+                let a = this.deltaAngle;
+                a = Math.min(Math.max(-0.1, a), 0.1);
+                this.say("startSpinning", a);
+            }
         }
         this._plane = false;
     }
@@ -123,7 +153,7 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
 
     handleElected() {
         super.handleElected();
-        this.getFlight();
+        this.updateFlight();
     //    this.fetchHistory().then(() => this.openSocket());
     }
 
@@ -138,9 +168,11 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         }
     }
 
-
 getFlight(){
     let count = 0;
+    this.sendex = 0;
+
+    this.gettingFlight = true;
     // https://opensky-network.org/apidoc/rest.html
     fetch('https://opensky-network.org/api/states/all')
     .then(response => {
@@ -149,9 +181,9 @@ getFlight(){
             // Markers
             data.states.forEach(plane => {
                 if (!plane[6] || !plane[5]) return;
-                console.log(count++, plane);
+                this.rawPlanes.push([plane[0],plane[5], plane[6], this.now()]);
             });
-
+            this.gettingFlight = false;
             });
         } else console.log('Network response was not ok.');
     })
