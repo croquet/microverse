@@ -40,7 +40,9 @@ class ExpanderMenuActor {
     }
 
     setExpanders(data) {
-        this.say("setExpanders", {...{menuId: this.id, target: this._cardData.target}, ...data});
+        console.log("setExpanders");
+        let target = this.service("ActorManager").get(this._cardData.target);
+        target.setExpanders({...data});
     }
 }
 
@@ -86,6 +88,7 @@ class MenuActor {
                     readOnly: true,
                     singleLine: true,
                     autoResize: true,
+                    noDismissButton: true,
                     runs: [{text: item.label}],
                     actorCode: ["MenuItemActor"],
                     pawnCode: ["MenuItemPawn"],
@@ -153,6 +156,7 @@ class MenuActor {
 
         if (multiple && item.label === 'ok') {
             item.selected = false;
+            this.selectionChanged(item);
 
             let selection = this.items.map((i) => ({label: i.label, selected: i.selected}));
             this.publish(this._parent.id, "fire", {selection, id: this.id});

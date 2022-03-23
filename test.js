@@ -9,6 +9,7 @@ import { demo } from "./expanders/demo.js";
 import { menu } from "./expanders/menu.js";
 import { elected } from "./expanders/elected.js";
 import { bitcoinTracker } from "./expanders/bitcoinTracker.js";
+import { propertyPanel } from "./expanders/propertyPanel.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -21,6 +22,7 @@ library.add(menu);
 library.add(demo);
 library.add(elected);
 library.add(bitcoinTracker);
+library.add(propertyPanel);
 library.installAsBaseLibrary();
 
 // use bit-identical math for constant initialization
@@ -53,8 +55,8 @@ Model.evaluate( () => {
         {
             card: {
                 name: 'bitcointracker',
-                translation: [-4, -0.5, -6],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                translation: [-1, -0.5, -8],
+                rotation: q_euler(0, 0, 0),
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "canvas",

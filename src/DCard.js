@@ -14,7 +14,7 @@ import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
 import { EYE_HEIGHT } from './DAvatar.js';
-import {loadThreeJSLib} from './ThreeJSLibLoader.js';
+import { WorldSaver } from './worldSaver.js';
 
 // import { forEach } from 'jszip';
 
@@ -26,16 +26,7 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 
 export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
     init(options) {
-        let cardOptions = {};
-        let cardData = {};
-
-        Object.keys(options).forEach((k) => {
-            if (intrinsicProperties.indexOf(k) >= 0) {
-                cardOptions[k] = options[k];
-            } else {
-                cardData[k] = options[k];
-            }
-        });
+        let {cardOptions, cardData} = this.separateOptions(options);
 
         super.init(cardOptions);
         this._cardData = cardData;
@@ -48,8 +39,27 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.listen("setCardData", this.setCardData);
     }
 
-    destroy(){
-        super.destroy();
+    separateOptions(options) {
+        let cardOptions = {};
+        let cardData = {};
+
+        Object.keys(options).forEach((k) => {
+            if (intrinsicProperties.indexOf(k) >= 0) {
+                cardOptions[k] = options[k];
+            } else {
+                cardData[k] = options[k];
+            }
+        });
+        return {cardOptions, cardData};
+    }
+
+    updateOptions(options) {
+        let {cardOptions, cardData} = this.separateOptions(options);
+        this.set({...cardOptions});
+        this.unsubscribe(this.id, "changed", "textChanged");
+        this.unsubscribe(this.id, "text", "codeChanged");
+        this._cardData = cardData;
+        this.say("updateShape");
     }
 
     setCardData(options) {
@@ -140,41 +150,30 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         distance = Math.min(distance * 0.7, 4);
         if(avatar){
             let pose = avatar.dropPose(distance);
-            console.log("showControls pose", pose)
-            console.log("expander", this.expanderManager.actorExpanders.get("ExpanderMenuActor"))
-
-            if (!this.expanderManager.actorExpanders.get("ExpanderMenuActor")) {return;}
+            if (!this.expanderManager.actorExpanders.get("PropertyPanelActor")) {return;}
             let menu = this.createCard({
-                name: 'expander menu',
-                actorCode: ["ExpanderMenuActor"],
+                name: 'property panel',
+                actorCode: ["PropertyPanelActor"],
                 translation: pose.translation,
                 rotation: pose.rotation,
                 type: "object",
                 target: this.id,
             });
-            menu.call("ExpanderMenuActor", "show");
-            this.subscribe(menu.id, "setExpanders", "setExpanders");
+            menu.call("PropertyPanelActor", "setObject", this);
+            this.subscribe(menu.id, "setCardSpec", "setCardSpec");
         }
     }
 
-    setExpanders(data) {
-        let {menuId, selection, _target} = data;
-        
-        let menu = this.service("ActorManager").get(menuId);
-        if (menu) {
-            menu.destroy();
-        }
- 
+    setExpanders(selection) {
         selection.forEach((obj) => {
             let {label, selected} = obj;
-
-            if (label.endsWith("Actor")) {
+            if (this.expanderManager.actorExpanders.get(label)) {
                 if (selected) {
                     this.addActorExpander(label);
                 } else {
                     this.removeActorExpander(label);
                 }
-            } else if (label.endsWith("Pawn")) {
+            } else if (this.expanderManager.pawnExpanders.get(label)) {
                 if (selected) {
                     this.addPawnExpander(label);
                 } else {
@@ -184,12 +183,21 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         });
     }
 
+    setCardSpec(data) {
+        console.log(data);
+    }
+
     saySelectEdit() {
         this.say("doSelectEdit");
     }
 
     sayUnselectEdit() {
         this.say("doUnselectEdit");
+    }
+
+    collectCardData() {
+        let saver = new WorldSaver(CardActor);
+        return saver.collectCardData(this);
     }
 
     static load(array, world, version) {
@@ -262,6 +270,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.listen("updateTranslation", this.updateTranslation);
         this.listen("updateRotation", this.updateRotation);
         this.listen("_cardData", this.cardDataUpdated);
+        this.listen("updateShape", this.updateShape);
         this.constructCard();
     }
 
@@ -279,11 +288,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.shape = new THREE.Group()
         this.shape.name = this.actor.name;
         this.setRenderObject(this.shape);
-        if(this.actor.layers.indexOf('walk')>=0){
-            console.log("ADD COLLIDER!")
-            let collider = new THREE.Group();
-            this.setColliderObject(collider);
-        }
         this.constructShape(this.actor._cardData);
     }
 
@@ -297,6 +301,79 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }  else if (type === "text" || type === "code") {
             this.isFlat = true;
         }
+    }
+
+    ensureColliderObject() {
+        if (!this.colliderObject) {
+            let collider = new THREE.Group();
+            this.setColliderObject(collider);
+        }
+    }
+
+    cleanupColliderObject() {
+        if (this.colliderObject) {
+            this.colliderObject.children.forEach((m) => {
+                this.colliderObject.remove(m);
+            });
+            this.colliderObject.geometry.dispose();
+            delete this.colliderObject;
+        }
+    }
+
+    cleanupShape() {
+        delete this.isFlat;
+
+        if (this.placeholder) {
+            this.placeholder.children.forEach((m) => {
+                m.geometry.dispose();
+                m.material.dispose();
+            });
+            this.shape.remove(this.placeholder);
+            delete this.placeholder;
+        }
+
+        delete this.video;
+        if (this.texture) {
+            this.texture.dispose();
+            delete this.texture;
+        }
+        
+        if (this.objectURL) {
+            URL.revokeObjectURL(this.objectURL);
+            delete this.objectURL;
+        }
+
+        if (Array.isArray(this.material)) {
+            this.material.forEach((m) => m.dispose());
+        } else if (this.material) {
+            this.material.dispose();
+        }
+
+        delete this.name;
+        delete this.properties2D;
+        delete this.animationSpec;
+
+        this.cleanupColliderObject();
+
+        if (this.shape) {
+            this.shape.children.forEach((m) => {
+                // the idea here is that any data that should be disposed should be
+                // already accounted for.
+
+                m.geometry.dispose();
+                if (Array.isArray(m.material)) {
+                    m.material.forEach((mm) => mm.dispose());
+                } else if (m.material) {
+                    m.dispose();
+                }
+                this.shape.remove(m);
+            });
+        }
+    }
+
+    updateShape() {
+        this.cleanupShape();
+        this.constructShape(this.actor._cardData);
     }
 
     construct3D(options) {
@@ -322,9 +399,13 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             let shadowMesh = new THREE.Mesh(psGeometry, psMaterial);
             shadowMesh.receiveShadow = true;
             this.placeholder.add(shadowMesh);
-            this.placeholder.add(new THREE.Mesh(pGeometry, pMaterial));
+
+            let boxMesh = new THREE.Mesh(pGeometry, pMaterial);
+            this.constructCollider(boxMesh);
+            this.placeholder.add(boxMesh);
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
+
             this.shape.add(this.placeholder);
         }
 
@@ -349,8 +430,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 this.future(500).runAnimation();
             }
 
-        if(this.actor.layers.indexOf('walk')>=0){
-                this.constructCollider(obj, THREE);
+            if (this.actor.layers.indexOf('walk') >= 0) {
+                this.constructCollider(obj);
             }
 
             // place this after collider construction
@@ -361,6 +442,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 obj.name = name;
             }
             if (options.placeholder) {
+                console.log("need to delete collider for boxmesh");
                 this.shape.remove(this.placeholder);
             }
         });
@@ -496,42 +578,42 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
-    constructCollider(obj, THREE){
+    constructCollider(obj) {
         let geometries = [];
+        this.ensureColliderObject();
 
         obj.traverse(c =>{
             if(c.geometry){
                 let cloned = c.geometry.clone();
                 cloned.applyMatrix4( c.matrixWorld );
                 for( const key in cloned.attributes) {
-                    if( key !== 'position')
-                        cloned.deleteAttribute( key );
+                    if (key !== "position") {
+                        cloned.deleteAttribute(key);
+                    }
                 }
                 geometries.push( cloned );
             }
         });
-        loadThreeJSLib("utils/BufferGeometryUtils.js", THREE)
-        .then(()=>{
-            console.log(THREE.BufferGeometryUtils)
-            const mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries( geometries, false);
-            let TRM = this.service("ThreeRenderManager");
-            mergedGeometry.boundsTree = new TRM.MeshBVH( mergedGeometry, { lazyGeneration: false } );
-            let collider = new THREE.Mesh( mergedGeometry );
-            collider.material.wireframe = true;
-            collider.material.opacity = 0.5;
-            //collider.material.transparent = true;
-            collider.matrixWorld = obj.matrixWorld.clone();
-            collider.updateMatrixWorld(true);
-            collider.visible = false;
-            this.colliderObject.add(collider);
-/*
-            let visualizer = new TRM.MeshBVHVisualizer( collider, 10 );
-            visualizer.visible = true;
 
-            this.shape.parent.add(visualizer)
-            */
-        });
+        let BufferGeometryUtils = window.THREE.BufferGeometryUtils;
+        const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( geometries, false);
+        let TRM = this.service("ThreeRenderManager");
+        mergedGeometry.boundsTree = new TRM.MeshBVH( mergedGeometry, { lazyGeneration: false } );
+        let collider = new THREE.Mesh( mergedGeometry );
+        collider.material.wireframe = true;
+        collider.material.opacity = 0.5;
+        //collider.material.transparent = true;
+        collider.matrixWorld = obj.matrixWorld.clone();
+        collider.updateMatrixWorld(true);
+        collider.visible = false;
+        this.colliderObject.add(collider);
 
+        /*
+          let visualizer = new TRM.MeshBVHVisualizer( collider, 10 );
+          visualizer.visible = true;
+          
+          this.shape.parent.add(visualizer)
+        */
     }
 
     setupObj(obj, options) {

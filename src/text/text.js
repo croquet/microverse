@@ -335,7 +335,7 @@ export class TextFieldActor extends CardActor {
 
         this.depth = options.depth || 0;
 
-        if (!options.readOnly) {
+        if (!options.noDismissButton) {
             // that means that a change in readOnly should trigger this
             this.setupDismissButton();
         }
@@ -404,7 +404,6 @@ export class TextFieldActor extends CardActor {
     }
 
     publishAccept() {
-        console.log("accept");
         this.publish(this.id, "text", {id: this.id, text: this.doc.plainText()});
     }
 
@@ -612,20 +611,19 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupMesh() {
-        let isSticky = this.actor._cardData.isSticky;
         let depth = this.actor.depth;
         let {backgroundColor, frameColor, fullBright} = this.actor._cardData;
 
         if (!backgroundColor) {
-            backgroundColor = isSticky ? 0xf4e056 : 0xFFFFFF;
+            backgroundColor = 0xFFFFFF;
         }
         if (!frameColor) {
-            frameColor = isSticky ? 0xffffff : 0x666666;
+            frameColor = 0x666666;
         }
         if (fullBright === undefined) {
             fullBright = false;
         }
-        if (!isSticky && depth === 0) {
+        if (depth === 0) {
             this.geometry = new THREE.PlaneGeometry(0, 0);
         } else {
             this.geometry = this.roundedCornerGeometry(0, 0, depth, 0.1);
@@ -1039,14 +1037,12 @@ export class TextFieldPawn extends CardPawn {
         let depth = this.actor.depth;
         let autoResize = this.actor._cardData.autoResize;
         if (!this.textMesh) {return;}
-        let isSticky = this.actor._cardData.isSticky;
         let newWidth = (autoResize ? this.warota.newWidth : extent.width) * this.textScale();
-        let newHeight = (isSticky ? extent.height : this.warota.docHeight) * this.textScale();
-
+        let newHeight = (autoResize ? this.warota.docHeight : extent.height) * this.textScale();
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height ||
             depth !== this.plane.geometry.parameters.depth) {
-            let geometry = !isSticky && depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerGeometry(newWidth, newHeight, depth, 0.1);
+            let geometry = depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerGeometry(newWidth, newHeight, depth, 0.1);
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;

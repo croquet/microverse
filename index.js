@@ -77,7 +77,6 @@ Model.evaluate( () => {
                 runs: [{text: "hello"}],
                 margins: {left: 20, top: 20, right: 20, bottom: 20},
                 backgroundColor: 0xf4e056,
-                isSticky: true,
                 //color: 0xf4e056,
                 frameColor: 0xfad912,
                 width: 2,

@@ -90,29 +90,15 @@
             .bttn:hover {
                 background-color:#80808080;
             }
-            #walkingBttn {top:10px; right:10px;}
-            #walkingBttn[isWalking="false"] #walkingIcon {display: none;}
-            #walkingBttn[isWalking=true] #orbitingIcon {display: none;}
-            #orbitingBttn {top:10px; right:10px;}
-            #homeBttn {top: 45%; right: 10px; transform: translate(0, -50%)}
-            #usersComeHereBttn {top: 55%; right:10px; transform: translate(0, -50%)}
+            #homeBttn {bottom: 10px; left: 25%; transform: translate(0, -50%)}
+            #usersComeHereBttn {bottom: 10px; right:25%; transform: translate(0, -50%)}
             #fullscreenBttn {top:10px; left:10px;}
             #editModeBttn {top: 50%; left:10px; transform: translate(0, -50%); display: none}
-	    #editModeBttn[mobile="true"] {display: flex;}
-
-		
-	    
+            #editModeBttn[mobile="true"] {display: flex;}
         </style>
         <link href="./assets/fonts/css/all.css" rel="stylesheet">
     </head>
     <body class="no-select">
-        <div id="info">
-          <div class="info-text">Use the joystick to move.</div>
-        </div>
-        <div id="walkingBttn" class="bttn" isWalking="true">
-          <i id="walkingIcon" class="fas fa-walking"></i>
-          <i id="orbitingIcon" class="fas fa-hand-paper"></i>
-        </div>
         <div id="homeBttn" class="bttn">
           <i class="fas fa-solid fa-house-user"></i>
         </div>
@@ -126,5 +112,4 @@
           <i class="fas fa-solid fa-angle-up"></i>
         </div>
         <div id="joystick"><div id="knob"></div><div id="hiddenknob"></div></div>
-    </body>
 </html>
