@@ -42,7 +42,7 @@ class ExpanderMenuActor {
     setExpanders(data) {
         console.log("setExpanders");
         let target = this.service("ActorManager").get(this._cardData.target);
-        target.setExpanders({...data});
+        target.setExpanders(data.selection);
     }
 }
 

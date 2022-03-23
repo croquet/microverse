@@ -10,6 +10,7 @@ import { menu } from "./expanders/menu.js";
 import { bridge } from "./expanders/bridge.js";
 import { elected } from "./expanders/elected.js";
 import { bitcoinTracker } from "./expanders/bitcoinTracker.js";
+import { propertyPanel } from "./expanders/propertyPanel.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -23,6 +24,7 @@ library.add(demo);
 library.add(bridge);
 library.add(elected);
 library.add(bitcoinTracker);
+library.add(propertyPanel);
 library.installAsBaseLibrary();
 
 // use bit-identical math for constant initialization

@@ -52,55 +52,6 @@ Model.evaluate( () => {
                 className: "DLight",
             }
         },
-        {
-            card: {
-                name: 'bitcointracker',
-                translation: [-1, -0.5, -8],
-                rotation: q_euler(0, 0, 0),
-                scale: [4, 4, 4],
-                type: "2d",
-                textureType: "canvas",
-                textureWidth: 1024,
-                textureHeight: 768,
-                width: 1,
-                height: 0.75,
-                frameColor: 0x666666,
-                color: 0xffffff,
-                depth: 0.05,
-                cornerRadius: 0.1,
-                actorCode: ["BitcoinTrackerActor", "ElectedActor"],
-                pawnCode: ["BitcoinTrackerPawn", "ElectedPawn"]
-            },
-            id: "main",
-        },
-        {
-            card: {
-                name:'bitlogo',
-                translation: [-0.35, 0.35, 0.1],
-                scale: [0.25, 0.25, 0.25],
-                parent: "main",
-                type: "2d",
-                dataLocation: './assets/SVG/BitcoinSign.svg',
-                depth: 0.05,
-                color: 0xffffff,
-                frameColor: 0x666666,
-                pawnCode: ["BitLogoPawn"]
-            }
-        },
-        {
-            card: {
-                name:'bar graph',
-                translation:[0, -0.3, 0.1],
-                color: 0xEEEEEE,
-                frameColor: 0x666666,
-                type: "object",
-                name: "BarGraph",
-                height: 0.4,
-                parent: "main",
-                actorCode: ["BarGraphActor"],
-                pawnCode: ["BarGraphPawn"]
-            }
-        }
     ];
 });
 
