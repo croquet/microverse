@@ -8,6 +8,7 @@ class PropertyPanelActor {
             translation: [0, 0.6, 0.055],
             type: "object",
             parent: this,
+            noSave: true,
             target: target.id});
         this.expanderMenu.call("ExpanderMenuActor", "show");
 
@@ -29,6 +30,7 @@ class PropertyPanelActor {
             borderRadius: 0.013,
             fullBright: true,
             runs: [{text: ""}],
+            noSave: true,
         });
 
         this.dismissButton = this.createCard({
@@ -47,7 +49,8 @@ class PropertyPanelActor {
             width: 2,
             height: 2,
             depth: 0.05,
-            runs: [{text: "ok"}]
+            runs: [{text: "ok"}],
+            noSave: true,
         });
         
         let cardDataString = this.cardSpecString(target);

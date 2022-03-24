@@ -11,6 +11,7 @@ class ExpanderMenuActor {
             multiple: true,
             parent: this,
             type: "2d",
+            noSave: true,
             cornerRadius: 0.05,
         });
 
@@ -96,6 +97,7 @@ class MenuActor {
                     width: 1,
                     textScale: 0.0015,
                     height: 0.15,
+                    noSave: true,
                     fullBright: true,
                     backgroundColor: item.selected ? 0x606060 : 0xFFFFFF
                 });

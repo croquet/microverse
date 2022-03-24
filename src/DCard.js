@@ -18,7 +18,7 @@ import { WorldSaver } from './worldSaver.js';
 
 // import { forEach } from 'jszip';
 
-export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "name"];
+export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "name", "noSave"];
 
 //------------------------------------------------------------------------------------------
 //-- CardActor ------------------------------------------------------------------------------
@@ -27,9 +27,9 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
     init(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
-
         super.init(cardOptions);
         this._cardData = cardData;
+        this.noSave = options.noSave;
         this.createShape(cardData);
         this.listen("selectEdit", this.saySelectEdit);
         this.listen("unselectEdit", this.sayUnselectEdit);
@@ -164,6 +164,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 height: 3.5,
                 cornerRadius: 0.02,
                 depth: 0.02,
+                noSave: true,
                 target: this.id,
             });
             menu.call("PropertyPanelActor", "setObject", this);

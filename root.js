@@ -144,6 +144,24 @@ class MyModelRoot extends ModelRoot {
 
             //maybe we need to delete all DefaultUserExpanders at this point.
 
+            let lib = Constants.Library;
+            let systemActors = new Map();
+            let systemPawns = new Map();
+
+            for (let [k, v] of lib.actorExpanders) {
+                if (v.systemExpander) {
+                    systemActors.set(k, v);
+                }
+            }
+
+            for (let [k, v] of lib.pawnExpanders) {
+                if (v.systemExpander) {
+                    systemPawns.set(k, v);
+                }
+            }
+
+            this.loadExpanders(systemActors, systemPawns, version);
+
             this.loadExpanders(json.actorExpanders, json.pawnExpanders, version);
             if (json.cards) {
                 this.load(json.cards, version);

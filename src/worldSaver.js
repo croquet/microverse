@@ -23,7 +23,7 @@ export class WorldSaver {
     save(model) {
         let cards = [];
         for (let [_id, actor] of model.service("ActorManager").actors) {
-            if (actor.isCard && !actor._noSave) {
+            if (actor.isCard && !actor.noSave) {
                 cards.push(actor);
             }
         }
