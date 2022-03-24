@@ -649,14 +649,6 @@ export class Warota {
 
         this.width(this.pixelX * (1.0 - (this.showsScrollbar ? this.relativeScrollBarWidth : 0)));
         this.lineHeight = lineHeight;
-        this.pixelMargins = {
-            left: options.margins.left / heightInPixel,
-            right: options.margins.right / heightInPixel,
-            top: options.margins.top / heightInPixel,
-            bottom: options.margins.bottom / heightInPixel
-        };
-
-        options.pixelMargins = this.pixelMargins;
     }
 
     resetMeasurer() {
@@ -673,7 +665,7 @@ export class Warota {
         let layoutWidth = options.singleLine ? Number.MAX_VALUE : this._width;
         let hMargin = this.margins.left + this.margins.right;
         let vMargin = this.margins.top + this.margins.bottom;
-        let [lines, words] = new Wrap().wrap(this.doc.runs, layoutWidth, this.defaultMeasurer, this.doc.defaultFont, this.doc.defaultSize, this.pixelMargins);
+        let [lines, words] = new Wrap().wrap(this.doc.runs, layoutWidth, this.defaultMeasurer, this.doc.defaultFont, this.doc.defaultSize, this.options.margins);
         this.lines = lines;
         this.words = words;
 
@@ -1042,23 +1034,25 @@ export class Warota {
             }
         }
 
+        let hMargin = this.options.margins.right + this.options.margins.left;
+
         pos2 = this.positionFromIndex(end);
         height2 = this.lineHeightAt(end);
 
         rects.push({left: pos1.left, top: pos1.top,
-                    width: this.width() - pos1.left,
+                    width: this.width() - pos1.left - hMargin,
                     height: height1});
         if (line1Index - line0Index >= 2) {
             pos1 = this.lines[line0Index + 1][0];
-            rects.push({left: this.pixelMargins.left, top: pos1.top,
-                        width: this.width(),
+            rects.push({left: this.options.margins.left, top: pos1.top,
+                        width: this.width() - hMargin,
                         height: pos2.top - pos1.top});
         }
 
         pos1 = this.lines[line1Index][0];
         height2 = this.lineHeightAt(end);
-        rects.push({left: this.pixelMargins.left, top: pos2.top,
-                    width: pos2.left - this.pixelMargins.left,
+        rects.push({left: this.options.margins.left, top: pos2.top,
+                    width: pos2.left - this.options.margins.left,
                     height: height2});
         return rects;
     }
