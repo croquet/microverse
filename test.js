@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { Model, Constants, q_euler } from "@croquet/worldcore";
+import { Model, Constants } from "@croquet/worldcore";
 import { startWorld } from "./root.js";
 
 Constants.MaxAvatars = 6;
@@ -27,7 +27,7 @@ Model.evaluate( () => {
                 name:'world model',
                 translation:[25, -90.5, -60],
                 scale:[200, 200, 200],
-                rotation: q_euler(0, Math.PI, 0),
+                rotation: [0, Math.PI, 0],
                 layers: ['walk'],
                 type: "3d",
                 // dataLocation: "./assets/3D/Oil Refinery Kai Fixes4.glb.zip",
@@ -51,7 +51,7 @@ Model.evaluate( () => {
             card: {
                 name:'simple 3D model',
                 translation: [-0, -0.5, -18],
-                rotation: q_euler(Math.PI / 2, Math.PI / 2, 0),
+                rotation: [Math.PI / 2, Math.PI / 2, 0],
                 type: "3d",
                 dataLocation: "./assets/3D/Gears.glb.zip",
                 shadow: true,

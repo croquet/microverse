@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { Model, Constants, q_euler } from "@croquet/worldcore";
+import { Model, Constants } from "@croquet/worldcore";
 import { startWorld } from "./root.js";
 
 Constants.MaxAvatars = 6;
@@ -29,7 +29,7 @@ Model.evaluate( () => {
                 name:'world model',
                 translation:[0, -10, -60],
                 scale:[200, 200, 200],
-                rotation: q_euler(0, Math.PI, 0),
+                rotation: [0, Math.PI, 0],
                 layers: ['walk'],
                 type: "3d",
                 dataLocation: "./assets/3D/Oil Refinery Kai Fixes4.glb.zip",
@@ -66,7 +66,7 @@ Model.evaluate( () => {
                 name: 'text editor',
                 className: "TextFieldActor",
                 translation: [-4, -0.5, -12],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                rotation: [0, Math.PI / 2, 0],
                 multiuser: true,
                 depth: 0.05,
                 type: "text",
@@ -85,7 +85,7 @@ Model.evaluate( () => {
             card: {
                 name:'simple 3D model',
                 translation: [-4, -0.5, -18],
-                rotation: q_euler(Math.PI / 2, Math.PI / 2, 0),
+                rotation: [Math.PI / 2, Math.PI / 2, 0],
                 type: "3d",
                 dataLocation: "./assets/3D/Gears.glb.zip",
                 shadow: true,
@@ -96,7 +96,7 @@ Model.evaluate( () => {
             card: {
                 name: 'video card',
                 translation: [-4, -0.5, -24],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
                 dataLocation: './assets/SVG/credit-card.svg',
@@ -112,7 +112,7 @@ Model.evaluate( () => {
             card: {
                 name: 'image card',
                 translation: [-4, -0.5, -30],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
@@ -129,7 +129,7 @@ Model.evaluate( () => {
                 name: 'multiblaster',
                 className: "MultiBlaster",
                 translation: [-4, -0.5, -36],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 layers: ['pointer'],
                 multiuser: true,
@@ -149,7 +149,7 @@ Model.evaluate( () => {
                 name:'bouncinglogo',
                 className: "BouncingLogo",
                 translation: [-4, -0.5, -42],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 width: 1,
                 height: 1,
@@ -171,7 +171,7 @@ Model.evaluate( () => {
                 name:'flightTracker',
                 className: "FlightTracker",
                 translation: [-4, 1.5, -50],
-                //rotation: q_euler(0, Math.PI / 2, 0),
+                //rotation: [0, Math.PI / 2, 0],
                 //scale: [4, 4, 4],
                 //width: 1,
                 //height: 1,
@@ -192,7 +192,7 @@ Model.evaluate( () => {
             card: {
                 name:'code editor',
                 translation: [8, -1.5, 4],
-                rotation: q_euler(0, -Math.PI / 2, 0),
+                rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
                 actorExpander: "FlyActor",
@@ -218,7 +218,7 @@ Model.evaluate( () => {
             card: {
                 name: 'code editor',
                 translation: [8, -1.2, 10],
-                rotation: q_euler(0, -Math.PI / 2, 0),
+                rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
                 actorExpander: "DriveActor",
@@ -233,7 +233,7 @@ Model.evaluate( () => {
         {
             card: {
                 name:'porsche',
-                dataRotation: q_euler(-Math.PI / 2, 0, 0),
+                dataRotation: [-Math.PI / 2, 0, 0],
                 translation: [0, -2.75, 8],
                 layers: ['pointer'],
                 type: "3d",
@@ -247,7 +247,6 @@ Model.evaluate( () => {
                 name:'bridge',
                 type: "object",
                 translation: [4, 0, 20],
-                rotation: q_euler(0, 0, 0),
                 actorCode: ["BridgeActor"],
                 pawnCode: ["BridgePawn"]
             }
@@ -256,7 +255,7 @@ Model.evaluate( () => {
             card: {
                 name: 'bitcointracker',
                 translation: [-4, -0.5, -6],
-                rotation: q_euler(0, Math.PI / 2, 0),
+                rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "canvas",
@@ -294,7 +293,6 @@ Model.evaluate( () => {
                 color: 0xEEEEEE,
                 frameColor: 0x666666,
                 type: "object",
-                name: "BarGraph",
                 height: 0.4,
                 parent: "main",
                 actorCode: ["BarGraphActor"],

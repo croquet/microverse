@@ -249,6 +249,14 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                     }
                 }
 
+                if (Array.isArray(card.rotation) && card.rotation.length === 3) {
+                    options.rotation = q_euler(...card.rotation);
+                }
+
+                if (Array.isArray(card.dataRotation) && card.dataRotation.length === 3) {
+                    options.dataRotation = q_euler(...card.dataRotation);
+                }
+                
                 let actor = Cls.create(options);
                 if (id) {
                     map.set(id, actor);
