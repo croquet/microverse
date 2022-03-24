@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import * as WorldCore from "@croquet/worldcore";
-const {ViewService, ModelService, GetPawn, Model, Constants} = WorldCore;
+const {ViewService, ModelService, GetPawn, Model} = WorldCore;
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, expander) {
@@ -189,7 +189,9 @@ export const AM_Code = superclass => class extends superclass {
         super.subscribe(scope, eventName, fullMethodName);
     }
 
-    // this is for the code editor. Probably better be split into a separate mixin
+    // this method adds an action to the code editor.
+    // Probably better be split into a separate mixin.
+    // also, in system edit
     codeAccepted(data) {
         let match = /^class[\s]+([\S]+)/.exec(data.text.trim());
         if (!match) {
@@ -198,9 +200,14 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         let name = match[1];
-        let type = this._cardData.actorExpander ? "actorExpanders" : "pawnExpanders";
+        let forActor = this._cardData.actorExpander;
+        let type = forActor ? "actorExpanders" : "pawnExpanders";
         
-        this.expanderManager.loadAllCode([{action: "add", type, name, content: data.text}]);
+        let current = this.expanderManager[type].get(name);
+        
+        this.expanderManager.loadAllCode([
+            {action: "add", type, name, content: data.text,
+             systemExpander: current.systemExpander}]);
     }
 
     getCode() {
@@ -323,6 +330,10 @@ export const PM_Code = superclass => class extends superclass {
 }
 
 class Expander extends Model {
+    init(options) {
+        this.systemExpander = !!options.systemExpander;
+    }
+
     setCode(string) {
         if (!string) {
             console.log("code is empty for ", this);
@@ -456,20 +467,20 @@ export class ExpanderModelManager extends ModelService {
 
     loadAllCode(codeArray) {
         codeArray.forEach((obj) => {
-            let {action, type, name, content} = obj;
+            let {action, type, name, content, systemExpander} = obj;
 
             if (action === "add") {
                 if (type === "actorExpanders") {
                     let expander = this.actorExpanders.get(name);
                     if (!expander) {
-                        expander = Expander.create();
+                        expander = Expander.create({systemExpander});
                         this.actorExpanders.set(name, expander);
                     }
                     expander.setCode(content);
                 } else if (type === "pawnExpanders") {
                     let expander = this.pawnExpanders.get(name);
                     if (!expander) {
-                        expander = Expander.create();
+                        expander = Expander.create({systemExpander});
                         this.pawnExpanders.set(name, expander);
                     }
                     expander.setCode(content);
@@ -513,12 +524,17 @@ export class ExpanderModelManager extends ModelService {
     save() {
         let actorExpanders = new Map();
         let pawnExpanders = new Map();
+
         for (let [key, expander] of this.actorExpanders) {
-            actorExpanders.set(key, expander.code);
-        };
+            if (!expander.systemExpander) {
+                actorExpanders.set(key, {content: expander.code});
+            }
+        }
         for (let [key, expander] of this.pawnExpanders) {
-            pawnExpanders.set(key, expander.code);
-        };
+            if (!expander.systemExpander) {
+                pawnExpanders.set(key, {content: expander.code});
+            }
+        }
         return {actorExpanders, pawnExpanders};
     }
             
@@ -635,6 +651,8 @@ export class ExpanderViewManager extends ViewService {
             return;
         }
 
+        let systemExpanderMap = new Map();
+
         let dataURLs = [];
         let promises = [];
         let scripts = [];
@@ -651,6 +669,7 @@ export class ExpanderViewManager extends ViewService {
 
         array.forEach((obj) => {
             if (obj.action === "add") {
+                systemExpanderMap.set(obj.name, obj.systemExpander);
                 let id = Math.random().toString();
                 let promise = new Promise((resolve, _reject) => {
                     current.set(id, resolve);
@@ -661,7 +680,7 @@ export class ExpanderViewManager extends ViewService {
                     script.innerHTML = `
 import * as data from "${dataURL}";
 let map = window._allResolvers.get("${key}");
-if (map) {map.get("${id}")({data, key: ${key}})};
+if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
 `;
                     document.body.appendChild(script);
                     dataURLs.push(dataURL);
@@ -690,10 +709,10 @@ if (map) {map.get("${id}")({data, key: ${key}})};
                     let keys = Object.keys(obj.data);
                     keys.forEach((expName) => {
                         if (obj.data[expName] && obj.data[expName].actorExpanders) {
-                            files.push({type: "actorExpanders", contents: obj.data[expName].actorExpanders.map(e => e.toString())});;
+                            files.push({type: "actorExpanders", contents: obj.data[expName].actorExpanders.map(e => e.toString()), systemExpander: systemExpanderMap.get(obj.name)});
                         }
                         if (obj.data[expName] && obj.data[expName].pawnExpanders) {
-                            files.push({type: "pawnExpanders", contents: obj.data[expName].pawnExpanders.map(e => e.toString())});
+                            files.push({type: "pawnExpanders", contents: obj.data[expName].pawnExpanders.map(e => e.toString()), systemExpander: systemExpanderMap.get(obj.name)});
                         }
                     });
                 });
@@ -702,8 +721,7 @@ if (map) {map.get("${id}")({data, key: ${key}})};
                 let key = Math.random();
                 
                 files.forEach((obj) => {
-                    let type = obj.type;
-                    let contents = obj.contents;
+                    let {type, contents, systemExpander} = obj;
 
                     contents.forEach((str) => {
                         let match = /^class[\s]+([\S]+)/.exec(str.trim());
@@ -711,7 +729,7 @@ if (map) {map.get("${id}")({data, key: ${key}})};
                         let className = match[1];
 
                         sendBuffer.push({
-                            action: "add", type, name: className, content: str, key
+                            action: "add", type, name: className, content: str, key, systemExpander
                         });
                     });
                 });
@@ -734,7 +752,7 @@ if (map) {map.get("${id}")({data, key: ${key}})};
     }
 }
 
-export class ExpanderLibrary {
+export class CodeLibrary {
     constructor() {
         this.actorExpanders = new Map();
         this.pawnExpanders = new Map();
@@ -742,24 +760,24 @@ export class ExpanderLibrary {
         this.classes = new Map();
     }
 
-    add(library, path) {
+    add(library, isSystem) {
         if (library.actorExpanders) {
             library.actorExpanders.forEach(cls => {
-                let key = (path ? path + "." : "") + cls.name;
-                this.actorExpanders.set(key, cls.toString());
+                let key = cls.name;
+                this.actorExpanders.set(key, {systemExpander: isSystem, content: cls.toString()});
             });
         }
 
         if (library.pawnExpanders) {
             library.pawnExpanders.forEach(cls => {
-                let key = (path ? path + "." : "") + cls.name;
-                this.pawnExpanders.set(key, cls.toString());
+                let key = cls.name;
+                this.pawnExpanders.set(key, {systemExpander: isSystem, content: cls.toString()});
             });
         }
 
         if (library.functions) {
             library.functions.forEach(f => {
-                let key = (path ? path + "." : "") + f.name;
+                let key = f.name;
                 let str = `return ${f.toString()};`;
                 this.functions.set(key, str);
             });
@@ -767,7 +785,7 @@ export class ExpanderLibrary {
 
         if (library.classes) {
             library.classes.forEach(cls => {
-                let key = (path ? path + "." : "") + cls.name;
+                let key = cls.name;
                 this.classes.set(key, cls);
             });
         }
@@ -808,13 +826,5 @@ export class ExpanderLibrary {
             this.classes.delete(path);
             return;
         }
-    }
-
-    installAsBaseLibrary() {
-        Constants.Library = this;
-    }
-
-    static getBaseLibrary() {
-        return Constants.Library;
     }
 }

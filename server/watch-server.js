@@ -38,7 +38,7 @@ try {
 let files = {}; // {filename: content}
 let sentFiles = new Map();// {ws: {filename: content}}
 
-let watcher = chokidar.watch('./*.js' ,{
+let watcher = chokidar.watch('./**/*.js' ,{
     persistent: true,
     ignored: /^[#_]/
 });
@@ -54,11 +54,10 @@ watcher.on('change', name => {
     });
 });
 watcher.on('unlink', name => {
-    delete files[path.basename(name, ".js")];
+    delete files[name];
 });
 
 function loadFile(name) {
-    let basename = path.basename(name, ".js");
     return new Promise((resolve, reject) => {
         fs.readFile(name, 'utf8', (err, data) => {
             if (err) {
@@ -67,7 +66,7 @@ function loadFile(name) {
             resolve(data);
         });
     }).then((file) => {
-        files[basename] = file;
+        files[name] = file;
         console.log(name);
     });
 }
@@ -101,11 +100,13 @@ function sendFiles(socket) {
     let sent = sentFiles.get(socket);
     
     let sentKeys = Object.keys(sent);
-    
+
     newKeys.forEach((k) => {
         if (debug || (files[k] && files[k] !== sent[k])) {
             sent[k] = files[k];
-            toSend.push({action: "add", name: k, content: files[k]});
+            let systemExpander = k.startsWith("croquet");
+            console.log(k, systemExpander);
+            toSend.push({action: "add", name: k, content: files[k], systemExpander});
         }
     });
 

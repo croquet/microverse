@@ -11,7 +11,13 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.ExpanderModules = ["demo.js", "menu.js", "elected.js", "bitcoinTracker.js", "propertyPanel.js"];
+Constants.SystemExpanderModules = [
+    "menu.js", "elected.js", "propertyPanel.js"
+];
+
+Constants.UserExpanderModules = [
+    "defaultDemo/demo.js",  "defaultDemo/bitcoinTracker.js", "defaultDemo/bridge.js"
+];
 
 // use bit-identical math for constant initialization
 Model.evaluate( () => {
@@ -24,7 +30,7 @@ Model.evaluate( () => {
                 rotation: q_euler(0, Math.PI, 0),
                 layers: ['walk'],
                 type: "3d",
-                // dataLocation: "./assets/3D/Refinery.glb.zip",
+                // dataLocation: "./assets/3D/Oil Refinery Kai Fixes4.glb.zip",
                 singleSided: true,
                 shadow: true,
                 placeholder: true,

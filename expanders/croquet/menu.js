@@ -3,6 +3,7 @@ class ExpanderMenuActor {
         if (this.menu) {
             this.menu.destroy();
         }
+
         this.menu = this.createCard({
             name: 'expander menu',
             actorCode: ["MenuActor"],

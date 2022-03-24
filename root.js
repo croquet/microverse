@@ -10,7 +10,7 @@ import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
-import { ExpanderModelManager, ExpanderViewManager, ExpanderLibrary } from "./src/code.js";
+import { ExpanderModelManager, ExpanderViewManager, CodeLibrary } from "./src/code.js";
 import { DLight } from './src/DLight.js';
 import { TextFieldActor } from './src/text/text.js';
 import { WorldSaver } from './src/worldSaver.js';
@@ -51,18 +51,23 @@ function loadLoaders() {
         });
 }
 
-function loadExpanders(paths) {
-    let promises = paths.map((path) => import(`./expanders/${path}`));
-
-    let library = new ExpanderLibrary();
+function loadInitialExpanders(paths, directory) {
+    let library = Constants.Library || new CodeLibrary();
+    Constants.Library = library;
     
+    if (!directory) {
+        throw new Error("directory argument has to be specified. It is used the sub directory name under the ./expanders directory.");
+    }
+    let isSystem = directory === "croquet";
+    let promises = paths.map((path) => import(`./expanders/${directory}/${path}`));
+
     return Promise.all(promises).then((array) => {
         array.forEach((module) => {
             let key = Object.keys(module)[0];
 
-            library.add(module[key]);
+            library.add(module[key], isSystem);
         });
-        return library.installAsBaseLibrary();
+        return true;
     });
 }
 
@@ -137,6 +142,8 @@ class MyModelRoot extends ModelRoot {
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
 
+            //maybe we need to delete all DefaultUserExpanders at this point.
+
             this.loadExpanders(json.actorExpanders, json.pawnExpanders, version);
             if (json.cards) {
                 this.load(json.cards, version);
@@ -163,14 +170,15 @@ class MyModelRoot extends ModelRoot {
     }
 
     loadExpanders(actorExpanders, pawnExpanders, version) {
+        // the persistent data should never contain a system expander
         if (version === "1") {
             let expanderManager = this.service("ExpanderModelManager");
             let array = [];
             for (let [k, v] of actorExpanders) {
-                array.push({action: "add", type: "actorExpanders", name: k, content: v});
+                array.push({action: "add", type: "actorExpanders", name: k, ...v});
             }
             for (let [k, v] of pawnExpanders) {
-                array.push({action: "add", type: "pawnExpanders", name: k, content: v});
+                array.push({action: "add", type: "pawnExpanders", name: k, ...v});
             }
             expanderManager.loadAllCode(array);
         }
@@ -234,8 +242,6 @@ class MyViewRoot extends ViewRoot {
 
 export function startWorld(moreOptions) {
     let options = {...{
-        appId: 'io.croquet.microverse',
-        apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
         name: App.autoSession(),
         password: App.autoPassword(),
         model: MyModelRoot,
@@ -247,7 +253,9 @@ export function startWorld(moreOptions) {
     App.makeWidgetDock();
     return loadLoaders()
         .then(() => {
-            return loadExpanders(Constants.ExpanderModules);
+            return loadInitialExpanders(Constants.SystemExpanderModules, "croquet");
+        }).then(() => {
+            return loadInitialExpanders(Constants.UserExpanderModules, Constants.UserExpanderDirectory);
         }).then(() => {
             StartWorldcore(options);
         });

@@ -11,7 +11,15 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.ExpanderModules = ["demo.js", "menu.js", "elected.js", "bitcoinTracker.js", "propertyPanel.js", "bridge.js"];
+Constants.SystemExpanderModules = [
+    "menu.js", "elected.js", "propertyPanel.js"
+];
+
+Constants.UserExpanderDirectory = "defaultDemo";
+
+Constants.UserExpanderModules = [
+    "demo.js",  "bitcoinTracker.js", "bridge.js"
+];
 
 // use bit-identical math for constant initialization
 Model.evaluate( () => {
