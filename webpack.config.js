@@ -21,6 +21,7 @@ const config = {
             buffer: require.resolve('buffer/'),
         }
     },
+    devtool: false,
     experiments: {
         asyncWebAssembly: true
     },
@@ -65,18 +66,44 @@ const config = {
     ],
 };
 
+function selectiveMinifier(input, sourceMap, minimizerOptions, extractComments) {
+    // The `minimizerOptions` option contains option from the `terserOptions` option
+    // You can use `minimizerOptions.myCustomOption`
+
+    // Custom logic for extract comments
+    const { map, code } = require("uglify-module") // Or require('./path/to/uglify-module')
+          .minify(input, {
+              /* Your options for minification */
+          });
+
+    return { map, code, warnings: [], errors: [], extractedComments: [] };
+};
+
 
 module.exports = (env, argv) => {
     if (argv.mode === 'production') {
+        console.log("argv.mode", argv.mode);
         config.optimization = {
             minimize: true,
+            //            minify: selectiveMinifier,
             minimizer: [
                 new TerserPlugin({
+                    minify: (file) => {
+                        if (Object.keys(file)[0].startsWith("expanders/")) {
+                            return {code: file[Object.keys(file)[0]]};
+                        }
+                        // https://github.com/mishoo/UglifyJS2#minify-options
+                        const uglifyJsOptions = {
+                            /* your `uglify-js` package options */
+                        };
+
+                        return require("uglify-js").minify(file, uglifyJsOptions)
+                    },
                     terserOptions: {
                         keep_classnames: true,
                         keep_fnames: true
                     }
-                }),
+                })
             ]
         };
     }

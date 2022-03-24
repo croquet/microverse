@@ -4,12 +4,6 @@
 
 import { Model, Constants, q_euler } from "@croquet/worldcore";
 import { startWorld } from "./root.js";
-import { ExpanderLibrary } from "./src/code.js";
-import { demo } from "./expanders/demo.js";
-import { menu } from "./expanders/menu.js";
-import { elected } from "./expanders/elected.js";
-import { bitcoinTracker } from "./expanders/bitcoinTracker.js";
-import { propertyPanel } from "./expanders/propertyPanel.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -17,13 +11,7 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-let library = new ExpanderLibrary();
-library.add(menu);
-library.add(demo);
-library.add(elected);
-library.add(bitcoinTracker);
-library.add(propertyPanel);
-library.installAsBaseLibrary();
+Constants.ExpanderModules = ["demo.js", "menu.js", "elected.js", "bitcoinTracker.js", "propertyPanel.js"];
 
 // use bit-identical math for constant initialization
 Model.evaluate( () => {
@@ -52,8 +40,21 @@ Model.evaluate( () => {
                 className: "DLight",
             }
         },
+
+        {
+            card: {
+                name:'simple 3D model',
+                translation: [-0, -0.5, -18],
+                rotation: q_euler(Math.PI / 2, Math.PI / 2, 0),
+                type: "3d",
+                dataLocation: "./assets/3D/Gears.glb.zip",
+                shadow: true,
+                singleSided: true,
+            }
+        },
+        
     ];
-});
+}); // end of Model.evaluate()
 
 // Default parameters are filled in the body of startWorld
 startWorld({

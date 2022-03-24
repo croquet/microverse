@@ -4,13 +4,6 @@
 
 import { Model, Constants, q_euler } from "@croquet/worldcore";
 import { startWorld } from "./root.js";
-import { ExpanderLibrary } from "./src/code.js";
-import { demo } from "./expanders/demo.js";
-import { menu } from "./expanders/menu.js";
-import { bridge } from "./expanders/bridge.js";
-import { elected } from "./expanders/elected.js";
-import { bitcoinTracker } from "./expanders/bitcoinTracker.js";
-import { propertyPanel } from "./expanders/propertyPanel.js";
 
 Constants.MaxAvatars = 6;
 Constants.AvatarNames = [
@@ -18,14 +11,7 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-let library = new ExpanderLibrary();
-library.add(menu);
-library.add(demo);
-library.add(bridge);
-library.add(elected);
-library.add(bitcoinTracker);
-library.add(propertyPanel);
-library.installAsBaseLibrary();
+Constants.ExpanderModules = ["demo.js", "menu.js", "elected.js", "bitcoinTracker.js", "propertyPanel.js", "bridge.js"];
 
 // use bit-identical math for constant initialization
 Model.evaluate( () => {

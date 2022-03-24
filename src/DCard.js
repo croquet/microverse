@@ -374,7 +374,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 if (Array.isArray(m.material)) {
                     m.material.forEach((mm) => mm.dispose());
                 } else if (m.material) {
-                    m.dispose();
+                    m.material.dispose();
                 }
             });
             this.shape.children.forEach((m) => this.shape.remove(m));

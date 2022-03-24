@@ -10,7 +10,7 @@ import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
-import { ExpanderModelManager, ExpanderViewManager } from './src/code.js';
+import { ExpanderModelManager, ExpanderViewManager, ExpanderLibrary } from "./src/code.js";
 import { DLight } from './src/DLight.js';
 import { TextFieldActor } from './src/text/text.js';
 import { WorldSaver } from './src/worldSaver.js';
@@ -51,20 +51,20 @@ function loadLoaders() {
         });
 }
 
-/*
-class MyAvatar extends AvatarActor {
-    get pawn() {return MyAvatarPawn;}
-}
+function loadExpanders(paths) {
+    let promises = paths.map((path) => import(`./expanders/${path}`));
 
-MyAvatar.register('MyAvatar');
+    let library = new ExpanderLibrary();
+    
+    return Promise.all(promises).then((array) => {
+        array.forEach((module) => {
+            let key = Object.keys(module)[0];
 
-class MyAvatarPawn extends AvatarPawn {
-    destroy() {
-        console.log("Am I getting here?")
-        super.destroy();
-    }
+            library.add(module[key]);
+        });
+        return library.installAsBaseLibrary();
+    });
 }
-*/
 
 class MyPlayerManager extends PlayerManager {
     init(name) {
@@ -245,7 +245,10 @@ export function startWorld(moreOptions) {
     }, ...moreOptions};
 
     App.makeWidgetDock();
-    return loadLoaders().then(()=>{
-        StartWorldcore(options);
-    });
+    return loadLoaders()
+        .then(() => {
+            return loadExpanders(Constants.ExpanderModules);
+        }).then(() => {
+            StartWorldcore(options);
+        });
 }
