@@ -340,6 +340,8 @@ class Expander extends Model {
             return;
         }
 
+        let theSame = this.code === string;
+
         this.code = string;
 
         let trimmed = string.trim();
@@ -367,6 +369,10 @@ class Expander extends Model {
 
         this.$expander = cls.prototype;
         this.$expanderName = cls.name;
+
+        if (!theSame) {
+            this.publish(this.id, "setCode", string);
+        }
     }
 
     ensureExpander() {
@@ -709,10 +715,16 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                     let keys = Object.keys(obj.data);
                     keys.forEach((expName) => {
                         if (obj.data[expName] && obj.data[expName].actorExpanders) {
-                            files.push({type: "actorExpanders", contents: obj.data[expName].actorExpanders.map(e => e.toString()), systemExpander: systemExpanderMap.get(obj.name)});
+                            files.push({
+                                type: "actorExpanders",
+                                contents: obj.data[expName].actorExpanders.map(e => e.toString()),
+                                systemExpander: systemExpanderMap.get(obj.name)});
                         }
                         if (obj.data[expName] && obj.data[expName].pawnExpanders) {
-                            files.push({type: "pawnExpanders", contents: obj.data[expName].pawnExpanders.map(e => e.toString()), systemExpander: systemExpanderMap.get(obj.name)});
+                            files.push({
+                                type: "pawnExpanders",
+                                contents: obj.data[expName].pawnExpanders.map(e => e.toString()),
+                                systemExpander: systemExpanderMap.get(obj.name)});
                         }
                     });
                 });

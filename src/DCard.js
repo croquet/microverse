@@ -195,6 +195,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         console.log(data);
     }
 
+    intrinsicProperties() {return intrinsicProperties;}
+
     saySelectEdit() {
         this.say("doSelectEdit");
     }
@@ -207,8 +209,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         let saver = new WorldSaver(CardActor);
         return saver.collectCardData(this, true);
     }
-
-    intrinsicProperties() {return intrinsicProperties;}
 
     static load(array, world, version) {
         // it is supposed to load a JSONable structure from array, but a special case is made
@@ -262,6 +262,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 let actor = Cls.create(options);
                 if (id) {
                     map.set(id, actor);
+                }
+
+                if (options.type === "code" && expander) {
+                    actor.subscribe(expander.id, "setCode", "loadAndReset");
                 }
                 return actor;
             });
