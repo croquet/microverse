@@ -15,10 +15,10 @@ export class FlightTracker extends mix(CardActor).with(AM_Elected){
     get pawn() {return FlightDisplay;}
     init(options){
         super.init(options);
-        this.listen("flightUpdate", this.flightUpdate);
+        this.listen("processFlight", this.processFlight);
         this.listen("startSpinning", this.startSpinning);
         this.listen("stopSpinning", this.stopSpinning);
-        this.listen("processFlight", this.processFlight);
+        this.listen("updateFlight", this.updateFlight);
         this.planes = new Map();
     }
 
@@ -39,13 +39,13 @@ export class FlightTracker extends mix(CardActor).with(AM_Elected){
         this.isSpinning = false;
     }
 
-    flightUpdate(flightData){      // addarray data to map
-        this.flightData = flightData;
-        this.sayDeck("updateFlight");
+    processFlight(flightData){      // addarray data to map
+        let now = this.now();
+        flightData.forEach(fd =>this.planes.set(fd[0],[now, fd[1], fd[2]]));
     }
 
-    processFlight(){ //completed the map, now GC and inform view
-
+    updateFlight(){ //completed the map, now GC and inform view
+        this.say("displayFlight");
     }
 }
 
@@ -54,16 +54,14 @@ FlightTracker.register("FlightTracker");
 class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     constructor(actor){
         super(actor);
-        this.listenDeck("updateFlight", this.updateFlight);
+        this.listenDeck("displayFlight", this.displayFlight);
         this.constructEarth();
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("pointerEnter", "onPointerEnter");
         this.addEventListener("pointerLeave", "onPointerLeave");
         this.addEventListener("pointerMove", "onPointerMove");
-        this.rawPlanes=[];
         this.chunkSize = 100; //number of plane records to send
-        this.processFlight();
     }
 
     constructEarth(){
@@ -88,6 +86,39 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         this.baseSphere.receiveShadow = true;
         this.baseSphere.castShadow = true;
         this.shape.add(this.baseSphere);
+
+        let geometry = new THREE.BufferGeometry();
+        const vertices = [];
+        const colors = [];
+
+        const sprite = new THREE.TextureLoader().load( './assets/images/ball.png' );
+
+        for ( let i = 0; i < 4000; i ++ ) {
+
+            let x = 2  * Math.random() - 1;
+            let y = 2 * Math.random() - 1;
+            let z = 2 * Math.random() - 1;
+
+            let n=Math.sqrt(x*x+y*y+z*z);
+            n=Math.max(0.0001, n);
+            let radius = BASERADIUS + 0.1;
+            x = radius * x/n;
+            y = radius * y/n;
+            z = radius * z/n;
+            vertices.push( x, y, z );
+            let r = Math.random();
+            let g = Math.random();
+            let b = Math.random();
+            colors.push(r,g,b);
+        }
+
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+        geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+        let material = new THREE.PointsMaterial( { size: 0.075, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
+        material.color.set( 0xffaa33 );
+
+        const particles = new THREE.Points( geometry, material );
+        this.shape.add( particles );
     }
 
     processFlight(){
@@ -96,20 +127,25 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         if(len===0){
             if(!this.gettingFlight)this.getFlight();
         }else{ //send the rawPlanes data to model
-            let sendArray = this.rawPlanes.slice(this.sendex, Math.min(len, this.sendex+this.chunkSize))
-            this.say("flightUpdate", sendArray);
+            let n = Math.min(len, this.sendex+this.chunkSize);
+            let sendArray = this.rawPlanes.slice(this.sendex, n)
+            this.say("processFlight", sendArray);
             this.sendex += this.chunkSize;
             if(this.sendex>len){
                 this.rawPlanes = [];
-                this.say("processFlight");
+                this.say("updateFlight");
                 nextTime = 5000;
             }
         }
         this.future(nextTime).processFlight();
     }
 
-    updateFlight(){
- 
+    displayFlight(){
+        this.actor.planes.forEach(val=>{
+            // val[1] long
+            // val[2] lat
+
+        })
     }
 
     theta(xyz){
@@ -153,7 +189,8 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
 
     handleElected() {
         super.handleElected();
-        this.updateFlight();
+        this.rawPlanes=[];
+        this.processFlight();
     //    this.fetchHistory().then(() => this.openSocket());
     }
 
@@ -168,25 +205,25 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         }
     }
 
-getFlight(){
-    let count = 0;
-    this.sendex = 0;
-
-    this.gettingFlight = true;
-    // https://opensky-network.org/apidoc/rest.html
-    fetch('https://opensky-network.org/api/states/all')
-    .then(response => {
-        if (response.ok) {
-            response.json().then(data => {
-            // Markers
-            data.states.forEach(plane => {
-                if (!plane[6] || !plane[5]) return;
-                this.rawPlanes.push([plane[0],plane[5], plane[6], this.now()]);
-            });
-            this.gettingFlight = false;
-            });
-        } else console.log('Network response was not ok.');
-    })
-    .catch(error => console.log(error));
+    getFlight(){
+        let count = 0;
+        this.sendex = 0;
+        console.log("getFlight")
+        this.gettingFlight = true;
+        // https://opensky-network.org/apidoc/rest.html
+        fetch('https://opensky-network.org/api/states/all')
+        .then(response => {
+            if (response.ok) {
+                response.json().then(data => {
+                // Markers
+                data.states.forEach(plane => {
+                    if (!plane[6] || !plane[5]) return;
+                    this.rawPlanes.push([plane[0],plane[5], plane[6], this.now()]);
+                });
+                this.gettingFlight = false;
+                });
+            } else console.log('Network response was not ok.');
+        })
+        .catch(error => console.log(error));
     }
 }
