@@ -55,11 +55,56 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     updateOptions(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
+        this.updateExpanders(options);
         this.set({...cardOptions});
-        this.unsubscribe(this.id, "changed", "textChanged");
-        this.unsubscribe(this.id, "text", "codeChanged");
         this._cardData = cardData;
-        this.say("updateShape");
+
+        this.say("updateShape", options);
+    }
+
+    updateExpanders(options) {
+        let newActorCode = options.actorCode;
+        let newPawnCode = options.pawnCode;
+        if (this._actorCode) {
+            this._actorCode.forEach((old) => {
+                if (!newActorCode || !newActorCode.includes(old)) {
+                    let expander = this.expanderManager.actorExpanders.get(old);
+                    if (expander && expander.$expander.destroy) {
+                        this.call(old, "destroy");
+                    }
+                    this.expanderManager.modelUnuse(this, old);
+                }
+            });
+        }
+
+        if (this._pawnCode) {
+            this._pawnCode.forEach((old) => {
+                if (!newPawnCode || !newPawnCode.includes(old)) {
+                    this.say("callDestroy", old);
+                    this.expanderManager.viewUnuse(this, old);
+                }
+            });
+        }
+
+        if (options.actorCode) {
+            options.actorCode.forEach((name) => {
+                if (!this._actorCode || !this._actorCode.includes(name)) {
+                    this.expanderManager.modelUse(this, name);
+                }
+            });
+        }
+        if (options.pawnCode) {
+            options.pawnCode.forEach((name) => {
+                if (!this._pawnCode || !this._pawnCode.includes(name)) {
+                    this.expanderManager.viewUse(this, name);
+                }
+            });
+        }
+
+        this._actorCode = newActorCode;
+        this._pawnCode = newPawnCode;
+
+        this.publish(this.id, "expandersUpdated");
     }
 
     setCardData(options) {
@@ -173,22 +218,22 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     setExpanders(selection) {
+        let actorCode = [];
+        let pawnCode = [];
+
         selection.forEach((obj) => {
             let {label, selected} = obj;
             if (this.expanderManager.actorExpanders.get(label)) {
                 if (selected) {
-                    this.addActorExpander(label);
-                } else {
-                    this.removeActorExpander(label);
+                    actorCode.push(label);
                 }
             } else if (this.expanderManager.pawnExpanders.get(label)) {
                 if (selected) {
-                    this.addPawnExpander(label);
-                } else {
-                    this.removePawnExpander(label);
+                    pawnCode.push(label);
                 }
             }
         });
+        this.updateExpanders({actorCode, pawnCode});
     }
 
     setCardSpec(data) {
@@ -342,7 +387,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
-    cleanupShape() {
+    cleanupShape(_options) {
         delete this.isFlat;
 
         if (this.placeholder) {
@@ -396,8 +441,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
-    updateShape() {
-        this.cleanupShape();
+    updateShape(options) {
+        this.cleanupShape(options);
         this.constructShape(this.actor._cardData);
     }
 

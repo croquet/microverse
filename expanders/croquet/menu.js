@@ -15,30 +15,33 @@ class ExpanderMenuActor {
             cornerRadius: 0.05,
         });
 
-        let target = this.service("ActorManager").get(this._cardData.target);
+        this.updateSelections();
 
+        this.scriptListen("fire", "setExpanders");
+        this.scriptSubscribe(this._cardData.target, "expandersUpdated", "updateSelections");
+    }
+
+    updateSelections() {
+        console.log("updateSelections");
+        let target = this.service("ActorManager").get(this._cardData.target);
         let items = [];
 
         let actorExpanders = this.expanderManager.actorExpanders;
         let pawnExpanders = this.expanderManager.pawnExpanders;
 
         for (let k of actorExpanders.keys()) {
-            let selected = target._actorCode && target._actorCode.indexOf(k) >=  0;
+            let selected = target._actorCode && target._actorCode.indexOf(k) >= 0;
             let obj = {label: k, selected};
             items.push(obj);
         }
 
         for (let k of pawnExpanders.keys()) {
-            let selected = target._pawnCode && target._pawnCode.indexOf(k) >=  0;
+            let selected = target._pawnCode && target._pawnCode.indexOf(k) >= 0;
             let obj = {label: k, selected};
             items.push(obj);
         }
-
         items.push({label: 'apply'});
-
         this.menu.call("MenuActor", "setItems", items);
-
-        this.scriptListen("fire", "setExpanders");
     }
 
     setExpanders(data) {
@@ -58,6 +61,7 @@ class MenuLayoutActor {
 
 class MenuActor {
     setItems(list) {
+        console.log("setItems");
         // list takes the form of:
         // [{label<string>, card?<card>, selected<boolean>}]
 
@@ -181,7 +185,7 @@ class MenuPawn {
         }
     }
 
-    cardDataUpdated(data) {
+    cardDataUpdated() {
         let obj = this.shape.children.find((o) => o.name === "2d");
         obj.position.set(0, - this.properties2D.height / 2 + 1.05, -0.1);
     }
