@@ -726,7 +726,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.editMode = false;
 //            }
         } else {
-            super.doPointerTap(e);
+            // so that subsequent pointer up can clean up a few things
+            try {
+                super.doPointerTap(e);
+            } catch(e) {
+                console.log(e);
+            }
         }
         /*
                 this.editPawn = null;

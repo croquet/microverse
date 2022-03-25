@@ -52,34 +52,101 @@ class PropertyPanelActor {
             runs: [{text: "ok"}],
             noSave: true,
         });
+
+        this.dismissButton.addEventListener("pointerTap", "PropertyPanelActor.close");
         
         let cardDataString = this.cardSpecString(target);
-
         this.cardSpec.loadAndReset(cardDataString);
-
         this.scriptSubscribe(this.cardSpec.id, "text", "cardSpecAccept");
         this.scriptListen("dismiss", "dismiss");
-        this.dismissButton.addEventListener("pointerTap", "PropertyPanelActor.close");
     }
 
     cardSpecString(target) {
         let data = target.collectCardData();
-        // I'd remove quotes for keys
-        return JSON.stringify(data, null, 4);
+        let intrinsic = this.intrinsicProperties();
+
+        let result = [];
+        
+        // okay! risking to be over engineering, I'll make the display nicer.
+
+        intrinsic.forEach((p) => {
+            let value = data[p];
+            if (value === undefined) {return;}
+            result.push("    ");
+            result.push(p);
+            result.push(": ");
+            result.push(this.specValue(p, value));
+            result.push(",\n");
+        });
+
+        let keys = Object.keys(data);
+        keys.sort();
+        keys.forEach((p) => {
+            if (intrinsic.includes(p)) {return;}
+            let value = data[p];
+            result.push("    ");
+            result.push(p);
+            result.push(": ");
+            result.push(this.specValue(p, value));
+            result.push(",\n");
+        });
+
+        return result.join('');
+    }
+
+    specValue(p, value) {
+        if (p === "rotation" || p === "dataRotation") {
+            if (Array.isArray(value) && value.length === 4) {
+                value = [
+                    WorldCore.q_pitch(value),
+                    WorldCore.q_yaw(value),
+                    WorldCore.q_roll(value)
+                ];
+            }
+        }
+
+        if (Array.isArray(value)) {
+            let frags = value.map((v) => JSON.stringify(v));
+            return `[${frags.join(', ')}]`;
+        }
+
+        return JSON.stringify(value);
     }
 
     cardSpecAccept(data) {
         let {text} = data;
 
-        let spec;
+        let array = text.split('\n');
+        let simpleRE = /^[ \t]*([^:]+)[ \t]*:[ \t]*(.*)$/;
+        
+        let spec = {};
 
-        try {
-            spec = JSON.parse(text);
-        } catch (e) {
-            console.log("not JSON");
-        }
+        let something = false;
 
-        if (!spec) {return;}
+        array.forEach((line) => {
+            let match = simpleRE.exec(line);
+            if (match) {
+                something = true;
+                let key = match[1];
+                let value = match[2];
+                if (value && value.endsWith(",")) {
+                    value = value.slice(0, value.length - 1);
+                }
+                try {
+                    value = JSON.parse(value);
+                } catch(e) {
+                    console.log(e);
+                }
+                if (key === "rotation" || key === "dataRotation") {
+                    if (Array.isArray(value) && value.length === 3) {
+                        value = WorldCore.q_euler(...value);
+                    }
+                }
+                spec[key] = value;
+            }
+        });
+        
+        if (!something) {return;}
 
         console.log(spec);
 
@@ -112,3 +179,5 @@ class PropertyPanelActor {
 export const propertyPanel = {
     actorExpanders: [PropertyPanelActor]
 };
+
+/* globals WorldCore */

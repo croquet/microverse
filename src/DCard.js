@@ -205,8 +205,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     collectCardData() {
         let saver = new WorldSaver(CardActor);
-        return saver.collectCardData(this);
+        return saver.collectCardData(this, true);
     }
+
+    intrinsicProperties() {return intrinsicProperties;}
 
     static load(array, world, version) {
         // it is supposed to load a JSONable structure from array, but a special case is made

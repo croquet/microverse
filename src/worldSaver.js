@@ -67,7 +67,7 @@ export class WorldSaver {
         return result;
     }
 
-    collectCardData(card) {
+    collectCardData(card, useRealId) {
         let result = {};
         if (card.constructor !== this.defaultClass) {
             result.className = card.constructor.name;
@@ -75,7 +75,15 @@ export class WorldSaver {
         intrinsicProperties.forEach((prop) => {
             if (card[`_${prop}`]) {
                 if (prop === "parent") {
-                    result[prop] = this.map.get(card[prop]).id;
+                    if (!useRealId) {
+                        let entry = this.map.get(card[prop]);
+                        if (!entry) {throw new Error("undefined parent used");}
+                        result[prop] = entry.id;
+                    } else {
+                        let entry = card[prop];
+                        if (!entry) {throw new Error("undefined parent used");}
+                        result[prop] = entry.id;
+                    }
                 } else {
                     result[prop] = card[`_${prop}`];
                 }
@@ -83,9 +91,11 @@ export class WorldSaver {
         });
 
         if (card._cardData) {
-            for (let k in card._cardData) {
+            let keys = Object.keys(card._cardData);
+            keys.sort();
+            keys.forEach((k) => {
                 result[k] = card._cardData[k];
-            }
+            });
         }
         return result;
     }
