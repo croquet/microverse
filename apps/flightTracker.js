@@ -4,7 +4,7 @@
 
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { CardActor, CardPawn } from '../src/DCard.js';
-import { THREE, mix, q_euler, q_multiply } from "@croquet/worldcore";
+import { THREE, mix, q_euler, q_multiply, ThreeRenderManager } from "@croquet/worldcore";
 import earthbase from "../assets/images/earthbase.png";
 import earthshadow from "../assets/images/earthshadow.jpg";
 
@@ -89,10 +89,9 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
 
         let geometry = new THREE.BufferGeometry();
         const vertices = [];
-        const colors = [];
-
+        vertices.push(0,0,0);
         const sprite = new THREE.TextureLoader().load( './assets/images/ball.png' );
-
+/*
         for ( let i = 0; i < 4000; i ++ ) {
 
             let x = 2  * Math.random() - 1;
@@ -106,19 +105,15 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
             y = radius * y/n;
             z = radius * z/n;
             vertices.push( x, y, z );
-            let r = Math.random();
-            let g = Math.random();
-            let b = Math.random();
-            colors.push(r,g,b);
         }
-
+*/
         geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-        geometry.setAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
         let material = new THREE.PointsMaterial( { size: 0.075, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
         material.color.set( 0xffaa33 );
 
-        const particles = new THREE.Points( geometry, material );
-        this.shape.add( particles );
+        this.planes = new THREE.Points( geometry, material );
+        this.shape.add( this.planes );
+        this.displayFlight();
     }
 
     processFlight(){
@@ -141,11 +136,20 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     }
 
     displayFlight(){
+        const vertices = [];
+        let e = new THREE.Euler();
+        let v = new THREE.Vector3();
         this.actor.planes.forEach(val=>{
             // val[1] long
             // val[2] lat
-
+            let lon = Math.PI*2*val[1]/360;
+            let lat = Math.PI*2*val[2]/360;
+            v.set(BASERADIUS + 0.05,0,0);
+            e.set(0, lon, lat);
+            v.applyEuler(e);
+           vertices.push( v.x, v.y, v.z );
         })
+        this.planes.geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
     }
 
     theta(xyz){
