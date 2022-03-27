@@ -12,7 +12,7 @@ Constants.AvatarNames = [
 ];
 
 Constants.SystemExpanderModules = [
-    "menu.js", "elected.js", "propertyPanel.js"
+    "menu.js", "elected.js", "propertyPanel.js", "spin.js"
 ];
 
 Constants.UserExpanderDirectory = "defaultDemo";
