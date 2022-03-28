@@ -217,7 +217,7 @@ Model.evaluate( () => {
         {
             card: {
                 name: 'code editor',
-                translation: [8, -1.2, 10],
+                translation: [8, -1.1, 10],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
@@ -234,7 +234,7 @@ Model.evaluate( () => {
             card: {
                 name:'porsche',
                 dataRotation: [-Math.PI / 2, 0, 0],
-                translation: [0, -2.75, 8],
+                translation: [0, -2.56, 8],
                 layers: ['pointer'],
                 type: "3d",
                 multiuser: true,
