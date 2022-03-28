@@ -15,8 +15,10 @@ Constants.SystemBehaviorModules = [
     "menu.js", "elected.js", "propertyPanel.js"
 ];
 
+Constants.UserBehaviorDirectory = "defaultDemo";
+
 Constants.UserBehaviorModules = [
-    "defaultDemo/demo.js",  "defaultDemo/bitcoinTracker.js", "defaultDemo/bridge.js"
+    "demo.js",  "bitcoinTracker.js", "bridge.js"
 ];
 
 // use bit-identical math for constant initialization
@@ -51,7 +53,7 @@ Model.evaluate( () => {
             card: {
                 name:'simple 3D model',
                 translation: [-0, -0.5, -18],
-                rotation: [Math.PI / 2, Math.PI / 2, 0],
+                rotation: [Math.PI / 2, 0, 0],
                 type: "3d",
                 dataLocation: "./assets/3D/Gears.glb.zip",
                 shadow: true,
