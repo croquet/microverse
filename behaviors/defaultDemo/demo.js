@@ -21,13 +21,13 @@ class DriveActor {
     }
 
     rotateBy(angles) {
-        let q = WorldCore.q_euler(...angles);
-        q = WorldCore.q_multiply(this.rotation, q);
+        let q = Worldcore.q_euler(...angles);
+        q = Worldcore.q_multiply(this.rotation, q);
         this.rotateTo(q);
     }
 
     forwardBy(dist) {
-        let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
+        let v = Worldcore.v3_rotate([dist, 0, 0], this.rotation)
         this.translateTo([
             this.translation[0] + v[0],
             this.translation[1] + v[1],
@@ -77,13 +77,13 @@ class FlyActor {
     }
 
     rotateBy(angles) {
-        let q = WorldCore.q_euler(...angles);
-        q = WorldCore.q_multiply(this.rotation, q);
+        let q = Worldcore.q_euler(...angles);
+        q = Worldcore.q_multiply(this.rotation, q);
         this.rotateTo(q);
     }
 
     forwardBy(dist) {
-        let v = WorldCore.v3_rotate([0, 0, dist], this.rotation)
+        let v = Worldcore.v3_rotate([0, 0, dist], this.rotation)
         this.translateTo([
             this.translation[0] + v[0],
             this.translation[1] + v[1],
@@ -354,23 +354,23 @@ class PerlinPawn {
         const c = this.actor.columns;
         const s = this.barScale;
 
-        this.perlinGroup = new WorldCore.THREE.Group();
+        this.perlinGroup = new Worldcore.THREE.Group();
        
-        this.buttonSphere = new WorldCore.THREE.Mesh(
-            new WorldCore.THREE.SphereGeometry(0.5,32,16), 
-            new WorldCore.THREE.MeshStandardMaterial());
+        this.buttonSphere = new Worldcore.THREE.Mesh(
+            new Worldcore.THREE.SphereGeometry(0.5,32,16), 
+            new Worldcore.THREE.MeshStandardMaterial());
         this.buttonSphere.name = "buttonSphere";
         this.buttonSphere.position.y = 3;
         this.shape.add(this.buttonSphere);
 
-        this.color = new WorldCore.THREE.Color();
-        this.base = new WorldCore.THREE.Mesh(
-            new WorldCore.THREE.BoxGeometry((r + 2) * s, s / 2, (c + 2) * s, 2, 10, 2),
-            new WorldCore.THREE.MeshStandardMaterial({color: this.color.getHex()}));
+        this.color = new Worldcore.THREE.Color();
+        this.base = new Worldcore.THREE.Mesh(
+            new Worldcore.THREE.BoxGeometry((r + 2) * s, s / 2, (c + 2) * s, 2, 10, 2),
+            new Worldcore.THREE.MeshStandardMaterial({color: this.color.getHex()}));
         this.base.position.set(-s / 2, 0, -s / 2);
-        this.bar = new WorldCore.THREE.Mesh(
-            new WorldCore.THREE.BoxGeometry(s, s, s, 1, 10, 1 ),
-            new WorldCore.THREE.MeshStandardMaterial({color: this.color.getHex()}));
+        this.bar = new Worldcore.THREE.Mesh(
+            new Worldcore.THREE.BoxGeometry(s, s, s, 1, 10, 1 ),
+            new Worldcore.THREE.MeshStandardMaterial({color: this.color.getHex()}));
         this.base.layers.enable(1); // use this for raycasting
         this.base.castShadow = true;
         this.base.receiveShadow = true;
@@ -378,7 +378,7 @@ class PerlinPawn {
 
         this.rowGeometry = [];
         for(let i = 0; i < r; i++) {
-            let rGroup = new WorldCore.THREE.Group();
+            let rGroup = new Worldcore.THREE.Group();
             rGroup.position.set(0, s / 4, (i - r / 2) * s);
             for ( let j = 0; j < c; j++) {
                 let bar = this.bar.clone();
@@ -412,7 +412,7 @@ class PerlinPawn {
     }
 
     hilite(color) { 
-        this.buttonSphere.material.emissive = new WorldCore.THREE.Color(color);
+        this.buttonSphere.material.emissive = new Worldcore.THREE.Color(color);
     }
 
     showMe(visible) {
@@ -430,4 +430,4 @@ export let demo = {
     pawnBehaviors: [PerlinPawn]
 }
 
-/* globals WorldCore */
+/* globals Worldcore */

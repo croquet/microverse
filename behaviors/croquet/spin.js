@@ -6,13 +6,13 @@ class SpinActor {
     
     startSpinning(spin) {
         this.isSpinning = true;
-        this.qSpin = WorldCore.q_euler(0, spin, 0);
+        this.qSpin = Worldcore.q_euler(0, spin, 0);
         this.doSpin();
     }
 
     doSpin() {
         if(this.isSpinning) {
-            this.setRotation(WorldCore.q_multiply(this._rotation, this.qSpin));
+            this.setRotation(Worldcore.q_multiply(this._rotation, this.qSpin));
             this.future(50).doSpin();
         }
     }
@@ -52,8 +52,8 @@ class SpinPawn {
         console.log(this.base, next);
 
         this.deltaAngle = (next - this.base) / 2;
-        let qAngle = WorldCore.q_euler(0, this.deltaAngle, 0);
-        this.setRotation(WorldCore.q_multiply(this._rotation, qAngle));
+        let qAngle = Worldcore.q_euler(0, this.deltaAngle, 0);
+        this.setRotation(Worldcore.q_multiply(this._rotation, qAngle));
     }
 
     onPointerUp(p3d) {
@@ -79,4 +79,4 @@ export const spin = {
     pawnBehaviors: [SpinPawn]
 }
 
-/* globals WorldCore */
+/* globals Worldcore */

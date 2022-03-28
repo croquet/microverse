@@ -98,9 +98,9 @@ class PropertyPanelActor {
         if (p === "rotation" || p === "dataRotation") {
             if (Array.isArray(value) && value.length === 4) {
                 value = [
-                    WorldCore.q_pitch(value),
-                    WorldCore.q_yaw(value),
-                    WorldCore.q_roll(value)
+                    Worldcore.q_pitch(value),
+                    Worldcore.q_yaw(value),
+                    Worldcore.q_roll(value)
                 ];
             }
         }
@@ -139,7 +139,7 @@ class PropertyPanelActor {
                 }
                 if (key === "rotation" || key === "dataRotation") {
                     if (Array.isArray(value) && value.length === 3) {
-                        value = WorldCore.q_euler(...value);
+                        value = Worldcore.q_euler(...value);
                     }
                 }
                 spec[key] = value;
@@ -180,4 +180,4 @@ export const propertyPanel = {
     actorBehaviors: [PropertyPanelActor]
 };
 
-/* globals WorldCore */
+/* globals Worldcore */

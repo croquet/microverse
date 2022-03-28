@@ -66,30 +66,30 @@ class BridgeActor {
             let p1 = s1.p;
             let n = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
 
-            let len = WorldCore.v3_magnitude(n);
+            let len = Worldcore.v3_magnitude(n);
 
             let a = len - spring.naturalLength;
             let c = 0.8;
 
-            let add0 = WorldCore.v3_scale(n, a * c);
-            let add1 = WorldCore.v3_scale(n, -a * c);
+            let add0 = Worldcore.v3_scale(n, a * c);
+            let add1 = Worldcore.v3_scale(n, -a * c);
 
             if (v3_nan(add0) || v3_nan(add1) || hasNaN(s0) || hasNaN(s1)) {debugger;}
-            s0.a = WorldCore.v3_add(s0.a, add0);
-            s1.a = WorldCore.v3_add(s1.a, add1);
+            s0.a = Worldcore.v3_add(s0.a, add0);
+            s1.a = Worldcore.v3_add(s1.a, add1);
         }
 
         for (let j = 0; j < this.dimension; j++) {
             for (let i = 0; i < this.dimension; i++) {
                 let m = this.ms[j][i];
                 if (!isCorner(i, j)) {
-                    m.v = WorldCore.v3_add(m.v, m.a);
+                    m.v = Worldcore.v3_add(m.v, m.a);
                 } else {
                     m.v = [0, 0, 0];
                 }
 
-                m.v = WorldCore.v3_scale(m.v, 0.99)
-                m.p = WorldCore.v3_add(m.p, m.v);
+                m.v = Worldcore.v3_scale(m.v, 0.99)
+                m.p = Worldcore.v3_add(m.p, m.v);
             }
         }
         this.say("updateDisplay");
@@ -101,7 +101,7 @@ class BridgeActor {
         console.log(d);
         d = Math.floor(d / 2);
         let m = this.ms[d][d];
-        m.v = WorldCore.v3_add(m.v, [0, 0.02, 0]);
+        m.v = Worldcore.v3_add(m.v, [0, 0.02, 0]);
         window.middle = m;
         console.log("sag", m);
     }
@@ -111,7 +111,7 @@ class BridgePawn {
     setup() {
         let d = this.actor.dimension || 9; // hack until we resolve the setup ordering issue.
         if (!this.group) {
-            this.group = new WorldCore.THREE.Group();
+            this.group = new Worldcore.THREE.Group();
             this.group.name = "Bridge";
         }
 
@@ -126,9 +126,9 @@ class BridgePawn {
 
         this.spheres = [...Array(d).keys()].map(j => {
             return [...Array(d).keys()].map(i => {
-                let geometry = new WorldCore.THREE.SphereGeometry(0.1, 16, 16);
-                let material = new WorldCore.THREE.MeshStandardMaterial({color: (i / d * 200) * 0x10000 + (j / d * 201)});
-                let sphere = new WorldCore.THREE.Mesh(geometry, material);
+                let geometry = new Worldcore.THREE.SphereGeometry(0.1, 16, 16);
+                let material = new Worldcore.THREE.MeshStandardMaterial({color: (i / d * 200) * 0x10000 + (j / d * 201)});
+                let sphere = new Worldcore.THREE.Mesh(geometry, material);
                 this.group.add(sphere);
                 return sphere;
             });
@@ -162,4 +162,4 @@ export let bridge = {
     pawnBehaviors: [BridgePawn]
 }
 
-/* globals WorldCore */
+/* globals Worldcore */

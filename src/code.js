@@ -2,8 +2,8 @@
 // https://croquet.io
 // info@croquet.io
 
-import * as WorldCore from "@croquet/worldcore";
-const {ViewService, ModelService, GetPawn, Model} = WorldCore;
+import * as Worldcore from "@croquet/worldcore";
+const {ViewService, ModelService, GetPawn, Model} = Worldcore;
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, behavior) {
@@ -343,7 +343,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source})`;
         let cls;
         try {
-            cls = new Function("WorldCore", code)(WorldCore);
+            cls = new Function("Worldcore", code)(Worldcore);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
             try {
