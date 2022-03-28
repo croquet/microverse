@@ -147,9 +147,6 @@ class PropertyPanelActor {
         });
         
         if (!something) {return;}
-
-        console.log(spec);
-
         if (!this.target.doomed) {
             this.target.updateOptions(spec);
         }
