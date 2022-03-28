@@ -16,7 +16,6 @@ export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
 
-export let isWalking = true;
 let isTweening = false; // transition between camera modes
 
 let avatarManager; // Local pointer for avatars
@@ -512,8 +511,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     get lookGlobal() { 
         if (this.isMyPlayerPawn) {
             if(isTweening && this.tweenCamera.matrixWorld)return this.tweenCamera.matrixWorld.elements;
-            if(isWalking)return this.walkLook;
-            return this.global;
+            return this.walkLook;
         }else return this.global;
     }
 
@@ -573,22 +571,18 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.knobX = e.clientX;
         this.knobY = e.clientY;
         this.say("startMMotion");
-        if(true || isWalking){
-            this.activeMMotion = true;
-            this.basePosition = e.xy;
-        }
+        this.activeMMotion = true;
+        this.basePosition = e.xy;
     }
 
     endMMotion( e ){
         e.preventDefault();
         e.stopPropagation(); 
-        if(true || isWalking) {
-            this.activeMMotion = false;
-            this.vq = undefined;
-            this.setVelocitySpin([0, 0, 0],q_identity());
-            this.hiddenknob.style.transform = "translate(0px, 0px)";
-            this.knob.style.transform = "translate(30px, 30px)";
-        }
+        this.activeMMotion = false;
+        this.vq = undefined;
+        this.setVelocitySpin([0, 0, 0],q_identity());
+        this.hiddenknob.style.transform = "translate(0px, 0px)";
+        this.knob.style.transform = "translate(30px, 30px)";
     }
 
     continueMMotion( e ) {
@@ -617,14 +611,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
 
             knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
-
-            if(!isWalking) {
-                let look = this.walkLook;
-
-                this.walkCamera.position.set( ...m4_getTranslation(look) );
-                this.walkCamera.quaternion.set( ...m4_getRotation(look) );
-                this.walkCamera.updateMatrixWorld();
-            }
         }
     }
 
@@ -780,7 +766,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         } else {       
             super.doPointerDown(e);
-            if(isWalking && !this.focusPawn){
+            if(!this.focusPawn){
                 this.dragWorld = this.xy2yp(e.xy);
                 this._lookYaw = q_yaw(this._rotation);
             }
@@ -802,7 +788,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         }else {
             super.doPointerMove(e);
-            if(isWalking && !this.focusPawn && this.isPointerDown){
+            if(!this.focusPawn && this.isPointerDown){
                 let yp = this.xy2yp(e.xy);
                 let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0])* this.yawDirection);
                 let pitch = this._lookPitch + this.dragWorld[1] -yp[1];
