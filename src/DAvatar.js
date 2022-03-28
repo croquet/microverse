@@ -365,26 +365,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.constructVisual();
     }
 
-    createSun(){
-        const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
-        //sun.position.set(-200, 800, 100);
-        let side = 15;
-        sun.position.set(-400, 500, 100);
-
-        sun.castShadow = true;
-        sun.shadow.camera.near = 0.5; // default
-        sun.shadow.camera.far = 1000; // default
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
-        sun.shadow.camera.zoom = 0.125;
-        sun.shadow.bias = -0.0001;
-        sun.shadow.camera.top = side;
-        sun.shadow.camera.bottom = -side;
-        sun.shadow.camera.left = side;
-        sun.shadow.camera.right = -side;
-        return sun;
-    }
-
     dropPose(distance, optOffset) { // compute the position in front of the avatar
         return this.actor.dropPose(distance, optOffset);
     }
@@ -449,7 +429,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             
             this.addToLayers('avatar');
             model.name = "Avatar";
-           // model.add(this.createSun());
             this.setRenderObject(model);  // note the extension
         });
     }
