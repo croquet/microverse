@@ -561,7 +561,7 @@ export class ExpanderModelManager extends ModelService {
         array.splice(ind, 1);
         let expander = this.actorExpanders.get(name);
         if (expander && expander.$expander && expander.$expander.destroy) {
-            expander.future[0].invoke(model[isProxy] ? model._target : model, "destroy");
+            expander.future(0).invoke(model[isProxy] ? model._target : model, "destroy");
         }
     }
 

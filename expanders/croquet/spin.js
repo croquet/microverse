@@ -20,6 +20,12 @@ class SpinActor {
     stopSpinning() {
         this.isSpinning = false;
     }
+
+    destroy() {
+        delete this.isSpinning;
+        this.unsubscribe(this.id, "startSpinning");
+        this.unsubscribe(this.id, "stopSpinning");
+    }
 }
 
 class SpinPawn {
@@ -61,6 +67,11 @@ class SpinPawn {
         }
     }
 
+    destroy() {
+        this.removeEventListener("pointerDown", "onPointerDown");
+        this.removeEventListener("pointerUp", "onPointerUp");
+        this.removeEventListener("pointerMove", "onPointerMove");
+    }
 }
 
 export const spin = {
