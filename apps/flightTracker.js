@@ -45,6 +45,10 @@ export class FlightTracker extends mix(CardActor).with(AM_Elected){
     }
 
     updateFlight(){ //completed the map, now GC and inform view
+        let now = this.now();
+        let gcList = [];
+        this.planes.forEach((value, key)=> {if(now-value[0]>120000) gcList.push(key)}); // remove record older than twi minutes
+        gcList.forEach( key => this.planes.delete(key));
         this.say("displayFlight");
     }
 }
@@ -210,7 +214,7 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     getFlight(){
         let count = 0;
         this.sendex = 0;
-        console.log("getFlight")
+        //console.log("getFlight")
         this.gettingFlight = true;
         // https://opensky-network.org/apidoc/rest.html
         fetch('https://opensky-network.org/api/states/all')
