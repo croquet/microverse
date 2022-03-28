@@ -191,7 +191,7 @@ Model.evaluate( () => {
         {
             card: {
                 name:'code editor',
-                translation: [8, -1.5, 4],
+                translation: [8, -1.2, 4],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
@@ -199,8 +199,8 @@ Model.evaluate( () => {
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 // margins: {left: 16, top: 16, right: 16, bottom: 16},
                 textScale: 0.001,
-                width: 2,
-                height: 2.5,
+                width: 1.5,
+                height: 2,
                 depth: 0.05,
                 frameColor: 0x666666,
             }
@@ -224,8 +224,8 @@ Model.evaluate( () => {
                 actorExpander: "DriveActor",
                 textScale: 0.001,
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
-                width: 2,
-                height: 3.5,
+                width: 1.5,
+                height: 2.5,
                 depth: 0.05,
                 frameColor: 0x666666,
             },

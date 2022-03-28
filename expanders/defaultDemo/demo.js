@@ -5,23 +5,27 @@ class DriveActor {
         this.addEventListener("pointerDown", "toggle");
         this.addEventListener("keyDown", "turn");
     }
+
     run() {
         if (!this.running) {return;}
         this.future(20).run();
         this.rotateBy([0, -this.angle, 0]);
         this.forwardBy(-this.speed);
     }
+
     toggle() {
         this.running = !this.running;
         if (this.running) {
             this.run();
         }
     }
+
     rotateBy(angles) {
         let q = WorldCore.q_euler(...angles);
         q = WorldCore.q_multiply(this.rotation, q);
         this.rotateTo(q);
     }
+
     forwardBy(dist) {
         let v = WorldCore.v3_rotate([dist, 0, 0], this.rotation)
         this.translateTo([
@@ -29,6 +33,7 @@ class DriveActor {
             this.translation[1] + v[1],
             this.translation[2] + v[2]]);
     }
+
     turn(key) {
         if (key.key === "ArrowRight") {
             this.angle = Math.min(0.05, this.angle + 0.004);
@@ -40,6 +45,7 @@ class DriveActor {
             this.speed = Math.max(-0.2, this.speed - 0.05);
         }
     }
+
     destroy() {
         this.removeEventListener("pointerDown", "toggle");
         this.removeEventListener("keyDown", "turn");
@@ -83,6 +89,7 @@ class FlyActor {
             this.translation[1] + v[1],
             this.translation[2] + v[2]]);
     }
+
     destroy() {
         this.removeEventListener("pointerDown", "toggle");
         this.flying = false;
