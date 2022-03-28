@@ -964,7 +964,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let nsq = v3_sqrMag(normal);
         if(nsq<0.001){
             normal[0]=0;
-            normal[1]=p3d.normal[1];
+            normal[1]=norm[1];
             normal[2]=0;
         }
         return v3_normalize(normal);
