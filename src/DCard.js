@@ -6,7 +6,7 @@
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, 
-    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude,
+    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
     q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
@@ -962,9 +962,25 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         return [current, d * 1.1];
     }
 
+    verticalNorm(norm){
+        let normal = [...norm];
+        normal[1] = 0;
+
+        let nsq = v3_sqrMag(normal);
+        if(nsq<0.001){
+            normal[0]=0;
+            normal[1]=p3d.normal[1];
+            normal[2]=0;
+        }
+        return v3_normalize(normal);
+    }
+
     dragPlane(rayCaster, p3e){
+        // XYZZY the flamingo does not follow the cursor when dragging in the plane. 
         if(!this._plane) {
             let normal = p3e.normal || p3e.lookNormal; // normal may not exist
+            normal = this.verticalNorm( normal );
+
             let offset = v3_dot(p3e.xyz, normal);
             this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
             this.lastDrag = p3e.xyz;

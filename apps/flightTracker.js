@@ -158,7 +158,6 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
     }
 
     onPointerDown(p3d){
-        this._plane = true;
         this.base = this.theta(p3d.xyz);
         this.deltaAngle = 0;
         this.say("stopSpinning");
@@ -180,7 +179,6 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
                 this.say("startSpinning", a);
             }
         }
-        this._plane = false;
     }
 
     onPointerEnter(p3d){
