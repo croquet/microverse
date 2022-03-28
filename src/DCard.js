@@ -377,7 +377,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.colliderObject.children.forEach((m) => {
                 this.colliderObject.remove(m);
             });
-            this.colliderObject.geometry.dispose();
+            if (this.colliderObject.geometry) {
+                this.colliderObject.geometry.dispose();
+            }
             delete this.colliderObject;
         }
     }
