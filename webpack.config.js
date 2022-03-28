@@ -66,20 +66,6 @@ const config = {
     ],
 };
 
-function selectiveMinifier(input, sourceMap, minimizerOptions, extractComments) {
-    // The `minimizerOptions` option contains option from the `terserOptions` option
-    // You can use `minimizerOptions.myCustomOption`
-
-    // Custom logic for extract comments
-    const { map, code } = require("uglify-module") // Or require('./path/to/uglify-module')
-          .minify(input, {
-              /* Your options for minification */
-          });
-
-    return { map, code, warnings: [], errors: [], extractedComments: [] };
-};
-
-
 module.exports = (env, argv) => {
     if (argv.mode === 'production') {
         console.log("argv.mode", argv.mode);
@@ -89,7 +75,7 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        if (Object.keys(file)[0].startsWith("expanders/")) {
+                        if (Object.keys(file)[0].indexOf("expanders/")) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options
@@ -109,3 +95,5 @@ module.exports = (env, argv) => {
     }
     return config;
 }
+
+/* globals require __dirname module */
