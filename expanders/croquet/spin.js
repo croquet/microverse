@@ -31,7 +31,7 @@ class SpinPawn {
 
     theta(xyz) {
         let local = this.world2local(xyz);
-        return -Math.atan2(local[0], local[2]);
+        return Math.atan2(local[0], local[2]);
     }
 
     onPointerDown(p3d) {
