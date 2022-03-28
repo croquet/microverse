@@ -72,6 +72,6 @@ class ElectedPawn {
 }
 
 export let elected = {
-    actorExpanders: [ElectedActor],
-    pawnExpanders: [ElectedPawn]
+    actorBehaviors: [ElectedActor],
+    pawnBehaviors: [ElectedPawn]
 }

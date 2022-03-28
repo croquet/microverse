@@ -2,15 +2,15 @@ class PropertyPanelActor {
     setObject(target) {
         this.target = target;
 
-        this.expanderMenu = this.createCard({
-            name: 'expander menu',
-            actorCode: ["ExpanderMenuActor"],
+        this.behaviorMenu = this.createCard({
+            name: 'behavior menu',
+            actorCode: ["BehaviorMenuActor"],
             translation: [0, 0.6, 0.055],
             type: "object",
             parent: this,
             noSave: true,
             target: target.id});
-        this.expanderMenu.call("ExpanderMenuActor", "show");
+        this.behaviorMenu.call("BehaviorMenuActor", "show");
 
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
@@ -168,8 +168,8 @@ class PropertyPanelActor {
             this.cardSpec.destroy();
         }
         
-        if (this.expanderMenu) {
-            this.expanderMenu.destroy();
+        if (this.behaviorMenu) {
+            this.behaviorMenu.destroy();
         }
 
         this.destroy();
@@ -177,7 +177,7 @@ class PropertyPanelActor {
 }
 
 export const propertyPanel = {
-    actorExpanders: [PropertyPanelActor]
+    actorBehaviors: [PropertyPanelActor]
 };
 
 /* globals WorldCore */

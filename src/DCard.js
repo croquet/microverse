@@ -55,20 +55,20 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     updateOptions(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
-        this.updateExpanders(options);
+        this.updateBehaviors(options);
         this.set({...cardOptions});
         this._cardData = cardData;
 
         this.say("updateShape", options);
     }
 
-    updateExpanders(options) {
+    updateBehaviors(options) {
         let newActorCode = options.actorCode;
         let newPawnCode = options.pawnCode;
         if (this._actorCode) {
             this._actorCode.forEach((old) => {
                 if (!newActorCode || !newActorCode.includes(old)) {
-                    this.expanderManager.modelUnuse(this, old);
+                    this.behaviorManager.modelUnuse(this, old);
                 }
             });
         }
@@ -76,7 +76,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         if (this._pawnCode) {
             this._pawnCode.forEach((old) => {
                 if (!newPawnCode || !newPawnCode.includes(old)) {
-                    this.expanderManager.viewUnuse(this, old);
+                    this.behaviorManager.viewUnuse(this, old);
                 }
             });
         }
@@ -84,14 +84,14 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         if (options.actorCode) {
             options.actorCode.forEach((name) => {
                 if (!this._actorCode || !this._actorCode.includes(name)) {
-                    this.expanderManager.modelUse(this, name);
+                    this.behaviorManager.modelUse(this, name);
                 }
             });
         }
         if (options.pawnCode) {
             options.pawnCode.forEach((name) => {
                 if (!this._pawnCode || !this._pawnCode.includes(name)) {
-                    this.expanderManager.viewUse(this, name);
+                    this.behaviorManager.viewUse(this, name);
                 }
             });
         }
@@ -99,7 +99,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this._actorCode = newActorCode;
         this._pawnCode = newPawnCode;
 
-        this.publish(this.id, "expandersUpdated");
+        this.publish(this.id, "behaviorsUpdated");
     }
 
     setCardData(options) {
@@ -190,7 +190,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         distance = Math.min(distance * 0.7, 4);
         if(avatar){
             let pose = avatar.dropPose(distance, [2, 0, 0]);
-            if (!this.expanderManager.actorExpanders.get("PropertyPanelActor")) {return;}
+            if (!this.behaviorManager.actorBehaviors.get("PropertyPanelActor")) {return;}
             let menu = this.createCard({
                 name: "property panel",
                 actorCode: ["PropertyPanelActor"],
@@ -212,23 +212,23 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
     }
 
-    setExpanders(selection) {
+    setBehaviors(selection) {
         let actorCode = [];
         let pawnCode = [];
 
         selection.forEach((obj) => {
             let {label, selected} = obj;
-            if (this.expanderManager.actorExpanders.get(label)) {
+            if (this.behaviorManager.actorBehaviors.get(label)) {
                 if (selected) {
                     actorCode.push(label);
                 }
-            } else if (this.expanderManager.pawnExpanders.get(label)) {
+            } else if (this.behaviorManager.pawnBehaviors.get(label)) {
                 if (selected) {
                     pawnCode.push(label);
                 }
             }
         });
-        this.updateExpanders({actorCode, pawnCode});
+        this.updateBehaviors({actorCode, pawnCode});
     }
 
     setCardSpec(data) {
@@ -255,20 +255,20 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         // for the parent property where you can give an actual object
         if (version === "1") {
             let appManager = world.service("DynaverseAppManager");
-            let expanderManager = world.service("ExpanderModelManager");
+            let behaviorManager = world.service("BehaviorModelManager");
             let map = new Map();
             return array.map(({id, card}) => {
                 let Cls;
                 let options = {...card};
-                let expander;
+                let behavior;
                 if (options.type === "code") {
-                    if (options.actorExpander) {
-                        expander = expanderManager.actorExpanders.get(options.actorExpander);
-                    } else if (options.pawnExpander) {
-                        expander = expanderManager.pawnExpanders.get(options.pawnExpander);
+                    if (options.actorBehavior) {
+                        behavior = behaviorManager.actorBehaviors.get(options.actorBehavior);
+                    } else if (options.pawnBehavior) {
+                        behavior = behaviorManager.pawnBehaviors.get(options.pawnBehavior);
                     }
                     
-                    let runs = [{text: expander ? expander.code : ""}];
+                    let runs = [{text: behavior ? behavior.code : ""}];
                     
                     options = {...options, ...{
                         isSticky: false,
@@ -304,8 +304,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                     map.set(id, actor);
                 }
 
-                if (options.type === "code" && expander) {
-                    actor.subscribe(expander.id, "setCode", "loadAndReset");
+                if (options.type === "code" && behavior) {
+                    actor.subscribe(behavior.id, "setCode", "loadAndReset");
                 }
                 return actor;
             });
@@ -789,7 +789,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     cardDataUpdated(data) {
-        // it might be independently implemented in an expander, and independently subscribed
+        // it might be independently implemented in a behavior, and independently subscribed
 
         if (this.actor._cardData.type !== "2d") {return;}
         let obj = this.shape.children.find((o) => o.name === "2d");

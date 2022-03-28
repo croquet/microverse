@@ -11,13 +11,13 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.SystemExpanderModules = [
+Constants.SystemBehaviorModules = [
     "menu.js", "elected.js", "propertyPanel.js", "spin.js"
 ];
 
-Constants.UserExpanderDirectory = "defaultDemo";
+Constants.UserBehaviorDirectory = "defaultDemo";
 
-Constants.UserExpanderModules = [
+Constants.UserBehaviorModules = [
     "demo.js",  "bitcoinTracker.js", "bridge.js"
 ];
 
@@ -195,7 +195,7 @@ Model.evaluate( () => {
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
-                actorExpander: "FlyActor",
+                actorBehavior: "FlyActor",
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 // margins: {left: 16, top: 16, right: 16, bottom: 16},
                 textScale: 0.001,
@@ -221,7 +221,7 @@ Model.evaluate( () => {
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
-                actorExpander: "DriveActor",
+                actorBehavior: "DriveActor",
                 textScale: 0.001,
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 width: 1.5,

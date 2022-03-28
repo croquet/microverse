@@ -30,9 +30,9 @@ export class WorldSaver {
         let sortedMap = this.topologicalSort(cards);
         let resultArray = this.collectData(sortedMap);
         
-        let {actorExpanders, pawnExpanders} = model.service("ExpanderModelManager").save();
+        let {actorBehaviors, pawnBehaviors} = model.service("BehaviorModelManager").save();
 
-        return {actorExpanders, pawnExpanders, cards: resultArray};
+        return {actorBehaviors, pawnBehaviors, cards: resultArray};
     }
 
     topologicalSort(cards) {

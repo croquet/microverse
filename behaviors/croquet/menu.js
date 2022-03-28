@@ -1,11 +1,11 @@
-class ExpanderMenuActor {
+class BehaviorMenuActor {
     show() {
         if (this.menu) {
             this.menu.destroy();
         }
 
         this.menu = this.createCard({
-            name: 'expander menu',
+            name: 'behavior menu',
             actorCode: ["MenuActor"],
             pawnCode: ["MenuPawn"],
             multiple: true,
@@ -17,8 +17,8 @@ class ExpanderMenuActor {
 
         this.updateSelections();
 
-        this.scriptListen("fire", "setExpanders");
-        this.scriptSubscribe(this._cardData.target, "expandersUpdated", "updateSelections");
+        this.scriptListen("fire", "setBehaviors");
+        this.scriptSubscribe(this._cardData.target, "behaviorUpdated", "updateSelections");
     }
 
     updateSelections() {
@@ -26,16 +26,16 @@ class ExpanderMenuActor {
         let target = this.service("ActorManager").get(this._cardData.target);
         let items = [];
 
-        let actorExpanders = this.expanderManager.actorExpanders;
-        let pawnExpanders = this.expanderManager.pawnExpanders;
+        let actorBehaviors = this.behaviorManager.actorBehaviors;
+        let pawnBehaviors = this.behaviorManager.pawnBehaviors;
 
-        for (let k of actorExpanders.keys()) {
+        for (let k of actorBehaviors.keys()) {
             let selected = target._actorCode && target._actorCode.indexOf(k) >= 0;
             let obj = {label: k, selected};
             items.push(obj);
         }
 
-        for (let k of pawnExpanders.keys()) {
+        for (let k of pawnBehaviors.keys()) {
             let selected = target._pawnCode && target._pawnCode.indexOf(k) >= 0;
             let obj = {label: k, selected};
             items.push(obj);
@@ -44,10 +44,10 @@ class ExpanderMenuActor {
         this.menu.call("MenuActor", "setItems", items);
     }
 
-    setExpanders(data) {
-        console.log("setExpanders");
+    setBehaviors(data) {
+        console.log("setBehaviors");
         let target = this.service("ActorManager").get(this._cardData.target);
-        target.setExpanders(data.selection);
+        target.setBehaviors(data.selection);
     }
 }
 
@@ -209,7 +209,7 @@ class MenuItemPawn {
 }
 
 export let menu = {
-    actorExpanders: [ExpanderMenuActor, MenuActor, MenuItemActor],
-    pawnExpanders: [MenuPawn,MenuItemPawn]
+    actorBehaviors: [BehaviorMenuActor, MenuActor, MenuItemActor],
+    pawnBehaviors: [MenuPawn,MenuItemPawn]
 };
 

@@ -426,8 +426,8 @@ class PerlinPawn {
 }
 
 export let demo = {
-    actorExpanders: [DriveActor, FlyActor, PerlinActor, PerlinNoise],
-    pawnExpanders: [PerlinPawn]
+    actorBehaviors: [DriveActor, FlyActor, PerlinActor, PerlinNoise],
+    pawnBehaviors: [PerlinPawn]
 }
 
 /* globals WorldCore */

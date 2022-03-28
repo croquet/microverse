@@ -6,7 +6,7 @@ import * as WorldCore from "@croquet/worldcore";
 const {ViewService, ModelService, GetPawn, Model} = WorldCore;
 
 let isProxy = Symbol("isProxy");
-function newProxy(object, handler, expander) {
+function newProxy(object, handler, behavior) {
     if (object[isProxy]) {
         return object;
     }
@@ -14,7 +14,7 @@ function newProxy(object, handler, expander) {
         get(target, property) {
             if (property === isProxy) {return true;}
             if (property === "_target") {return object;}
-            if (property === "_expander") {return expander;}
+            if (property === "_behavior") {return behavior;}
             if (handler && handler.hasOwnProperty(property)) {
                 return new Proxy(handler[property], {
                     apply: function(_target, thisArg, argumentList) {
@@ -34,56 +34,56 @@ export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
         this.scriptListeners = new Map();
-        this.expanderManager = this.service("ExpanderModelManager");
+        this.behaviorManager = this.service("BehaviorModelManager");
         if (options.actorCode) {
             options.actorCode.forEach((name) => {
-                this.expanderManager.modelUse(this, name);
+                this.behaviorManager.modelUse(this, name);
             });
         }
         if (options.pawnCode) {
             options.pawnCode.forEach((name) => {
-                this.expanderManager.viewUse(this, name);
+                this.behaviorManager.viewUse(this, name);
             });
         }
     }
 
-    addActorExpander(name) {
+    addActorBehavior(name) {
         if (!this._actorCode) {
             this._actorCode = [];
         }
 
         if (this._actorCode.indexOf(name) < 0) {
             this._actorCode = [...this._actorCode, name];
-            this.expanderManager.modelUse(this, name);
+            this.behaviorManager.modelUse(this, name);
         }
     }
 
-    removeActorExpander(name) {
+    removeActorBehavior(name) {
         if (!this._actorCode) {return;}
         let ind = this._actorCode.indexOf(name);
         if (ind >= 0) {
             this._actorCode.splice(ind, 1);
-            this.expanderManager.modelUnuse(this, name);
+            this.behaviorManager.modelUnuse(this, name);
         }
     }
 
-    addPawnExpander(name) {
+    addPawnBehavior(name) {
         if (!this._pawnCode) {
             this._pawnCode = [];
         }
 
         if (this._pawnCode.indexOf(name) < 0) {
             this._pawnCode = [...this._pawnCode, name];
-            this.expanderManager.viewUse(this, name);
+            this.behaviorManager.viewUse(this, name);
         }
     }
 
-    removePawnExpander(name) {
+    removePawnBehavior(name) {
         if (!this._pawnCode) {return;}
         let ind = this._pawnCode.indexOf(name);
         if (ind >= 0) {
             this._pawnCode.splice(ind, 1);
-            this.expanderManager.viewUnuse(this, name);
+            this.behaviorManager.viewUnuse(this, name);
         }
     }
 
@@ -93,12 +93,12 @@ export const AM_Code = superclass => class extends superclass {
         }
         if (this._actorCode) {
             this._actorCode.forEach((name) => {
-                this.expanderManager.modelUnuse(this, name);
+                this.behaviorManager.modelUnuse(this, name);
             });
         }
         if  (this._pawnCode) {
             this._pawnCode.forEach((name) => {
-                this.expanderManager.viewUnuse(this, name);
+                this.behaviorManager.viewUnuse(this, name);
             });
         }
         super.destroy();
@@ -106,21 +106,21 @@ export const AM_Code = superclass => class extends superclass {
 
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
-        let expanderName = this._expander;
-        return this.futureWithExpander(time, expanderName);
+        let behaviorName = this._behavior;
+        return this.futureWithBehavior(time, behaviorName);
     }
 
-    futureWithExpander(time, expanderName) {
+    futureWithBehavior(time, behaviorName) {
         let superFuture = (sel, args) => super.future(time, sel, args);
-        let expanderManager = this.expanderManager;
+        let behaviorManager = this.behaviorManager;
         let basicCall = this.call;
         
         return new Proxy(this, {
             get(_target, property) {
-                let expander = expanderManager.actorExpanders.get(expanderName);
+                let behavior = behaviorManager.actorBehaviors.get(behaviorName);
 
-                let func = property === "call" ? basicCall : expander.$expander[property];
-                let fullName = property === "call" ?  "call" : `${expanderName}.${property}`;
+                let func = property === "call" ? basicCall : behavior.$behavior[property];
+                let fullName = property === "call" ?  "call" : `${behaviorName}.${property}`;
                 if (typeof func === "function") {
                     const methodProxy = new Proxy(func, {
                         apply(_method, _this, args) {
@@ -129,20 +129,20 @@ export const AM_Code = superclass => class extends superclass {
                     });
                     return methodProxy;
                 }
-                throw Error("Tried to call " + property + "() on future of " + expanderName + " which is not a function");
+                throw Error("Tried to call " + property + "() on future of " + behaviorName + " which is not a function");
             }
         });
     }
 
-    call(expanderName, name, ...values) {
-        let expander = this.expanderManager.actorExpanders.get(expanderName);
-        if (!expander) {
-            throw new Error(`epxander named ${expanderName} not found`);
+    call(behaviorName, name, ...values) {
+        let behavior = this.behaviorManager.actorBehaviors.get(behaviorName);
+        if (!behavior) {
+            throw new Error(`epxander named ${behaviorName} not found`);
         }
 
-        expander.ensureExpander();
+        behavior.ensureBehavior();
 
-        return expander.invoke(this[isProxy] ? this._target : this, name, ...values);
+        return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
     scriptListen(eventName, listener) {
@@ -156,16 +156,16 @@ export const AM_Code = superclass => class extends superclass {
             listener = listener.name;
         }
 
-        let expander = this._expander;
-        if (!expander) {
-            expander = expander.constructor.name;
+        let behavior = this._behavior;
+        if (!behavior) {
+            behavior = behavior.constructor.name;
         }
 
         let fullMethodName;
-        if (listener.indexOf(".") >= 1 || !expander) {
+        if (listener.indexOf(".") >= 1 || !behavior) {
             fullMethodName = listener;
         } else {
-            fullMethodName = `${expander}.${listener}`;
+            fullMethodName = `${behavior}.${listener}`;
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
@@ -189,14 +189,14 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         let name = match[1];
-        let forActor = this._cardData.actorExpander;
-        let type = forActor ? "actorExpanders" : "pawnExpanders";
+        let forActor = this._cardData.actorBehavior;
+        let type = forActor ? "actorBehaviors" : "pawnBehaviors";
         
-        let current = this.expanderManager[type].get(name);
+        let current = this.behaviorManager[type].get(name);
         
-        this.expanderManager.loadAllCode([
+        this.behaviorManager.loadAllCode([
             {action: "add", type, name, content: data.text,
-             systemExpander: current.systemExpander}]);
+             systemBehavior: current.systemBehavior}]);
     }
 
     getCode() {
@@ -222,32 +222,32 @@ export const PM_Code = superclass => class extends superclass {
     constructor(actor) {
         super(actor);
         this.scriptListeners = new Map();
-        let expanderManager = this.actor.expanderManager;
+        let behaviorManager = this.actor.behaviorManager;
 
         this.subscribe(actor.id, "callSetup", "callSetup");
         this.subscribe(actor.id, "callDestroy", "callDestroy");
         if (actor._pawnCode) {
             actor._pawnCode.forEach((name) => {
-                let expander = expanderManager.pawnExpanders.get(name);
-                if (expander) {
-                    expander.ensureExpander();
+                let behavior = behaviorManager.pawnBehaviors.get(name);
+                if (behavior) {
+                    behavior.ensureBehavior();
                 }
-                if (expander.$expander.setup) {
+                if (behavior.$behavior.setup) {
                     this.future(0).callSetup(name);
                 }
             });
         }
     }
         
-    call(expanderName, name, ...values) {
-        let expander = this.actor.expanderManager.pawnExpanders.get(expanderName);
-        if (!expander) {
-            throw new Error(`epxander named ${expanderName} not found`);
+    call(behaviorName, name, ...values) {
+        let behavior = this.actor.behaviorManager.pawnBehaviors.get(behaviorName);
+        if (!behavior) {
+            throw new Error(`epxander named ${behaviorName} not found`);
         }
 
-        expander.ensureExpander();
+        behavior.ensureBehavior();
 
-        return expander.invoke(this[isProxy] ? this._target : this, name, ...values);
+        return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
     destroy() {
@@ -280,16 +280,16 @@ export const PM_Code = superclass => class extends superclass {
             listener = listener.name;
         }
 
-        let expander = this._expander;
-        if (!expander) {
-            expander = expander.constructor.name;
+        let behavior = this._behavior;
+        if (!behavior) {
+            behavior = behavior.constructor.name;
         }
 
         let fullMethodName;
-        if (listener.indexOf(".") >= 1 || !expander) {
+        if (listener.indexOf(".") >= 1 || !behavior) {
             fullMethodName = listener;
         } else {
-            fullMethodName = `${expander}.${listener}`;
+            fullMethodName = `${behavior}.${listener}`;
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
@@ -318,9 +318,9 @@ export const PM_Code = superclass => class extends superclass {
 
 }
 
-class Expander extends Model {
+class ScriptingBehavior extends Model {
     init(options) {
-        this.systemExpander = !!options.systemExpander;
+        this.systemBehavior = !!options.systemBehavior;
     }
 
     setCode(string) {
@@ -356,56 +356,56 @@ class Expander extends Model {
             return;
         }
 
-        this.$expander = cls.prototype;
-        this.$expanderName = cls.name;
+        this.$behavior = cls.prototype;
+        this.$behaviorName = cls.name;
 
         if (!theSame) {
             this.publish(this.id, "setCode", string);
         }
     }
 
-    ensureExpander() {
-        if (!this.$expander) {
+    ensureBehavior() {
+        if (!this.$behavior) {
             let maybeCode = this.code;
             this.setCode(maybeCode, true);
         }
-        return this.$expander;
+        return this.$behavior;
     }
 
     invoke(receiver, name, ...values) {
-        this.ensureExpander();
-        let myHandler = this.$expander;
-        let expander = this.$expanderName;
+        this.ensureBehavior();
+        let myHandler = this.$behavior;
+        let behavior = this.$behaviorName;
         let result;
 
-        let proxy = newProxy(receiver, myHandler, expander);
+        let proxy = newProxy(receiver, myHandler, behavior);
         try {
             let f = proxy[name];
             if (!f) {
-                throw new Error(`a method named ${name} not found in ${expander || this}`);
+                throw new Error(`a method named ${name} not found in ${behavior || this}`);
             }
             result = f.apply(proxy, values);
         } catch (e) {
-            console.error("an error occured in", expander, name, e);
+            console.error("an error occured in", behavior, name, e);
         }
         return result;
     }
 }
 
-Expander.register("Expander");
+ScriptingBehavior.register("ScriptingBehavior");
 
 // Each code is a Model object whose contents is the text code
 // the model's identifier is the id, but you can also refer to it by name
 // If there are two classes with the same name, for now we can say that is not allowed
 
-export class ExpanderModelManager extends ModelService {
+export class BehaviorModelManager extends ModelService {
     init(name) {
-        super.init(name || "ExpanderModelManager");
+        super.init(name || "BehaviorModelManager");
         this.modelUses = new Map(); // {name: [cardActorId]}
         this.viewUses = new Map();  // {name: [cardActorId]}
 
-        this.actorExpanders = new Map(); // {name: Expander}
-        this.pawnExpanders = new Map(); // {name: Expander}
+        this.actorBehaviors = new Map(); // {name: Behavior}
+        this.pawnBehaviors = new Map(); // {name: Behavior}
 
         this.loadCache = null;
 
@@ -462,32 +462,19 @@ export class ExpanderModelManager extends ModelService {
 
     loadAllCode(codeArray) {
         codeArray.forEach((obj) => {
-            let {action, type, name, content, systemExpander} = obj;
+            let {action, type, name, content, systemBehavior} = obj;
 
+            // type is either actorBehaviors or pawnBehaviors
             if (action === "add") {
-                if (type === "actorExpanders") {
-                    let expander = this.actorExpanders.get(name);
-                    if (!expander) {
-                        expander = Expander.create({systemExpander});
-                        this.actorExpanders.set(name, expander);
-                    }
-                    expander.setCode(content);
-                } else if (type === "pawnExpanders") {
-                    let expander = this.pawnExpanders.get(name);
-                    if (!expander) {
-                        expander = Expander.create({systemExpander});
-                        this.pawnExpanders.set(name, expander);
-                    }
-                    expander.setCode(content);
+                let behavior = this[type].get(name);
+                if (!behavior) {
+                    behavior = ScriptingBehavior.create({systemBehavior});
+                    this[type].set(name, behavior);
                 }
+                behavior.setCode(content);
             }
             if (action === "remove") {
-                if (type === "actorExpanders") {
-                    this.actorExpanders.delete(name);
-                }
-                if (type === "pawnExpanders") {
-                    this.pawnExpanders.delete(name);
-                }
+                this[type].delete(name);
             }
         });
 
@@ -495,20 +482,20 @@ export class ExpanderModelManager extends ModelService {
         codeArray.forEach((obj) => {
             let {action, type, name} = obj;
             if (action === "add") {
-                if (type === "actorExpanders") {
-                    let expander = this.actorExpanders.get(name);
-                    if (!expander.$expander.setup) {return;}
+                if (type === "actorBehaviors") {
+                    let behavior = this.actorBehaviors.get(name);
+                    if (!behavior.$behavior.setup) {return;}
                     let modelUsers = this.modelUses.get(name);
                     let actorManager = this.service("ActorManager");
                     if (modelUsers) {
                         modelUsers.forEach((modelId) => {
                             let model = actorManager.get(modelId);
                             if (model) {
-                                expander.future(0).invoke(model, "setup");
+                                behavior.future(0).invoke(model, "setup");
                             }
                         });
                     }
-                } else if (type === "pawnExpanders") {
+                } else if (type === "pawnBehaviors") {
                     toPublish.push(name);
                 }
             }
@@ -517,20 +504,16 @@ export class ExpanderModelManager extends ModelService {
     }
 
     save() {
-        let actorExpanders = new Map();
-        let pawnExpanders = new Map();
+        let result = {actorBehaviors: new Map(), pawnBehaviors: new Map()};
 
-        for (let [key, expander] of this.actorExpanders) {
-            if (!expander.systemExpander) {
-                actorExpanders.set(key, {content: expander.code});
+        ["actorBehaviors", "pawnBehaviors"].forEach((col) => {
+            for (let [key, behavior] of this[col]) {
+                if (!behavior.systemBehavior) {
+                    result[col].set(key, {content: behavior.code});
+                }
             }
-        }
-        for (let [key, expander] of this.pawnExpanders) {
-            if (!expander.systemExpander) {
-                pawnExpanders.set(key, {content: expander.code});
-            }
-        }
-        return {actorExpanders, pawnExpanders};
+        });
+        return result;
     }
             
     modelUse(model, name) {
@@ -543,11 +526,11 @@ export class ExpanderModelManager extends ModelService {
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
 
-            let expander = this.actorExpanders.get(name);
-            if (!expander) {return;}
-            expander.ensureExpander();
-            if (expander.$expander.setup) {
-                expander.future(0).invoke(model[isProxy] ? model._target : model, "setup");
+            let behavior = this.actorBehaviors.get(name);
+            if (!behavior) {return;}
+            behavior.ensureBehavior();
+            if (behavior.$behavior.setup) {
+                behavior.future(0).invoke(model[isProxy] ? model._target : model, "setup");
             }
         }
     }
@@ -559,9 +542,9 @@ export class ExpanderModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        let expander = this.actorExpanders.get(name);
-        if (expander && expander.$expander && expander.$expander.destroy) {
-            expander.future(0).invoke(model[isProxy] ? model._target : model, "destroy");
+        let behavior = this.actorBehaviors.get(name);
+        if (behavior && behavior.$behavior && behavior.$behavior.destroy) {
+            behavior.future(0).invoke(model[isProxy] ? model._target : model, "destroy");
         }
     }
 
@@ -576,10 +559,10 @@ export class ExpanderModelManager extends ModelService {
             array.push(modelId);
         }
 
-        let expander = this.pawnExpanders.get(name);
-        if (!expander) {return;}
-        expander.ensureExpander();
-        if (expander.$expander.setup) {
+        let behavior = this.pawnBehaviors.get(name);
+        if (!behavior) {return;}
+        behavior.ensureBehavior();
+        if (behavior.$behavior.setup) {
             model.say("callSetup", name);
         }
     }
@@ -591,22 +574,22 @@ export class ExpanderModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        let expander = this.pawnExpanders.get(name);
-        if (expander && expander.$expander && expander.$expander.destroy) {
+        let behavior = this.pawnBehaviors.get(name);
+        if (behavior && behavior.$behavior && behavior.$behavior.destroy) {
             model.say("callDestroy", name);
         }
     }
 }
 
-ExpanderModelManager.register("ExpanderModelManager");
+BehaviorModelManager.register("BehaviorModelManager");
 
-export class ExpanderViewManager extends ViewService {
+export class BehaviorViewManager extends ViewService {
     constructor(name) {
-        super(name || "ExpanderViewManager");
+        super(name || "BehaviorViewManager");
         this.url = null;
         this.socket = null;
-        window.ExpanderViewManager = this;
-        this.model = this.wellKnownModel("ExpanderModelManager");
+        window.BehaviorViewManager = this;
+        this.model = this.wellKnownModel("BehaviorModelManager");
         this.subscribe(this.model.id, "callViewSetupAll", "callViewSetupAll");
     }
 
@@ -627,13 +610,13 @@ export class ExpanderViewManager extends ViewService {
 
     callViewSetupAll(names) {
         names.forEach((name) => {
-            let expander = this.model.pawnExpanders.get(name);
+            let behavior = this.model.pawnBehaviors.get(name);
             let viewUsers = this.model.viewUses.get(name);
             if (viewUsers) {
                 viewUsers.forEach((modelId) => {
                     let pawn = GetPawn(modelId);
                     if (pawn) {
-                        expander.invoke(pawn, "setup");
+                        behavior.invoke(pawn, "setup");
                     }
                 });
             }
@@ -653,7 +636,7 @@ export class ExpanderViewManager extends ViewService {
             return;
         }
 
-        let systemExpanderMap = new Map();
+        let systemBehaviorMap = new Map();
 
         let dataURLs = [];
         let promises = [];
@@ -671,7 +654,7 @@ export class ExpanderViewManager extends ViewService {
 
         array.forEach((obj) => {
             if (obj.action === "add") {
-                systemExpanderMap.set(obj.name, obj.systemExpander);
+                systemBehaviorMap.set(obj.name, obj.systemBehavior);
                 let id = Math.random().toString();
                 let promise = new Promise((resolve, _reject) => {
                     current.set(id, resolve);
@@ -709,18 +692,18 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 let files = [];
                 allData.forEach((obj) => {
                     let keys = Object.keys(obj.data);
-                    keys.forEach((expName) => {
-                        if (obj.data[expName] && obj.data[expName].actorExpanders) {
+                    keys.forEach((behaviorName) => {
+                        if (obj.data[behaviorName] && obj.data[behaviorName].actorBehaviors) {
                             files.push({
-                                type: "actorExpanders",
-                                contents: obj.data[expName].actorExpanders.map(e => e.toString()),
-                                systemExpander: systemExpanderMap.get(obj.name)});
+                                type: "actorBehaviors",
+                                contents: obj.data[behaviorName].actorBehaviors.map(e => e.toString()),
+                                systemBehavior: systemBehaviorMap.get(obj.name)});
                         }
-                        if (obj.data[expName] && obj.data[expName].pawnExpanders) {
+                        if (obj.data[behaviorName] && obj.data[behaviorName].pawnBehaviors) {
                             files.push({
-                                type: "pawnExpanders",
-                                contents: obj.data[expName].pawnExpanders.map(e => e.toString()),
-                                systemExpander: systemExpanderMap.get(obj.name)});
+                                type: "pawnBehaviors",
+                                contents: obj.data[behaviorName].pawnBehaviors.map(e => e.toString()),
+                                systemBehavior: systemBehaviorMap.get(obj.name)});
                         }
                     });
                 });
@@ -729,7 +712,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 let key = Math.random();
                 
                 files.forEach((obj) => {
-                    let {type, contents, systemExpander} = obj;
+                    let {type, contents, systemBehavior} = obj;
 
                     contents.forEach((str) => {
                         let match = /^class[\s]+([\S]+)/.exec(str.trim());
@@ -737,7 +720,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                         let className = match[1];
 
                         sendBuffer.push({
-                            action: "add", type, name: className, content: str, key, systemExpander
+                            action: "add", type, name: className, content: str, key, systemBehavior
                         });
                     });
                 });
@@ -762,24 +745,24 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
 
 export class CodeLibrary {
     constructor() {
-        this.actorExpanders = new Map();
-        this.pawnExpanders = new Map();
+        this.actorBehaviors = new Map();
+        this.pawnBehaviors = new Map();
         this.functions = new Map();
         this.classes = new Map();
     }
 
     add(library, isSystem) {
-        if (library.actorExpanders) {
-            library.actorExpanders.forEach(cls => {
+        if (library.actorBehaviors) {
+            library.actorBehaviors.forEach(cls => {
                 let key = cls.name;
-                this.actorExpanders.set(key, {systemExpander: isSystem, content: cls.toString()});
+                this.actorBehaviors.set(key, {systemBehavior: isSystem, content: cls.toString()});
             });
         }
 
-        if (library.pawnExpanders) {
-            library.pawnExpanders.forEach(cls => {
+        if (library.pawnBehaviors) {
+            library.pawnBehaviors.forEach(cls => {
                 let key = cls.name;
-                this.pawnExpanders.set(key, {systemExpander: isSystem, content: cls.toString()});
+                this.pawnBehaviors.set(key, {systemBehavior: isSystem, content: cls.toString()});
             });
         }
 
@@ -800,9 +783,9 @@ export class CodeLibrary {
     }
 
     get(path) {
-        let ret = this.actorExpanders.get(path);
+        let ret = this.actorBehaviors.get(path);
         if (ret) {return ret;}
-        ret = this.pawnExpanders.get(path);
+        ret = this.pawnBehaviors.get(path);
         if (ret) {return ret;}
         ret = this.functions.get(path);
         if (ret) {return ret;}
@@ -811,15 +794,15 @@ export class CodeLibrary {
     }
 
     delete(path) {
-        let ret = this.actorExpanders.get(path);
+        let ret = this.actorBehaviors.get(path);
         if (ret) {
-            this.actorExpanders.delete(path);
+            this.actorBehaviors.delete(path);
             return;
         }
         
-        ret = this.pawnExpanders.get(path);
+        ret = this.pawnBehaviors.get(path);
         if (ret) {
-            this.pawnExpanders.delete(path);
+            this.pawnBehaviors.delete(path);
             return;
         }
         

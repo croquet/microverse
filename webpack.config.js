@@ -75,7 +75,7 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        if (Object.keys(file)[0].indexOf("expanders/")) {
+                        if (Object.keys(file)[0].indexOf("behaviors/") >= 0) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options

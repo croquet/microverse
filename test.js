@@ -11,11 +11,11 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.SystemExpanderModules = [
+Constants.SystemBehaviorModules = [
     "menu.js", "elected.js", "propertyPanel.js"
 ];
 
-Constants.UserExpanderModules = [
+Constants.UserBehaviorModules = [
     "defaultDemo/demo.js",  "defaultDemo/bitcoinTracker.js", "defaultDemo/bridge.js"
 ];
 

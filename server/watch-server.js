@@ -23,7 +23,7 @@ if (process.argv[2]) {
 let directory = process.argv[2 + numFlags];
 
 if (!directory) {
-    directory = path.join(path.dirname(process.argv[1]), "../expanders");
+    directory = path.join(path.dirname(process.argv[1]), "../behaviors");
 }
 console.log(directory);
 
@@ -104,9 +104,9 @@ function sendFiles(socket) {
     newKeys.forEach((k) => {
         if (debug || (files[k] && files[k] !== sent[k])) {
             sent[k] = files[k];
-            let systemExpander = k.startsWith("croquet");
-            console.log(k, systemExpander);
-            toSend.push({action: "add", name: k, content: files[k], systemExpander});
+            let systemBehavior = k.startsWith("croquet");
+            console.log(k, systemBehavior);
+            toSend.push({action: "add", name: k, content: files[k], systemBehavior});
         }
     });
 

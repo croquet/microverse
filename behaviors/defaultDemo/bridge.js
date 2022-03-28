@@ -158,8 +158,8 @@ class BridgePawn {
 }
 
 export let bridge = {
-    actorExpanders: [BridgeActor],
-    pawnExpanders: [BridgePawn]
+    actorBehaviors: [BridgeActor],
+    pawnBehaviors: [BridgePawn]
 }
 
 /* globals WorldCore */

@@ -1,7 +1,7 @@
 {
-  "name": "expander-server",
+  "name": "behavior-server",
   "version": "0.0.1",
-  "description": "A server to serve expander files for microverse",
+  "description": "A server to serve behavior files for microverse",
   "main": "server.js",
   "private": true,
   "scripts": {

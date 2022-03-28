@@ -75,8 +75,8 @@ class SpinPawn {
 }
 
 export const spin = {
-    actorExpanders: [SpinActor],
-    pawnExpanders: [SpinPawn]
+    actorBehaviors: [SpinActor],
+    pawnBehaviors: [SpinPawn]
 }
 
 /* globals WorldCore */

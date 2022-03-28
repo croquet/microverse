@@ -10,7 +10,7 @@ import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
-import { ExpanderModelManager, ExpanderViewManager, CodeLibrary } from "./src/code.js";
+import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
 import { DLight } from './src/DLight.js';
 import { TextFieldActor } from './src/text/text.js';
 import { WorldSaver } from './src/worldSaver.js';
@@ -51,15 +51,15 @@ function loadLoaders() {
         });
 }
 
-function loadInitialExpanders(paths, directory) {
+function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
     
     if (!directory) {
-        throw new Error("directory argument has to be specified. It is used the sub directory name under the ./expanders directory.");
+        throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === "croquet";
-    let promises = paths.map((path) => import(`./expanders/${directory}/${path}`));
+    let promises = paths.map((path) => import(`./behaviors/${directory}/${path}`));
 
     return Promise.all(promises).then((array) => {
         array.forEach((module) => {
@@ -93,7 +93,7 @@ class MyModelRoot extends ModelRoot {
         return [
             MyPlayerManager,
             DynaverseAppManager,
-            ExpanderModelManager,
+            BehaviorModelManager,
             FontModelManager,
         ];
     }
@@ -116,7 +116,7 @@ class MyModelRoot extends ModelRoot {
             return;
         }
 
-        this.loadExpanders(Constants.Library.actorExpanders, Constants.Library.pawnExpanders, "1");
+        this.loadBehaviors(Constants.Library.actorBehaviors, Constants.Library.pawnBehaviors, "1");
         this.load(Constants.DefaultCards, "1");
     }
 
@@ -142,27 +142,27 @@ class MyModelRoot extends ModelRoot {
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
 
-            //maybe we need to delete all DefaultUserExpanders at this point.
+            //maybe we need to delete all DefaultUserBehaviors at this point.
 
             let lib = Constants.Library;
             let systemActors = new Map();
             let systemPawns = new Map();
 
-            for (let [k, v] of lib.actorExpanders) {
-                if (v.systemExpander) {
+            for (let [k, v] of lib.actorBehaviors) {
+                if (v.systemBehavior) {
                     systemActors.set(k, v);
                 }
             }
 
-            for (let [k, v] of lib.pawnExpanders) {
-                if (v.systemExpander) {
+            for (let [k, v] of lib.pawnBehaviors) {
+                if (v.systemBehavior) {
                     systemPawns.set(k, v);
                 }
             }
 
-            this.loadExpanders(systemActors, systemPawns, version);
+            this.loadBehaviors(systemActors, systemPawns, version);
 
-            this.loadExpanders(json.actorExpanders, json.pawnExpanders, version);
+            this.loadBehaviors(json.actorBehaviors, json.pawnBehaviors, version);
             if (json.cards) {
                 this.load(json.cards, version);
             }
@@ -187,18 +187,18 @@ class MyModelRoot extends ModelRoot {
         this.persistSession(func);
     }
 
-    loadExpanders(actorExpanders, pawnExpanders, version) {
-        // the persistent data should never contain a system expander
+    loadBehaviors(actorBehaviors, pawnBehaviors, version) {
+        // the persistent data should never contain a system behavior
         if (version === "1") {
-            let expanderManager = this.service("ExpanderModelManager");
+            let behaviorManager = this.service("BehaviorModelManager");
             let array = [];
-            for (let [k, v] of actorExpanders) {
-                array.push({action: "add", type: "actorExpanders", name: k, ...v});
+            for (let [k, v] of actorBehaviors) {
+                array.push({action: "add", type: "actorBehaviors", name: k, ...v});
             }
-            for (let [k, v] of pawnExpanders) {
-                array.push({action: "add", type: "pawnExpanders", name: k, ...v});
+            for (let [k, v] of pawnBehaviors) {
+                array.push({action: "add", type: "pawnBehaviors", name: k, ...v});
             }
-            expanderManager.loadAllCode(array);
+            behaviorManager.loadAllCode(array);
         }
     }
 
@@ -238,7 +238,7 @@ class MyViewRoot extends ViewRoot {
             FontViewManager,
             SyncedStateManager,
             VideoManager,
-            ExpanderViewManager,
+            BehaviorViewManager,
             AvatarManager
         ];
     }
@@ -271,9 +271,9 @@ export function startWorld(moreOptions) {
     App.makeWidgetDock();
     return loadLoaders()
         .then(() => {
-            return loadInitialExpanders(Constants.SystemExpanderModules, "croquet");
+            return loadInitialBehaviors(Constants.SystemBehaviorModules, "croquet");
         }).then(() => {
-            return loadInitialExpanders(Constants.UserExpanderModules, Constants.UserExpanderDirectory);
+            return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             StartWorldcore(options);
         });

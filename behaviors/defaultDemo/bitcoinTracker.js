@@ -244,8 +244,8 @@ class BarGraphPawn {
 }
 
 export const bitcoinTracker = {
-    actorExpanders: [BitcoinTrackerActor, BarGraphActor],
-    pawnExpanders: [BitcoinTrackerPawn, BitLogoPawn, BarGraphPawn],
+    actorBehaviors: [BitcoinTrackerActor, BarGraphActor],
+    pawnBehaviors: [BitcoinTrackerPawn, BitLogoPawn, BarGraphPawn],
 }
 
 /* globals WorldCore */

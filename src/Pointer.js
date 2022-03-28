@@ -36,9 +36,9 @@ export const AM_PointerTarget = superclass => class extends superclass {
         if (!array) {return;}
 
         array.forEach((obj) => {
-            let {expander, listener} = obj;
-            if (expander) {
-                this.call(expander, listener, evt);
+            let {behavior, listener} = obj;
+            if (behavior) {
+                this.call(behavior, listener, evt);
             } else {
                 this[listener](evt);
             }
@@ -47,19 +47,19 @@ export const AM_PointerTarget = superclass => class extends superclass {
 
     addEventListener(eventName, listener) {
         // console.log("addEventListener", eventName, listener);
-        let expander;
+        let behavior;
         if (typeof listener === "function") {
             listener = listener.name;
         }
         
         if (listener.indexOf(".") >= 1) {
             let split = listener.split(".");
-            expander = split[0];
+            behavior = split[0];
             listener = split[1];
         }
 
-        if (!expander) {
-            expander = this._expander;
+        if (!behavior) {
+            behavior = this._behavior;
         }
         let array = this.eventListeners.get(eventName);
         if (!array) {
@@ -70,26 +70,26 @@ export const AM_PointerTarget = superclass => class extends superclass {
             // console.log("multiple registration of the same function");
             return;
         }
-        array.push({expander, listener});
+        array.push({behavior, listener});
 
         this.say("registerEventListener", {eventName, listener});
     }
 
     removeEventListener(eventName, listener) {
         // console.log("removeEventListener", eventName, listener);
-        let expander;
+        let behavior;
         if (typeof listener === "function") {
             listener = listener.name;
         }
 
         if (listener.indexOf(".") >= 1) {
             let split = listener.split(".");
-            expander = split[0];
+            behavior = split[0];
             listener = split[1];
         }
 
-        if (!expander) {
-            expander = this._expander;
+        if (!behavior) {
+            behavior = this._behavior;
         }
         
         let array = this.eventListeners.get(eventName);
@@ -97,7 +97,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
             // console.log("try to remove non-existent listener");
             return;
         }
-        let ind = array.findIndex((obj) => obj.expander === expander && obj.listener === listener);
+        let ind = array.findIndex((obj) => obj.behavior === behavior && obj.listener === listener);
         if (ind < 0) {
             // console.log("try to remove non-existent listener");
             return;
