@@ -68,10 +68,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         if (this._actorCode) {
             this._actorCode.forEach((old) => {
                 if (!newActorCode || !newActorCode.includes(old)) {
-                    let expander = this.expanderManager.actorExpanders.get(old);
-                    if (expander && expander.$expander.destroy) {
-                        this.call(old, "destroy");
-                    }
                     this.expanderManager.modelUnuse(this, old);
                 }
             });
@@ -80,7 +76,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         if (this._pawnCode) {
             this._pawnCode.forEach((old) => {
                 if (!newPawnCode || !newPawnCode.includes(old)) {
-                    this.say("callDestroy", old);
                     this.expanderManager.viewUnuse(this, old);
                 }
             });

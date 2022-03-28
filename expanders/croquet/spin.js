@@ -1,7 +1,7 @@
 class SpinActor {
     setup() {
-        this.scriptListen("startSpinning", this.startSpinning);
-        this.scriptListen("stopSpinning", this.stopSpinning);
+        this.scriptListen("startSpinning", "startSpinning");
+        this.scriptListen("stopSpinning", "stopSpinning");
     }
     
     startSpinning(spin) {
@@ -31,10 +31,11 @@ class SpinPawn {
 
     theta(xyz) {
         let local = this.world2local(xyz);
-        return Math.atan2(local[0], local[2]);
+        return -Math.atan2(local[0], local[2]);
     }
 
     onPointerDown(p3d) {
+        console.log("down");
         this.base = this.theta(p3d.xyz);
         this.deltaAngle = 0;
         this.say("stopSpinning");

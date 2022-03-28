@@ -62,10 +62,6 @@ export const AM_Code = superclass => class extends superclass {
         if (!this._actorCode) {return;}
         let ind = this._actorCode.indexOf(name);
         if (ind >= 0) {
-            let expander = this.expanderManager.actorExpanders.get(name);
-            if (expander && expander.$expander && expander.$expander.destroy) {
-                expander.invoke(this[isProxy] ? this._target : this, "destroy");
-            }
             this._actorCode.splice(ind, 1);
             this.expanderManager.modelUnuse(this, name);
         }
@@ -79,7 +75,6 @@ export const AM_Code = superclass => class extends superclass {
         if (this._pawnCode.indexOf(name) < 0) {
             this._pawnCode = [...this._pawnCode, name];
             this.expanderManager.viewUse(this, name);
-            this.publish(this.id, "callSetup", name);
         }
     }
 
@@ -87,7 +82,6 @@ export const AM_Code = superclass => class extends superclass {
         if (!this._pawnCode) {return;}
         let ind = this._pawnCode.indexOf(name);
         if (ind >= 0) {
-            this.publish(this.id, "callDestroy", name);
             this._pawnCode.splice(ind, 1);
             this.expanderManager.viewUnuse(this, name);
         }
@@ -99,16 +93,11 @@ export const AM_Code = superclass => class extends superclass {
         }
         if (this._actorCode) {
             this._actorCode.forEach((name) => {
-                let expander = this.expanderManager.actorExpanders.get(name);
-                if (expander && expander.$expander.destroy) {
-                    this.call(name, "destroy");
-                }
                 this.expanderManager.modelUnuse(this, name);
             });
         }
         if  (this._pawnCode) {
             this._pawnCode.forEach((name) => {
-                this.say("callDestroy", name);
                 this.expanderManager.viewUnuse(this, name);
             });
         }
@@ -515,7 +504,7 @@ export class ExpanderModelManager extends ModelService {
                         modelUsers.forEach((modelId) => {
                             let model = actorManager.get(modelId);
                             if (model) {
-                                expander.invoke(model, "setup");
+                                expander.future(0).invoke(model, "setup");
                             }
                         });
                     }
@@ -558,7 +547,7 @@ export class ExpanderModelManager extends ModelService {
             if (!expander) {return;}
             expander.ensureExpander();
             if (expander.$expander.setup) {
-                this.future(0).callSetup(expander, model);
+                expander.future(0).invoke(model[isProxy] ? model._target : model, "setup");
             }
         }
     }
@@ -570,10 +559,10 @@ export class ExpanderModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-    }
-
-    callSetup(expander, model) {
-        expander.invoke(model, "setup");
+        let expander = this.actorExpanders.get(name);
+        if (expander && expander.$expander && expander.$expander.destroy) {
+            expander.future[0].invoke(model[isProxy] ? model._target : model, "destroy");
+        }
     }
 
     viewUse(model, name) {
@@ -590,6 +579,9 @@ export class ExpanderModelManager extends ModelService {
         let expander = this.pawnExpanders.get(name);
         if (!expander) {return;}
         expander.ensureExpander();
+        if (expander.$expander.setup) {
+            model.say("callSetup", name);
+        }
     }
 
     viewUnuse(model, name) {
@@ -599,6 +591,10 @@ export class ExpanderModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
+        let expander = this.pawnExpanders.get(name);
+        if (expander && expander.$expander && expander.$expander.destroy) {
+            model.say("callDestroy", name);
+        }
     }
 }
 
