@@ -82,8 +82,12 @@ class DLightPawn extends CardPawn {
         const pmremGenerator = new THREE.PMREMGenerator( renderer );
         pmremGenerator.compileEquirectangularShader();
 
+        let assets = ASSETS_DIRECTORY;
+        // at this moment it relies on webpack DefinePlugin but we'll move
+        // this more rationalized.
+
         new THREE.EXRLoader()
-        .load( './assets/sky/syferfontein_1d_clear_1k.exr', function ( texture ) {
+        .load( `${assets}/sky/syferfontein_1d_clear_1k.exr`, ( texture ) => {
 
             let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
             let exrBackground = exrCubeRenderTarget.texture;
@@ -96,3 +100,5 @@ class DLightPawn extends CardPawn {
         } );
     }
 }
+
+/* globals ASSETS_DIRECTORY */

@@ -93,6 +93,13 @@ module.exports = (env, argv) => {
             ]
         };
     }
+
+    config.plugins.push(new webpack.DefinePlugin({
+        ASSETS_DIRECTORY: JSON.stringify(
+            argv.mode === 'production' ? "./assets" : "../assets"
+        )
+    }));
+    
     return config;
 }
 
