@@ -26,8 +26,8 @@ class DLightPawn extends CardPawn {
         this.loadEXR("xyzzy", THREE)
         this.addToLayers('light');
         let scene = window.scene =  this.service("ThreeRenderManager").scene;
-        scene.rotateY(Math.PI);
-        console.log(scene);
+       // scene.rotateY(Math.PI);
+       // console.log(scene);
 
         let group = this.shape;
 
@@ -39,7 +39,7 @@ class DLightPawn extends CardPawn {
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
         //sun.position.set(-200, 800, 100);
-        sun.position.set(-400, 500, -400);
+        sun.position.set(400, 500, 400);
 
         let side = 15;
 
