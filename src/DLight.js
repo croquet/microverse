@@ -2,17 +2,18 @@
 // https://croquet.io
 // info@croquet.io
 
-import {
-    THREE, Actor, Pawn, mix, AM_Smoothed, PM_Smoothed, PM_ThreeVisible} from "@croquet/worldcore";
+import { THREE } from "@croquet/worldcore";
 
 import { CardActor, CardPawn } from "./DCard.js";
 
+/*
 import skyFront from "../assets/sky/sh_ft.png";
 import skyBack from "../assets/sky/sh_bk.png";
 import skyRight from "../assets/sky/sh_rt.png";
 import skyLeft from "../assets/sky/sh_lf.png";
 import skyUp from "../assets/sky/sh_up.png";
 import skyDown from "../assets/sky/sh_dn.png";
+*/
 
 export class DLight extends CardActor {
     get pawn() {return DLightPawn;}
@@ -25,12 +26,12 @@ class DLightPawn extends CardPawn {
         super(options);
         this.loadEXR("xyzzy", THREE)
         this.addToLayers('light');
-        let scene = window.scene =  this.service("ThreeRenderManager").scene;
-       // console.log(scene);
+        window.scene =  this.service("ThreeRenderManager").scene;
+        // console.log(window.scene);
 
         let group = this.shape;
 
-//        this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
+        // this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         const ambient = new THREE.AmbientLight( 0xffffff, .75 );
  
@@ -75,7 +76,7 @@ class DLightPawn extends CardPawn {
         super.destroy();
     }
 
-    loadEXR(fname, THREE){
+    loadEXR(fname, THREE) {
         const TRM = this.service("ThreeRenderManager");
         const renderer = TRM.renderer;
         const scene = TRM.scene;
@@ -87,17 +88,16 @@ class DLightPawn extends CardPawn {
         // this more rationalized.
 
         new THREE.EXRLoader()
-        .load( `${assets}/sky/syferfontein_1d_clear_1k.exr`, ( texture ) => {
+            .load( `${assets}/sky/syferfontein_1d_clear_1k.exr`, ( texture ) => {
 
-            let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
-            let exrBackground = exrCubeRenderTarget.texture;
-            TRM.envMap = exrBackground;
-            scene.background = exrBackground;
-            scene.environment = exrBackground;
-            console.log( exrBackground)
-            texture.dispose();
-
-        } );
+                let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+                let exrBackground = exrCubeRenderTarget.texture;
+                TRM.envMap = exrBackground;
+                scene.background = exrBackground;
+                scene.environment = exrBackground;
+                console.log( exrBackground)
+                texture.dispose();
+            } );
     }
 }
 
