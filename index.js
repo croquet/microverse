@@ -32,7 +32,7 @@ Model.evaluate( () => {
                 rotation: [0, Math.PI, 0],
                 layers: ['walk'],
                 type: "3d",
-                dataLocation: "./assets/3D/Oil Refinery Kai Fixes 5.glb.zip",
+                dataLocation: "./assets/3D/Oil Refinery 6.glb.zip",
                 singleSided: true,
                 shadow: true,
                 /*
