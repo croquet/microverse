@@ -57,13 +57,13 @@ class DLightPawn extends CardPawn {
         sun.shadow.camera.right = -side;
         group.add(sun);
 
-        // xyzzy this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
-//        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
-//        this.moon.position.set(200, 100, -100);
-//        group.add(this.moon);
+        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
+        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
+        this.moon.position.set(200, 100, -100);
+        group.add(this.moon);
 
-//        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
-//        group.add(hemiLight);
+        this.hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
+        group.add(this.hemiLight);
         group.name = "Light Card";
     }
 
@@ -77,7 +77,6 @@ class DLightPawn extends CardPawn {
     }
 
     loadEXR(fname, THREE){
-        console.log("EXR", THREE.EXRLoader);
         const TRM = this.service("ThreeRenderManager");
         const renderer = TRM.renderer;
         const scene = TRM.scene;
