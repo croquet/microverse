@@ -468,7 +468,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.placeholder.add(shadowMesh);
 
             let boxMesh = new THREE.Mesh(pGeometry, pMaterial);
-            this.constructCollider(boxMesh);
+           // this.constructCollider(boxMesh);
             this.placeholder.add(boxMesh);
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
@@ -479,7 +479,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let name = options.name;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
-
         if (!model3d) {return;}
         let assetManager = this.service("AssetManager").assetManager;
 

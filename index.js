@@ -35,12 +35,12 @@ Model.evaluate( () => {
                 dataLocation: "./assets/3D/Oil Refinery 6.glb.zip",
                 singleSided: true,
                 shadow: true,
-                /*
+                
                   placeholder: true,
                   placeholderSize: [40, 1, 40],
                   placeholderColor: 0x808080,
                   placeholderOffset: [0, -0.463, 0],
-                */
+                
             }
         },
         {
