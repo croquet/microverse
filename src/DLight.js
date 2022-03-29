@@ -26,7 +26,6 @@ class DLightPawn extends CardPawn {
         this.loadEXR("xyzzy", THREE)
         this.addToLayers('light');
         let scene = window.scene =  this.service("ThreeRenderManager").scene;
-       // scene.rotateY(Math.PI);
        // console.log(scene);
 
         let group = this.shape;
@@ -69,7 +68,7 @@ class DLightPawn extends CardPawn {
 
     destroy() {
         console.log("destroy lights")
-        this.background.dispose();
+        if(this.background)this.background.dispose();
         this.sun.dispose();
         this.hemiLight.dispose();
         this.moon.dispose();
