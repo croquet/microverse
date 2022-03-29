@@ -83,7 +83,7 @@ class DLightPawn extends CardPawn {
         pmremGenerator.compileEquirectangularShader();
 
         new THREE.EXRLoader()
-        .load( '../assets/sky/syferfontein_1d_clear_1k.exr', function ( texture ) {
+        .load( './assets/sky/syferfontein_1d_clear_1k.exr', function ( texture ) {
 
             let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
             let exrBackground = exrCubeRenderTarget.texture;
