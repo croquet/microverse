@@ -23,13 +23,15 @@ class DLightPawn extends CardPawn {
     constructor(options) {
         console.log("construct lights")
         super(options);
+        this.loadEXR("xyzzy", THREE)
         this.addToLayers('light');
         let scene = window.scene =  this.service("ThreeRenderManager").scene;
+        scene.rotateY(Math.PI);
         console.log(scene);
 
         let group = this.shape;
 
-        this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
+//        this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
         // xyzzy    const ambient = new THREE.AmbientLight( 0xffffff, 0.25 );
         const ambient = new THREE.AmbientLight( 0xffffff, .75 );
  
@@ -37,7 +39,7 @@ class DLightPawn extends CardPawn {
 
         const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
         //sun.position.set(-200, 800, 100);
-        sun.position.set(-400, 500, 100);
+        sun.position.set(-400, 500, -400);
 
         let side = 15;
 
@@ -56,12 +58,12 @@ class DLightPawn extends CardPawn {
         group.add(sun);
 
         // xyzzy this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
-        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
-        this.moon.position.set(200, 100, -100);
-        group.add(this.moon);
+//        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
+//        this.moon.position.set(200, 100, -100);
+//        group.add(this.moon);
 
-        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
-        group.add(hemiLight);
+//        const hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
+//        group.add(hemiLight);
         group.name = "Light Card";
     }
 
@@ -72,5 +74,27 @@ class DLightPawn extends CardPawn {
         this.hemiLight.dispose();
         this.moon.dispose();
         super.destroy();
+    }
+
+    loadEXR(fname, THREE){
+        console.log("EXR", THREE.EXRLoader);
+        const TRM = this.service("ThreeRenderManager");
+        const renderer = TRM.renderer;
+        const scene = TRM.scene;
+        const pmremGenerator = new THREE.PMREMGenerator( renderer );
+        pmremGenerator.compileEquirectangularShader();
+
+        new THREE.EXRLoader()
+        .load( '../assets/sky/syferfontein_1d_clear_1k.exr', function ( texture ) {
+
+            let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+            let exrBackground = exrCubeRenderTarget.texture;
+            TRM.envMap = exrBackground;
+            scene.background = exrBackground;
+            scene.environment = exrBackground;
+            console.log( exrBackground)
+            texture.dispose();
+
+        } );
     }
 }

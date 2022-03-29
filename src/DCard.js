@@ -9,7 +9,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
     q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
-import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
+import { addShadows, addEnvMap, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
@@ -446,7 +446,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     construct3D(options) {
         let model3d = options.dataLocation;
         let modelType = options.modelType;
-
         /* this is really a hack to make it work with the current model. */
 
         if (options.placeholder) {
@@ -468,7 +467,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.placeholder.add(shadowMesh);
 
             let boxMesh = new THREE.Mesh(pGeometry, pMaterial);
-           // this.constructCollider(boxMesh);
             this.placeholder.add(boxMesh);
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
@@ -485,8 +483,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.getBuffer(model3d).then((buffer) => {
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
-
+//            let envMap = this.service("ThreeRenderManager").envMap;
+//            console.log("environment map", envMap)
             addShadows(obj, shadow, singleSided, THREE);
+           // if(envMap)addEnvMap(obj, envMap)
             this.setupObj(obj, options);
             obj.updateMatrixWorld(true);
             if (obj._croquetAnimation) {
@@ -607,7 +607,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 return obj;
             }).then((obj) => {
                 if (this.texture) {
-                    addTexture(this.texture, obj);
+                    addTexture(obj, this.texture);
                 }
                 if (options.dataTranslation) {
                     obj.position.set(...options.dataTranslation);

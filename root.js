@@ -39,6 +39,7 @@ function loadLoaders() {
                 "loaders/FBXLoader.js",
                 "loaders/DRACOLoader.js",
                 "loaders/SVGLoader.js",
+                "loaders/EXRLoader.js",
                 "utils/BufferGeometryUtils.js"
             ];
 

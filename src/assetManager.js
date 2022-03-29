@@ -657,7 +657,7 @@ function center3D(obj, bb) {
     return rVec;
 }
 
-export function addTexture(texture, group) {
+export function addTexture(group, texture) {
     //const texture = new THREE.TextureLoader().load(url);
     group.traverse((child) => {
         if (child.material) {
@@ -666,6 +666,18 @@ export function addTexture(texture, group) {
                 //child.material[2].map = texture;
             }
             else child.material.map = texture;
+        }
+    });
+}
+
+export function addEnvMap(group, envMap){
+    group.traverse((child) => {
+        if (child.material) {
+            if(Array.isArray(child.material)){
+                child.material[0].envMap = envMap;
+                child.material[1].envMap = envMap;
+            }
+            else child.material.envMap = envMap;
         }
     });
 }
