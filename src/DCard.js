@@ -355,6 +355,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     constructShape(options) {
         let type = options.type;
+        console.log("constructShape", type)
         if (type === "3d" || type === "3D") {
             this.construct3D(options);
         } else if (type === "2d" || type === "2D") {
@@ -362,6 +363,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.construct2D(options);
         }  else if (type === "text" || type === "code") {
             this.isFlat = true;
+        } else if (type === "lighting"){
+            this.constructLighting(options);
         }
     }
 
@@ -483,10 +486,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.getBuffer(model3d).then((buffer) => {
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
-//            let envMap = this.service("ThreeRenderManager").envMap;
-//            console.log("environment map", envMap)
             addShadows(obj, shadow, singleSided, THREE);
-           // if(envMap)addEnvMap(obj, envMap)
             this.setupObj(obj, options);
             obj.updateMatrixWorld(true);
             if (obj._croquetAnimation) {
@@ -680,6 +680,44 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
           
           this.shape.parent.add(visualizer)
         */
+    }
+
+    constructLighting(options){
+        
+        console.log( "constructLighting", options.dataLocation );
+       if(options.dataLocation)
+            this.getBuffer(options.dataLocation).then((buffer) => {
+                let objectURL = URL.createObjectURL(new Blob([buffer]));
+                this.loadEXR(objectURL, THREE);
+         });
+   //     if(options.dataLocation)this.loadEXR(options.dataLocation, THREE);
+    }
+
+    loadEXR(fname, THREE) {
+        const TRM = this.service("ThreeRenderManager");
+        const renderer = TRM.renderer;
+        const scene = TRM.scene;
+        const pmremGenerator = new THREE.PMREMGenerator( renderer );
+        pmremGenerator.compileEquirectangularShader();
+
+        let assets = ASSETS_DIRECTORY;
+        // at this moment it relies on webpack DefinePlugin but we'll move
+        // this more rationalized.
+
+        new THREE.EXRLoader()
+            .load( fname, ( texture ) => {
+
+                let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
+                let exrBackground = exrCubeRenderTarget.texture;
+                let bg = scene.background;
+                let e = scene.environment;
+                scene.background = exrBackground;
+                scene.environment = exrBackground;
+                if(e !== bg) if(bg) bg.dispose();
+                if(e) e.dispose();
+                console.log( exrBackground)
+                texture.dispose();
+            } );
     }
 
     setupObj(obj, options) {

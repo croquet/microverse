@@ -36,7 +36,7 @@ export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {buffer, dataURL, blob, userIds: [id]}}
         this.objectURLs = {}; // {[viewId]: [dataIds]}
-        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif"]);
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr"]);
     }
 
     checkFile(entry, item, importSizeChecker) {
@@ -250,7 +250,8 @@ export class AssetManager {
             "png": "importIMG",
             "jpg": "importIMG",
             "jpeg": "importIMG",
-            "gigf": "importIMG"
+            "gigf": "importIMG",
+            "exr": "importEXR"
         };
 
         if (isZip(buffer)) {
@@ -550,6 +551,11 @@ export class Loader {
 
     importIMG(buffer, options, THREE) {
         return {"img": URL.createObjectURL(new Blob([buffer]))};
+    }
+
+    importEXR(buffer, options, THREE){
+        console.log("importEXR", buffer, options);
+        return {"exr": URL.createObjectURL(new Blob([buffer]))};   
     }
 }
 

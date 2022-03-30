@@ -24,7 +24,6 @@ class DLightPawn extends CardPawn {
     constructor(options) {
         console.log("construct lights")
         super(options);
-        this.loadEXR("xyzzy", THREE)
         this.addToLayers('light');
         window.scene =  this.service("ThreeRenderManager").scene;
         // console.log(window.scene);
@@ -74,30 +73,6 @@ class DLightPawn extends CardPawn {
         this.hemiLight.dispose();
         this.moon.dispose();
         super.destroy();
-    }
-
-    loadEXR(fname, THREE) {
-        const TRM = this.service("ThreeRenderManager");
-        const renderer = TRM.renderer;
-        const scene = TRM.scene;
-        const pmremGenerator = new THREE.PMREMGenerator( renderer );
-        pmremGenerator.compileEquirectangularShader();
-
-        let assets = ASSETS_DIRECTORY;
-        // at this moment it relies on webpack DefinePlugin but we'll move
-        // this more rationalized.
-
-        new THREE.EXRLoader()
-            .load( `${assets}/sky/syferfontein_1d_clear_1k.exr`, ( texture ) => {
-
-                let exrCubeRenderTarget = pmremGenerator.fromEquirectangular( texture );
-                let exrBackground = exrCubeRenderTarget.texture;
-                TRM.envMap = exrBackground;
-                scene.background = exrBackground;
-                scene.environment = exrBackground;
-                console.log( exrBackground)
-                texture.dispose();
-            } );
     }
 }
 

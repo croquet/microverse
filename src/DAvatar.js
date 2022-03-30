@@ -207,10 +207,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     fileUploaded(data) {
         let {dataId, fileName, type, translation, rotation} = data;
         // this.assets.set(dataId, dataId, type);
-
+console.log("fileUploaded", type)
         let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
 
-        let cardType = type === "svg" || type === "img" ? "2d" : "3d";
+        let cardType = type === "exr" ? "lighting" :(type === "svg" || type === "img" ? "2d" : "3d");
 
         let options = {
             name: fileName,
@@ -406,6 +406,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             .then((resp) => resp.arrayBuffer())
             .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
             .then((obj) => {
+                console.log("getAvatarModel",obj);
                 addShadows(obj, true, true, THREE);
                 obj.scale.set(0.4,0.4,0.4);
                 obj.rotation.set(0, Math.PI, 0);

@@ -48,6 +48,7 @@ Model.evaluate( () => {
                 name: 'lighting #1',
                 type: "lighting",
                 className: "DLight",
+                dataLocation: "./assets/sky/syferfontein_1d_clear_1k.exr"
             }
         },
         {
