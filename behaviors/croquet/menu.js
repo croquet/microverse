@@ -37,7 +37,7 @@ class MenuActor {
                     runs: [{text: item.label}],
                     behaviorModules: ["MenuItem"],
                     width: 1,
-                    textScale: 0.0015,
+                    textScale: 0.0020,
                     height: 0.15,
                     noSave: true,
                     fullBright: true,
@@ -135,6 +135,8 @@ class MenuItemActor {
     }
 
     click(_evt) {
+        let text = this.value;
+        if (text.startsWith("-") || text.startsWith(" ")) {return;}
         this.publish(this.id, "fire", {id: this.id, name: this._cardData.name});
     }
 }

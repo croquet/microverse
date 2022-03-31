@@ -200,6 +200,7 @@ class BehaviorMenuActor {
             items.push(obj);
         });
 
+        items.push({label: '------------'});
         items.push({label: 'apply'});
         this.menu.call("MenuActor", "setItems", items);
     }
