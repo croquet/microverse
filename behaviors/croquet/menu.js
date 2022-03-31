@@ -1,64 +1,3 @@
-class BehaviorMenuActor {
-    show() {
-        if (this.menu) {
-            this.menu.destroy();
-        }
-
-        this.menu = this.createCard({
-            name: 'behavior menu',
-            actorCode: ["MenuActor"],
-            pawnCode: ["MenuPawn"],
-            multiple: true,
-            parent: this,
-            type: "2d",
-            noSave: true,
-            cornerRadius: 0.05,
-        });
-
-        this.updateSelections();
-
-        this.scriptListen("fire", "setBehaviors");
-        this.scriptSubscribe(this._cardData.target, "behaviorUpdated", "updateSelections");
-    }
-
-    updateSelections() {
-        console.log("updateSelections");
-        let target = this.service("ActorManager").get(this._cardData.target);
-        let items = [];
-
-        let actorBehaviors = this.behaviorManager.actorBehaviors;
-        let pawnBehaviors = this.behaviorManager.pawnBehaviors;
-
-        for (let k of actorBehaviors.keys()) {
-            let selected = target._actorCode && target._actorCode.indexOf(k) >= 0;
-            let obj = {label: k, selected};
-            items.push(obj);
-        }
-
-        for (let k of pawnBehaviors.keys()) {
-            let selected = target._pawnCode && target._pawnCode.indexOf(k) >= 0;
-            let obj = {label: k, selected};
-            items.push(obj);
-        }
-        items.push({label: 'apply'});
-        this.menu.call("MenuActor", "setItems", items);
-    }
-
-    setBehaviors(data) {
-        console.log("setBehaviors");
-        let target = this.service("ActorManager").get(this._cardData.target);
-        target.setBehaviors(data.selection);
-    }
-}
-
-class MenuLayoutActor {
-    layout(items) {
-        items.forEach((item) => {
-            item.setCardData({autoresize: false});
-        });
-    }        
-}
-
 class MenuActor {
     setItems(list) {
         console.log("setItems");
@@ -96,8 +35,7 @@ class MenuActor {
                     autoResize: true,
                     noDismissButton: true,
                     runs: [{text: item.label}],
-                    actorCode: ["MenuItemActor"],
-                    pawnCode: ["MenuItemPawn"],
+                    behaviorModules: ["MenuItem"],
                     width: 1,
                     textScale: 0.0015,
                     height: 0.15,
@@ -210,11 +148,6 @@ class MenuItemPawn {
 
 export default {
     modules: [
-        {
-            name: "BehaviorMenu",
-            actorBehaviors: [BehaviorMenuActor],
-            pawnBehaviors: [],
-        },
         {
             name: "Menu",
             actorBehaviors: [MenuActor],

@@ -36,7 +36,7 @@ export const AM_Code = superclass => class extends superclass {
         this.scriptListeners = new Map();
         this.behaviorManager = this.service("BehaviorModelManager");
         if (options.behaviorModules) {
-            options.behaviorModules.forEach((name) => { /* name: foo.Bar */
+            options.behaviorModules.forEach((name) => { /* name: Bar */
                 let moduleNames = this.behaviorManager.moduleNames.get(name);
                 let {actorBehaviors, pawnBehaviors} = moduleNames;
                 if (actorBehaviors) {
@@ -58,8 +58,8 @@ export const AM_Code = superclass => class extends superclass {
             return this._target.destroy();
         }
         if (this._behaviorModules) {
-            this._behaviorModules.forEach((name) => { /* name: foo.Bar */
-                let moduleNames = this.behaviorManager.modulesNames.get(name);
+            this._behaviorModules.forEach((name) => { /* name: Bar */
+                let moduleNames = this.behaviorManager.moduleNames.get(name);
                 let {actorBehaviors, pawnBehaviors} = moduleNames;
                 if (actorBehaviors) {
                     for (let behaviorName of actorBehaviors.keys()) {
@@ -475,12 +475,19 @@ export class BehaviorModelManager extends ModelService {
             if (!action || action === "add") {
                 let def = {...moduleDef};
                 delete def.action;
+                if (Array.isArray(def.actorBehaviors)) {
+                    def.actorBehaviors = new Map(def.actorBehaviors);
+                }
+                if (Array.isArray(def.pawnBehaviors)) {
+                    def.pawnBehaviors = new Map(def.pawnBehaviors);
+                }
                 this.moduleNames.set(moduleDef.name, def);
                 
                 let module = {name, actorBehaviors: new Map(), pawnBehaviors: new Map(), systemModule, fileName};
                 ["actorBehaviors", "pawnBehaviors"].forEach((behaviorType) => {
-                    if (moduleDef[behaviorType]) { 
-                        for (let [behaviorName, codeString] of moduleDef[behaviorType]) {
+                    if (moduleDef[behaviorType]) {
+                        let map = moduleDef[behaviorType];
+                        for (let [behaviorName, codeString] of map) {
                             let behavior = this.behaviors.get(behaviorName);
                             if (!behavior) {
                                 behavior = ScriptingBehavior.create({
@@ -719,42 +726,28 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 // if it is not the last element,
                 // there was already another call so discard it
             } else {
-                let files = [];
+                let library = new CodeLibrary();
                 allData.forEach((obj) => {
-                    let keys = Object.keys(obj.data);
-                    keys.forEach((behaviorName) => {
-                        if (obj.data[behaviorName] && obj.data[behaviorName].actorBehaviors) {
-                            files.push({
-                                type: "actorBehaviors",
-                                contents: obj.data[behaviorName].actorBehaviors.map(e => e.toString()),
-                                systemModule: systemModuleMap.get(obj.name)});
-                        }
-                        if (obj.data[behaviorName] && obj.data[behaviorName].pawnBehaviors) {
-                            files.push({
-                                type: "pawnBehaviors",
-                                contents: obj.data[behaviorName].pawnBehaviors.map(e => e.toString()),
-                                systemModule: systemModuleMap.get(obj.name)});
-                        }
-                    });
+                    let slash = obj.name.lastIndexOf("/");
+                    let dot = obj.name.lastIndexOf(".");
+                    let fileName = obj.name.slice(slash || 0, dot);
+                    let isSystem = obj.name.startsWith("croquet");
+                    library.add(obj.data.default, fileName, isSystem);
                 });
 
                 let sendBuffer = [];
                 let key = Math.random();
-                
-                files.forEach((obj) => {
-                    let {type, contents, systemBehavior} = obj;
 
-                    contents.forEach((str) => {
-                        let match = /^class[\s]+([\S]+)/.exec(str.trim());
-                        if (!match) {return;}
-                        let className = match[1];
-
-                        sendBuffer.push({
-                            action: "add", type, name: className, content: str, key, systemBehavior
-                        });
+                for (let [_k, m] of library.modules) {
+                    let {actorBehaviors, pawnBehaviors, name, fileName, systemModule} = m;
+                    sendBuffer.push({
+                        name, systemModule, fileName,
+                        actorBehaviors: [...actorBehaviors],
+                        pawnBehaviors: [...pawnBehaviors]
                     });
-                });
+                };
 
+                debugger;
                 let string = JSON.stringify(sendBuffer);
                 let array = new TextEncoder().encode(string);
                 let ind = 0;

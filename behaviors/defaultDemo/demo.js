@@ -3,7 +3,7 @@ class DriveActor {
         if (this.speed === undefined) this.speed = 0;
         if (this.angle === undefined) this.angle = 0;
         this.addEventListener("pointerDown", "toggle");
-        this.addEventListener("keyDown", "turn");
+        this.addEventListener("keyDown", "control");
     }
 
     run() {
@@ -34,7 +34,7 @@ class DriveActor {
             this.translation[2] + v[2]]);
     }
 
-    turn(key) {
+    control(key) {
         if (key.key === "ArrowRight") {
             this.angle = Math.min(0.05, this.angle + 0.004);
         } else if (key.key === "ArrowLeft") {

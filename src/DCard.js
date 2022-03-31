@@ -94,34 +94,34 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
         if (this._behaviorModules) {
             this._behaviorModules.forEach((oldModuleName) => {
-                let oldModule = behaviorManager.moduleNamess.get(oldModuleName);
-                oldModule.actorBehaviors.forEach((old) => {
+                let oldModule = behaviorManager.moduleNames.get(oldModuleName);
+                for (let old of oldModule.actorBehaviors.keys()) {
                     if (!allNewActorBehaviors.includes(old)) {
                         behaviorManager.modelUnuse(this, old);
                     }
-                });
-                oldModule.pawnBehaviors.forEach((old) => {
+                };
+                for (let old of oldModule.pawnBehaviors.keys()) {
                     if (!allNewPawnBehaviors.includes(old)) {
                         this.behaviorManager.viewUnuse(this, old);
                     }
-                });
+                };
             });
         }
 
-        if (options.behaviorsModules) {
+        if (options.behaviorModules) {
             options.behaviorModules.forEach((newModuleName) => {
-                let newModule = behaviorManager.moduleNamess.get(newModuleName);
+                let newModule = behaviorManager.moduleNames.get(newModuleName);
 
-                newModule.actorBehaviors.forEach((behaviorName) => {
+                for (let behaviorName of newModule.actorBehaviors.keys()) {
                     if (!allOldActorBehaviors.includes(behaviorName)) {
                         behaviorManager.modelUse(this, behaviorName);
                     }
-                });
-                newModule.pawnBehaviors.forEach((behaviorName) => {
+                };
+                for (let behaviorName of newModule.pawnBehaviors.keys()) {
                     if (!allOldPawnBehaviors.includes(behaviorName)) {
                         this.behaviorManager.viewUse(this, behaviorName);
                     }
-                });
+                };
             });
         }
                 
@@ -216,10 +216,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         distance = Math.min(distance * 0.7, 4);
         if(avatar){
             let pose = avatar.dropPose(distance, [2, 0, 0]);
-            if (!this.behaviorManager.modules.get("croquet.PropertyPanel")) {return;}
+            if (!this.behaviorManager.modules.get("PropertyPanel")) {return;}
             let menu = this.createCard({
                 name: "property panel",
-                behaviorModules: ["croquet.PropertyPanel"],
+                behaviorModules: ["PropertyPanel"],
                 translation: pose.translation,
                 rotation: pose.rotation,
                 type: "2d",
@@ -239,6 +239,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     setBehaviors(selection) {
+        debugger;
         let behaviorModules = [];
 
         selection.forEach((obj) => {
