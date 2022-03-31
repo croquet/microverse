@@ -679,7 +679,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let h = window.innerHeight/2;
         let w = window.innerWidth/2;
         let c = (fov*Math.PI/180)/h;
-        return[c*(w-xy[0]), c*(h-xy[1])];
+        return[c*(xy[0]-w), c*(h-xy[1])];
     }
 
     doPointerTap(e){
