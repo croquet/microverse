@@ -35,55 +35,21 @@ export const AM_Code = superclass => class extends superclass {
         super.init(options);
         this.scriptListeners = new Map();
         this.behaviorManager = this.service("BehaviorModelManager");
-        if (options.actorCode) {
-            options.actorCode.forEach((name) => {
-                this.behaviorManager.modelUse(this, name);
+        if (options.behaviorModules) {
+            options.behaviorModules.forEach((name) => { /* name: foo.Bar */
+                let moduleNames = this.behaviorManager.moduleNames.get(name);
+                let {actorBehaviors, pawnBehaviors} = moduleNames;
+                if (actorBehaviors) {
+                    for (let behaviorName of actorBehaviors.keys()) {
+                        this.behaviorManager.modelUse(this, behaviorName);
+                    };
+                }
+                if (pawnBehaviors) {
+                    for (let behaviorName of pawnBehaviors.keys()) {
+                        this.behaviorManager.viewUse(this, behaviorName);
+                    };
+                }
             });
-        }
-        if (options.pawnCode) {
-            options.pawnCode.forEach((name) => {
-                this.behaviorManager.viewUse(this, name);
-            });
-        }
-    }
-
-    addActorBehavior(name) {
-        if (!this._actorCode) {
-            this._actorCode = [];
-        }
-
-        if (this._actorCode.indexOf(name) < 0) {
-            this._actorCode = [...this._actorCode, name];
-            this.behaviorManager.modelUse(this, name);
-        }
-    }
-
-    removeActorBehavior(name) {
-        if (!this._actorCode) {return;}
-        let ind = this._actorCode.indexOf(name);
-        if (ind >= 0) {
-            this._actorCode.splice(ind, 1);
-            this.behaviorManager.modelUnuse(this, name);
-        }
-    }
-
-    addPawnBehavior(name) {
-        if (!this._pawnCode) {
-            this._pawnCode = [];
-        }
-
-        if (this._pawnCode.indexOf(name) < 0) {
-            this._pawnCode = [...this._pawnCode, name];
-            this.behaviorManager.viewUse(this, name);
-        }
-    }
-
-    removePawnBehavior(name) {
-        if (!this._pawnCode) {return;}
-        let ind = this._pawnCode.indexOf(name);
-        if (ind >= 0) {
-            this._pawnCode.splice(ind, 1);
-            this.behaviorManager.viewUnuse(this, name);
         }
     }
 
@@ -91,14 +57,20 @@ export const AM_Code = superclass => class extends superclass {
         if (this[isProxy]) {
             return this._target.destroy();
         }
-        if (this._actorCode) {
-            this._actorCode.forEach((name) => {
-                this.behaviorManager.modelUnuse(this, name);
-            });
-        }
-        if  (this._pawnCode) {
-            this._pawnCode.forEach((name) => {
-                this.behaviorManager.viewUnuse(this, name);
+        if (this._behaviorModules) {
+            this._behaviorModules.forEach((name) => { /* name: foo.Bar */
+                let moduleNames = this.behaviorManager.modulesNames.get(name);
+                let {actorBehaviors, pawnBehaviors} = moduleNames;
+                if (actorBehaviors) {
+                    for (let behaviorName of actorBehaviors.keys()) {
+                        this.behaviorManager.modelUnuse(this, behaviorName);
+                    };
+                }
+                if (pawnBehaviors) {
+                    for (let behaviorName of pawnBehaviors.keys()) {
+                        this.behaviorManager.viewUnuse(this, behaviorName);
+                    };
+                }
             });
         }
         super.destroy();
@@ -117,7 +89,7 @@ export const AM_Code = superclass => class extends superclass {
         
         return new Proxy(this, {
             get(_target, property) {
-                let behavior = behaviorManager.actorBehaviors.get(behaviorName);
+                let behavior = behaviorManager.behaviors.get(behaviorName);
 
                 let func = property === "call" ? basicCall : behavior.$behavior[property];
                 let fullName = property === "call" ?  "call" : `${behaviorName}.${property}`;
@@ -135,7 +107,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     call(behaviorName, name, ...values) {
-        let behavior = this.behaviorManager.actorBehaviors.get(behaviorName);
+        let behavior = this.behaviorManager.behaviors.get(behaviorName);
         if (!behavior) {
             throw new Error(`epxander named ${behaviorName} not found`);
         }
@@ -188,19 +160,39 @@ export const AM_Code = superclass => class extends superclass {
             return;
         }
 
+        let behaviorModule = this._cardData.behaviorModule;
+        let [moduleName, behaviorName] = behaviorModule.split(".");
         let name = match[1];
-        let forActor = this._cardData.actorBehavior;
-        let type = forActor ? "actorBehaviors" : "pawnBehaviors";
-        
-        let current = this.behaviorManager[type].get(name);
-        
-        this.behaviorManager.loadAllCode([
-            {action: "add", type, name, content: data.text,
-             systemBehavior: current.systemBehavior}]);
-    }
+        if (name !== behaviorName) {
+            throw new Error("changing the behavior name not supported");
+        }
 
-    getCode() {
-        return this._cardData.runs.map((run) => run.text).join("");
+        let current = this.behaviorManager.moduleNames.get(moduleName);
+
+        if (!current) {
+            throw new Error("module no longer exists");
+        }
+
+        console.log("codeAccepted");
+
+        let copy = {
+            name: current.name, systemModule: current.systemModule,
+            fileName: current.fileName,
+            actorBehaviors: new Map([...current.actorBehaviors]),
+            pawnBehaviors: new Map([...current.pawnBehaviors]),
+        };
+                    
+        let currentBehavior = copy.actorBehaviors.get(behaviorName);
+        if (currentBehavior) {
+            copy.actorBehaviors.set(behaviorName, data.text);
+        } else {
+            currentBehavior = copy.pawnBehaviors.get(behaviorName);
+            if (currentBehavior) {
+                copy.pawnBehaviors.set(behaviorName, data.text);
+            }
+        }
+
+        this.behaviorManager.loadLibraries([copy]);
     }
 
     createCard(options) {
@@ -226,21 +218,28 @@ export const PM_Code = superclass => class extends superclass {
 
         this.subscribe(actor.id, "callSetup", "callSetup");
         this.subscribe(actor.id, "callDestroy", "callDestroy");
-        if (actor._pawnCode) {
-            actor._pawnCode.forEach((name) => {
-                let behavior = behaviorManager.pawnBehaviors.get(name);
-                if (behavior) {
-                    behavior.ensureBehavior();
-                }
-                if (behavior.$behavior.setup) {
-                    this.future(0).callSetup(name);
+
+
+        if (actor._behaviorModules) {
+            actor._behaviorModules.forEach((moduleName) => { /* name: foo.Bar */
+                let {pawnBehaviors} = moduleName;
+                if (pawnBehaviors) {
+                    pawnBehaviors.forEach((behaviorName) => {
+                        let behavior = behaviorManager.pawnBehaviors.get(behaviorName);
+                        if (behavior) {
+                            behavior.ensureBehavior();
+                        }
+                        if (behavior.$behavior.setup) {
+                            this.future(0).callSetup(name);
+                        }
+                    });
                 }
             });
         }
     }
         
     call(behaviorName, name, ...values) {
-        let behavior = this.actor.behaviorManager.pawnBehaviors.get(behaviorName);
+        let behavior = this.actor.behaviorManager.behaviors.get(behaviorName);
         if (!behavior) {
             throw new Error(`epxander named ${behaviorName} not found`);
         }
@@ -321,9 +320,16 @@ export const PM_Code = superclass => class extends superclass {
 class ScriptingBehavior extends Model {
     init(options) {
         this.systemBehavior = !!options.systemBehavior;
+        this.moduleName = options.moduleName;
+        this.type = options.type;
     }
 
     setCode(string) {
+        // this still is about per behavior.
+        // The upper level of code would replace 'export' with 'return',
+        // and then it can get the returned object.
+        
+        
         if (!string) {
             console.log("code is empty for ", this);
             return;
@@ -396,7 +402,7 @@ ScriptingBehavior.register("ScriptingBehavior");
 
 // Each code is a Model object whose contents is the text code
 // the model's identifier is the id, but you can also refer to it by name
-// If there are two classes with the same name, for now we can say that is not allowed
+// If there are two classes with the same name, for now we can say that is not allowed.
 
 export class BehaviorModelManager extends ModelService {
     init(name) {
@@ -404,8 +410,10 @@ export class BehaviorModelManager extends ModelService {
         this.modelUses = new Map(); // {name: [cardActorId]}
         this.viewUses = new Map();  // {name: [cardActorId]}
 
-        this.actorBehaviors = new Map(); // {name: Behavior}
-        this.pawnBehaviors = new Map(); // {name: Behavior}
+        this.moduleNames = new Map() // <name /* foo.Bar */, {actorBehaviors<[string]>, pawnBehaviors<[string]}> // starts with the copy of Library but changes at runtime
+        this.modules = new Map(); // <name/* foo.Bar */, {actorBehaviors<[ScirptingBehavior]>, pawnBehaviors<[ScriptingBehavior]}>
+
+        this.behaviors = new Map(); // {name: Scripting}
 
         this.loadCache = null;
 
@@ -457,63 +465,84 @@ export class BehaviorModelManager extends ModelService {
         let result = new TextDecoder("utf-8").decode(all);
         let codeArray = JSON.parse(result);
 
-        this.loadAllCode(codeArray);
+        this.loadLibraries(codeArray);
     }
 
-    loadAllCode(codeArray) {
-        codeArray.forEach((obj) => {
-            let {action, type, name, content, systemBehavior} = obj;
-
-            // type is either actorBehaviors or pawnBehaviors
-            if (action === "add") {
-                let behavior = this[type].get(name);
-                if (!behavior) {
-                    behavior = ScriptingBehavior.create({systemBehavior});
-                    this[type].set(name, behavior);
-                }
-                behavior.setCode(content);
+    loadLibraries(codeArray) {
+        let changed = [];
+        codeArray.forEach((moduleDef) => {
+            let {action, name, systemModule, fileName} = moduleDef;
+            if (!action || action === "add") {
+                let def = {...moduleDef};
+                delete def.action;
+                this.moduleNames.set(moduleDef.name, def);
+                
+                let module = {name, actorBehaviors: new Map(), pawnBehaviors: new Map(), systemModule, fileName};
+                ["actorBehaviors", "pawnBehaviors"].forEach((behaviorType) => {
+                    if (moduleDef[behaviorType]) { 
+                        for (let [behaviorName, codeString] of moduleDef[behaviorType]) {
+                            let behavior = this.behaviors.get(behaviorName);
+                            if (!behavior) {
+                                behavior = ScriptingBehavior.create({
+                                    systemBehavior: systemModule,
+                                    moduleName: name,
+                                    name: behaviorName,
+                                    type: behaviorType.slice(0, behaviorType.length - 1)
+                                });
+                                behavior.setCode(codeString);
+                                changed.push(behavior);
+                            } else if (behavior.code !== codeString) {
+                                behavior.setCode(codeString);
+                                changed.push(behavior);
+                            }
+                            module[behaviorType].set(behaviorName, behavior);
+                            this.behaviors.set(behaviorName, behavior);
+                        };
+                    }
+                });
+                this.modules.set(module.name, module);
             }
+
             if (action === "remove") {
-                this[type].delete(name);
+                for (let [k, v] of this.modules) {
+                    if (v.fileName === fileName) {
+                        for (let behaviorName of v.actorBehaviors.keys()) {
+                            this.behaviors.delete(behaviorName);
+                        }
+                        for (let behaviorName of v.pawnBehaviors.keys()) {
+                            this.behaviors.delete(behaviorName);
+                        }
+                        this.modules.delete(k);
+                        this.moduleNames.delete(k);
+                    }
+                }
             }
         });
 
         let toPublish = [];
-        codeArray.forEach((obj) => {
-            let {action, type, name} = obj;
-            if (action === "add") {
-                if (type === "actorBehaviors") {
-                    let behavior = this.actorBehaviors.get(name);
-                    if (!behavior.$behavior.setup) {return;}
-                    let modelUsers = this.modelUses.get(name);
-                    let actorManager = this.service("ActorManager");
-                    if (modelUsers) {
-                        modelUsers.forEach((modelId) => {
-                            let model = actorManager.get(modelId);
-                            if (model) {
-                                behavior.future(0).invoke(model, "setup");
-                            }
-                        });
-                    }
-                } else if (type === "pawnBehaviors") {
-                    toPublish.push(name);
+        changed.forEach((behavior) => {
+            if (!behavior.$behavior.setup) {return;}
+            if (behavior.type === "actorBehavior") {
+                let modelUsers = this.modelUses.get(behavior.$behaviorName);
+                let actorManager = this.service("ActorManager");
+                if (modelUsers) {
+                    modelUsers.forEach((modelId) => {
+                        let model = actorManager.get(modelId);
+                        if (model) {
+                            behavior.future(0).invoke(model, "setup");
+                        }
+                    });
                 }
+            } else if (behavior.type === "pawnBehavior") {
+                toPublish.push(behavior.$behaviorName);
             }
         });
         this.publish(this.id, "callViewSetupAll", toPublish);
     }
 
     save() {
-        let result = {actorBehaviors: new Map(), pawnBehaviors: new Map()};
-
-        ["actorBehaviors", "pawnBehaviors"].forEach((col) => {
-            for (let [key, behavior] of this[col]) {
-                if (!behavior.systemBehavior) {
-                    result[col].set(key, {content: behavior.code});
-                }
-            }
-        });
-        return result;
+        let filtered = [...this.moduleNames].filter(([_key, value]) => !value.systemModule);
+        return new Map([...filtered]);
     }
             
     modelUse(model, name) {
@@ -526,7 +555,7 @@ export class BehaviorModelManager extends ModelService {
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
 
-            let behavior = this.actorBehaviors.get(name);
+            let behavior = this.behaviors.get(name);
             if (!behavior) {return;}
             behavior.ensureBehavior();
             if (behavior.$behavior.setup) {
@@ -542,7 +571,7 @@ export class BehaviorModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        let behavior = this.actorBehaviors.get(name);
+        let behavior = this.behaviors.get(name);
         if (behavior && behavior.$behavior && behavior.$behavior.destroy) {
             behavior.future(0).invoke(model[isProxy] ? model._target : model, "destroy");
         }
@@ -559,7 +588,7 @@ export class BehaviorModelManager extends ModelService {
             array.push(modelId);
         }
 
-        let behavior = this.pawnBehaviors.get(name);
+        let behavior = this.behaviors.get(name);
         if (!behavior) {return;}
         behavior.ensureBehavior();
         if (behavior.$behavior.setup) {
@@ -574,7 +603,7 @@ export class BehaviorModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        let behavior = this.pawnBehaviors.get(name);
+        let behavior = this.behaviors.get(name);
         if (behavior && behavior.$behavior && behavior.$behavior.destroy) {
             model.say("callDestroy", name);
         }
@@ -636,7 +665,7 @@ export class BehaviorViewManager extends ViewService {
             return;
         }
 
-        let systemBehaviorMap = new Map();
+        let systemModuleMap = new Map();
 
         let dataURLs = [];
         let promises = [];
@@ -653,8 +682,9 @@ export class BehaviorViewManager extends ViewService {
         window._allResolvers.set(key, current);
 
         array.forEach((obj) => {
+            // {action, name, content, systemModule} = obj;
             if (obj.action === "add") {
-                systemBehaviorMap.set(obj.name, obj.systemBehavior);
+                systemModuleMap.set(obj.name, obj.systemModule);
                 let id = Math.random().toString();
                 let promise = new Promise((resolve, _reject) => {
                     current.set(id, resolve);
@@ -697,13 +727,13 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                             files.push({
                                 type: "actorBehaviors",
                                 contents: obj.data[behaviorName].actorBehaviors.map(e => e.toString()),
-                                systemBehavior: systemBehaviorMap.get(obj.name)});
+                                systemModule: systemModuleMap.get(obj.name)});
                         }
                         if (obj.data[behaviorName] && obj.data[behaviorName].pawnBehaviors) {
                             files.push({
                                 type: "pawnBehaviors",
                                 contents: obj.data[behaviorName].pawnBehaviors.map(e => e.toString()),
-                                systemBehavior: systemBehaviorMap.get(obj.name)});
+                                systemModule: systemModuleMap.get(obj.name)});
                         }
                     });
                 });
@@ -745,24 +775,36 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
 
 export class CodeLibrary {
     constructor() {
-        this.actorBehaviors = new Map();
-        this.pawnBehaviors = new Map();
+        this.modules = new Map(); // for behaviors
+        // {name /*Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, fileName:string?}
+
         this.functions = new Map();
         this.classes = new Map();
     }
 
-    add(library, isSystem) {
-        if (library.actorBehaviors) {
-            library.actorBehaviors.forEach(cls => {
-                let key = cls.name;
-                this.actorBehaviors.set(key, {systemBehavior: isSystem, content: cls.toString()});
-            });
-        }
-
-        if (library.pawnBehaviors) {
-            library.pawnBehaviors.forEach(cls => {
-                let key = cls.name;
-                this.pawnBehaviors.set(key, {systemBehavior: isSystem, content: cls.toString()});
+    add(library, fileName, isSystem) {
+        if (library.modules) {
+            library.modules.forEach(module => {
+                let {name, actorBehaviors, pawnBehaviors} = module;
+                let actors = new Map();
+                let pawns = new Map();
+                if (actorBehaviors) {
+                    actorBehaviors.forEach((cls) => {
+                        actors.set(cls.name, cls.toString());
+                    });
+                }
+                if (pawnBehaviors) {
+                    pawnBehaviors.forEach((cls) => {
+                        pawns.set(cls.name, cls.toString());
+                    });
+                }
+                this.modules.set(name, {
+                    name,
+                    fileName,
+                    actorBehaviors: actors,
+                    pawnBehaviors: pawns,
+                    systemModule: isSystem
+                });
             });
         }
 
@@ -783,39 +825,10 @@ export class CodeLibrary {
     }
 
     get(path) {
-        let ret = this.actorBehaviors.get(path);
-        if (ret) {return ret;}
-        ret = this.pawnBehaviors.get(path);
-        if (ret) {return ret;}
-        ret = this.functions.get(path);
-        if (ret) {return ret;}
-        ret = this.classes.get(path);
-        if (ret) {return ret;}
+        return this.modules.get(path);
     }
 
     delete(path) {
-        let ret = this.actorBehaviors.get(path);
-        if (ret) {
-            this.actorBehaviors.delete(path);
-            return;
-        }
-        
-        ret = this.pawnBehaviors.get(path);
-        if (ret) {
-            this.pawnBehaviors.delete(path);
-            return;
-        }
-        
-        ret = this.functions.get(path);
-        if (ret) {
-            this.functions.delete(path);
-            return;
-        }
-
-        ret = this.classes.get(path);
-        if (ret) {
-            this.classes.delete(path);
-            return;
-        }
+        this.modules.delete(path);
     }
 }

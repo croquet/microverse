@@ -57,8 +57,7 @@ Model.evaluate( () => {
                 layers: ["pointer"],
                 translation:[ 10, -2.75, -14],
                 type: "object",
-                actorCode: ["PerlinNoise", "PerlinActor"],
-                pawnCode: ["PerlinPawn"],
+                behaviorModules: ["Perlin"],
                 rotation:[ 0, -0.7071068, 0, 0.7071068 ],
             }
         },
@@ -196,7 +195,7 @@ Model.evaluate( () => {
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
-                actorBehavior: "FlyActor",
+                behaviorModule: "Fly.FlyActor",
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 // margins: {left: 16, top: 16, right: 16, bottom: 16},
                 textScale: 0.001,
@@ -212,7 +211,7 @@ Model.evaluate( () => {
                 dataTranslation: [0, 3, 0],
                 type: "3d",
                 dataLocation: './assets/3D/Flamingo.glb.zip',
-                actorCode: ["FlyActor"]
+                behaviorModules: ["Fly"]
             }
         },
         {
@@ -222,7 +221,7 @@ Model.evaluate( () => {
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ['pointer'],
                 type: "code",
-                actorBehavior: "DriveActor",
+                behaviorModule: "Drive.DriveActor",
                 textScale: 0.001,
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 width: 1.5,
@@ -240,7 +239,7 @@ Model.evaluate( () => {
                 type: "3d",
                 multiuser: true,
                 dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
-                actorCode: ["DriveActor"]
+                behaviorModules: ["Drive"]
             }
         },
         {
@@ -248,8 +247,7 @@ Model.evaluate( () => {
                 name:'bridge',
                 type: "object",
                 translation: [4, 0, 20],
-                actorCode: ["BridgeActor"],
-                pawnCode: ["BridgePawn"]
+                behaviorModules: ["Bridge"],
             }
         },
         {
@@ -268,8 +266,7 @@ Model.evaluate( () => {
                 color: 0xffffff,
                 depth: 0.05,
                 cornerRadius: 0.1,
-                actorCode: ["BitcoinTrackerActor", "ElectedActor"],
-                pawnCode: ["BitcoinTrackerPawn", "ElectedPawn"]
+                behaviorModules: ["BitcoinTracker", "Elected"],
             },
             id: "main",
         },
@@ -284,7 +281,7 @@ Model.evaluate( () => {
                 depth: 0.05,
                 color: 0xffffff,
                 frameColor: 0x666666,
-                pawnCode: ["BitLogoPawn"]
+                behaviorModules: ["BitLogo"]
             }
         },
         {
@@ -296,8 +293,7 @@ Model.evaluate( () => {
                 type: "object",
                 height: 0.4,
                 parent: "main",
-                actorCode: ["BarGraphActor"],
-                pawnCode: ["BarGraphPawn"]
+                behaviorModules: ["BarGraph"],
             }
         }
     ];

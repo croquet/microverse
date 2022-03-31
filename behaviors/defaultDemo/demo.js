@@ -114,7 +114,7 @@ class PerlinActor {
         this.scriptListen("leaveHiliteRequest", "leaveHilite");
     }
 
-    hilite(p3d) {
+    hilite(_p3d) {
         this.say("hilite", 0x081808);
     }
 
@@ -130,8 +130,8 @@ class PerlinActor {
     }
 
     initPerlin(firstTime) {
-        let r = this.currentRow = this.rows = 20;
-        let c = this.columns = 20;
+        this.currentRow = this.rows = 20;
+        this.columns = 20;
         let d = this.delta = 0.1;
 
         this.data = [...Array(this.rows).keys()].map(i => {
@@ -425,9 +425,22 @@ class PerlinPawn {
     
 }
 
-export let demo = {
-    actorBehaviors: [DriveActor, FlyActor, PerlinActor, PerlinNoise],
-    pawnBehaviors: [PerlinPawn]
+export default {
+    modules: [
+        {
+            name: "Drive",
+            actorBehaviors: [DriveActor]
+        },
+        {
+            name: "Fly",
+            actorBehaviors: [FlyActor],
+        },
+        {
+            name: "Perlin",
+            actorBehaviors: [PerlinActor, PerlinNoise],
+            pawnBehaviors: [PerlinPawn]
+        }
+    ]
 }
 
 /* globals Worldcore */

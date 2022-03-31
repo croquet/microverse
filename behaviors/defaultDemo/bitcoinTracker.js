@@ -243,9 +243,23 @@ class BarGraphPawn {
     }
 }
 
-export const bitcoinTracker = {
-    actorBehaviors: [BitcoinTrackerActor, BarGraphActor],
-    pawnBehaviors: [BitcoinTrackerPawn, BitLogoPawn, BarGraphPawn],
+export default {
+    modules: [
+        {
+            name: "BitcoinTracker",
+            actorBehaviors: [BitcoinTrackerActor],
+            pawnBehaviors: [BitcoinTrackerPawn],
+        },
+        {
+            name: "BarGraph",
+            actorBehaviors: [BarGraphActor],
+            pawnBehaviors: [BarGraphPawn],
+        },
+        {
+            name: "BitLogo",
+            pawnBehaviors: [BitLogoPawn]
+        }
+    ]
 }
 
 /* globals Worldcore */

@@ -74,9 +74,14 @@ class SpinPawn {
     }
 }
 
-export const spin = {
-    actorBehaviors: [SpinActor],
-    pawnBehaviors: [SpinPawn]
+export default {
+    modules: [
+        {
+            name: "Spin",
+            actorBehaviors: [SpinActor],
+            pawnBehaviors: [SpinPawn]
+        }
+    ]
 }
 
 /* globals Worldcore */

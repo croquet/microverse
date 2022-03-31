@@ -104,9 +104,9 @@ function sendFiles(socket) {
     newKeys.forEach((k) => {
         if (debug || (files[k] && files[k] !== sent[k])) {
             sent[k] = files[k];
-            let systemBehavior = k.startsWith("croquet");
-            console.log(k, systemBehavior);
-            toSend.push({action: "add", name: k, content: files[k], systemBehavior});
+            let systemModule = k.startsWith("croquet/");
+            console.log(k, systemModule);
+            toSend.push({action: "add", name: k, content: files[k], systemModule});
         }
     });
 

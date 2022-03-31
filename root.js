@@ -60,13 +60,18 @@ function loadInitialBehaviors(paths, directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === "croquet";
-    let promises = paths.map((path) => import(`./behaviors/${directory}/${path}`));
+    let promises = paths.map((path) => {
+        return import(`./behaviors/${directory}/${path}`).then((module) => {
+            return [path, module];
+        })
+    });
 
     return Promise.all(promises).then((array) => {
-        array.forEach((module) => {
-            let key = Object.keys(module)[0];
-
-            library.add(module[key], isSystem);
+        array.forEach((pair) => {
+            let [path, module] = pair;
+            let dot = path.lastIndexOf(".");
+            let fileName = path.slice(0, dot);
+            library.add(module.default, fileName, isSystem);
         });
         return true;
     });
@@ -117,7 +122,7 @@ class MyModelRoot extends ModelRoot {
             return;
         }
 
-        this.loadBehaviors(Constants.Library.actorBehaviors, Constants.Library.pawnBehaviors, "1");
+        this.loadBehaviorModules(Constants.Library.modules, "1");
         this.load(Constants.DefaultCards, "1");
     }
 
@@ -146,24 +151,17 @@ class MyModelRoot extends ModelRoot {
             //maybe we need to delete all DefaultUserBehaviors at this point.
 
             let lib = Constants.Library;
-            let systemActors = new Map();
-            let systemPawns = new Map();
+            let systemModules = new Map();
 
-            for (let [k, v] of lib.actorBehaviors) {
-                if (v.systemBehavior) {
-                    systemActors.set(k, v);
+            for (let [k, v] of lib.modules) {
+                if (v.systemModule) {
+                    systemModules.set(k, v);
                 }
             }
 
-            for (let [k, v] of lib.pawnBehaviors) {
-                if (v.systemBehavior) {
-                    systemPawns.set(k, v);
-                }
-            }
+            this.loadBehaviorModules(systemModules, version);
 
-            this.loadBehaviors(systemActors, systemPawns, version);
-
-            this.loadBehaviors(json.actorBehaviors, json.pawnBehaviors, version);
+            this.loadBehaviorModules(json.behaviorModules, version);
             if (json.cards) {
                 this.load(json.cards, version);
             }
@@ -188,18 +186,11 @@ class MyModelRoot extends ModelRoot {
         this.persistSession(func);
     }
 
-    loadBehaviors(actorBehaviors, pawnBehaviors, version) {
+    loadBehaviorModules(moduleDefs, version) {
         // the persistent data should never contain a system behavior
         if (version === "1") {
             let behaviorManager = this.service("BehaviorModelManager");
-            let array = [];
-            for (let [k, v] of actorBehaviors) {
-                array.push({action: "add", type: "actorBehaviors", name: k, ...v});
-            }
-            for (let [k, v] of pawnBehaviors) {
-                array.push({action: "add", type: "pawnBehaviors", name: k, ...v});
-            }
-            behaviorManager.loadAllCode(array);
+            behaviorManager.loadLibraries([...moduleDefs.values()]);
         }
     }
 

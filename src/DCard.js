@@ -5,7 +5,7 @@
 // Collaborative Card Object
 
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService, 
+import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
     q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
@@ -18,7 +18,7 @@ import { WorldSaver } from './worldSaver.js';
 
 // import { forEach } from 'jszip';
 
-export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "actorCode", "pawnCode", "multiuser", "name", "noSave"];
+export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "behaviorModules", "multiuser", "name", "noSave"];
 
 //------------------------------------------------------------------------------------------
 //-- CardActor ------------------------------------------------------------------------------
@@ -63,43 +63,69 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     updateBehaviors(options) {
-        let newActorCode = options.actorCode;
-        let newPawnCode = options.pawnCode;
-        if (this._actorCode) {
-            this._actorCode.forEach((old) => {
-                if (!newActorCode || !newActorCode.includes(old)) {
-                    this.behaviorManager.modelUnuse(this, old);
+        let behaviorManager = this.behaviorManager;
+
+        let allNewActorBehaviors = [];
+        let allNewPawnBehaviors = [];
+
+        options.behaviorModules.forEach((moduleName) => {
+            let module = behaviorManager.modules.get(moduleName);
+            if (module.actorBehaviors) {
+                allNewActorBehaviors.push(...module.actorBehaviors);
+            }
+            if (module.pawnBehaviors) {
+                allNewPawnBehaviors.push(...module.pawnBehaviors);
+            }
+        });
+
+        let allOldActorBehaviors = [];
+        let allOldPawnBehaviors = [];
+        if (this._behavioeModules) {
+            this._behaviorModules.forEach((oldModuleName) => {
+                let oldModule = behaviorManager.moduleNames.get(oldModuleName);
+                if (oldModule.actorBehaviors) {
+                    allOldActorBehaviors.push(...oldModule.actorBehaviors);
+                }
+                if (oldModule.pawnBehaviors) {
+                    allOldPawnBehaviors.push(...oldModule.pawnBehaviors);
                 }
             });
         }
 
-        if (this._pawnCode) {
-            this._pawnCode.forEach((old) => {
-                if (!newPawnCode || !newPawnCode.includes(old)) {
-                    this.behaviorManager.viewUnuse(this, old);
-                }
+        if (this._behaviorModules) {
+            this._behaviorModules.forEach((oldModuleName) => {
+                let oldModule = behaviorManager.moduleNamess.get(oldModuleName);
+                oldModule.actorBehaviors.forEach((old) => {
+                    if (!allNewActorBehaviors.includes(old)) {
+                        behaviorManager.modelUnuse(this, old);
+                    }
+                });
+                oldModule.pawnBehaviors.forEach((old) => {
+                    if (!allNewPawnBehaviors.includes(old)) {
+                        this.behaviorManager.viewUnuse(this, old);
+                    }
+                });
             });
         }
 
-        if (options.actorCode) {
-            options.actorCode.forEach((name) => {
-                if (!this._actorCode || !this._actorCode.includes(name)) {
-                    this.behaviorManager.modelUse(this, name);
-                }
+        if (options.behaviorsModules) {
+            options.behaviorModules.forEach((newModuleName) => {
+                let newModule = behaviorManager.moduleNamess.get(newModuleName);
+
+                newModule.actorBehaviors.forEach((behaviorName) => {
+                    if (!allOldActorBehaviors.includes(behaviorName)) {
+                        behaviorManager.modelUse(this, behaviorName);
+                    }
+                });
+                newModule.pawnBehaviors.forEach((behaviorName) => {
+                    if (!allOldPawnBehaviors.includes(behaviorName)) {
+                        this.behaviorManager.viewUse(this, behaviorName);
+                    }
+                });
             });
         }
-        if (options.pawnCode) {
-            options.pawnCode.forEach((name) => {
-                if (!this._pawnCode || !this._pawnCode.includes(name)) {
-                    this.behaviorManager.viewUse(this, name);
-                }
-            });
-        }
-
-        this._actorCode = newActorCode;
-        this._pawnCode = newPawnCode;
-
-        this.publish(this.id, "behaviorsUpdated");
+                
+        this._behaviorModules = options.behaviorModules;
     }
 
     setCardData(options) {
@@ -190,10 +216,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         distance = Math.min(distance * 0.7, 4);
         if(avatar){
             let pose = avatar.dropPose(distance, [2, 0, 0]);
-            if (!this.behaviorManager.actorBehaviors.get("PropertyPanelActor")) {return;}
+            if (!this.behaviorManager.modules.get("croquet.PropertyPanel")) {return;}
             let menu = this.createCard({
                 name: "property panel",
-                actorCode: ["PropertyPanelActor"],
+                behaviorModules: ["croquet.PropertyPanel"],
                 translation: pose.translation,
                 rotation: pose.rotation,
                 type: "2d",
@@ -213,22 +239,17 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     setBehaviors(selection) {
-        let actorCode = [];
-        let pawnCode = [];
+        let behaviorModules = [];
 
         selection.forEach((obj) => {
             let {label, selected} = obj;
-            if (this.behaviorManager.actorBehaviors.get(label)) {
+            if (this.behaviorManager.modules.get(label)) {
                 if (selected) {
-                    actorCode.push(label);
-                }
-            } else if (this.behaviorManager.pawnBehaviors.get(label)) {
-                if (selected) {
-                    pawnCode.push(label);
+                    behaviorModules.push(label);
                 }
             }
         });
-        this.updateBehaviors({actorCode, pawnCode});
+        this.updateBehaviors({behaviorModules});
     }
 
     setCardSpec(data) {
@@ -262,12 +283,17 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 let options = {...card};
                 let behavior;
                 if (options.type === "code") {
-                    if (options.actorBehavior) {
-                        behavior = behaviorManager.actorBehaviors.get(options.actorBehavior);
-                    } else if (options.pawnBehavior) {
-                        behavior = behaviorManager.pawnBehaviors.get(options.pawnBehavior);
+                    if (options.behaviorModule) {
+                        let [moduleName, behaviorName] = options.behaviorModule.split(".");
+                        let m = behaviorManager.modules.get(moduleName);
+                        if (m) {
+                            behavior = m.actorBehaviors.get(behaviorName);
+                            if (!behaviorName) {
+                                behavior = m.pawnBehaviors.get(behaviorName);
+                            }
+                        }
                     }
-                    
+
                     let runs = [{text: behavior ? behavior.code : ""}];
                     
                     options = {...options, ...{
@@ -1001,10 +1027,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         normal[1] = 0;
 
         let nsq = v3_sqrMag(normal);
-        if(nsq<0.001){
-            normal[0]=0;
-            normal[1]=norm[1];
-            normal[2]=0;
+        if(nsq < 0.001){
+            normal[0] = 0;
+            normal[1] = norm[1];
+            normal[2] = 0;
         }
         return v3_normalize(normal);
     }

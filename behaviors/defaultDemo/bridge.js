@@ -157,9 +157,14 @@ class BridgePawn {
     }
 }
 
-export let bridge = {
-    actorBehaviors: [BridgeActor],
-    pawnBehaviors: [BridgePawn]
+export default {
+    modules: [
+        {
+            name: "Bridge",
+            actorBehaviors: [BridgeActor],
+            pawnBehaviors: [BridgePawn]
+        }
+    ]
 }
 
 /* globals Worldcore */

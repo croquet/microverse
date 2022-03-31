@@ -71,7 +71,12 @@ class ElectedPawn {
     }
 }
 
-export let elected = {
-    actorBehaviors: [ElectedActor],
-    pawnBehaviors: [ElectedPawn]
+export default {
+    modules: [
+        {
+            name: "Elected",
+            actorBehaviors: [ElectedActor],
+            pawnBehaviors: [ElectedPawn]
+        }
+    ]
 }

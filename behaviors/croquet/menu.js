@@ -208,8 +208,22 @@ class MenuItemPawn {
     }
 }
 
-export let menu = {
-    actorBehaviors: [BehaviorMenuActor, MenuActor, MenuItemActor],
-    pawnBehaviors: [MenuPawn,MenuItemPawn]
-};
-
+export default {
+    modules: [
+        {
+            name: "BehaviorMenu",
+            actorBehaviors: [BehaviorMenuActor],
+            pawnBehaviors: [],
+        },
+        {
+            name: "Menu",
+            actorBehaviors: [MenuActor],
+            pawnBehaviors: [MenuPawn],
+        },
+        {
+            name: "MenuItem",
+            actorBehaviors: [MenuItemActor],
+            pawnBehaviors: [MenuItemPawn],
+        }
+    ]
+}

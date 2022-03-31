@@ -173,8 +173,13 @@ class PropertyPanelActor {
     }
 }
 
-export const propertyPanel = {
-    actorBehaviors: [PropertyPanelActor]
+export default {
+    modules: [
+        {
+            name: "PropertyPanel",
+            actorBehaviors: [PropertyPanelActor]
+        }
+    ]
 };
 
 /* globals Worldcore */
