@@ -75,20 +75,18 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        if (Object.keys(file)[0].indexOf("behaviors/") >= 0) {
+                        // this condition is not precise as the Rapier part also hits here
+                        if (Object.keys(file)[0].indexOf("chunk-") >= 0) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options
                         const uglifyJsOptions = {
                             /* your `uglify-js` package options */
+                            keep_fnames: true
                         };
 
                         return require("uglify-js").minify(file, uglifyJsOptions)
                     },
-                    terserOptions: {
-                        keep_classnames: true,
-                        keep_fnames: true
-                    }
                 })
             ]
         };
