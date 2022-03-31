@@ -67,7 +67,6 @@ class ElectedPawn {
 
     destroy() {
         this.onViewElected("");
-        super.destroy();
     }
 }
 

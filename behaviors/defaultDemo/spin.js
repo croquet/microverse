@@ -49,8 +49,6 @@ class SpinPawn {
 
     onPointerMove(p3d) {
         let next = this.theta(p3d.xyz);
-        console.log(this.base, next);
-
         this.deltaAngle = (next - this.base) / 2;
         let qAngle = Worldcore.q_euler(0, this.deltaAngle, 0);
         this.setRotation(Worldcore.q_multiply(this._rotation, qAngle));
