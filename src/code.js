@@ -219,20 +219,19 @@ export const PM_Code = superclass => class extends superclass {
         this.subscribe(actor.id, "callSetup", "callSetup");
         this.subscribe(actor.id, "callDestroy", "callDestroy");
 
-
         if (actor._behaviorModules) {
             actor._behaviorModules.forEach((moduleName) => { /* name: foo.Bar */
-                let {pawnBehaviors} = moduleName;
+                let module = behaviorManager.modules.get(moduleName);
+                let {pawnBehaviors} = module || {};
                 if (pawnBehaviors) {
-                    pawnBehaviors.forEach((behaviorName) => {
-                        let behavior = behaviorManager.pawnBehaviors.get(behaviorName);
+                    for (let behavior of pawnBehaviors.values()) {
                         if (behavior) {
                             behavior.ensureBehavior();
                         }
                         if (behavior.$behavior.setup) {
-                            this.future(0).callSetup(name);
+                            this.future(0).callSetup(behavior.$behaviorName);
                         }
-                    });
+                    };
                 }
             });
         }
@@ -646,7 +645,7 @@ export class BehaviorViewManager extends ViewService {
 
     callViewSetupAll(names) {
         names.forEach((name) => {
-            let behavior = this.model.pawnBehaviors.get(name);
+            let behavior = this.model.behaviors.get(name);
             let viewUsers = this.model.viewUses.get(name);
             if (viewUsers) {
                 viewUsers.forEach((modelId) => {
@@ -747,7 +746,6 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                     });
                 };
 
-                debugger;
                 let string = JSON.stringify(sendBuffer);
                 let array = new TextEncoder().encode(string);
                 let ind = 0;
