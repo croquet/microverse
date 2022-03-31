@@ -63,7 +63,9 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     updateBehaviors(options) {
+        if (!options.behaviorModules) {return;}
         let behaviorManager = this.behaviorManager;
+
 
         let allNewActorBehaviors = [];
         let allNewPawnBehaviors = [];
@@ -709,27 +711,43 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         */
     }
 
-    constructLighting(options){
-        
+    constructLighting(options) {
         console.log( "constructLighting", options.dataLocation );
-       if(options.dataLocation)
-            this.getBuffer(options.dataLocation).then((buffer) => {
-                let objectURL = URL.createObjectURL(new Blob([buffer]));
-                this.loadEXR(objectURL, THREE);
-         });
-   //     if(options.dataLocation)this.loadEXR(options.dataLocation, THREE);
+        let assetManager = this.service("AssetManager").assetManager;
+
+        if (options.dataLocation) {
+            return this.getBuffer(options.dataLocation).then((buffer) => {
+                return assetManager.load(buffer, "exr", THREE).then((texture) => {
+                    let TRM = this.service("ThreeRenderManager");
+                    let renderer = TRM.renderer;
+                    let scene = TRM.scene;
+                    let pmremGenerator = new THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
+
+                    let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+                    let exrBackground = exrCubeRenderTarget.texture;
+                    
+                    
+                    let bg = scene.background;
+                    let e = scene.environment;
+                    scene.background = exrBackground;
+                    scene.environment = exrBackground;
+                    if(e !== bg) if(bg) bg.dispose();
+                    if(e) e.dispose();
+                    console.log(exrBackground);
+                    texture.dispose();
+                });
+            });
+        }
     }
 
+    /*
     loadEXR(fname, THREE) {
         const TRM = this.service("ThreeRenderManager");
         const renderer = TRM.renderer;
         const scene = TRM.scene;
         const pmremGenerator = new THREE.PMREMGenerator( renderer );
         pmremGenerator.compileEquirectangularShader();
-
-        let assets = ASSETS_DIRECTORY;
-        // at this moment it relies on webpack DefinePlugin but we'll move
-        // this more rationalized.
 
         new THREE.EXRLoader()
             .load( fname, ( texture ) => {
@@ -746,6 +764,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 texture.dispose();
             } );
     }
+    */
 
     setupObj(obj, options) {
         if (options.dataScale) {

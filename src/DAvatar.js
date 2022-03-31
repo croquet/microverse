@@ -235,7 +235,14 @@ console.log("fileUploaded", type)
             options = {...options, ...{dataLocation: dataId}};
         }
 
-        CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        if (type !== "exr") {
+            CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        } else {
+            let light = [...this.service("ActorManager").actors.values()].find(o => o.constructor.name === "DLight");
+            if (light) {
+                light.updateOptions({...light._cardData, dataLocation: dataId});
+            }
+        }
 
         this.publish(this.sessionId, "triggerPersist");
     }

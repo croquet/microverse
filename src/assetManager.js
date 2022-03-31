@@ -553,9 +553,28 @@ export class Loader {
         return {"img": URL.createObjectURL(new Blob([buffer]))};
     }
 
-    importEXR(buffer, options, THREE){
-        console.log("importEXR", buffer, options);
-        return {"exr": URL.createObjectURL(new Blob([buffer]))};   
+    async importEXR(buffer, options, THREE) {
+        const setupFiles = async () => {
+            if (!isZip(buffer)) {
+                let c = {"exr": URL.createObjectURL(new Blob([buffer]))};
+                return Promise.resolve(c);
+            }
+                
+            return this.setupFilesInZip(buffer, {"exr": "ArrayBuffer"});
+        };
+        
+        let contents = await setupFiles();
+
+        let obj = new Promise((resolve, reject) => {
+            new THREE.EXRLoader().load(contents.exr, resolve, null, reject);
+        });
+            
+        Object.keys(contents).forEach((k) => {
+            if (contents[k] && k !== "imgContents") {
+                URL.revokeObjectURL(contents[k]);
+            }
+        });
+        return obj;
     }
 }
 
