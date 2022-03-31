@@ -196,7 +196,11 @@ class BarGraphPawn {
     }
 
     constructBars() {
-        this.barGroup = this.shape;
+        this.shape.children.forEach((c) => {
+            c.material.dispose();
+        });
+        this.shape.children = [];
+        this.bars = [];
         let len = this.actor._cardData.length;
         let size = 1 / len;
         let THREE = Worldcore.THREE;
@@ -205,16 +209,15 @@ class BarGraphPawn {
             new THREE.BoxGeometry(1, size / 4, size, 2, 4, 2 ),
             new THREE.MeshStandardMaterial());
         this.base.position.set(0, -size / 4, 0);        
-        this.barGroup.add(this.base);
+        this.shape.add(this.base);
         this.bar = new THREE.Mesh(
             new THREE.BoxGeometry(size * 0.8, 1, size * 0.8, 2, 2, 2 ),
             new THREE.MeshStandardMaterial({color: color, emissive: color}));
-        this.bars = [];
         for(let i = 0; i < len; i++) {
             let bar = this.bar.clone();
             bar.material = bar.material.clone();
             bar.position.set((0.5 + i - len / 2) * size, 0,0);
-            this.barGroup.add(bar);
+            this.shape.add(bar);
             this.bars.push(bar);
         }
     }
