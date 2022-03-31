@@ -799,7 +799,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doPointerWheel(e) {
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
-        if (rc.pawn) {
+        if (rc.pawn && this.ctrlKey) {
             this.invokeListeners("pointerWheel", rc.pawn, rc, e);
             return;
         }
