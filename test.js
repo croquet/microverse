@@ -5,7 +5,7 @@
 import { Model, Constants } from "@croquet/worldcore";
 import { startWorld } from "./root.js";
 
-Constants.MaxAvatars = 6;
+Constants.MaxAvatars = 12;
 Constants.AvatarNames = [
     "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
@@ -18,7 +18,7 @@ Constants.SystemBehaviorModules = [
 
 Constants.UserBehaviorDirectory = "defaultDemo";
 Constants.UserBehaviorModules = [
-    "demo.js",  "bitcoinTracker.js", "bridge.js", "spin.js"
+    "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js"
 ];
 
 // use bit-identical math for constant initialization
@@ -64,12 +64,10 @@ Model.evaluate( () => {
     ];
 }); // end of Model.evaluate()
 
-// Default parameters are filled in the body of startWorld
+// Default parameters are filled in the body of startWorld. You can override them.
 startWorld({
     appId: 'io.croquet.microverse',
     apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
-    tps: 30,
-    eventRateLimit: 60,
 }).then(() => {
     console.log(`
   ________  ____  ____  __  ____________

@@ -18,7 +18,7 @@ Constants.SystemBehaviorModules = [
 
 Constants.UserBehaviorDirectory = "behaviors/defaultDemo";
 Constants.UserBehaviorModules = [
-    "demo.js",  "bitcoinTracker.js", "bridge.js", "spin.js"
+    "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js"
 ];
 
 // use bit-identical math for constant initialization
@@ -299,12 +299,10 @@ Model.evaluate( () => {
     ];
 }); // end of Model.evaluate()
 
-// Default parameters are filled in the body of startWorld
+// Default parameters are filled in the body of startWorld. You can override them.
 startWorld({
     appId: 'io.croquet.microverse',
     apiKey: '1_nsjqc1jktrot0iowp3c1348dgrjvl42hv6wj8c2i',
-    tps: 30,
-    eventRateLimit: 60,
 }).then(() => {
     console.log(`
   ________  ____  ____  __  ____________
