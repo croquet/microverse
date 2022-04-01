@@ -6,8 +6,7 @@ const webpack = require("webpack");
 
 const config = {
     entry: {
-        'index': './index.js',
-        'test': './test.js',
+        'index': './index.js'
     },
     output: {
         path: path.join(__dirname, 'dist'),
@@ -27,7 +26,7 @@ const config = {
     },
     devServer: {
         allowedHosts: 'all',
-        watchFiles: ['./src/**.js', './index.js', './test.js', './root.js'],
+        watchFiles: ['./src/**.js', './index.js', './test.js', 'defaultDemo.js', './root.js'],
         port: 9009,
     },
     module: {
@@ -49,12 +48,6 @@ const config = {
             filename: 'index.html',   // output filename in dist/
             chunks: ['index']
         }),
-        new HtmlWebpackPlugin({
-            inject: true,
-            template: 'test.html',   // input
-            filename: 'test.html',   // output filename in dist/
-            chunks: ['test']
-        }),
         new webpack.ProvidePlugin({
             Buffer: ['buffer', 'Buffer']
         }),
@@ -66,6 +59,9 @@ const config = {
         new CopyPlugin({
             patterns: [
                 { from: 'behaviors', to: 'behaviors' },
+                { from: 'defaultDemo.js', to: 'defaultDemo.js' },
+                { from: 'test.js', to: 'test.js' },
+                { from: 'apiKey.js', to: 'apiKey.js' },
             ]
         }),
     ],
