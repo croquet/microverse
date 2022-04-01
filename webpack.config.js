@@ -53,7 +53,9 @@ const config = {
         }),
         new CopyPlugin({
             patterns: [
-                { from: 'assets', to: 'assets' },
+                { from: 'assets/**/*',
+                  globOptions: {ignore: ["**/Refinery.glb.zip"]}
+                },
             ]
         }),
         new CopyPlugin({
@@ -76,7 +78,7 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        if (false) {
+                        if (!Object.keys(file)[0].startsWith("index-")) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options
