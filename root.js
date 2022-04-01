@@ -55,13 +55,29 @@ function loadLoaders() {
 function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
-    
+
+    let pathname = window.location.pathname;
+    let match = /([^/]+)\.html$/.exec(pathname);
+    let basename = new URL(window.location).searchParams.get("world");
+    if (!basename) {
+        basename = (!match || match[1] === "index") ? "defaultDemo" : match[1];
+        console.log("base", basename);
+    }
+
+    let basedir;
+    if (match) {
+        basedir = pathname.slice(0, match.index);
+    } else {
+        let slash = pathname.lastIndexOf("/");
+        basedir = pathname.slice(0, slash + 1);
+    }
+
     if (!directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
     let promises = paths.map((path) => {
-        let code = `import('./${directory}/${path}')`;
+        let code = `import('${basedir}${directory}/${path}')`;
         return eval(code).then((module) => {
             return [path, module];
         })

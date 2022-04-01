@@ -1,0 +1,20 @@
+{
+  "name": "@croquet/microverse-user",
+  "version": "0.0.6",
+  "description": "Pre-Packaged Croquet Microverse",
+  "main": "index.html",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "watch-server": "node server/watch-server.js"
+  },
+  "author": "Croquet Corporation",
+  "license": "ISC",
+  "browserslist": [
+    "> 5%"
+  ],
+  "dependencies": {
+    "chokidar": "^3.5.3",
+    "ws": "^8.5.0"
+  }
+}

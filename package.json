@@ -8,7 +8,8 @@
     "start": "webpack serve --mode development --devtool source-map",
     "scripting": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
     "build": "webpack --mode production",
-    "build-dev": "webpack --mode development"
+    "build-dev": "webpack --mode development",
+    "build-public": "webpack --config webpack.public.js --mode production"
   },
   "author": "",
   "license": "ISC",

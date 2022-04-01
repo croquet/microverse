@@ -1,0 +1,3 @@
+const apiKey = "<insert your apiKey from croquet.io/keys>";
+const appId = "<specify your own appId such as com.foo.mymicroverse>";
+export default {apiKey, appId};
