@@ -59,7 +59,7 @@ function loadInitialBehaviors(paths, directory) {
     if (!directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
-    let isSystem = directory === "croquet";
+    let isSystem = directory === Constants.SystemBehaviorDirectory;
     let promises = paths.map((path) => {
         return import(`./behaviors/${directory}/${path}`).then((module) => {
             return [path, module];
@@ -320,7 +320,7 @@ export function startWorld(moreOptions) {
     // App.makeWidgetDock();
     return loadLoaders()
         .then(() => {
-            return loadInitialBehaviors(Constants.SystemBehaviorModules, "croquet");
+            return loadInitialBehaviors(Constants.SystemBehaviorModules, Constants.SystemBehaviorDirectory);
         }).then(() => {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {

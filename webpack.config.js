@@ -68,10 +68,8 @@ const config = {
 
 module.exports = (env, argv) => {
     if (argv.mode === 'production') {
-        console.log("argv.mode", argv.mode);
         config.optimization = {
             minimize: true,
-            //            minify: selectiveMinifier,
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {

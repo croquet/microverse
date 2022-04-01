@@ -11,14 +11,14 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
+Constants.SystemBehaviorDirectory = "croquet";
 Constants.SystemBehaviorModules = [
     "menu.js", "elected.js", "propertyPanel.js"
 ];
 
 Constants.UserBehaviorDirectory = "defaultDemo";
-
 Constants.UserBehaviorModules = [
-    "demo.js",  "bitcoinTracker.js", "bridge.js"
+    "demo.js",  "bitcoinTracker.js", "bridge.js", "spin.js"
 ];
 
 // use bit-identical math for constant initialization

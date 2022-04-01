@@ -2,4 +2,8 @@ node_modules
 /dist
 .DS_Store
 /demos
+/npm
+/memo
+apiKey.js
+
 
