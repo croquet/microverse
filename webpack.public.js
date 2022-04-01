@@ -43,7 +43,9 @@ const config = {
         }),
         new CopyPlugin({
             patterns: [
-                { from: 'assets', to: 'assets' },
+                { from: 'assets/**/*',
+                  globOptions: {ignore: ["**/Refinery.glb.zip"]}
+                },
             ]
         }),
         new CopyPlugin({
@@ -51,9 +53,10 @@ const config = {
                 { from: 'behaviors', to: 'behaviors' },
                 { from: 'defaultDemo.js', to: 'defaultDemo.js' },
                 { from: 'test.js', to: 'test.js' },
+                { from: 'server.js', to: 'server.js' },
                 { from: 'server/watch-server.js', to: 'server/watch-server.js' },
                 { from: 'apiKey.js', to: 'apiKey.js' },
-                { from: 'staging/', to: '/' },
+                { from: path.resolve(__dirname, "staging")},
             ]
         }),
     ],
@@ -66,7 +69,8 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        if (false) {
+                        console.log(Object.keys(file));
+                        if (!Object.keys(file)[0].startsWith("lib/")) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options
