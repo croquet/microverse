@@ -10,6 +10,8 @@ import { PM_Pointer} from "./Pointer.js";
 import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
+import {setupWorldMenuButton} from "./worldMenu.js";
+
 let avatarModelPromises = [];
 export let EYE_HEIGHT = 1.7;
 export let EYE_EPSILON = 0.01;
@@ -353,6 +355,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let editButton = document.getElementById("editModeBttn");
             editButton.onpointerdown = (evt) => this.setEditMode(evt);
             editButton.onpointerup = (evt) => this.clearEditMode(evt);
+
+            setupWorldMenuButton();
 
             this.assetManager = this.service("AssetManager");
             window.assetManager = this.assetManager.assetManager;

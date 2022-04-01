@@ -260,7 +260,7 @@ export function startWorld(moreOptions) {
         eventRateLimit: 60,
     }, ...moreOptions};
 
-    App.makeWidgetDock();
+    // App.makeWidgetDock();
     return loadLoaders()
         .then(() => {
             return loadInitialBehaviors(Constants.SystemBehaviorModules, "croquet");
