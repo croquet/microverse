@@ -55,7 +55,6 @@ const config = {
                 { from: 'test.js', to: 'test.js' },
                 { from: 'server.js', to: 'server.js' },
                 { from: 'server/watch-server.js', to: 'server/watch-server.js' },
-                { from: 'apiKey.js', to: 'apiKey.js' },
                 { from: path.resolve(__dirname, "staging")},
             ]
         }),

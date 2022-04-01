@@ -9,7 +9,7 @@
     "scripting": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
-    "build-public": "webpack --config webpack.public.js --mode production"
+    "build-public": "webpack --config webpack.public.js --mode production; (cd npm; npm pack)"
   },
   "author": "",
   "license": "ISC",
