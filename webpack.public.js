@@ -50,7 +50,9 @@ const config = {
         }),
         new CopyPlugin({
             patterns: [
-                { from: 'behaviors', to: 'behaviors' },
+                { from: 'behaviors/**/*',
+                  globOptions: {ignore: ["**/croquet/*.js"]}
+                },
                 { from: 'defaultDemo.js', to: 'defaultDemo.js' },
                 { from: 'test.js', to: 'test.js' },
                 { from: 'server.js', to: 'server.js' },
