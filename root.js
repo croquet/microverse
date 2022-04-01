@@ -61,7 +61,8 @@ function loadInitialBehaviors(paths, directory) {
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
     let promises = paths.map((path) => {
-        return import(`./behaviors/${directory}/${path}`).then((module) => {
+        let code = `import('./${directory}/${path}')`;
+        return eval(code).then((module) => {
             return [path, module];
         })
     });

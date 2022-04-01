@@ -63,6 +63,11 @@ const config = {
                 { from: 'assets', to: 'assets' },
             ]
         }),
+        new CopyPlugin({
+            patterns: [
+                { from: 'behaviors', to: 'behaviors' },
+            ]
+        }),
     ],
 };
 
@@ -73,8 +78,7 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        // this condition is not precise as the Rapier part also hits here
-                        if (Object.keys(file)[0].indexOf("chunk-") >= 0) {
+                        if (false) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options
@@ -82,6 +86,8 @@ module.exports = (env, argv) => {
                             /* your `uglify-js` package options */
                             keep_fnames: true
                         };
+
+                        console.log("minify");
 
                         return require("uglify-js").minify(file, uglifyJsOptions)
                     },

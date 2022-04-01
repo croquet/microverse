@@ -383,7 +383,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     constructShape(options) {
         let type = options.type;
-        console.log("constructShape", type)
         if (type === "3d" || type === "3D") {
             this.construct3D(options);
         } else if (type === "2d" || type === "2D") {
@@ -391,7 +390,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.construct2D(options);
         }  else if (type === "text" || type === "code") {
             this.isFlat = true;
-        } else if (type === "lighting"){
+        } else if (type === "lighting") {
             this.constructLighting(options);
         }
     }

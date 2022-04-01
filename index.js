@@ -11,12 +11,12 @@ Constants.AvatarNames = [
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-Constants.SystemBehaviorDirectory = "croquet";
+Constants.SystemBehaviorDirectory = "behaviors/croquet";
 Constants.SystemBehaviorModules = [
     "menu.js", "elected.js", "propertyPanel.js"
 ];
 
-Constants.UserBehaviorDirectory = "defaultDemo";
+Constants.UserBehaviorDirectory = "behaviors/defaultDemo";
 Constants.UserBehaviorModules = [
     "demo.js",  "bitcoinTracker.js", "bridge.js", "spin.js"
 ];
