@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 import {
-    Constants, Data, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
+    Constants, Data, App, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
@@ -356,7 +356,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             editButton.onpointerdown = (evt) => this.setEditMode(evt);
             editButton.onpointerup = (evt) => this.clearEditMode(evt);
 
-            setupWorldMenuButton();
+            let qrCanvas = App.makeQRCanvas({width: 180, height: 180});
+            setupWorldMenuButton(this, qrCanvas);
 
             this.assetManager = this.service("AssetManager");
             window.assetManager = this.assetManager.assetManager;
@@ -903,5 +904,23 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.floor = p;
         this.onLocalChanged();
         this.say("setFloor", p, 100);
+    }
+
+    loadFromFile(data) {
+        let model = this.actor.wellKnownModel("ModelRoot");
+
+        let array = new TextEncoder().encode(data);
+        let ind = 0;
+        let key = Math.random();
+        
+        this.publish(model.id, "loadStart", key);
+
+        while (ind < array.length) {
+            let buf = array.slice(ind, ind + 4000);
+            this.publish(model.id, "loadOne", {key, buf});
+            ind += 4000;
+        }
+                
+        this.publish(model.id, "loadDone", key);
     }
 }

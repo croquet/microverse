@@ -241,7 +241,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     setBehaviors(selection) {
-        debugger;
         let behaviorModules = [];
 
         selection.forEach((obj) => {

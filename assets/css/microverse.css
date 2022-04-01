@@ -101,10 +101,12 @@ body {
     z-index: 200;
 }
 
-
 .menu-qr {
     width: 200px;
     height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .menu-item {
@@ -123,6 +125,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: opacity 0.5s;
 }
 
 .menu-label:hover {

@@ -116,6 +116,9 @@ class MyModelRoot extends ModelRoot {
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
+        this.subscribe(this.id, "loadStart", "loadStart");
+        this.subscribe(this.id, "loadOne", "loadOne");
+        this.subscribe(this.id, "loadDone", "loadDone");
 
         if (persistentData) {
             this.loadPersistentData(persistentData);
@@ -177,13 +180,15 @@ class MyModelRoot extends ModelRoot {
         if (this.loadingPersistentData) {return;}
         if (this.loadingPersistentDataErrored) {return;}
         this.lastPersistTime = this.now();
-        let func = () => {
-            let name = this.sessionName || "Unknown";
-            let saver = new WorldSaver(CardActor);
-            let json = saver.save(this);
-            return {name, version: "1", data: saver.stringify(json)};
-        };
+        let func = () => this.saveData();
         this.persistSession(func);
+    }
+
+    saveData() {
+        let name = this.sessionName || "Unknown";
+        let saver = new WorldSaver(CardActor);
+        let json = saver.save(this);
+        return {name, version: "1", data: saver.stringify(json)};
     }
 
     loadBehaviorModules(moduleDefs, version) {
@@ -215,6 +220,58 @@ class MyModelRoot extends ModelRoot {
         this.lastPersistTime = now;
         this.persistRequested = false;
         this.savePersistentData();
+    }
+
+    loadStart(key) {
+        this.loadKey = key;
+        this.loadBuffer = [];
+    }
+
+    loadOne(data) {
+        let {key, buf} = data;
+        if (key !== this.loadKey) {return;}
+        this.loadBuffer.push(buf);
+    }
+
+    loadDone(key) {
+        if (key !== this.loadKey) {return;}
+
+        let array = this.loadBuffer;
+        this.loadBuffer = [];
+        this.loadKey = null;
+
+        if (!array) {
+            console.log("inconsistent message");
+            return;
+        }
+
+        let len = array.reduce((acc, cur) => acc + cur.length, 0);
+        let all = new Uint8Array(len);
+        let ind = 0;
+        for (let i = 0; i < array.length; i++) {
+            all.set(array[i], ind);
+            ind += array[i].length;
+        }
+
+        let result = new TextDecoder("utf-8").decode(all);
+        let savedData = JSON.parse(result);
+        if (savedData.version === "1") {
+            this.loadFromFile(savedData);
+        }
+    }
+
+    loadFromFile({ _name, version, data }) {
+        try {
+            let saver = new WorldSaver(CardActor);
+            let json = saver.parse(data);
+
+            this.loadBehaviorModules(json.behaviorModules, version);
+            if (json.cards) {
+                this.load(json.cards, version);
+            }
+        } catch (error) {
+            console.error("error in loading persistent data", error);
+        }
     }
 }
 

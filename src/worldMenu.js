@@ -1,22 +1,59 @@
 let worldMenu = null;
+let imageInput = null;
 
-function qrPressed(evt) {
+function qrPressed(_myAvatar, url) {
+    let div = document.createElement("div");
+    div.innerHTML = `<a id="link" target="_blank" rel="noopener noreferrer" href="${url}"></a>`;
+    document.body.appendChild(div);
+    let a = div.querySelector("#link");
+    a.click();
+    div.remove();
     console.log("qr");
 }
 
-function savePressed(evt) {
-    console.log("save");
+function savePressed(myAvatar) {
+    let model = myAvatar.actor.wellKnownModel("ModelRoot");
+
+    let div = document.createElement("a");
+
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData()));
+
+    div.setAttribute("href", dataStr);
+    div.setAttribute("download", "scene.json");
+    div.click();
 }
 
-function loadPressed(evt) {
+function loadPressed(myAvatar) {
+    if (!imageInput) {
+        let input = document.createElement("div");
+        input.innerHTML = `<input id="imageinput" type="file" accept="application/json;">`;
+        imageInput = input.firstChild;
+
+        imageInput.onchange = () => {
+            for (const file of imageInput.files) {
+                new Promise(resolve => {
+                    let reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsBinaryString(file);
+                }).then((data) => {
+                    myAvatar.loadFromFile(data);
+                })
+            }
+            imageInput.value = "";
+        };
+    }
+
+    document.body.appendChild(imageInput);
+
+    imageInput.click();
     console.log("load");
 }
 
-function connectPressed(evt) {
-    console.log("connect");
+function connectPressed() {
+    window.BehaviorViewManager.setURL("ws://localhost:9011");
 }
 
-function toggleMenu() {
+function toggleMenu(myAvatar, qrCanvas) {
     if (worldMenu) {
         worldMenu.remove();
         worldMenu = null;
@@ -44,11 +81,40 @@ function toggleMenu() {
     dom.innerHTML = html;
     worldMenu = dom.querySelector("#worldMenu");
     document.body.appendChild(worldMenu);
+
+    let div;
+
+    div = worldMenu.querySelector("#worldMenu-qr");
+    div.onclick = (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        qrPressed(myAvatar, window.location);
+    }
+    div.appendChild(qrCanvas);
+
+    div = worldMenu.querySelector("#worldMenu-save");
+    div.onclick = (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        savePressed(myAvatar);
+    }
+
+    div = worldMenu.querySelector("#worldMenu-load");
+    div.onclick = (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        loadPressed(myAvatar);
+    }
+
+    div = worldMenu.querySelector("#worldMenu-connect");
+    div.onclick = () => connectPressed(myAvatar);
+
+    document.body.appendChild(worldMenu);
     
     return worldMenu;
 }
 
-export function setupWorldMenuButton() {
+export function setupWorldMenuButton(myAvatar, qrCanvas) {
     let worldMenuButton = document.querySelector("#worldMenuBttn");
-    worldMenuButton.onclick = toggleMenu;
+    worldMenuButton.onclick = () => toggleMenu(myAvatar, qrCanvas);
 }
