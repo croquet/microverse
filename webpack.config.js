@@ -30,6 +30,7 @@ const config = {
         port: 9009,
     },
     module: {
+        noParse: /\.wasm$/,
         rules: [
             {
                 test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
@@ -39,6 +40,13 @@ const config = {
                 test: /\.js$/,
                 enforce: "pre",
                 use: ["source-map-loader"],
+            },
+            {
+                test: /\.wasm$/,
+                type: 'asset/resource',
+                generator: {
+                    outputPath: "wasm/"
+                }
             },
         ]
     },

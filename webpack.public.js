@@ -25,10 +25,18 @@ const config = {
         asyncWebAssembly: true
     },
     module: {
+        noParse: /\.wasm$/,
         rules: [
             {
                 test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
                 type: 'asset/resource',
+            },
+            {
+                test: /\.wasm$/,
+                type: 'asset/resource',
+                generator: {
+                    outputPath: "lib/"
+                }
             },
         ]
     },
