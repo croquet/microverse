@@ -240,8 +240,6 @@ export class AssetManager {
         // and then we zipped it. But the file dropped might have been a zip file,
         // The dropped file might have been named like
         // abc.glb.zip, but it might have been abc.zip
-        // so we don't know for sure what it was.
-
         let types = {
             "glb": "importGLB",
             "obj": "importOBJ",
@@ -549,8 +547,21 @@ export class Loader {
         return svg;
     }
 
-    importIMG(buffer, options, THREE) {
-        return {"img": URL.createObjectURL(new Blob([buffer]))};
+//    importIMG(buffer, options, THREE) {
+//        return {"img": URL.createObjectURL(new Blob([buffer]))};
+//    }
+
+    async importIMG(buffer, options, THREE) {
+        let objectURL = URL.createObjectURL(new Blob([buffer]));
+        let loader = new THREE.TextureLoader();
+        let texture = loader.loadAsync(objectURL,
+            (txtr)=>{
+                console.log("importIMG", txtr.image)
+                txtr.width = txtr.image.width;
+                txtr.height= txtr.image.height;
+            });
+        
+        return texture;
     }
 
     async importEXR(buffer, options, THREE) {
@@ -594,7 +605,6 @@ export function addShadows(obj3d, shadow, singleSide, THREE) {
 }
 
 export function normalizeSVG(svgGroup, depth, shadow, three) {
-    console.log(svgGroup)
     THREE = three;
     let bb = boundingBox(svgGroup);
     let ext = extent3D(svgGroup, bb);

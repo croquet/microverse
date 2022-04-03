@@ -48,7 +48,7 @@ export function init(Model, Constants) {
                     name: 'lighting #1',
                     type: "lighting",
                     className: "DLight",
-                    dataLocation: "./assets/sky/syferfontein_1d_clear_1k.exr"
+                    dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg"
                 }
             },
             {
@@ -279,7 +279,7 @@ export function init(Model, Constants) {
                     type: "2d",
                     dataLocation: './assets/SVG/BitcoinSign.svg',
                     depth: 0.05,
-                 //   color: 0xffffff,
+                    color: 0xffffff,
                     frameColor: frameColor,
                     behaviorModules: ["BitLogo"]
                 }
