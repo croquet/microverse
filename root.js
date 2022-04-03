@@ -40,7 +40,10 @@ function loadLoaders() {
                 "loaders/DRACOLoader.js",
                 "loaders/SVGLoader.js",
                 "loaders/EXRLoader.js",
-                "utils/BufferGeometryUtils.js"
+                "utils/BufferGeometryUtils.js",
+                "csm/CSMFrustum.js",
+                "csm/CSMShader.js",
+                "csm/CSM"
             ];
 
             window.JSZip = JSZip;
@@ -326,7 +329,6 @@ class MyViewRoot extends ViewRoot {
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
         console.log("ThreeRenderManager", threeRenderManager);
-
     }
 }
 

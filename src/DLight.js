@@ -18,6 +18,7 @@ import skyDown from "../assets/sky/sh_dn.png";
 export class DLight extends CardActor {
     get pawn() {return DLightPawn;}
 }
+
 DLight.register('DLight');
 
 class DLightPawn extends CardPawn {
@@ -25,9 +26,11 @@ class DLightPawn extends CardPawn {
         console.log("construct lights")
         super(options);
         this.addToLayers('light');
-        window.scene =  this.service("ThreeRenderManager").scene;
+        let trm = this.service("ThreeRenderManager");
+        let scene =  trm.scene;
+        let camera = trm.camera;
         // console.log(window.scene);
-
+        this.setupCSM(scene, camera, THREE);
         let group = this.shape;
 
         // this.background = scene.background = new THREE.CubeTextureLoader().load([skyFront, skyBack, skyUp, skyDown, skyRight, skyLeft]);
@@ -43,7 +46,7 @@ class DLightPawn extends CardPawn {
         let side = 15;
 
         //Set up shadow properties for the light
-        sun.castShadow = true;
+    /*    sun.castShadow = true;
         sun.shadow.camera.near = 0.5; // default
         sun.shadow.camera.far = 1000; // default
         sun.shadow.mapSize.width = 2048;
@@ -54,6 +57,7 @@ class DLightPawn extends CardPawn {
         sun.shadow.camera.bottom = -side;
         sun.shadow.camera.left = side;
         sun.shadow.camera.right = -side;
+        */
         group.add(sun);
 
         this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.12 );
@@ -73,6 +77,28 @@ class DLightPawn extends CardPawn {
         this.hemiLight.dispose();
         this.moon.dispose();
         super.destroy();
+    }
+
+    setupCSM(scene, camera, THREE){
+        console.log("CSM", THREE.CSM)
+        this.csm = new THREE.CSM({
+            fade: true,
+            far: camera.far,
+            maxFar: 1000,
+            cascades: 4,
+            shadowMapSize: 2048,
+            shadowbias: 0.001,
+            lightDirection: new THREE.Vector3(-1, -1, 0),
+            camera: camera,
+            parent: scene,
+            lightIntensity: 0.5,
+            lightFar: 1000,
+            mode: "practical"
+          });
+    }
+
+    update(time){
+        if(this.csm)this.csm.update();
     }
 }
 
