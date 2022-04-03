@@ -503,7 +503,7 @@ export class Loader {
                             side: (depth?THREE.FrontSide:THREE.DoubleSide),
                         } );
                         if(color)material.color=new THREE.Color(color);
-                        if(depth)material = [material, new THREE.MeshStandardMaterial({color:frameColor})];
+                        if(depth)material = [material, new THREE.MeshStandardMaterial({color:frameColor, metalness:1.0})];
                         const shapes = THREE.SVGLoader.createShapes( path );
                         for ( let j = 0; j < shapes.length; j ++ ) {
                             const shape = shapes[ j ];

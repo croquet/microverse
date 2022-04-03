@@ -19,6 +19,8 @@ export function init(Model, Constants) {
         "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js"
     ];
 
+    const frameColor = 0x888888;
+
     // use bit-identical math for constant initialization
     Model.evaluate( () => {
         Constants.DefaultCards = [
@@ -72,7 +74,7 @@ export function init(Model, Constants) {
                     margins: {left: 20, top: 20, right: 20, bottom: 20},
                     backgroundColor: 0xf4e056,
                     //color: 0xf4e056,
-                    frameColor: 0xfad912,
+                    frameColor: frameColor,
                     width: 2,
                     height: 2,
                     textScale: 0.002,
@@ -100,7 +102,7 @@ export function init(Model, Constants) {
                     dataLocation: './assets/SVG/credit-card.svg',
                     textureType: "video",
                     textureLocation: "./assets/videos/fromPCtoHMD.mp4",
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                     color: 0xffffff,
                     depth: 0.05,
                     fullBright: true
@@ -115,7 +117,7 @@ export function init(Model, Constants) {
                     type: "2d",
                     textureType: "image",
                     textureLocation: './assets/images/Colony.png',
-                    frameColor: 0x666666,
+                    frameColor: 0x888888,
                     color: 0xffffff,
                     cornerRadius: 0.05,
                     depth: 0.05,
@@ -136,7 +138,7 @@ export function init(Model, Constants) {
                     textureType: "canvas",
                     textureWidth: 1024,
                     textureHeight: 1024,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                     color: 0xffffff,
                     depth: 0.05,
                     fullBright: true
@@ -158,7 +160,7 @@ export function init(Model, Constants) {
                     textureType: "dynamic",
                     textureWidth: 1024,
                     textureHeight: 1024,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                     color: 0xffffff,
                     depth: 0.05,
                     fullBright: true,
@@ -180,7 +182,7 @@ export function init(Model, Constants) {
                     //textureType: "dynamic",
                     //textureWidth: 1024,
                     //textureHeight: 1024,
-                    //frameColor: 0x666666,
+                    //frameColor: frameColor,
                     color: 0xaaaaaa,
                     //depth: 0.05,
                     //fullBright: true,
@@ -200,7 +202,7 @@ export function init(Model, Constants) {
                     width: 1.5,
                     height: 2,
                     depth: 0.05,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                 }
             },
             {
@@ -225,7 +227,7 @@ export function init(Model, Constants) {
                     width: 1.5,
                     height: 2.5,
                     depth: 0.05,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                 },
             },
             {
@@ -260,7 +262,7 @@ export function init(Model, Constants) {
                     textureHeight: 768,
                     width: 1,
                     height: 0.75,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                     color: 0xffffff,
                     depth: 0.05,
                     cornerRadius: 0.1,
@@ -278,7 +280,7 @@ export function init(Model, Constants) {
                     dataLocation: './assets/SVG/BitcoinSign.svg',
                     depth: 0.05,
                     color: 0xffffff,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                     behaviorModules: ["BitLogo"]
                 }
             },
@@ -287,7 +289,7 @@ export function init(Model, Constants) {
                     name:'bar graph',
                     translation:[0, -0.3, 0.1],
                     color: 0xEEEEEE,
-                    frameColor: 0x666666,
+                    frameColor: frameColor,
                     type: "object",
                     height: 0.4,
                     parent: "main",

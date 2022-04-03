@@ -833,20 +833,16 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
 
         let material;
-        if (fullBright) {
-            material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide, emissive: color});
+        if (!fullBright) {
+            material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide});
         } else {
-            material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide});
+            material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide, emissive: color});
         }
 
         if (depth > 0) {
             let second;
-            if (fullBright) {
-                second = new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, emissive: frameColor});
-            } else {
-                second = new THREE.MeshBasicMaterial({color: frameColor, side: THREE.DoubleSide});
-            }
-            material = [material, second];
+                second = new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, metalness:1.0});
+            material = [material, second ];
         }
 
         this.material = material;
