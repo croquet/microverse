@@ -263,7 +263,7 @@ export function init(Model, Constants) {
                     width: 1,
                     height: 0.75,
                     frameColor: frameColor,
-                    color: 0xffffff,
+                   // color: 0xffffff,
                     depth: 0.05,
                     cornerRadius: 0.1,
                     behaviorModules: ["BitcoinTracker", "Elected"],
@@ -279,7 +279,7 @@ export function init(Model, Constants) {
                     type: "2d",
                     dataLocation: './assets/SVG/BitcoinSign.svg',
                     depth: 0.05,
-                    color: 0xffffff,
+                 //   color: 0xffffff,
                     frameColor: frameColor,
                     behaviorModules: ["BitLogo"]
                 }

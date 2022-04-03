@@ -594,6 +594,7 @@ export function addShadows(obj3d, shadow, singleSide, THREE) {
 }
 
 export function normalizeSVG(svgGroup, depth, shadow, three) {
+    console.log(svgGroup)
     THREE = three;
     let bb = boundingBox(svgGroup);
     let ext = extent3D(svgGroup, bb);
@@ -616,7 +617,7 @@ export function normalizeSVG(svgGroup, depth, shadow, three) {
 
     svgGroup.traverse(obj => {
         if (obj.material) {
-            normalizeUV(obj.geometry.attributes.uv.array, bb);
+            normalizeUV(obj.geometry.attributes.uv.array, obj.geometry.attributes.normal.array, bb);
             if (shadow) { 
                 obj.castShadow = true;
                 obj.receiveShadow = true;
@@ -625,15 +626,19 @@ export function normalizeSVG(svgGroup, depth, shadow, three) {
     });
 }
 
-function normalizeUV(uvArray, bb) {
+function normalizeUV(uvArray, uvNormal, bb) {
     let s = [bb.max.x - bb.min.x, bb.max.y - bb.min.y];
     s[0] = s[0] > 0 ? 1 / s[0] : 1;
     s[1] = s[1] > 0 ? 1 / s[1] : 1;
     let o = [bb.min.x, bb.min.y];
     let index = 0;
+    let count = 0;
     for(let i = 0; i < uvArray.length;i++) {
-        uvArray[i] = (uvArray[i] - o[index]) * s[index];
-        if (index) uvArray[i] = 1 - uvArray[i];
+        count+=index;
+        if(!uvNormal[count*3]+2){ // if z is 0, then do nothing
+            uvArray[i] = (uvArray[i] - o[index]) * s[index];
+            if (index) uvArray[i] = 1 - uvArray[i];
+        }
         index = index === 0 ? 1 : 0;
     }
 }
