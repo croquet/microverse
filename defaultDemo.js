@@ -16,7 +16,7 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/defaultDemo";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js"
+        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js", "lights.js"
     ];
 
     const frameColor = 0x888888;
@@ -45,9 +45,10 @@ export function init(Model, Constants) {
             },
             {
                 card: {
-                    name: 'lighting #1',
+                    name: 'light',
+                    layers: ['light'],
                     type: "lighting",
-                    className: "DLight",
+                    behaviorModules: ["Light"],
                     dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg"
                 }
             },

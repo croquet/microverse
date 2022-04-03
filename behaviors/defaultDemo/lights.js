@@ -1,40 +1,23 @@
-// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
-// https://croquet.io
-// info@croquet.io
-//
-console.log("THIS IS DEPRECATED - Use the Light.js behavior instead");
-import { THREE } from "@croquet/worldcore";
-
-import { CardActor, CardPawn } from "./DCard.js";
-
-export class DLight extends CardActor {
-    get pawn() {return DLightPawn;}
-}
-
-DLight.register('DLight');
-
-class DLightPawn extends CardPawn {
-    constructor(options) {
-        console.log("construct lights")
-        super(options);
-        this.addToLayers('light');
+class LightPawn {
+    setup() {
         let trm = this.service("ThreeRenderManager");
         let scene =  trm.scene;
         let camera = trm.camera;
-        this.setupCSM(scene, camera, THREE);
+        this.setupCSM(scene, camera, Worldcore.THREE);
         let group = this.shape;
-        const ambient = new THREE.AmbientLight( 0xffffff, .75 );
+
+        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .75 );
         group.add(ambient);
 
-        const sun = this.sun = new THREE.DirectionalLight( 0xffe0b5, 1 );
+        const sun = this.sun = new Worldcore.THREE.DirectionalLight( 0xffe0b5, 1 );
         sun.position.set(400, 500, 400);
         group.add(sun);
 
-        this.moon = new THREE.DirectionalLight( 0x6cbbff, 0.5 );
+        this.moon = new Worldcore.THREE.DirectionalLight( 0x6cbbff, 0.5 );
         this.moon.position.set(200, 100, -100);
         group.add(this.moon);
 
-        this.hemiLight = this.hemiLight = new THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
+        this.hemiLight = this.hemiLight = new Worldcore.THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
         group.add(this.hemiLight);
         group.name = "Light Card";
     }
@@ -49,20 +32,22 @@ class DLightPawn extends CardPawn {
     }
 
     setupCSM(scene, camera, THREE){
+        let dir = new THREE.Vector3(-2,-2,-0.5);
         this.csm = new THREE.CSM({
             fade: true,
             far: camera.far,
             maxFar: 1000,
-            cascades: 4,
+            cascades: 3,
             shadowMapSize: 2048,
             shadowbias: 0.00025,
-            lightDirection: new THREE.Vector3(-1, -1, -0.5),
+            lightDirection: dir,
             camera: camera,
             parent: scene,
             lightIntensity: 0.6,
             lightFar: 1000,
             mode: "practical"
           });
+        this.csm.update();
     }
 
     update(time){
@@ -70,4 +55,11 @@ class DLightPawn extends CardPawn {
     }
 }
 
-/* globals ASSETS_DIRECTORY */
+export default {
+    modules: [
+        {
+            name: "Light",
+            pawnBehaviors: [LightPawn]
+        }
+    ]
+}
