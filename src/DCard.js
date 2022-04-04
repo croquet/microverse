@@ -4,7 +4,6 @@
 //
 // Collaborative Card Object
 
-import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
     q_euler, q_multiply } from '@croquet/worldcore';
@@ -944,42 +943,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     }
                 }
             });
-        }
-    }
-
-    tween(target, qEnd, onComplete){
-        if(this.isTweening)return;
-
-        this.isTweening = true;
-        let qStart = new THREE.Quaternion();
-        // tween
-        let time = { t: 0 };
-        let scope = this;
-        new TWEEN.Tween( time )
-            .to( { t : 1 }, 300 )
-            //.easing( TWEEN.Easing.Quadratic.InOut )
-            .easing( TWEEN.Easing.Linear.None )
-            .onStart(() => {
-                qStart.copy(target.quaternion);
-            })
-            .onUpdate(() => {
-                target.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
-                target.updateMatrixWorld();
-            })
-            .onComplete(() => {
-                target.quaternion.copy( qEnd ); // so it is exact  
-                target.updateMatrixWorld();
-                scope.isTweening = false;
-                if(onComplete)onComplete();
-            })
-            .start();
-        this.future(100).updateTween();
-    }
-
-    updateTween(){
-        if(this.isTweening){
-            TWEEN.update();
-            this.future(50).updateTween();
         }
     }
 

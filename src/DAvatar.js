@@ -7,7 +7,6 @@ import {
     m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
-import { TWEEN } from './three/examples/jsm/libs/tween.module.min.js';
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
 import {setupWorldMenuButton} from "./worldMenu.js";
@@ -17,8 +16,6 @@ export let EYE_HEIGHT = 1.7;
 export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
-
-let isTweening = false; // transition between camera modes
 
 let avatarManager; // Local pointer for avatars
 
@@ -160,7 +157,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
             if(this.playerId !== key){
                 count++;
-                value.goTo(this.translation, this.rotation, this.fall);
+                value.goTo(this.translation, this.rotation, false);
                 value.follow = this.playerId;
                 value.fall = false;
             }
@@ -311,9 +308,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.scene = renderMgr.scene;
             this.lastHeight = EYE_HEIGHT; // tracking the height above ground
             this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
-            //this.tweenCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-            //this.walkCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-            this.tweenCamera = new THREE.Object3D();
+
             this.walkCamera = new THREE.Object3D();
 
             this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ));
@@ -456,53 +451,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
-        isTweening = false;
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
         avatarManager.delete(this); // delete from the avatarManager
         super.destroy();
     }
 
-    // This tween is only on the view side because we are transitioning between two cameras.
-    // This does not actually affect the avatar's position, just where you see him from.
-    tween(fromCam, toCam, onComplete){
-        isTweening = true;
-        let tweenCam = this.tweenCamera; 
-        let qStart = new THREE.Quaternion(), qEnd = new THREE.Quaternion();
-        let vStart = new THREE.Vector3(), vEnd = new THREE.Vector3();
-        
-        // tween
-        let time = {t: 0};
-        new TWEEN.Tween( time )
-            .to( {t: 1}, 1000 )
-            .easing( TWEEN.Easing.Quadratic.InOut )
-            //.easing( TWEEN.Easing.Linear.None )
-            .onStart( () => {
-                //console.log("tween start", time.t)
-                qStart.copy( fromCam.quaternion );
-                qEnd.copy( toCam.quaternion );
-                fromCam.getWorldPosition( vStart );
-                toCam.getWorldPosition( vEnd );
-            } )
-            .onUpdate( () => {
-                //console.log('tween update', time.t)
-                tweenCam.quaternion.slerpQuaternions( qStart, qEnd, time.t );    
-                tweenCam.position.lerpVectors(vStart, vEnd, time.t);
-                tweenCam.updateMatrixWorld();
-            } )
-            .onComplete( () => {
-                //console.log("tween end", time.t)
-                isTweening = false;
-                tweenCam.quaternion.copy( qEnd ); // so it is exact  
-                tweenCam.position.copy( vEnd );
-                if(onComplete)onComplete();
-
-            } )
-            .start();
-    }
-
     get lookGlobal() { 
         if (this.isMyPlayerPawn) {
-            if(isTweening && this.tweenCamera.matrixWorld)return this.tweenCamera.matrixWorld.elements;
             return this.walkLook;
         }else return this.global;
     }
@@ -518,22 +473,21 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     update(time, delta) {
         super.update(time, delta);
         if (!this.isMyPlayerPawn) {return;}
-        if (isTweening) TWEEN.update();
-        else{
-            if(this.isFalling) {
-                let t = this._translation;
-                this._translation = [t[0], this.floor, t[2]];
-            }
 
-            if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
-            this.lastUpdateTime = time;
-            if(this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
-            if (this.actor.fall && !this.findFloor()) {
-                if (this.translation !== this.lastTranslation) {
-                    this.setTranslation(this.lastTranslation);
-                }
+        if(this.isFalling) {
+            let t = this._translation;
+            this._translation = [t[0], this.floor, t[2]];
+        }
+
+        if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
+        this.lastUpdateTime = time;
+        if(this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
+        if (this.actor.fall && !this.findFloor()) {
+            if (this.translation !== this.lastTranslation) {
+                this.setTranslation(this.lastTranslation);
             }
         }
+
         this.refreshCameraTransform();
         this.lastTranslation = this.translation;
     }
