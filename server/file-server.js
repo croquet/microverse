@@ -11,7 +11,7 @@
  * do not use in production servers
  */
 
-let port = 8000,
+let port = 9684,
     http = require('http'),
     urlParser = require('url'),
     fs = require('fs'),

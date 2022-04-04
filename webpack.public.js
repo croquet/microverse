@@ -64,7 +64,7 @@ const config = {
                 },
                 { from: 'default.js', to: 'default.js' },
                 { from: 'test.js', to: 'test.js' },
-                { from: 'server.js', to: 'server.js' },
+                { from: 'server/file-server.js', to: 'server/file-server.js' },
                 { from: 'server/watch-server.js', to: 'server/watch-server.js' },
                 { from: path.resolve(__dirname, "staging")},
             ]

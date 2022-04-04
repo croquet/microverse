@@ -1,11 +1,12 @@
 {
-  "name": "@croquet/microverse-user",
-  "version": "0.0.6",
+  "name": "@croquet/microverse-public",
+  "version": "0.0.7",
   "description": "Pre-Packaged Croquet Microverse",
   "main": "index.html",
   "private": true,
   "scripts": {
-    "start": "node server.js",
+    "start": "npm run file-server",
+    "file-server": "node server/file-server.js",
     "watch-server": "node server/watch-server.js"
   },
   "author": "Croquet Corporation",

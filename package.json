@@ -5,8 +5,9 @@
   "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "webpack serve --mode development --devtool source-map",
-    "scripting": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
+    "start": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
+    "non-scripting": "webpack serve --mode development --devtool source-map",
+    "file-server": "node server/watch-server.js",
     "watch-server": "node server/watch-server.js",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
