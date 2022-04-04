@@ -583,6 +583,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.video.autoplay = true;
             this.video.muted = true;
             this.video.loop = true;
+            this.video.width = textureWidth;
+            this.video.height = textureHeight;
 
             this.getBuffer(textureLocation).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
