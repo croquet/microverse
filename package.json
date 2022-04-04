@@ -11,7 +11,7 @@
     "watch-server": "node server/watch-server.js",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
-    "build-public": "webpack --config webpack.public.js --mode production; (cd npm; npm pack)",
+    "build-public": "webpack --config webpack.public.js --mode production; npm run create-version -- npm/lib; (cd npm; npm pack)",
     "create-version": "./commit.sh"
   },
   "author": "",
