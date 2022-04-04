@@ -12,6 +12,7 @@
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
     "build-public": "webpack --config webpack.public.js --mode production; npm run create-version -- npm/lib; (cd npm; npm pack)",
+    "deploy-public": "webpack --config webpack.public.js --mode production",
     "create-version": "./commit.sh"
   },
   "author": "",
