@@ -11,7 +11,6 @@ class LightPawn {
 
         this.setupCSM(scene, camera, Worldcore.THREE);
 
-
         const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .75 );
         group.add(ambient);
         this.lights.push(ambient);

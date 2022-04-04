@@ -414,6 +414,18 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     cleanupShape(_options) {
+        let oldLayers = this.layers();
+        let toRemove = [];
+        oldLayers.forEach((layerName) => {
+            if (!this.actor._layers.includes(layerName)) {
+                toRemove.push(layerName);
+            }
+        });
+        if (toRemove.length > 0) {
+            this.removeFromLayers(...toRemove);
+        }
+        this.addToLayers(this.actor._layers);
+        
         delete this.isFlat;
 
         if (this.placeholder) {
