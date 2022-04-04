@@ -314,6 +314,27 @@ export const PM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(this.actor.id, subscription, listener);
     }
 
+    update(time, delta) {
+        if (this.updateRequests) {
+            this.updateRequests.forEach((u) => {
+                // [behaviorName, methodName]
+                this.call(...u, time, delta);
+            });
+        }
+        super.update(time, delta);
+    }
+
+    addUpdateRequest(array) {
+        let has = (col, value) => {
+            if (col.find((o) => o[0] === value[0] && o[1] === value[1]) >= 0) {
+                return;
+            }
+        };
+        
+        if (!this.updateRequests) {this.updateRequests = [];}
+        if (has(this.updateRequests, array)) {return;}
+        this.updateRequests.push(array);
+    }
 }
 
 class ScriptingBehavior extends Model {

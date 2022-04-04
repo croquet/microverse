@@ -49,7 +49,8 @@ export function init(Model, Constants) {
                     layers: ['light'],
                     type: "lighting",
                     behaviorModules: ["Light"],
-                    dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg"
+                    dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg",
+                    dataType: "jpg",
                 }
             },
             {
@@ -264,7 +265,7 @@ export function init(Model, Constants) {
                     width: 1,
                     height: 0.75,
                     frameColor: frameColor,
-                   // color: 0xffffff,
+                    // color: 0xffffff,
                     depth: 0.05,
                     cornerRadius: 0.1,
                     behaviorModules: ["BitcoinTracker", "Elected"],

@@ -237,9 +237,9 @@ console.log("fileUploaded", type)
         if (type !== "exr") {
             CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
         } else {
-            let light = [...this.service("ActorManager").actors.values()].find(o => o.constructor.name === "DLight");
+            let light = [...this.service("ActorManager").actors.values()].find(o => o._cardData.type === "lighting");
             if (light) {
-                light.updateOptions({...light._cardData, dataLocation: dataId});
+                light.updateOptions({...light._cardData, dataLocation: dataId, dataType: "exr"});
             }
         }
 

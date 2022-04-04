@@ -130,6 +130,7 @@ class BridgePawn {
                 let material = new Worldcore.THREE.MeshStandardMaterial({color: (i / d * 200) * 0x10000 + (j / d * 201)});
                 let sphere = new Worldcore.THREE.Mesh(geometry, material);
                 this.group.add(sphere);
+                sphere.castShadow = true;
                 return sphere;
             });
         });

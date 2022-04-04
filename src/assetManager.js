@@ -554,14 +554,19 @@ export class Loader {
     async importIMG(buffer, options, THREE) {
         let objectURL = URL.createObjectURL(new Blob([buffer]));
         let loader = new THREE.TextureLoader();
-        let texture = loader.loadAsync(objectURL,
-            (txtr)=>{
-                console.log("importIMG", txtr.image)
-                txtr.width = txtr.image.width;
-                txtr.height= txtr.image.height;
-            });
-        
-        return texture;
+        let texture = new Promise((resolve, reject) => {
+            loader.load(objectURL, (texture) => {
+                console.log("importIMG", texture.image)
+                texture.width = texture.image.width;
+                texture.height = texture.image.height;
+                resolve(texture);
+            }, null, reject);
+        });
+
+        return texture.then(() => {
+            URL.revokeObjectURL(objectURL);
+            return texture;
+        })
     }
 
     async importEXR(buffer, options, THREE) {

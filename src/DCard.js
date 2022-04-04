@@ -390,7 +390,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }  else if (type === "text" || type === "code") {
             this.isFlat = true;
         } else if (type === "lighting") {
-            this.constructLighting(options);
+            // this.constructLighting(options);
         }
     }
 
