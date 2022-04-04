@@ -6,5 +6,5 @@ COMMIT=`echo ${META} | awk '{print $2}'`
 DIST=${1}
 DIST=${DIST:=dist}
 
-echo $DIST
-echo "${META} > ${DIST}/meta/version.txt"
+mkdir -p ${DIST}/meta
+echo ${META} > ${DIST}/meta/version.txt
