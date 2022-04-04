@@ -19,11 +19,11 @@ Run npm install in the directory.
 Run `npm run start` in the directory.  It will run the server on localhost:8000 (notice that it is not 9000). So open the place with your browser.
 
 ## 5. Run npm run watch-server
-Run `npm run watch-server  in the directory (in a different terminal emulator). This starts monitoring the file changes in the behaviors directory. As of now, there is only defaultDemo directory, but I think people will make more directories for different worlds. The watch-server takes an extra argument to specify the directory, and specifying a directory will be a common pattern in development.
+Run `npm run watch-server  in the directory (in a different terminal emulator). This starts monitoring the file changes in the behaviors directory. As of now, there is only default directory, but I think people will make more directories for different worlds. The watch-server takes an extra argument to specify the directory, and specifying a directory will be a common pattern in development.
 
 ## 6. Press the Connect button in the world menu.
 In one of the participants window, bring up the world menu from bottom left, and press "Connect". This will establish the connection to the watch-server started in 5.
 
 ## 7 Edit or add a new file
-You can simply add a new file in the watched directory (by default behaviors/defaultDemo), and if the file follows the structure of other files, it will become automatically available.
+You can simply add a new file in the watched directory (by default behaviors/default), and if the file follows the structure of other files, it will become automatically available.
 

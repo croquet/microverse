@@ -5,7 +5,7 @@ let pathname = window.location.pathname;
 let match = /([^/]+)\.html$/.exec(pathname);
 let basename = new URL(window.location).searchParams.get("world");
 if (!basename) {
-    basename = (!match || match[1] === "index") ? "defaultDemo" : match[1];
+    basename = (!match || match[1] === "index") ? "default" : match[1];
 }
 
 let basedir;

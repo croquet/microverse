@@ -44,6 +44,7 @@ const config = {
         new HtmlWebpackPlugin({
             template: 'index.html',   // input
             filename: 'index.html',   // output filename in npm/
+            minify: false,
             chunks: ['index']
         }),
         new webpack.ProvidePlugin({
@@ -61,7 +62,7 @@ const config = {
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}
                 },
-                { from: 'defaultDemo.js', to: 'defaultDemo.js' },
+                { from: 'default.js', to: 'default.js' },
                 { from: 'test.js', to: 'test.js' },
                 { from: 'server.js', to: 'server.js' },
                 { from: 'server/watch-server.js', to: 'server/watch-server.js' },

@@ -63,8 +63,7 @@ function loadInitialBehaviors(paths, directory) {
     let match = /([^/]+)\.html$/.exec(pathname);
     let basename = new URL(window.location).searchParams.get("world");
     if (!basename) {
-        basename = (!match || match[1] === "index") ? "defaultDemo" : match[1];
-        console.log("base", basename);
+        basename = (!match || match[1] === "index") ? "default" : match[1];
     }
 
     let basedir;

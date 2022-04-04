@@ -14,7 +14,7 @@ export function init(Model, Constants) {
         "menu.js", "elected.js", "propertyPanel.js"
     ];
 
-    Constants.UserBehaviorDirectory = "behaviors/defaultDemo";
+    Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
         "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js"
     ];

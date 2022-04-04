@@ -26,7 +26,7 @@ const config = {
     },
     devServer: {
         allowedHosts: 'all',
-        watchFiles: ['./src/**.js', './index.js', './test.js', 'defaultDemo.js', './root.js'],
+        watchFiles: ['./src/**.js', './index.js', './test.js', 'default.js', './root.js'],
         port: 9009,
     },
     module: {
@@ -54,6 +54,7 @@ const config = {
         new HtmlWebpackPlugin({
             template: 'index.html',   // input
             filename: 'index.html',   // output filename in dist/
+            minify: false,
             chunks: ['index']
         }),
         new webpack.ProvidePlugin({
@@ -71,7 +72,7 @@ const config = {
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}
                 },
-                { from: 'defaultDemo.js', to: 'defaultDemo.js' },
+                { from: 'default.js', to: 'default.js' },
                 { from: 'test.js', to: 'test.js' },
                 { from: 'apiKey.js', to: 'apiKey.js' },
             ]
