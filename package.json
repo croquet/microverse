@@ -14,7 +14,7 @@
     "build-public": "webpack --config webpack.public.js --mode production; npm run create-version -- npm/lib; (cd npm; npm pack)",
     "deploy-public": "webpack --config webpack.public.js --mode production",
     "create-version": "./commit.sh",
-    "copy-to-git": "rsync -r --exclude=*.tgz ./npm/ ../microverse-min/"
+    "copy-to-git": "rm -rf ../microverse-min/*; rsync -r --exclude=*.tgz ./npm/ ../microverse-min/"
   },
   "author": "",
   "license": "ISC",
