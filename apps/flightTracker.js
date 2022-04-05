@@ -4,9 +4,10 @@
 
 import { AM_Elected, PM_Elected} from "../src/DElected.js";
 import { CardActor, CardPawn } from '../src/DCard.js';
-import { THREE, mix, q_euler, q_multiply, ThreeRenderManager } from "@croquet/worldcore";
-const earthbase = "../assets/images/earthbase.png";
-const earthshadow = "../assets/images/earthshadow.jpg";
+import { THREE, mix, q_euler, q_multiply } from "@croquet/worldcore";
+const dir = ASSET_DIRECTORY;
+const earthbase = `${dir}/assets/images/earthbase.png`;
+const earthshadow = `${dir}/assets/images/earthshadow.jpg`;
 
 const SHADOWRADIUS = 3.95; // size of the earth (water)
 const BASERADIUS = 4;      // size of the earth (land)
@@ -233,3 +234,5 @@ class FlightDisplay extends mix(CardPawn).with(PM_Elected){
         .catch(error => console.log(error));
     }
 }
+
+/* globals ASSET_DIRECTORY */

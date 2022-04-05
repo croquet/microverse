@@ -105,6 +105,10 @@ module.exports = (env, argv) => {
         };
     }
 
+    config.plugins.push(new webpack.DefinePlugin({
+        ASSET_DIRECTORY: JSON.stringify(argv.mode === "production" ? "." : "..")
+    }));
+
     return config;
 }
 
