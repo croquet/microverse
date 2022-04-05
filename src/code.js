@@ -428,12 +428,12 @@ export class BehaviorModelManager extends ModelService {
     init(name) {
         super.init(name || "BehaviorModelManager");
         this.modelUses = new Map(); // {name: [cardActorId]}
-        this.viewUses = new Map();  // {name: [cardActorId]}
+        this.viewUses = new Map();  // {name: [cardPawnId]}
 
-        this.moduleNames = new Map() // <name /* foo.Bar */, {actorBehaviors<[string]>, pawnBehaviors<[string]}> // starts with the copy of Library but changes at runtime
-        this.modules = new Map(); // <name/* foo.Bar */, {actorBehaviors<[ScirptingBehavior]>, pawnBehaviors<[ScriptingBehavior]}>
+        this.moduleNames = new Map() // <name /* Bar */, {actorBehaviors<[string]>, pawnBehaviors<[string]}> // starts with the copy of Library but changes at runtime
+        this.modules = new Map(); // <name/* Bar */, {actorBehaviors<[ScirptingBehavior]>, pawnBehaviors<[ScriptingBehavior]}>
 
-        this.behaviors = new Map(); // {name: Scripting}
+        this.behaviors = new Map(); // {name: ScriptingBehavior}
 
         this.loadCache = null;
 
