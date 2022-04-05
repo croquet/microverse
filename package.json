@@ -7,7 +7,7 @@
   "scripts": {
     "start": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
     "non-scripting": "webpack serve --mode development --devtool source-map",
-    "file-server": "node servers/watch-server.js",
+    "file-server": "node servers/file-server.js",
     "watch-server": "node servers/watch-server.js",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",

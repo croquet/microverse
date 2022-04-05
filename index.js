@@ -25,4 +25,8 @@ eval(`import("${basedir}${basename}.js")`)
         console.log(`Croquet Microverse
         alpha 0.0
         https://croquet.io`);
+    }).catch((error) => {
+        console.log(error);
+        console.error("Please make sure that you have created a valid apiKey.js");
     });
+
