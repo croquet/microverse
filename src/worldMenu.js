@@ -16,7 +16,7 @@ function savePressed(myAvatar) {
 
     let div = document.createElement("a");
 
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData()));
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData(), null, 4));
 
     div.setAttribute("href", dataStr);
     div.setAttribute("download", "scene.json");

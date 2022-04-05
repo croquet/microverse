@@ -213,7 +213,8 @@ class MyModelRoot extends ModelRoot {
         let name = this.sessionName || "Unknown";
         let saver = new WorldSaver(CardActor);
         let json = saver.save(this);
-        return {name, version: "1", data: saver.stringify(json)};
+        let string = saver.stringify(json);
+        return {name, version: "1", data: JSON.parse(string)};
     }
 
     loadBehaviorModules(moduleDefs, version) {
@@ -281,6 +282,8 @@ class MyModelRoot extends ModelRoot {
         let result = new TextDecoder("utf-8").decode(all);
         let savedData = JSON.parse(result);
         if (savedData.version === "1") {
+            let string = JSON.stringify(savedData.data);
+            savedData.data = string;
             this.loadFromFile(savedData);
         }
     }
