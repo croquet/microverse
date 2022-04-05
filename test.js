@@ -16,8 +16,10 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js"
+        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js", "lights.js"
     ];
+
+    const frameColor = 0x888888;
 
     // use bit-identical math for constant initialization
     Model.evaluate( () => {
@@ -42,21 +44,33 @@ export function init(Model, Constants) {
             },
             {
                 card: {
-                    name: 'lighting #1',
+                    name: 'light',
+                    layers: ['light'],
                     type: "lighting",
-                    className: "DLight",
-                    dataLocation: "./assets/sky/syferfontein_1d_clear_1k.exr"
+                    behaviorModules: ["Light"],
+                    dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg",
+                    dataType: "jpg",
                 }
             },
             {
                 card: {
-                    name:'simple 3D model',
-                    translation: [0, -0.5, -18],
-                    rotation: [Math.PI / 2, 0, 0],
-                    type: "3d",
-                    dataLocation: "./assets/3D/Gears.glb.zip",
-                    shadow: true,
-                    singleSided: true,
+                    name: 'video card',
+                    translation: [-4, -0.5, -24],
+                    rotation: [0, Math.PI / 2, 0],
+                    scale: [4, 4, 4],
+                    type: "2d",
+                    // dataLocation: './assets/SVG/credit-card.svg',
+                    textureType: "video",
+                    textureLocation: "./assets/videos/fromPCtoHMD.mp4",
+                    textureWidth: 1024,
+                    textureHeight: 848,
+                    width: 2,
+                    height: 1.656,
+                    cornerRadius: 0.05,
+                    frameColor: frameColor,
+                    color: 0xffffff,
+                    depth: 0.05,
+                    fullBright: true
                 }
             },
         ];
