@@ -32,7 +32,7 @@ export function init(Model, Constants) {
                     rotation: [0, Math.PI, 0],
                     layers: ['walk'],
                     type: "3d",
-                    dataLocation: "./assets/3D/Oil Refinery w tiles.glb.zip",
+                    dataLocation: "./assets/3D/Oil Refinery_040522.glb.zip",
                     singleSided: true,
                     shadow: true,
                     
