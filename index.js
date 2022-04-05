@@ -22,10 +22,7 @@ eval(`import("${basedir}${basename}.js")`)
 // Default parameters are filled in the body of startWorld. You can override them.
     .then((module) => startWorld(module.default))
     .then(() => {
-        console.log(`
-  ________  ____  ____  __  ____________
- / ___/ _ \\/ __ \\/ __ \\/ / / / __/_  __/
-/ /__/ , _/ /_/ / /_/ / /_/ / _/  / /
-\\___/_/|_|\\____/\\___\\_\\____/___/ /_/
-`);
+        console.log(`Croquet Microverse
+        alpha 0.0
+        https://croquet.io`);
     });
