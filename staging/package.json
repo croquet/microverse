@@ -1,13 +1,13 @@
 {
-  "name": "@croquet/microverse-public",
+  "name": "@croquet/microverse-min",
   "version": "0.0.8",
-  "description": "Pre-Packaged Croquet Microverse",
+  "description": "Minified Croquet Microverse Library",
   "main": "index.html",
   "private": true,
   "scripts": {
-    "start": "npm run file-server",
-    "file-server": "node server/file-server.js",
-    "watch-server": "node server/watch-server.js"
+    "start": "npm run file-server & npm run watch-server",
+    "file-server": "node servers/file-server.js",
+    "watch-server": "node servers/watch-server.js"
   },
   "author": "Croquet Corporation",
   "license": "ISC",
