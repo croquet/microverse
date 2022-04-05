@@ -11,10 +11,10 @@ class LightPawn {
 
         this.setupCSM(scene, camera, Worldcore.THREE);
 
-        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .75 );
+        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .5 );
         group.add(ambient);
         this.lights.push(ambient);
-
+/*
         const sun = new Worldcore.THREE.DirectionalLight( 0xffe0b5, 1 );
         sun.position.set(400, 500, 400);
         group.add(sun);
@@ -29,7 +29,7 @@ class LightPawn {
         group.add(hemiLight);
         this.lights.push(hemiLight);
         group.name = "Light Card";
-
+*/
         this.constructBackground(this.actor._cardData);
         this.addUpdateRequest(["LightPawn", "update"]);
 
