@@ -1210,6 +1210,10 @@ export class TextFieldPawn extends CardPawn {
         delete this.widgets[name];
         dom.remove();
     }
+
+    get hitNormal() {
+        return [0, 0, 1];
+    }
 }
 
 export class DismissButtonActor extends mix(Actor).with(AM_Smoothed) {
