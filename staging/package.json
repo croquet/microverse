@@ -11,9 +11,6 @@
   },
   "author": "Croquet Corporation",
   "license": "ISC",
-  "browserslist": [
-    "> 5%"
-  ],
   "devDependencies": {
     "microverse-watch-server": "^1.0.0"
   }
