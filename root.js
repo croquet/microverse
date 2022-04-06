@@ -352,15 +352,23 @@ class MyViewRoot extends ViewRoot {
     }
 }
 
-export function startWorld(moreOptions) {
-    let options = {...{
-        name: App.autoSession(),
-        password: App.autoPassword(),
+export function startWorld(appParameters) {
+    // appParameters are loaded from apiKey.js (see index.js)
+    // and typically provide apiKey and appId
+    let sessionParameters = {
+        // microverse defaults
+        name: appParameters.name || App.autoSession(),
+        password: appParameters.password || App.autoPassword(),
         model: MyModelRoot,
         view: MyViewRoot,
         tps: 30,
         eventRateLimit: 60,
-    }, ...moreOptions};
+        // developer can override defaults
+        ...appParameters,
+        // except for the 'microverse' flag
+        // which identifies microverse sessions for billing
+        flags: ["microverse"],
+    };
 
     // App.makeWidgetDock();
     return loadLoaders()
@@ -369,7 +377,7 @@ export function startWorld(moreOptions) {
         }).then(() => {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
-            StartWorldcore(options);
+            StartWorldcore(sessionParameters);
         }).then(() => {
             let {basedir} = basenames();
             return fetch(`${basedir}meta/version.txt`);
