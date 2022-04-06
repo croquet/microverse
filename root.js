@@ -55,6 +55,24 @@ function loadLoaders() {
         });
 }
 
+export function basenames() {
+    let pathname = window.location.pathname;
+    let match = /([^/]+)\.html$/.exec(pathname);
+    let basename = new URL(window.location).searchParams.get("world");
+    if (!basename) {
+        basename = (!match || match[1] === "index") ? "default" : match[1];
+    }
+
+    let basedir;
+    if (match) {
+        basedir = pathname.slice(0, match.index);
+    } else {
+        let slash = pathname.lastIndexOf("/");
+        basedir = pathname.slice(0, slash + 1);
+    }
+    return {basedir, basename};
+}
+
 function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
@@ -352,5 +370,18 @@ export function startWorld(moreOptions) {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             StartWorldcore(options);
+        }).then(() => {
+            let {basedir} = basenames();
+            return fetch(`${basedir}meta/version.txt`);
+        }).then((response) => {
+            if (`${response.status}`.startsWith("2")) {
+                return response.text();
+            }
+            return "(version not found)";
+        }).then((text) => {
+            console.log(`
+Croquet Microverse
+${text}
+https://croquet.io`.trim());
         });
 }
