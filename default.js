@@ -201,7 +201,7 @@ export function init(Model, Constants) {
                     rotation: [0, -Math.PI / 2, 0],
                     layers: ['pointer'],
                     type: "code",
-                    behaviorModule: "Fly.FlyActor",
+                    behaviorModule: "Circle.CircleActor",
                     margins: {left: 32, top: 32, right: 32, bottom: 32},
                     // margins: {left: 16, top: 16, right: 16, bottom: 16},
                     textScale: 0.001,
@@ -217,7 +217,7 @@ export function init(Model, Constants) {
                     dataTranslation: [0, 3, 0],
                     type: "3d",
                     dataLocation: './assets/3D/Flamingo.glb.zip',
-                    behaviorModules: ["Fly"]
+                    behaviorModules: ["Circle"]
                 }
             },
             {

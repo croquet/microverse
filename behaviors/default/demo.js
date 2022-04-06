@@ -53,26 +53,26 @@ class DriveActor {
     }
 }
 
-class FlyActor {
+class CircleActor {
     setup() {
-        if (!this.flying) {
-            this.flying = true;
-            this.fly();
+        if (!this.circling) {
+            this.circling = true;
+            this.step();
         }
         this.addEventListener("pointerDown", "toggle");
     }
 
-    fly() {
-        if (!this.flying) {return;}
-        this.future(20).fly();
+    step() {
+        if (!this.circling) {return;}
+        this.future(20).step();
         this.rotateBy([0, 0.01, 0]);
         this.forwardBy(0.03);
     }
 
     toggle() {
-        this.flying = !this.flying;
-        if (this.flying) {
-            this.fly();
+        this.circling = !this.circling;
+        if (this.circling) {
+            this.step();
         }
     }
 
@@ -92,7 +92,7 @@ class FlyActor {
 
     destroy() {
         this.removeEventListener("pointerDown", "toggle");
-        this.flying = false;
+        this.circling = false;
     }
 }
 
@@ -432,8 +432,8 @@ export default {
             actorBehaviors: [DriveActor]
         },
         {
-            name: "Fly",
-            actorBehaviors: [FlyActor],
+            name: "Circle",
+            actorBehaviors: [CircleActor],
         },
         {
             name: "Perlin",
