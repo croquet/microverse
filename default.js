@@ -49,7 +49,7 @@ export function init(Model, Constants) {
                     layers: ['light'],
                     type: "lighting",
                     behaviorModules: ["Light"],
-                    dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg",
+                    dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                     dataType: "jpg",
                 }
             },
