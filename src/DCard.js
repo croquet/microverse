@@ -417,7 +417,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let oldLayers = this.layers();
         let toRemove = [];
         oldLayers.forEach((layerName) => {
-            if (!this.actor._layers.includes(layerName)) {
+            if (!this.actor.layers.includes(layerName)) {
                 toRemove.push(layerName);
             }
         });

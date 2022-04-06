@@ -16,7 +16,7 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js", "lights.js"
+        "lights.js"
     ];
 
     const frameColor = 0x888888;
@@ -50,27 +50,6 @@ export function init(Model, Constants) {
                     behaviorModules: ["Light"],
                     dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg",
                     dataType: "jpg",
-                }
-            },
-            {
-                card: {
-                    name: 'video card',
-                    translation: [-4, -0.5, -24],
-                    rotation: [0, Math.PI / 2, 0],
-                    scale: [4, 4, 4],
-                    type: "2d",
-                    // dataLocation: './assets/SVG/credit-card.svg',
-                    textureType: "video",
-                    textureLocation: "./assets/videos/fromPCtoHMD.mp4",
-                    textureWidth: 1024,
-                    textureHeight: 848,
-                    width: 2,
-                    height: 1.656,
-                    cornerRadius: 0.05,
-                    frameColor: frameColor,
-                    color: 0xffffff,
-                    depth: 0.05,
-                    fullBright: true
                 }
             },
         ];
