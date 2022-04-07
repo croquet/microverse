@@ -77,20 +77,7 @@ function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
 
-    let pathname = window.location.pathname;
-    let match = /([^/]+)\.html$/.exec(pathname);
-    let basename = new URL(window.location).searchParams.get("world");
-    if (!basename) {
-        basename = (!match || match[1] === "index") ? "default" : match[1];
-    }
-
-    let basedir;
-    if (match) {
-        basedir = pathname.slice(0, match.index);
-    } else {
-        let slash = pathname.lastIndexOf("/");
-        basedir = pathname.slice(0, slash + 1);
-    }
+    let {basedir, pathname} = basenames();
 
     if (!directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
