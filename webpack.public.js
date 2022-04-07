@@ -70,7 +70,6 @@ const config = {
                 },
                 { from: 'default.js', to: 'default.js' },
                 { from: 'test.js', to: 'test.js' },
-                { from: 'servers/file-server.js', to: 'servers/file-server.js' },
                 { from: path.resolve(__dirname, "staging")},
             ]
         }),
