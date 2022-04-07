@@ -52,9 +52,15 @@ const config = {
         }),
         new CopyPlugin({
             patterns: [
-                { from: 'assets/**/*',
-                  globOptions: {ignore: ["**/Refinery.glb.zip"]}
-                },
+                { from: 'assets/3D/*'},
+                { from: 'assets/SVG/{full-circle,BitcoinSign,CroquetSymbol_CMYK_NoShadow}.svg'},
+                { from: 'assets/avatars/**/*'},
+                { from: 'assets/css/**/*'},
+                { from: 'assets/fonts/**/*'},
+                { from: 'assets/images/{Colony,ball,earthbase}.png'},
+                { from: 'assets/images/earthshadow.jpg', to: 'assets/images/earthshadow.jpg'},
+                { from: 'assets/sky/**/*'},
+                { from: 'assets/videos/fromPCtoHMD.mp4', to: 'assets/videos/fromPCtoHMD.mp4'},
             ]
         }),
         new CopyPlugin({
