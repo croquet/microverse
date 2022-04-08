@@ -180,7 +180,7 @@ class MyModelRoot extends ModelRoot {
             this.loadingPersistentData = true;
 
             let saver = new WorldSaver(CardActor);
-            let json = saver.parse(data);
+            let json = saver.parse(JSON.stringify(data));
 
             //maybe we need to delete all DefaultUserBehaviors at this point.
 

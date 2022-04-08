@@ -613,6 +613,7 @@ export class BehaviorModelManager extends ModelService {
         let codeArray = JSON.parse(result);
 
         this.loadLibraries(codeArray);
+        this.publish(this.sessionId, "triggerPersist");
     }
 
     loadLibraries(codeArray) {
