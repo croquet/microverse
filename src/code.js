@@ -203,7 +203,7 @@ export const AM_Code = superclass => class extends superclass {
             throw new Error("changing the behavior name not supported");
         }
 
-        let current = this.behaviorManager.moduleNames.get(moduleName);
+        let current = this.behaviorManager.moduleDefs.get(moduleName);
 
         if (!current) {
             throw new Error("module no longer exists");
@@ -213,7 +213,7 @@ export const AM_Code = superclass => class extends superclass {
 
         let copy = {
             name: current.name, systemModule: current.systemModule,
-            fileName: current.fileName,
+            filePath: current.filePath,
             actorBehaviors: new Map([...current.actorBehaviors]),
             pawnBehaviors: new Map([...current.pawnBehaviors]),
         };
@@ -265,7 +265,6 @@ export const PM_Code = superclass => class extends superclass {
                             behavior.ensureBehavior();
                         }
                         if (behavior.$behavior.setup) {
-                            console.log(`${module.externalName}$${behavior.$behaviorName}`);
                             this.future(0).callSetup(`${module.externalName}$${behavior.$behaviorName}`);
                         }
                     };
@@ -539,8 +538,11 @@ export class BehaviorModelManager extends ModelService {
         this.subscribe(this.id, "loadDone", "loadDone");
     }
 
-    createAvailableName(name) {
-        if (!this.moduleDefs.get(name)) {
+    createAvailableName(name, filePath) {
+        let current = this.moduleDefs.get(name);
+        if (!current) {return name;}
+
+        if (current.filePath === filePath) {
             return name;
         }
         
@@ -630,13 +632,17 @@ export class BehaviorModelManager extends ModelService {
                     def.pawnBehaviors = new Map(def.pawnBehaviors);
                 }
 
-                name = this.createAvailableName(name); // it may be the same name
-                
+                name = this.createAvailableName(name, filePath); // it may be the same name
+
                 this.externalNames.set(`${filePath}$${moduleDef.name}`, name);
                 this.moduleDefs.set(name, def);
 
                 let m = {actorBehaviors: new Map(), pawnBehaviors: new Map()};
-                let module = ScriptingModule.create({name: def.name, systemModule: def.systemModule, filePath: filePath});
+
+                let module = this.modules.get(name);
+                if (!module) {
+                    module = ScriptingModule.create({name: def.name, systemModule: def.systemModule, filePath: filePath});
+                }
                 module.externalName = name;
                 
                 ["actorBehaviors", "pawnBehaviors"].forEach((behaviorType) => {
@@ -714,7 +720,7 @@ export class BehaviorModelManager extends ModelService {
     }
 
     save() {
-        let filtered = [...this.moduleNames].filter(([_key, value]) => !value.systemModule);
+        let filtered = [...this.moduleDefs].filter(([_key, value]) => !value.systemModule);
         return new Map([...filtered]);
     }
             
@@ -889,18 +895,18 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 allData.forEach((obj) => {
                     let slash = obj.name.lastIndexOf("/");
                     let dot = obj.name.lastIndexOf(".");
-                    let fileName = obj.name.slice(slash || 0, dot);
+                    let filePath = obj.name.slice(slash || 0, dot);
                     let isSystem = obj.name.startsWith("croquet");
-                    library.add(obj.data.default, fileName, isSystem);
+                    library.add(obj.data.default, filePath, isSystem);
                 });
 
                 let sendBuffer = [];
                 let key = Math.random();
 
                 for (let [_k, m] of library.modules) {
-                    let {actorBehaviors, pawnBehaviors, name, fileName, systemModule} = m;
+                    let {actorBehaviors, pawnBehaviors, name, filePath, systemModule} = m;
                     sendBuffer.push({
-                        name, systemModule, fileName,
+                        name, systemModule, filePath,
                         actorBehaviors: [...actorBehaviors],
                         pawnBehaviors: [...pawnBehaviors]
                     });
@@ -927,7 +933,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
 export class CodeLibrary {
     constructor() {
         this.modules = new Map(); // for behaviors
-        // {name /*Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, fileName:string?}
+        // {name /*Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, filePath:string?}
 
         this.functions = new Map();
         this.classes = new Map();

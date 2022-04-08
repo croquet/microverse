@@ -36,9 +36,9 @@ export const AM_PointerTarget = superclass => class extends superclass {
         if (!array) {return;}
 
         array.forEach((obj) => {
-            let {behavior, listener} = obj;
-            if (behavior) {
-                this.call(behavior, listener, evt);
+            let {moduleName, behaviorName, listener} = obj;
+            if (moduleName && behaviorName) {
+                this.call(`${moduleName}$${behaviorName}`, listener, evt);
             } else {
                 this[listener](evt);
             }
@@ -47,7 +47,6 @@ export const AM_PointerTarget = superclass => class extends superclass {
 
     addEventListener(eventName, listener) {
         // console.log("addEventListener", eventName, listener);
-        let behavior;
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -68,11 +67,16 @@ export const AM_PointerTarget = superclass => class extends superclass {
             array = [];
             this.eventListeners.set(eventName, array);
         }
-        if (array.findIndex((obj) => obj.listener === listener) >= 0) {
+        if (array.findIndex((obj) => {
+            return obj.eventName === eventName &&
+                obj.listener === listener &&
+                obj.moduleName === moduleName &&
+                obj.behaviorName === behaviorName
+        }) >= 0) {
             // console.log("multiple registration of the same function");
             return;
         }
-        array.push({moduleName, behaviorName, listener});
+        array.push({moduleName, behaviorName, eventName, listener});
 
         this.say("registerEventListener", {eventName, listener});
     }

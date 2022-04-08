@@ -556,7 +556,6 @@ export class Loader {
         let loader = new THREE.TextureLoader();
         let texture = new Promise((resolve, reject) => {
             loader.load(objectURL, (texture) => {
-                console.log("importIMG", texture.image)
                 texture.width = texture.image.width;
                 texture.height = texture.image.height;
                 resolve(texture);

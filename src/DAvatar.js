@@ -413,7 +413,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             .then((resp) => resp.arrayBuffer())
             .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
             .then((obj) => {
-                console.log("getAvatarModel",obj);
                 addShadows(obj, true, true, THREE);
                 obj.scale.set(0.4,0.4,0.4);
                 obj.rotation.set(0, Math.PI, 0);

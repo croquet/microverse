@@ -16,10 +16,11 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "lights.js"
+        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js", "lights.js"
     ];
 
-    const frameColor = 0x888888;
+
+    // const frameColor = 0x888888;
 
     // use bit-identical math for constant initialization
     Model.evaluate( () => {
@@ -48,7 +49,7 @@ export function init(Model, Constants) {
                     layers: ['light'],
                     type: "lighting",
                     behaviorModules: ["Light"],
-                    dataLocation: "./assets/sky/oberer_kuhberg_4k.jpg",
+                    dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                     dataType: "jpg",
                 }
             },
