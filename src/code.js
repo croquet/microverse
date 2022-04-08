@@ -895,7 +895,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 allData.forEach((obj) => {
                     let slash = obj.name.lastIndexOf("/");
                     let dot = obj.name.lastIndexOf(".");
-                    let filePath = obj.name.slice(slash || 0, dot);
+                    let filePath = obj.name.slice(0, dot);
                     let isSystem = obj.name.startsWith("croquet");
                     library.add(obj.data.default, filePath, isSystem);
                 });
