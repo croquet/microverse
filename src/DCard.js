@@ -72,10 +72,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         options.behaviorModules.forEach((moduleName) => {
             let module = behaviorManager.modules.get(moduleName);
             if (module.actorBehaviors) {
-                allNewActorBehaviors.push(...module.actorBehaviors);
+                allNewActorBehaviors.push(...module.actorBehaviors.values());
             }
             if (module.pawnBehaviors) {
-                allNewPawnBehaviors.push(...module.pawnBehaviors);
+                allNewPawnBehaviors.push(...module.pawnBehaviors.values());
             }
         });
 
@@ -83,48 +83,37 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         let allOldPawnBehaviors = [];
         if (this._behaviorModules) {
             this._behaviorModules.forEach((oldModuleName) => {
-                let oldModule = behaviorManager.moduleDefs.get(oldModuleName);
+                let oldModule = behaviorManager.modules.get(oldModuleName);
                 if (oldModule.actorBehaviors) {
-                    allOldActorBehaviors.push(...oldModule.actorBehaviors);
+                    allOldActorBehaviors.push(...oldModule.actorBehaviors.values());
                 }
                 if (oldModule.pawnBehaviors) {
-                    allOldPawnBehaviors.push(...oldModule.pawnBehaviors);
+                    allOldPawnBehaviors.push(...oldModule.pawnBehaviors.values());
                 }
             });
         }
 
-        if (this._behaviorModules) {
-            this._behaviorModules.forEach((oldModuleName) => {
-                let oldModule = behaviorManager.moduleDefs.get(oldModuleName);
-                for (let old of oldModule.actorBehaviors.keys()) {
-                    if (!allNewActorBehaviors.includes(old)) {
-                        behaviorManager.modelUnuse(this, oldModule.actorBehaviors.get(old));
-                    }
-                };
-                for (let old of oldModule.pawnBehaviors.keys()) {
-                    if (!allNewPawnBehaviors.includes(old)) {
-                        this.behaviorManager.viewUnuse(this, old);
-                    }
-                };
-            });
-        }
-
-        if (options.behaviorModules) {
-            options.behaviorModules.forEach((newModuleName) => {
-                let newModule = behaviorManager.moduleDefs.get(newModuleName);
-
-                for (let behaviorName of newModule.actorBehaviors.keys()) {
-                    if (!allOldActorBehaviors.includes(behaviorName)) {
-                        behaviorManager.modelUse(this, behaviorName);
-                    }
-                };
-                for (let behaviorName of newModule.pawnBehaviors.keys()) {
-                    if (!allOldPawnBehaviors.includes(behaviorName)) {
-                        this.behaviorManager.viewUse(this, behaviorName);
-                    }
-                };
-            });
-        }
+        allOldActorBehaviors.forEach((oldBehavior) => {
+            if (!allNewActorBehaviors.includes(oldBehavior)) {
+                behaviorManager.modelUnuse(this, oldBehavior);
+            }
+        });
+        allOldPawnBehaviors.forEach((oldBehavior) => {
+            if (!allNewPawnBehaviors.includes(oldBehavior)) {
+                behaviorManager.viewUnuse(this, oldBehavior);
+            }
+        });
+        
+        allNewActorBehaviors.forEach((newBehavior) => {
+            if (!allOldActorBehaviors.includes(newBehavior)) {
+                behaviorManager.modelUse(this, newBehavior);
+            }
+        });
+        allNewPawnBehaviors.forEach((newBehavior) => {
+            if (!allOldPawnBehaviors.includes(newBehavior)) {
+                behaviorManager.viewUse(this, newBehavior);
+            }
+        });
                 
         this._behaviorModules = options.behaviorModules;
     }
@@ -234,7 +223,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 noSave: true,
                 target: this.id,
             });
-            menu.call("PropertyPanelActor", "setObject", this);
+            menu.call("PropertyPanel$PropertyPanelActor", "setObject", this);
             this.subscribe(menu.id, "setCardSpec", "setCardSpec");
         }
     }

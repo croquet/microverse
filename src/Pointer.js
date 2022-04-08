@@ -51,16 +51,31 @@ export const AM_PointerTarget = superclass => class extends superclass {
             listener = listener.name;
         }
 
-        /*
-        if (listener.indexOf(".") >= 1) {
-            let split = listener.split(".");
-            behaviorName = split[0];
-            listener = split[1];
-        }
-        */
+        let behaviorName;
+        let moduleName;
 
-        let behaviorName = this._behavior.$behaviorName;
-        let moduleName = this._behavior.module.externalName;
+        let dollar = listener.indexOf("$");
+
+        if (dollar >= 1) {
+            moduleName = listener.slice(0, dollar);
+            listener = listener.slice(dollar + 1);
+        }
+
+        let dot = listener.indexOf(".");
+        if (dot >= 1) {
+            behaviorName = listener.slice(0, dot);
+            listener = listener.slice(dot + 1);
+        }
+        
+        let behavior = this._behavior;
+
+        if (!moduleName && behavior) {
+            moduleName = behavior.module.externalName;
+        }
+
+        if (!behaviorName && behavior) {
+            behaviorName = behavior.$behaviorName;
+        }
 
         let array = this.eventListeners.get(eventName);
         if (!array) {

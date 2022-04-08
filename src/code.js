@@ -125,7 +125,6 @@ export const AM_Code = superclass => class extends superclass {
             throw new Error(`epxander named ${behaviorName} not found`);
         }
 
-        behavior.ensureBehavior();
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
@@ -296,7 +295,6 @@ export const PM_Code = superclass => class extends superclass {
             throw new Error(`epxander named ${behaviorName} not found`);
         }
 
-        behavior.ensureBehavior();
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
@@ -422,6 +420,7 @@ class ScriptingBehavior extends Model {
         this.systemBehavior = !!options.systemBehavior;
         this.module = options.module;
         this.name = options.name;
+        this.type = options.type;
     }
 
     setCode(string) {
@@ -662,7 +661,7 @@ export class BehaviorModelManager extends ModelService {
                                     systemBehavior: systemModule,
                                     module: module,
                                     name: behaviorName,
-                                    // type: behaviorType.slice(0, behaviorType.length - 1)
+                                    type: behaviorType.slice(0, behaviorType.length - 1)
                                 });
                                 behavior.setCode(codeString);
                                 changed.push(behavior);
@@ -757,7 +756,7 @@ export class BehaviorModelManager extends ModelService {
         let array = this.viewUses.get(behavior);
         if (!array) {
             array = [];
-            this.viewUses.set(name, array);
+            this.viewUses.set(behavior, array);
         }
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
@@ -765,7 +764,7 @@ export class BehaviorModelManager extends ModelService {
 
         behavior.ensureBehavior();
         if (behavior.$behavior.setup) {
-            model.say("callSetup", name);
+            model.say("callSetup", `${behavior.module.externalName}$${behavior.$behaviorName}`);
         }
     }
 

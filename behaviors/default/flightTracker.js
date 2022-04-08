@@ -63,13 +63,13 @@ class FlightTrackerPawn {
 
         this.shadowSphere = new THREE.Mesh(
             new THREE.SphereGeometry(SHADOWRADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: 0x222222, roughness: 0.7, opacity:0.9, transparent: true }));
+            new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: 0xaaaaaa, roughness: 0.7, opacity:0.9, transparent: true }));
         this.shadowSphere.receiveShadow = true;
         this.shape.add(this.shadowSphere);
 
         this.baseSphere = new THREE.Mesh(
             new THREE.SphereGeometry(BASERADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: this.actor._cardData.color, roughness: 0.7, opacity:0.9, transparent: true }));
+            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: 0x22ee22, roughness: 0.7, opacity:0.9, transparent: true }));
         this.baseSphere.receiveShadow = true;
         this.baseSphere.castShadow = true;
         this.shape.add(this.baseSphere);

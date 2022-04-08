@@ -10,7 +10,7 @@ class PropertyPanelActor {
             parent: this,
             noSave: true,
             target: target.id});
-        this.behaviorMenu.call("BehaviorMenuActor", "show");
+        this.behaviorMenu.call("BehaviorMenu$BehaviorMenuActor", "show");
 
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
@@ -53,8 +53,8 @@ class PropertyPanelActor {
             noSave: true,
         });
 
-        this.dismissButton.addEventListener("pointerTap", "PropertyPanelActor.close");
-        
+        this.dismissButton.addEventListener("pointerTap", "PropertyPanel$PropertyPanelActor.close");
+
         let cardDataString = this.cardSpecString(target);
         this.cardSpec.loadAndReset(cardDataString);
         this.scriptSubscribe(this.cardSpec.id, "text", "cardSpecAccept");
@@ -202,7 +202,7 @@ class BehaviorMenuActor {
 
         items.push({label: '------------'});
         items.push({label: 'apply'});
-        this.menu.call("MenuActor", "setItems", items);
+        this.menu.call("Menu$MenuActor", "setItems", items);
     }
 
     setBehaviors(data) {
