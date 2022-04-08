@@ -143,9 +143,9 @@ class FlightTrackerPawn {
     }
 
     getFlight() {
-        let count = 0;
+        // let count = 0;
         this.sendex = 0;
-        console.log("getFlight")
+        // console.log("getFlight")
         this.gettingFlight = true;
         // https://opensky-network.org/apidoc/rest.html
         fetch('https://opensky-network.org/api/states/all')

@@ -43,19 +43,16 @@ class ElectedPawn {
     isElected() { return this.viewId === this.electedViewId; }
 
     electionStatusRequested() {
-        console.log("requested");
         this.onViewElected(this.actorCall("ElectedActor", "electedView"));
     }
 
     onViewElected(viewId) {
         const wasElected = this.isElected();
         this.electedViewId = viewId;
-        console.log("onViewElected", wasElected, viewId, this.viewId);
         if (wasElected !== this.isElected()) {
             if (wasElected) {
                 this.say("handleUnelected", {from: this.electedViewId, to: viewId});
             } else {
-                console.log("say handleElected", this.actor.id);
                 this.say("handleElected", {from: this.electedViewId, to: viewId});
             }
         } else {

@@ -17,8 +17,6 @@ function newProxy(object, handler, module, behavior) {
             if (property === "_behavior") {return behavior;}
             if (handler && handler.hasOwnProperty(property)) {
                 return new Proxy(handler[property], {
-        
-                    
                     apply: function(_target, thisArg, argumentList) {
                         return handler[property].apply(thisArg, argumentList);
                     }
@@ -892,7 +890,6 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
             } else {
                 let library = new CodeLibrary();
                 allData.forEach((obj) => {
-                    let slash = obj.name.lastIndexOf("/");
                     let dot = obj.name.lastIndexOf(".");
                     let filePath = obj.name.slice(0, dot);
                     let isSystem = obj.name.startsWith("croquet");

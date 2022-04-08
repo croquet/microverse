@@ -529,7 +529,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 obj.name = name;
             }
             if (options.placeholder) {
-                console.log("need to delete collider for boxmesh");
+                // console.log("need to delete collider for boxmesh");
                 this.shape.remove(this.placeholder);
             }
         });
@@ -807,12 +807,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (!fullBright) {
             material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide});
         } else {
-            material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide, emissive: color});
+            material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide/*, emissive: color*/});
         }
 
         if (depth > 0) {
             let second;
-                second = new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, metalness:1.0});
+            second = new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, metalness:1.0});
             material = [material, second ];
         }
 
