@@ -53,19 +53,6 @@ export function init(Model, Constants) {
                     dataType: "jpg",
                 }
             },
-            {
-                card: {
-                    name: 'flightTracker',
-                    translation: [0, -0.5, -40],
-                    rotation: [0, 0, 0],
-                    scale: [4, 4, 4],
-                    type: "object",
-                    width: 1,
-                    height: 1,
-                    behaviorModules: ["Elected", "FlightTracker", "Spin"],
-                },
-                id: "main",
-            },
         ];
     }); // end of Model.evaluate()
 }

@@ -16,7 +16,7 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js", "lights.js"
+        "demo.js", "bitcoinTracker.js", "bridge.js", "flightTracker.js", "spin.js", "lights.js"
     ];
 
     const frameColor = 0x888888;
@@ -175,7 +175,6 @@ export function init(Model, Constants) {
             {
                 card: {
                     name:'flightTracker',
-                    className: "FlightTracker",
                     translation: [-4, 1.5, -50],
                     type: "object",
                     behaviorModules: ["Elected", "FlightTracker", "Spin"],
