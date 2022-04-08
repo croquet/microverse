@@ -16,7 +16,7 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "bridge.js", "spin.js", "lights.js"
+        "flightTracker.js", "spin.js", "lights.js"
     ];
 
 
@@ -52,6 +52,19 @@ export function init(Model, Constants) {
                     dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                     dataType: "jpg",
                 }
+            },
+            {
+                card: {
+                    name: 'flightTracker',
+                    translation: [0, -0.5, -40],
+                    rotation: [0, 0, 0],
+                    scale: [4, 4, 4],
+                    type: "object",
+                    width: 1,
+                    height: 1,
+                    behaviorModules: ["Elected", "FlightTracker", "Spin"],
+                },
+                id: "main",
             },
         ];
     }); // end of Model.evaluate()
