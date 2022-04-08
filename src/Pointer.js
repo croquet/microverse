@@ -51,16 +51,18 @@ export const AM_PointerTarget = superclass => class extends superclass {
         if (typeof listener === "function") {
             listener = listener.name;
         }
-        
+
+        /*
         if (listener.indexOf(".") >= 1) {
             let split = listener.split(".");
-            behavior = split[0];
+            behaviorName = split[0];
             listener = split[1];
         }
+        */
 
-        if (!behavior) {
-            behavior = this._behavior;
-        }
+        let behaviorName = this._behavior.$behaviorName;
+        let moduleName = this._behavior.module.externalName;
+
         let array = this.eventListeners.get(eventName);
         if (!array) {
             array = [];
@@ -70,17 +72,18 @@ export const AM_PointerTarget = superclass => class extends superclass {
             // console.log("multiple registration of the same function");
             return;
         }
-        array.push({behavior, listener});
+        array.push({moduleName, behaviorName, listener});
 
         this.say("registerEventListener", {eventName, listener});
     }
 
     removeEventListener(eventName, listener) {
         // console.log("removeEventListener", eventName, listener);
-        let behavior;
         if (typeof listener === "function") {
             listener = listener.name;
         }
+
+        /*
 
         if (listener.indexOf(".") >= 1) {
             let split = listener.split(".");
@@ -88,16 +91,17 @@ export const AM_PointerTarget = superclass => class extends superclass {
             listener = split[1];
         }
 
-        if (!behavior) {
-            behavior = this._behavior;
-        }
-        
+        */
+
+        let behaviorName = this._behavior.$behaviorName;
+        let moduleName = this._behavior.module.externalName;
+
         let array = this.eventListeners.get(eventName);
         if (!array) {
             // console.log("try to remove non-existent listener");
             return;
         }
-        let ind = array.findIndex((obj) => obj.behavior === behavior && obj.listener === listener);
+        let ind = array.findIndex((obj) => obj.behaviorName === behaviorName && obj.moduleName === moduleName && obj.listener === listener);
         if (ind < 0) {
             // console.log("try to remove non-existent listener");
             return;

@@ -95,10 +95,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
         if (this._behaviorModules) {
             this._behaviorModules.forEach((oldModuleName) => {
-                let oldModule = behaviorManager.moduleNames.get(oldModuleName);
+                let oldModule = behaviorManager.moduleDefs.get(oldModuleName);
                 for (let old of oldModule.actorBehaviors.keys()) {
                     if (!allNewActorBehaviors.includes(old)) {
-                        behaviorManager.modelUnuse(this, old);
+                        behaviorManager.modelUnuse(this, oldModule.actorBehaviors.get(old));
                     }
                 };
                 for (let old of oldModule.pawnBehaviors.keys()) {
@@ -286,13 +286,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 if (options.type === "code") {
                     if (options.behaviorModule) {
                         let [moduleName, behaviorName] = options.behaviorModule.split(".");
-                        let m = behaviorManager.modules.get(moduleName);
-                        if (m) {
-                            behavior = m.actorBehaviors.get(behaviorName);
-                            if (!behaviorName) {
-                                behavior = m.pawnBehaviors.get(behaviorName);
-                            }
-                        }
+                        behavior = behaviorManager.lookup(moduleName, behaviorName);
                     }
 
                     let runs = [{text: behavior ? behavior.code : ""}];

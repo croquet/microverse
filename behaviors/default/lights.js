@@ -31,7 +31,9 @@ class LightPawn {
         group.name = "Light Card";
 */
         this.constructBackground(this.actor._cardData);
-        this.addUpdateRequest(["LightPawn", "update"]);
+
+        let moduleName = this._behavior.module.externalName;
+        this.addUpdateRequest([`${moduleName}$LightPawn`, "update"]);
 
         this.scriptListen("updateShape", this.updateShape);
     }

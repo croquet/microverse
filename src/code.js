@@ -6,7 +6,7 @@ import * as Worldcore from "@croquet/worldcore";
 const {ViewService, ModelService, GetPawn, Model} = Worldcore;
 
 let isProxy = Symbol("isProxy");
-function newProxy(object, handler, behavior) {
+function newProxy(object, handler, module, behavior) {
     if (object[isProxy]) {
         return object;
     }
@@ -17,6 +17,8 @@ function newProxy(object, handler, behavior) {
             if (property === "_behavior") {return behavior;}
             if (handler && handler.hasOwnProperty(property)) {
                 return new Proxy(handler[property], {
+        
+                    
                     apply: function(_target, thisArg, argumentList) {
                         return handler[property].apply(thisArg, argumentList);
                     }
@@ -37,17 +39,17 @@ export const AM_Code = superclass => class extends superclass {
         this.behaviorManager = this.service("BehaviorModelManager");
         if (options.behaviorModules) {
             options.behaviorModules.forEach((name) => { /* name: Bar */
-                let moduleNames = this.behaviorManager.moduleNames.get(name);
-                let {actorBehaviors, pawnBehaviors} = moduleNames;
+                let module = this.behaviorManager.modules.get(name);
+                let {actorBehaviors, pawnBehaviors} = module;
                 if (actorBehaviors) {
-                    for (let behaviorName of actorBehaviors.keys()) {
-                        this.behaviorManager.modelUse(this, behaviorName);
-                    };
+                    for (let behavior of actorBehaviors.values()) {
+                        this.behaviorManager.modelUse(this, behavior);
+                    }
                 }
                 if (pawnBehaviors) {
-                    for (let behaviorName of pawnBehaviors.keys()) {
-                        this.behaviorManager.viewUse(this, behaviorName);
-                    };
+                    for (let behavior of pawnBehaviors.values()) {
+                        this.behaviorManager.viewUse(this, behavior);
+                    }
                 }
             });
         }
@@ -59,16 +61,16 @@ export const AM_Code = superclass => class extends superclass {
         }
         if (this._behaviorModules) {
             this._behaviorModules.forEach((name) => { /* name: Bar */
-                let moduleNames = this.behaviorManager.moduleNames.get(name);
-                let {actorBehaviors, pawnBehaviors} = moduleNames;
+                let modules = this.behaviorManager.modules.get(name);
+                let {actorBehaviors, pawnBehaviors} = modules;
                 if (actorBehaviors) {
-                    for (let behaviorName of actorBehaviors.keys()) {
-                        this.behaviorManager.modelUnuse(this, behaviorName);
+                    for (let behavior of actorBehaviors.values()) {
+                        this.behaviorManager.modelUnuse(this, behavior);
                     };
                 }
                 if (pawnBehaviors) {
-                    for (let behaviorName of pawnBehaviors.keys()) {
-                        this.behaviorManager.viewUnuse(this, behaviorName);
+                    for (let behavior of pawnBehaviors.values()) {
+                        this.behaviorManager.viewUnuse(this, behavior);
                     };
                 }
             });
@@ -78,21 +80,22 @@ export const AM_Code = superclass => class extends superclass {
 
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
-        let behaviorName = this._behavior;
-        return this.futureWithBehavior(time, behaviorName);
+        let behaviorName = this._behavior.$behaviorName;
+        let moduleName = this._behavior.module.name;
+        return this.futureWithBehavior(time, moduleName, behaviorName);
     }
 
-    futureWithBehavior(time, behaviorName) {
+    futureWithBehavior(time, moduleName, behaviorName) {
         let superFuture = (sel, args) => super.future(time, sel, args);
         let behaviorManager = this.behaviorManager;
         let basicCall = this.call;
         
         return new Proxy(this, {
             get(_target, property) {
-                let behavior = behaviorManager.behaviors.get(behaviorName);
+                let behavior = behaviorManager.lookup(moduleName, behaviorName);
 
                 let func = property === "call" ? basicCall : behavior.$behavior[property];
-                let fullName = property === "call" ?  "call" : `${behaviorName}.${property}`;
+                let fullName = property === "call" ?  "call" : `${moduleName}$${behaviorName}.${property}`;
                 if (typeof func === "function") {
                     const methodProxy = new Proxy(func, {
                         apply(_method, _this, args) {
@@ -107,13 +110,22 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     call(behaviorName, name, ...values) {
-        let behavior = this.behaviorManager.behaviors.get(behaviorName);
+        let moduleName;
+        let split = behaviorName.split("$");
+        if (split.length > 1) {
+            moduleName = split[0];
+            behaviorName = split[1];
+        }
+        if (!moduleName && this[isProxy]) {
+            moduleName = this._behavior.module.externalName;
+        }
+
+        let behavior = this.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
             throw new Error(`epxander named ${behaviorName} not found`);
         }
 
         behavior.ensureBehavior();
-
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
@@ -122,29 +134,53 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     scriptSubscribe(scope, eventName, listener) {
-        //console.log("model", scope, eventName, listener);
-        
+        // listener can be:
+        // this.func
+        // name for a base object method
+        // name for an expander method
+        // string with "." for this module, a behavior and method name
+        // // string with "$" and "." for external name of module, a behavior name, method name
+
         if (typeof listener === "function") {
             listener = listener.name;
         }
 
-        let behavior = this._behavior;
-        if (!behavior) {
-            behavior = behavior.constructor.name;
+        let behaviorName;
+        let moduleName;
+
+        let dollar = listener.indexOf("$");
+
+        if (dollar >= 1) {
+            moduleName = listener.slice(0, dollar);
+            listener = listener.slice(dollar + 1);
         }
 
+        let dot = listener.indexOf(".");
+        if (dot >= 1) {
+            behaviorName = listener.slice(0, dot);
+            listener = listener.slice(dot + 1);
+        }
+
+        let behavior = this._behavior;
+
+        if (!moduleName && behavior) {
+            moduleName = behavior.module.externalName;
+        }
+
+        if (!behaviorName && behavior) {
+            behaviorName = behavior.$behaviorName;
+        }
+        
         let fullMethodName;
-        if (listener.indexOf(".") >= 1 || !behavior) {
+        if (!behaviorName) {
             fullMethodName = listener;
         } else {
-            fullMethodName = `${behavior}.${listener}`;
+            fullMethodName = `${moduleName}${moduleName ? "$" : ""}${behaviorName}${behaviorName ? "." : ""}${listener}`;
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
         let had = this.scriptListeners.get(listenerKey, fullMethodName);
-        if (had) {
-            return;
-        }
+        if (had) {return;}
         
         this.scriptListeners.set(listenerKey, fullMethodName);
         super.subscribe(scope, eventName, fullMethodName);
@@ -229,22 +265,39 @@ export const PM_Code = superclass => class extends superclass {
                             behavior.ensureBehavior();
                         }
                         if (behavior.$behavior.setup) {
-                            this.future(0).callSetup(behavior.$behaviorName);
+                            console.log(`${module.externalName}$${behavior.$behaviorName}`);
+                            this.future(0).callSetup(`${module.externalName}$${behavior.$behaviorName}`);
                         }
                     };
                 }
             });
         }
     }
-        
+
+    actorCall(behaviorName, name, ...values) {
+        let actor = this.actor;
+        let moduleName = this._behavior.module.externalName;
+        return actor.call(`${moduleName}$${behaviorName}`, name, ...values);
+    }
+
     call(behaviorName, name, ...values) {
-        let behavior = this.actor.behaviorManager.behaviors.get(behaviorName);
+        let moduleName;
+        let split = behaviorName.split("$");
+        if (split.length > 1) {
+            moduleName = split[0];
+            behaviorName = split[1];
+        }
+
+        if (!moduleName && this[isProxy]) {
+            moduleName = this._behavior.module.externalName;
+        }
+        
+        let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
             throw new Error(`epxander named ${behaviorName} not found`);
         }
 
         behavior.ensureBehavior();
-
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
@@ -265,6 +318,12 @@ export const PM_Code = superclass => class extends superclass {
 
     scriptSubscribe(scope, subscription, listener) {
         // console.log("view", scope, subscription, listener);
+        // listener can be:
+        // this.func
+        // name for a base object method
+        // name for an expander method
+        // string with "." for this module, a behavior and method name
+        // // string with "$" and "." for external name of module, a behavior name, method name        
         let eventName;
         let handling;
         if (typeof subscription === "string") {
@@ -278,16 +337,38 @@ export const PM_Code = superclass => class extends superclass {
             listener = listener.name;
         }
 
+        let behaviorName;
+        let moduleName;
+
+        let dollar = listener.indexOf("$");
+
+        if (dollar >= 1) {
+            moduleName = listener.slice(0, dollar);
+            listener = listener.slice(dollar + 1);
+        }
+
+        let dot = listener.indexOf(".");
+        if (dot >= 1) {
+            behaviorName = listener.slice(0, dot);
+            listener = listener.slice(dot + 1);
+        }
+        
         let behavior = this._behavior;
-        if (!behavior) {
-            behavior = behavior.constructor.name;
+
+        if (!moduleName && behavior) {
+            moduleName = behavior.module.externalName;
+        }
+
+        if (!behaviorName && behavior) {
+            behaviorName = behavior.$behaviorName;
         }
 
         let fullMethodName;
-        if (listener.indexOf(".") >= 1 || !behavior) {
+
+        if (!behaviorName) {
             fullMethodName = listener;
         } else {
-            fullMethodName = `${behavior}.${listener}`;
+            fullMethodName = `${moduleName}${moduleName ? "$" : ""}${behaviorName}${behaviorName ? "." : ""}${listener}`;
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
@@ -340,8 +421,8 @@ export const PM_Code = superclass => class extends superclass {
 class ScriptingBehavior extends Model {
     init(options) {
         this.systemBehavior = !!options.systemBehavior;
-        this.moduleName = options.moduleName;
-        this.type = options.type;
+        this.module = options.module;
+        this.name = options.name;
     }
 
     setCode(string) {
@@ -401,24 +482,36 @@ class ScriptingBehavior extends Model {
     invoke(receiver, name, ...values) {
         this.ensureBehavior();
         let myHandler = this.$behavior;
-        let behavior = this.$behaviorName;
+        let behaviorName = this.$behaviorName;
+        let module = this.module;
         let result;
 
-        let proxy = newProxy(receiver, myHandler, behavior);
+        let proxy = newProxy(receiver, myHandler, module, this);
         try {
             let f = proxy[name];
             if (!f) {
-                throw new Error(`a method named ${name} not found in ${behavior || this}`);
+                throw new Error(`a method named ${name} not found in ${behaviorName || this}`);
             }
             result = f.apply(proxy, values);
         } catch (e) {
-            console.error("an error occured in", behavior, name, e);
+            console.error("an error occured in", behaviorName, name, e);
         }
         return result;
     }
 }
 
 ScriptingBehavior.register("ScriptingBehavior");
+
+class ScriptingModule extends Model {
+    init(options) {
+        super.init(options);
+        this.name = options.name;
+        this.systemModule = options.systemModule;
+        this.filePath = options.filePath;
+    }
+}
+
+ScriptingModule.register("ScriptingModule");
 
 // Each code is a Model object whose contents is the text code
 // the model's identifier is the id, but you can also refer to it by name
@@ -427,19 +520,54 @@ ScriptingBehavior.register("ScriptingBehavior");
 export class BehaviorModelManager extends ModelService {
     init(name) {
         super.init(name || "BehaviorModelManager");
-        this.modelUses = new Map(); // {name: [cardActorId]}
-        this.viewUses = new Map();  // {name: [cardPawnId]}
 
-        this.moduleNames = new Map() // <name /* Bar */, {actorBehaviors<[string]>, pawnBehaviors<[string]}> // starts with the copy of Library but changes at runtime
-        this.modules = new Map(); // <name/* Bar */, {actorBehaviors<[ScirptingBehavior]>, pawnBehaviors<[ScriptingBehavior]}>
+        this.moduleDefs = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, filePath:string?}>
+
+        this.modules = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, filePath:string?}>
 
         this.behaviors = new Map(); // {name: ScriptingBehavior}
+
+        this.modelUses = new Map(); // {ScriptingBehavior, [cardActorId]}
+        this.viewUses = new Map();  // {ScriptingBehavior [cardPawnId]}
+
+        this.externalNames = new Map();
 
         this.loadCache = null;
 
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
         this.subscribe(this.id, "loadDone", "loadDone");
+    }
+
+    createAvailableName(name) {
+        if (!this.moduleDefs.get(name)) {
+            return name;
+        }
+        
+        let match = /([^0-9]+)([0-9]*)/.exec(name);
+        let stem = match[1];
+        let suffix = match[2];
+
+        if (suffix.length === 0) {
+            suffix = 0;
+        } else {
+            suffix = parseInt(suffix, 10);
+        }
+        
+        while (true) {
+            let newName = stem + (++suffix);
+            if (!this.moduleDefs.get(newName)) {
+                return newName;
+            }
+        }
+    }
+
+    lookup(externalName, behaviorName) {
+        if (!externalName) {return null;}
+        let module = this.modules.get(externalName);
+        if (!module) {return null;}
+        return module.actorBehaviors.get(behaviorName)
+            || module.pawnBehaviors.get(behaviorName);
     }
 
     loadStart(key) {
@@ -491,7 +619,7 @@ export class BehaviorModelManager extends ModelService {
     loadLibraries(codeArray) {
         let changed = [];
         codeArray.forEach((moduleDef) => {
-            let {action, name, systemModule, fileName} = moduleDef;
+            let {action, name, systemModule, filePath} = moduleDef;
             if (!action || action === "add") {
                 let def = {...moduleDef};
                 delete def.action;
@@ -501,20 +629,34 @@ export class BehaviorModelManager extends ModelService {
                 if (Array.isArray(def.pawnBehaviors)) {
                     def.pawnBehaviors = new Map(def.pawnBehaviors);
                 }
-                this.moduleNames.set(moduleDef.name, def);
+
+                name = this.createAvailableName(name); // it may be the same name
                 
-                let module = {name, actorBehaviors: new Map(), pawnBehaviors: new Map(), systemModule, fileName};
+                this.externalNames.set(`${filePath}$${moduleDef.name}`, name);
+                this.moduleDefs.set(name, def);
+
+                let m = {actorBehaviors: new Map(), pawnBehaviors: new Map()};
+                let module = ScriptingModule.create({name: def.name, systemModule: def.systemModule, filePath: filePath});
+                module.externalName = name;
+                
                 ["actorBehaviors", "pawnBehaviors"].forEach((behaviorType) => {
                     if (moduleDef[behaviorType]) {
                         let map = moduleDef[behaviorType];
                         for (let [behaviorName, codeString] of map) {
-                            let behavior = this.behaviors.get(behaviorName);
+                            // so when filePath is set, and the external name was
+                            // synthesized due to a collision, we look up the external name
+                            // from file path and module name.
+                            // there should not be any other case.
+
+                            // maybe be undefined
+                            let externalName = this.externalNames.get(`${filePath}$${moduleDef.name}`);
+                            let behavior = this.lookup(externalName, behaviorName);
                             if (!behavior) {
                                 behavior = ScriptingBehavior.create({
                                     systemBehavior: systemModule,
-                                    moduleName: name,
+                                    module: module,
                                     name: behaviorName,
-                                    type: behaviorType.slice(0, behaviorType.length - 1)
+                                    // type: behaviorType.slice(0, behaviorType.length - 1)
                                 });
                                 behavior.setCode(codeString);
                                 changed.push(behavior);
@@ -522,25 +664,29 @@ export class BehaviorModelManager extends ModelService {
                                 behavior.setCode(codeString);
                                 changed.push(behavior);
                             }
-                            module[behaviorType].set(behaviorName, behavior);
-                            this.behaviors.set(behaviorName, behavior);
+                            m[behaviorType].set(behaviorName, behavior);
+                            // this.behaviors.set(behaviorName, behavior);
                         };
                     }
                 });
-                this.modules.set(module.name, module);
+                module.actorBehaviors = m.actorBehaviors;
+                module.pawnBehaviors = m.pawnBehaviors;
+
+                this.modules.set(module.externalName, module);
             }
 
             if (action === "remove") {
                 for (let [k, v] of this.modules) {
-                    if (v.fileName === fileName) {
-                        for (let behaviorName of v.actorBehaviors.keys()) {
+                    if (v.filePath === filePath) {
+                        /*for (let behaviorName of v.actorBehaviors.keys()) {
                             this.behaviors.delete(behaviorName);
                         }
                         for (let behaviorName of v.pawnBehaviors.keys()) {
                             this.behaviors.delete(behaviorName);
-                        }
+                            }*/
+                        this.externalNameMap.delete(filePath);
                         this.modules.delete(k);
-                        this.moduleNames.delete(k);
+                        this.moduleDefs.delete(k);
                     }
                 }
             }
@@ -550,7 +696,7 @@ export class BehaviorModelManager extends ModelService {
         changed.forEach((behavior) => {
             if (!behavior.$behavior.setup) {return;}
             if (behavior.type === "actorBehavior") {
-                let modelUsers = this.modelUses.get(behavior.$behaviorName);
+                let modelUsers = this.modelUses.get(behavior);
                 let actorManager = this.service("ActorManager");
                 if (modelUsers) {
                     modelUsers.forEach((modelId) => {
@@ -561,7 +707,7 @@ export class BehaviorModelManager extends ModelService {
                     });
                 }
             } else if (behavior.type === "pawnBehavior") {
-                toPublish.push(behavior.$behaviorName);
+                toPublish.push([behavior.module.externalName, behavior.$behaviorName]);
             }
         });
         this.publish(this.id, "callViewSetupAll", toPublish);
@@ -572,18 +718,15 @@ export class BehaviorModelManager extends ModelService {
         return new Map([...filtered]);
     }
             
-    modelUse(model, name) {
+    modelUse(model, behavior) {
         let modelId = model.id;
-        let array = this.modelUses.get(name);
+        let array = this.modelUses.get(behavior);
         if (!array) {
             array = [];
-            this.modelUses.set(name, array);
+            this.modelUses.set(behavior, array);
         }
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
-
-            let behavior = this.behaviors.get(name);
-            if (!behavior) {return;}
             behavior.ensureBehavior();
             if (behavior.$behavior.setup) {
                 behavior.future(0).invoke(model[isProxy] ? model._target : model, "setup");
@@ -591,22 +734,21 @@ export class BehaviorModelManager extends ModelService {
         }
     }
 
-    modelUnuse(model, name) {
+    modelUnuse(model, behavior) {
         let modelId = model.id;
-        let array = this.modelUses.get(name);
+        let array = this.modelUses.get(behavior);
         if (!array) {return;}
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        let behavior = this.behaviors.get(name);
-        if (behavior && behavior.$behavior && behavior.$behavior.destroy) {
+        if (behavior.$behavior && behavior.$behavior.destroy) {
             behavior.future(0).invoke(model[isProxy] ? model._target : model, "destroy");
         }
     }
 
-    viewUse(model, name) {
+    viewUse(model, behavior) {
         let modelId = model.id;
-        let array = this.viewUses.get(name);
+        let array = this.viewUses.get(behavior);
         if (!array) {
             array = [];
             this.viewUses.set(name, array);
@@ -615,23 +757,20 @@ export class BehaviorModelManager extends ModelService {
             array.push(modelId);
         }
 
-        let behavior = this.behaviors.get(name);
-        if (!behavior) {return;}
         behavior.ensureBehavior();
         if (behavior.$behavior.setup) {
             model.say("callSetup", name);
         }
     }
 
-    viewUnuse(model, name) {
+    viewUnuse(model, behavior) {
         let modelId = model.id;
-        let array = this.viewUses.get(name);
+        let array = this.viewUses.get(behavior);
         if (!array) {return;}
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        let behavior = this.behaviors.get(name);
-        if (behavior && behavior.$behavior && behavior.$behavior.destroy) {
+        if (behavior.$behavior && behavior.$behavior.destroy) {
             model.say("callDestroy", name);
         }
     }
@@ -664,10 +803,10 @@ export class BehaviorViewManager extends ViewService {
         this.socket.onmessage = (event) => this.load(event.data);
     }
 
-    callViewSetupAll(names) {
-        names.forEach((name) => {
-            let behavior = this.model.behaviors.get(name);
-            let viewUsers = this.model.viewUses.get(name);
+    callViewSetupAll(pairs) {
+        pairs.forEach((pair) => {
+            let behavior = this.model.lookup(...pair);
+            let viewUsers = this.model.viewUses.get(behavior);
             if (viewUsers) {
                 viewUsers.forEach((modelId) => {
                     let pawn = GetPawn(modelId);
@@ -794,7 +933,7 @@ export class CodeLibrary {
         this.classes = new Map();
     }
 
-    add(library, fileName, isSystem) {
+    add(library, filePath, isSystem) {
         if (library.modules) {
             library.modules.forEach(module => {
                 let {name, actorBehaviors, pawnBehaviors} = module;
@@ -812,7 +951,7 @@ export class CodeLibrary {
                 }
                 this.modules.set(name, {
                     name,
-                    fileName,
+                    filePath,
                     actorBehaviors: actors,
                     pawnBehaviors: pawns,
                     systemModule: isSystem

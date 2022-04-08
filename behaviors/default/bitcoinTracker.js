@@ -37,15 +37,10 @@ class BitcoinTrackerPawn {
 
         this.onBTCUSDChanged();
 
-        console.log("bitcoin pawn, setup");
-
-        if (this.call("ElectedPawn", "isElected")) {
-            console.log("elected in setup");
-            this.handleElected();
-        }
-
         this.scriptListen("handleElected", this.handleElected);
         this.scriptListen("handleUnelected", this.handleUnelected);
+
+        this.say("electionStatusRequested");
     }
 
     handleElected() {
@@ -90,7 +85,7 @@ class BitcoinTrackerPawn {
     }
 
     latest() {
-        return this.actor.call("BitcoinTrackerActor", "latest");
+        return this.actorCall("BitcoinTrackerActor", "latest");
     }
 
     fetchHistory() {

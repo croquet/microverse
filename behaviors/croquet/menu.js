@@ -13,9 +13,6 @@ class MenuActor {
         this.items = [];
         this.maxWidth = 0;
         this.maxHeight = 0;
-
-        this.maxWidth = 0;
-        this.maxHeight = 0;
         this.extentMap = new Map();
         
         for (let i = 0; i < list.length; i++) {

@@ -33,13 +33,19 @@ class ElectedPawn {
     setup() {
         this.electedViewId = "";
         this.scriptListen({event: "view-elected", handling: "oncePerFrame"}, this.onViewElected);
-        this.onViewElected(this.actor.call("ElectedActor", "electedView"));
+        this.onViewElected(this.actorCall("ElectedActor", "electedView"));
 
         this.scriptListen("handleElected", this.handleElected);
         this.scriptListen("handleUnelected", this.handleUnelected);
+
+        this.scriptListen("electionStatusRequested", this.electionStatusRequested);
     }
 
     isElected() { return this.viewId === this.electedViewId; }
+
+    electionStatusRequested() {
+        this.onViewElected(this.actorCall("ElectedActor", "electedView"));
+    }
 
     onViewElected(viewId) {
         const wasElected = this.isElected();

@@ -272,7 +272,7 @@ export function init(Model, Constants) {
                     // color: 0xffffff,
                     depth: 0.05,
                     cornerRadius: 0.1,
-                    behaviorModules: ["BitcoinTracker", "Elected"],
+                    behaviorModules: ["Elected", "BitcoinTracker"],
                 },
                 id: "main",
             },

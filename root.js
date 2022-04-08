@@ -77,7 +77,7 @@ function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
 
-    let {basedir, pathname} = basenames();
+    let {basedir, _pathname} = basenames();
 
     if (!directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
@@ -87,11 +87,12 @@ function loadInitialBehaviors(paths, directory) {
         if (!isSystem) {
             let code = `import('${basedir}${directory}/${path}')`;
             return eval(code).then((module) => {
-                return [path, module];
+                let rest = directory.slice("behaviors/".length);
+                return [`${rest}/${path}`, module];
             })
         } else {
             return import(`./behaviors/${directory.split("/")[1]}/${path}`).then((module) => {
-                return [path, module];
+                return [`${directory.split("/")[1]}/${path}`, module];
             })
         }
     });
@@ -335,7 +336,6 @@ class MyViewRoot extends ViewRoot {
         renderer.toneMappingExposure = 2;
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
-        console.log("ThreeRenderManager", threeRenderManager);
     }
 }
 
