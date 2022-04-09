@@ -135,7 +135,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         } else if (type === "code") {
             this.subscribe(this.id, "changed", "textChanged");
             // this is a weird inter mixins dependency but not sure how to write it
-            // this.subscribe(this.id, "text", "codeAccepted");
+            this.subscribe(this.id, "text", "codeAccepted");
         } else {
             console.log("unknown type for a card: ", options.type);
         }

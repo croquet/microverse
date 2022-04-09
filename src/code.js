@@ -206,8 +206,6 @@ export const AM_Code = superclass => class extends superclass {
             throw new Error("module no longer exists");
         }
 
-        console.log("codeAccepted");
-
         let copy = {
             name: current.name, systemModule: current.systemModule,
             filePath: current.filePath,
@@ -217,14 +215,21 @@ export const AM_Code = superclass => class extends superclass {
                     
         let currentBehavior = copy.actorBehaviors.get(behaviorName);
         if (currentBehavior) {
+            if (copy.actorBehaviors.get(behaviorName) === data.text) {
+                return;
+            }
             copy.actorBehaviors.set(behaviorName, data.text);
         } else {
             currentBehavior = copy.pawnBehaviors.get(behaviorName);
             if (currentBehavior) {
+                if (copy.pawnBehaviors.get(behaviorName) === data.text) {
+                    return;
+                }
                 copy.pawnBehaviors.set(behaviorName, data.text);
             }
         }
 
+        console.log("codeAccepted");
         this.behaviorManager.loadLibraries([copy]);
     }
 
