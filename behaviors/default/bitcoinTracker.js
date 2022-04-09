@@ -40,17 +40,14 @@ class BitcoinTrackerPawn {
         this.scriptListen("handleElected", this.handleElected);
         this.scriptListen("handleUnelected", this.handleUnelected);
 
-        // I have a trouble thinking about the right thing to do here.
-        // this is awful to just check the value.
-        // this.say("electionStatusRequested");
-        if (this.electedViewId === this.viewId) {
-            this.handleElected();
-        }
+        this.say("electionStatusRequested");
     }
 
-    handleElected() {
-        console.log("bitcoin elected");
-        this.fetchHistory().then(() => this.openSocket());
+    handleElected(data) {
+        if (!data || data.to === this.viewId) {
+            console.log("bitcoin elected");
+            this.fetchHistory().then(() => this.openSocket());
+        }
     }
 
     handleUnelected() {

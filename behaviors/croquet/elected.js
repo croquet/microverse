@@ -45,7 +45,9 @@ class ElectedPawn {
     isElected() { return this.viewId === this.electedViewId; }
 
     electionStatusRequested() {
-        this.onViewElected(this.actorCall("ElectedActor", "electedView"));
+        if (this.isElected()) {
+            this.say("handleElected");
+        }
     }
 
     onViewElected(viewId) {

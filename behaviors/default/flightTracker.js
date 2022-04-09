@@ -32,12 +32,7 @@ class FlightTrackerPawn {
         this.scriptListen("handleElected", this.handleElected);
         this.scriptListen("handleUnelected", this.handleUnelected);
 
-        // I have a trouble thinking about the right thing to do here.
-        // this is awful to just check the value.
-        // this.say("electionStatusRequested");
-        if (this.electedViewId === this.viewId) {
-            this.handleElected();
-        }
+        this.say("electionStatusRequested");
     }
 
     constructEarth() {
@@ -130,10 +125,12 @@ class FlightTrackerPawn {
         this.planes.geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
     }
 
-    handleElected() {
-        console.log("flight tracker elected");
-        this.rawPlanes = [];
-        this.processFlight();
+    handleElected(data) {
+        if (!data || data.to === this.viewId) {
+            console.log("flight tracker elected");
+            this.rawPlanes = [];
+            this.processFlight();
+        }
     }
 
     handleUnelected() {
