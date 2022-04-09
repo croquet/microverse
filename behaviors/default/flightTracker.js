@@ -29,6 +29,9 @@ class FlightTrackerPawn {
         this.constructEarth();
         this.chunkSize = 100; //number of plane records to send
 
+        this.scriptListen("handleElected", this.handleElected);
+        this.scriptListen("handleUnelected", this.handleUnelected);
+
         // I have a trouble thinking about the right thing to do here.
         // this is awful to just check the value.
         // this.say("electionStatusRequested");
@@ -128,11 +131,13 @@ class FlightTrackerPawn {
     }
 
     handleElected() {
+        console.log("flight tracker elected");
         this.rawPlanes = [];
         this.processFlight();
     }
 
     handleUnelected() {
+        console.log("flight tracker unelected");
         this.closeSocket();
     }
 

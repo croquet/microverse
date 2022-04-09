@@ -30,9 +30,11 @@ class ElectedActor {
 
 class ElectedPawn {
     setup() {
-        this.electedViewId = "";
+        if (this.electedViewId === undefined) {
+            this.electedViewId = "";
+            this.onViewElected(this.actorCall("ElectedActor", "electedView"));
+        }
         this.scriptListen({event: "view-elected", handling: "oncePerFrame"}, this.onViewElected);
-        this.onViewElected(this.actorCall("ElectedActor", "electedView"));
 
         this.scriptListen("handleElected", this.handleElected);
         this.scriptListen("handleUnelected", this.handleUnelected);
