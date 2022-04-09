@@ -81,6 +81,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
         let allOldActorBehaviors = [];
         let allOldPawnBehaviors = [];
+
+        let oldSystemModules = [];
         if (this._behaviorModules) {
             this._behaviorModules.forEach((oldModuleName) => {
                 let oldModule = behaviorManager.modules.get(oldModuleName);
@@ -89,6 +91,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 }
                 if (oldModule.pawnBehaviors) {
                     allOldPawnBehaviors.push(...oldModule.pawnBehaviors.values());
+                }
+                if (oldModule.systemModule) {
+                    oldSystemModules.push(oldModule.externalName);
+                    if (oldModule.actorBehaviors) {
+                        allNewActorBehaviors.push(...oldModule.actorBehaviors.values());
+                    }
+                    if (oldModule.pawnBehaviors) {
+                        allNewPawnBehaviors.push(...oldModule.pawnBehaviors.values());
+                    }
                 }
             });
         }
@@ -115,7 +126,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
             }
         });
                 
-        this._behaviorModules = options.behaviorModules;
+        this._behaviorModules = [...oldSystemModules, ...options.behaviorModules];
     }
 
     setCardData(options) {

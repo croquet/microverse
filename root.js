@@ -17,7 +17,6 @@ import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
 import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
-import { FlightTracker } from './apps/flightTracker.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
@@ -141,8 +140,6 @@ class MyModelRoot extends ModelRoot {
         appManager.add(MultiBlaster);
         appManager.add(BouncingBall);
         appManager.add(BouncingLogo);
-        appManager.add(FlightTracker);
-        // appManager.add(DLight);
         appManager.add(TextFieldActor);
 
         this.ensurePersistenceProps();
