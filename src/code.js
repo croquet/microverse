@@ -419,6 +419,8 @@ export const PM_Code = superclass => class extends superclass {
 }
 
 class ScriptingBehavior extends Model {
+    static okayToIgnore() { return [ "$behavior", "$behaviorName" ]; }
+
     init(options) {
         this.systemBehavior = !!options.systemBehavior;
         this.module = options.module;

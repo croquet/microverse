@@ -24,6 +24,9 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 //------------------------------------------------------------------------------------------
 
 export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
+    // this should be in AM_SPATIAL but that would require changing Worldcore mixins
+    static okayToIgnore() { return [ "$local", "$global" ]; }
+
     init(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
         super.init(cardOptions);
