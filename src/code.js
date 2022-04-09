@@ -780,7 +780,7 @@ export class BehaviorModelManager extends ModelService {
         if (ind < 0) {return;}
         array.splice(ind, 1);
         if (behavior.$behavior && behavior.$behavior.destroy) {
-            model.say("callDestroy", name);
+            model.say("callDestroy", `${behavior.module.externalName}$${behavior.$behaviorName}`);
         }
     }
 }

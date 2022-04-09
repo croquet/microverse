@@ -16,9 +16,8 @@ export function init(Model, Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "flightTracker.js", "spin.js", "lights.js"
+        "lights.js"
     ];
-
 
     // const frameColor = 0x888888;
 
