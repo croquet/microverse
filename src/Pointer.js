@@ -47,6 +47,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
 
     addEventListener(eventName, listener) {
         // console.log("addEventListener", eventName, listener);
+        let origListener = listener;
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -88,6 +89,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
                 obj.moduleName === moduleName &&
                 obj.behaviorName === behaviorName
         }) >= 0) {
+            this.removeEventListener(eventName, origListener);
             // console.log("multiple registration of the same function");
             return;
         }
@@ -217,6 +219,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
     }
 
     addEventListener(eventName, listener, name) {
+        let origListener = listener;
         if (typeof listener === "string") {
             name = listener;
             listener = (evt) => this[name](evt);
@@ -230,17 +233,20 @@ export const PM_PointerTarget = superclass => class extends superclass {
             array = [];
             this.eventListeners.set(eventName, array);
         }
-        if (array.find((obj) => obj.name === name)) {
+        if (array.find((obj) => {
+            return obj.name === name &&
+                obj.eventName === eventName;
+        })) {
+            this.removeEventListener(eventName, origListener, name);
             // console.log("multiple registration of the same function");
-            return;
         }
-        array.push({name, listener});
+        array.push({name, eventName, listener});
     }
 
     removeEventListener(eventName, listener, name) {
         if (typeof listener === "string") {
             name = listener;
-            listener = (evt) => this[listener](evt);
+            // listener = (evt) => this[listener](evt);
         } else {
             if (!name) {
                 name = listener.name;
@@ -251,7 +257,10 @@ export const PM_PointerTarget = superclass => class extends superclass {
             // console.log("try to remove non-existent listener");
             return;
         }
-        let ind = array.findIndex((obj) => obj.name === name);
+        let ind = array.findIndex((obj) => {
+            return obj.name === name &&
+                obj.eventName === eventName;
+        });
         if (ind < 0) {
             // console.log("try to remove non-existent listener");
             return;
