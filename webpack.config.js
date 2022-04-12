@@ -26,7 +26,7 @@ const config = {
     },
     devServer: {
         allowedHosts: 'all',
-        watchFiles: ['./src/**.js', './index.js', './test.js', 'default.js', './root.js'],
+        watchFiles: ['./src/**.js', './*.js'],
         port: 9009,
     },
     module: {
@@ -80,6 +80,7 @@ const config = {
                 },
                 { from: 'default.js', to: 'default.js' },
                 { from: 'test.js', to: 'test.js' },
+                { from: 'codefrau.js', to: 'codefrau.js' },
                 { from: 'apiKey.js', to: 'apiKey.js' },
             ]
         }),

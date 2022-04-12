@@ -13,6 +13,7 @@ import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
 //import { DLight } from './src/DLight.js';
 import { TextFieldActor } from './src/text/text.js';
+import { PortalActor } from './src/portal.js';
 import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
@@ -141,6 +142,7 @@ class MyModelRoot extends ModelRoot {
         appManager.add(BouncingBall);
         appManager.add(BouncingLogo);
         appManager.add(TextFieldActor);
+        appManager.add(PortalActor);
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
