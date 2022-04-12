@@ -121,6 +121,7 @@ class BridgePawn {
                 for (let i = 0; i < d; i++) {
                     this.group.remove(row[i]);
                 }
+                this.group.children = [];
             }
         }
 
