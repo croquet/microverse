@@ -126,8 +126,12 @@ export const AM_Code = superclass => class extends superclass {
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
     }
 
-    scriptListen(eventName, listener) {
+    listen(eventName, listener) {
         return this.scriptSubscribe(this.id, eventName, listener);
+    }
+
+    subscribe(scope, eventName, listener) {
+        return this.scriptSubscribe(scope, eventName, listener);
     }
 
     scriptSubscribe(scope, eventName, listener) {
@@ -138,6 +142,10 @@ export const AM_Code = superclass => class extends superclass {
         // string with "." for this module, a behavior and method name
         // // string with "$" and "." for external name of module, a behavior name, method name
 
+        if (typeof listener === "function" && !this[isProxy]) {
+            return super.subscribe(scope, eventName, listener);
+        }
+        
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -176,10 +184,12 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
-        let had = this.scriptListeners.get(listenerKey, fullMethodName);
+        let had = this.scriptListeners && this.scriptListeners.get(listenerKey, fullMethodName);
         if (had) {return;}
         
-        this.scriptListeners.set(listenerKey, fullMethodName);
+        if (this.scriptListeners) {
+            this.scriptListeners.set(listenerKey, fullMethodName);
+        }
         super.subscribe(scope, eventName, fullMethodName);
     }
 
@@ -316,6 +326,14 @@ export const PM_Code = superclass => class extends superclass {
         return this.call(name, "destroy");
     }
 
+    scriptListen(subscription, listener) {
+        return this.scriptSubscribe(this.actor.id, subscription, listener);
+    }
+
+    subscribe(scope, subscription, listener) {
+        return this.scriptSubscribe(scope, subscription, listener);
+    }
+
     scriptSubscribe(scope, subscription, listener) {
         // console.log("view", scope, subscription, listener);
         // listener can be:
@@ -324,6 +342,11 @@ export const PM_Code = superclass => class extends superclass {
         // name for an expander method
         // string with "." for this module, a behavior and method name
         // // string with "$" and "." for external name of module, a behavior name, method name        
+
+        if (typeof listener === "function" && !this[isProxy]) {
+            return super.subscribe(scope, subscription, listener);
+        }
+
         let eventName;
         let handling;
         if (typeof subscription === "string") {
@@ -333,10 +356,6 @@ export const PM_Code = superclass => class extends superclass {
             handling = subscription.handling;
         }
         
-        if (typeof listener === "function") {
-            listener = listener.name;
-        }
-
         let behaviorName;
         let moduleName;
 
@@ -373,12 +392,15 @@ export const PM_Code = superclass => class extends superclass {
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
 
-        let had = this.scriptListeners.get(listenerKey);
+        let had = this.scriptListeners && this.scriptListeners.get(listenerKey);
         if (had) {
             this.unsubscribe(scope, eventName, fullMethodName);
         }
-        
-        this.scriptListeners.set(listenerKey, fullMethodName);
+
+        if (this.scriptListeners) {
+            this.scriptListeners.set(listenerKey, fullMethodName);
+        }
+
         if (fullMethodName.indexOf(".") >= 1) {
             let split = fullMethodName.split(".");
             let func = (data) => this.call(split[0], split[1], data);
@@ -391,10 +413,6 @@ export const PM_Code = superclass => class extends superclass {
         }
     }
         
-    scriptListen(subscription, listener) {
-        return this.scriptSubscribe(this.actor.id, subscription, listener);
-    }
-
     update(time, delta) {
         if (this.updateRequests) {
             this.updateRequests.forEach((u) => {

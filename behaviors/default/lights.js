@@ -14,28 +14,13 @@ class LightPawn {
         const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .5 );
         group.add(ambient);
         this.lights.push(ambient);
-/*
-        const sun = new Worldcore.THREE.DirectionalLight( 0xffe0b5, 1 );
-        sun.position.set(400, 500, 400);
-        group.add(sun);
-        this.lights.push(sun);
 
-        const moon = new Worldcore.THREE.DirectionalLight( 0x6cbbff, 0.5 );
-        moon.position.set(200, 100, -100);
-        group.add(moon);
-        this.lights.push(moon);
-
-        const hemiLight = new Worldcore.THREE.HemisphereLight(0xffeeb1, 0xc7ccff, 0.25);
-        group.add(hemiLight);
-        this.lights.push(hemiLight);
-        group.name = "Light Card";
-*/
         this.constructBackground(this.actor._cardData);
 
         let moduleName = this._behavior.module.externalName;
         this.addUpdateRequest([`${moduleName}$LightPawn`, "update"]);
 
-        this.scriptListen("updateShape", this.updateShape);
+        this.listen("updateShape", "updateShape");
     }
 
     removeLights() {

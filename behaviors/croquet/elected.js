@@ -7,8 +7,8 @@ class ElectedActor {
         if (!this.views) {
             this.views = new Set();
         }
-        this.scriptSubscribe(this.sessionId, "view-join", "viewJoined");
-        this.scriptSubscribe(this.sessionId, "view-exit", "viewExited");
+        this.subscribe(this.sessionId, "view-join", "viewJoined");
+        this.subscribe(this.sessionId, "view-exit", "viewExited");
     }
 
     electedView() {
@@ -34,12 +34,12 @@ class ElectedPawn {
             this.electedViewId = "";
             this.onViewElected(this.actorCall("ElectedActor", "electedView"));
         }
-        this.scriptListen({event: "view-elected", handling: "oncePerFrame"}, this.onViewElected);
+        this.listen({event: "view-elected", handling: "oncePerFrame"}, "onViewElected");
 
-        this.scriptListen("handleElected", this.handleElected);
-        this.scriptListen("handleUnelected", this.handleUnelected);
+        this.listen("handleElected", "handleElected");
+        this.listen("handleUnelected", "handleUnelected");
 
-        this.scriptListen("electionStatusRequested", this.electionStatusRequested);
+        this.listen("electionStatusRequested", "electionStatusRequested");
     }
 
     isElected() { return this.viewId === this.electedViewId; }

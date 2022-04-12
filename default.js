@@ -228,7 +228,7 @@ export function init(Model, Constants) {
             {
                 card: {
                     name: 'spin code editor',
-                    translation: [83, -1.8, -115],
+                    translation: [83, -1.6, -115],
                     rotation: [0, -Math.PI / 2, 0],
                     layers: ['pointer'],
                     type: "code",
@@ -236,7 +236,7 @@ export function init(Model, Constants) {
                     textScale: 0.001,
                     margins: {left: 32, top: 32, right: 32, bottom: 32},
                     width: 1.5,
-                    height: 1.5,
+                    height: 1.7,
                     depth: 0.05,
                     frameColor: frameColor,
                 },

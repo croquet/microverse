@@ -1,7 +1,7 @@
 class FlightTrackerActor {
     setup() {
-        this.scriptListen("processFlight", this.processFlight);
-        this.scriptListen("updateFlight", this.updateFlight);
+        this.listen("processFlight", "processFlight");
+        this.listen("updateFlight", "updateFlight");
         this.planes = new Map();
     }
 
@@ -25,12 +25,12 @@ class FlightTrackerActor {
 
 class FlightTrackerPawn {
     setup() {
-        this.scriptListen("displayFlight", this.displayFlight);
+        this.listen("displayFlight", "displayFlight");
         this.constructEarth();
         this.chunkSize = 100; //number of plane records to send
 
-        this.scriptListen("handleElected", this.handleElected);
-        this.scriptListen("handleUnelected", this.handleUnelected);
+        this.listen("handleElected", "handleElected");
+        this.listen("handleUnelected", "handleUnelected");
 
         this.say("electionStatusRequested");
     }

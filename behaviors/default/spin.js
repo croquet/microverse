@@ -1,8 +1,8 @@
 class SpinActor {
     setup() {
-        this.scriptListen("startSpinning", "startSpinning");
-        this.scriptListen("stopSpinning", "stopSpinning");
-        this.scriptListen("newAngle", "newAngle");
+        this.listen("startSpinning", "startSpinning");
+        this.listen("stopSpinning", "stopSpinning");
+        this.listen("newAngle", "newAngle");
     }
     
     startSpinning(spin) {

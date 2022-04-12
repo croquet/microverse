@@ -29,6 +29,9 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     init(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
+
+        // coming from different mixins, but still used by listen.
+        this.scriptListeners = new Map();
         super.init(cardOptions);
         this._cardData = cardData;
         this.noSave = options.noSave;

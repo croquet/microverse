@@ -136,7 +136,7 @@ class BridgePawn {
             });
         });
         this.renderObject.add(this.group);
-        this.scriptListen("updateDisplay", "updateDisplay");
+        this.listen("updateDisplay", "updateDisplay");
 
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addEventListener("pointerDoubleDown", "nop");

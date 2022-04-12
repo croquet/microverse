@@ -18,10 +18,10 @@ class DriveActor {
     }
 
     /*
-    newAngle(data) {
-        data = data / 20;
-        console.log(data);
-        this.angle = data;
+    newAngle(angle) {
+        // angle = angle / 20;
+        // console.log(angle);
+        this.angle = angle;
     }
     */
 
@@ -112,11 +112,11 @@ class PerlinActor {
 
         this.initPerlin(firstTime);
 
-        this.scriptListen("hiliteRequest", "hilite");
-        this.scriptListen("unhiliteRequest", "unhilite");
-        this.scriptListen("showHideRequest", "showHide");
-        this.scriptListen("enterHiliteRequest", "enterHilite");
-        this.scriptListen("leaveHiliteRequest", "leaveHilite");
+        this.listen("hiliteRequest", "hilite");
+        this.listen("unhiliteRequest", "unhilite");
+        this.listen("showHideRequest", "showHide");
+        this.listen("enterHiliteRequest", "enterHilite");
+        this.listen("leaveHiliteRequest", "leaveHilite");
     }
 
     hilite(_p3d) {
@@ -288,9 +288,9 @@ class PerlinNoise {
 class PerlinPawn {
     setup() {
         console.log("PerlinPawn");
-        this.scriptListen("updatePerlin", "updatePerlin");
-        this.scriptListen("showMe", "showMe");
-        this.scriptListen("hilite", "hilite");
+        this.listen("updatePerlin", "updatePerlin");
+        this.listen("showMe", "showMe");
+        this.listen("hilite", "hilite");
         this.isConstructed = false;
 
         this.addEventListener("pointerDown", "onPointerDown");

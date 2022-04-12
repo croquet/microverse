@@ -57,8 +57,8 @@ class PropertyPanelActor {
 
         let cardDataString = this.cardSpecString(target);
         this.cardSpec.loadAndReset(cardDataString);
-        this.scriptSubscribe(this.cardSpec.id, "text", "cardSpecAccept");
-        this.scriptListen("dismiss", "dismiss");
+        this.subscribe(this.cardSpec.id, "text", "cardSpecAccept");
+        this.listen("dismiss", "dismiss");
     }
 
     cardSpecString(target) {
@@ -181,8 +181,8 @@ class BehaviorMenuActor {
 
         this.updateSelections();
 
-        this.scriptListen("fire", "setBehaviors");
-        this.scriptSubscribe(this._cardData.target, "behaviorUpdated", "updateSelections");
+        this.listen("fire", "setBehaviors");
+        this.subscribe(this._cardData.target, "behaviorUpdated", "updateSelections");
     }
 
     updateSelections() {

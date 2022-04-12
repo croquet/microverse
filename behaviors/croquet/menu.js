@@ -49,7 +49,7 @@ class MenuActor {
             this.maxWidth = Math.max(this.maxWidth, measurement.width);
 
             this.items.push({label: item.label, card: labelCard, selected: !!item.selected});
-            this.scriptSubscribe(labelCard.id, "fire", "relay");
+            this.subscribe(labelCard.id, "fire", "relay");
         }
 
         let top = 1;
@@ -113,7 +113,7 @@ class MenuActor {
 
 class MenuPawn {
     setup() {
-        this.scriptListen("_cardData", "cardDataUpdated");
+        this.listen("_cardData", "cardDataUpdated");
 
         if (this.actor.items && this.actor.items.length > 0 && this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
             this.cardDataUpdated();
