@@ -17,17 +17,26 @@ export class PortalPawn extends CardPawn {
     constructor(actor) {
         super(actor);
 
-        // this.geometry = new THREE.PlaneGeometry(1, 1);
-        // this.material = new THREE.Material(...);
-        // this.mesh = new THREE.Mesh(this.geometry, this.material);
+        // create checkerboard pattern for portal testing
+        document.body.style.background = "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 100px 100px";
 
         console.log(this);
     }
 
-    destroy() {
-        // this.geometry.dispose();
-        // this.material.dispose();
-        super.destroy();
+    makePlaneMaterial(...args) {
+        super.makePlaneMaterial(...args);
+
+        // we're erasing the framebuffer (overwriting with 0,0,0,0)
+        // glBlendFunc(GL_ZERO, GL_ZERO);
+
+        this.material[0] = new THREE.MeshBasicMaterial({
+            blending: THREE.CustomBlending,
+            blendEquation: THREE.AddEquation,
+            blendSrc: THREE.ZeroFactor,
+            blendDst: THREE.ZeroFactor,
+        });
+
+        return this.material;
     }
 
     // double-click should move avatar to the front of the portal
