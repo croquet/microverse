@@ -34,7 +34,7 @@
     "buffer": "^6.0.3",
     "copy-webpack-plugin": "^10.2.4",
     "html-webpack-plugin": "^5.5.0",
-    "@croquet/microverse-watch-server": "^1.0.0",
+    "@croquet/microverse-watch-server": "^1.0.1",
     "@croquet/microverse-file-server": "^1.0.0",
     "source-map-loader": "^3.0.1",
     "terser-webpack-plugin": "^5.3.1",
