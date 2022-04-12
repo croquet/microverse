@@ -211,8 +211,8 @@ export function init(Model, Constants) {
             },
             {
                 card: {
-                    name: 'code editor',
-                    translation: [8, -1.1, 10],
+                    name: 'drive code editor',
+                    translation: [83, -0.9, -113],
                     rotation: [0, -Math.PI / 2, 0],
                     layers: ['pointer'],
                     type: "code",
@@ -220,7 +220,23 @@ export function init(Model, Constants) {
                     textScale: 0.001,
                     margins: {left: 32, top: 32, right: 32, bottom: 32},
                     width: 1.5,
-                    height: 2.5,
+                    height: 2.8,
+                    depth: 0.05,
+                    frameColor: frameColor,
+                },
+            },
+            {
+                card: {
+                    name: 'spin code editor',
+                    translation: [83, -1.8, -115],
+                    rotation: [0, -Math.PI / 2, 0],
+                    layers: ['pointer'],
+                    type: "code",
+                    behaviorModule: "Spin.SpinActor",
+                    textScale: 0.001,
+                    margins: {left: 32, top: 32, right: 32, bottom: 32},
+                    width: 1.5,
+                    height: 1.5,
                     depth: 0.05,
                     frameColor: frameColor,
                 },
@@ -229,12 +245,24 @@ export function init(Model, Constants) {
                 card: {
                     name:'porsche',
                     dataRotation: [-Math.PI / 2, 0, 0],
-                    translation: [0, -2.56, 8],
+                    translation: [82, -2.56, -110],
                     layers: ['pointer'],
                     type: "3d",
                     multiuser: true,
                     dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
                     behaviorModules: ["Drive"]
+                }
+            },
+            {
+                card: {
+                    name:'earth',
+                    translation: [84, 1.5, -120],
+                    scale: [0.5, 0.5, 0.5],
+                    type: "object",
+                    behaviorModules: ["FlightTracker", "Spin"],
+                    layers: ['pointer'],
+                    multiuser: true,
+                    color: 0xaaaaaa,
                 }
             },
             {

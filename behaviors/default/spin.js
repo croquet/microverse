@@ -2,6 +2,7 @@ class SpinActor {
     setup() {
         this.scriptListen("startSpinning", "startSpinning");
         this.scriptListen("stopSpinning", "stopSpinning");
+        this.scriptListen("newAngle", "newAngle");
     }
     
     startSpinning(spin) {
@@ -21,10 +22,15 @@ class SpinActor {
         this.isSpinning = false;
     }
 
+    newAngle(newAngle) {
+        this.publish("scope", "newAngle", newAngle);
+    }
+
     destroy() {
         delete this.isSpinning;
         this.unsubscribe(this.id, "startSpinning");
         this.unsubscribe(this.id, "stopSpinning");
+        this.unsubscribe(this.id, "newAngle");
     }
 }
 
@@ -57,6 +63,8 @@ class SpinPawn {
         let newAngle = ((next - this.base) + Math.PI * 2) % (Math.PI * 2);
         let qAngle = Worldcore.q_euler(0, newAngle, 0);
         this.setRotation(Worldcore.q_multiply(this.baseRotation, qAngle));
+        newAngle = newAngle < Math.PI ? newAngle : newAngle - Math.PI * 2;
+        this.say("newAngle", newAngle);
     }
 
     onPointerUp(p3d) {

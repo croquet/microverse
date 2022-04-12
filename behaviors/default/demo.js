@@ -1,9 +1,13 @@
 class DriveActor {
     setup() {
-        if (this.speed === undefined) this.speed = 0;
-        if (this.angle === undefined) this.angle = 0;
-        this.addEventListener("pointerDown", "toggle");
+        if (this.speed === undefined) this.speed = 0.1;
+        if (this.angle === undefined) this.angle = 0.02;
+        if (this.running === undefined) {
+            this.running = true;
+            this.run();
+        }
         this.addEventListener("keyDown", "control");
+        // this.scriptSubscribe("scope", "newAngle", "newAngle");
     }
 
     run() {
@@ -13,12 +17,13 @@ class DriveActor {
         this.forwardBy(-this.speed);
     }
 
-    toggle() {
-        this.running = !this.running;
-        if (this.running) {
-            this.run();
-        }
+    /*
+    newAngle(data) {
+        data = data / 20;
+        console.log(data);
+        this.angle = data;
     }
+    */
 
     rotateBy(angles) {
         let q = Worldcore.q_euler(...angles);
