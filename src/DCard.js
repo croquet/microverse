@@ -245,6 +245,37 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
     }
 
+    /*
+
+    showControls(toWhom) {
+        let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
+        let distance = (toWhom.distance || 6);
+        distance = Math.min(distance * 0.7, 4);
+        if(avatar){
+            let pose = avatar.dropPose(distance, [2, 0, 0]);
+            if (!this.behaviorManager.modules.get("PropertySheet")) {return;}
+            let menu = this.createCard({
+                name: "property panel",
+                behaviorModules: ["PropertySheet"],
+                translation: pose.translation,
+                rotation: pose.rotation,
+                type: "object",
+                fullBright: true,
+                color: 0xffffff,
+                frameColor: 0x666666,
+                width: 1,
+                height: 3.5,
+                cornerRadius: 0.02,
+                depth: 0.02,
+                noSave: true,
+                target: this.id,
+            });
+            menu.call("PropertySheet$PropertySheetActor", "setObject", this);
+        }
+    }
+
+    */
+
     setBehaviors(selection) {
         let behaviorModules = [];
 
@@ -487,14 +518,13 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     construct3D(options) {
         let model3d = options.dataLocation;
         let modelType = options.modelType;
-        /* this is really a hack to make it work with the current model. */
 
+        /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
-            // this.service("ThreeRenderManager").setRender(false);
             let size = options.placeholderSize || [40, 1, 40];
             let color = options.placeholderColor || 0x808080;
             let offset = options.placeholderOffset || [0, -0.065, 0];
-            
+
             let psGeometry = new THREE.BoxGeometry(...size);
             let psMaterial = new THREE.ShadowMaterial({color: 0x404040, opacity: 0.5, side: THREE.DoubleSide});
 

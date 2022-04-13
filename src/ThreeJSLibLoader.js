@@ -17,9 +17,13 @@ export function loadThreeJSLib(lib, THREE) {
             src = `https://unpkg.com/${lib.package}@${lib.version}`;
         }
 
+        let slash = lib.indexOf("/");
+        let dot = lib.indexOf(".");
+
         script.setAttribute("defer", "");
         script.src = src;
         script.onload = () => {
+            console.log(lib, !!THREE[lib.slice(slash + 1, dot)]);
             return resolve(window.THREE);
         };
         document.body.appendChild(script);
