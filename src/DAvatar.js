@@ -822,9 +822,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     jumpToNote(isShift){
         // collect the notes
-    console.log(this.actor.service('CardManager').cards);
+        // console.log(this.actor.service('CardManager').cards);
         // jump to the next one or last 
-
     }
 
     toggleFullScreen(e) {

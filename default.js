@@ -92,6 +92,8 @@ export function init(Constants) {
                 singleSided: true,
             }
         },
+
+        /*
         {
             card: {
                 name: 'video card',
@@ -112,10 +114,11 @@ export function init(Constants) {
                 fullBright: true
             }
         },
+        */
         {
             card: {
                 name: 'image card',
-                translation: [-4, -0.5, -30],
+                translation: [-4, -0.5, -23],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
@@ -132,7 +135,7 @@ export function init(Constants) {
             card: {
                 name: 'multiblaster',
                 className: "MultiBlaster",
-                translation: [-4, -0.5, -36],
+                translation: [-4, -0.5, -29],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 layers: ['pointer'],
@@ -152,7 +155,7 @@ export function init(Constants) {
             card: {
                 name:'bouncinglogo',
                 className: "BouncingLogo",
-                translation: [-4, -0.5, -42],
+                translation: [-4, -0.5, -35],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 width: 1,
@@ -254,7 +257,7 @@ export function init(Constants) {
         {
             card: {
                 name:'earth',
-                translation: [84, 1.5, -120],
+                translation: [84, 1, -120],
                 scale: [0.5, 0.5, 0.5],
                 type: "object",
                 behaviorModules: ["FlightTracker", "Spin"],
