@@ -3,7 +3,8 @@ import { startWorld, basenames } from "./root.js";
 
 let {basedir, basename} = basenames();
 eval(`import("${basedir}${basename}.js")`)
-    .then((module) => module.init(Model, Constants))
+// use bit-identical math for constant initialization
+    .then((module) => Model.evaluate(() => module.init(Constants)))
     .then(() => eval(`import('${basedir}apiKey.js')`))
 // Default parameters are filled in the body of startWorld. You can override them.
     .then((module) => startWorld(module.default))
