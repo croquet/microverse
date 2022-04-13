@@ -16,7 +16,8 @@ export function loadThreeJSLib(lib, THREE) {
         } else {
             src = `https://unpkg.com/${lib.package}@${lib.version}`;
         }
-        
+
+        script.setAttribute("defer", "");
         script.src = src;
         script.onload = () => {
             return resolve(window.THREE);

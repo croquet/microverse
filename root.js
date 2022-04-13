@@ -43,7 +43,7 @@ function loadLoaders() {
                 "loaders/SVGLoader.js",
                 "loaders/EXRLoader.js",
                 "utils/BufferGeometryUtils.js",
-                "csm/CSM"
+                "csm/CSM.js"
             ];
 
             window.JSZip = JSZip;
