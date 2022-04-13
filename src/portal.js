@@ -20,7 +20,14 @@ export class PortalPawn extends CardPawn {
         // create checkerboard pattern for portal testing
         document.body.style.background = "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 100px 100px";
 
-        console.log(this);
+        this.loadTargetWorld();
+    }
+
+    destroy() {
+        if (this.iframe && this.iframe.parentNode) {
+            this.iframe.parentNode.removeChild(this.iframe);
+            this.iframe = null;
+        }
     }
 
     makePlaneMaterial(...args) {
@@ -31,7 +38,6 @@ export class PortalPawn extends CardPawn {
 
         this.material[0] = new THREE.MeshBasicMaterial({
             blending: THREE.CustomBlending,
-            blendEquation: THREE.AddEquation,
             blendSrc: THREE.ZeroFactor,
             blendDst: THREE.ZeroFactor,
         });
@@ -44,4 +50,14 @@ export class PortalPawn extends CardPawn {
         return [0, 0, 1];
     }
 
+    loadTargetWorld() {
+        const { targetURL } = this._actor._cardData;
+        if (targetURL) {
+            this.iframe = document.createElement("iframe");
+            this.iframe.src = targetURL;
+            this.iframe.style.width = "100%";
+            this.iframe.style.height = "100%";
+            document.body.appendChild(this.iframe);
+        }
+    }
 }

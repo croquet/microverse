@@ -32,7 +32,7 @@ export function init(Model, Constants) {
                     rotation: [0, Math.PI, 0],
                     layers: ['walk'],
                     type: "3d",
-                    dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
+                    // dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
                     singleSided: true,
                     shadow: true,
 
@@ -49,10 +49,10 @@ export function init(Model, Constants) {
                     layers: ['light'],
                     type: "lighting",
                     behaviorModules: ["Light"],
-                    dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
-                    dataType: "jpg",
-                    // dataLocation: "./assets/sky/syferfontein_1d_clear_1k.exr",
-                    // dataType: "exr",
+                    // dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
+                    // dataType: "jpg",
+                    dataLocation: "./assets/sky/syferfontein_1d_clear_1k.exr",
+                    dataType: "exr",
                 }
             },
             {
@@ -71,6 +71,7 @@ export function init(Model, Constants) {
                     height: 2,
                     cornerRadius: 0.05,
                     shadow: true,
+                    targetURL: "?world=default&q=h3x7g3sfvt#pw=uc0HfetkENTP3aaHou-kOQ",
                 }
             },
         ];
