@@ -2,7 +2,7 @@ import { Model, Constants } from "@croquet/worldcore";
 import { startWorld, basenames } from "./root.js";
 
 let {basedir, basename} = basenames();
-eval(`import("${basedir}${basename}.js")`)
+eval(`import("${basedir}worlds/${basename}.js")`)
 // use bit-identical math for constant initialization
     .then((module) => Model.evaluate(() => module.init(Constants)))
     .then(() => eval(`import('${basedir}apiKey.js')`))

@@ -60,7 +60,7 @@ const config = {
                 { from: 'assets/images/{Colony,ball,earthbase}.png'},
                 { from: 'assets/images/earthshadow.jpg', to: 'assets/images/earthshadow.jpg'},
                 { from: 'assets/sky/**/*'},
-                { from: 'assets/videos/fromPCtoHMD.mp4', to: 'assets/videos/fromPCtoHMD.mp4'},
+                { from: 'worlds/*.js'}
             ]
         }),
         new CopyPlugin({
@@ -68,8 +68,6 @@ const config = {
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}
                 },
-                { from: 'default.js', to: 'default.js' },
-                { from: 'test.js', to: 'test.js' },
                 { from: path.resolve(__dirname, "staging")},
             ]
         }),

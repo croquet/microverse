@@ -1,4 +1,4 @@
-# Installation Guide for Croquet Microverse (April 5th, 2022)
+# Installation Guide for Croquet Microverse (April 14th, 2022)
 
 ## 1. Clone this repo
 
@@ -21,3 +21,10 @@ After launching Microverse by visiting http://localhost:9684 in Chrome bring up 
 
 ## 7. Edit or add a new file
 You can simply add a new file in the watched directory (by default `behaviors/default/`), and if the file follows the structure of other files, it will become automatically available.
+
+## 8. Make a new world file
+You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way).  If you start microverse with ?world=fileBaseName, the file at `worlds/fileBaseName.js` is used to start the world.
+
+## 9. Note on the persistence
+The system stores the "persistent data" once about 60 seconds if there was some activity. When you edit your behavior code, or update the system, Croquets start a fresh session but re-loads contents from the persistent data. One thing to note is that the content in the world file that the world is originally created from is not used to initialize this new session. Consider the world file as the starting point of a world, but editing it does not affect the world since it is created.
+
