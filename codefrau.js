@@ -30,7 +30,7 @@ export function init(Constants) {
                 rotation: [0, Math.PI, 0],
                 layers: ['walk'],
                 type: "3d",
-                // dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
+                dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
                 singleSided: true,
                 shadow: true,
 
@@ -57,7 +57,7 @@ export function init(Constants) {
             card: {
                 name: 'portal',
                 className: "PortalActor",
-                translation: [0, -1, -3],
+                translation: [0, 0, 0],
                 rotation: [0, 0, 0],
                 depth: 0.05,
                 type: "2d",
@@ -65,8 +65,8 @@ export function init(Constants) {
                 // textureLocation: './assets/images/earthbase.png',
                 color: 0xFF66CC,
                 frameColor: frameColor,
-                width: 2,
-                height: 2,
+                width: 20,
+                height: 20,
                 cornerRadius: 0.05,
                 shadow: true,
                 targetURL: "?world=default&q=h3x7g3sfvt#pw=uc0HfetkENTP3aaHou-kOQ",

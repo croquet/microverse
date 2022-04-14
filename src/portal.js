@@ -20,12 +20,14 @@ export class PortalPawn extends CardPawn {
         // create checkerboard pattern for portal testing
         document.body.style.background = "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 100px 100px";
 
+        this.targetMatrix = new THREE.Matrix4();
+        this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
     }
 
     destroy() {
-        if (this.iframe && this.iframe.parentNode) {
-            this.iframe.parentNode.removeChild(this.iframe);
+        if (this.iframe) {
+            if (this.iframe.parentNode) this.iframe.parentNode.removeChild(this.iframe);
             this.iframe = null;
         }
     }
@@ -50,14 +52,30 @@ export class PortalPawn extends CardPawn {
         return [0, 0, 1];
     }
 
+    update() {
+        super.update();
+        this.targetMatrix.copy(this.renderObject.matrixWorld);
+        this.targetMatrix.invert();
+        this.targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
+        if (!this.targetMatrixBefore.equals(this.targetMatrix)) {
+            this.sendToIframe({message: "croquet:microverse:portal-camera-matrix", value: this.targetMatrix.elements});
+            this.targetMatrixBefore.copy(this.targetMatrix);
+        }
+    }
+
     loadTargetWorld() {
         const { targetURL } = this._actor._cardData;
-        if (targetURL) {
+        if (!this.iframe) {
+            // create inner-world iframe
             this.iframe = document.createElement("iframe");
-            this.iframe.src = targetURL;
             this.iframe.style.width = "100%";
             this.iframe.style.height = "100%";
             document.body.appendChild(this.iframe);
         }
+        this.iframe.src = targetURL;
+    }
+
+    sendToIframe(data) {
+        this.iframe.contentWindow.postMessage(data, "*");
     }
 }

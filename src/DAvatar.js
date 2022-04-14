@@ -368,6 +368,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     });
                 });
             });
+
+            this.cameraListener = e => {
+                if (e.source === window.parent && e.data.message === "croquet:microverse:portal-camera-matrix") {
+                    this.portalCameraMatrix = e.data.value;
+                    if (this.renderObject) this.renderObject.visible = false;
+                }
+            }
+            window.addEventListener("message", this.cameraListener);
         }
         this.constructVisual();
     }
@@ -452,6 +460,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
         avatarManager.delete(this); // delete from the avatarManager
+        window.removeEventListener("message", this.cameraListener);
         super.destroy();
     }
 
@@ -489,6 +498,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
         this.refreshCameraTransform();
         this.lastTranslation = this.translation;
+    }
+
+    refreshCameraTransform() {
+        if (this.portalCameraMatrix) {
+            const render = this.service("ThreeRenderManager");
+            render.camera.matrix.fromArray(this.portalCameraMatrix);
+            render.camera.matrixWorldNeedsUpdate = true;
+        } else super.refreshCameraTransform();
     }
 
     findFloor(move){
