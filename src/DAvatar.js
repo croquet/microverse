@@ -486,6 +486,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let t = this._translation;
             this._translation = [t[0], this.floor, t[2]];
         }
+        this.refreshCameraTransform();
 
         if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
         this.lastUpdateTime = time;
@@ -496,7 +497,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         }
 
-        this.refreshCameraTransform();
         this.lastTranslation = this.translation;
     }
 
