@@ -20,9 +20,6 @@ export class PortalPawn extends CardPawn {
         // create checkerboard pattern for portal testing
         document.body.style.background = "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 100px 100px";
 
-        // show UI in this frame
-        document.getElementById("hud").classList.add("current-world");
-
         this.loadTargetWorld();
     }
 

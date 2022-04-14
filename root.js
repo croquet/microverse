@@ -338,6 +338,14 @@ class MyViewRoot extends ViewRoot {
     }
 }
 
+function inIframe() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
 export function startWorld(appParameters) {
     // appParameters are loaded from apiKey.js (see index.js)
     // and typically provide apiKey and appId
@@ -364,6 +372,7 @@ export function startWorld(appParameters) {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             StartWorldcore(sessionParameters);
+            document.getElementById("hud").classList.toggle("current-world", !inIframe());
         }).then(() => {
             let {basedir} = basenames();
             return fetch(`${basedir}meta/version.txt`);
