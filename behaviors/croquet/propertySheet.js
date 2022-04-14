@@ -72,6 +72,26 @@ class PropertySheetPawn {
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.04);
         this.shape.add(this.back);
+
+        this.addEventListener("pointerMove", "pointerMove");
+    }
+
+    pointerMove(evt) {
+        if (!evt.xyz) {return;}
+        if (!this.downInfo) {return;}
+        let vec = new Worldcore.THREE.Vector3(...evt.xyz);
+        let pInv = this.renderObject.matrixWorld.clone().invert();
+        vec = vec.applyMatrix4(pInv);
+
+        let origDownPoint = this.downInfo.downPosition;
+        let origTranslation = this.downInfo.childTranslation;
+
+        let deltaX = vec.x - origDownPoint.x;
+        let deltaY = vec.y - origDownPoint.y;
+
+        this.downInfo.child.say("setTranslation", [origTranslation[0] + deltaX, origTranslation[1] + deltaY, origTranslation[2]]);
+        console.log("move", deltaX, deltaY);
+        // console.log(this.downInfo, pVec2);
     }
 }
 
@@ -96,8 +116,8 @@ class PropertySheetWindowActor {
         return [this._cardData.extent[0] / 2 - (0.022), this._cardData.extent[1] / 2 - (0.022), 0.031];
     }
 
-    dismissWindow(id) {
-        console.log("dismissWindow", id, this.id);
+    dismissWindow(_id) {
+        this.destroy();
     }
 
     setObject() {console.log("set object");}
@@ -130,52 +150,46 @@ class PropertySheetWindowPawn {
         this.shape.add(this.back);
 
         this.addEventListener("pointerDown", "pointerDown");
-        this.addEventListener("pointerMove", "pointerMove");
+        // this.addEventListener("pointerMove", "pointerMove");
         this.addEventListener("pointerUp", "pointerUp");
-
     }
 
     pointerDown(evt) {
         if (!evt.xyz) {return;}
         let vec = new Worldcore.THREE.Vector3(...evt.xyz);
         let inv = this.renderObject.matrixWorld.clone().invert();
-        let vec2 = vec.applyMatrix4(inv);
+        vec = vec.applyMatrix4(inv);
 
         let extent = this.actor._cardData.extent;
-
         let edge = {};
 
-        if (vec2.x < -(extent[0] / 2) + 0.01) {edge.x = "left";}
-        if (vec2.x > (extent[0] / 2) - 0.01) {edge.x = "right";}
-        if (vec2.y < -(extent[1] / 2) + 0.01) {edge.y = "bottom";}
-        if (vec2.y > (extent[1] / 2) - 0.01) {edge.y = "top";}
+        if (vec.x < -(extent[0] / 2) + 0.01) {edge.x = "left";}
+        if (vec.x > (extent[0] / 2) - 0.01) {edge.x = "right";}
+        if (vec.y < -(extent[1] / 2) + 0.01) {edge.y = "bottom";}
+        if (vec.y > (extent[1] / 2) - 0.01) {edge.y = "top";}
 
-        this.downInfo = {...edge, position: vec2};
-    }
-
-    pointerMove(evt) {
-        if (!evt.xyz) {return;}
-        let vec = new Worldcore.THREE.Vector3(...evt.xyz);
-        let inv = this.renderObject.matrixWorld.clone().invert();
-        let vec2 = vec.applyMatrix4(inv);
-
-        let origDownPoint = this.downInfo.position;
-
-        console.log(origDownPoint);
-        let deltaX = vec2.x - origDownPoint.x;
-        let deltaY = vec2.y - origDownPoint.y;
-
-        console.log("move", deltaX, deltaY);
+        if (!edge.x && !edge.y) {return;}
         
-        
-        if (this.downInfo) {
-            if (this.downInfo.x === "left") {
-            }
+        let parent = this._parent;
+        let vec2 = new Worldcore.THREE.Vector3(...evt.xyz);
+        let pInv = parent.renderObject.matrixWorld.clone().invert();
+        vec2 = vec2.applyMatrix4(pInv);
+
+        let downInfo = {...edge, child: this, childTranslation: this._translation, downPosition: vec2};
+        this._parent.downInfo = downInfo
+
+        this.didSetDownInfo = true;
+
+        let avatar = this.service("PawnManager").get(evt.pointerId);
+        if (avatar) {
+            avatar.pointerCapture(this._parent);
         }
     }
 
-    pointerUp(p3d) {
-        console.log("up", p3d);
+    pointerUp() {
+        if (this.didSetDownInfo && this._parent) {
+            delete this._parent.downInfo;
+        }
     }
 }
 
@@ -215,7 +229,7 @@ class PropertySheetDismissPawn {
         this.shape.add(this.back);
     }
 
-    tap(p3d) {
+    tap(_p3d) {
         this.publish(this.actor.id, "dismiss", this.actor.parent.id);
     }
 }
@@ -258,7 +272,7 @@ class PropertySheetWindowBarPawn {
         this.shape.add(this.back);
     }
 
-    tap(p3d) {
+    tap(_p3d) {
         this.publish(this.actor.id, "dismiss", this.actor.parent.id);
     }
 

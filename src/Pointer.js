@@ -406,6 +406,10 @@ export const PM_Pointer = superclass => class extends superclass {
         }
     }
 
+    pointerCapture(toPawn) {
+        this.focusPawn = toPawn;
+    }
+
     doPointerUp(e) {
         this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerUp"));
