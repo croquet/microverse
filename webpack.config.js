@@ -10,8 +10,8 @@ const config = {
     },
     output: {
         path: path.join(__dirname, 'dist'),
-        filename: '[name]-[contenthash:8].js',
-        chunkFilename: 'chunk-[name]-[contenthash:8].js',
+        filename: 'lib/[name]-[contenthash:8].js',
+        chunkFilename: 'lib/chunk-[name]-[contenthash:8].js',
         clean: true
     },
     resolve: {
@@ -37,15 +37,10 @@ const config = {
                 type: 'asset/resource',
             },
             {
-                test: /\.js$/,
-                enforce: "pre",
-                use: ["source-map-loader"],
-            },
-            {
                 test: /\.wasm$/,
                 type: 'asset/resource',
                 generator: {
-                    outputPath: "wasm/"
+                    outputPath: "lib/"
                 }
             },
         ]
@@ -70,15 +65,11 @@ const config = {
                 { from: 'assets/images/{Colony,ball,earthbase}.png'},
                 { from: 'assets/images/earthshadow.jpg', to: 'assets/images/earthshadow.jpg'},
                 { from: 'assets/sky/**/*'},
-                { from: 'worlds/*.js'}
-            ]
-        }),
-        new CopyPlugin({
-            patterns: [
+                { from: 'worlds/*.js'},
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}
                 },
-                { from: 'apiKey.js', to: 'apiKey.js' },
+                { from: path.resolve(__dirname, "staging")}
             ]
         }),
     ],
@@ -91,7 +82,8 @@ module.exports = (env, argv) => {
             minimizer: [
                 new TerserPlugin({
                     minify: (file) => {
-                        if (!Object.keys(file)[0].startsWith("index-")) {
+                        console.log(Object.keys(file));
+                        if (!Object.keys(file)[0].startsWith("lib/")) {
                             return {code: file[Object.keys(file)[0]]};
                         }
                         // https://github.com/mishoo/UglifyJS2#minify-options
@@ -100,20 +92,28 @@ module.exports = (env, argv) => {
                             keep_fnames: true
                         };
 
-                        console.log("minify");
+                        console.log("minify", Object.keys(file));
 
                         return require("uglify-js").minify(file, uglifyJsOptions)
                     },
                 })
             ]
         };
+    } else {
+        config.module.rules.push({
+            test: /\.js$/,
+            enforce: "pre",
+            use: ["source-map-loader"],
+        });
+        config.plugins.push(
+            new CopyPlugin({
+                patterns: [
+                    { from: 'apiKey.js', to: 'apiKey.js' }
+                ]
+            })
+        );
     }
-
-    config.plugins.push(new webpack.DefinePlugin({
-        ASSET_DIRECTORY: JSON.stringify(argv.mode === "production" ? "." : "..")
-    }));
-
     return config;
-}
+};
 
 /* globals require __dirname module */

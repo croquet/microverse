@@ -8,5 +8,5 @@ then
     exit 1;
 fi
 
-cat npm/index.html | sed  's:<script.*index.*\.js.*<\/script>:<script defer src="lib/index.js"><\/script>:' > ${DIST}/index.html
+cat dist/index.html | sed  's:<script.*index.*\.js.*<\/script>:<script defer src="lib/index.js"><\/script>:' > ${DIST}/index.html
 mv  ${DIST}/lib/index-*.js ${DIST}/lib/index.js
