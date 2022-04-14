@@ -16,7 +16,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "lights.js"
+        "lights.js", "spin.js"
     ];
 
     const frameColor = 0xFF0000;
@@ -61,6 +61,8 @@ export function init(Constants) {
                 rotation: [0, 0, 0],
                 depth: 0.05,
                 type: "2d",
+                layers: ['pointer'],
+                behaviorModules: ["Spin"],
                 // textureType: "image",
                 // textureLocation: './assets/images/earthbase.png',
                 color: 0xFF66CC,
