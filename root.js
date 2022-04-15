@@ -76,7 +76,7 @@ export function basenames() {
 function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
-
+    if (!paths || !directory) {return;}
     let {basedir, _pathname} = basenames();
 
     if (!directory) {

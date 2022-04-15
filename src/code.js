@@ -1004,6 +1004,13 @@ export class CodeLibrary {
         }
     }
 
+    addModules(map) {
+        if (!map) {return;}
+        for (let [k, v] of map) {
+            this.modules.set(k, v);
+        }
+    }
+
     get(path) {
         return this.modules.get(path);
     }
