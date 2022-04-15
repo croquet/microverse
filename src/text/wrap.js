@@ -73,7 +73,7 @@ class MSDFFontRegistry {
         return layout;
     }
 
-    measureText(word, font, size) {
+    measureText(word, font, _size) {
         let layout = this.layouts.get(font);
         if (layout) {
             return layout.measureText(word.text);

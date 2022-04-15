@@ -153,7 +153,7 @@ export class FontModelManager extends ModelService {
 
         data.array.push(buf);
     }
-                
+
     fontLoadDone(key) {
         let data = this.loading.get(key);
         if (!data) {
@@ -312,7 +312,7 @@ export class TextFieldActor extends CardActor {
         // ]);
 
         this.content = {runs: [], selections: {}, undoStacks: {}, timezone: 0, queue: [], editable: true};
-        
+
         if (!options.textScale) {
             options.textScale =  TS;
         }
@@ -395,7 +395,7 @@ export class TextFieldActor extends CardActor {
     }
 
     receiveEditEvents(events) {
-        let [timezone, hasDone] = this.doc.receiveEditEvents(events, this.content, this.doc);
+        let [_timezone, hasDone] = this.doc.receiveEditEvents(events, this.content, this.doc);
         if (hasDone) {
             this.publishChanged();
         }
@@ -735,7 +735,7 @@ export class TextFieldPawn extends CardPawn {
         if (this.actor._cardData.readOnly) {return;}
         let fm = this.service("KeyFocusManager");
         fm.setKeyboardInput(this);
-        
+
         let cooked = this.cookEvent(evt);
         if (!cooked) {return;}
         this.warota.mouseDown(cooked.x, cooked.y, cooked.y, this.user);
@@ -953,8 +953,8 @@ export class TextFieldPawn extends CardPawn {
         return true;
     }
 
-    paste(evt) {
-        let isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+    paste(_evt) {
+        //let isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
 
         let clipboardAPI = () => {
             if (navigator.clipboard) {
@@ -1135,11 +1135,10 @@ export class TextFieldPawn extends CardPawn {
                     let box = boxes[i];
                     let rect = rects[i];
                     box.visible = false;
-                    
+
                     if (rect) {
                         let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * ts; // ?
                         let top = (height / 2) - (rect.top + rect.height / 2 + 4) * ts;
-                        
                         let rWidth = rect.width * ts; // ?
                         let rHeight = rect.height * ts;
 
@@ -1176,10 +1175,8 @@ export class TextFieldPawn extends CardPawn {
         */
     }
 
-    selectionBeforeRender(renderer, scene, camera, geometry, material, group) {
-        /* 
-
-        
+    selectionBeforeRender(renderer, scene, camera, geometry, material, _group) {
+        /*
         let meterInPixel = this.model.extent.width / 0.01;
         let scrollT = this.warota.scrollTop;
         let docHeight = this.warota.docHeight;
@@ -1246,17 +1243,14 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
 
     updatePosition(x, y, z) {
         if (!this.button || !this.button.geometry) {return;}
-        
         let geometry = this.button.geometry;
         geometry.dispose();
-        
         geometry = new THREE.SphereGeometry(this.radius, 32, 16);
         geometry.translate(x, y, z);
-        
         this.button.geometry = geometry;
     }
 
-    dismiss(evt) {
+    dismiss(_evt) {
         if (this._parent) {
             this._parent.say("dismiss");
         }

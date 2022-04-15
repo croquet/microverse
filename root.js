@@ -371,8 +371,8 @@ export function startWorld(appParameters) {
         }).then(() => {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
-            StartWorldcore(sessionParameters);
             document.getElementById("hud").classList.toggle("current-world", !inIframe());
+            return StartWorldcore(sessionParameters);
         }).then(() => {
             let {basedir} = basenames();
             return fetch(`${basedir}meta/version.txt`);

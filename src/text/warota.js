@@ -1057,7 +1057,7 @@ export class Warota {
         return rects;
     }
 
-    isScrollbarClick(x, y) {
+    isScrollbarClick(x, _y) {
         if (!this.showsScrollbar) {return false;}
         let scrollBarWidth = this.relativeScrollBarWidth * this.pixelX,
             scrollBarLeft = this.pixelX - scrollBarWidth - 3;
@@ -1121,7 +1121,7 @@ export class Warota {
         return null;
     }
 
-    mouseUp(x, y, realY, user) {
+    mouseUp(_x, _y, _realY, _user) {
         if (this.scrollBarClick) {
             if (this.scrollBarClick.type === "clicked") {
                 // click to scroll behavior
