@@ -27,7 +27,7 @@ export class AM_EditCube extends mix(Actor).with(AM_Spatial, Actor_Events){
     }
     onPointerCancel(p3d){
         this.say("doPointerCancel", p3d);
-    }    
+    }
     onPointerMove(p3d){
         this.say("doPointerMove", p3d);
     }
@@ -39,7 +39,7 @@ export class AM_EditCube extends mix(Actor).with(AM_Spatial, Actor_Events){
     };
     onPointerLeave(p3d){
         this.say("doPointerLeave", p3d);
-    }    
+    }
     onPointerWheel(p3d){
         let s = this.scale;
         let w = p3d.wheel < 0?-0.1:0.1;
@@ -95,7 +95,7 @@ class PM_EditCube extends mix(Pawn).with(PM_Spatial, Pawn_Events, PM_ThreeVisibl
         }
         */
     }
-    hilite(color) { 
+    hilite(color) {
         this.cube.material.emissive = new THREE.Color(color);
     }
 }

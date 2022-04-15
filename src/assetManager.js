@@ -55,7 +55,7 @@ export class AssetManager {
                 if (!this.supportedFileTypes.has(type)) {
                     throw new Error("unsupported file type");
                 }
-                
+
                 return {type, file: spec.buffer};
             });
         }
@@ -69,7 +69,7 @@ export class AssetManager {
         if (items.length > 1) {
             console.warn("multiple files or dirs dropped");
         }
-        
+
         const item = items[0];
         const entry = item.getAsEntry ? item.getAsEntry()
             : (item.webkitGetAsEntry ? item.webkitGetAsEntry() : null);
@@ -307,7 +307,7 @@ export class Loader {
         let imgContents = {}; // {[name after slash]: dataURL}
 
         let files = Object.keys(zip.files);
-        
+
         let promises = Object.keys(required).map((req) => {
             let dataType = required[req];
             let file = files.find((name) => name.endsWith(`.${req}`));
@@ -383,7 +383,7 @@ export class Loader {
                 mtlLoader.load(contents.mtl, resolve, null, reject);
             });//.catch((err) => console.log("laoding material failed"));
         }
-                 
+
         const objLoader = new THREE.OBJLoader(manager);
         let obj = await new Promise((resolve, reject) => {
             if (mtl) {
@@ -406,10 +406,10 @@ export class Loader {
                 let c = {"fbx": URL.createObjectURL(new Blob([buffer]))};
                 return Promise.resolve(c);
             }
-                
+
             return this.setupFilesInZip(buffer, {"fbx": "ArrayBuffer"});
         };
-        
+
         let contents = await setupFiles();
 
         const manager = new THREE.LoadingManager();
@@ -574,16 +574,16 @@ export class Loader {
                 let c = {"exr": URL.createObjectURL(new Blob([buffer]))};
                 return Promise.resolve(c);
             }
-                
+
             return this.setupFilesInZip(buffer, {"exr": "ArrayBuffer"});
         };
-        
+
         let contents = await setupFiles();
 
         let obj = new Promise((resolve, reject) => {
             new THREE.EXRLoader().load(contents.exr, resolve, null, reject);
         });
-            
+
         Object.keys(contents).forEach((k) => {
             if (contents[k] && k !== "imgContents") {
                 URL.revokeObjectURL(contents[k]);
@@ -632,7 +632,7 @@ export function normalizeSVG(svgGroup, depth, shadow, three) {
     svgGroup.traverse(obj => {
         if (obj.material) {
             normalizeUV(obj.geometry.attributes.uv.array, obj.geometry.attributes.normal.array, bb);
-            if (shadow) { 
+            if (shadow) {
                 obj.castShadow = true;
                 obj.receiveShadow = true;
             }
@@ -657,7 +657,7 @@ function normalizeUV(uvArray, uvNormal, bb) {
     }
 }
 
-function boundingBox(obj, bigBox, depth) { 
+function boundingBox(obj, bigBox, depth) {
     // this needs to recursively merge the bounding box of all of the objects it contains.
     // computes the boundingBox in LOCAL coordinates.  if there's a parent, temporarily
     // remove from the parent and reset position and orientation.

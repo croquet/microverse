@@ -120,7 +120,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 behaviorManager.viewUnuse(this, oldBehavior);
             }
         });
-        
+
         allNewActorBehaviors.forEach((newBehavior) => {
             if (!allOldActorBehaviors.includes(newBehavior)) {
                 behaviorManager.modelUse(this, newBehavior);
@@ -131,7 +131,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 behaviorManager.viewUse(this, newBehavior);
             }
         });
-                
+
         this._behaviorModules = [...oldSystemModules, ...options.behaviorModules];
     }
 
@@ -327,7 +327,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                     }
 
                     let runs = [{text: behavior ? behavior.code : ""}];
-                    
+
                     options = {...options, ...{
                         isSticky: false,
                         color: 0xFFFFFF,
@@ -356,7 +356,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 if (Array.isArray(card.dataRotation) && card.dataRotation.length === 3) {
                     options.dataRotation = q_euler(...card.dataRotation);
                 }
-                
+
                 let actor = Cls.create(options);
                 if (id) {
                     map.set(id, actor);
@@ -398,7 +398,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if(this.actor._parent !== undefined)this.publish(this.actor._parent.id, message, vars);
         else this.publish(this.actor.id, message, vars);
     }
-    
+
     listenDeck(message, method){
         if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
         else this.subscribe(this.actor.id, message, method);
@@ -456,7 +456,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.removeFromLayers(...toRemove);
         }
         this.addToLayers(this.actor._layers);
-        
+
         delete this.isFlat;
 
         if (this.placeholder) {
@@ -473,7 +473,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.texture.dispose();
             delete this.texture;
         }
-        
+
         if (this.objectURL) {
             URL.revokeObjectURL(this.objectURL);
             delete this.objectURL;
@@ -569,7 +569,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             }
 
             // place this after collider construction
-            // or collider incorporates shape transform            
+            // or collider incorporates shape transform
             this.shape.add(obj);
 
             if (name) {
@@ -607,7 +607,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         // You might want to parallelize the texture data loading and svg data loading by arranging
         // promises cleverly, but this.texture should be set quite early
         // (that is before returning from this method) to have apps like multiblaster function
-        
+
         if (textureType === "video") {
             this.video = document.createElement('video');
             this.video.autoplay = true;
@@ -704,7 +704,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 if (this.texture) {
                     material[0].map = this.texture;
                 }
-                
+
                 this.material = material;
                 let obj = new THREE.Mesh(geometry, material);
                 obj.castShadow = shadow;
@@ -747,7 +747,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         /*
           let visualizer = new TRM.MeshBVHVisualizer( collider, 10 );
           visualizer.visible = true;
-          
+
           this.shape.parent.add(visualizer)
         */
     }
@@ -768,8 +768,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
                     let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                     let exrBackground = exrCubeRenderTarget.texture;
-                    
-                    
+
+
                     let bg = scene.background;
                     let e = scene.environment;
                     scene.background = exrBackground;
@@ -804,7 +804,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let x = - width / 2;
         let y = - height / 2;
         let radius = cornerRadius === undefined ? 0 : cornerRadius;
-        
+
         let shape = new THREE.Shape();
         shape.moveTo(x, y + radius);
         shape.lineTo(x, y + height - radius);
@@ -837,7 +837,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let boundingBox = new THREE.Box3(
             new THREE.Vector3(-width / 2, -height / 2, -depth / 2),
             new THREE.Vector3(width / 2, height / 2, depth / 2));
-        
+
         let uv = geometry.getAttribute('uv');
         normalizeUV(uv.array, boundingBox);
         return geometry;
@@ -886,6 +886,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     cardDataUpdated(data) {
+        if (data.v.targetURL) debugger;
         // it might be independently implemented in a behavior, and independently subscribed
 
         if (this.actor._cardData.type !== "2d") {return;}
@@ -974,7 +975,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.say("setCardData", {color});
     }
 
-    hilite(color) { 
+    hilite(color) {
         //viewRoot.outlinePass.selectedObjects = [this.shape];
         if(!this.actor._fullBright){
             let c = new THREE.Color(color);
@@ -1001,7 +1002,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let size = new THREE.Vector3(0, 0, 0);
         new THREE.Box3().setFromObject(this.renderObject).getSize(size);
         let taspect = size.z / size.y;
-        
+
         let d, h;
         if (taspect < 1) {
             // w = size.y * taspect;
@@ -1011,7 +1012,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             h = size.z / taspect;
         }
 
-        d = (h / 2) / Math.tan(Math.PI * fov / 360); // compute distance from card assuming vertical 
+        d = (h / 2) / Math.tan(Math.PI * fov / 360); // compute distance from card assuming vertical
 
         if (caspect <= taspect) d *= (taspect / caspect); // use width to fit instead
 
@@ -1032,7 +1033,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     dragPlane(rayCaster, p3e){
-        // XYZZY the flamingo does not follow the cursor when dragging in the plane. 
+        // XYZZY the flamingo does not follow the cursor when dragging in the plane.
         if(!this._plane) {
             let normal = p3e.normal || p3e.lookNormal; // normal may not exist
             normal = this.verticalNorm( normal );
@@ -1097,7 +1098,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     listenDeck(message, method) {
         if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
         else this.subscribe(this.actor.id, message, method);
-    }    
+    }
 
     selectEdit(){
         this.say('selectEdit');
@@ -1163,9 +1164,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 let mat;
                 if(Array.isArray(m))mat = m;
                 else mat = [m];
-            
+
                 mat.forEach(m=>{
-                    let c = m.color; 
+                    let c = m.color;
                     if(c && !m._oldColor) { // check for reused color
                         m._oldColor = c;
                         let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;
@@ -1191,9 +1192,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             } else if(obj.geometry) {
                 mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
                 //console.log("removeWire, material",mat);
-                mat.forEach(m=>{ 
+                mat.forEach(m=>{
                     if(m._oldColor) {
-                        m.color = m._oldColor; 
+                        m.color = m._oldColor;
                         m._oldColor = undefined;
                     }
                 });

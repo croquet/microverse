@@ -49,7 +49,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
         super.init(options);
         this.avatarIndex = options.index;
-        
+
         this.fall = true;
         this.tug = 0.05; // minimize effect of unstable wifi
         this.listen("goHome", this.goHome);
@@ -163,12 +163,12 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             }
         });
     }
-    
+
     goToStep(delta, t){
         if(!t)t=delta;
         if(t>=1)t=1;
         let v = v3_lerp(this.vStart, this.vEnd, t);
-        let q = q_slerp(this.qStart, this.qEnd, t );   
+        let q = q_slerp(this.qStart, this.qEnd, t );
         this.set({translation: v, rotation: q})
         if(t<1)this.future(50).goToStep(delta, t+delta);
     }
@@ -180,13 +180,13 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
                 this.moveTo(followMe.translation);
                 this.rotateTo(followMe.rotation);
             }else this.follow = undefined;
-        } 
+        }
         super.tick(delta);
     }
 
     dropPose(distance, optOffset) {
         // compute the position in front of the avatar
-        // optOffset is perpendicular (on the same xz plane) to the lookNormal 
+        // optOffset is perpendicular (on the same xz plane) to the lookNormal
 
         let n = this.lookNormal;
         let t = this.translation;
@@ -325,8 +325,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.capturedPointers = {};
                 this.endMMotion(e);
             };
-                
-            this.hiddenknob = document.getElementById("hiddenknob"); 
+
+            this.hiddenknob = document.getElementById("hiddenknob");
             this.hiddenknob.onpointerdown = (e) => {
                 if (e.pointerId) {
                     this.capturedPointers[e.pointerId] = "hiddenKnob";
@@ -384,7 +384,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     dropPose(distance, optOffset) { // compute the position in front of the avatar
         return this.actor.dropPose(distance, optOffset);
     }
-    
+
     setEditMode(evt) {
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
@@ -442,7 +442,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     n.material = n.material.clone();
                 }
             });
-            
+
             this.addToLayers('avatar');
             model.name = "Avatar";
             this.setRenderObject(model);  // note the extension
@@ -465,7 +465,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         super.destroy();
     }
 
-    get lookGlobal() { 
+    get lookGlobal() {
         if (this.isMyPlayerPawn) {
             return this.walkLook;
         }else return this.global;
@@ -530,7 +530,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     startMMotion( e ){
         e.preventDefault();
-        e.stopPropagation(); 
+        e.stopPropagation();
         this.knobX = e.clientX;
         this.knobY = e.clientY;
         this.say("startMMotion");
@@ -540,7 +540,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     endMMotion( e ){
         e.preventDefault();
-        e.stopPropagation(); 
+        e.stopPropagation();
         this.activeMMotion = false;
         this.vq = undefined;
         this.setVelocitySpin([0, 0, 0],q_identity());
@@ -550,7 +550,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     continueMMotion( e ) {
         e.preventDefault();
-        e.stopPropagation(); 
+        e.stopPropagation();
 
         if( this.activeMMotion ){
             let dx = e.clientX - this.knobX;
@@ -567,7 +567,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
             let ds = dx*dx+dy*dy;
-            if(ds>30*30){ 
+            if(ds>30*30){
                 ds = Math.sqrt(ds);
                 dx = 30*dx/ds;
                 dy = 30*dy/ds;
@@ -603,7 +603,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             default:
                 if(this.ctrlKey){
                     switch(e.key){
-                        case 'a': 
+                        case 'a':
                             console.log("MyAvatar");
                             console.log("translation: ",this.actor.translation);
                             console.log("rotation:", q_pitch(this.actor.rotation),
@@ -709,7 +709,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             if(this.editPawn !== pawn){
                 if(this.editPawn){
                     console.log('doPointerDown clear old editPawn')
-                    this.editPawn.unselectEdit(); 
+                    this.editPawn.unselectEdit();
                     this.editPawn = null;
                     this.editPointerId = null;
                 }
@@ -727,7 +727,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }else{
                 console.log("doPointerDown in editMode")
             }
-        } else {       
+        } else {
             super.doPointerDown(e);
             if(!this.focusPawn){
                 this.dragWorld = this.xy2yp(e.xy);
@@ -738,7 +738,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     doPointerMove(e){
         if(this.editMode){ // pawn is in an edit mode
-            if(this.isPointerDown){ 
+            if(this.isPointerDown){
                 console.log('doPointerMove editMode')
             }
         }else if(this.editPawn){
@@ -775,7 +775,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.editPointerId = null;
             this.p3eDown = null;
             return;
-            
+
         }
         super.doPointerUp(e);
     }
@@ -827,7 +827,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         }
     }
-    
+
     goHome() {
         console.log("goHome")
         this.say("goHome", [[0,0,0], [0,0,0,1]])
@@ -841,13 +841,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     jumpToNote(isShift){
         // collect the notes
         // console.log(this.actor.service('CardManager').cards);
-        // jump to the next one or last 
+        // jump to the next one or last
     }
 
     toggleFullScreen(e) {
         e.stopPropagation();
         e.preventDefault();
-    
+
         if (!document.fullscreenElement) {
             // If the document is not in full screen mode
             // make the document full screen
@@ -882,7 +882,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let array = new TextEncoder().encode(data);
         let ind = 0;
         let key = Math.random();
-        
+
         this.publish(model.id, "loadStart", key);
 
         while (ind < array.length) {
@@ -890,7 +890,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.publish(model.id, "loadOne", {key, buf});
             ind += 4000;
         }
-                
+
         this.publish(model.id, "loadDone", key);
     }
 }

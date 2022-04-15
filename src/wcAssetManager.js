@@ -16,4 +16,4 @@ export class AssetManager extends ViewService {
         super.destroy();
     }
 }
-    
+

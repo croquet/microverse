@@ -67,7 +67,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
             behaviorName = listener.slice(0, dot);
             listener = listener.slice(dot + 1);
         }
-        
+
         let behavior = this._behavior;
 
         if (!moduleName && behavior) {
@@ -471,7 +471,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doKeyUp(e) {
         this.focusTime = this.now();
-        
+
         if (this.focusPawn) {
             this.invokeListeners("keyUp", this.focusPawn, null, e);
         }

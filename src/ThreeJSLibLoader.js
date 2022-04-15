@@ -29,4 +29,4 @@ export function loadThreeJSLib(lib, THREE) {
         document.body.appendChild(script);
     });
 }
-    
+

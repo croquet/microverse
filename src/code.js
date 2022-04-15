@@ -87,7 +87,7 @@ export const AM_Code = superclass => class extends superclass {
         let superFuture = (sel, args) => super.future(time, sel, args);
         let behaviorManager = this.behaviorManager;
         let basicCall = this.call;
-        
+
         return new Proxy(this, {
             get(_target, property) {
                 let behavior = behaviorManager.lookup(moduleName, behaviorName);
@@ -145,7 +145,7 @@ export const AM_Code = superclass => class extends superclass {
         if (typeof listener === "function" && !this[isProxy]) {
             return super.subscribe(scope, eventName, listener);
         }
-        
+
         if (typeof listener === "function") {
             listener = listener.name;
         }
@@ -175,7 +175,7 @@ export const AM_Code = superclass => class extends superclass {
         if (!behaviorName && behavior) {
             behaviorName = behavior.$behaviorName;
         }
-        
+
         let fullMethodName;
         if (!behaviorName) {
             fullMethodName = listener;
@@ -186,7 +186,7 @@ export const AM_Code = superclass => class extends superclass {
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
         let had = this.scriptListeners && this.scriptListeners.get(listenerKey, fullMethodName);
         if (had) {return;}
-        
+
         if (this.scriptListeners) {
             this.scriptListeners.set(listenerKey, fullMethodName);
         }
@@ -222,7 +222,7 @@ export const AM_Code = superclass => class extends superclass {
             actorBehaviors: new Map([...current.actorBehaviors]),
             pawnBehaviors: new Map([...current.pawnBehaviors]),
         };
-                    
+
         let currentBehavior = copy.actorBehaviors.get(behaviorName);
         if (currentBehavior) {
             if (copy.actorBehaviors.get(behaviorName) === data.text) {
@@ -253,7 +253,7 @@ export const AM_Code = superclass => class extends superclass {
 
         // oh, boy
         let rcvr = this[isProxy] ? this._target : this;
-            
+
         return rcvr.constructor.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
     }
 }
@@ -302,7 +302,7 @@ export const PM_Code = superclass => class extends superclass {
         if (!moduleName && this[isProxy]) {
             moduleName = this._behavior.module.externalName;
         }
-        
+
         let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
             throw new Error(`epxander named ${behaviorName} not found`);
@@ -341,7 +341,7 @@ export const PM_Code = superclass => class extends superclass {
         // name for a base object method
         // name for an expander method
         // string with "." for this module, a behavior and method name
-        // // string with "$" and "." for external name of module, a behavior name, method name        
+        // // string with "$" and "." for external name of module, a behavior name, method name
 
         if (typeof listener === "function" && !this[isProxy]) {
             return super.subscribe(scope, subscription, listener);
@@ -355,7 +355,7 @@ export const PM_Code = superclass => class extends superclass {
             eventName = subscription.event;
             handling = subscription.handling;
         }
-        
+
         let behaviorName;
         let moduleName;
 
@@ -371,7 +371,7 @@ export const PM_Code = superclass => class extends superclass {
             behaviorName = listener.slice(0, dot);
             listener = listener.slice(dot + 1);
         }
-        
+
         let behavior = this._behavior;
 
         if (!moduleName && behavior) {
@@ -412,7 +412,7 @@ export const PM_Code = superclass => class extends superclass {
             super.subscribe(scope, eventName, fullMethodName);
         }
     }
-        
+
     update(time, delta) {
         if (this.updateRequests) {
             this.updateRequests.forEach((u) => {
@@ -429,7 +429,7 @@ export const PM_Code = superclass => class extends superclass {
                 return;
             }
         };
-        
+
         if (!this.updateRequests) {this.updateRequests = [];}
         if (has(this.updateRequests, array)) {return;}
         this.updateRequests.push(array);
@@ -450,8 +450,8 @@ class ScriptingBehavior extends Model {
         // this still is about per behavior.
         // The upper level of code would replace 'export' with 'return',
         // and then it can get the returned object.
-        
-        
+
+
         if (!string) {
             console.log("code is empty for ", this);
             return;
@@ -567,7 +567,7 @@ export class BehaviorModelManager extends ModelService {
         if (current.filePath === filePath) {
             return name;
         }
-        
+
         let match = /([^0-9]+)([0-9]*)/.exec(name);
         let stem = match[1];
         let suffix = match[2];
@@ -577,7 +577,7 @@ export class BehaviorModelManager extends ModelService {
         } else {
             suffix = parseInt(suffix, 10);
         }
-        
+
         while (true) {
             let newName = stem + (++suffix);
             if (!this.moduleDefs.get(newName)) {
@@ -613,7 +613,7 @@ export class BehaviorModelManager extends ModelService {
         if (this.key !== key) {
             return;
         }
-        
+
         let array = this.loadCache;
         this.loadCache = [];
         this.key = null;
@@ -667,7 +667,7 @@ export class BehaviorModelManager extends ModelService {
                     module = ScriptingModule.create({name: def.name, systemModule: def.systemModule, filePath: filePath});
                 }
                 module.externalName = name;
-                
+
                 ["actorBehaviors", "pawnBehaviors"].forEach((behaviorType) => {
                     if (moduleDef[behaviorType]) {
                         let map = moduleDef[behaviorType];
@@ -746,7 +746,7 @@ export class BehaviorModelManager extends ModelService {
         let filtered = [...this.moduleDefs].filter(([_key, value]) => !value.systemModule);
         return new Map([...filtered]);
     }
-            
+
     modelUse(model, behavior) {
         let modelId = model.id;
         let array = this.modelUses.get(behavior);
@@ -937,7 +937,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 let string = JSON.stringify(sendBuffer);
                 let array = new TextEncoder().encode(string);
                 let ind = 0;
-                
+
                 this.publish(this.model.id, "loadStart", key);
 
                 while (ind < array.length) {
@@ -945,7 +945,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                     this.publish(this.model.id, "loadOne", {key, buf});
                     ind += 4000;
                 }
-                
+
                 this.publish(this.model.id, "loadDone", key);
             }
         });

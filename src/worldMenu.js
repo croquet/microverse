@@ -110,7 +110,7 @@ function toggleMenu(myAvatar, qrCanvas) {
     div.onclick = () => connectPressed(myAvatar);
 
     document.body.appendChild(worldMenu);
-    
+
     return worldMenu;
 }
 

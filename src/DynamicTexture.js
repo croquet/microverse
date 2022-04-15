@@ -286,7 +286,7 @@ export class DynamicTexture{
         this.texture.needsUpdate = true;
     }
 
-    // image is an HTMLImageElement 
+    // image is an HTMLImageElement
     // let img = new Image();
     // img.src = "./assets/svg/CroquetSymbol_CMYK_NoShadow.svg";
     // dynamic.drawImage(10,10, img);

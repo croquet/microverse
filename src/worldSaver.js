@@ -29,7 +29,7 @@ export class WorldSaver {
         }
         let sortedMap = this.topologicalSort(cards);
         let resultArray = this.collectData(sortedMap);
-        
+
         let behaviorModules = model.service("BehaviorModelManager").save();
 
         return {behaviorModules, cards: resultArray};
@@ -54,7 +54,7 @@ export class WorldSaver {
         }
         return result;
     }
-    
+
     collectData(cardsMap) {
         let result = [];
         for (let [_id, actor] of cardsMap) {
