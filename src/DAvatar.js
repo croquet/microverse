@@ -370,8 +370,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             });
 
             this.cameraListener = e => {
-                if (e.source === window.parent && e.data.message === "croquet:microverse:portal-camera-matrix") {
-                    this.portalCameraMatrix = e.data.value;
+                if (e.source === window.parent && e.data.message === "croquet:microverse:portal") {
+                    const { cameraMatrix } = e.data;
+                    if (cameraMatrix) this.portalCameraMatrix = cameraMatrix;
                     if (this.renderObject) this.renderObject.visible = false;
                 }
             }

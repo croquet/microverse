@@ -61,9 +61,19 @@ export class PortalPawn extends CardPawn {
         this.targetMatrix.invert();
         this.targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
         if (!this.targetMatrixBefore.equals(this.targetMatrix)) {
-            this.sendToIframe({message: "croquet:microverse:portal-camera-matrix", value: this.targetMatrix.elements});
+            this.sendToIframe({message: "croquet:microverse:portal", cameraMatrix: this.targetMatrix.elements});
             this.targetMatrixBefore.copy(this.targetMatrix);
         }
+    }
+
+    updateShape(options) {
+        super.updateShape(options);
+        this.loadTargetWorld();
+    }
+
+    cardDataUpdated(data) {
+        super.cardDataUpdated(data);
+        this.loadTargetWorld();
     }
 
     loadTargetWorld() {
