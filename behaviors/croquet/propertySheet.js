@@ -52,7 +52,7 @@ class PropertySheetActor {
     setObject(target) {
         console.log("setObject");
         this.target = target;
-        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.1, y: 0.1});
+        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.1, y: 0.7});
 
         this.behaviorMenu = this.createCard({
             name: 'behavior menu',
@@ -67,11 +67,120 @@ class PropertySheetActor {
 
         this.subscribe(this.behaviorMenu.id, "extentChanged", "menuExtentChanged")
         this.behaviorMenu.call("BehaviorMenu$BehaviorMenuActor", "show");
+
+        this.cardSpecWindow = this.newWindow({x: 1.9, y: 1}, {x:  0, y: -0.6});
+
+        this.cardSpec = this.createCard({
+            className: "TextFieldActor",
+            name: 'card spec',
+            translation: [0, 0, 0.025],
+            parent: this.cardSpecWindow,
+            type: "text",
+            multiuser: true,
+            margins: {left: 8, top: 8, right: 8, bottom: 8},
+            textScale: 0.0014,
+            backgroundColor: 0xffffff,
+            width: 1.9 - 0.04,
+            height: 1 - 0.04,
+            depth: 0.002,
+            autoResize: false,
+            noDismissButton: true,
+            borderRadius: 0.013,
+            fullBright: true,
+            runs: [{text: ""}],
+            noSave: true,
+        });
+
+        let cardDataString = this.cardSpecString(target);
+        this.cardSpec.loadAndReset(cardDataString);
+        this.subscribe(this.cardSpec.id, "text", "cardSpecAccept");
+        this.listen("dismiss", "dismiss");
     }
 
     menuExtentChanged(data) {
         if (this.menuWindow) {
-            this.menuWindow.setCardData({width: data.x + 0.2, height: data.y + 0.2});
+            this.menuWindow.setCardData({width: data.x + 0.05, height: data.y + 0.05});
+        }
+    }
+
+    cardSpecString(target) {
+        let data = target.collectCardData();
+        let intrinsic = this.intrinsicProperties();
+
+        let result = [];
+        
+        // okay! risking to be over engineering, I'll make the display nicer.
+
+        intrinsic.forEach((p) => {
+            let value = data[p];
+            if (value === undefined) {return;}
+            result.push("    ");
+            result.push(p);
+            result.push(": ");
+            result.push(this.specValue(p, value));
+            result.push(",\n");
+        });
+
+        let keys = Object.keys(data);
+        keys.sort();
+        keys.forEach((p) => {
+            if (intrinsic.includes(p)) {return;}
+            let value = data[p];
+            result.push("    ");
+            result.push(p);
+            result.push(": ");
+            result.push(this.specValue(p, value));
+            result.push(",\n");
+        });
+
+        return result.join('');
+    }
+
+    specValue(p, value) {
+        if (Array.isArray(value)) {
+            let frags = value.map((v) => JSON.stringify(v));
+            return `[${frags.join(', ')}]`;
+        }
+
+        return JSON.stringify(value);
+    }
+
+    cardSpecAccept(data) {
+        let {text} = data;
+
+        let array = text.split('\n');
+        let simpleRE = /^[ \t]*([^:]+)[ \t]*:[ \t]*(.*)$/;
+        
+        let spec = {};
+
+        let something = false;
+
+        array.forEach((line) => {
+            let match = simpleRE.exec(line);
+            if (match) {
+                something = true;
+                let key = match[1];
+                let value = match[2];
+                if (value && value.endsWith(",")) {
+                    value = value.slice(0, value.length - 1);
+                }
+                try {
+                    value = JSON.parse(value);
+                } catch(e) {
+                    console.log(e);
+                }
+                if (key === "rotation" || key === "dataRotation") {
+                    if (Array.isArray(value) && value.length === 3) {
+                        value = Worldcore.q_euler(...value);
+                    }
+                }
+                spec[key] = value;
+            }
+        });
+        
+        if (!something) {return;}
+        if (!this.target.doomed) {
+            this.target.updateOptions(spec);
         }
     }
 }
@@ -120,7 +229,6 @@ class PropertySheetPawn {
         let deltaY = vec.y - origDownPoint.y;
 
         this.downInfo.child.say("setTranslation", [origTranslation[0] + deltaX, origTranslation[1] + deltaY, origTranslation[2]]);
-        console.log("move", deltaX, deltaY);
         // console.log(this.downInfo, pVec2);
     }
 }
@@ -143,7 +251,7 @@ class PropertySheetWindowActor {
     }
 
     dismissButtonPosition() {
-        return [this._cardData.width / 2 - (0.042), this._cardData.height / 2 - (0.042), 0.031];
+        return [this._cardData.width / 2 - (0.062), this._cardData.height / 2 - (0.062), 0.031];
     }
 
     dismissWindow(_id) {
@@ -199,10 +307,10 @@ class PropertySheetWindowPawn {
         let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
         let edge = {};
 
-        if (vec.x < -(extent.x / 2) + 0.01) {edge.x = "left";}
-        if (vec.x > (extent.x / 2) - 0.01) {edge.x = "right";}
-        if (vec.y < -(extent.y / 2) + 0.01) {edge.y = "bottom";}
-        if (vec.y > (extent.y / 2) - 0.01) {edge.y = "top";}
+        if (vec.x < -(extent.x / 2) + 0.02) {edge.x = "left";}
+        if (vec.x > (extent.x / 2) - 0.02) {edge.x = "right";}
+        if (vec.y < -(extent.y / 2) + 0.02) {edge.y = "bottom";}
+        if (vec.y > (extent.y / 2) - 0.02) {edge.y = "top";}
 
         if (!edge.x && !edge.y) {return;}
         
@@ -243,17 +351,17 @@ class PropertySheetDismissPawn {
             this.shape.children = [];
         }
 
-        let backGeometry = new Worldcore.THREE.BoxGeometry(0.04, 0.04, 0.00001);
+        let backGeometry = new Worldcore.THREE.BoxGeometry(0.08, 0.08, 0.00001);
         let backMaterial = new Worldcore.THREE.MeshStandardMaterial({
-            color: 0x882222,
+            color: 0xcccccc,
             side: Worldcore.THREE.DoubleSide
         });
 
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         
-        let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.04, 0.01, 0.001);
+        let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.07, 0.02, 0.001);
         let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
-            color: 0x000000,
+            color: 0x222222,
             side: Worldcore.THREE.DoubleSide
         });
 
@@ -311,7 +419,61 @@ class PropertySheetWindowBarPawn {
     tap(_p3d) {
         this.publish(this.actor.id, "dismiss", this.actor.parent.id);
     }
+}
 
+class BehaviorMenuActor {
+    show() {
+        if (this.menu) {
+            this.menu.destroy();
+        }
+
+        this.menu = this.createCard({
+            name: 'behavior menu',
+            behaviorModules: ["Menu"],
+            multiple: true,
+            parent: this,
+            type: "2d",
+            noSave: true,
+            depth: 0.01,
+            cornerRadius: 0.05,
+        });
+
+        this.subscribe(this.menu.id, "itemsUpdated", "itemsUpdated");
+        this.updateSelections();
+
+        this.listen("fire", "setBehaviors");
+        this.subscribe(this._cardData.target, "behaviorUpdated", "updateSelections");
+    }
+
+    updateSelections() {
+        console.log("updateSelections");
+        let target = this.service("ActorManager").get(this._cardData.target);
+        let items = [];
+
+        let behaviorModules = [...this.behaviorManager.modules].filter(([_key, value]) => {
+            return !value.systemModule;
+        });
+
+        behaviorModules.forEach(([k, _v]) => {
+            let selected = target._behaviorModules && target._behaviorModules.indexOf(k) >= 0;
+            let obj = {label: k, selected};
+            items.push(obj);
+        });
+
+        items.push({label: '------------'});
+        items.push({label: 'apply'});
+        this.menu.call("Menu$MenuActor", "setItems", items);
+    }
+
+    setBehaviors(data) {
+        console.log("setBehaviors");
+        let target = this.service("ActorManager").get(this._cardData.target);
+        target.setBehaviors(data.selection);
+    }
+
+    itemsUpdated() {
+        this.publish(this.id, "extentChanged", {x: this.menu._cardData.width, y: this.menu._cardData.height});
+    }
 }
 
 export default {
@@ -336,6 +498,10 @@ export default {
             actorBehaviors: [PropertySheetWindowBarActor],
             pawnBehaviors: [PropertySheetWindowBarPawn]
         },
+        {
+            name: "BehaviorMenu",
+            actorBehaviors: [BehaviorMenuActor]
+        }
     ]
 }
 /*globals Worldcore */

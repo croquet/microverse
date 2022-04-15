@@ -79,7 +79,7 @@ class MenuActor {
             height: this.maxHeight,
             depth: 0.05,
             color: 0xFFFFFF,
-            frameColor: 0x666666,
+            frameColor: 0xcccccc,
             fullBright: true,
         });
 

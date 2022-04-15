@@ -21,6 +21,9 @@ function savePressed(myAvatar) {
     div.setAttribute("href", dataStr);
     div.setAttribute("download", "scene.json");
     div.click();
+    if (worldMenu) {
+        toggleMenu();
+    }
 }
 
 function loadPressed(myAvatar) {
@@ -46,11 +49,17 @@ function loadPressed(myAvatar) {
     document.body.appendChild(imageInput);
 
     imageInput.click();
+    if (worldMenu) {
+        toggleMenu();
+    }
     console.log("load");
 }
 
 function connectPressed() {
     window.BehaviorViewManager.setURL("ws://localhost:9011");
+    if (worldMenu) {
+        toggleMenu();
+    }
 }
 
 function toggleMenu(myAvatar, qrCanvas) {
