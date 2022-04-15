@@ -22,11 +22,13 @@ export function init(Constants) {
     // const frameColor = 0x888888;
 
     const bases = [
-        [11.207345981534683, -5.141350571398242, -6.413481898133387],
-        [-10.867698837007556, -5.141350571398242, -6.413481898133387],
-        [11.207345981534683, -5.141350571398242, -28.502123344566474],
-        [-10.867698837007556, -5.141350571398242, -28.502123344566474],
+        [11.21, -5.18, -6.43],
+        [-10.84, -5.18, -6.43],
+        [11.21, -5.18, -28.50],
+        [-10.84, -5.18, -28.50],
     ];
+
+    const kioskScale = [49, 49, 49];
 
     Constants.DefaultCards = [
         {
@@ -63,7 +65,7 @@ export function init(Constants) {
             return [{
                 card: {
                     translation: tr,
-                    scale: [33, 33, 33],
+                    scale: kioskScale,
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_base ${i}`,
@@ -77,7 +79,7 @@ export function init(Constants) {
             }, {
                 card: {
                     translation: tr,
-                    scale: [33, 33, 33],
+                    scale: kioskScale,
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_screen_1 ${i}`,
@@ -91,7 +93,7 @@ export function init(Constants) {
             }, {
                 card: {
                     translation: tr,
-                    scale: [33, 33, 33],
+                    scale: kioskScale,
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_screen_2 ${i}`,
@@ -105,7 +107,7 @@ export function init(Constants) {
             }, {
                 card: {
                     translation: tr,
-                    scale: [33, 33, 33],
+                    scale: kioskScale,
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_screen_3 ${i}`,
