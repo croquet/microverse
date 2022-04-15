@@ -21,6 +21,13 @@ export function init(Constants) {
 
     // const frameColor = 0x888888;
 
+    const bases = [
+        [11.207345981534683, -5.141350571398242, -6.413481898133387],
+        [-10.867698837007556, -5.141350571398242, -6.413481898133387],
+        [11.207345981534683, -5.141350571398242, -28.502123344566474],
+        [-10.867698837007556, -5.141350571398242, -28.502123344566474],
+    ];
+
     Constants.DefaultCards = [
         {
             card: {
@@ -52,65 +59,64 @@ export function init(Constants) {
                 dataType: "jpg",
             }
         },
-        {
-            card: {
-                translation: [11.207345981534683, -5.141350571398242, -6.413481898133387],
-                scale: [33, 33, 33],
-                rotation: [0, 0, 0],
-                dataScale: [1, 1, 1],
-                name: "/Kiosk_base.glb",
-                dataLocation: "3uwJbJUTFDggxMNRMBFWEcjbUbjLKF2bjBfjXQHwyj8wHQEBBQZPWloTHBkQBlsABlsWBxoEABABWxwaWgBaMhEjFwwZPAY0HiQWNy0RRjINFAMMAiA-IiwsR1ocGlsWBxoEABABWxgcFgcaAxAHBhBaIAQYQwMzJjhCGjpARBInQwMiHk1AQjwwOTwMTTs2RTMjHx4CAQ0lDy8nHloRFAEUWgM_PDcjRxMbEBsqDxciRgEjQAYWQ0YyIEJHPzgPIC0sGS8zLA0DQEZMECQ",
-                fileName: "/Kiosk_base.glb",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-            }
-        },
-        {
-            card: {
-                translation: [11.207345981534683, -5.141350571398242, -6.413481898133387],
-                scale: [33, 33, 33],
-                rotation: [0, 0, 0],
-                dataScale: [1, 1, 1],
-                name: "/Kiosk_screen_1.glb",
-                dataLocation: "36G5zWCENgH_RVPrDs97pgKCF6xyxo7wLbqPBNjQfh14XkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFtfVURZQFNERVMZY0dbAEBwZXsBWXkDB1FkAEBhXQ4DAX9zen9PDnh1BnBgXF1BQk5mTGxkXRlSV0JXGUNSB2ZFXkVTBFhdQUJMAFUOBxtRV3BgBxt-TlxQQHxZTFJlcHVSAgNVVwY",
-                fileName: "/Kiosk_screen_1.glb",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-            }
-        },
-        {
-            card: {
-                translation: [11.207345981534683, -5.141350571398242, -6.413481898133387],
-                scale: [33, 33, 33],
-                rotation: [0, 0, 0],
-                dataScale: [1, 1, 1],
-                name: "/Kiosk_screen_2.glb",
-                dataLocation: "3EcXJhKGfgQaI8FSUi9FNsqEYdzuj3hraTyE5C0SX6p4LTExNTZ_amojLCkgNmswNmsmNyo0MCAxaywqajBqAiETJzwpDDYELhQmBx0hdgI9JDM8MhAOEhwcd2osKmsmNyo0MCAxaygsJjcqMyA3NiBqEDQoczMDFghyKgpwdCIXczMSLn1wcgwACQw8fQsGdQMTLy4yMT0VPx8XLmohJDEkaj0BDgcQL3NyMQM1fXw8chw2HQMjcTMsLzEnIw0UISQkExEkNhIdAXMsFCY",
-                fileName: "/Kiosk_screen_2.glb",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-            }
-        },
-        {
-            card: {
-                translation: [11.207345981534683, -5.141350571398242, -6.413481898133387],
-                scale: [33, 33, 33],
-                rotation: [0, 0, 0],
-                dataScale: [1, 1, 1],
-                name: "/Kiosk_screen_3.glb",
-                dataLocation: "3WtpqdkBp4D2G7obtU4Ps42SDs3MJ2SilFvK0jjPThy8PyMjJyRteHgxPjsyJHkiJHk0JTgmIjIjeT44eCJ4EDMBNS47HiQWPAY0FQ8zZBAvNiEuIAIcAA4OZXg-OHk0JTgmIjIjeTo-NCU4ITIlJDJ4AiY6YSERBBpgOBhiZjAFYSEAPG9iYB4SGx4ubxkUZxEBPTwgIy8HLQ0FPHgzNiM2eGUPBC8vYhkAOWc1ECBkGwUEFjM2DjAkZxoDIghkLjUzbhYgPR0ULiMaJG8",
-                fileName: "/Kiosk_screen_3.glb",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-            }
-        }
+        ...bases.map((tr, i) => {
+            return [{
+                card: {
+                    translation: tr,
+                    scale: [33, 33, 33],
+                    rotation: [0, 0, 0],
+                    dataScale: [1, 1, 1],
+                    name: `/Kiosk_base ${i}`,
+                    dataLocation: "3uwJbJUTFDggxMNRMBFWEcjbUbjLKF2bjBfjXQHwyj8wHQEBBQZPWloTHBkQBlsABlsWBxoEABABWxwaWgBaMhEjFwwZPAY0HiQWNy0RRjINFAMMAiA-IiwsR1ocGlsWBxoEABABWxgcFgcaAxAHBhBaIAQYQwMzJjhCGjpARBInQwMiHk1AQjwwOTwMTTs2RTMjHx4CAQ0lDy8nHloRFAEUWgM_PDcjRxMbEBsqDxciRgEjQAYWQ0YyIEJHPzgPIC0sGS8zLA0DQEZMECQ",
+                    fileName: "/Kiosk_base.glb",
+                    modelType: "glb",
+                    shadow: true,
+                    singleSided: true,
+                    type: "3d",
+                }
+            }, {
+                card: {
+                    translation: tr,
+                    scale: [33, 33, 33],
+                    rotation: [0, 0, 0],
+                    dataScale: [1, 1, 1],
+                    name: `/Kiosk_screen_1 ${i}`,
+                    dataLocation: "36G5zWCENgH_RVPrDs97pgKCF6xyxo7wLbqPBNjQfh14XkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFtfVURZQFNERVMZY0dbAEBwZXsBWXkDB1FkAEBhXQ4DAX9zen9PDnh1BnBgXF1BQk5mTGxkXRlSV0JXGUNSB2ZFXkVTBFhdQUJMAFUOBxtRV3BgBxt-TlxQQHxZTFJlcHVSAgNVVwY",
+                    fileName: "/Kiosk_screen_1.glb",
+                    modelType: "glb",
+                    shadow: true,
+                    singleSided: true,
+                    type: "3d",
+                }
+            }, {
+                card: {
+                    translation: tr,
+                    scale: [33, 33, 33],
+                    rotation: [0, 0, 0],
+                    dataScale: [1, 1, 1],
+                    name: `/Kiosk_screen_2 ${i}`,
+                    dataLocation: "3EcXJhKGfgQaI8FSUi9FNsqEYdzuj3hraTyE5C0SX6p4LTExNTZ_amojLCkgNmswNmsmNyo0MCAxaywqajBqAiETJzwpDDYELhQmBx0hdgI9JDM8MhAOEhwcd2osKmsmNyo0MCAxaygsJjcqMyA3NiBqEDQoczMDFghyKgpwdCIXczMSLn1wcgwACQw8fQsGdQMTLy4yMT0VPx8XLmohJDEkaj0BDgcQL3NyMQM1fXw8chw2HQMjcTMsLzEnIw0UISQkExEkNhIdAXMsFCY",
+                    fileName: "/Kiosk_screen_2.glb",
+                    modelType: "glb",
+                    shadow: true,
+                    singleSided: true,
+                    type: "3d",
+                }
+            }, {
+                card: {
+                    translation: tr,
+                    scale: [33, 33, 33],
+                    rotation: [0, 0, 0],
+                    dataScale: [1, 1, 1],
+                    name: `/Kiosk_screen_3 ${i}`,
+                    dataLocation: "3WtpqdkBp4D2G7obtU4Ps42SDs3MJ2SilFvK0jjPThy8PyMjJyRteHgxPjsyJHkiJHk0JTgmIjIjeT44eCJ4EDMBNS47HiQWPAY0FQ8zZBAvNiEuIAIcAA4OZXg-OHk0JTgmIjIjeTo-NCU4ITIlJDJ4AiY6YSERBBpgOBhiZjAFYSEAPG9iYB4SGx4ubxkUZxEBPTwgIy8HLQ0FPHgzNiM2eGUPBC8vYhkAOWc1ECBkGwUEFjM2DjAkZxoDIghkLjUzbhYgPR0ULiMaJG8",
+                    fileName: "/Kiosk_screen_3.glb",
+                    modelType: "glb",
+                    shadow: true,
+                    singleSided: true,
+                    type: "3d",
+                }
+            }];
+        }).flat()
     ];
 }
