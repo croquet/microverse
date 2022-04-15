@@ -57,6 +57,7 @@ module.exports = {
     'quote-props': ['off'],
 
     'no-undef': [ 'error', { "typeof": true }],
+    'no-use-before-define': [ 'off' ],
 
     'no-template-curly-in-string': [ 'warn' ],
 

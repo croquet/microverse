@@ -32,7 +32,7 @@ class PropertySheetActor {
         }
         this.destroy();
     }
-    
+
     newWindow(extent, position) {
         console.log("add");
         let sheetWindow = this.createCard({
@@ -52,7 +52,7 @@ class PropertySheetActor {
     setObject(target) {
         console.log("setObject");
         this.target = target;
-        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.1, y: 0.7});
+        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.3, y: 0.7});
 
         this.behaviorMenu = this.createCard({
             name: 'behavior menu',
@@ -94,6 +94,23 @@ class PropertySheetActor {
         let cardDataString = this.cardSpecString(target);
         this.cardSpec.loadAndReset(cardDataString);
         this.subscribe(this.cardSpec.id, "text", "cardSpecAccept");
+
+        this.actionMenuWindow = this.newWindow({x: 0.8, y: 0.6}, {x: -0.5, y: 1.0});
+
+        this.actionMenu = this.createCard({
+            name: 'action menu',
+            behaviorModules: ["ActionMenu"],
+            translation: [0, 0, 0.08],
+            width: this.actionMenuWindow._cardData.width,
+            height: this.actionMenuWindow._cardData.height,
+            type: "object",
+            parent: this.actionMenuWindow,
+            noSave: true,
+            target: target.id});
+
+        this.subscribe(this.actionMenu.id, "extentChanged", "actionMenuExtentChanged")
+        this.subscribe(this.actionMenu.id, "doAction", "doAction")
+        this.actionMenu.call("ActionMenu$ActionMenuActor", "show");
         this.listen("dismiss", "dismiss");
     }
 
@@ -103,12 +120,32 @@ class PropertySheetActor {
         }
     }
 
+    actionMenuExtentChanged(data) {
+        console.log("actionMenuExtentChanged", data);
+        if (this.actionMenuWindow) {
+            this.actionMenuWindow.setCardData({width: data.x + 0.05, height: data.y + 0.05});
+        }
+    }
+
+    doAction(data) {
+        if (!this.target) {return;}
+        if (data.action === "Delete") {
+            this.target.destroy();
+            this.destroy();
+            return;
+        }
+        if (data.action === "Duplicate") {
+            this.target.duplicate();
+            return;
+        }
+        console.log(data);
+    }
+
     cardSpecString(target) {
         let data = target.collectCardData();
         let intrinsic = this.intrinsicProperties();
 
         let result = [];
-        
         // okay! risking to be over engineering, I'll make the display nicer.
 
         intrinsic.forEach((p) => {
@@ -150,7 +187,6 @@ class PropertySheetActor {
 
         let array = text.split('\n');
         let simpleRE = /^[ \t]*([^:]+)[ \t]*:[ \t]*(.*)$/;
-        
         let spec = {};
 
         let something = false;
@@ -177,7 +213,7 @@ class PropertySheetActor {
                 spec[key] = value;
             }
         });
-        
+
         if (!something) {return;}
         if (!this.target.doomed) {
             this.target.updateOptions(spec);
@@ -313,7 +349,7 @@ class PropertySheetWindowPawn {
         if (vec.y > (extent.y / 2) - 0.02) {edge.y = "top";}
 
         if (!edge.x && !edge.y) {return;}
-        
+
         let parent = this._parent;
         let vec2 = new Worldcore.THREE.Vector3(...evt.xyz);
         let pInv = parent.renderObject.matrixWorld.clone().invert();
@@ -358,7 +394,7 @@ class PropertySheetDismissPawn {
         });
 
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
-        
+
         let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.07, 0.02, 0.001);
         let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
             color: 0x222222,
@@ -401,7 +437,7 @@ class PropertySheetWindowBarPawn {
         });
 
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
-        
+
         let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.02, 0.005, 0.001);
         let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
             color: 0x000000,
@@ -460,7 +496,7 @@ class BehaviorMenuActor {
             items.push(obj);
         });
 
-        items.push({label: '------------'});
+        items.push({label: "------------"});
         items.push({label: 'apply'});
         this.menu.call("Menu$MenuActor", "setItems", items);
     }
@@ -469,6 +505,49 @@ class BehaviorMenuActor {
         console.log("setBehaviors");
         let target = this.service("ActorManager").get(this._cardData.target);
         target.setBehaviors(data.selection);
+    }
+
+    itemsUpdated() {
+        this.publish(this.id, "extentChanged", {x: this.menu._cardData.width, y: this.menu._cardData.height});
+    }
+}
+
+class ActionMenuActor {
+    show() {
+        if (this.menu) {
+            this.menu.destroy();
+        }
+
+        this.menu = this.createCard({
+            name: 'action menu',
+            behaviorModules: ["Menu"],
+            parent: this,
+            type: "2d",
+            noSave: true,
+            depth: 0.01,
+            cornerRadius: 0.05,
+        });
+
+        this.subscribe(this.menu.id, "itemsUpdated", "itemsUpdated");
+        this.updateSelections();
+
+        this.listen("fire", "doAction");
+    }
+
+    updateSelections() {
+        console.log("action updateSelections");
+        let items = [
+            {label: "actions"},
+            {label: "------------"},
+            {label: "Duplicate"},
+            {label: "Delete"},
+        ];
+
+        this.menu.call("Menu$MenuActor", "setItems", items);
+    }
+
+    doAction(data) {
+        this.publish(this.id, "doAction", data);
     }
 
     itemsUpdated() {
@@ -501,6 +580,10 @@ export default {
         {
             name: "BehaviorMenu",
             actorBehaviors: [BehaviorMenuActor]
+        },
+        {
+            name: "ActionMenu",
+            actorBehaviors: [ActionMenuActor]
         }
     ]
 }

@@ -8,7 +8,7 @@ import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
     q_euler, q_multiply } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
-import { addShadows, addEnvMap, normalizeSVG, addTexture } from './assetManager.js'
+import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
@@ -217,36 +217,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     nop() {}
 
-/*
-    showControls(toWhom) {
-        let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
-        let distance = (toWhom.distance || 6);
-        distance = Math.min(distance * 0.7, 4);
-        if(avatar){
-            let pose = avatar.dropPose(distance, [2, 0, 0]);
-            if (!this.behaviorManager.modules.get("PropertyPanel")) {return;}
-            let menu = this.createCard({
-                name: "property panel",
-                behaviorModules: ["PropertyPanel"],
-                translation: pose.translation,
-                rotation: pose.rotation,
-                type: "2d",
-                fullBright: true,
-                color: 0xffffff,
-                frameColor: 0x666666,
-                width: 1,
-                height: 3.5,
-                cornerRadius: 0.02,
-                depth: 0.02,
-                noSave: true,
-                target: this.id,
-            });
-            menu.call("PropertyPanel$PropertyPanelActor", "setObject", this);
-            this.subscribe(menu.id, "setCardSpec", "setCardSpec");
-        }
-    }
+    duplicate() {
+        let saver = new WorldSaver(CardActor);
+        let data = saver.collectCardData(this);
+        delete data.parent;
+        let t = this.translation;
 
-    */
+        data.translation = [t[0] + 2, t[1], t[2]];
+        this.createCard(data);
+    }
 
     showControls(toWhom) {
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);

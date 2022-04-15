@@ -56,7 +56,7 @@ class LightPawn {
 
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
-                    
+
                 let bg = scene.background;
                 let e = scene.environment;
                 scene.background = exrBackground;

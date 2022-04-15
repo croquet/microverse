@@ -4,7 +4,7 @@ class SpinActor {
         this.listen("stopSpinning", "stopSpinning");
         this.listen("newAngle", "newAngle");
     }
-    
+
     startSpinning(spin) {
         this.isSpinning = true;
         this.qSpin = Worldcore.q_euler(0, spin, 0);

@@ -50,7 +50,7 @@ class FlightTrackerPawn {
             this.shape.remove(c);
         });
         this.shape.children = []; // ??
-        
+
         const earthBaseTexture = new THREE.TextureLoader().load(earthbase);
         earthBaseTexture.wrapS = earthBaseTexture.wrapT = THREE.RepeatWrapping;
         earthBaseTexture.repeat.set(1,1);

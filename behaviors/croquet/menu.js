@@ -14,7 +14,7 @@ class MenuActor {
         this.maxWidth = 0;
         this.maxHeight = 0;
         this.extentMap = new Map();
-        
+
         for (let i = 0; i < list.length; i++) {
             let item = list[i];
 
@@ -71,7 +71,6 @@ class MenuActor {
             top -= h !== undefined ? h : 0.15;
         });
 
-        
         this.maxHeight = maxHeight + 0.10;
 
         this.setCardData({
@@ -94,8 +93,13 @@ class MenuActor {
         if (!item) {return;} // most likely to be a bug
         this.items.forEach((i) => {
             if (i.card === item.card) {
-                i.selected = !i.selected;
-                this.selectionChanged(i);
+                if (multiple) {
+                    i.selected = !i.selected;
+                    this.selectionChanged(i);
+                } else {
+                    this.publish(this._parent.id, "fire", {action: item.label, id: this.id});
+                    return;
+                }
             } else {
                 if (!multiple) {
                     i.selected = false;

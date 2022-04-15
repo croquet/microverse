@@ -29,7 +29,7 @@ class BitcoinTrackerActor {
         if (this.history.length > 300) {this.history.shift();}
     }
 }
-    
+
 class BitcoinTrackerPawn {
     setup() {
         this.lastAmount = 0;
@@ -103,7 +103,7 @@ class BitcoinTrackerPawn {
             this.say("BTC-USD-history", newer);
         });
     }
-    
+
     onBTCUSDChanged() {
         //console.log("changed");
         // this is called on all views, not just the elected one
@@ -152,7 +152,7 @@ class BarGraphActor {
         this.subscribe(this._parent.id, "value-changed", this.updateBars);
         this.subscribe(this._parent.id, "value-init", this.initBars);
     }
-    
+
     length() {
         return this._cardData.length;
     }
@@ -207,7 +207,7 @@ class BarGraphPawn {
         this.base = new THREE.Mesh(
             new THREE.BoxGeometry(1, size / 4, size, 2, 4, 2 ),
             new THREE.MeshStandardMaterial());
-        this.base.position.set(0, -size / 4, 0);        
+        this.base.position.set(0, -size / 4, 0);
         this.shape.add(this.base);
         this.bar = new THREE.Mesh(
             new THREE.BoxGeometry(size * 0.8, 1, size * 0.8, 2, 2, 2 ),

@@ -159,7 +159,7 @@ class PerlinActor {
         let row = [...Array(this.columns).keys()].map(i => {
             return this.call("PerlinNoise", "noise2D", this.currentRow * d, i * d);
         });
-        this.data.push(row); 
+        this.data.push(row);
         this.currentRow++;
         this.say("updatePerlin", row);
 
@@ -170,7 +170,7 @@ class PerlinActor {
         this.say("showMe", this.visible);
     }
 }
-    
+
 class PerlinNoise {
     generateHashTable() {
         const table = [];
@@ -192,7 +192,7 @@ class PerlinNoise {
         if (!this.hashTable) {
             this.hashTable = this.generateHashTable();
         }
-        
+
         const table = this.hashTable;
         const xInt = Math.floor(x);
         const yInt = Math.floor(y);
@@ -298,7 +298,6 @@ class PerlinPawn {
         this.addEventListener("pointerEnter", "onPointerEnter");
         this.addEventListener("pointerLeave", "onPointerLeave");
         this.addEventListener("pointerTap", "click");
-        
         this.addEventListener("pointerMove", "nop");
 
         this.maxHeight = 8;
@@ -360,9 +359,8 @@ class PerlinPawn {
         const s = this.barScale;
 
         this.perlinGroup = new Worldcore.THREE.Group();
-       
         this.buttonSphere = new Worldcore.THREE.Mesh(
-            new Worldcore.THREE.SphereGeometry(0.5,32,16), 
+            new Worldcore.THREE.SphereGeometry(0.5,32,16),
             new Worldcore.THREE.MeshStandardMaterial());
         this.buttonSphere.name = "buttonSphere";
         this.buttonSphere.position.y = 3;
@@ -416,7 +414,7 @@ class PerlinPawn {
         bar.scale.set(1, d, 1);
     }
 
-    hilite(color) { 
+    hilite(color) {
         this.buttonSphere.material.emissive = new Worldcore.THREE.Color(color);
     }
 
@@ -427,7 +425,6 @@ class PerlinPawn {
             this.shape.remove(this.perlinGroup);
         }
     }
-    
 }
 
 export default {
