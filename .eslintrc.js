@@ -19,7 +19,7 @@ module.exports = {
     'no-use-before-define': ['error', {variables: true, classes: false}],
     'no-dupe-keys': ['error'],
     'no-implicit-globals': ['error'],
-
+    'no-trailing-spaces': ['error'],
     'indent': ['warn', 4, {
       SwitchCase: 1,
       VariableDeclarator: 1,
