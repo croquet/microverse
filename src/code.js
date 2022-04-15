@@ -255,6 +255,7 @@ export const AM_Code = superclass => class extends superclass {
         let rcvr = this[isProxy] ? this._target : this;
 
         return rcvr.constructor.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        this.publish(this.sessionId, "triggerPersist");
     }
 }
 
