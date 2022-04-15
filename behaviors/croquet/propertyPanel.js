@@ -176,9 +176,11 @@ class BehaviorMenuActor {
             parent: this,
             type: "2d",
             noSave: true,
+            depth: 0.01,
             cornerRadius: 0.05,
         });
 
+        this.subscribe(this.menu.id, "itemsUpdated", "itemsUpdated");
         this.updateSelections();
 
         this.listen("fire", "setBehaviors");
@@ -209,6 +211,10 @@ class BehaviorMenuActor {
         console.log("setBehaviors");
         let target = this.service("ActorManager").get(this._cardData.target);
         target.setBehaviors(data.selection);
+    }
+
+    itemsUpdated() {
+        this.publish(this.id, "extentChanged", {x: this.menu._cardData.width, y: this.menu._cardData.height});
     }
 }
 

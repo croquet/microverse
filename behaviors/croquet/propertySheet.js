@@ -4,13 +4,14 @@ class PropertySheetActor {
             this.windows.forEach((w) => w.destroy());
         }
         this.windows = [];
-        this.addWindow();
 
         if (this.dismiss) {
             this.dismiss.destroy();
         }
+
+        let extent = {x: this._cardData.width, y: this._cardData.height};
         this.dismiss = this.createCard({
-            translation: [0.45, 0.45, 0.041],
+            translation: [extent.x / 2 - 0.05, extent.y / 2 - 0.05, 0.041],
             name: 'dismiss',
             behaviorModules: ["PropertySheetDismiss"],
             parent: this,
@@ -32,20 +33,47 @@ class PropertySheetActor {
         this.destroy();
     }
     
-    addWindow() {
-        this.window = this.createCard({
+    newWindow(extent, position) {
+        console.log("add");
+        let sheetWindow = this.createCard({
             name: 'window',
             behaviorModules: ["PropertySheetWindow"],
-            extent: [0.3, 0.2],
             parent: this,
+            width: extent.x,
+            height: extent.y,
             type: "object",
             noSave: true,
         });
 
-        this.window.set({translation: [0.1, 0.1, 0.02]});
+        sheetWindow.set({translation: [position.x, position.y, 0.05]});
+        return sheetWindow;
     }
 
-    setObject() {console.log("set object");}
+    setObject(target) {
+        console.log("setObject");
+        this.target = target;
+        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.1, y: 0.1});
+
+        this.behaviorMenu = this.createCard({
+            name: 'behavior menu',
+            behaviorModules: ["BehaviorMenu"],
+            translation: [0, 0, 0.08],
+            width: this.menuWindow._cardData.width,
+            height: this.menuWindow._cardData.height,
+            type: "object",
+            parent: this.menuWindow,
+            noSave: true,
+            target: target.id});
+
+        this.subscribe(this.behaviorMenu.id, "extentChanged", "menuExtentChanged")
+        this.behaviorMenu.call("BehaviorMenu$BehaviorMenuActor", "show");
+    }
+
+    menuExtentChanged(data) {
+        if (this.menuWindow) {
+            this.menuWindow.setCardData({width: data.x + 0.2, height: data.y + 0.2});
+        }
+    }
 }
 
 class PropertySheetPawn {
@@ -61,13 +89,15 @@ class PropertySheetPawn {
         }
         this.shape.children = [];
 
-        let frameGeometry = this.roundedCornerGeometry(1, 1, 0.04, 0.02);
+        let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
+
+        let frameGeometry = this.roundedCornerGeometry(extent.x, extent.y, 0.04, 0.02);
         let frameMaterial = this.makePlaneMaterial(0.02, 0xcccccc, 0xcccccc, false);
 
         this.frame = new Worldcore.THREE.Mesh(frameGeometry, frameMaterial);
         this.shape.add(this.frame);
 
-        let backGeometry = this.roundedCornerGeometry(0.98, 0.98, 0.0001, 0.02);
+        let backGeometry = this.roundedCornerGeometry(extent.x - 0.02, extent.y - 0.02, 0.0001, 0.02);
         let backMaterial = this.makePlaneMaterial(0.02, 0x525252, 0x525252, false);
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.04);
@@ -113,7 +143,7 @@ class PropertySheetWindowActor {
     }
 
     dismissButtonPosition() {
-        return [this._cardData.extent[0] / 2 - (0.022), this._cardData.extent[1] / 2 - (0.022), 0.031];
+        return [this._cardData.width / 2 - (0.042), this._cardData.height / 2 - (0.042), 0.031];
     }
 
     dismissWindow(_id) {
@@ -137,21 +167,27 @@ class PropertySheetWindowPawn {
 
         this.shape.children = [];
 
-        let frameGeometry = this.roundedCornerGeometry(0.3, 0.2, 0.0001, 0.02);
+        let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
+
+        let frameGeometry = this.roundedCornerGeometry(extent.x, extent.y, 0.0001, 0.02);
         let frameMaterial = this.makePlaneMaterial(0.02, 0x000000, 0x000000, false);
         this.frame = new Worldcore.THREE.Mesh(frameGeometry, frameMaterial);
         this.frame.position.set(0, 0, 0.021);
         this.shape.add(this.frame);
 
-        let backGeometry = this.roundedCornerGeometry(0.28, 0.18, 0.0001, 0.02);
+        let backGeometry = this.roundedCornerGeometry(extent.x - 0.02, extent.y - 0.02, 0.0001, 0.02);
         let backMaterial = this.makePlaneMaterial(0.02, 0xffffff, 0xffffff, false);
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.022);
         this.shape.add(this.back);
 
         this.addEventListener("pointerDown", "pointerDown");
-        // this.addEventListener("pointerMove", "pointerMove");
         this.addEventListener("pointerUp", "pointerUp");
+        this.listen("_cardData", "cardDataUpdated");
+    }
+
+    cardDataUpdated() {
+        console.log(this.actor._cardData.width, this.actor._cardData.height);
     }
 
     pointerDown(evt) {
@@ -160,13 +196,13 @@ class PropertySheetWindowPawn {
         let inv = this.renderObject.matrixWorld.clone().invert();
         vec = vec.applyMatrix4(inv);
 
-        let extent = this.actor._cardData.extent;
+        let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
         let edge = {};
 
-        if (vec.x < -(extent[0] / 2) + 0.01) {edge.x = "left";}
-        if (vec.x > (extent[0] / 2) - 0.01) {edge.x = "right";}
-        if (vec.y < -(extent[1] / 2) + 0.01) {edge.y = "bottom";}
-        if (vec.y > (extent[1] / 2) - 0.01) {edge.y = "top";}
+        if (vec.x < -(extent.x / 2) + 0.01) {edge.x = "left";}
+        if (vec.x > (extent.x / 2) - 0.01) {edge.x = "right";}
+        if (vec.y < -(extent.y / 2) + 0.01) {edge.y = "bottom";}
+        if (vec.y > (extent.y / 2) - 0.01) {edge.y = "top";}
 
         if (!edge.x && !edge.y) {return;}
         
@@ -207,7 +243,7 @@ class PropertySheetDismissPawn {
             this.shape.children = [];
         }
 
-        let backGeometry = new Worldcore.THREE.BoxGeometry(0.022, 0.022, 0.00001);
+        let backGeometry = new Worldcore.THREE.BoxGeometry(0.04, 0.04, 0.00001);
         let backMaterial = new Worldcore.THREE.MeshStandardMaterial({
             color: 0x882222,
             side: Worldcore.THREE.DoubleSide
@@ -215,7 +251,7 @@ class PropertySheetDismissPawn {
 
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         
-        let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.02, 0.005, 0.001);
+        let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.04, 0.01, 0.001);
         let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
             color: 0x000000,
             side: Worldcore.THREE.DoubleSide

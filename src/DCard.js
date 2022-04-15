@@ -217,6 +217,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
     nop() {}
 
+/*
     showControls(toWhom) {
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
         let distance = (toWhom.distance || 6);
@@ -245,7 +246,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
     }
 
-    /*
+    */
 
     showControls(toWhom) {
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
@@ -263,7 +264,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 fullBright: true,
                 color: 0xffffff,
                 frameColor: 0x666666,
-                width: 1,
+                width: 1.5,
                 height: 3.5,
                 cornerRadius: 0.02,
                 depth: 0.02,
@@ -273,8 +274,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
             menu.call("PropertySheet$PropertySheetActor", "setObject", this);
         }
     }
-
-    */
 
     setBehaviors(selection) {
         let behaviorModules = [];

@@ -52,8 +52,14 @@ class MenuActor {
             this.subscribe(labelCard.id, "fire", "relay");
         }
 
-        let top = 1;
         let maxHeight = 0;
+        this.items.forEach((obj) => {
+            let extent = this.extentMap.get(obj.card.id);
+            let h = extent ? extent.height : 0.15;
+            maxHeight += h;
+        });
+
+        let top = maxHeight / 2;
         this.items.forEach((obj) => {
             let extent = this.extentMap.get(obj.card.id);
             let h = extent ? extent.height : 0.15;
@@ -63,8 +69,9 @@ class MenuActor {
                 0
             ]});
             top -= h !== undefined ? h : 0.15;
-            maxHeight += h;
         });
+
+        
         this.maxHeight = maxHeight + 0.10;
 
         this.setCardData({
@@ -122,7 +129,7 @@ class MenuPawn {
 
     cardDataUpdated() {
         let obj = this.shape.children.find((o) => o.name === "2d");
-        obj.position.set(0, - this.properties2D.height / 2 + 1.05, -0.1);
+        obj.position.set(0, 0, -0.1);
     }
 }
 
