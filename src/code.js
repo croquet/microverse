@@ -316,6 +316,19 @@ export const PM_Code = superclass => class extends superclass {
         if (this[isProxy]) {
             return this._target.destroy();
         }
+        if (this.actor._behaviorModules) {
+            this.actor._behaviorModules.forEach((name) => { /* name: Bar */
+                let modules = this.actor.behaviorManager.modules.get(name);
+                let {pawnBehaviors} = modules;
+                if (pawnBehaviors) {
+                    for (let behavior of pawnBehaviors.values()) {
+                        if (behavior.$behavior.destroy) {
+                            this.call(`${behavior.module.name}$${behavior.$behaviorName}`, "destroy");
+                        }
+                    };
+                }
+            });
+        }
         super.destroy();
     }
 

@@ -50,7 +50,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         super.init(options);
         this.avatarIndex = options.index;
 
-        this.fall = true;
+        this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
@@ -61,6 +61,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("comeToMe", this.comeToMe);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
+        this.listen("resetHeight", this.resetHeight);
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
@@ -93,6 +94,11 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     startFalling(){
         this.fall = true;
+    }
+
+    resetHeight() {
+        let t = this.translation;
+        this.goTo([t[0], 0, t[2]], this.rotation, false);
     }
 
     onLookTo(e) {
@@ -377,6 +383,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 }
             }
             window.addEventListener("message", this.cameraListener);
+            this.say("resetHeight");
         }
         this.constructVisual();
     }
