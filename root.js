@@ -30,9 +30,9 @@ console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
 function loadLoaders() {
     return loadThreeJSLib("postprocessing/Pass.js", THREE)
-        .then(loadThreeJSLib("shaders/CopyShader.js", THREE))
-        .then(loadThreeJSLib("csm/CSMFrustum.js", THREE))
-        .then(loadThreeJSLib("csm/CSMShader.js", THREE))
+        .then(() => loadThreeJSLib("shaders/CopyShader.js", THREE))
+        .then(() => loadThreeJSLib("csm/CSMFrustum.js", THREE))
+        .then(() => loadThreeJSLib("csm/CSMShader.js", THREE))
         .then(()=>{
             let libs = [
                 "loaders/OBJLoader.js",
