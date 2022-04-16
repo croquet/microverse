@@ -978,6 +978,9 @@ export class CodeLibrary {
                         pawns.set(cls.name, cls.toString());
                     });
                 }
+                if (this.modules.get(name)) {
+                    console.error("your library has name conflict. Resolve it before proceed");
+                }
                 this.modules.set(name, {
                     name,
                     filePath,
