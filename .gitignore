@@ -5,5 +5,4 @@ node_modules
 /npm
 /memo
 apiKey.js
-
-
+/three/**/*.js

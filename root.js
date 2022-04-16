@@ -23,11 +23,13 @@ import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
 import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
+import {loadThreeLibs} from "./three/threeLibsLoader.js";
 
 let isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
+/*
 function loadLoaders() {
     return loadThreeJSLib("postprocessing/Pass.js", THREE)
         .then(() => loadThreeJSLib("shaders/CopyShader.js", THREE))
@@ -53,6 +55,13 @@ function loadLoaders() {
                 return loadThreeJSLib(file, THREE);
             }));
         });
+}
+*/
+
+function loadLoaders() {
+    window.JSZip = JSZip;
+    window.fflate = fflate;
+    return loadThreeLibs(THREE);
 }
 
 export function basenames() {
