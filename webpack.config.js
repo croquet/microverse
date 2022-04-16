@@ -66,7 +66,6 @@ const config = {
                 { from: 'assets/images/earthshadow.jpg', to: 'assets/images/earthshadow.jpg'},
                 { from: 'assets/sky/**/*'},
                 { from: 'worlds/*.js'},
-                { from: 'worlds/*.json'},
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}
                 },
