@@ -10,15 +10,16 @@ class GridFloorActor {
 
 class GridFloorPawn {
     setup() {
+        console.log("AM I GETTING HERE?")
         const THREE = Worldcore.THREE;
-        const gridImage = `./assets/images/grid.png`;
+        const gridImage = './assets/images/checkerboard.jpg';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 40, 40 );
+        texture.repeat.set( 100, 100 );
 
         this.floor = new THREE.Mesh(
-            new THREE.BoxGeometry( 40, 1, 40, 1, 1, 1 ),
+            new THREE.BoxGeometry( 100, 1, 100, 1, 1, 1 ),
             new THREE.MeshStandardMaterial({ map: texture, color: 0x606060 }));
         this.floor.receiveShadow = true;
         this.shape.add(this.floor);
