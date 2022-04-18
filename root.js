@@ -68,6 +68,7 @@ export function basenames() {
     let pathname = window.location.pathname;
     let match = /([^/]+)\.html$/.exec(pathname);
     let basename = new URL(window.location).searchParams.get("world");
+
     if (!basename) {
         basename = (!match || match[1] === "index") ? "default" : match[1];
     }
@@ -79,6 +80,7 @@ export function basenames() {
         let slash = pathname.lastIndexOf("/");
         basedir = pathname.slice(0, slash + 1);
     }
+
     return {basedir, basename};
 }
 

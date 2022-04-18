@@ -11,28 +11,32 @@ export const defaultAvatarNames = [
 
 let {basedir, basename} = basenames();
 
-eval(`import("${basedir}worlds/${basename}.js")`)
-// use bit-identical math for constant initialization
-    .then((module) => {
-        if (module.initFile) {
-            return fetch(module.initFile).then((response) => {
-                if (`${response.status}`.startsWith("2")) {
-                    return response.text();
-                }
-                throw new Error("initFile not found");
-            }).then((text) => {
-                let json = new WorldSaver().parse(text);
-                Constants.MaxAvatars = defaultMaxAvatars;
-                Constants.AvatarNames = defaultAvatarNames;
-                Constants.BehaviorModules = json.data.behaviormodules;
-                Constants.DefaultCards = json.data.cards;
-                Constants.Library = new CodeLibrary();
-                Constants.Library.addModules(json.data.behaviorModules);
-            });
-        }
-        Model.evaluate(() => module.init(Constants));
-        return Promise.resolve(null);
-    }).then(() => eval(`import('${basedir}apiKey.js')`))
+
+function check() {
+    return (basename.endsWith(".json")) ? Promise.resolve(null) : eval(`import("${basedir}worlds/${basename}.js")`)
+}
+
+check().then((module) => {
+    if (basename.endsWith(".json")) {
+        return fetch(basename).then((response) => {
+            if (`${response.status}`.startsWith("2")) {
+                return response.text();
+            }
+            throw new Error("initFile not found");
+        }).then((text) => {
+            let json = new WorldSaver().parse(text);
+            Constants.MaxAvatars = defaultMaxAvatars;
+            Constants.AvatarNames = defaultAvatarNames;
+            Constants.BehaviorModules = json.data.behaviormodules;
+            Constants.DefaultCards = json.data.cards;
+            Constants.Library = new CodeLibrary();
+            Constants.Library.addModules(json.data.behaviorModules);
+        });
+    }
+    // use bit-identical math for constant initialization
+    Model.evaluate(() => module.init(Constants));
+    return Promise.resolve(null);
+}).then(() => eval(`import('${basedir}apiKey.js')`))
 // Default parameters are filled in the body of startWorld. You can override them.
     .then((module) => startWorld(module.default))
     .catch((error) => {
