@@ -414,6 +414,70 @@ class PropertySheetDismissPawn {
     }
 }
 
+class PropertySheetEditActor {
+    setup() {
+        this.listen("launchCodeEditor", "launchCodeEditor");
+    }
+
+    launchCodeEditor(data) {
+        console.log(data.pose);
+        this.createCard({
+            name:'code editor',
+            translation: data.pose.translation,
+            rotation: data.pose.rotation,
+            layers: ['pointer'],
+            type: "code",
+            behaviorModule: data.name,
+            margins: {left: 32, top: 32, right: 32, bottom: 32},
+            textScale: 0.001,
+            width: 1.5,
+            height: 2,
+            depth: 0.05,
+            frameColor: 0x888888,
+        });
+    }
+}
+
+class PropertySheetEditPawn {
+    setup() {
+        this.addEventListener("pointerTap", "tap");
+    }
+
+    tap(p3d) {
+        if (!p3d.pointerId) {return;}
+        let avatar = this.service("PawnManager").get(p3d.pointerId);
+        if (!avatar) {return;}
+        if (!this.shape.name) {return;}
+        let space = this.shape.name.indexOf(" ");
+        let moduleName = this.shape.name.slice(0, space);
+
+        let toEdit;
+
+        let module = this.actor.behaviorManager.modules.get(moduleName);
+        if (!module) {return;}
+
+        if (module.actorBehaviors && module.actorBehaviors.size > 0) {
+            let [behaviorName, _behavior] = [...module.actorBehaviors][0];
+            toEdit = `${module.name}.${behaviorName}`;
+        }
+        if (!toEdit) {
+            if (module.pawnBehaviors && module.pawnBehaviors.size > 0) {
+                let [behaviorName, _behavior] = [...module.pawnBehaviors][0];
+                toEdit = `${module.name}.${behaviorName}`;
+            }
+        }
+
+        let vec = new Worldcore.THREE.Vector3();
+        vec.setFromMatrixPosition(this.shape.matrixWorld);
+        let pose = avatar.dropPose(6);
+        pose.translation = [vec.x, vec.y, vec.z];
+
+        if (toEdit) {
+            this.say("launchCodeEditor", {name: toEdit, pose});
+        }
+    }
+}
+
 class PropertySheetWindowBarActor {
     setup() {
     }
@@ -472,6 +536,7 @@ class BehaviorMenuActor {
             noSave: true,
             depth: 0.01,
             cornerRadius: 0.05,
+            menuIcons: {"_": 'edit.svg', "apply": null, "------------": null},
         });
 
         this.subscribe(this.menu.id, "itemsUpdated", "itemsUpdated");
@@ -571,6 +636,11 @@ export default {
             name: "PropertySheetDismiss",
             actorBehaviors: [PropertySheetDismissActor],
             pawnBehaviors: [PropertySheetDismissPawn]
+        },
+        {
+            name: "PropertySheetEdit",
+            actorBehaviors: [PropertySheetEditActor],
+            pawnBehaviors: [PropertySheetEditPawn]
         },
         {
             name: "PropertySheetWindowBar",

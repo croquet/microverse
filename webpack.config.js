@@ -58,21 +58,17 @@ const config = {
         new CopyPlugin({
             patterns: [
                 { from: 'assets/3D/*'},
-                { from: 'assets/SVG/{full-circle,BitcoinSign,CroquetSymbol_CMYK_NoShadow}.svg'},
+                { from: 'assets/SVG/{full-circle,BitcoinSign,CroquetSymbol_CMYK_NoShadow,edit}.svg'},
                 { from: 'assets/avatars/**/*'},
                 { from: 'assets/css/**/*'},
                 { from: 'assets/fonts/**/*'},
                 { from: 'assets/images/**/*',
                   globOptions: {ignore: ["/**/Kay.jpg",
-                                         "/**/Kay2.jpg",
-                                         "/**/checkerboard.jpg",
-                                         "/**/chessboard.jpeg",
-                                         "/**/chessboard.webp",
-                                         "/**/dark-wood.jpg",
-                                         "/**/light-wood.jpg"]}
+                                         "/**/Kay2.jpg"]}
                 },
                 { from: 'assets/sky/**/*'},
                 { from: 'worlds/*.js'},
+                { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}
                 },

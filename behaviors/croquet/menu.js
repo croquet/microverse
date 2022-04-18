@@ -42,13 +42,40 @@ class MenuActor {
                 });
             }
 
+            let icon;
+            let iconCard;
+            if (this._cardData.menuIcons) {
+                icon = this._cardData.menuIcons[item.label];
+                if (icon === undefined) {
+                    icon = this._cardData.menuIcons["_"];
+                }
+            }
+
+            if (icon) {
+                iconCard = this.createCard({
+                    name: `${item.label} icon`,
+                    translation: [0, 0, 0],
+                    parent: this,
+                    type: "2d",
+                    behaviorModules: ["PropertySheetEdit"],
+                    dataLocation: "./assets/SVG/edit.svg",
+                    width: 0.1,
+                    height: 0.1,
+                    scale: [0.04, 0.04, 0.04],
+                    depth: 0.02,
+                    noSave: true,
+                    fullBright: true,
+                    color: item.selected ? 0x222222 : 0x222222
+                });
+            }
+
             let measurement = labelCard.measurement;
             this.extentMap.set(labelCard.id, measurement);
 
             labelCard._cardData.name = item.label;
             this.maxWidth = Math.max(this.maxWidth, measurement.width);
 
-            this.items.push({label: item.label, card: labelCard, selected: !!item.selected});
+            this.items.push({label: item.label, card: labelCard, selected: !!item.selected, iconCard});
             this.subscribe(labelCard.id, "fire", "relay");
         }
 
@@ -68,6 +95,16 @@ class MenuActor {
                 top - h / 2,
                 0
             ]});
+            if (obj.iconCard) {
+                let leftEdge = ((extent ? extent.width : 0) - this.maxWidth) / 2;
+                leftEdge = leftEdge + extent.width / 2;
+
+                obj.iconCard.set({translation: [
+                    leftEdge,
+                    top - h / 2,
+                    0.02
+                ]});
+            }
             top -= h !== undefined ? h : 0.15;
         });
 
