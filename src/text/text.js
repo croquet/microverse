@@ -115,6 +115,9 @@ export class FontModelManager extends ModelService {
     init(name) {
         super.init(name || "FontModelManager");
         this.fonts = new Map();
+
+        let {chars, common, info, kernings, pages} = defaultFont;
+        this.askFont({name: info.face, font: {chars, common, info, kernings, pages}});
         this.subscribe(this.id, "askFont", this.askFont);
 
         this.loading = new Map();
@@ -194,7 +197,6 @@ export class FontViewManager extends ViewService {
 
     setModel(model) {
         this.model = model;
-
         for (let [name, font] of this.model.fonts.entries()) {
             this.askFont(name, font);
         }
