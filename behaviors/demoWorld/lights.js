@@ -11,7 +11,7 @@ class LightPawn {
 
         this.setupCSM(scene, camera, Worldcore.THREE);
 
-        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .5 );
+        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .7 );
         group.add(ambient);
         this.lights.push(ambient);
 
@@ -43,29 +43,32 @@ class LightPawn {
     }
 
     constructBackground(options) {
+        console.log('lights', options)
         let assetManager = this.service("AssetManager").assetManager;
         let dataType = options.dataType;
-        if (!options.dataLocation) {return;}
-        return this.getBuffer(options.dataLocation).then((buffer) => {
-            return assetManager.load(buffer, dataType, Worldcore.THREE, options).then((texture) => {
-                let TRM = this.service("ThreeRenderManager");
-                let renderer = TRM.renderer;
-                let scene = TRM.scene;
-                let pmremGenerator = new Worldcore.THREE.PMREMGenerator(renderer);
-                pmremGenerator.compileEquirectangularShader();
+        let TRM = this.service("ThreeRenderManager");
+        let renderer = TRM.renderer;
+        let scene = TRM.scene;
+        if (options.dataLocation)
+            return this.getBuffer(options.dataLocation).then((buffer) => {
+                return assetManager.load(buffer, dataType, Worldcore.THREE, options).then((texture) => {
 
-                let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
-                let exrBackground = exrCubeRenderTarget.texture;
+                    let pmremGenerator = new Worldcore.THREE.PMREMGenerator(renderer);
+                    pmremGenerator.compileEquirectangularShader();
 
-                let bg = scene.background;
-                let e = scene.environment;
-                scene.background = exrBackground;
-                scene.environment = exrBackground;
-                if(e !== bg) if(bg) bg.dispose();
-                if(e) e.dispose();
-                texture.dispose();
+                    let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+                    let exrBackground = exrCubeRenderTarget.texture;
+
+                    let bg = scene.background;
+                    let e = scene.environment;
+                    scene.background = exrBackground;
+                    scene.environment = exrBackground;
+                    if(e !== bg) if(bg) bg.dispose();
+                    if(e) e.dispose();
+                    texture.dispose();
+                });
             });
-        });
+        else if(options.clearColor)renderer.setClearColor(options.clearColor);
     }
 
     setupCSM(scene, camera, THREE) {
@@ -74,7 +77,7 @@ class LightPawn {
             this.csm = null;
         }
 
-        let dir = new THREE.Vector3(-2, -0.15, -0);
+        let dir = new THREE.Vector3(-200, -500, -200);
         this.csm = new THREE.CSM({
             fade: true,
             far: camera.far,
@@ -85,7 +88,7 @@ class LightPawn {
             lightDirection: dir,
             camera: camera,
             parent: scene,
-            lightIntensity: 0.6,
+            lightIntensity: 0.4,
             lightFar: 1000,
             mode: "practical"
         });
@@ -100,7 +103,7 @@ class LightPawn {
 export default {
     modules: [
         {
-            name: "FinantialLight",
+            name: "Light",
             pawnBehaviors: [LightPawn]
         }
     ]

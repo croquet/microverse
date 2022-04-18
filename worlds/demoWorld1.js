@@ -19,7 +19,7 @@ export function init(Constants) {
         "lights.js", "gridFloor.js"
     ];
 
-    // const frameColor = 0x888888;
+    const frameColor = 0x888888;
 
     Constants.DefaultCards = [
         {
@@ -28,7 +28,7 @@ export function init(Constants) {
                 behaviorModules: ["GridFloor"],
                 layers: ['walk'],
                 type: "object",
-                translation:[0, -4, 0],
+                translation:[0, -3, 0],
                 shadow: true,
             }
         },
@@ -38,8 +38,27 @@ export function init(Constants) {
                 layers: ['light'],
                 type: "lighting",
                 behaviorModules: ["Light"],
+                clearColor: 0xaabbff,
                 // dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                 // dataType: "jpg",
+            }
+        },
+        {
+            card: {
+                name: 'image card',
+                translation: [0, -0.75, -10],
+                //rotation: [0, Math.PI / 2, 0],
+                scale: [4, 4, 4],
+                type: "2d",
+                textureType: "image",
+                textureLocation: './assets/images/CroquetLogo_RGB.jpg',
+                fullBright: true,
+                frameColor: 0xcccccc,
+                color: 0xffffff,
+                cornerRadius: 0.05,
+                depth: 0.05,
+                shadow: true,
+                //fullBright: false
             }
         },
     ];

@@ -12,7 +12,7 @@ class GridFloorPawn {
     setup() {
         console.log("AM I GETTING HERE?")
         const THREE = Worldcore.THREE;
-        const gridImage = './assets/images/checkerboard.jpg';
+        const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
@@ -20,7 +20,7 @@ class GridFloorPawn {
 
         this.floor = new THREE.Mesh(
             new THREE.BoxGeometry( 100, 1, 100, 1, 1, 1 ),
-            new THREE.MeshStandardMaterial({ map: texture, color: 0x606060 }));
+            new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
         this.floor.receiveShadow = true;
         this.shape.add(this.floor);
     }
