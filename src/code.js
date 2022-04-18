@@ -41,6 +41,7 @@ export const AM_Code = superclass => class extends superclass {
                 if (!module) {
                     console.error(`unknown module ${name} is specified`);
                     return;
+                }
                 let {actorBehaviors, pawnBehaviors} = module;
                 if (actorBehaviors) {
                     for (let behavior of actorBehaviors.values()) {
