@@ -67,7 +67,7 @@ const config = {
                                          "/**/Kay2.jpg"]}
                 },
                 { from: 'assets/sky/**/*'},
-                { from: 'worlds/*.js'},
+                { from: 'worlds/*.{js,json}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'behaviors/**/*',
                   globOptions: {ignore: ["**/croquet/*.js"]}

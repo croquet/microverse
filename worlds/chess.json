@@ -1,0 +1,228 @@
+{
+    "name": "Unknown",
+    "comment": "You can launch this with ?worl=worlds/chess.json",
+    "version": "1",
+    "data": {
+        "behaviorModules": {
+            "__map": true,
+            "values": [
+                [
+                    "Light",
+                    {
+                        "actorBehaviors": {
+                            "__map": true,
+                            "values": []
+                        },
+                        "filePath": "default/lights",
+                        "name": "Light",
+                        "pawnBehaviors": {
+                            "__map": true,
+                            "values": [
+                                [
+                                    "LightPawn",
+                                    "class LightPawn {\n    setup() {\n        console.log(\"LightPawn\");\n        let trm = this.service(\"ThreeRenderManager\");\n        let scene =  trm.scene;\n        let camera = trm.camera;\n        let group = this.shape;\n        window.scene = scene;\n\n        this.removeLights();\n\n        this.setupCSM(scene, camera, Worldcore.THREE);\n\n        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .5 );\n        group.add(ambient);\n        this.lights.push(ambient);\n\n        this.constructBackground(this.actor._cardData);\n\n        let moduleName = this._behavior.module.externalName;\n        this.addUpdateRequest([`${moduleName}$LightPawn`, \"update\"]);\n\n        this.listen(\"updateShape\", \"updateShape\");\n    }\n\n    removeLights() {\n        if (this.lights) {\n            this.lights.forEach((light) => {\n                this.shape.remove(light);\n            });\n        }\n        this.lights = [];\n    }\n\n    destroy() {\n        console.log(\"destroy lights\");\n        if(this.background)this.background.dispose();\n        this.removeLights();\n    }\n\n    updateShape(options) {\n        this.constructBackground(options);\n    }\n\n    constructBackground(options) {\n        let assetManager = this.service(\"AssetManager\").assetManager;\n        let dataType = options.dataType;\n        if (!options.dataLocation) {return;}\n        return this.getBuffer(options.dataLocation).then((buffer) => {\n            return assetManager.load(buffer, dataType, Worldcore.THREE, options).then((texture) => {\n                let TRM = this.service(\"ThreeRenderManager\");\n                let renderer = TRM.renderer;\n                let scene = TRM.scene;\n                let pmremGenerator = new Worldcore.THREE.PMREMGenerator(renderer);\n                pmremGenerator.compileEquirectangularShader();\n\n                let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);\n                let exrBackground = exrCubeRenderTarget.texture;\n\n                let bg = scene.background;\n                let e = scene.environment;\n                scene.background = exrBackground;\n                scene.environment = exrBackground;\n                if(e !== bg) if(bg) bg.dispose();\n                if(e) e.dispose();\n                texture.dispose();\n            });\n        });\n    }\n\n    setupCSM(scene, camera, THREE) {\n        if (this.csm) {\n            this.csm.remove();\n            this.csm = null;\n        }\n\n        let dir = new THREE.Vector3(-2,-2,-0.5);\n        this.csm = new THREE.CSM({\n            fade: true,\n            far: camera.far,\n            maxFar: 1000,\n            cascades: 3,\n            shadowMapSize: 2048,\n            shadowbias: 0.00025,\n            lightDirection: dir,\n            camera: camera,\n            parent: scene,\n            lightIntensity: 0.6,\n            lightFar: 1000,\n            mode: \"practical\"\n        });\n        this.csm.update();\n    }\n\n    update(_time) {\n        if(this.csm) this.csm.update();\n    }\n}"
+                                ]
+                            ]
+                        },
+                        "systemModule": false
+                    }
+                ]
+            ]
+        },
+        "cards": [
+            {
+                "card": {
+                    "layers": [
+                        "walk"
+                    ],
+                    "name": "world model",
+                    "placeholder": true,
+                    "placeholderColor": 8421504,
+                    "placeholderOffset": [
+                        0,
+                        -0.463,
+                        0
+                    ],
+                    "placeholderSize": [
+                        40,
+                        1,
+                        40
+                    ],
+                    "rotation": [
+                        0,
+                        1,
+                        0,
+                        6.123233995736766e-17
+                    ],
+                    "scale": [
+                        200,
+                        200,
+                        200
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        0,
+                        -10,
+                        -60
+                    ],
+                    "type": "3d"
+                },
+                "id": "0001"
+            },
+            {
+                "card": {
+                    "behaviorModules": [
+                        "Light"
+                    ],
+                    "dataLocation": "./assets/sky/abandoned_parking_4k.jpg",
+                    "dataType": "jpg",
+                    "layers": [
+                        "light"
+                    ],
+                    "name": "light",
+                    "type": "lighting"
+                },
+                "id": "0002"
+            },
+            {
+                "card": {
+                    "dataLocation": "3o6-2Aafun4I62A8DGHWgesD1Nyu5lMVS2B71eWehujcBxsbHxxVQEAJBgMKHEEaHEEMHQAeGgobQQYAQBpAKAs5DRYDJhwuBD4MLTcLXCgXDhkWGDokODY2XUAGAEEMHQAeGgobQQIGDB0AGQodHApALRkKDAwFCV8hXiAmBw0gIQM2X14lWC0_IxcNKDdYAwoeCgMhLAwZWlcCPkALDhsOQDtaGwg-ATgdClg1DAs1CCAHCFc8HRwhFVsXHj0BJhwHHipdGj0tQgkHKjo",
+                    "fileName": "/rooklow.glb.zip",
+                    "modelType": "zip",
+                    "name": "/rooklow.glb.zip",
+                    "rotation": [
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        2.6348066740024976,
+                        -2.6218349586800205,
+                        -6.617874386743064
+                    ],
+                    "type": "3d"
+                },
+                "id": "0003"
+            },
+            {
+                "card": {
+                    "dataLocation": "3BawRvlsRAG0zjGmcyZvQNksTbbG3XUIJ7uWtCdEOu-cKjY2MjF4bW0kKy4nMWw3MWwhMC0zNyc2bCstbTdtBSYUIDsuCzEDKRMhABomcQU6IzQ7NRcJFRsbcG0rLWwhMC0zNyc2bC8rITAtNCcwMSdtADQnISEoJHIMcw0LKiANDC4bcnMIdQASDjogBRp1LiczJy4MASE0d3ovE20mIzYjbRQSBBQuKHAlMjU1cQUHDC4KEXoLMAYmFHBvNnAdGzYhEQd2L3A1KTh2FAc",
+                    "fileName": "/queenlow.glb.zip",
+                    "modelType": "zip",
+                    "name": "/queenlow.glb.zip",
+                    "rotation": [
+                        0,
+                        -0.17218789707276994,
+                        0,
+                        0.9850641238526847
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        -3.8402333035653915,
+                        -2.4766894028682227,
+                        -7.252392071294242
+                    ],
+                    "type": "3d"
+                },
+                "id": "0004"
+            },
+            {
+                "card": {
+                    "dataLocation": "3NMeJcYZFospf7MoEV4OHz4Hj3272dOgaWMxJuJ-C6vcJjo6Pj10YWEoJyIrPWA7PWAtPCE_Oys6YCchYTthCSoYLDciBz0PJR8tDBYqfQk2Lzg3ORsFGRcXfGEnIWAtPCE_Oys6YCMnLTwhOCs8PSthDDgrLS0kKH4AfwEHJiwBACIXfn8EeQweAjYsCRZ5Iis_KyIADS04e3YjH2EqLzovYXg8FhgHOgN3CAw3KAomGBoNCRsNKx15DBcce3ckCR5jOQhjFxkLLwsIBgc",
+                    "fileName": "/pawnlow.glb.zip",
+                    "modelType": "zip",
+                    "name": "/pawnlow.glb.zip",
+                    "rotation": [
+                        0,
+                        -0.25332266317643987,
+                        0,
+                        0.9673818420464568
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        2.793105977710085,
+                        -2.505738943947084,
+                        -17.5526926087191
+                    ],
+                    "type": "3d"
+                },
+                "id": "0005"
+            },
+            {
+                "card": {
+                    "dataLocation": "3OAKKpOkAiEFxWRANGmz18nIttuql-OgMqStQZLJWU6AJzs7Pzx1YGApJiMqPGE6PGEsPSA-Oio7YSYgYDpgCCsZLTYjBjwOJB4sDRcrfAg3Ljk2OBoEGBYWfWAmIGEsPSA-Oio7YSImLD0gOSo9PCpgDTkqLCwlKX8BfgAGJy0AASMWf34FeA0fAzctCBd4Iyo-KiMBDCw5enciHmArLjsuYHk2eQw3egY_dwQLCj4kfj19BXgYGXx-JyAVOD4BHRw_CiUiDXwCBBgOPAo",
+                    "fileName": "/knightlow.glb.zip",
+                    "modelType": "zip",
+                    "name": "/knightlow.glb.zip",
+                    "rotation": [
+                        0,
+                        -0.24934141781955937,
+                        0,
+                        0.9684156428722803
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        -0.7700549128015834,
+                        -2.512368593509806,
+                        -11.256648509880165
+                    ],
+                    "type": "3d"
+                },
+                "id": "0006"
+            },
+            {
+                "card": {
+                    "dataLocation": "34ysB6VcdE5eayL1c1UXgK7B-3kZlBmvJARtHymVVYfwXEBAREcOGxtSXVhRRxpBRxpXRltFQVFAGl1bG0Ebc1BiVk1YfUd1X2VXdmxQB3NMVUJNQ2F_Y21tBhtdWxpXRltFQVFAGlldV0ZbQlFGR1EbdkJRV1deUgR6BXt9XFZ7elhtBAV-A3ZkeExWc2wDWFFFUVh6d1dCAQxZZRtQVUBVG3AHX15EBGteY05_ZHVWVV11YhluBVpQeUBmX1J_cHpWfA1OelFxdgBETH0",
+                    "fileName": "/kinglow.glb.zip",
+                    "modelType": "zip",
+                    "name": "/kinglow.glb.zip",
+                    "rotation": [
+                        0,
+                        -0.6177761321565972,
+                        0,
+                        0.7863540236672251
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        -10.37469970224381,
+                        -2.441228744390495,
+                        -18.799784436801144
+                    ],
+                    "type": "3d"
+                },
+                "id": "0007"
+            },
+            {
+                "card": {
+                    "dataLocation": "3RDfUuQtNhbyF5tR4tPAx2mSTYIs5TrjLoydrg7pn6T0OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9FTYEMCs-GyETOQMxEAo2YRUqMyQrJQcZBQsLYH07PXwxID0jJzcmfD87MSA9JDcgITd9ECQ3MTE4NGIcYx0bOjAdHD4LYmMYZRACHiowFQplPjcjNz4cETEkZ2o_A302MyYzfWI6GDkrZyEKNRUROTd_BQYhGT4kYDEGPA02YgUYGRYaAjkjOCIFHzEiawc",
+                    "fileName": "/bishoplow.glb.zip",
+                    "modelType": "zip",
+                    "name": "/bishoplow.glb.zip",
+                    "rotation": [
+                        0,
+                        -0.16596429334631518,
+                        0,
+                        0.9861317626636201
+                    ],
+                    "shadow": true,
+                    "singleSided": true,
+                    "translation": [
+                        -5.701290302729696,
+                        -2.567897328794346,
+                        -19.958271114504168
+                    ],
+                    "type": "3d"
+                },
+                "id": "0008"
+            }
+        ]
+    }
+}
