@@ -308,7 +308,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
                     options = {...options, ...{
                         isSticky: false,
-                        color: 0xFFFFFF,
+                        backgroundColor: 0xFFFFFF,
                         textScale: options.textScale || 0.002,
                         isExternal: true,
                         runs: runs,
