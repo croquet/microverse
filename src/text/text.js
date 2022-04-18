@@ -1,6 +1,5 @@
-import {THREE, PM_ThreeVisible, AM_Smoothed, PM_Smoothed, Actor, Pawn, mix, ModelService, ViewService, GetPawn} from "@croquet/worldcore";
+import {THREE, ModelService, ViewService} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
-import { PM_PointerTarget } from "../Pointer.js";
 import { CardActor, CardPawn } from "../DCard.js";
 import loadFont from "load-bmfont";
 
@@ -456,7 +455,21 @@ export class TextFieldActor extends CardActor {
     }
 
     setupDismissButton() {
-        this.dismissButton = DismissButtonActor.create({parent: this});
+        this.dismissButton = this.createCard({
+            translation: this.dismissButtonPosition(),
+            name: 'dismiss text',
+            behaviorModules: ["PropertySheetDismiss"],
+            parent: this,
+            type: "object",
+            noSave: true,
+            backgroundColor: this._cardData.backgroundColor,
+            color: 0x222222
+        });
+        this.subscribe(this.dismissButton.id, "dismiss", "dismiss");
+    }
+
+    dismissButtonPosition() {
+        return [this._cardData.width / 2 - (0.072), this._cardData.height / 2 - (0.072), 0.06];
     }
 
     dismiss() {
@@ -1054,13 +1067,6 @@ export class TextFieldPawn extends CardPawn {
         this.textMesh.position.y = newHeight / 2;
         this.textMesh.position.z = depth + 0.005;
 
-        if (this.actor.dismissButton) {
-            let dismiss = GetPawn(this.actor.dismissButton.id);
-            if (dismiss) {
-                dismiss.updatePosition(newWidth / 2, newHeight / 2, 0);
-            }
-        }
-
         let bounds = {left: 0, top: 0, bottom: newHeight / this.textScale(), right: newWidth / this.textScale()};
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
@@ -1215,6 +1221,7 @@ export class TextFieldPawn extends CardPawn {
     }
 }
 
+/*
 export class DismissButtonActor extends mix(Actor).with(AM_Smoothed) {
     init(options) {
         super.init({...options, multiusser: true});
@@ -1258,3 +1265,4 @@ export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisib
         }
     }
 }
+*/

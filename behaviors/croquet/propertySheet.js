@@ -387,9 +387,17 @@ class PropertySheetDismissPawn {
             this.shape.children = [];
         }
 
+        let backgroundColor = (this.actor._cardData.backgroundColor !== undefined)
+            ? this.actor._cardData.backgroundColor
+            : 0xcccccc;
+        
+        let color = (this.actor._cardData.color !== undefined)
+            ? this.actor._cardData.color
+            : 0x222222;
+
         let backGeometry = new Worldcore.THREE.BoxGeometry(0.08, 0.08, 0.00001);
         let backMaterial = new Worldcore.THREE.MeshStandardMaterial({
-            color: 0xcccccc,
+            color: backgroundColor,
             side: Worldcore.THREE.DoubleSide
         });
 
@@ -397,7 +405,7 @@ class PropertySheetDismissPawn {
 
         let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.07, 0.02, 0.001);
         let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
-            color: 0x222222,
+            color: color,
             side: Worldcore.THREE.DoubleSide
         });
 

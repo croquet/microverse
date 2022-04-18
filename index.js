@@ -3,14 +3,18 @@ import { startWorld, basenames } from "./root.js";
 import { WorldSaver } from "./src/worldSaver.js";
 import { CodeLibrary } from "./src/code.js";
 
-export const defaultMaxAvatars = 6;
-export const defaultAvatarNames = [
+const defaultMaxAvatars = 6;
+const defaultAvatarNames = [
     "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
     "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
 ];
 
-let {basedir, basename} = basenames();
+const defaultSystemBehaviorDirectory = "behaviors/croquet";
+const defaultSystemBehaviorModules = [
+    "menu.js", "elected.js", "propertySheet.js"
+];
 
+let {basedir, basename} = basenames();
 
 function check() {
     return (basename.endsWith(".json")) ? Promise.resolve(null) : eval(`import("${basedir}worlds/${basename}.js")`)
@@ -27,6 +31,8 @@ check().then((module) => {
             let json = new WorldSaver().parse(text);
             Constants.MaxAvatars = defaultMaxAvatars;
             Constants.AvatarNames = defaultAvatarNames;
+            Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
+            Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
             Constants.BehaviorModules = json.data.behaviormodules;
             Constants.DefaultCards = json.data.cards;
             Constants.Library = new CodeLibrary();

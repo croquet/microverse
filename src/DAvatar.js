@@ -279,6 +279,7 @@ console.log("fileUploaded", type)
             type: "text",
             depth: 0.05,
             isSticky: true,
+            margins: {left: 20, top: 20, right: 20, bottom: 20},
             backgroundColor: 0xf4e056,
             frameColor: 0xfad912,
             runs: [],
