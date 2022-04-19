@@ -7,6 +7,14 @@
 
 <info@croquet.io>
 
+## TO BE DONE
+1. Discuss Actor/Pawn development model
+2. DemoWorld2 - extend the card to interact with user (random color)
+3. DemoWorld3 - flamingo + Circle
+4. DemoWorld4 - more complex behavior
+4. DemoWorld4 - live data visualization
+5. DemoWorld6 - external data stream
+
 ## Introduction
 
 This guide will enable you to quickly set up Croquet Microverse Builder and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding. 
@@ -16,15 +24,27 @@ This guide will enable you to quickly set up Croquet Microverse Builder and intr
 2. Obtain your Croquet API Key <https://croquet.io/developers/index.html>
 3. Create the apiKey.js file from apiKey.js-example and the API Key above.
 4. Open a terminal and set the path to your new Microverse-Builder folder.
-5. run `npm i`
-6. run `npm start`
-7. Open browser at `localhost:9684` and enter a new world.
-8. Create your own worlds.
+ 
+In the terminal run 
+    
+```npm i```
+   
+and then
+
+```npm start```
+
+Open browser at `localhost:9684` and enter a new world.
+
+5. Connect to your IDE via the Watch Server.
+
+6. Create your own worlds.
 
 ## Croquet Microverse
 ---
 
 Croquet Microverse Builder is a multi-user development and deployment system built on top of the Croquet Web-based operating system. This document will get you started creating your own microverses that you can deploy anywhere you like.
+
+The Microverse Builder IDE can be integrated directly with the tools you are already familiar with, particularly with your own programmer IDE. This enables you to directly work with and modify a live, shared Croquet Microverse session.
 
 ## Croquet OS
 ---
@@ -109,6 +129,22 @@ Your new Microverse awaits...
 
 ### 5. The Watch Server
 The watch server enables you to edit code from your own IDE and have it injected and run inside the Croquet Microverse while it is running without the need to reload. The watch server is automatically launched when execute `npm start`. You can start the watch server on its own by running `npm run watch-server`. The watch-server by default starts watching the directory called `behaviors`. If you want to create a separate set of behavior files in a different directory, you supply an argument to the watch-server by `npm run watch-server -- aDirectory`.
+
+You can try out the live IDE now with the default world. Simply run `localhost:9684`. Once it is launched you will see a menu icon in the bottom left hand corner. Select this and you will see a large QR code underneath which is are three menu items. `Save` and `Load` allow you to save the entire state of the world in a JSON file (try it) and then load it back into an empty world. 
+
+![Microverse Menu](./assets/readme/MicroverseMenu.png)
+
+The next item, `Connect` connects directly to the watch-server. Now you can access and modify the behaviors for your world directly from the external IDE. When you save, these changes are directly injected into the world without having to reload. The image below demonstrates adding a comment to the code and having it appear (and run if it were executable) in the code viewer inside of the Microverse world.
+
+![Microverse IDE](./assets/readme/MicroverseIDE.png)
+
+Of course you can modify the actual executable dynamically as well. This makes development within Microverse amazingly smooth and fun. 
+
+#### Edit or add a new files
+You can easily add a new file in the watched directory (by default `behaviors/default/` or your own behaviors directory), and if the file follows the standard behavior structure of other files, it will be automatically available.
+
+### 6. Make Your Own New World 
+You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way). If you start microverse with ?world=worldFileName, the file at `worlds/worldFileName.js` is used to start the world.
 
 ## Worlds, Cards and Behaviors
 ---
@@ -260,6 +296,9 @@ The second part is what we call the "pawn". As might be clear from its name, it 
 The last part of the behavior is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
 
 
+## Note on the persistence
+The system stores the "persistent data" about every 60 seconds if there is some activity in the world. When you edit your behavior code, or update the system, Croquet starts a fresh session but re-loads contents from the persistent data. The content in the world file that the world is originally created from is not used to initialize this new session. Consider the world file as the starting point of a world, but editing it does not affect the world once it is created unless you edit it live by connecting as above.
+
 ## Croquet Microverse References
 Croquet Microverse is built on top of a number of other systems. The most important is the Croquet OS and the Croquet Worldcore framework. It isn't essential that you be familiar with these but you may find them useful in understanding the basis of how Croquet Microverse operates.
 
@@ -274,17 +313,5 @@ The [Croquet Worldcore framework](https://croquet.io/docs/worldcore/) defines th
 Croquet Microverse utilizes the [Rapier Physics Engine](https://rapier.rs/). Written in Rust and running in WebAssembly, Rapier is an open source, very high-performance but easy to create multiuser, interactive physics simulations.
 
 
-# Advanced Topics
 
-## Press the Connect button in the world menu
-After launching Microverse by visiting <http://localhost:9684> in Chrome select the world menu from the bottom left, and press "Connect". This will establish the connection to the watch-server started by **npm start**.
-
-## Edit or add a new file
-You can easily add a new file in the watched directory (by default `behaviors/default/`), and if the file follows the standard behavior structure of other files, it will be automatically available.
-
-## Make a new world file
-You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way). If you start microverse with ?world=fileBaseName, the file at `worlds/fileBaseName.js` is used to start the world.
-
-## Note on the persistence
-The system stores the "persistent data" about every 60 seconds if there is some activity in the world. When you edit your behavior code, or update the system, Croquet starts a fresh session but re-loads contents from the persistent data. The content in the world file that the world is originally created from is not used to initialize this new session. Consider the world file as the starting point of a world, but editing it does not affect the world once it is created unless you edit it live by connecting as above.
 
