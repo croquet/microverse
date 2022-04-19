@@ -109,28 +109,159 @@ The watch server enables you to edit code from your own IDE and have it injected
 
 ## A Brief Tour of the Microverse
 ---
+[TBD]
 
-
-## Cards and Behaviors
+## Worlds, Cards and Behaviors
 ---
-Every visible object in a Microverse is the same kind of object that we call a card. Some cards are flat like normal cards, and some cards are 3D models. We call them cards because the majority of the applications and interface objects will be flat. Also, we were inspired by Bill Atkinson's Hypercard, which demonstrated a new way of creating powerful applications. All cards are composable in that the developer can create decks made up of multiple cards. The cards in this deck can communicate with each other using a simple publish/subscribe model call "sayDeck" and "listenDeck".
+A Croquet World is deployed as a simple website. It is made up of a collection of cards, behaviors and 2d and 3d content. When you create a new world using Croquet Microverse Builder, every action, object and event is multiuser by default. You can think of the world you are constructing as a template. Once you deploy your Microverse and launch it, it will automatically generate a new session ID which is also added to the URL. Sharing this full URL enables other users to join the world with you any time.
 
-Behaviors are code objects that can be applied to a card. They enable the card to interact with the user, other cards, and even the live external world. 
+Every visible object in a Microverse is a kind of card. Some cards are flat like normal cards, and some are 3D models. We call them cards because the majority of the applications and interface objects will be flat. Also, we were inspired by Bill Atkinson's Hypercard, which demonstrated a new way of creating powerful applications. All cards are composable in that the developer can create decks made up of multiple cards that can interoperate with each other. The cards in this deck can communicate with each other using a simple publish/subscribe model call "sayDeck" and "listenDeck".
 
-## Constructing a New Card
+Behaviors are code objects that can be applied to a card. They enable the card to interact with the user, other cards, and even the live external world. Behaviors are typically short Javascript applications that are very easy to write. 
+
+## Constructing a New World
 ---
+A number of demo worlds are included with the Microverse repository. We will use these to demonstrate how to create worlds, cards and behaviors. The first world we will visit is demoWorld1.js. You can try this world out immediately once you have installed the repository and run npm start. The launch URL is:
 
-### Flat Cards
----
+<http://localhost:9684/?world=demoWorld1>
 
-### 3D Cards
----
+It looks like this:
+
+![Demoworld1](./assets/readme/DemoWorld1.png)
+
+As you can see, this world is shared with another user. demoWorld1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that let's us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/demoWorld1.js to see the following code. The init function is used to define the objects that make up the world. 
+
+The first values are Constants.MaxAvatars, which enables you to select which avatars you wish to use in this world and how many variations you will use. In this case, we are only going to use the first six on the AvatarNames list. These avatar files can be found in the microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
+
+***Avatars are still under construction and will evolve rapidly as we move toward the Microverse Beta release. ***
+
+```Javascript
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
+export function init(Constants) {
+    Constants.MaxAvatars = 6;
+    Constants.AvatarNames = [
+        "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
+        "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
+    ];
+```
+The next section defines the various behaviors we will be applying to our cards. The first set are system behaviors. We won't be using these until we have more sophisticated applications.
+
+The next group are the user behaviors. These are created by the creator of the world and are applied to the cards defined later in the file.
+
+```Javascript
+    Constants.SystemBehaviorDirectory = "behaviors/croquet";
+    Constants.SystemBehaviorModules = [
+        "menu.js", "elected.js", "propertySheet.js"
+    ];
+
+    Constants.UserBehaviorDirectory = "behaviors/demoWorld";
+    Constants.UserBehaviorModules = [
+        "lights.js", "gridFloor.js"
+    ];
+```
+
+The final section is where we define the cards. A card is easily defined by a number of parameters including the name, type, where it is first loaded into the world, and how it will be used. Perhaps most important is we can associated a behavior to the card here. A behavior can define how a card is constructed, or how it acts when a user interacts with it, or how it can access live external data streams. Here, the first card, the "world model" is defined by the "GridFloor" module. We will take a look at that shortly. The next card defines the lighting in this world. It is a bit more sophisticated, but is relatively easy to use. The last card creates a much more card-like object. A floating object in the middle of the scene with the Croquet logo applied.
+
+```Javascript
+    Constants.DefaultCards = [
+        {
+            card: {
+                name:'world model',
+                behaviorModules: ["GridFloor"],
+                layers: ['walk'],
+                type: "object",
+                translation:[0, -3, 0],
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name: 'light',
+                layers: ['light'],
+                type: "lighting",
+                behaviorModules: ["Light"],
+                clearColor: 0xaabbff,
+            }
+        },
+        {
+            card: {
+                name: 'image card',
+                translation: [0, -0.75, -10],
+                scale: [4, 4, 4],
+                type: "2d",
+                textureType: "image",
+                textureLocation: './assets/images/CroquetLogo_RGB.jpg',
+                frameColor: 0xcccccc,
+                color: 0xffffff,
+                cornerRadius: 0.05,
+                depth: 0.05,
+                shadow: true,
+            }
+        },
+    ];
+}
+```
 
 ## Behaviors
 ---
+Now let's take a look at the simple behavior we use to define the floor we are walking around on. This is the "GridFloor" behavior and is defined in the file:
 
-## Portals
----
+"microverse-builder/behaviors/demoWorld/gridFloor.js".
+
+This is the code:
+
+```
+// Grid Floor
+// Croquet Microverse
+// Generates a simple gridded floor card
+
+class GridFloorActor {
+    setup() {
+        // nothing to do here yet
+    }
+}
+
+class GridFloorPawn {
+    setup() {
+        const THREE = Worldcore.THREE;
+        const gridImage = './assets/images/grid.png';
+        const texture = new THREE.TextureLoader().load(gridImage);
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set( 100, 100 );
+
+        this.floor = new THREE.Mesh(
+            new THREE.BoxGeometry( 100, 1, 100, 1, 1, 1 ),
+            new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
+        this.floor.receiveShadow = true;
+        this.shape.add(this.floor);
+    }
+}
+
+export default {
+    modules: [
+        {
+            name: "GridFloor",
+            actorBehaviors: [GridFloorActor],
+            pawnBehaviors: [GridFloorPawn],
+        }
+    ]
+}
+```
+
+It is a very simple behavior. The major part of the system is to construct the 3D floor and apply a grid to it. You may recognize that it uses the Three.js 3D rendering system. 
+
+There are three parts to this behavior. The first is what we call the "actor". In Croquet, the actor is the replicated state of the object - the part that Croquet guarantees is exactly the same on every users machines at all times. In this case, the GridFloorActor doesn't have much to do to keep things in sync and is really just a placeholder.
+
+The second part is what we call the "pawn". As might be clear from its name, it is controlled by the actor and its job is to represent the state of the actor as it the actor is updated - whether from the local user or a remote user. In this case, the only job of the GridFloorPawn is to construct something for us to stand on. As you can see, the floor is simply a three.js BoxGeometry with a grid texture applied to it.
+
+The last part of the behavior is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
+
+
+
 
 ## Croquet Microverse References
 Croquet Microverse is built on top of a number of other systems. The most important is the Croquet OS and the Croquet Worldcore framework. It isn't essential that you be familiar with these but you may find them useful in understanding the basis of how Croquet Microverse operates.

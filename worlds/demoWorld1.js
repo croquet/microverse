@@ -52,7 +52,7 @@ export function init(Constants) {
                 type: "2d",
                 textureType: "image",
                 textureLocation: './assets/images/CroquetLogo_RGB.jpg',
-                fullBright: true,
+                //fullBright: true,
                 frameColor: 0xcccccc,
                 color: 0xffffff,
                 cornerRadius: 0.05,
