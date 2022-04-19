@@ -1210,12 +1210,9 @@ export class DynaverseAppManager extends ModelService {
     }
     get(name) {
         // return this.$apps.get(name);
-        let classes = this.constructor.allClasses();
-        for (let i = 0; i < classes.length; i++) {
-            if (classes[i].name === name) {
-                return classes[i];
-            }
-        }
+        try {
+            return this.constructor.classFromID(name);
+        } catch (e) {}
         return null;
     }
     delete(_name) {
