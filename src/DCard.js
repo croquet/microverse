@@ -77,6 +77,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
         options.behaviorModules.forEach((moduleName) => {
             let module = behaviorManager.modules.get(moduleName);
+            if (!module) {
+                console.error(`unknown module ${moduleName} is specified for update`);
+                return;
+            }
             if (module.actorBehaviors) {
                 allNewActorBehaviors.push(...module.actorBehaviors.values());
             }

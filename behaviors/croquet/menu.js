@@ -96,11 +96,11 @@ class MenuActor {
                 0
             ]});
             if (obj.iconCard) {
-                let leftEdge = ((extent ? extent.width : 0) - this.maxWidth) / 2;
-                leftEdge = leftEdge + extent.width / 2;
+                let rightEdge = ((extent ? extent.width : 0) - this.maxWidth) / 2;
+                rightEdge += extent.width / 2;
 
                 obj.iconCard.set({translation: [
-                    leftEdge,
+                    rightEdge + 0.01,
                     top - h / 2,
                     0.02
                 ]});
