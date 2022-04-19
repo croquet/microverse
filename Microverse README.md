@@ -1,7 +1,7 @@
 # Croquet Microverse Builder
 ## Quick Start Guide
 
-***Copyright (c) 2022 Croquet Corporation***
+**Copyright (c) 2022 Croquet Corporation**
 
 <https://croquet.io>
 
@@ -30,6 +30,9 @@ Croquet Microverse Builder is a multi-user development and deployment system bui
 ---
 The Croquet OS is a software system for creating and deploying multiuser digital experiences on the web. It lets you build real-time multiuser apps without writing a single line of server code, or deploying or managing any servers. Croquet is available as a JavaScript library that grants access to our global network of public reflectors. These reflectors provide seamless cross-platform real-time interactivity to any user with a network connection and a web browser.
 
+![Croquet OS](./assets/readme/Croquet%20OS.png)
+
+
 ## Resources
 ---
 
@@ -57,7 +60,7 @@ Developing any Croquet application requires an API key that you can obtain for f
 
 Select the [Sign Up](https://croquet.io/keys/login.html) button in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go. 
 
-![Croquet Key](./assets/readme/CroquetKeys.png)
+ç
 
 ---
 ### 3. Create the apiKey.js File
@@ -107,10 +110,6 @@ Your new Microverse awaits...
 ### 5. The Watch Server
 The watch server enables you to edit code from your own IDE and have it injected and run inside the Croquet Microverse while it is running without the need to reload. The watch server is automatically launched when execute `npm start`. You can start the watch server on its own by running `npm run watch-server`. The watch-server by default starts watching the directory called `behaviors`. If you want to create a separate set of behavior files in a different directory, you supply an argument to the watch-server by `npm run watch-server -- aDirectory`.
 
-## A Brief Tour of the Microverse
----
-[TBD]
-
 ## Worlds, Cards and Behaviors
 ---
 A Croquet World is deployed as a simple website. It is made up of a collection of cards, behaviors and 2d and 3d content. When you create a new world using Croquet Microverse Builder, every action, object and event is multiuser by default. You can think of the world you are constructing as a template. Once you deploy your Microverse and launch it, it will automatically generate a new session ID which is also added to the URL. Sharing this full URL enables other users to join the world with you any time.
@@ -133,7 +132,7 @@ As you can see, this world is shared with another user. demoWorld1 is made up of
 
 The first values are Constants.MaxAvatars, which enables you to select which avatars you wish to use in this world and how many variations you will use. In this case, we are only going to use the first six on the AvatarNames list. These avatar files can be found in the microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
-***Avatars are still under construction and will evolve rapidly as we move toward the Microverse Beta release. ***
+**Avatars are still under construction and will evolve rapidly as we move toward the Microverse Beta release.**
 
 ```Javascript
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
@@ -261,8 +260,6 @@ The second part is what we call the "pawn". As might be clear from its name, it 
 The last part of the behavior is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
 
 
-
-
 ## Croquet Microverse References
 Croquet Microverse is built on top of a number of other systems. The most important is the Croquet OS and the Croquet Worldcore framework. It isn't essential that you be familiar with these but you may find them useful in understanding the basis of how Croquet Microverse operates.
 
@@ -270,83 +267,24 @@ Croquet Microverse is built on top of a number of other systems. The most import
 
 The [Croquet OS kernel](https://croquet.io/docs/croquet/) is an extremely low-latency multi-user replicated computation platform. 
 
-The [Worldcore framework](https://croquet.io/docs/worldcore/) defines the actor/pawn architecture underlying the Croquet Metaverse cards. 
+The [Croquet Worldcore framework](https://croquet.io/docs/worldcore/) defines the actor/pawn architecture underlying the Croquet Metaverse cards. 
 
 [Three.js](https://threejs.org) provides the 3D rendering framework. It is an extremely powerful, flexible and well defined library. 
 
 Croquet Microverse utilizes the [Rapier Physics Engine](https://rapier.rs/). Written in Rust and running in WebAssembly, Rapier is an open source, very high-performance but easy to create multiuser, interactive physics simulations.
 
 
+# Advanced Topics
 
+## Press the Connect button in the world menu
+After launching Microverse by visiting <http://localhost:9684> in Chrome select the world menu from the bottom left, and press "Connect". This will establish the connection to the watch-server started by **npm start**.
 
+## Edit or add a new file
+You can easily add a new file in the watched directory (by default `behaviors/default/`), and if the file follows the standard behavior structure of other files, it will be automatically available.
 
+## Make a new world file
+You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way). If you start microverse with ?world=fileBaseName, the file at `worlds/fileBaseName.js` is used to start the world.
 
-
-# Installation Guide for Croquet Microverse (April 14th, 2022)
-
-
-
-## 6. Press the Connect button in the world menu
-After launching Microverse by visiting http://localhost:9684 in Chrome bring up the world menu from bottom left, and press "Connect". This will establish the connection to the watch-server started in step 4.
-
-## 7. Edit or add a new file
-You can simply add a new file in the watched directory (by default `behaviors/default/`), and if the file follows the structure of other files, it will become automatically available.
-
-## 8. Make a new world file
-You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way).  If you start microverse with ?world=fileBaseName, the file at `worlds/fileBaseName.js` is used to start the world.
-
-## 9. Note on the persistence
-The system stores the "persistent data" once about 60 seconds if there was some activity. When you edit your behavior code, or update the system, Croquets start a fresh session but re-loads contents from the persistent data. One thing to note is that the content in the world file that the world is originally created from is not used to initialize this new session. Consider the world file as the starting point of a world, but editing it does not affect the world since it is created.
-
-
-
-
-# Markdown Examples
-
-
-_Italic Text_   
-
----   
-**Bold Text**  
-> This is a quote  
-
-`forEach()` this is code  
-
-```Javascript
-    //this is a comment
-    let b = Math.cos((1 - d) * Math.PI);
-    b = Math.min(1, (b + 1) / 1.25);
-    let g = Math.sin(d * Math.PI);
-    g = (g + 1) / 2.2;
-    let r = Math.cos(d * Math.PI);
-    r = Math.min(1, (r + 1) / 1.25);
-```
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Smith",
-  "age": 25
-}
-```
-
-This is a ==hilite==  
-
-1. First item
-2. Second item
-3. Third item
-
-[Three.js](https://threejs.org)
-
-| this | is | a | table |
-| ----- | ---- | ----- | ---- |
-| And | so | is | this |
-| How | are | you | today |
-| what | is | new | ? |
-
-First definition term 
-: This is a definition
-
-![Embedded Image](./assets/images/Kay.jpg)
-
+## Note on the persistence
+The system stores the "persistent data" about every 60 seconds if there is some activity in the world. When you edit your behavior code, or update the system, Croquet starts a fresh session but re-loads contents from the persistent data. The content in the world file that the world is originally created from is not used to initialize this new session. Consider the world file as the starting point of a world, but editing it does not affect the world once it is created unless you edit it live by connecting as above.
 
