@@ -285,9 +285,9 @@ export class FontViewManager extends ViewService {
 
         this.publish(this.model.id, "fontLoadStart", {key, name});
         while (ind < array.length) {
-            let buf = array.slice(ind, ind + 4000);
+            let buf = array.slice(ind, ind + 2880);
             this.publish(this.model.id, "fontLoadOne", {key, buf});
-            ind += 4000;
+            ind += 2880;
         }
 
         this.publish(this.model.id, "fontLoadDone", key);

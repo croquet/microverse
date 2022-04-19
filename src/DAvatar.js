@@ -894,9 +894,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.publish(model.id, "loadStart", key);
 
         while (ind < array.length) {
-            let buf = array.slice(ind, ind + 4000);
+            let buf = array.slice(ind, ind + 2880);
             this.publish(model.id, "loadOne", {key, buf});
-            ind += 4000;
+            ind += 2880;
         }
 
         this.publish(model.id, "loadDone", key);

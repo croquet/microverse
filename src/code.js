@@ -966,9 +966,9 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 this.publish(this.model.id, "loadStart", key);
 
                 while (ind < array.length) {
-                    let buf = array.slice(ind, ind + 4000);
+                    let buf = array.slice(ind, ind + 2880);
                     this.publish(this.model.id, "loadOne", {key, buf});
-                    ind += 4000;
+                    ind += 2880;
                 }
 
                 this.publish(this.model.id, "loadDone", key);
