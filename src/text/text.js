@@ -514,9 +514,7 @@ export class TextFieldPawn extends CardPawn {
 
     destroy() {
         ["geometry", "material", "textGeometry", "textMaterial"].forEach((n) => {
-            if (Array.isArray(this[n])) {
-                this[n].forEach((o) => o.dispose());
-            } else if (this[n]) {
+            if (this[n]) {
                 this[n].dispose();
             }
             this[n] = null;

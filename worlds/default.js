@@ -24,11 +24,11 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
-                name:'world model',
+                name:"world model",
                 translation:[0, -10, -60],
                 scale:[200, 200, 200],
                 rotation: [0, Math.PI, 0],
-                layers: ['walk'],
+                layers: ["walk"],
                 type: "3d",
                 dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
                 singleSided: true,
@@ -43,8 +43,8 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'light',
-                layers: ['light'],
+                name: "light",
+                layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
                 dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
@@ -53,7 +53,7 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'Perlin Demo',
+                name: "Perlin Demo",
                 layers: ["pointer"],
                 translation:[ 10, -2.75, -14],
                 type: "object",
@@ -63,7 +63,7 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'text editor',
+                name: "text editor",
                 className: "TextFieldActor",
                 translation: [-4, -0.5, -12],
                 rotation: [0, Math.PI / 2, 0],
@@ -83,7 +83,7 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'simple 3D model',
+                name:"simple 3D model",
                 translation: [-4, -0.5, -18],
                 type: "3d",
                 dataLocation: "./assets/3D/Gears.glb.zip",
@@ -96,7 +96,7 @@ export function init(Constants) {
         /*
         {
             card: {
-                name: 'video card',
+                name: "video card",
                 translation: [-4, -0.5, -24],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
@@ -117,13 +117,13 @@ export function init(Constants) {
         */
         {
             card: {
-                name: 'image card',
+                name: "image card",
                 translation: [-4, -0.5, -23],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
-                textureLocation: './assets/images/Colony.png',
+                textureLocation: "./assets/images/Colony.png",
                 frameColor: 0x888888,
                 color: 0xffffff,
                 cornerRadius: 0.05,
@@ -133,12 +133,12 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'multiblaster',
+                name: "multiblaster",
                 className: "MultiBlaster",
                 translation: [-4, -0.5, -29],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 multiuser: true,
                 type: "2d",
                 textureType: "canvas",
@@ -153,14 +153,14 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'bouncinglogo',
+                name:"bouncinglogo",
                 className: "BouncingLogo",
                 translation: [-4, -0.5, -35],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 width: 1,
                 height: 1,
-                layers: ['pointer'],
+                layers: ["pointer"],
                 multiuser: true,
                 type: "2d",
                 dataLocation: "./assets/SVG/full-circle.svg",
@@ -175,21 +175,21 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'flightTracker',
+                name:"flightTracker",
                 translation: [-4, 1.5, -50],
                 type: "object",
                 behaviorModules: ["Elected", "FlightTracker", "Spin"],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 multiuser: true,
                 color: 0xaaaaaa,
             }
         },
         {
             card: {
-                name:'code editor',
+                name:"code editor",
                 translation: [8, -1.2, 4],
                 rotation: [0, -Math.PI / 2, 0],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 type: "code",
                 behaviorModule: "Circle.CircleActor",
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
@@ -203,19 +203,19 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'flamingo model',
+                name:"flamingo model",
                 dataTranslation: [0, 3, 0],
                 type: "3d",
-                dataLocation: './assets/3D/Flamingo.glb.zip',
+                dataLocation: "./assets/3D/Flamingo.glb.zip",
                 behaviorModules: ["Circle"]
             }
         },
         {
             card: {
-                name: 'drive code editor',
+                name: "drive code editor",
                 translation: [83, -0.9, -113],
                 rotation: [0, -Math.PI / 2, 0],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 type: "code",
                 behaviorModule: "Drive.DriveActor",
                 textScale: 0.001,
@@ -228,10 +228,10 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'spin code editor',
+                name: "spin code editor",
                 translation: [83, -1.6, -115],
                 rotation: [0, -Math.PI / 2, 0],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 type: "code",
                 behaviorModule: "Spin.SpinActor",
                 textScale: 0.001,
@@ -244,10 +244,10 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'porsche',
+                name:"porsche",
                 dataRotation: [-Math.PI / 2, 0, 0],
                 translation: [82, -2.56, -110],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 type: "3d",
                 multiuser: true,
                 dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
@@ -256,19 +256,19 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'earth',
+                name:"earth",
                 translation: [84, 1, -120],
                 scale: [0.5, 0.5, 0.5],
                 type: "object",
                 behaviorModules: ["FlightTracker", "Spin"],
-                layers: ['pointer'],
+                layers: ["pointer"],
                 multiuser: true,
                 color: 0xaaaaaa,
             }
         },
         {
             card: {
-                name:'bridge',
+                name:"bridge",
                 type: "object",
                 translation: [4, 0, 20],
                 behaviorModules: ["Bridge"],
@@ -276,7 +276,7 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'bitcointracker',
+                name: "bitcointracker",
                 translation: [-4, -0.5, -6],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
@@ -296,12 +296,12 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'bitlogo',
+                name:"bitlogo",
                 translation: [-0.35, 0.35, 0.1],
                 scale: [0.25, 0.25, 0.25],
                 parent: "main",
                 type: "2d",
-                dataLocation: './assets/SVG/BitcoinSign.svg',
+                dataLocation: "./assets/SVG/BitcoinSign.svg",
                 depth: 0.05,
                 color: 0xffffff,
                 frameColor: frameColor,
@@ -310,7 +310,7 @@ export function init(Constants) {
         },
         {
             card: {
-                name:'bar graph',
+                name:"bar graph",
                 translation:[0, -0.3, 0.1],
                 color: 0xEEEEEE,
                 frameColor: frameColor,

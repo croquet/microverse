@@ -40,12 +40,12 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
-                name:'wall st',
+                name:"wall st",
                 translation: [-12, floorHeight, -22],
                 rotation: [0, -Math.PI / 4, 0],
                 dacaScale: [1, 1, 1],
                 scale:[30, 30, 30],
-                layers: ['walk'],
+                layers: ["walk"],
                 type: "3d",
                 dataLocation: "382dPYZZisTwo9nBMWH-PVxkxc_jsuBWWpefamX3HEmIUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlVRW0pXTl1KS10XUQ1uU3Jrdk5iUXNaT351QE9rFXFPQEFeXmsIXwoIDn9cWUB0DX5bdhVBWxdcWUxZF3RMC3EBdmlCVEpfAXdKSAt3UkxfW1JMdnxgT1p9SV5tV10JTFcIVw1_fG0",
                 fileName: "/wallst_041422.glb",
@@ -60,8 +60,8 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'light',
-                layers: ['light'],
+                name: "light",
+                layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["FinantialLight"],
                 dataLocation: "./assets/sky/shanghai_riverside_2k.exr",

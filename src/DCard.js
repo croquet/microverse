@@ -19,6 +19,7 @@ import { WorldSaver } from './worldSaver.js';
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "behaviorModules", "multiuser", "name", "noSave"];
 
+
 //------------------------------------------------------------------------------------------
 //-- CardActor ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -461,11 +462,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             delete this.objectURL;
         }
 
-        if (Array.isArray(this.material)) {
-            this.material.forEach((m) => m.dispose());
-        } else if (this.material) {
-            this.material.dispose();
-        }
+        this.material.dispose();
 
         delete this.name;
         delete this.properties2D;
@@ -482,9 +479,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 if (m.geometry) {
                     m.geometry.dispose();
                 }
-                if (Array.isArray(m.material)) {
-                    m.material.forEach((mm) => mm.dispose());
-                } else if (m.material) {
+                if (m.material) {
                     m.material.dispose();
                 }
             });
@@ -557,6 +552,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             if (name) {
                 obj.name = name;
             }
+
+            if (Array.isArray(obj.material)) {
+                obj.material.dispose = arrayDispose;
+            }
+
             if (options.placeholder) {
                 // console.log("need to delete collider for boxmesh");
                 this.shape.remove(this.placeholder);
@@ -665,6 +665,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     obj.position.set(...options.dataTranslation);
                 }
                 obj.name = "2d";
+                if (Array.isArray(obj.material)) {
+                    obj.material.dispose = arrayDispose;
+                }
                 this.shape.add(obj);
             });
         } else {
@@ -826,9 +829,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     makePlaneMaterial(depth, color, frameColor, fullBright) {
-        if (Array.isArray(this.material)) {
-            this.material.forEach((m) => m.dispose());
-        } else if (this.material) {
+        if (this.material) {
             this.material.dispose();
         }
 
@@ -846,6 +847,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
 
         this.material = material;
+
+        this.material.dispose = arrayDispose;
         return material;
     }
 
@@ -1173,6 +1176,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 lines.push(obj);
             } else if(obj.geometry) {
                 mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
+                mat.dispose = arrayDispose;
                 //console.log("removeWire, material",mat);
                 mat.forEach(m=>{
                     if(m._oldColor) {
@@ -1242,3 +1246,8 @@ export class VideoManager extends ViewService {
         }
     }
 }
+
+function arrayDispose() {
+    this.forEach((e) => e.dispose());
+}
+

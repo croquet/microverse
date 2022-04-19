@@ -24,9 +24,9 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
-                name:'world model',
+                name:"world model",
                 behaviorModules: ["GridFloor"],
-                layers: ['walk'],
+                layers: ["walk"],
                 type: "object",
                 translation:[0, -3, 0],
                 shadow: true,
@@ -34,8 +34,8 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'light',
-                layers: ['light'],
+                name: "light",
+                layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
                 clearColor: 0xaabbff,
@@ -45,13 +45,13 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'image card',
+                name: "image card",
                 translation: [0, -0.75, -10],
                 //rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
-                textureLocation: './assets/images/CroquetLogo_RGB.jpg',
+                textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
                 //fullBright: true,
                 frameColor: 0xcccccc,
                 color: 0xffffff,

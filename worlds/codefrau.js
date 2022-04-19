@@ -24,11 +24,11 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
-                name:'world model',
+                name:"world model",
                 translation:[0, -10, -60],
                 scale:[200, 200, 200],
                 rotation: [0, Math.PI, 0],
-                layers: ['walk'],
+                layers: ["walk"],
                 type: "3d",
                 dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
                 singleSided: true,
@@ -43,8 +43,8 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'light',
-                layers: ['light'],
+                name: "light",
+                layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
                 // dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
@@ -55,16 +55,16 @@ export function init(Constants) {
         },
         {
             card: {
-                name: 'portal',
+                name: "portal",
                 className: "PortalActor",
                 translation: [0, 0, 0],
                 rotation: [0, 0, 0],
                 depth: 0.05,
                 type: "2d",
-                layers: ['pointer'],
+                layers: ["pointer"],
                 behaviorModules: ["Spin"],
                 // textureType: "image",
-                // textureLocation: './assets/images/earthbase.png',
+                // textureLocation: "./assets/images/earthbase.png",
                 color: 0xFF66CC,
                 frameColor: frameColor,
                 width: 20,

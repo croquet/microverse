@@ -204,9 +204,9 @@ The final section is where we define the cards. A card is easily defined by a nu
     Constants.DefaultCards = [
         {
             card: {
-                name:'world model',
+                name: "world model",
                 behaviorModules: ["GridFloor"],
-                layers: ['walk'],
+                layers: ["walk"],
                 type: "object",
                 translation:[0, -3, 0],
                 shadow: true,
@@ -214,8 +214,8 @@ The final section is where we define the cards. A card is easily defined by a nu
         },
         {
             card: {
-                name: 'light',
-                layers: ['light'],
+                name: "light",
+                layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
                 clearColor: 0xaabbff,
@@ -223,12 +223,12 @@ The final section is where we define the cards. A card is easily defined by a nu
         },
         {
             card: {
-                name: 'image card',
+                name: "image card",
                 translation: [0, -0.75, -10],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
-                textureLocation: './assets/images/CroquetLogo_RGB.jpg',
+                textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
                 frameColor: 0xcccccc,
                 color: 0xffffff,
                 cornerRadius: 0.05,
