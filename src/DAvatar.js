@@ -211,9 +211,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     fileUploaded(data) {
         let {dataId, fileName, type, translation, rotation} = data;
-        // this.assets.set(dataId, dataId, type);
-console.log("fileUploaded", type)
-        let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
+        let appManager = this.service("DynaverseAppManager");
+        let CA = appManager.get("CardActor");
 
         let cardType = type === "exr" ? "lighting" :(type === "svg" || type === "img" ? "2d" : "3d");
 
@@ -268,7 +267,8 @@ console.log("fileUploaded", type)
             tackPoint[1] += 2;
         }
 
-        let CA = this.constructor.allClasses().find(o => o.name === "CardActor");
+        let appManager = this.service("DynaverseAppManager");
+        let CA = appManager.get("CardActor");
 
         let options = {
             name:'sticky note',
