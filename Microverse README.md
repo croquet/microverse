@@ -21,9 +21,12 @@ This guide will enable you to quickly set up Croquet Microverse Builder and intr
 
 ## TLDR
 1. Clone the Github repository <https://github.com/croquet/microverse-builder>
-2. Obtain your Croquet API Key <https://croquet.io/developers/index.html>
-3. Create the apiKey.js file from apiKey.js-example and the API Key above.
-4. Open a terminal and set the path to your new Microverse-Builder folder.
+    <br>(`git clone https://github.com/croquet/microverse-builder`)
+2. Obtain your Croquet API Key <https://croquet.io/keys/>
+3. Open a terminal and set the path to your new Microverse-Builder folder.
+   <br>`cd microverse-builder`
+4. Create the apiKey.js file from apiKey.js-example and the API Key above.
+   <br>`cp apiKey.js-example apiKey.js # and edit apiKey.js`
  
 In the terminal run 
     
@@ -44,11 +47,11 @@ Open browser at `localhost:9684` and enter a new world.
 
 Croquet Microverse Builder is a multi-user development and deployment system built on top of the Croquet Web-based operating system. This document will get you started creating your own microverses that you can deploy anywhere you like.
 
-The Microverse Builder IDE can be integrated directly with the tools you are already familiar with, particularly with your own programmer IDE. This enables you to directly work with and modify a live, shared Croquet Microverse session.
+The Microverse Builder IDE can be integrated directly with the tools you are already familiar with, particularly with your own editor. This enables you to directly work with and modify a live, shared Croquet Microverse session.
 
 ## Croquet OS
 ---
-The Croquet OS is a software system for creating and deploying multiuser digital experiences on the web. It lets you build real-time multiuser apps without writing a single line of server code, or deploying or managing any servers. Croquet is available as a JavaScript library that grants access to our global network of public reflectors. These reflectors provide seamless cross-platform real-time interactivity to any user with a network connection and a web browser.
+The Croquet OS is a software system for creating and deploying multiuser experiences on the web. It lets you build real-time multiuser apps without writing a single line of server code, or deploying or managing any servers. Croquet is available as a JavaScript library that grants access to our global network of public reflectors. These reflectors provide seamless cross-platform real-time interactivity to any user with a network connection and a web browser.
 
 ![Croquet OS](./assets/readme/Croquet%20OS.png)
 
@@ -57,7 +60,7 @@ The Croquet OS is a software system for creating and deploying multiuser digital
 ---
 
 ### Croquet.io
-<https://croquet.io> is the best place to get started with what Croquet Microverse is and what it can do. 
+<https://croquet.io/> is the best place to get started with what Croquet Microverse is and what it can do.
 
 ### Discord
 
@@ -75,12 +78,10 @@ You can find the most up to date Croquet Microverse library as well as this docu
 ---
 ### 2. Obtain your API Key
 
-Developing any Croquet application requires an API key that you can obtain for free from Croquet. It requires you to sign up as a developer to access this. You can sign up as a Croquet developer here:
+Developing any Croquet application requires an API key that you can obtain from Croquet. It requires you to sign up as a developer to access this. You can sign up as a Croquet developer here:
 <https://croquet.io/developers/index.html>
 
-Select the [Sign Up](https://croquet.io/keys/login.html) button in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go. 
-
-ç
+Select the [Sign Up](https://croquet.io/keys/) button in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go. 
 
 ---
 ### 3. Create the apiKey.js File
@@ -107,7 +108,7 @@ export default {apiKey, appId};
 
 ### 4. Start Croquet Microverse
 
-The next steps are simple. Open a terminal on your computer and set the path to the new microverse-builder folder.
+The next steps are simple. Open a terminal on your computer and change the working directory to the new microverse-builder folder. (`cd microverse-builder')
 
 First run `npm install` in the directory.
 
