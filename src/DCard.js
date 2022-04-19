@@ -847,8 +847,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
 
         this.material = material;
-
-        this.material.dispose = arrayDispose;
+        if (Array.isArray(this.material)) {
+            this.material.dispose = arrayDispose;
+        }
         return material;
     }
 
@@ -1248,6 +1249,10 @@ export class VideoManager extends ViewService {
 }
 
 function arrayDispose() {
-    this.forEach((e) => e.dispose());
+    if (Array.isArray(this)) {
+        this.forEach((e) => e.dispose());
+    } else {
+        this.dispose();
+    }
 }
 
