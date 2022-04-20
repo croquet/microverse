@@ -1,30 +1,32 @@
-# Installation Guide for Croquet Microverse (April 14th, 2022)
+# Croquet Microverse Builder
+## Quick Start Guide
 
-## 1. Clone this repo
+**Copyright (c) 2022 Croquet Corporation**
 
-Clone this git repository in your convenient manner.
+<https://croquet.io>
 
-## 2. Make `apiKey.js`
-Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js` and then edit the two properties called `apiKey` and `appId` in the file.
+<info@croquet.io>
 
-## 3. Run `npm install`
-Run `npm install` in the directory.
+Please refer to the QuickStart.md in the `docs` directory to get started. Key concepts and the features of Croquet Microverse and development workflow are explained in other documents in `docs`. The following is the bare minimum steps to take to run Croquet Microverse on your computer:
 
-## 4. Run `npm start`
-Run `npm start` in the directory. This will run two servers. One is the file server on localhost:9684, and another is the watch-server to inject code changes into a running session. You can also run them separately by running `npm run file-server` and `npm run watch-server`.
 
-## 5. Note on the watch-server
-The watch-server by default starts watching the directory called `behaviors`.  If you want to create a separate set of behavior files in a different directory, you supply an argument to the watch-server by `npm run watch-server -- aDirectory`.
+## The First Steps to Run
+1. Clone the Github repository from <https://github.com/croquet/microverse-builder>.
+    <br>`git clone git@github.com:croquet/microverse-builder.git`
+2. Obtain your Croquet API Key from <https://croquet.io/keys/>.
+3. Open a terminal and change the working directory to your new Microverse-Builder folder.
+   <br>`cd microverse-builder`
+4. Create the apiKey.js file from apiKey.js-example and the API Key above.
+   <br>`cp apiKey.js-example apiKey.js # and edit apiKey.js`
+ 
+5. In the terminal run 
 
-## 6. Press the Connect button in the world menu
-After launching Microverse by visiting http://localhost:9684 in Chrome bring up the world menu from bottom left, and press "Connect". This will establish the connection to the watch-server started in step 4.
+```npm i```
 
-## 7. Edit or add a new file
-You can simply add a new file in the watched directory (by default `behaviors/default/`), and if the file follows the structure of other files, it will become automatically available.
+and then
 
-## 8. Make a new world file
-You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way).  If you start microverse with ?world=fileBaseName, the file at `worlds/fileBaseName.js` is used to start the world.
+```npm start```
 
-## 9. Note on the persistence
-The system stores the "persistent data" once about 60 seconds if there was some activity. When you edit your behavior code, or update the system, Croquets start a fresh session but re-loads contents from the persistent data. One thing to note is that the content in the world file that the world is originally created from is not used to initialize this new session. Consider the world file as the starting point of a world, but editing it does not affect the world since it is created.
+6. Open browser at `localhost:9684` and enter a new world.
 
+7. Copy the URL shown in the browser tab and copy it into a new tab. Also, replace localhost with the IP address (probably something like 192.168.0.123) and open it from another device on the local network.
