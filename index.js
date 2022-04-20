@@ -1,4 +1,5 @@
 import { Model, Constants } from "@croquet/worldcore";
+import { startShell, isShellWindow } from "./shell.js";
 import { startWorld, basenames } from "./root.js";
 import { WorldSaver } from "./src/worldSaver.js";
 import { CodeLibrary } from "./src/code.js";
@@ -14,38 +15,47 @@ const defaultSystemBehaviorModules = [
     "menu.js", "elected.js", "propertySheet.js"
 ];
 
-let {basedir, basename} = basenames();
+async function startMicroverse() {
+    let {basedir, basename} = basenames();
 
-function check() {
-    return (basename.endsWith(".json")) ? Promise.resolve(null) : eval(`import("${basedir}worlds/${basename}.js")`)
+    if (!basename.endsWith(".json")) {
+        // eval to hide import from webpack
+        const worldModule = await eval(`import("${basedir}worlds/${basename}.js")`);
+        // use bit-identical math for constant initialization
+        Model.evaluate(() => worldModule.init(Constants));
+    } else {
+        const response = await fetch(basename);
+        if (!response.ok) throw Error(`world not found: ${basename}`);
+        const text = await response.text();
+        const json = new WorldSaver().parse(text);
+        Constants.MaxAvatars = defaultMaxAvatars;
+        Constants.AvatarNames = defaultAvatarNames;
+        Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
+        Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+        Constants.BehaviorModules = json.data.behaviormodules;
+        Constants.DefaultCards = json.data.cards;
+        Constants.Library = new CodeLibrary();
+        Constants.Library.addModules(json.data.behaviorModules);
+    }
+    let apiKeysModule;
+    try {
+        // eval to hide import from webpack
+        apiKeysModule = await eval(`import('${basedir}apiKey.js')`);
+    } catch (error) {
+        console.log(error);
+        throw Error("Please make sure that you have created a valid apiKey.js");
+    };
+    // Default parameters are filled in the body of startWorld. You can override them.
+    startWorld(apiKeysModule.default);
 }
 
-check().then((module) => {
-    if (basename.endsWith(".json")) {
-        return fetch(basename).then((response) => {
-            if (`${response.status}`.startsWith("2")) {
-                return response.text();
-            }
-            throw new Error("initFile not found");
-        }).then((text) => {
-            let json = new WorldSaver().parse(text);
-            Constants.MaxAvatars = defaultMaxAvatars;
-            Constants.AvatarNames = defaultAvatarNames;
-            Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
-            Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
-            Constants.BehaviorModules = json.data.behaviormodules;
-            Constants.DefaultCards = json.data.cards;
-            Constants.Library = new CodeLibrary();
-            Constants.Library.addModules(json.data.behaviorModules);
-        });
+async function start() {
+    const isShell = await isShellWindow();
+    if (isShell) {
+        startShell();
+    } else {
+        startMicroverse();
     }
-    // use bit-identical math for constant initialization
-    Model.evaluate(() => module.init(Constants));
-    return Promise.resolve(null);
-}).then(() => eval(`import('${basedir}apiKey.js')`))
-// Default parameters are filled in the body of startWorld. You can override them.
-    .then((module) => startWorld(module.default))
-    .catch((error) => {
-        console.log(error);
-        console.error("Please make sure that you have created a valid apiKey.js");
-    });
+}
+
+start();
