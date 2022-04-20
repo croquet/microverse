@@ -1,4 +1,4 @@
-// demoWorld1.js
+// demoWorld2.js
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
@@ -26,10 +26,13 @@ export function init(Constants) {
         {
             card: {
                 name:"world model",
-                behaviorModules: ["GridFloor"],
+                type: "3d",
+                dataLocation: "./assets/3D/artgallery.glb.zip",
+                singleSided: true,
+                shadow: true,
                 layers: ["walk"],
-                type: "object",
                 translation:[0, -1.7, 0],
+                scale:[16,16,16],
                 shadow: true,
             }
         },
@@ -45,7 +48,7 @@ export function init(Constants) {
         {
             card: {
                 name: "image card",
-                translation: [0, 0.4, -10],
+                translation: [0, -0.75, -10],
                 //rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",

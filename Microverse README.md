@@ -13,9 +13,9 @@ Pre-Alpha version 0.01
 2. DemoWorld2 - extend the card to interact with user (random color)
 3. DemoWorld3 - flamingo + Circle
 4. DemoWorld4 - more complex behavior
-4. DemoWorld4 - live data visualization
-5. DemoWorld6 - external data stream
-6. Card Properties
+5. DemoWorld5 - live data visualization
+6. DemoWorld6 - external data stream
+7. Card Properties
 
 ## Introduction
 
@@ -247,7 +247,7 @@ The final section is where we define the cards. A card is easily defined by a nu
                 behaviorModules: ["GridFloor"],
                 layers: ["walk"],
                 type: "object",
-                translation:[0, -3, 0],
+                translation:[0, -1.7, 0],
                 shadow: true,
             }
         },
@@ -263,7 +263,7 @@ The final section is where we define the cards. A card is easily defined by a nu
         {
             card: {
                 name: "image card",
-                translation: [0, -0.75, -10],
+                translation: [0, 0.4, -10],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
