@@ -39,8 +39,6 @@ export function init(Constants) {
                 type: "lighting",
                 behaviorModules: ["Light"],
                 clearColor: 0xaabbff,
-                // dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
-                // dataType: "jpg",
             }
         },
         {
@@ -52,13 +50,12 @@ export function init(Constants) {
                 type: "2d",
                 textureType: "image",
                 textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
-                //fullBright: true,
+                fullBright: true,
                 frameColor: 0xcccccc,
                 color: 0xffffff,
                 cornerRadius: 0.05,
                 depth: 0.05,
                 shadow: true,
-                //fullBright: false
             }
         },
     ];
