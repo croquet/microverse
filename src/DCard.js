@@ -462,7 +462,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             delete this.objectURL;
         }
 
-        this.material.dispose();
+        if (this.material) {
+            this.material.dispose();
+        }
 
         delete this.name;
         delete this.properties2D;
