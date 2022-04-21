@@ -21,34 +21,34 @@ export function init(Constants) {
 
     // const frameColor = 0x888888;
 
-    const floorHeight = -24.5;
-    const kioskHeight = floorHeight + 22.82;
+    const floorHeight = -2;
+    const kioskHeight = floorHeight;
 
     const bases = [
-        [6.928295686623184, kioskHeight, -18.88357457568553],
-        [-8.64808587775137, kioskHeight, -3.3486295684091365],
-        [-8.693563102014412, kioskHeight, -34.505569989046556],
-        [-24.261174643634583, kioskHeight, -18.923882777303966],
+        [6.164617948413239, -2, -10.85337967226985],
+        [-4.991730292590003, -2, 0.29729449346094544],
+        [-4.961411414886032, -2, -22.01285987627673],
+        [-16.17077144828993, -2, -10.846679003904795],
         //        [11.21, -5.18, -6.43],
         //        [-10.84, -5.18, -6.43],
         //        [11.21, -5.18, -28.50],
         //        [-10.84, -5.18, -28.50],
     ];
 
-    const kioskScale = [49, 49, 49];
+    const kioskScale = [1, 1, 1];
 
     Constants.DefaultCards = [
         {
             card: {
                 name:"wall st",
-                translation: [0, -10, 0],
+                translation: [0, floorHeight, -5],
                 rotation: [0, -Math.PI / 4, 0],
-                dataScale: [40, 40, 40],
-                scale: [1, 1, 1],               //scale:[30, 30, 30],
-                layers: ["walk"],
+                dataScale: [1, 1, 1],
+                // scale: [30, 30, 30],
+                layers: ["walk", "pointer"],
                 type: "3d",
-                dataLocation: "382dPYZZisTwo9nBMWH-PVxkxc_jsuBWWpefamX3HEmIUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlVRW0pXTl1KS10XUQ1uU3Jrdk5iUXNaT351QE9rFXFPQEFeXmsIXwoIDn9cWUB0DX5bdhVBWxdcWUxZF3RMC3EBdmlCVEpfAXdKSAt3UkxfW1JMdnxgT1p9SV5tV10JTFcIVw1_fG0",
-                fileName: "/wallst_041422.glb",
+                dataLocation: "38kv6PK9ULjCj0DTKt_v9fEwZqMKPke3TYq_2oTgm3vwUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlxZTlFcFllPXUtXVV0VWUhIF012cwxUD1p_SkpyDXBPTGhTXw5RV30JX11McA0MCntRAE96XGpaagh9aggXXFlMWRdpVntXfHZLfV0VDX1AT3B6XH1BYHR9FQxVenQNQkF_dV8JW04LXWt1DVdh",
+                fileName: "/wallst_042122_nokiosk.glb",
                 modelType: "glb",
                 singleSided: true,
                 shadow: true,
@@ -76,8 +76,8 @@ export function init(Constants) {
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_base ${i}`,
-                    dataLocation: "3oto9vTHiMFlr7VEuzbwb9KghdbRRgm909QXOj5HSOZoBxsbHxxVQEAJBgMKHEEaHEEMHQAeGgobQQYAQBpAKAs5DRYDJhwuBD4MLTcLXCgXDhkWGDokODY2XUAGAEEMHQAeGgobQQIGDB0AGQodHApAK1kYAgoqAxcYJw04OwIbIAoXKw5YAh0MGAQwOSYDAhc5Gl0mBSYhCiEtV0ALDhsOQF0AJV4gXz8VFQUbHxYKDjgVHw5ZGhxbCFgIPygLLAMFAigoPAUoJRkLBxw",
-                    fileName: "/Kiosk_base_nolight.glb",
+                    dataLocation: "3iUmZWalKz-nfmVbadzV4ZYIodnWMy2u1MBxJop2gYZsAR0dGRpTRkYPAAUMGkccGkcKGwYYHAwdRwAGRhxGLg0_CxAFIBooAjgKKzENWi4RCB8QHjwiPjAwW0YABkcKGwYYHAwdRw0IHwANRwgeDBoGBAxECBkZRjlZMFg8JCE-ETM2UAQhMDofXS09EBwxJy8dLSY7EVldADkzOigYPww-DQJGDQgdCEYnCBEMJTNcPgcxJC8jMxMCHj89ECQAAx8qAlEqJQICLh9ZCAooKysRJiog",
+                    fileName: "/kiosk_base.glb",
                     modelType: "glb",
                     shadow: true,
                     singleSided: true,
@@ -90,8 +90,8 @@ export function init(Constants) {
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_screen_1 ${i}`,
-                    dataLocation: "36G5zWCENgH_RVPrDs97pgKCF6xyxo7wLbqPBNjQfh14XkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFtfVURZQFNERVMZY0dbAEBwZXsBWXkDB1FkAEBhXQ4DAX9zen9PDnh1BnBgXF1BQk5mTGxkXRlSV0JXGUNSB2ZFXkVTBFhdQUJMAFUOBxtRV3BgBxt-TlxQQHxZTFJlcHVSAgNVVwY",
-                    fileName: "/Kiosk_screen_1.glb",
+                    dataLocation: "36ujbsHZCFEIyPVeNHACIHAoAtoCRwMVDbriM0fsDZ1gXkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFJXQF9SGFdBU0VZW1MbV0ZGGWYGbwdje35hTmxpD1t-b2VAAnJiT0NueHBCcnlkTgYCX2ZsZXdHYFNhUl0ZUldCVxlmQWlGA2l1U3RhA3BbD30HZg9GVQdUG1IbelNSf1tMewZhb0cGY3BUQk5_",
+                    fileName: "/kiosk_1.glb",
                     modelType: "glb",
                     shadow: true,
                     singleSided: true,
@@ -104,8 +104,8 @@ export function init(Constants) {
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_screen_2 ${i}`,
-                    dataLocation: "3EcXJhKGfgQaI8FSUi9FNsqEYdzuj3hraTyE5C0SX6p4LTExNTZ_amojLCkgNmswNmsmNyo0MCAxaywqajBqAiETJzwpDDYELhQmBx0hdgI9JDM8MhAOEhwcd2osKmsmNyo0MCAxaygsJjcqMyA3NiBqEDQoczMDFghyKgpwdCIXczMSLn1wcgwACQw8fQsGdQMTLy4yMT0VPx8XLmohJDEkaj0BDgcQL3NyMQM1fXw8chw2HQMjcTMsLzEnIw0UISQkExEkNhIdAXMsFCY",
-                    fileName: "/Kiosk_screen_2.glb",
+                    dataLocation: "3fiW6C1DWpOMXBgSfx1qWTHKHoBN0btTdAFu5SW4S_NoDhISFhVcSUkADwoDFUgTFUgFFAkXEwMSSA8JSRNJIQIwBB8KLxUnDTcFJD4CVSEeBxAfETMtMT8_VEkPCUgFFAkXEwMSSAIHEA8CSAcRAxUJCwNLBxYWSTZWP1czKy4xHjw5XwsuPzUQUiIyHxM-KCASIik0HlZSDzY8NScXMAMxAg1JAgcSB0lfEQwNPEs_LxYONw5SEiQkClEHKwE-NTw1HlM_DiFVXggACB4SVD9QFQoB",
+                    fileName: "/kiosk_2.glb",
                     modelType: "glb",
                     shadow: true,
                     singleSided: true,
@@ -118,8 +118,8 @@ export function init(Constants) {
                     rotation: [0, 0, 0],
                     dataScale: [1, 1, 1],
                     name: `/Kiosk_screen_3 ${i}`,
-                    dataLocation: "3WtpqdkBp4D2G7obtU4Ps42SDs3MJ2SilFvK0jjPThy8PyMjJyRteHgxPjsyJHkiJHk0JTgmIjIjeT44eCJ4EDMBNS47HiQWPAY0FQ8zZBAvNiEuIAIcAA4OZXg-OHk0JTgmIjIjeTo-NCU4ITIlJDJ4AiY6YSERBBpgOBhiZjAFYSEAPG9iYB4SGx4ubxkUZxEBPTwgIy8HLQ0FPHgzNiM2eGUPBC8vYhkAOWc1ECBkGwUEFjM2DjAkZxoDIghkLjUzbhYgPR0ULiMaJG8",
-                    fileName: "/Kiosk_screen_3.glb",
+                    dataLocation: "3DH8MpBr7yGkdmUNRPIosDyx9A3bxumwvfv-LczVryDILDAwNDd-a2siLSghN2oxN2onNis1MSEwai0razFrAyASJj0oDTcFLxUnBhwgdwM8JTI9MxEPEx0ddmstK2onNis1MSEwaiAlMi0gaiUzITcrKSFpJTQ0axR0HXURCQwTPB4bfSkMHRcycAAQPTEcCgIwAAsWPHRwLRQeFwU1EiETIC9rICUwJWsXBzYWER4QHgppNg59Ly8MPTQGMXB0ATUoHhclMn02DS0PcCFydQh1Fw4V",
+                    fileName: "/kiosk_3.glb",
                     modelType: "glb",
                     shadow: true,
                     singleSided: true,
