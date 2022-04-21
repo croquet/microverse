@@ -5,7 +5,6 @@ class LightPawn {
         let scene =  trm.scene;
         let camera = trm.camera;
         let group = this.shape;
-        window.scene = scene;
 
         this.removeLights();
 

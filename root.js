@@ -339,6 +339,8 @@ class MyViewRoot extends ViewRoot {
         super(model);
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
+        window.scene = threeRenderManager.scene;
+        
 
         this.service("FontViewManager").setModel(model.service("FontModelManager"));
 
