@@ -12,7 +12,7 @@ import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 import {setupWorldMenuButton} from "./worldMenu.js";
 
 let avatarModelPromises = [];
-export let EYE_HEIGHT = 1.7;
+export let EYE_HEIGHT = 1.676;
 export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
@@ -431,7 +431,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
             .then((obj) => {
                 addShadows(obj, true, true, THREE);
-                obj.scale.set(0.4,0.4,0.4);
+                obj.scale.set(0.3,0.3,0.3);
                 obj.rotation.set(0, Math.PI, 0);
                 let group = new THREE.Group();
                 group.add(obj);

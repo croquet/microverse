@@ -17,7 +17,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/demoWorld";
     Constants.UserBehaviorModules = [
-        "lights.js", "gridFloor.js"
+        "lights.js", "gridFloor.js", "joeTheBox.js"
     ];
 
     const frameColor = 0x888888;
@@ -29,10 +29,10 @@ export function init(Constants) {
                 behaviorModules: ["GridFloor"],
                 layers: ["walk"],
                 type: "object",
-                translation:[0, -1.7, 0],
+                translation:[0, -2, 0],
                 shadow: true,
             }
-        },
+        },   
         {
             card: {
                 name: "light",

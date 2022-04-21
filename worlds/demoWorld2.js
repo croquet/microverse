@@ -17,7 +17,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/demoWorld";
     Constants.UserBehaviorModules = [
-        "lights.js", "gridFloor.js"
+        "lights.js", "gridFloor.js", "joeTheBox.js"
     ];
 
     const frameColor = 0x888888;
@@ -32,7 +32,7 @@ export function init(Constants) {
                 shadow: true,
                 layers: ["walk"],
                 translation:[0, -1.7, 0],
-                scale:[16,16,16],
+                dataScale:[1,1,1],
                 shadow: true,
             }
         },
@@ -42,13 +42,14 @@ export function init(Constants) {
                 layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
-                clearColor: 0xaabbff,
+                dataLocation: "./assets/sky/shanghai_riverside_2k.exr",
+                dataType: "exr",
             }
         },
         {
             card: {
                 name: "image card",
-                translation: [0, -0.75, -10],
+                translation: [0, 0.4, -10],
                 //rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
@@ -56,11 +57,34 @@ export function init(Constants) {
                 textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
                 fullBright: true,
                 frameColor: 0xcccccc,
-                color: 0xffffff,
+                color: 0xbbbbbb,
                 cornerRadius: 0.05,
                 depth: 0.05,
                 shadow: true,
             }
         },
+        {
+            card: {
+                name:"Joe the Box",
+                behaviorModules: ["JoeTheBox"],
+                layers: ["pointer"],
+                type: "object",
+                translation:[-4, 0.4, -10],
+                //rotation:[0, Math.pi/4, 0],
+                shadow: true,
+            }
+        },     
+        {
+            card: {
+                name:"Imported Box",
+                type: "3d",
+                dataLocation: "./assets/3D/1m_testcube.glb.zip",
+                layers: ["pointer"],
+                translation:[4, 0.4, -10],
+                dataScale:[1,1,1],
+                //rotation:[0, Math.pi/4, 0],
+                shadow: true,
+            }
+        },     
     ];
 }

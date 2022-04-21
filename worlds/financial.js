@@ -41,10 +41,10 @@ export function init(Constants) {
         {
             card: {
                 name:"wall st",
-                translation: [-12, floorHeight, -22],
+                translation: [0, -10, 0],
                 rotation: [0, -Math.PI / 4, 0],
-                dacaScale: [1, 1, 1],
-                scale:[30, 30, 30],
+                dataScale: [40, 40, 40],
+                scale: [1, 1, 1],               //scale:[30, 30, 30],
                 layers: ["walk"],
                 type: "3d",
                 dataLocation: "382dPYZZisTwo9nBMWH-PVxkxc_jsuBWWpefamX3HEmIUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlVRW0pXTl1KS10XUQ1uU3Jrdk5iUXNaT351QE9rFXFPQEFeXmsIXwoIDn9cWUB0DX5bdhVBWxdcWUxZF3RMC3EBdmlCVEpfAXdKSAt3UkxfW1JMdnxgT1p9SV5tV10JTFcIVw1_fG0",
@@ -52,10 +52,10 @@ export function init(Constants) {
                 modelType: "glb",
                 singleSided: true,
                 shadow: true,
-                placeholder: true,
-                placeholderSize: [40, 1, 40],
-                placeholderColor: 0x808080,
-                placeholderOffset: [0, 0.4, 0],
+               // placeholder: true,
+               // placeholderSize: [40, 1, 40],
+               // placeholderColor: 0x808080,
+               // placeholderOffset: [0, 0.4, 0],
             }
         },
         {

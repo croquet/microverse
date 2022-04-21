@@ -20,25 +20,26 @@ export function init(Constants) {
     ];
 
     const frameColor = 0x888888;
+    const cardHeight = 0.5;
 
     Constants.DefaultCards = [
         {
             card: {
                 name:"world model",
-                translation:[0, -10, -60],
-                scale:[200, 200, 200],
+                dataScale:[1,1,1],
+                translation:[22,-1.7,-20],
                 rotation: [0, Math.PI, 0],
                 layers: ["walk"],
                 type: "3d",
-                dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
+                dataLocation: "./assets/3D/oilrefinery_042122.glb.zip",
                 singleSided: true,
                 shadow: true,
-
+/*
                 placeholder: true,
                 placeholderSize: [40, 1, 40],
                 placeholderColor: 0x808080,
                 placeholderOffset: [0, -0.463, 0],
-
+*/
             }
         },
         {
@@ -65,7 +66,7 @@ export function init(Constants) {
             card: {
                 name: "text editor",
                 className: "TextFieldActor",
-                translation: [-4, -0.5, -12],
+                translation: [-4, cardHeight, -12],
                 rotation: [0, Math.PI / 2, 0],
                 multiuser: true,
                 depth: 0.05,
@@ -84,7 +85,7 @@ export function init(Constants) {
         {
             card: {
                 name:"simple 3D model",
-                translation: [-4, -0.5, -18],
+                translation: [-4, cardHeight, -18],
                 type: "3d",
                 dataLocation: "./assets/3D/Gears.glb.zip",
                 dataRotation: [Math.PI / 2, Math.PI / 2, 0],
@@ -118,7 +119,7 @@ export function init(Constants) {
         {
             card: {
                 name: "image card",
-                translation: [-4, -0.5, -23],
+                translation: [-4, cardHeight, -23],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
@@ -135,7 +136,7 @@ export function init(Constants) {
             card: {
                 name: "multiblaster",
                 className: "MultiBlaster",
-                translation: [-4, -0.5, -29],
+                translation: [-4, cardHeight, -29],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 layers: ["pointer"],
@@ -155,7 +156,7 @@ export function init(Constants) {
             card: {
                 name:"bouncinglogo",
                 className: "BouncingLogo",
-                translation: [-4, -0.5, -35],
+                translation: [-4, cardHeight, -35],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 width: 1,
@@ -176,8 +177,9 @@ export function init(Constants) {
         {
             card: {
                 name:"flightTracker",
-                translation: [-4, 1.5, -50],
+                translation: [-4, 2, -50],
                 type: "object",
+                scale:[0.75,0.75,0.75],
                 behaviorModules: ["Elected", "FlightTracker", "Spin"],
                 layers: ["pointer"],
                 multiuser: true,
@@ -187,7 +189,7 @@ export function init(Constants) {
         {
             card: {
                 name:"code editor",
-                translation: [8, -1.2, 4],
+                translation: [8, -0.5, 4],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
                 type: "code",
@@ -213,7 +215,7 @@ export function init(Constants) {
         {
             card: {
                 name: "drive code editor",
-                translation: [83, -0.9, -113],
+                translation: [83, 0, -113],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
                 type: "code",
@@ -229,7 +231,7 @@ export function init(Constants) {
         {
             card: {
                 name: "spin code editor",
-                translation: [83, -1.6, -115],
+                translation: [83, 0, -115],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
                 type: "code",
@@ -246,7 +248,7 @@ export function init(Constants) {
             card: {
                 name:"porsche",
                 dataRotation: [-Math.PI / 2, 0, 0],
-                translation: [82, -2.56, -110],
+                translation: [82, -1.672, -110],
                 layers: ["pointer"],
                 type: "3d",
                 multiuser: true,
@@ -257,7 +259,7 @@ export function init(Constants) {
         {
             card: {
                 name:"earth",
-                translation: [84, 1, -120],
+                translation: [84, 1.25, -120],
                 scale: [0.5, 0.5, 0.5],
                 type: "object",
                 behaviorModules: ["FlightTracker", "Spin"],
@@ -270,14 +272,14 @@ export function init(Constants) {
             card: {
                 name:"bridge",
                 type: "object",
-                translation: [4, 0, 20],
+                translation: [4, cardHeight, 12],
                 behaviorModules: ["Bridge"],
             }
         },
         {
             card: {
                 name: "bitcointracker",
-                translation: [-4, -0.5, -6],
+                translation: [-4, cardHeight, -6],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
