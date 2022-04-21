@@ -4,10 +4,8 @@ import { startWorld, basenames } from "./root.js";
 import { WorldSaver } from "./src/worldSaver.js";
 import { CodeLibrary } from "./src/code.js";
 
-const defaultMaxAvatars = 6;
 const defaultAvatarNames = [
-    "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
-    "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
+    "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
 ];
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
@@ -28,7 +26,6 @@ async function startMicroverse() {
         if (!response.ok) throw Error(`world not found: ${basename}`);
         const text = await response.text();
         const json = new WorldSaver().parse(text);
-        Constants.MaxAvatars = defaultMaxAvatars;
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;

@@ -3,10 +3,8 @@
 // info@croquet.io
 
 export function init(Constants) {
-    Constants.MaxAvatars = 6;
     Constants.AvatarNames = [
-        "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat",
-        "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
+        "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";

@@ -411,7 +411,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     constructVisual() {
-        this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.MaxAvatars));
+        this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.AvatarNames.length));
     }
 
     get lookOffset(){ return this._lookOffset || [0,0,0]; }
