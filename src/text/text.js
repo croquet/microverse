@@ -455,7 +455,15 @@ export class TextFieldActor extends CardActor {
     }
 
     setupDismissButton() {
-        this.dismissButton = this.createCard({
+        this.dismissButton = DismissButtonActor.create({
+            backgroundColor: this._cardData.backgroundColor,
+            parent: this,
+            translation: this.dismissButtonPosition(),
+            noSave: true,
+            color: 0x222222});
+        /*
+
+        this.createCard({
             translation: this.dismissButtonPosition(),
             name: 'dismiss text',
             behaviorModules: ["PropertySheetDismiss"],
@@ -465,6 +473,8 @@ export class TextFieldActor extends CardActor {
             backgroundColor: this._cardData.backgroundColor,
             color: 0x222222
         });
+        */
+
         this.subscribe(this.dismissButton.id, "dismiss", "dismiss");
     }
 
@@ -1235,8 +1245,7 @@ export class TextFieldPawn extends CardPawn {
     }
 }
 
-/*
-export class DismissButtonActor extends mix(Actor).with(AM_Smoothed) {
+class DismissButtonActor extends CardActor {
     init(options) {
         super.init({...options, multiusser: true});
     }
@@ -1246,37 +1255,49 @@ export class DismissButtonActor extends mix(Actor).with(AM_Smoothed) {
 
 DismissButtonActor.register("DismissButtonActor");
 
-export class DismissButtonPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_PointerTarget) {
+export class DismissButtonPawn extends CardPawn {
     constructor(actor) {
         super(actor);
-
-        this.radius = 0.08;
-
-        this.addEventListener("pointerDown", "dismiss");
-
-        let geometry = new THREE.SphereGeometry(this.radius, 32, 16);
-        let material = new THREE.MeshStandardMaterial({color: 0xaa2222});
-        this.button = new THREE.Mesh(geometry, material);
-        this.button.name = "dismiss";
-
-        this.setRenderObject(this.button);
         this.addToLayers("pointer");
 
-    }
+        if (this.back) {
+            this.shape.remove(this.back);
+            this.shape.children = [];
+        }
 
-    updatePosition(x, y, z) {
-        if (!this.button || !this.button.geometry) {return;}
-        let geometry = this.button.geometry;
-        geometry.dispose();
-        geometry = new THREE.SphereGeometry(this.radius, 32, 16);
-        geometry.translate(x, y, z);
-        this.button.geometry = geometry;
+        let backgroundColor = (this.actor._cardData.backgroundColor !== undefined)
+            ? this.actor._cardData.backgroundColor
+            : 0xcccccc;
+
+        let color = (this.actor._cardData.color !== undefined)
+            ? this.actor._cardData.color
+            : 0x222222;
+
+        let backGeometry = new THREE.BoxGeometry(0.08, 0.08, 0.00001);
+        let backMaterial = new THREE.MeshStandardMaterial({
+            color: backgroundColor,
+            side: THREE.DoubleSide
+        });
+
+        this.back = new THREE.Mesh(backGeometry, backMaterial);
+
+        let dismissGeometry = new THREE.BoxGeometry(0.07, 0.02, 0.001);
+        let dismissMaterial = new THREE.MeshStandardMaterial({
+            color: color,
+            side: THREE.DoubleSide
+        });
+
+        let button = new THREE.Mesh(dismissGeometry, dismissMaterial);
+        button.position.set(0, 0, 0.00001);
+
+        this.back.add(button)
+
+        this.shape.add(this.back);
+
+        this.addEventListener("pointerDown", "dismiss");
     }
 
     dismiss(_evt) {
-        if (this._parent) {
-            this._parent.say("dismiss");
-        }
+        this.publish(this.actor.id, "dismiss");
     }
 }
-*/

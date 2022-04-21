@@ -390,7 +390,7 @@ class PropertySheetDismissPawn {
         let backgroundColor = (this.actor._cardData.backgroundColor !== undefined)
             ? this.actor._cardData.backgroundColor
             : 0xcccccc;
-        
+
         let color = (this.actor._cardData.color !== undefined)
             ? this.actor._cardData.color
             : 0x222222;
