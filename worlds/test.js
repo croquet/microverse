@@ -50,20 +50,5 @@ export function init(Constants) {
                 dataType: "jpg",
             }
         },
-        {
-            card: {
-                translation: [0, 0, -20],
-                rotation: [0, 0, 0],
-                dataScale: [60, 60, 60],
-                behaviorModules: ["Pendulum"],
-                name: "/pendulum.glb",
-                dataLocation: "3JgZ_1T1AB94iniahMT85sbJVNF8v_o48pjKzfbTLIdEIj4-OjlwZWUsIyYvOWQ_OWQpOCU7Py8-ZCMlZT9lDS4cKDMmAzkLIRspCBIueQ0yKzwzPR8BHRMTeGUjJWQpOCU7Py8-ZC4rPCMuZCs9LzklJy9nKzo6ZXxyDx4jLAAVLRMrfjl-CBMYJRwOLxl4Bx8zJBsCGRN_ISA4OCw7ch8lfRNlLis-K2UHFSkNfB4HAn8NJT4tc3w4JBMBGSA7Ih0MHRsNGgszDRl4ITgQB3spDDkb",
-                fileName: "/pendulum.glb",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-            }
-        }
     ];
 }

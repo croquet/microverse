@@ -1,17 +1,25 @@
 class PendulumActor {
     setup() {
-        this.chains = 9;
-        // the nth mass has the pendulum look
+        this.chains = 20;
+        // the nth mass is the pendulum
         // the 0th mass is stationary
         let headY = this.chains;
+        //if (!this.ms) {
         this.ms = [...Array(this.chains).keys()].map(i => ({
-            m: (i === this.chains - 1 ? 5 : 1), a: [0, 0, 0], v: [0, 0, 0], p: [i * 0.4, headY - i, 0]}));
+            m: (i === this.chains - 1 ? 10 : 1),
+            a: [0, 0, 0],
+            v: [0, 0, 0],
+            p: [i * 0.1,
+                (i === this.chain - 1) ? headY - i * 1.05 : (headY - (i - 1) * 1.05) + 0.5,
+                0]}));
+        //}
 
         this.springs = [];
         for (let i = 0; i < this.chains - 1; i++) {
+            let len = i === this.chains - 2 ? 0.5 : 1;
             this.springs.push({
-                length: 1,
-                naturalLength: 1,
+                length: len,
+                naturalLength: len,
                 s0: this.ms[i],
                 s1: this.ms[i + 1]
             });
@@ -21,9 +29,7 @@ class PendulumActor {
             console.log("new step");
             this.stepping = true;
             this.step();
-
         }
-        console.log(this.ms, 24);
         this.addEventListener("pointerTap", "wiggle");
     }
 
@@ -31,7 +37,7 @@ class PendulumActor {
         if (!this.stepping) {return;}
         let d = this.chains;
         for (let i = 0; i < d; i++) {
-            this.ms[i].a = [0, -0.0001, 0];
+            this.ms[i].a = [0, -0.001, 0];
         }
 
         let isEnd = (i) => {
@@ -54,11 +60,10 @@ class PendulumActor {
             let p0 = s0.p;
             let p1 = s1.p;
             let n = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]];
-
             let len = Worldcore.v3_magnitude(n);
-
             let a = len - spring.naturalLength;
-            let c = 0.2;
+
+            let c = 0.3;
 
             let add0 = Worldcore.v3_scale(n, a * c * s1.m);
             let add1 = Worldcore.v3_scale(n, -a * c * s0.m);
@@ -75,7 +80,7 @@ class PendulumActor {
             } else {
                 m.v = Worldcore.v3_add(m.v, m.a);
             }
-            m.v = Worldcore.v3_scale(m.v, 0.999)
+            m.v = Worldcore.v3_scale(m.v, 0.9999);
             m.p = Worldcore.v3_add(m.p, m.v);
         }
         this.say("updateDisplay");
@@ -92,17 +97,25 @@ class PendulumActor {
 
 class PendulumPawn {
     setup() {
-        let d = this.actor.chains || 9; // hack until we resolve the setup ordering issue.
         if (!this.group) {
             this.group = new Worldcore.THREE.Group();
             this.group.name = "Chain";
         }
+        this.shape.add(this.group);
+        this.constructChain();
 
-        this.group.children.forEach((c) => {
-            this.group.remove(c);
-        });
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.addEventListener("pointerDoubleDown", "nop");
+        this.listen("updateDisplay", "updateDisplay");
+    }
+
+    constructChain() {
+        debugger;2;
+        let d = this.actor.chains;
+        this.group.children.forEach((m) => {
+            this.group.remove(m);
+        })
         this.group.children = [];
-
         this.spheres = [...Array(d - 1).keys()].map(i => {
             let geometry = new Worldcore.THREE.SphereGeometry(0.1, 16, 16);
             let material = new Worldcore.THREE.MeshStandardMaterial({color: (i / d * 200) * 0x10000});
@@ -111,15 +124,12 @@ class PendulumPawn {
             sphere.castShadow = true;
             return sphere;
         });
-
-        this.shape.add(this.group);
-        this.listen("updateDisplay", "updateDisplay");
-
-        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
-        this.addEventListener("pointerDoubleDown", "nop");
     }
 
     updateDisplay() {
+        if (!this.group || this.actor.chains - 1 !== this.group.children.length) {
+            debugger;
+        }
         let ms = this.actor.ms;
         if (!this.original) {
             this.original = this.shape.children.find((o) => o.name !== "Chain");
@@ -129,7 +139,7 @@ class PendulumPawn {
                 let m = ms[i];
                 let s = (i < ms.length - 1) ? this.group.children[i] : this.original;
                 if (!s) {
-                    console.log("masses and spheres mismatch");
+                    // console.log("masses and spheres mismatch");
                 } else {
                     s.position.set(...m.p);
                 }
