@@ -494,16 +494,7 @@ export class TextFieldPawn extends CardPawn {
         this.listen("fontAsked", "fontAsked");
         this.listen("screenUpdate", "screenUpdate");
 
-        let fontName = this.actor.doc.defaultFont;
-        this.fontAsked(fontName).then(() => {
-            let fonts = Array.from(actor.fonts.keys());
-            let ps = fonts.map((v) => this.fonts.askFont(v));
-            return Promise.all(ps);
-        }).then(() => {
-            this.warota.resetMeasurer();
-            this.needsUpdate();
-        });
-
+        this.setupFonts();
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerMove", "onPointerMove");
         this.addEventListener("pointerUp", "onPointerUp");
@@ -572,6 +563,18 @@ export class TextFieldPawn extends CardPawn {
         return textMesh;
     }
 
+    setupFonts() {
+        let fontName = this.actor.doc.defaultFont;
+        this.fontAsked(fontName).then(() => {
+            let fonts = Array.from(this.actor.fonts.keys());
+            let ps = fonts.map((v) => this.fonts.askFont(v));
+            return Promise.all(ps);
+        }).then(() => {
+            this.warota.resetMeasurer();
+            this.needsUpdate();
+        });
+    }
+
     setupTextMesh(name, font) {
         if (!this.textGeometry) {
             let TextGeometry = getTextGeometry(THREE);
@@ -621,6 +624,19 @@ export class TextFieldPawn extends CardPawn {
         this.textMesh.scale.x = this.textScale();
         this.textMesh.scale.y = -this.textScale();
         this.textGeometry.update({font, glyphs});
+    }
+
+    updateShape(options) {
+        super.updateShape(options);
+        ["geometry", "material", "textGeometry", "textMaterial"].forEach((n) => {
+            if (this[n]) {
+                this[n].dispose();
+            }
+            this[n] = null;
+        });
+
+        this.setupMesh();
+        this.setupFonts();
     }
 
     setupMesh() {
