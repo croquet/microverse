@@ -281,6 +281,21 @@ But don't worry about this details too much initially. Even if you forget to add
 
 While you listed the name of the behaviors in the world file, such as `demoWorld1.js`, this is only necessary to load the behaviors that are used in the `DefaultCards` list.  Once you press the "Connect" button in the menu, all behavior modules that the watch server watches become available.
 
+## Debugging
+There are a few tips to know when you debug behavior code with browser's developer tools.
+The first thing to keep in mind is that the behavior is stringified and then evaluated to create a JavaScript class object. Therefore, the code is not bound to the original source code anymore. It means that if you navigate to the file from the browser's source tree and set a breakpoint, it will not hit. Instead there are two ways to do so.
+The first is simply put the `debugger` statement in behavior code.  Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see the results in console, click on the generated file name such as `VM197`, `VM348`, etc.
+
+<p align="center">
+<img src="https://gist.githubusercontent.com/yoshikiohshima/6644ea9a84561d6f8ec365003a9ce22a/raw/de5c60ff73262b99ba366d32ca440aa46fb2d1f5/debug.png" width="300"/>
+</p>
+
+This will bring up the view of the generated code, and you can set a breakpoint.
+
+Another tip is that when the execution of the program is stopped at the breakpoint for more than 30 seconds, the WebSocket to the reflector is disconnected. This is okay as Croquet will reconnect when you continue execution; butan event may be lost if  the view is destructed.
+
+Yet another tip is that, if the watch-server injects new code, the modified behavior code will be treated as a new chunk of code, and the breakpoint you think you set will not be hit.
+
 ## The Property Sheet
 
 You can bring up the Property Sheet for a card by holding down the control key and click on a card.
