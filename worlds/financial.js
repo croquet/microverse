@@ -45,7 +45,7 @@ export function init(Constants) {
                 rotation: [0, -Math.PI / 4, 0],
                 dataScale: [1, 1, 1],
                 // scale: [30, 30, 30],
-                layers: ["walk", "pointer"],
+                layers: ["walk"],
                 type: "3d",
                 dataLocation: "38kv6PK9ULjCj0DTKt_v9fEwZqMKPke3TYq_2oTgm3vwUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlxZTlFcFllPXUtXVV0VWUhIF012cwxUD1p_SkpyDXBPTGhTXw5RV30JX11McA0MCntRAE96XGpaagh9aggXXFlMWRdpVntXfHZLfV0VDX1AT3B6XH1BYHR9FQxVenQNQkF_dV8JW04LXWt1DVdh",
                 fileName: "/wallst_042122_nokiosk.glb",
