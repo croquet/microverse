@@ -3,7 +3,9 @@ class PendulumActor {
         this.chains = 9;
         // the nth mass has the pendulum look
         // the 0th mass is stationary
-        this.ms = [...Array(this.chains).keys()].map(i => ({m: 1, a: [0, 0, 0], v: [0, 0, 0], p: [i * 0.4, 5 - i, 0]}));
+        let headY = this.chains;
+        this.ms = [...Array(this.chains).keys()].map(i => ({
+            m: (i === this.chains - 1 ? 5 : 1), a: [0, 0, 0], v: [0, 0, 0], p: [i * 0.4, headY - i, 0]}));
 
         this.springs = [];
         for (let i = 0; i < this.chains - 1; i++) {
@@ -21,8 +23,8 @@ class PendulumActor {
             this.step();
 
         }
-        console.log(this.ms);
-        this.addEventListener("click", "wiggle");
+        console.log(this.ms, 24);
+        this.addEventListener("pointerTap", "wiggle");
     }
 
     step() {
@@ -58,8 +60,8 @@ class PendulumActor {
             let a = len - spring.naturalLength;
             let c = 0.2;
 
-            let add0 = Worldcore.v3_scale(n, a * c);
-            let add1 = Worldcore.v3_scale(n, -a * c);
+            let add0 = Worldcore.v3_scale(n, a * c * s1.m);
+            let add1 = Worldcore.v3_scale(n, -a * c * s0.m);
 
             if (v3_nan(add0) || v3_nan(add1) || hasNaN(s0) || hasNaN(s1)) {debugger;}
             s0.a = Worldcore.v3_add(s0.a, add0);
@@ -73,7 +75,7 @@ class PendulumActor {
             } else {
                 m.v = Worldcore.v3_add(m.v, m.a);
             }
-            m.v = Worldcore.v3_scale(m.v, 0.99)
+            m.v = Worldcore.v3_scale(m.v, 0.999)
             m.p = Worldcore.v3_add(m.p, m.v);
         }
         this.say("updateDisplay");
@@ -83,7 +85,7 @@ class PendulumActor {
     wiggle() {
         // let d = this.chains;
         let m = this.ms[this.ms.length - 1];
-        m.v = Worldcore.v3_add(m.v, [0.1, 0., 0]);
+        m.v = Worldcore.v3_add(m.v, [0.01, 0., 0]);
         console.log("sag", m);
     }
 }

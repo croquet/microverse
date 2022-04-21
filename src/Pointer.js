@@ -89,16 +89,15 @@ export const AM_PointerTarget = superclass => class extends superclass {
                 obj.moduleName === moduleName &&
                 obj.behaviorName === behaviorName
         }) >= 0) {
-            this.removeEventListener(eventName, origListener);
+            this.removeEventListener(eventName, origListener, true);
             // console.log("multiple registration of the same function");
-            return;
         }
         array.push({moduleName, behaviorName, eventName, listener});
 
         this.say("registerEventListener", {eventName, listener});
     }
 
-    removeEventListener(eventName, listener) {
+    removeEventListener(eventName, listener, noDelete) {
         // console.log("removeEventListener", eventName, listener);
         if (typeof listener === "function") {
             listener = listener.name;
@@ -129,7 +128,9 @@ export const AM_PointerTarget = superclass => class extends superclass {
         }
         array.splice(ind, 1);
         if (array.length === 0) {
-            this.eventListeners.delete(eventName);
+            if (!noDelete) {
+                this.eventListeners.delete(eventName);
+            }
             this.say("unregisterEventListener", {eventName, listener});
         }
     }
@@ -271,11 +272,9 @@ export const PM_PointerTarget = superclass => class extends superclass {
     registerEventListener(data) {
         // console.log("registerEventLIstener", data);
         let {eventName} = data;
-        if (!this.modelListeners.get(eventName)) {
-            let func = (evt) => this.say("dispatchEvent", {eventName, evt});
-            this.modelListeners.set(eventName, func);
-            this.addEventListener(eventName, func, `dispatch_${eventName}`);
-        }
+        let func = (evt) => this.say("dispatchEvent", {eventName, evt});
+        this.modelListeners.set(eventName, func);
+        this.addEventListener(eventName, func, `dispatch_${eventName}`);
     }
 
     unregisterEventListener(data) {
