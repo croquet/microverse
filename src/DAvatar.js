@@ -789,12 +789,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     doPointerWheel(e) {
+        /*
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
         if (rc.pawn && this.ctrlKey) {
             this.invokeListeners("pointerWheel", rc.pawn, rc, e);
             return;
         }
-
+        */
         let z = this.lookOffset[2];
         z += Math.max(1,z) * e.deltaY / 1000.0;
         z = Math.min(100, Math.max(z,0));

@@ -366,7 +366,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     constructor(actor) {
         super(actor);
         this.addToLayers(...actor.layers);
-        this.addEventListener("pointerWheel", "onPointerWheel");
+        //this.addEventListener("pointerWheel", "onPointerWheel");
         this.addEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.listen("doSelectEdit", this.doSelectEdit);
         this.listen("doUnselectEdit", this.doUnselectEdit);
@@ -929,7 +929,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     onBlur(_pointerId) {
         console.log("blurred")
     }
-
+/*
     onPointerWheel(e) {
         let wheel = e.deltaY;
         let s = this.scale;
@@ -938,7 +938,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.scaleTo([s[0] + w, s[1] + w, s[2] + w], 100);
         }
     }
-
+*/
     onPointerDoubleDown(pe) {
         if (!pe.targetId) {return;}
         let pose = this.getJumpToPose ? this.getJumpToPose() : undefined;

@@ -1,5 +1,6 @@
 # Croquet Microverse Builder
-## Quick Start Guide
+## Tutorial
+
 Pre-Alpha version 0.01
 
 **Copyright (c) 2022 Croquet Corporation**
