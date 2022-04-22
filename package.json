@@ -24,7 +24,7 @@
   "dependencies": {
     "@croquet/worldcore": "file:../worldcore/packages/full",
     "fflate": "^0.7.3",
-    "hybrid-msdf-text": "https://github.com/yoshikiohshima/hybrid-msdf-text.git",
+    "@croquet/hybrid-msdf-text": "^1.0.1",
     "jszip": "^3.7.1",
     "load-bmfont": "^1.4.1",
     "pako": "^2.0.4"

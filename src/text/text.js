@@ -1,5 +1,5 @@
 import {THREE, ModelService, ViewService} from "@croquet/worldcore";
-import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "hybrid-msdf-text";
+import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "@croquet/hybrid-msdf-text";
 import { CardActor, CardPawn } from "../DCard.js";
 import loadFont from "load-bmfont";
 
