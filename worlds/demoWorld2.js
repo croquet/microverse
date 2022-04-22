@@ -25,7 +25,7 @@ export function init(Constants) {
             card: {
                 name:"world model",
                 type: "3d",
-                dataLocation: "./assets/3D/artgallery.glb.zip",
+                dataLocation: "./assets/3D/artgallery_042122.glb.zip",
                 singleSided: true,
                 shadow: true,
                 layers: ["walk"],

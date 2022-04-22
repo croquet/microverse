@@ -502,25 +502,22 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
             let color = options.placeholderColor || 0x808080;
-            let offset = options.placeholderOffset || [0, -0.065, 0];
+            let offset = options.placeholderOffset || [0, -1.7, 0];
 
-            let psGeometry = new THREE.BoxGeometry(...size);
-            let psMaterial = new THREE.ShadowMaterial({color: 0x404040, opacity: 0.5, side: THREE.DoubleSide});
-
+            const gridImage = './assets/images/grid.png';
+            const texture = new THREE.TextureLoader().load(gridImage);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set( size[0], size[2] );
+            
             let pGeometry = new THREE.BoxGeometry(...size);
-            let pMaterial = new THREE.MeshBasicMaterial({color: color, side: THREE.DoubleSide});
+            let pMaterial = new THREE.MeshStandardMaterial({map:texture, color: color, side: THREE.DoubleSide});
 
-            this.placeholder = new THREE.Group();
-
-            let shadowMesh = new THREE.Mesh(psGeometry, psMaterial);
-            shadowMesh.receiveShadow = true;
-            this.placeholder.add(shadowMesh);
-
-            let boxMesh = new THREE.Mesh(pGeometry, pMaterial);
-            this.placeholder.add(boxMesh);
+            let mesh = new THREE.Mesh(pGeometry, pMaterial);
+            mesh.receiveShadow = true;
+            this.placeholder = mesh;
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
-
             this.shape.add(this.placeholder);
         }
 

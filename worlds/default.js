@@ -32,12 +32,12 @@ export function init(Constants) {
                 dataLocation: "./assets/3D/oilrefinery_042122.glb.zip",
                 singleSided: true,
                 shadow: true,
-/*
+
                 placeholder: true,
-                placeholderSize: [40, 1, 40],
-                placeholderColor: 0x808080,
-                placeholderOffset: [0, -0.463, 0],
-*/
+                placeholderSize: [100, 1, 100],
+                placeholderColor: 0xcccccc,
+                placeholderOffset: [0, -1.7, 0],
+
             }
         },
         {
