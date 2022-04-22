@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "lights.js", "pendulum.js"
+        "lights.js"
     ];
 
     // const frameColor = 0x888888;
@@ -23,19 +23,24 @@ export function init(Constants) {
         {
             card: {
                 name:"world model",
-                translation:[0, -10, -60],
-                scale:[200, 200, 200],
-                rotation: [0, Math.PI, 0],
                 layers: ["walk"],
                 type: "3d",
-                // dataLocation: "./assets/3D/Oil Refinery 6.glb.zip",
                 singleSided: true,
                 shadow: true,
                 placeholder: true,
-                placeholderSize: [40, 1, 40],
+                placeholderSize: [400, 1, 400],
                 placeholderColor: 0x808080,
-                placeholderOffset: [0, -0.463, 0],
-
+                placeholderOffset: [0, -0.663, 0],
+            }
+        },
+        {
+            card: {
+                name: "light",
+                layers: ["light"],
+                type: "lighting",
+                behaviorModules: ["Light"],
+                dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
+                dataType: "jpg",
             }
         },
         {
