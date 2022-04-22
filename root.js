@@ -22,7 +22,7 @@ import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./src/wcAssetManager.js";
-import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
+// import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 import {loadThreeLibs} from "./three/threeLibsLoader.js";
 
 let isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
@@ -384,7 +384,7 @@ export function startWorld(appParameters) {
         }).then(() => {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
-            document.getElementById("hud").classList.toggle("current-world", !inIframe());
+            document.getElementById("hud").classList.toggle("current-world", true); // (!inIframe());
             return StartWorldcore(sessionParameters);
         }).then(() => {
             let {basedir} = basenames();
