@@ -296,6 +296,12 @@ Another tip is that when the execution of the program is stopped at the breakpoi
 
 Yet another tip is that, if the watch-server injects new code, the modified behavior code will be treated as a new chunk of code, and the breakpoint you think you set will not be hit.
 
+However, you inevitably encounter errors during the development. Because your code will be invoked from Croquet's publish/subscribe messaging system and also wrapped in a Proxy, the stack trace itself may be opaque.  You can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `DriveActor`'s `setup` method, and the error was `this.xxx is not a function`.
+
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/696cc5b9b966e3ed58d021f604d64cb90ee2b625/error.png" width="800"/>
+
+Once you figure this out, you can put a breakpoint in the offending method and step execute.
+
 ## The Property Sheet
 
 You can bring up the Property Sheet for a card by holding down the control key and click on a card.
@@ -316,5 +322,3 @@ With the Property Sheet, you can extract the values for your world file.  You ca
 The system internally creates the "persistent data" at 60 second interval when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
 
 Also note that the start file, either in `.js` or `.json, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
-
-
