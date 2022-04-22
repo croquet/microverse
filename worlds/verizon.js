@@ -58,6 +58,22 @@ export function init(Constants) {
         },
         {
             card: {
+                name:"5G",
+                translation: [3, 7.5, -60],
+               // rotation: [0, 0, 0],
+                scale: [10, 10, 10],
+                layers: ["pointer"],
+                multiuser: true,
+                type: "2d",
+                dataLocation: "./assets/SVG/5G.svg",
+                frameColor: frameColor,
+                depth: 0.1,
+                shadow: true,
+               // fullBright: true,
+            }
+        },
+        {
+            card: {
                 name: "light",
                 layers: ["light"],
                 type: "lighting",
