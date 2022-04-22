@@ -33,15 +33,9 @@ Demoworld1 is made up of just three cards (not including the avatars). There is 
 The first values are Constants.MaxAvatars and ConstantsAvatarNames. The latter specifies the name of avatar model files stored in `assets/avatars`, and the former specifies how many different avatars we use before cycling back to the first one. You can add more files in the directory and specify their names here to use your own avatars.
 
 ```Javascript
-// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
-// https://croquet.io
-// info@croquet.io
-
 export function init(Constants) {
-    Constants.MaxAvatars = 6;
     Constants.AvatarNames = [
-        "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
-        "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
+        "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 ```
 
