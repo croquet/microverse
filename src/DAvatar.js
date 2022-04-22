@@ -27,6 +27,7 @@ export class AvatarManager extends ViewService {
 
     add(avatar) {
         this.avatars.set(avatar.actor.id, avatar);
+        this.publish("avatarManager", "avatarPawnAdded")
     }
 
     has(id) {
@@ -39,6 +40,7 @@ export class AvatarManager extends ViewService {
 
     delete(avatar) {
         this.avatars.delete(avatar.actor.id);
+        this.publish("avatarManager", "avatarPawnDeleted")
     }
 }
 
@@ -384,13 +386,23 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
             window.addEventListener("message", this.cameraListener);
             this.say("resetHeight");
+            this.subscribe("avatarManager", "avatarPawnAdded", this.showNumbers)
+            this.subscribe("avatarManager", "avatarPawnDeleted", this.showNumbers)
+            this.showNumbers();
         }
-        
         this.constructVisual();
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
         return this.actor.dropPose(distance, optOffset);
+    }
+
+    showNumbers() {
+        let comeHere = document.getElementById("usersComeHereBttn");
+        let userCountReadOut = comeHere.querySelector("#userCountReadOut");
+        if (userCountReadOut) {
+            userCountReadOut.textContent = this.service("AvatarManager").avatars.size;
+        }
     }
 
     setEditMode(evt) {
