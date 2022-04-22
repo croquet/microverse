@@ -17,16 +17,16 @@ export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
 
-let avatarManager; // Local pointer for avatars
+//let avatarManager; // Local pointer for avatars
 
 export class AvatarManager extends ViewService {
     constructor(name) {
         super(name || "AvatarManager");
-        avatarManager = this;
         this.avatars = new Map();
     }
 
     add(avatar) {
+        console.log("add", avatar, this.avatars);
         this.avatars.set(avatar.actor.id, avatar);
     }
 
@@ -39,6 +39,7 @@ export class AvatarManager extends ViewService {
     }
 
     delete(avatar) {
+        console.log("delete", avatar, this.avatars);
         this.avatars.delete(avatar.actor.id);
     }
 }
@@ -298,7 +299,7 @@ AvatarActor.register('AvatarActor');
 export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
-        avatarManager.add(this);
+        this.service("AvatarManager").add(this);
         this.lastUpdateTime = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
@@ -349,7 +350,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
-             document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
+            document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
             document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
@@ -468,7 +469,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
-        avatarManager.delete(this); // delete from the avatarManager
+        this.service("AvatarManager").delete(this); // delete from the avatarManager
         window.removeEventListener("message", this.cameraListener);
         super.destroy();
     }
@@ -805,7 +806,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     fadeNearby(){
-        avatarManager.avatars.forEach(a => {
+        this.service("AvatarManager").avatars.forEach(a => {
             if( a.actor.follow ){
                 a.setOpacity(0); // get out of my way
             }
