@@ -58,7 +58,7 @@ const config = {
         new CopyPlugin({
             patterns: [
                 { from: 'assets/3D/*'},
-                { from: 'assets/SVG/{full-circle,BitcoinSign,CroquetSymbol_CMYK_NoShadow,edit}.svg'},
+                { from: 'assets/SVG/{full-circle,BitcoinSign,CroquetSymbol_CMYK_NoShadow,edit,Verizon}.svg'},
                 { from: 'assets/avatars/*'},
                 { from: 'assets/css/**/*'},
                 { from: 'assets/fonts/**/*'},

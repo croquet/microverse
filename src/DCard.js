@@ -577,7 +577,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let textureHeight = (options.textureHeight !== undefined) ? options.textureHeight : 512;
 
         let name = options.name || this.id;
-        let color = options.color || 0xFFFFFF;
+        let color = options.color; // if color is undefined, use SVG colors
         let frameColor = options.frameColor || 0x666666;
         let fullBright = options.fullBright !== undefined ? options.fullBright : false;
         let shadow = options.shadow !== undefined ? options.shadow : true;
@@ -683,7 +683,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 }
 
                 let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius);
-                let material = this.makePlaneMaterial(depth, color, frameColor, fullBright);
+                let material = this.makePlaneMaterial(depth, color||0xffffff, frameColor, fullBright);
 
                 if (this.texture) {
                     material[0].map = this.texture;
