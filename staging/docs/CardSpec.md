@@ -860,3 +860,10 @@ labelCard = this.createCard({
 
 Just for a convenience, you can pass in an object as the value for `parent` in this case.
 
+---
+
+## Other properties
+
+As long as the value can be serialized in JSON, you can specify a new property in the card specification with any property name. You can use the value from a behavior you attach to the card. Such a value is stored in the actor's property called `_cardData`. A behavior for the CardActor can read and write the value by accessing `this._cardData.foo`, and a behavior for the CardPawn can read the value by accessing `this.actor._cardData.foo`.
+
+A behavior can create a property on the model directly, namely to execute something like `this.foo = 42`. this is fine but the value will not be stored in the persistent data; so when you run the new session with a new version of Croquet Microverse, such a value will not be carried over. Choose to store the value in `_cardData` if you want to carry a value over to a new session from persistent data, or store it directly in the actor when that is not necessary.
