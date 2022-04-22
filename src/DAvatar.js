@@ -26,7 +26,6 @@ export class AvatarManager extends ViewService {
     }
 
     add(avatar) {
-        console.log("add", avatar, this.avatars);
         this.avatars.set(avatar.actor.id, avatar);
     }
 
@@ -39,7 +38,6 @@ export class AvatarManager extends ViewService {
     }
 
     delete(avatar) {
-        console.log("delete", avatar, this.avatars);
         this.avatars.delete(avatar.actor.id);
     }
 }
@@ -387,6 +385,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             window.addEventListener("message", this.cameraListener);
             this.say("resetHeight");
         }
+        
         this.constructVisual();
     }
 
@@ -452,6 +451,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 }
             });
 
+            if (this.doomed) {return;}
             this.addToLayers('avatar');
             model.name = "Avatar";
             this.setRenderObject(model);  // note the extension
