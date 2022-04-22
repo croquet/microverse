@@ -456,6 +456,7 @@ export class TextFieldActor extends CardActor {
 
     setupDismissButton() {
         this.dismissButton = DismissButtonActor.create({
+            type: "object",
             backgroundColor: this._cardData.backgroundColor,
             parent: this,
             translation: this.dismissButtonPosition(),
