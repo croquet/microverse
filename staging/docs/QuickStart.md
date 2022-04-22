@@ -36,7 +36,7 @@ in the terminal, and then run
 
 You can find the most up to date Croquet Microverse library as well as this document and tutorials in the `microverse-builder` Github repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
 
-    `# git clone git@github.com:croquet/microverse-builder.git`
+    # git clone git@github.com:croquet/microverse-builder.git
 
 ---
 ### Obtain your API Key
