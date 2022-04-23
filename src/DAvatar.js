@@ -60,40 +60,58 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
+        this.listen("stopPresentation", this.stopPresentation);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
         this.listen("resetHeight", this.resetHeight);
+        this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
+        this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
     }
     get pawn() {return AvatarPawn};
     get lookPitch() { return this._lookPitch || 0 };
     get lookYaw() { return this._lookYaw || 0 };
     get lookNormal(){ return v3_transform([0,0,-1], m4_rotationQ(this.rotation)); }
 
-    setSpin(q){
+    setSpin(q) {
         super.setSpin(q);
-        this.follow = undefined;
+        this.leavePresentation();
     }
 
-    setVelocity(v){
+    setVelocity(v) {
         super.setVelocity(v);
-        this.follow = undefined;
+        this.leavePresentation();
     }
 
-    setVelocitySpin(vq){
+    setVelocitySpin(vq) {
         super.setVelocitySpin(vq);
-        this.follow = undefined;
+        this.leavePresentation();
     }
 
-    setTranslation(v){
+    leavePresentation() {
+        if (!this.follow) {return;}
+        let manager = this.service("PlayerManager");
+        let presentationMode = manager.presentationMode;
+        if (!presentationMode) {return;}
+        if (this.follow !== this.playerId) {
+            this.follow = null;
+            manager.leavePresentation(this.playerId);
+        }
+    }
+
+    stopPresentation() {
+        this.service("PlayerManager").stopPresentation();
+    }
+
+    setTranslation(v) {
         this.translation = v;
     }
 
-    setFloor(p){
+    setFloor(p) {
         let t = this.translation;
         this.translation = [t[0], p, t[2]];
     }
 
-    startFalling(){
+    startFalling() {
         this.fall = true;
     }
 
@@ -108,12 +126,12 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
-    goHome( there ){
+    goHome(there) {
         this.goTo( ...there, true );
     }
 
-    goTo( v, q, fall ){
-        this.follow = undefined;
+    goTo(v, q, fall) {
+        this.leavePresentation();
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
         this.vEnd = v;
@@ -123,12 +141,12 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         //this.set({translation: there[0], rotation: there[1]});
     }
 
-    goThere(p3d){
-        this.follow = undefined;
+    goThere(p3d) {
+        this.leavePresentation();
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
 
-        if(!this.fall && (p3d.targetId===this.restoreTargetId)){ // jumpback if you are  doubleclicking on the same target you did before
+        if(!this.fall && (p3d.targetId === this.restoreTargetId)){ // jumpback if you are  doubleclicking on the same target you did before
             this.vEnd = this.restoreTranslation;
             this.qEnd = this.restoreRotation;
             this.restoreRotation = undefined;
@@ -155,38 +173,42 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.goToStep(0.1);
     }
 
-    comeToMe(){
-        console.log("comeToMe");
+    comeToMe() {
         this.norm = this.lookNormal;
-        let count = 0;
-        console.log(this.fall)
-        this.service("PlayerManager").players.forEach((value, key)=>{
+        this.service("PlayerManager").startPresentation(this.playerId);
+    }
 
-            if(this.playerId !== key){
-                count++;
-                value.goTo(this.translation, this.rotation, false);
-                value.follow = this.playerId;
-                value.fall = false;
-            }
-        });
+    presentationStarted(playerId) {
+        if(this.playerId !== playerId) {
+            let leader = this.service("PlayerManager").player(playerId);
+            this.goTo(leader.translation, leader.rotation, false);
+            this.follow = playerId;
+            this.fall = false;
+        }
+    }
+
+    presentationStopped() {
+        this.follow = null;
     }
 
     goToStep(delta, t){
-        if(!t)t=delta;
-        if(t>=1)t=1;
+        if (!t) t = delta;
+        if (t >= 1) t = 1;
         let v = v3_lerp(this.vStart, this.vEnd, t);
-        let q = q_slerp(this.qStart, this.qEnd, t );
+        let q = q_slerp(this.qStart, this.qEnd, t);
         this.set({translation: v, rotation: q})
-        if(t<1)this.future(50).goToStep(delta, t+delta);
+        if(t < 1) this.future(50).goToStep(delta, t + delta);
     }
 
     tick(delta) {
-        if( this.follow ){
+        if(this.follow) {
             let followMe = this.service("PlayerManager").players.get(this.follow);
-            if(followMe){
+            if(followMe) {
                 this.moveTo(followMe.translation);
                 this.rotateTo(followMe.rotation);
-            }else this.follow = undefined;
+            } else {
+                this.follow = null;
+            }
         }
         super.tick(delta);
     }
@@ -215,7 +237,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         let appManager = this.service("DynaverseAppManager");
         let CA = appManager.get("CardActor");
 
-        let cardType = type === "exr" ? "lighting" :(type === "svg" || type === "img" ? "2d" : "3d");
+        let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" ? "2d" : "3d");
 
         let options = {
             name: fileName,
@@ -388,6 +410,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.say("resetHeight");
             this.subscribe("avatarManager", "avatarPawnAdded", this.showNumbers)
             this.subscribe("avatarManager", "avatarPawnDeleted", this.showNumbers)
+            this.subscribe("playerManager", "presentationCountChanged", this.showNumbers);
             this.showNumbers();
         }
         this.constructVisual();
@@ -398,11 +421,20 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     showNumbers() {
+        let manager = this.actor.service("PlayerManager");
         let comeHere = document.getElementById("usersComeHereBttn");
         let userCountReadOut = comeHere.querySelector("#userCountReadOut");
         if (userCountReadOut) {
-            userCountReadOut.textContent = this.service("AvatarManager").avatars.size;
+            let total = manager.players.size;
+            let followers = manager.followers.size;
+            if (manager.presentationMode) {
+                userCountReadOut.textContent = `${followers}/${total}`;
+            } else {
+                userCountReadOut.textContent = `${total}`;
+            }
         }
+
+        comeHere.setAttribute("presenting", manager.presentationMode === this.viewId);
     }
 
     setEditMode(evt) {
@@ -856,8 +888,15 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     comeToMe(){
-        console.log("comeToMe");
-        this.say("comeToMe");
+        let manager = this.actor.service("PlayerManager");
+        if (!manager.presentationMode) {
+            this.say("comeToMe");
+            return;
+        }
+
+        if (manager.presentationMode === this.viewId) {
+            this.say("stopPresentation");
+        }
     }
 
     jumpToNote(isShift){

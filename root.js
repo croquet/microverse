@@ -123,7 +123,14 @@ class MyPlayerManager extends PlayerManager {
     init(name) {
         super.init(name);
         this.avatarCount = 0;
+
+        this.presentationMode = null; // or the viewId of the leader
+        this.followers = new Set();
+
+        this.subscribe("playerManager", "destroy", this.playerLeft);
+        this.subscribe("playerManager", "create", this.playerEntered);
     }
+
     createPlayer(options) {
         options.index = this.avatarCount;
         this.avatarCount++;
@@ -131,6 +138,49 @@ class MyPlayerManager extends PlayerManager {
         // options.lookYaw = toRad(45); for testing
         options.color = [Math.random(), Math.random(), Math.random(), 1];
         return AvatarActor.create(options);
+    }
+
+    startPresentation(playerId) {
+        if (this.presentationMode && this.presentationMode !== playerId) {
+            return; // somebody is already presenting
+        }
+
+        this.presentationMode = playerId;
+
+        this.players.forEach((player, id) => {
+            this.followers.add(id);
+        });
+        this.publish("playerManager", "presentationStarted", playerId);
+        this.publish("playerManager", "presentationCountChanged");
+    }
+
+    stopPresentation() {
+        this.presentationMode = null;
+        this.publish("playerManager", "presentationStopped");
+        this.publish("playerManager", "presentationCountChanged");
+        this.followers = new Set();
+    }
+
+    leavePresentation(playerId) {
+        if (this.presentationMode === playerId) {return;}
+        this.followers.delete(playerId);
+        this.publish("playerManager", "presentationCountChanged");
+   }
+
+    playerLeft(player) {
+        console.log("playerLeft", player);
+        if (player.playerId === this.presentationMode) {
+            this.stopPresentation();
+        }
+        this.publish("playerManager", "presentationCountChanged");
+    }
+
+    playerEntered(player) {
+        console.log("playerEntered", player);
+        if (this.presentationMode) {
+            player.presentationStarted(this.presentationMode);
+        }
+        this.publish("playerManager", "presentationCountChanged");
     }
 }
 

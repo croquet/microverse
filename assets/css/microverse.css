@@ -189,3 +189,7 @@ body {
     font-size: 0.5em;
     text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
 }
+
+#usersComeHereBttn[presenting="true"] {
+    background-color: #880000;
+}
