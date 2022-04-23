@@ -62,12 +62,24 @@ function connectPressed() {
     }
 }
 
+function forceStop(myAvatar) {
+    myAvatar.say("stopPresentation");
+    if (worldMenu) {
+        toggleMenu();
+    }
+}
+
 function toggleMenu(myAvatar, qrCanvas) {
     if (worldMenu) {
         worldMenu.remove();
         worldMenu = null;
         return null;
     }
+
+    let presentation = myAvatar.actor.service("PlayerManager").presentationMode ? `
+<div id="worldMenu-forceStop" class="menu-label menu-item">
+    <span class="menu-label-text">Stop Presentation</span>
+</div>` : "";
 
     let html = `
 <div id="worldMenu", class="worldMenu">
@@ -84,6 +96,7 @@ function toggleMenu(myAvatar, qrCanvas) {
        <span class="menu-label-text">Connect</span>
        <div class="menu-icon connect-icon"></div>
     </div>
+    ${presentation}
 </div>`;
 
     let dom = document.createElement("div");
@@ -117,6 +130,11 @@ function toggleMenu(myAvatar, qrCanvas) {
 
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);
+
+    div = worldMenu.querySelector("#worldMenu-forceStop");
+    if (div) {
+        div.onclick = () => forceStop(myAvatar);
+    }
 
     document.body.appendChild(worldMenu);
 

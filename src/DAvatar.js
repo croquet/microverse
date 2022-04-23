@@ -206,7 +206,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             if(followMe) {
                 this.moveTo(followMe.translation);
                 let yaw = q_yaw(followMe.rotation);
-                let r = q_multiply( q_euler(followMe.lookPitch, 0, 0), q_euler(0, yaw, 0));
+                let r = q_multiply(q_euler(followMe.lookPitch, 0, 0), q_euler(0, yaw, 0));
                 this.rotateTo(r);
             } else {
                 this.follow = null;
