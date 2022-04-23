@@ -4,7 +4,7 @@
 import {
     Constants, Data, App, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
-    m4_multiply, m4_rotationQ, m4_translation, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
+    m4_multiply, m4_rotationQ, m4_translation, q_multiply} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
@@ -205,7 +205,9 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             let followMe = this.service("PlayerManager").players.get(this.follow);
             if(followMe) {
                 this.moveTo(followMe.translation);
-                this.rotateTo(followMe.rotation);
+                let yaw = q_yaw(followMe.rotation);
+                let r = q_multiply( q_euler(followMe.lookPitch, 0, 0), q_euler(0, yaw, 0));
+                this.rotateTo(r);
             } else {
                 this.follow = null;
             }
@@ -674,8 +676,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                                 console.profile("profile");
                             }
                             break;
+                    }
                 }
-            }
             /* console.log(e) */
         }
     }
