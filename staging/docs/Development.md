@@ -11,35 +11,41 @@
 
 Croquet Microverse Builder allows you to create a multiuser virtual 3D world. You can add new 3D objects, change their properties, and write their "behaviors" dynamically, all while you and other users are in the same world.
 
-Every object you create in the world is called a "card". A card can be in any shape and size.  Some cards are flat, some hold 3D models, some cards' visual representation  are generated programmatically by a behavior. Even the terrain model on which the avatars walk is a card with a 3D model. You can typically drag and drop a 3D model file or an image into a running world to create a card. You can also write a simple specification file to start a new world.
+Every object you create in the world is called a "card". A card can be in any shape and size.  Some cards are flat, some hold 3D models, some cards' visual representation are generated programmatically by a behavior. Even the terrain model on which the avatars walk is a card with a 3D model. You can typically drag and drop a 3D model file or an image into a running world to create a card. You can also write a simple specification file to start a new world.
 
-Cards can communicate with each other by the [Croquet's publish/subscribe mechanism](https://croquet.io/docs/croquet/) to trigger actions.
+Cards communicate with each other using the [Croquet's publish/subscribe mechanism](https://croquet.io/docs/croquet/) to trigger actions.
 
-A behavior is a class extension mechanism. It is like a subclass of a card but it can be attached and detached to a card dynamically. Attached behaviors can enhance features of the "actor" (the model) of the card as well as the "pawn" (the view).
+A behavior is a class extension mechanism. It is like a subclass of a card which can be attached and detached to a card dynamically. Attached behaviors can enhance features of the "actor" (the model) of the card as well as the "pawn" (the view).
 
-Therefore, creating a Croquet Microverse world means to arrange your 3D objects in the world, including the terrain model, and specify behaviors to some objects. Other user can join in the world you are create it together, and once you are satisfied, the result can be saved into a file, or card specifications can be extracted to the world file.
+Therefore, creating a Croquet Microverse world means to arrange your 3D objects in the world, including the terrain model, and specify behaviors to some objects. Other user can join a world where you can collaboratively create it.  Once you are satisfied, the world definition can be saved into a file, or card specifications can be extracted to the world file.
 
 ## Start a demo world
-You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.json`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .json, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for  a public place like Github Gist.
+You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.json`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .json, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like Github Gist.
 
-One of the demo worlds in the repository is called `demoWorld1`, and you can start it by opening <http://localhost:9684/?world=demoWorld1>
+One of the demo worlds in the repository is called `demoWorld1`, and can be entered by opening <http://localhost:9684/?world=demoWorld1>
 
 ![Demoworld1](./assets/DemoWorld1.png)
 
 ## World Definition File
 
-Demoworld1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the `worlds` directory. Open microverse-builder/worlds/demoWorld1.js in your text editor to see the following code. The init function is used to define the objects that make up the world.
+Demoworld1 is made up of three cards (not including the avatars). There is a floor card, which allows us to walk around.  A light card that lets us see the world around us. And a flat card with the Croquet logo on it. The code defining this world can be found in the `worlds` directory. Open microverse-builder/worlds/demoWorld1.js in your text editor to see the following code. The init function is used to define the objects that make up the world.
 
-The first values are Constants.MaxAvatars and ConstantsAvatarNames. The latter specifies the name of avatar model files stored in `assets/avatars`, and the former specifies how many different avatars we use before cycling back to the first one. You can add more files in the directory and specify their names here to use your own avatars.
+The first values are Constants.MaxAvatars and ConstantsAvatarNames.  ConstantsAvatarNames specifies the name of avatar model files stored in `assets/avatars`.  Constants.MaxAvatars specifies how many different avatars we use before cycling back to the first one. You can add more files in the directory and specify their names here to use your own avatars.
 
 ```Javascript
+// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 export function init(Constants) {
+    Constants.MaxAvatars = 6;
     Constants.AvatarNames = [
-        "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
+        "generic/1", "generic/2", "generic/3", "generic/4", "generic/5", "generic/6",
+        "alice", "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat"
     ];
 ```
 
-The next section defines the various behaviors we will be attaching to our cards. The first set are system behaviors. Those are used to implement the system side features (IOW, even such features are constructed with cards). The next group are the user behaviors. These are created by the creator of the world and are available in the DefaultCards section below.
+The next section defines the various behaviors we will be attaching to our cards. The first set of behaviors are system behaviors used to implement the system side features. The second group is for user behaviors generated by the creator of the world and are available in the DefaultCards section below.
 
 ```Javascript
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
@@ -53,9 +59,9 @@ The next section defines the various behaviors we will be attaching to our cards
     ];
 ```
 
-The final section is where we define the cards. A card is defined by a number of parameters including the name, type, its initial location, scale and orientation, etc. (The full specification of spec is described in `Card Specification.md` in the docs directory.)
+The final section is where we define the cards. A card is defined by a number of parameters including the name, type, its initial location, scale, orientation, etc. (The full specification of parameters is described in `CardSpec.md` in the docs directory.)
 
-You can also specify a list of behaviors to the card. A behavior can define the visual representation, or how it acts when a user interacts with it, or how it can access live external data streams. Here, the first card, the "world model" is defined by the "GridFloor" module. We will take a look at that shortly. The next card defines the lighting in this world. The last card creates a much more card-like object. A floating object in the middle of the scene with the Croquet logo applied.
+You can also specify a list of behaviors for a card. A behavior can define the visual representation, how it acts when a user interacts with it, or how it can access live external data streams.  In the example below, the first card, named the "world model" is defined by the "GridFloor" module. We will take a look at that shortly. The second card, named "light", defines the lighting in this world.  The third card, named "image card", is an example of a typical card in the Croquet Microverse.  It creates a floating object in the middle of the scene with the Croquet logo applied.
 
 ```Javascript
     Constants.DefaultCards = [
@@ -98,9 +104,9 @@ You can also specify a list of behaviors to the card. A behavior can define the 
 
 ## Behaviors
 
-Behaviors are a class extension mechanism of the Croquet Microverse. It is like subclassing to enhance a card, but you can attach and detech a behavior to the actor and the pawn dynamically.
+Behaviors are a class extension mechanism in the Croquet Microverse. It is like subclassing to enhance a card, but you can attach and detach a behavior to/from the actor and the pawn dynamically.
 
-We package a list of behaviors for the actor and another list for the pawn into an entity we call "behavior module", as typically the actor and pawn sides need to work together.
+Since a behavior typically requires an actor side and pawn side to work together, we package list of behaviors for the actor and pawn which are separate into a into an entity we call the "behavior module", 
 
 From our demoWorld, let us look at the behaviors in the GridFloor module.
 
@@ -143,13 +149,13 @@ export default {
 }
 ```
 
-This module simply defines the visual representation, so it does not have any actor behavior. The pawn behavior add a new Three.js `Mesh` to `this.shape`, which is the Three.js `Group` that represents the root of the visual apperanace.
+Since this module simply defines the visual representation, it does not have any actor behaviors. The pawn behavior add a new Three.js `Mesh` to `this.shape`, which is the Three.js `Group` that represents the root of the visual apperanace.
 
-Because behaviors are dynamically modified and attached and detached, their "life cycle" needs some attention. Namely, when the definition is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. Also, when a behavior is detached from the card, the `detstory` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is smart so that next time the tab comes back to foreground, it automatically reconnects and reconstruct the view; but it means that the `setup()` method may be called at that moment, also.
+Because behaviors are dynamically modified and attached and detached, their "life cycle" needs some attention. Namely, when the definition is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. Also, when a behavior is detached from the card, the `destroy` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is designed to automatically reconnects and reconstruct the view smart when the tab comes back to the foreground.  However, it means that the `setup()` method may be called again at that moment.
 
 In the `GridFloorPawn` case, we simply removes all children that `this.shape` might have first, and then create the new `floor` `Mesh`.
 
-The `Worldcore` variable contains the all exported functions and objects from the Worldcore package. Refer to the [Worldcore documentation](https://croquet.io/docs/worldcore) what are available. The most commonly used one is `Worldcore.THREE`, which in turn contains all exports from Three.js.
+The `Worldcore` variable contains all of the exported functions and objects from the Worldcore package. Refer to the [Worldcore documentation](https://croquet.io/docs/worldcore) for what is available. The most commonly used one is `Worldcore.THREE`, which in turn contains all exports from Three.js.
 
 Let us look at another module that adds an ability to pointer drag to add a spin to a card.
 
@@ -257,9 +263,9 @@ On the actor side, the `startSpinning` and `stopSpinning`, which is sent when th
 
 The last `export` statement exports those two behaviors as a module named "Spin".
 
-Recall that `setup()` may be called multiple times in the life cycle of a card. To mitigate developer's burden, `addEventListener()` and `subscribe()` for a card internally keep track of the current listeners and subscriptions, and automatically remove or unsubscribes previous registration before adding new one.  That is why the `subscribe()/listen()` and `addEventListener()` calls in the `setup()` methods for both actor and pawn are simply called without any guard.
+Recall that `setup()` may be called multiple times in the life cycle of a card. To mitigate developer's burden, `addEventListener()` and `subscribe()` for a card internally keep track of the current listeners and subscriptions, and automatically remove or unsubscribes previous registration before adding new ones.  This is why the `subscribe()/listen()` and `addEventListener()` calls in the `setup()` methods for both actor and pawn are simply called without any guards.
 
-However, other kinds of initialization often needs some care. For example, creating a property on the actor side should typically look like this to initialize properties only for the first time.
+However, other kinds of initialization often requires some care. For example, creating a property on the actor side should typically look like this to initialize properties only for the first time.
 
 ```Javascript
     setup() {
@@ -271,14 +277,14 @@ However, other kinds of initialization often needs some care. For example, creat
 
 Also if a behavior for a pawn creates Three.js objects, the `setup()` typically removes them before creating new ones, as shown in the GridFloor example.
 
-But don't worry about this details too much initially. Even if you forget to add them at the beginning, the system can keep working, and you can incrementally (and quickly!) make your code more correct.
+But don't worry to much about this details initially.  Even if you forget to add them at the beginning, the system will keep working, and you can incrementally (and quickly!) correct your code.
 
 While you listed the name of the behaviors in the world file, such as `demoWorld1.js`, this is only necessary to load the behaviors that are used in the `DefaultCards` list.  Once you press the "Connect" button in the menu, all behavior modules that the watch server watches become available.
 
 ## Debugging
 There are a few tips to know when you debug behavior code with browser's developer tools.
 The first thing to keep in mind is that the behavior is stringified and then evaluated to create a JavaScript class object. Therefore, the code is not bound to the original source code anymore. It means that if you navigate to the file from the browser's source tree and set a breakpoint, it will not hit. Instead there are two ways to do so.
-The first is simply put the `debugger` statement in behavior code.  Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see the results in console, click on the generated file name such as `VM197`, `VM348`, etc.
+The first is simply put the `debugger` statement in behavior code.  Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see results in the console, click on the generated file name such as `VM197`, `VM348`, etc.
 
 <p align="center">
 <img src="https://gist.githubusercontent.com/yoshikiohshima/6644ea9a84561d6f8ec365003a9ce22a/raw/de5c60ff73262b99ba366d32ca440aa46fb2d1f5/debug.png" width="300"/>
@@ -286,11 +292,11 @@ The first is simply put the `debugger` statement in behavior code.  Another is t
 
 This will bring up the view of the generated code, and you can set a breakpoint.
 
-Another tip is that when the execution of the program is stopped at the breakpoint for more than 30 seconds, the WebSocket to the reflector is disconnected. This is okay as Croquet will reconnect when you continue execution; butan event may be lost if  the view is destructed.
+Another tip is that when the execution of the program is stopped at the breakpoint for more than 30 seconds, the WebSocket to the reflector is disconnected. This is okay as Croquet will reconnect when you continue execution; but an event may be lost if the view is destroyed.
 
 Yet another tip is that, if the watch-server injects new code, the modified behavior code will be treated as a new chunk of code, and the breakpoint you think you set will not be hit.
 
-However, you inevitably encounter errors during the development. Because your code will be invoked from Croquet's publish/subscribe messaging system and also wrapped in a Proxy, the stack trace itself may be opaque.  You can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `DriveActor`'s `setup` method, and the error was `this.xxx is not a function`.
+Inevitably you will encounter errors during the development. And because your code will be invoked from Croquet's publish/subscribe messaging system and also wrapped in a Proxy, the stack trace itself may be opaque.  However, you can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `DriveActor`'s `setup` method, and the error was `this.xxx is not a function`.
 
 <img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/696cc5b9b966e3ed58d021f604d64cb90ee2b625/error.png" width="800"/>
 
@@ -298,7 +304,7 @@ Once you figure this out, you can put a breakpoint in the offending method and s
 
 ## The Property Sheet
 
-You can bring up the Property Sheet for a card by holding down the control key and click on a card.
+You can bring up the Property Sheet for a card by holding down the control key and clicking on a card.
 
 ![PropertySheet](./assets/PropertySheet.png)
 
@@ -306,13 +312,13 @@ You can duplicate or delete the card from "actions". If you multi-select the mod
 
 The text area below shows the properties of the card in the format that is compatible with the card specification in the world file.  You can edit values and hit Ctrl-S (on Windows) or Cmd-S (on Mac), and the values are used to update the card. Also, you can copy the contents to your world file.
 
-Note however that the content is not evaluated as JavaScript expression; rather, each line of the text is parsed, and the part after ":" is passed to `JSON.parse()` to create the value. (This is to avoid opening up full `eval()`  feature from the propety sheet.)
+Note however that the content is not evaluated as a JavaScript expression; rather, each line of the text is parsed, and the part after ":" is passed with `JSON.parse()` to create the value. (This is to avoid opening up full `eval()`  feature from the propety sheet.)
 
 ## Saving the World to a File
 
 With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the bottom-left menu to create a JSON file. If you specify the location of the JSON file to the `?world=` URL parameter, the content will be used to start the world.
 
 ## Persistence
-The system internally creates the "persistent data" at 60 second interval when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
+The system internally records "persistent data" at 60 second intervals when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
 
 Also note that the start file, either in `.js` or `.json, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
