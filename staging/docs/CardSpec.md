@@ -9,7 +9,7 @@
 
 ## Introduction
 
-A card in Croquet Microverse is defined a declarative specification. The specification can be serialized into JSON and transmitted or stored, and then can be loaded into a different Croquet Microverse world, used to start a new world.
+A card in Croquet Microverse is defined as a declarative specification. The specification can be serialized into JSON and transmitted or stored, and then can be loaded into a different Croquet Microverse world, used to start a new world.
 
 A specification can be also used to rebuild an exisiting card without losing identity. This allows you to interactively build up a world while exploraing different alternatives quickly.
 
@@ -35,7 +35,14 @@ In the following, we describe the properties and how they interact with each oth
 
 ## Concepts
 
-A card is specified by a JSONable set of properties. The properties specify 1) where the card is spatially situated, 2) how it interacts with the user pointer interaction, 3) how it looks, 4) what user-defined behavior it has, and 5) data specific to user-defined behaviors. We call those four categories, "spatial", "pointer", "visual", and "code", "card data".
+A card is specified by a JSONable set of properties. The properties specify 
+1. where the card is spatially situated 
+2. how it interacts with the user pointer interaction 
+3. how it looks 
+4. what user-defined behavior it has 
+5. data specific to user-defined behaviors. 
+
+We group these properties into four categories, "spatial", "pointer", "visual", and "code"/"card data".
 
 ## Spatial Properties
 
@@ -57,7 +64,7 @@ Array<number, number, number>|undefined
 
 ### Description
 
-Specify the xyz coodinates of the card. It defaults to [0, 0, 0] when not specified.
+Specifies the xyz coodinates of the card. It defaults to [0, 0, 0] when not specified.
 
 ---
 ### Name
@@ -76,7 +83,7 @@ Array<number, number, number>|undefined
 
 ### Description
 
-Specify the scale in xyz axises of the card. It defaults to [1, 1, 1] when not specified.
+Specifies the scale in xyz axises of the card. It defaults to [1, 1, 1] when not specified.
 
 ---
 
@@ -96,7 +103,7 @@ Array<number, number, number, number?>|undefined
 
 ### Description
 
-Specify the rotation of the card. If the Array has three elements, it is interpred as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
+Specifies the rotation of the card. If the Array has three elements, it is interpred as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
 
 ---
 
@@ -118,7 +125,7 @@ Array<number, number, number>|undefined
 
 A 3D model loaded as part of a card may have its own offset. You can use dataTranslation as a "one time" fix to translate the 3D model when loading.
 
-Specify the xyz coodinates of the translation for the loaded model. It defaults to [0, 0, 0] when not specified.
+Specifies the xyz coodinates of the translation for the loaded model. It defaults to [0, 0, 0] when not specified.
 
 ---
 
@@ -140,7 +147,7 @@ Array<number, number, number>|undefined
 
 A 3D model loaded as part of a card may have its own scale. You can use dataTranslation as a "one time" fix to translate the 3D model when loading.
 
-Specify the xyz scale of the loaded model. It defaults to [1, 1, 1] when not specified. If you load 3D model interactively by dragging and dropping from your OS, Croquet Microverse adjusts this value so that the card has a reasonably sized 3D model. You can specify this value to fix the automatic scaling.
+Specifies the xyz scale of the loaded model. It defaults to [1, 1, 1] when not specified. If you load 3D model interactively by dragging and dropping from your OS, Croquet Microverse adjusts this value so that the card has a reasonably sized 3D model. You can specify this value to fix the automatic scaling.
 
 ---
 
@@ -162,7 +169,7 @@ Array<number, number, number, number?>|undefined
 
 A 3D model loaded as part of a card may have a rotation that does not match with the orientation of the card. You can use dataRotation as a "one time" fix to rotate the 3D model when loading.
 
-Specify the rotation of the loaded model. If the Array has three elements, it is interpred as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
+Specifies the rotation of the loaded model. If the Array has three elements, it is interpred as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
 
 ---
 
@@ -182,7 +189,7 @@ string|CardActor|undefined
 
 ### Description
 
-This property sets up the display scene hierarchy. A special care is taken when an actual CardActor is passed in, and also during an intialization the interpretation of the value changes.  See more information on the `parent` property below.
+This property sets up the display scene hierarchy. Special care is taken when an actual CardActor is passed in, and also during an intialization the interpretation of the value changes.  See more information on the `parent` property below.
 
 ---
 
@@ -205,7 +212,7 @@ Array<Layers>|undefined
 
 ### Description
 
-It is an array of "walk", "pointer", "lighting", and future extensions.  If the value contains "walk", the avatar users the "find floor" mechanism to keep it y coordinates. If the value contains "pointer", user interaction via the pointing device takes this object into account.
+It is an array of "walk", "pointer", "lighting", and future extensions.  If the value contains "walk", the avatar uses the "find floor" mechanism to keep its y coordinates. If the value contains "pointer", user interaction via the pointing device takes this object into account.
 
 ---
 
@@ -223,7 +230,7 @@ pointer
 boolean
 ```
 
-Specify whether the card automatically locks other users out when one user is interacting.
+Specifies whether the card automatically locks other users out when one user is interacting.
 
 ---
 
@@ -270,7 +277,7 @@ string|undefined
 ### Description
 The value is interpreted as URL, fragment of URL, Croquet Data ID or `undefined`
 
-It contains the location of SVG or 3d model data. It is a URL, either full URL or a relative path from the application, or Croquet Data ID.
+It contains the location of SVG or 3d model data.  It is a URL, either full URL or a relative path from the application, or Croquet Data ID.
 
 If you drag and drop a file to create a card, you can open the Property Sheet by Ctrl+tap, and check the value of dataLocation for its Data ID.
 
@@ -333,7 +340,7 @@ Meter|undefined
 ```
 
 ### Description
-When the cards "type" is "2d", `cornerRadius` specifies the radius of the rounded corner. It  defaults to 0 (in meters).
+When the cards "type" is "2d", `cornerRadius` specifies the radius of the rounded corner. It defaults to 0 (in meters).
 
 ---
 
@@ -354,7 +361,7 @@ Color|undefined
 
 When the "type" is "2d", the value is used for the surface of the 2D card. The value is also available from a behavior and typically used to specify the color of the generated Three.js materials.
 
-When the "type" is "text" or "code", the value specifies the text color.n
+When the "type" is "text" or "code", the value specifies the text color.
 
 ---
 
@@ -858,12 +865,12 @@ labelCard = this.createCard({
 });
 ```
 
-Just for a convenience, you can pass in an object as the value for `parent` in this case.
+For convenience, you can pass in an object as the value for `parent` in this case.
 
 ---
 
 ## Other properties
 
-As long as the value can be serialized in JSON, you can specify a new property in the card specification with any property name. You can use the value from a behavior you attach to the card. Such a value is stored in the actor's property called `_cardData`. A behavior for the CardActor can read and write the value by accessing `this._cardData.foo`, and a behavior for the CardPawn can read the value by accessing `this.actor._cardData.foo`.
+As long as a value can be serialized in JSON, you can specify a new property in the card specification with any property name. You can use the value from a behavior you attach to the card. Such a value is stored in the actor's property called `_cardData`. A behavior for the CardActor can read and write the value by accessing `this._cardData.foo`, and a behavior for the CardPawn can read the value by accessing `this.actor._cardData.foo`.
 
 A behavior can create a property on the model directly, namely to execute something like `this.foo = 42`. this is fine but the value will not be stored in the persistent data; so when you run the new session with a new version of Croquet Microverse, such a value will not be carried over. Choose to store the value in `_cardData` if you want to carry a value over to a new session from persistent data, or store it directly in the actor when that is not necessary.
