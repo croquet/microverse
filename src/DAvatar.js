@@ -870,17 +870,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     setOpacity(opacity){
         let transparent = opacity!=1;
-        if(this.opacity!==opacity){
-            this.opacity = opacity;
-            if(this.avatar){
-                this.avatar.traverse( n => {
-                    if(n.material){
-                        n.material.opacity = opacity;
-                        n.material.transparent = transparent;
-                        n.material.needsUpdate = true;
-                    }
-                });
-            }
+        if(this.avatar){
+            this.avatar.traverse( n => {
+                if(n.material){
+                    n.material.opacity = opacity;
+                    n.material.transparent = transparent;
+                    n.material.needsUpdate = true;
+                }
+            });
         }
     }
 

@@ -76,7 +76,7 @@ export function init(Constants) {
             card: {
                 name:"Imported Box",
                 type: "3d",
-                dataLocation: "./assets/3D/1m_testcube.glb.zip",
+                dataLocation: "./assets/3D/testcube_1m.glb.zip",
                 layers: ["pointer"],
                 translation:[4, 0.4, -10],
                 dataScale:[1,1,1],
