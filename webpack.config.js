@@ -70,7 +70,7 @@ const config = {
                 { from: 'worlds/*.{js,json}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'behaviors/**/*',
-                  globOptions: {ignore: ["**/croquet/*.js"]}
+                  globOptions: {ignore: ["**/test/**/*.js", "**/test/**/*.js~"]}
                 },
                 { from: path.resolve(__dirname, "staging")}
             ]
