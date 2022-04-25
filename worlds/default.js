@@ -54,7 +54,7 @@ export function init(Constants) {
             card: {
                 name: "Perlin Demo",
                 layers: ["pointer"],
-                translation:[ 10, -2.75, -14],
+                translation:[ 10, -1.62, -14],
                 type: "object",
                 behaviorModules: ["Perlin"],
                 rotation:[ 0, -0.7071068, 0, 0.7071068 ],
