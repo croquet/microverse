@@ -1,6 +1,6 @@
 # The Croquet Microverse Repository
 
-## 1. Clonse worldcore repository
+## 1. Clone worldcore repository
 
 This repo tends to depend on the cutting edge version of worldcore https://github.com/croquet/worldcore. Clone that also and put it at the side of this directory. And initialize worldcore repo by running `lerna bootstrap`.
 
