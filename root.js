@@ -172,6 +172,7 @@ class MyPlayerManager extends PlayerManager {
         if (player.playerId === this.presentationMode) {
             this.stopPresentation();
         }
+        this.followers.delete(player.playerId);
         this.publish("playerManager", "presentationCountChanged");
     }
 
