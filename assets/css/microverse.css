@@ -2,7 +2,6 @@
 
 
 body {
-    background-color: #bfe3dd;
     font-family: Arial, sans-serif;
     color: #000;
     margin: 0;
@@ -177,7 +176,7 @@ body {
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;    
+    justify-content: center;
     width: 0px;
     height: 0px;
 }

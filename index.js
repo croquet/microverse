@@ -1,5 +1,5 @@
 import { Model, Constants } from "@croquet/worldcore";
-import { startShell, isShellWindow } from "./shell.js";
+import { startShell, getWindowType } from "./shell.js";
 import { startWorld, basenames } from "./root.js";
 import { WorldSaver } from "./src/worldSaver.js";
 import { CodeLibrary } from "./src/code.js";
@@ -47,12 +47,9 @@ async function startMicroverse() {
 }
 
 async function start() {
-    const isShell = await isShellWindow();
-    if (isShell) {
-        startShell();
-    } else {
-        startMicroverse();
-    }
+    const windowType = await getWindowType();
+    if (windowType === "shell") startShell();
+    else startMicroverse();
 }
 
 start();

@@ -401,7 +401,7 @@ class MyViewRoot extends ViewRoot {
     }
 }
 
-export function startWorld(appParameters, isCurrentWorld=true) {
+export function startWorld(appParameters) {
     // appParameters are loaded from apiKey.js (see index.js)
     // and typically provide apiKey and appId
     let sessionParameters = {
@@ -428,7 +428,6 @@ export function startWorld(appParameters, isCurrentWorld=true) {
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then(() => {
-            document.getElementById("hud").classList.toggle("current-world", isCurrentWorld);
             let {basedir} = basenames();
             return fetch(`${basedir}meta/version.txt`);
         }).then((response) => {

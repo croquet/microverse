@@ -5,7 +5,9 @@ import { CardActor, CardPawn } from "./DCard.js";
 export class PortalActor extends CardActor {
     init(options) {
         super.init(options);
-   }
+    }
+
+    get targetURL() { return this._cardData.targetURL; }
 
     get pawn() {return PortalPawn;}
 
@@ -17,19 +19,22 @@ export class PortalPawn extends CardPawn {
     constructor(actor) {
         super(actor);
 
-        // create checkerboard pattern for portal testing
-        document.body.style.background = "repeating-conic-gradient(#808080 0% 25%, transparent 0% 50%) 50% / 100px 100px";
+        // create listener for messages from shell
+        this.shellListener = e => {
+            if (e.source === window.parent && e.data.message?.startsWith("croquet:microverse:")) {
+                this.receiveFromShell(e.data);
+            }
+        }
+        window.addEventListener("message", this.shellListener);
 
+        this.portalId = undefined;
         this.targetMatrix = new THREE.Matrix4();
         this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
     }
 
     destroy() {
-        if (this.iframe) {
-            if (this.iframe.parentNode) this.iframe.parentNode.removeChild(this.iframe);
-            this.iframe = null;
-        }
+        window.removeEventListener("message", this.shellListener);
     }
 
     makePlaneMaterial(...args) {
@@ -54,12 +59,15 @@ export class PortalPawn extends CardPawn {
 
     update() {
         super.update();
-        this.targetMatrix.copy(this.renderObject.matrixWorld);
-        this.targetMatrix.invert();
-        this.targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
-        if (!this.targetMatrixBefore.equals(this.targetMatrix)) {
-            this.sendToIframe({message: "croquet:microverse:portal", cameraMatrix: this.targetMatrix.elements});
-            this.targetMatrixBefore.copy(this.targetMatrix);
+        if (this.portalId) {
+            const { targetMatrix, targetMatrixBefore, portalId } = this;
+            targetMatrix.copy(this.renderObject.matrixWorld);
+            targetMatrix.invert();
+            targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
+            if (!targetMatrixBefore.equals(targetMatrix)) {
+                this.sendToShell({message: "croquet:microverse:portal-update", portalId, cameraMatrix: targetMatrix.elements});
+                targetMatrixBefore.copy(targetMatrix);
+            }
         }
     }
 
@@ -74,18 +82,22 @@ export class PortalPawn extends CardPawn {
     }
 
     loadTargetWorld() {
-        const { targetURL } = this._actor._cardData;
-        if (!this.iframe) {
-            // create inner-world iframe
-            this.iframe = document.createElement("iframe");
-            this.iframe.style.width = "100%";
-            this.iframe.style.height = "100%";
-            document.body.appendChild(this.iframe);
-        }
-        this.iframe.src = targetURL;
+        this.sendToShell({
+            message: "croquet:microverse:load-world",
+            url: this.actor.targetURL,
+            portalId: this.portalId, // initially undefined
+        });
     }
 
-    sendToIframe(data) {
-        this.iframe.contentWindow.postMessage(data, "*");
+    receiveFromShell(data) {
+        switch (data.message) {
+            case "croquet:microverse:portal-opened":
+                this.portalId = data.portalId;
+                break;
+        }
+    }
+
+    sendToShell(data) {
+        window.parent.postMessage(data, "*");
     }
 }
