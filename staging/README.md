@@ -11,7 +11,7 @@ Please refer to the QuickStart.md in the `docs` directory to get started. Key co
 
 
 ## The First Steps to Run
-1. Clone or forlk the Github repository from <https://github.com/croquet/microverse-builder>.
+1. Clone or fork the Github repository from <https://github.com/croquet/microverse-builder>.
     <br>`git clone git@github.com:croquet/microverse-builder.git` 
 2. Obtain your Croquet API Key from <https://croquet.io/keys/>.
 3. Open a terminal and change the working directory to your new Microverse-Builder folder.
