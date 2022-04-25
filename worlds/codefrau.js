@@ -23,20 +23,19 @@ export function init(Constants) {
         {
             card: {
                 name:"world model",
-                translation:[0, -10, -60],
-                scale:[200, 200, 200],
+                dataScale:[1,1,1],
+                translation:[22,-1.7,-20],
                 rotation: [0, Math.PI, 0],
                 layers: ["walk"],
                 type: "3d",
-                dataLocation: "./assets/3D/Oil Refinery_040522_2.glb.zip",
+                // dataLocation: "./assets/3D/oilrefinery_042122.glb.zip",
                 singleSided: true,
                 shadow: true,
 
                 placeholder: true,
-                placeholderSize: [40, 1, 40],
-                placeholderColor: 0x808080,
-                placeholderOffset: [0, -0.463, 0],
-
+                placeholderSize: [100, 1, 100],
+                placeholderColor: 0xcccccc,
+                placeholderOffset: [0, -1.7, 0],
             }
         },
         {
@@ -55,7 +54,7 @@ export function init(Constants) {
             card: {
                 name: "portal",
                 className: "PortalActor",
-                translation: [0, 0, 0],
+                translation: [0, 0, -5],
                 rotation: [0, 0, 0],
                 depth: 0.05,
                 type: "2d",
@@ -65,11 +64,11 @@ export function init(Constants) {
                 // textureLocation: "./assets/images/earthbase.png",
                 color: 0xFF66CC,
                 frameColor: frameColor,
-                width: 20,
-                height: 20,
+                width: 4,
+                height: 4,
                 cornerRadius: 0.05,
                 shadow: true,
-                targetURL: "?world=default&q=h3x7g3sfvt#pw=uc0HfetkENTP3aaHou-kOQ",
+                targetURL: "?world=default&q=hf1c8u7b04#pw=2VFO_4QYZOb2-sxdS5--ig",
             }
         },
     ];

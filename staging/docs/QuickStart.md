@@ -12,7 +12,7 @@
 This guide will enable you to quickly set up the Croquet Microverse Builder. Refer to tutorials in the docs directory for its key concepts and features that let you build new shared worlds.
 
 ## TL;DR Quick Start
-1. Clone the Github repository from <https://github.com/croquet/microverse-builder>.
+1. Clone or Fork the Github repository from <https://github.com/croquet/microverse-builder>.
     <br>`git clone https://github.com/croquet/microverse-builder.git`
 2. Obtain your Croquet API Key from <https://croquet.io/keys/>.
 3. Change the working directory to your new `microverse-builder` folder.
@@ -26,11 +26,13 @@ This guide will enable you to quickly set up the Croquet Microverse Builder. Ref
 ## Detailed Instructions
 ---
 
-### Clone the Github Repository
+### Clone or Fork the Github Repository
 
 You can find the most up to date Croquet Microverse Builder along with this document and tutorials in the `microverse-builder` Github repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
 
 `git clone https://github.com/croquet/microverse-builder.git`
+
+or fork the repository on Github and clone your repository.
 
 ---
 ### Obtain your API Key
