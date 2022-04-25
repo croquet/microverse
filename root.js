@@ -390,7 +390,6 @@ class MyViewRoot extends ViewRoot {
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
         window.scene = threeRenderManager.scene;
-        
 
         this.service("FontViewManager").setModel(model.service("FontModelManager"));
 
@@ -401,15 +400,7 @@ class MyViewRoot extends ViewRoot {
     }
 }
 
-function inIframe() {
-    try {
-        return window.self !== window.top;
-    } catch (e) {
-        return true;
-    }
-}
-
-export function startWorld(appParameters) {
+export function startWorld(appParameters, isCurrentWorld=true) {
     // appParameters are loaded from apiKey.js (see index.js)
     // and typically provide apiKey and appId
     let sessionParameters = {
@@ -434,9 +425,9 @@ export function startWorld(appParameters) {
         }).then(() => {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
-            document.getElementById("hud").classList.toggle("current-world", true); // (!inIframe());
             return StartWorldcore(sessionParameters);
         }).then(() => {
+            document.getElementById("hud").classList.toggle("current-world", isCurrentWorld);
             let {basedir} = basenames();
             return fetch(`${basedir}meta/version.txt`);
         }).then((response) => {
