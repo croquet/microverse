@@ -871,6 +871,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     setOpacity(opacity){
         let transparent = opacity!=1;
         if(this.avatar){
+            this.avatar.visible = opacity!==0;
             this.avatar.traverse( n => {
                 if(n.material){
                     n.material.opacity = opacity;
