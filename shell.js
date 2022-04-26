@@ -1,3 +1,5 @@
+import { App } from "@croquet/worldcore";
+
 let shell;
 
 export function startShell() {
@@ -37,6 +39,8 @@ export async function getWindowType() {
 class Shell {
     constructor() {
         this.frames = new Map(); // portalId => frame
+        App.autoSession();
+        App.autoPassword();
         this.currentFrame = this.addFrame(location.href, "primary");
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
