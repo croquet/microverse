@@ -360,6 +360,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.joystick = document.getElementById("joystick");
             this.knob = document.getElementById("knob");
             this.releaseHandler = (e) => {
+                console.log(e);
                 for (let k in this.capturedPointers) {
                     this.hiddenknob.releasePointerCapture(k);
                 }
@@ -369,15 +370,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             this.hiddenknob = document.getElementById("hiddenknob");
             this.hiddenknob.onpointerdown = (e) => {
-                if (e.pointerId) {
+                if (e.pointerId !== undefined) {
                     this.capturedPointers[e.pointerId] = "hiddenKnob";
                     this.hiddenknob.setPointerCapture(e.pointerId);
                 }
                 this.startMMotion(e); // use the knob to start
             };
             //this.hiddenknob.onpointerenter = (e) => console.log("pointerEnter")
-            // this.hiddenknob.onpointerleave = (e) => this.continueMMotion(e);
-            this.hiddenknob.onpointerleave = (e) => this.releaseHandler(e);
+            // this.hiddenknob.onpointerleave = (e) => this.releaseHandler(e);
             this.hiddenknob.onpointermove = (e) => this.continueMMotion(e);
             this.hiddenknob.onpointerup = (e) => this.releaseHandler(e);
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
