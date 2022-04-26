@@ -24,7 +24,7 @@ You can specify the starting point of a session by giving a URL parameter `?worl
 
 One of the demo worlds in the repository is called `demoWorld1`, and can be entered by opening <http://localhost:9684/?world=demoWorld1>
 
-![Demoworld1](./assets/DemoWorld1.png)
+![Demoworld1](./assets/demoWorld1.png)
 
 ## World Definition File
 
