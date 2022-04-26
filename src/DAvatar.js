@@ -68,9 +68,9 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
     }
     get pawn() {return AvatarPawn};
-    get lookPitch() { return this._lookPitch || 0 };
-    get lookYaw() { return this._lookYaw || 0 };
-    get lookNormal(){ return v3_transform([0,0,-1], m4_rotationQ(this.rotation)); }
+    get lookPitch() {return this._lookPitch || 0;};
+    get lookYaw() {return this._lookYaw || 0;};
+    get lookNormal() {return v3_rotate([0,0,-1], this.rotation);}
 
     setSpin(q) {
         super.setSpin(q);
@@ -169,6 +169,12 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
                 let theta = Math.atan2(normal[0], normal[2]);
                 this.qEnd = q_euler(0, theta, 0);
             }
+            if (p3d.look) {
+                let pitch = q_pitch(this.qEnd);
+                let yaw = q_yaw(this.qEnd);
+                this.set({lookPitch: pitch, lookYaw: yaw});
+                this.say("setLookAngles", {pitch, yaw});
+            }
         }
         this.goToStep(0.1);
     }
@@ -206,8 +212,9 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             if(followMe) {
                 this.moveTo(followMe.translation);
                 let yaw = q_yaw(followMe.rotation);
-                let r = q_multiply(q_euler(followMe.lookPitch, 0, 0), q_euler(0, yaw, 0));
-                this.rotateTo(r);
+                let pitch = q_pitch(followMe.rotation);
+                this.rotateTo(followMe.rotation);
+                this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch});
             } else {
                 this.follow = null;
             }
@@ -422,9 +429,15 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.subscribe("avatarManager", "avatarPawnAdded", this.showNumbers)
             this.subscribe("avatarManager", "avatarPawnDeleted", this.showNumbers)
             this.subscribe("playerManager", "presentationCountChanged", this.showNumbers);
+            this.listen("setLookAngles", this.setLookAngles);
             this.showNumbers();
         }
         this.constructVisual();
+    }
+
+    setLookAngles(data) {
+        this._lookPitch = data.pitch;
+        this._lookYaw = data.yaw;
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar

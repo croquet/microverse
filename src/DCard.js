@@ -943,10 +943,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     onPointerDoubleDown(pe) {
         if (!pe.targetId) {return;}
-        let pose = this.getJumpToPose ? this.getJumpToPose() : undefined;
+        let pose = this.getJumpToPose ? this.getJumpToPose() : null;
         if (pose) {
             pe.xyz = pose[0]; // world coordinates
             pe.offset = pose[1]; // distance from target
+            pe.look = true;
         } else {
             pe.offset = EYE_HEIGHT;
         }
@@ -980,7 +981,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
     // compute and return the position and distance the avatar should jump to to see the card full screen
     getJumpToPose() {
-        if(!this.isFlat)return;
+        if(!this.isFlat) return null;
         let current = this.renderObject.localToWorld(new THREE.Vector3()).toArray(); // this is where the card is
         let renderer = this.service("ThreeRenderManager");
         let camera = renderer.camera;
