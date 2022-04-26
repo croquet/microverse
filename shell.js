@@ -112,26 +112,30 @@ class Shell {
         switch (data.message) {
             case "croquet:microverse:starting":
                 clearInterval(fromFrame.interval);
-                break;
+                return;
             case "croquet:microverse:load-world":
+                const url = new URL(data.url, location.href).href;
+                let targetFrame;
                 if (data.portalId) {
-                    const targetFrame = this.frames.get(data.portalId);
-                    targetFrame.src = data.url;
-                } else {
-                    const targetFrame = this.addFrame(data.url);
-                    this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, url: data.url});
+                    targetFrame = this.frames.get(data.portalId);
+                    targetFrame.src = url;
+                    return;
                 }
-                break;
+                targetFrame = [...this.frames.values()].find(f => f.src === url);
+                if (!targetFrame) targetFrame = this.addFrame(url);
+                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, url});
+                return;
             case "croquet:microverse:portal-update":
+                if (data.cameraMatrix && data.portalId === this.currentFrame.portalId) return; // don't let inner world modify outer world
                 this.sendToPortal(data.portalId, {...data, portalId: undefined});
-                break;
+                return;
             case "croquet:microverse:portal-enter":
                 if (fromFrame === this.currentFrame) {
                     this.enterPortal(data.portalId, true);
                 } else {
                     console.warn("portal-enter from non-current portal-" + fromPortalId);
                 }
-                break;
+                return;
         }
     }
 
