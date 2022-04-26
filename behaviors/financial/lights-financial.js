@@ -8,17 +8,19 @@ class LightPawn {
 
         this.removeLights();
 
-        this.setupCSM(scene, camera, Worldcore.THREE);
-
-        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .5 );
+        let ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .5 );
         group.add(ambient);
         this.lights.push(ambient);
 
+        // let dir = new Worldcore.THREE.Vector3(-2, -0.15, -0);
+        let directional = new Worldcore.THREE.DirectionalLight( 0xffffff, .5);
+        directional.position.set(-10, 200, 10);
+        this.lights.push(directional);
+        group.add(directional);
+
         this.constructBackground(this.actor._cardData);
 
-        let moduleName = this._behavior.module.externalName;
-        this.addUpdateRequest([`${moduleName}$LightPawn`, "update"]);
-
+        // let moduleName = this._behavior.module.externalName;
         this.listen("updateShape", "updateShape");
     }
 
@@ -65,34 +67,6 @@ class LightPawn {
                 texture.dispose();
             });
         });
-    }
-
-    setupCSM(scene, camera, THREE) {
-        if (this.csm) {
-            this.csm.remove();
-            this.csm = null;
-        }
-
-        let dir = new THREE.Vector3(-2, -0.15, -0);
-        this.csm = new THREE.CSM({
-            fade: true,
-            far: camera.far,
-            maxFar: 1000,
-            cascades: 3,
-            shadowMapSize: 2048,
-            shadowbias: 0.00025,
-            lightDirection: dir,
-            camera: camera,
-            parent: scene,
-            lightIntensity: 0.6,
-            lightFar: 1000,
-            mode: "practical"
-        });
-        this.csm.update();
-    }
-
-    update(_time) {
-        if(this.csm) this.csm.update();
     }
 }
 
