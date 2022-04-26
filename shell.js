@@ -38,6 +38,9 @@ class Shell {
     constructor() {
         this.frames = new Map(); // portalId => frame
         this.currentFrame = this.addFrame(location.href, "primary");
+        window.history.replaceState({
+            portalId: this.currentFrame.portalId,
+        }, null, this.currentFrame.src);
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
         hud.parentElement.removeChild(hud);
@@ -50,6 +53,29 @@ class Shell {
                         this.receiveFromPortal(portalId, frame, e.data);
                     }
                 }
+            }
+        });
+
+        // user used browser's back/forward buttons
+        window.addEventListener("popstate", e => {
+            let { portalId } = e.state;
+            let frame = this.frames.get(portalId);
+            // user may have navigated too far, try to make that work
+            if (!frame) for (const [p, f] of this.frames) {
+                if (f.src === location.href) {
+                    frame = f;
+                    portalId = p;
+                    break;
+                }
+            }
+            // if we don't have an iframe for this url, we jump there
+            // (could also try to load into an iframe but that might give us trouble)
+            if (!frame) location.reload();
+            // we have an iframe, so we enter it
+            if (frame.src === location.href) {
+                this.enterPortal(portalId, false);
+            } else {
+                console.warn(`popstate: location=${document.location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
         });
     }
@@ -122,6 +148,11 @@ class Shell {
         toFrame.style.zIndex = 0;
         this.sendToPortal(toPortalId, {message: "croquet:microverse:window-type", windowType: "primary"});
         this.sendToPortal(currentFrame.portalId, {message: "croquet:microverse:window-type", windowType: "secondary"});
+        if (pushState) {
+            window.history.pushState({
+                portalId: toFrame.portalId,
+            }, null, toFrame.src);
+        }
         this.currentFrame = toFrame;
     }
 }
