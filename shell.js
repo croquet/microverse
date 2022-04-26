@@ -37,7 +37,7 @@ export async function getWindowType() {
 class Shell {
     constructor() {
         this.frames = new Map(); // portalId => frame
-        this.addFrame(location.href, "primary");
+        this.currentFrame = this.addFrame(location.href, "primary");
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
         hud.parentElement.removeChild(hud);
@@ -47,7 +47,7 @@ class Shell {
             if (e.data.message?.startsWith("croquet:microverse:")) {
                 for (const [portalId, frame] of this.frames) {
                     if (e.source === frame.contentWindow) {
-                        this.receiveFromFrame(portalId, frame, e.data);
+                        this.receiveFromPortal(portalId, frame, e.data);
                     }
                 }
             }
@@ -64,22 +64,24 @@ class Shell {
         frame.style.left = "0";
         frame.style.width = "100%";
         frame.style.height = "100%";
+        frame.style.border = "none";
         frame.style.zIndex = -this.frames.size;
         frame.interval = setInterval(() => {
             // cleared after receiving "croquet:microverse:starting"
-            this.sendToFrame(portalId, {message: "croquet:microverse:window-type", windowType});
+            this.sendToPortal(portalId, {message: "croquet:microverse:window-type", windowType});
         }, 50);
         frame.portalId = portalId;
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
+        // console.log("add frame", portalId, url);
         return frame;
     }
 
-    receiveFromFrame(fromPortalId, frame, data) {
+    receiveFromPortal(fromPortalId, fromFrame, data) {
         // console.log(`from portal-${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
             case "croquet:microverse:starting":
-                clearInterval(frame.interval);
+                clearInterval(fromFrame.interval);
                 break;
             case "croquet:microverse:load-world":
                 if (data.portalId) {
@@ -87,16 +89,23 @@ class Shell {
                     targetFrame.src = data.url;
                 } else {
                     const targetFrame = this.addFrame(data.url);
-                    this.sendToFrame(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, url: data.url});
+                    this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, url: data.url});
                 }
                 break;
             case "croquet:microverse:portal-update":
-                this.sendToFrame(data.portalId, {...data, portalId: undefined});
+                this.sendToPortal(data.portalId, {...data, portalId: undefined});
+                break;
+            case "croquet:microverse:portal-enter":
+                if (fromFrame === this.currentFrame) {
+                    this.enterPortal(data.portalId, true);
+                } else {
+                    console.warn("portal-enter from non-current portal-" + fromPortalId);
+                }
                 break;
         }
     }
 
-    sendToFrame(toPortalId, data) {
+    sendToPortal(toPortalId, data) {
         const frame = this.frames.get(toPortalId);
         if (frame) {
             // console.log(`to portal-${toPortalId}: ${JSON.stringify(data)}`);
@@ -104,5 +113,15 @@ class Shell {
         } else {
             console.warn(`portal-${toPortalId} not found`);
         }
+    }
+
+    enterPortal(toPortalId, pushState=true) {
+        const currentFrame = this.currentFrame;
+        const toFrame = this.frames.get(toPortalId);
+        currentFrame.style.zIndex = -1;
+        toFrame.style.zIndex = 0;
+        this.sendToPortal(toPortalId, {message: "croquet:microverse:window-type", windowType: "primary"});
+        this.sendToPortal(currentFrame.portalId, {message: "croquet:microverse:window-type", windowType: "secondary"});
+        this.currentFrame = toFrame;
     }
 }

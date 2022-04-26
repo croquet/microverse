@@ -31,6 +31,8 @@ export class PortalPawn extends CardPawn {
         this.targetMatrix = new THREE.Matrix4();
         this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
+
+        this.addEventListener("keyDown", e => e.key === " " && this.enterPortal());
     }
 
     destroy() {
@@ -59,15 +61,18 @@ export class PortalPawn extends CardPawn {
 
     update() {
         super.update();
-        if (this.portalId) {
-            const { targetMatrix, targetMatrixBefore, portalId } = this;
-            targetMatrix.copy(this.renderObject.matrixWorld);
-            targetMatrix.invert();
-            targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
-            if (!targetMatrixBefore.equals(targetMatrix)) {
-                this.sendToShell({message: "croquet:microverse:portal-update", portalId, cameraMatrix: targetMatrix.elements});
-                targetMatrixBefore.copy(targetMatrix);
-            }
+        this.updatePortalCamera();
+    }
+
+    updatePortalCamera() {
+        if (!this.portalId) return;
+        const { targetMatrix, targetMatrixBefore, portalId } = this;
+        targetMatrix.copy(this.renderObject.matrixWorld);
+        targetMatrix.invert();
+        targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
+        if (!targetMatrixBefore.equals(targetMatrix)) {
+            this.sendToShell({message: "croquet:microverse:portal-update", portalId, cameraMatrix: targetMatrix.elements});
+            targetMatrixBefore.copy(targetMatrix);
         }
     }
 
@@ -89,11 +94,19 @@ export class PortalPawn extends CardPawn {
         });
     }
 
+    enterPortal() {
+        this.sendToShell({message: "croquet:microverse:portal-enter", portalId: this.portalId});
+    }
+
     receiveFromShell(data) {
         switch (data.message) {
             case "croquet:microverse:portal-opened":
                 this.portalId = data.portalId;
+                this.updatePortalCamera();
                 break;
+            case "croquet:microverse:window-type":
+                this.updatePortalCamera();
+                break
         }
     }
 
