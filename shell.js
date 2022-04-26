@@ -24,6 +24,7 @@ export async function getWindowType() {
                     resolve(windowType); // "primary" or "secondary"
                     document.body.style.background = "transparent";
                     document.getElementById("hud").classList.toggle("current-world", windowType === "primary");
+                    if (windowType === "primary") window.focus();
                     return;
                 }
                 // we ignore all other messages here, each portal pawn has its own listener
@@ -162,5 +163,6 @@ class Shell {
             }, null, toFrame.src);
         }
         this.currentFrame = toFrame;
+        this.currentFrame.focus();
     }
 }
