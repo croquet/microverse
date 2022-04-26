@@ -128,6 +128,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     goHome(there) {
         this.goTo( ...there, true );
+        this.say("setLookAngles", {pitch: 0, yaw: 0});
+        this.set({lookPitch: 0, lookYaw: 0});
     }
 
     goTo(v, q, fall) {
@@ -906,7 +908,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     goHome() {
         console.log("goHome")
-        this.say("goHome", [[0,0,0], [0,0,0,1]])
+        this.say("goHome", [[0,0,0], [0,0,0,1]]);
     }
 
     comeToMe(){
