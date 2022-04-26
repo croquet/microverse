@@ -991,14 +991,13 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let base = (cHeight / 2) * Math.sqrt(3); // when fov is 60 deg; subject to change
 
         let temp = this.renderObject.matrix;
-        let size;
+        let size = new THREE.Vector3(0, 0, 0);
         try {
             let scale = new THREE.Vector3(0, 0, 0);
             scale.setFromMatrixScale(temp);
             let mat4 = new THREE.Matrix4();
             mat4.makeScale(scale.x, scale.y, scale.z);
             this.renderObject.matrix = mat4;
-            let size = new THREE.Vector3(0, 0, 0);
             new THREE.Box3().setFromObject(this.renderObject).getSize(size);
         } finally {
             this.renderObject.matrix = temp;
