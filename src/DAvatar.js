@@ -146,13 +146,13 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.vStart = [...this.translation];
         this.qStart = [...this.rotation];
 
-        if(!this.fall && (p3d.targetId === this.restoreTargetId)){ // jumpback if you are  doubleclicking on the same target you did before
+        if (!this.fall && (p3d.targetId === this.restoreTargetId)) { // jumpback if you are  doubleclicking on the same target you did before
             this.vEnd = this.restoreTranslation;
             this.qEnd = this.restoreRotation;
             this.restoreRotation = undefined;
             this.restoreTranslation = undefined;
             this.restoreTargetId = undefined;
-        }else{
+        } else {
             this.fall = false; // sticky until we move
             this.restoreRotation = [...this.rotation];
             this.restoreTranslation = [...this.translation];

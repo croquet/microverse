@@ -929,7 +929,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     onBlur(_pointerId) {
         console.log("blurred")
     }
-/*
+
+    /*
     onPointerWheel(e) {
         let wheel = e.deltaY;
         let s = this.scale;
@@ -938,7 +939,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.scaleTo([s[0] + w, s[1] + w, s[2] + w], 100);
         }
     }
-*/
+    */
+
     onPointerDoubleDown(pe) {
         if (!pe.targetId) {return;}
         let pose = this.getJumpToPose ? this.getJumpToPose() : undefined;
@@ -980,27 +982,30 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     getJumpToPose() {
         if(!this.isFlat)return;
         let current = this.renderObject.localToWorld(new THREE.Vector3()).toArray(); // this is where the card is
-        let camera = this.service("ThreeRenderManager").camera;
-        let fov = camera.fov;
+        let renderer = this.service("ThreeRenderManager");
+        let camera = renderer.camera;
         let caspect = camera.aspect;
+        let cWidth = renderer.canvas.width;
+        let cHeight = renderer.canvas.height;
 
-        let size = new THREE.Vector3(0, 0, 0);
-        new THREE.Box3().setFromObject(this.renderObject).getSize(size);
-        let taspect = size.z / size.y;
+        let base = (cHeight / 2) * Math.sqrt(3); // when fov is 60 deg; subject to change
 
-        let d, h;
-        if (taspect < 1) {
-            // w = size.y * taspect;
-            h = size.y;
-        } else {
-            // w = size.z;
-            h = size.z / taspect;
+        let temp = this.renderObject.matrix;
+        let size;
+        try {
+            let scale = new THREE.Vector3(0, 0, 0);
+            scale.setFromMatrixScale(temp);
+            let mat4 = new THREE.Matrix4();
+            mat4.makeScale(scale.x, scale.y, scale.z);
+            this.renderObject.matrix = mat4;
+            let size = new THREE.Vector3(0, 0, 0);
+            new THREE.Box3().setFromObject(this.renderObject).getSize(size);
+        } finally {
+            this.renderObject.matrix = temp;
         }
+        let taspect = size.x / size.y;
 
-        d = (h / 2) / Math.tan(Math.PI * fov / 360); // compute distance from card assuming vertical
-
-        if (caspect <= taspect) d *= (taspect / caspect); // use width to fit instead
-
+        let d = taspect < caspect ? (size.y * base) / cHeight : (size.x * base) / cWidth;
         return [current, d * 1.1];
     }
 
