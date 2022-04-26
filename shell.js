@@ -9,7 +9,7 @@ export function startShell() {
 // answer "shell" if this window is the outer shell of the app
 // answer "primary", if this window is the top-most iframe showing the current world
 // answer "secondary", if this window is another iframe showing a world in a portal
-export async function getWindowType() {
+export function getWindowType() {
     // if we're not running in an iframe this is very fast
     const runningAsFrame = window.self !== window.parent;
     if (!runningAsFrame) return "shell";
