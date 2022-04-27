@@ -89,7 +89,7 @@ export function init(Constants) {
                 name: "portal",
                 className: "PortalActor",
                 translation: [8, 0.4, -5],
-                rotation: [0, Math.PI / 2, 0],
+                rotation: [0, -Math.PI / 2, 0],
                 type: "2d",
                 layers: ["pointer"],
                 behaviorModules: ["Spin"],

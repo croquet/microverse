@@ -43,15 +43,5 @@ export function init(Constants) {
                 dataType: "jpg",
             }
         },
-        {
-            card: {
-                name: "light",
-                layers: ["light"],
-                type: "lighting",
-                behaviorModules: ["Light"],
-                dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
-                dataType: "jpg",
-            }
-        },
     ];
 }

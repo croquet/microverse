@@ -98,7 +98,12 @@ class Shell {
         frame.style.border = "none";
         frame.style.zIndex = -this.frames.size;
         frame.interval = setInterval(() => {
-            // cleared after receiving "croquet:microverse:starting"
+            // there are two listeners to this message:
+            // 1. the frame itself in shell.js (see below)
+            // 2. the avatar in DAvatar.js
+            // the avatar only gets constructed after joining the session
+            // so we keep sending this message until the avatar is constructed
+            // then it will send "croquet:microverse:started" which clears this interval (below)
             this.sendToPortal(portalId, {message: "croquet:microverse:window-type", windowType});
         }, 50);
         frame.portalId = portalId;
@@ -111,7 +116,7 @@ class Shell {
     receiveFromPortal(fromPortalId, fromFrame, data) {
         // console.log(`from portal-${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
-            case "croquet:microverse:starting":
+            case "croquet:microverse:started":
                 clearInterval(fromFrame.interval);
                 return;
             case "croquet:microverse:load-world":
