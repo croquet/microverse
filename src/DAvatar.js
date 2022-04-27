@@ -23,13 +23,13 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         super.init(options);
         this.avatarIndex = options.index;
 
-        this.visible = false;
+        this.inThisWorld = false;   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
         this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
-        this.listen("setVisible", this.setVisible);
+        this.listen("setInThisWorld", this.setInThisWorld);
         this.listen("setTranslation", this.setTranslation);
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
@@ -76,10 +76,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.service("PlayerManager").stopPresentation();
     }
 
-    setVisible(v) {
-        if (this.visible !== v) {
-            this.visible = v;
-            this.say("setVisible", v);
+    setInThisWorld(v) {
+        if (this.inThisWorld !== v) {
+            this.inThisWorld = v;
+            this.say("setInThisWorld", v);
         }
     }
 
@@ -392,8 +392,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.cameraListener = e => {
                 if (e.source === window.parent) switch (e.data.message) {
                     case "croquet:microverse:window-type":
-                        const primary = e.data.windowType === "primary";
-                        if (primary) {
+                        const isPrimary = e.data.windowType === "primary";
+                        const wasSecondary = !!this.portalCameraMatrix;
+                        if (isPrimary) {
                             if (this.portalCameraMatrix) {
                                 // TODO: apply the portal camera matrix to move avatar itself
                                 // to make entering visually smooth
@@ -401,7 +402,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                                 this.refreshCameraTransform();
                             }
                         }
-                        this.say("setVisible", primary);
+                        this.say("setInThisWorld", isPrimary);
                         // tell shell that we got this message (TODO: should only send this once)
                         window.parent.postMessage({message: "croquet:microverse:started"}, "*");
                         break;
@@ -415,7 +416,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.say("resetHeight");
             this.subscribe("playerManager", "presentationCountChanged", this.showNumbers)
             this.listen("setLookAngles", this.setLookAngles);
-            this.listen("setVisible", this.setVisible);
+            this.listen("setInThisWorld", this.setInThisWorld);
             this.showNumbers();
         }
         this.constructVisual();
@@ -426,8 +427,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this._lookYaw = data.yaw;
     }
 
-    setVisible(data) {
-        if (this.avatar) this.avatar.visible = data;
+    setInThisWorld(inThisWorld) {
+        if (this.avatar) this.avatar.visible = inThisWorld;
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -513,7 +514,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.addToLayers('avatar');
             model.name = "Avatar";
             this.setRenderObject(model);  // note the extension
-            this.avatar.visible = this.actor.visible;
+            this.avatar.visible = this.actor.inThisWorld;
         });
     }
 
@@ -882,9 +883,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     setOpacity(opacity) {
-        let transparent = opacity !== 1;
         if (this.avatar) {
-            this.avatar.visible = this.actor.visible && opacity !== 0;
+            let transparent = opacity !== 1;
+            this.avatar.visible = this.actor.inThisWorld && opacity !== 0;
             this.avatar.traverse(n => {
                 if (n.material) {
                     n.material.opacity = opacity;
