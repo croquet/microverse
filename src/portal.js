@@ -32,6 +32,7 @@ export class PortalPawn extends CardPawn {
         this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
 
+        this.addEventListener("pointerDown", () => {});
         this.addEventListener("keyDown", e => e.key === " " && this.enterPortal());
     }
 
