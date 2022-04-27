@@ -438,7 +438,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (toRemove.length > 0) {
             this.removeFromLayers(...toRemove);
         }
-        this.addToLayers(this.actor._layers);
+        let origLayers = this.actor._layers;
+        if (origLayers) {
+            this.addToLayers(...origLayers);
+        }
 
         delete this.isFlat;
 
@@ -482,7 +485,11 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     m.geometry.dispose();
                 }
                 if (m.material) {
-                    m.material.dispose();
+                    if (m.material.dispose) {
+                        m.material.dispose();
+                    } else {
+                        m.material.forEach((mm) => mm.dispose());
+                    }
                 }
             });
             this.shape.children.forEach((m) => this.shape.remove(m));
