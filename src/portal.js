@@ -32,7 +32,7 @@ export class PortalPawn extends CardPawn {
         this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
 
-        this.addEventListener("pointerDown", () => {});
+        this.addEventListener("pointerDown", "nop");
         this.addEventListener("keyDown", e => e.key === " " && this.enterPortal());
     }
 
@@ -96,6 +96,7 @@ export class PortalPawn extends CardPawn {
     }
 
     enterPortal() {
+        console.log(this.viewId, "enter portal", this.portalId);
         this.sendToShell({message: "croquet:microverse:portal-enter", portalId: this.portalId});
     }
 
