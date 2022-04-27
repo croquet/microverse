@@ -185,8 +185,6 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             let followMe = this.service("PlayerManager").players.get(this.follow);
             if(followMe) {
                 this.moveTo(followMe.translation);
-                let yaw = q_yaw(followMe.rotation);
-                let pitch = q_pitch(followMe.rotation);
                 this.rotateTo(followMe.rotation);
                 this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch});
             } else {
