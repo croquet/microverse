@@ -108,7 +108,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     goHome(there) {
-        this.goTo( ...there, true );
+        let [v, q] = there;
+        this.goTo(v, q, false);
         this.say("setLookAngles", {pitch: 0, yaw: 0});
         this.set({lookPitch: 0, lookYaw: 0});
     }
