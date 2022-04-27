@@ -17,34 +17,6 @@ export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let isMobile = !!("ontouchstart" in window);
 
-//let avatarManager; // Local pointer for avatars
-
-export class AvatarManager extends ViewService {
-    constructor(name) {
-        super(name || "AvatarManager");
-        this.avatars = new Map();
-    }
-
-    add(avatar) {
-        this.avatars.set(avatar.actor.id, avatar);
-        this.publish("avatarManager", "avatarPawnAdded")
-    }
-
-    has(id) {
-        return this.avatars.has(id);
-    }
-
-    get(id) {
-        return this.avatars.get(id);
-    }
-
-    delete(avatar) {
-        this.avatars.delete(avatar.actor.id);
-        this.publish("avatarManager", "avatarPawnDeleted")
-    }
-}
-
-
 export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     init(options) {
         // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
@@ -332,7 +304,6 @@ AvatarActor.register('AvatarActor');
 export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
-        this.service("AvatarManager").add(this);
         this.lastUpdateTime = 0;
         this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
@@ -428,9 +399,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
             window.addEventListener("message", this.cameraListener);
             this.say("resetHeight");
-            this.subscribe("avatarManager", "avatarPawnAdded", this.showNumbers)
-            this.subscribe("avatarManager", "avatarPawnDeleted", this.showNumbers)
-            this.subscribe("playerManager", "presentationCountChanged", this.showNumbers);
+            this.subscribe("playerManager", "presentationCountChanged", this.showNumbers)
             this.listen("setLookAngles", this.setLookAngles);
             this.showNumbers();
         }
@@ -539,7 +508,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
-        this.service("AvatarManager").delete(this); // delete from the avatarManager
         window.removeEventListener("message", this.cameraListener);
         super.destroy();
     }
@@ -871,33 +839,34 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         z += Math.max(1,z) * e.deltaY / 1000.0;
         z = Math.min(100, Math.max(z,0));
         this._lookOffset = [this.lookOffset[0], z, z];
-        let pitch = (this._lookPitch*11+Math.max(-z / 2, -Math.PI/4))/12;
+        let pitch = (this._lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
         this.lookTo(pitch, q_yaw(this._rotation));
     }
 
-    fadeNearby(){
-        this.service("AvatarManager").avatars.forEach(a => {
-            if( a.actor.follow ){
-                a.setOpacity(0); // get out of my way
-            }
-            else{
+    fadeNearby() {
+        for (let [_viewId, a] of this.actor.service("PlayerManager").players) {
+            // a for actor, p for pawn
+            let p = GetPawn(a.id);
+            if (a.follow) {
+                p.setOpacity(0); // get out of my way
+            } else {
                 let m = this.lookGlobal; // camera location
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
                 m = a.global; // avatar location
                 let av = new THREE.Vector3(m[12], m[13], m[14])
                 let d = Math.min(1, cv.distanceToSquared(av) / 10);
-                a.setOpacity(d);
+                p.setOpacity(d);
             }
-        });
+        }
         this.future(100).fadeNearby();
     }
 
-    setOpacity(opacity){
-        let transparent = opacity!=1;
-        if(this.avatar){
-            this.avatar.visible = opacity!==0;
-            this.avatar.traverse( n => {
-                if(n.material){
+    setOpacity(opacity) {
+        let transparent = opacity !== 1;
+        if (this.avatar) {
+            this.avatar.visible = opacity !== 0;
+            this.avatar.traverse(n => {
+                if (n.material) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
                     n.material.needsUpdate = true;

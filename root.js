@@ -5,7 +5,7 @@
 import {
     Constants, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, ThreeRenderManager} from "@croquet/worldcore";
-import { AvatarManager, AvatarActor, } from './src/DAvatar.js';
+import { AvatarActor, } from './src/DAvatar.js';
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
@@ -383,7 +383,6 @@ class MyViewRoot extends ViewRoot {
             SyncedStateManager,
             VideoManager,
             BehaviorViewManager,
-            AvatarManager
         ];
     }
     constructor(model) {
