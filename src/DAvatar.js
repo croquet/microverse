@@ -77,10 +77,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     setInThisWorld(v) {
-        if (this.inThisWorld !== v) {
-            this.inThisWorld = v;
-            this.say("setInThisWorld", v);
-        }
+        this.inThisWorld = v;
     }
 
     setTranslation(v) {
@@ -394,13 +391,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     case "croquet:microverse:window-type":
                         const isPrimary = e.data.windowType === "primary";
                         const wasSecondary = !!this.portalCameraMatrix;
-                        if (isPrimary) {
-                            if (this.portalCameraMatrix) {
-                                // TODO: apply the portal camera matrix to move avatar itself
-                                // to make entering visually smooth
-                                this.portalCameraMatrix = null;
-                                this.refreshCameraTransform();
-                            }
+                        if (isPrimary && wasSecondary) {
+                            // TODO: apply the portal camera matrix to move avatar itself
+                            // to make entering visually smooth
+                            this.portalCameraMatrix = null;
+                            this.refreshCameraTransform();
                         }
                         this.say("setInThisWorld", isPrimary);
                         // tell shell that we got this message (TODO: should only send this once)
@@ -416,7 +411,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.say("resetHeight");
             this.subscribe("playerManager", "presentationCountChanged", this.showNumbers)
             this.listen("setLookAngles", this.setLookAngles);
-            this.listen("setInThisWorld", this.setInThisWorld);
             this.showNumbers();
         }
         this.constructVisual();
@@ -425,10 +419,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     setLookAngles(data) {
         this._lookPitch = data.pitch;
         this._lookYaw = data.yaw;
-    }
-
-    setInThisWorld(inThisWorld) {
-        if (this.avatar) this.avatar.visible = inThisWorld;
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -870,6 +860,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let p = GetPawn(a.id);
             if (a.follow) {
                 p.setOpacity(0); // get out of my way
+            } else if (!this.actor.inThisWorld) {
+                p.setOpacity(1); // we are not even here
             } else {
                 let m = this.lookGlobal; // camera location
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
