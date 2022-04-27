@@ -302,6 +302,8 @@ Inevitably you will encounter errors during the development. And because your co
 
 Once you figure this out, you can put a breakpoint in the offending method and step execute.
 
+A Croquet Microverse session may lock up when Three.js crashes with NaN or Infinity or some other values that are created by the program, you create an infinite loop in JavaScript, or any other reasons that is hard to guard against. But don't worry. Your work is typically saved on the disk, and you can just re-launch a fresh session. It is useful to time to time to update your start `.js` file so that next session has all things you want.
+
 ## The Property Sheet
 
 You can bring up the Property Sheet for a card by holding down the control key and clicking on a card.
@@ -321,4 +323,4 @@ With the Property Sheet, you can extract the values for your world file.  You ca
 ## Persistence
 The system internally records "persistent data" at 60 second intervals when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
 
-Also note that the start file, either in `.js` or `.json, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
+Also note that the start file, either in `.js` or `.json`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.

@@ -145,7 +145,7 @@ Array<number, number, number>|undefined
 
 ### Description
 
-A 3D model loaded as part of a card may have its own scale. You can use dataTranslation as a "one time" fix to translate the 3D model when loading.
+A 3D model loaded as part of a card may have its own scale. You can use dataScale as a "one time" fix to scale the 3D model when loading.
 
 Specifies the xyz scale of the loaded model. It defaults to [1, 1, 1] when not specified. If you load 3D model interactively by dragging and dropping from your OS, Croquet Microverse adjusts this value so that the card has a reasonably sized 3D model. You can specify this value to fix the automatic scaling.
 
@@ -296,7 +296,7 @@ type Meter=number
 Meter|undefined
 ```
 
-###Description
+### Description
 
 The width and height of the card with "2d" as its type. The values are interpreted as "meters".
 
