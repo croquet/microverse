@@ -593,7 +593,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.knob.style.transform = "translate(30px, 30px)";
     }
 
-    continueMMotion( e ) {
+    continueMMotion(e) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -602,23 +602,23 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let dy = e.clientY - this.knobY;
 
             // move the avatar
-            let v = dy*0.000075;
-            v = Math.min(Math.max(v, -0.01),0.01);
+            let v = dy * 0.000075;
+            v = Math.min(Math.max(v, -0.01), 0.01);
 
-            const yaw = dx * (isMobile?-0.00001:-0.000005);
+            const yaw = dx * (isMobile ? -0.00001 : -0.000005);
             const qyaw = q_euler(0, yaw ,0);
             this.vq = [[0,0,v], qyaw];
 
-            hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
+            this.hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
-            let ds = dx*dx+dy*dy;
-            if(ds>30*30){
+            let ds = dx ** 2 + dy ** 2;
+            if (ds > 30 * 30) {
                 ds = Math.sqrt(ds);
-                dx = 30*dx/ds;
-                dy = 30*dy/ds;
+                dx = 30 * dx / ds;
+                dy = 30 * dy / ds;
             }
 
-            knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
+            this.knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
         }
     }
 
