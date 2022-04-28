@@ -14,8 +14,10 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/slides";
     Constants.UserBehaviorModules = [
-        "lights.js", "slides.js", "collider.js"
+        "lights.js", "slides.js", "collider.js", "flightTracker.js"
     ];
+
+    Constants.UseRapier = true;
 
     // const frameColor = 0x888888;
 
@@ -64,10 +66,67 @@ export function init(Constants) {
                 name:"base",
                 type: "object",
                 layers: ["pointer"],
-                translation: [0, -1.5, -20],
+                translation: [0, 0, -20],
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [60, 1, 60],
+                rapierSize: [20, 1, 20],
                 color: 0xcc4444,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 1",
+                type: "object",
+                layers: ["pointer"],
+                translation: [0.5, 1.5, -10.5],
+                behaviorModules: ["Rapier", "Collider"],
+                rapierSize: [19, 2, 1],
+                color: 0xdd4444,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 2",
+                type: "object",
+                layers: ["pointer"],
+                translation: [9.5, 1.5, -20.5],
+                behaviorModules: ["Rapier", "Collider"],
+                rapierSize: [1, 2, 19],
+                color: 0xdd4444,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 3",
+                type: "object",
+                layers: ["pointer"],
+                translation: [-0.5, 1.5, -29.5],
+                behaviorModules: ["Rapier", "Collider"],
+                rapierSize: [19, 2, 1],
+                color: 0xdd4444,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 4",
+                type: "object",
+                layers: ["pointer"],
+                translation: [-9.5, 1.5, -19.5],
+                behaviorModules: ["Rapier", "Collider"],
+                rapierSize: [1, 2, 19],
+                color: 0xdd4444,
+                rapierShape: "cuboid",
                 rapierType: "positionBased",
                 shadow: true,
             }
@@ -80,6 +139,7 @@ export function init(Constants) {
                 translation: [1, 20, -20],
                 behaviorModules: ["Rapier", "Collider"],
                 rapierSize: [1, 1, 1],
+                rapierShape: "cuboid",
                 color: 0xff0000,
                 shadow: true,
             }
@@ -92,9 +152,38 @@ export function init(Constants) {
                 translation: [-1, 20, -20],
                 behaviorModules: ["Rapier", "Collider"],
                 rapierSize: [1, 1, 1],
+                rapierShape: "cuboid",
                 color: 0x00ff00,
                 shadow: true,
             }
         },
+        {
+            card: {
+                name:"c3",
+                type: "object",
+                layers: ["pointer"],
+                translation: [0, 25, -21],
+                scale: [0.25, 0.25, 0.25],
+                behaviorModules: ["Rapier", "FlightTracker", "Collider"],
+                rapierSize: 2,
+                rapierShape: "ball",
+                color: 0x0000ff,
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"wooden box",
+                type: "object",
+                layers: ["pointer"],
+                translation:[2, 20, -20],
+                behaviorModules: ["Rapier", "Slides", "Collider"],
+                rapierSize: [1, 1, 1],
+                rapierShape: "cuboid",
+                shadow: true,
+                slides: ["3Ty3Bbs4szi78KqNTyGrH0FVMEqE023P_eSIBhC8knE4PCAgJCdue3syPTgxJ3ohJ3o3JjslITEgej07eyF7EzACNi04HScVPwU3FgwwZxMsNSItIwEfAw0NZns9O3o3JjslITEgejk9NyY7IjEmJzF7PTs9AQIbOwY-Ag1mI2YtMTdjAy44GGxhGBsmHQU-AT4cMCYSImAcGSBnZHswNSA1exIeHBALYiMgPBcAYxwtYh0CBAQ_G2EyYx8sEm0WFjsOFSNiDDItAGMhNxk", "3V_rhbXp8a1PLyayumtWeAAGGfyLTKjRrD4suceOjMuoPiIiJiVseXkwPzozJXgjJXg1JDknIzMieD85eSN5ETIANC86HyUXPQc1FA4yZREuNyAvIQMdAQ8PZHk_OXg1JDknIzMieDs_NSQ5IDMkJTN5Pzk_AwAZOQQ8AA9kIWQvMzVhASw6Gm5jGhkkHwc8AzweMiQQIGIeGyJlZnkyNyI3eT00JBoDOWACJxcHFC4OBQljGCM8GwEsPyAbHhwkBxsEbgEzARIkIBIFZxM"],
+            }
+        },
+        
     ];
 }

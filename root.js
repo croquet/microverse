@@ -194,7 +194,7 @@ class MyModelRoot extends ModelRoot {
             DynaverseAppManager,
             BehaviorModelManager,
             FontModelManager,
-            RapierPhysicsManager,
+            ...(Constants.UseRapier ? [RapierPhysicsManager] : [])
         ];
     }
     init(options, persistentData) {

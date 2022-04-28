@@ -10,7 +10,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "menu.js", "elected.js", "propertySheet.js"
+    "menu.js", "elected.js", "propertySheet.js", "rapier.js"
 ];
 
 async function startMicroverse() {
@@ -29,6 +29,9 @@ async function startMicroverse() {
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+        if (json.data.useRapier) {
+            Constants.UseRapier = json.data.useRapier;
+        }
         Constants.BehaviorModules = json.data.behaviormodules;
         Constants.DefaultCards = json.data.cards;
         Constants.Library = new CodeLibrary();

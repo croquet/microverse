@@ -8,6 +8,7 @@
 // loading time: in general, the parent needs to be created before a child
 
 import {intrinsicProperties} from "./DCard.js";
+import {Constants} from "@croquet/worldcore";
 
 export class WorldSaver {
     constructor(defaultClass) {
@@ -32,7 +33,12 @@ export class WorldSaver {
 
         let behaviorModules = model.service("BehaviorModelManager").save();
 
-        return {behaviorModules, cards: resultArray};
+        let result = {behaviorModules, cards: resultArray};
+
+        if (Constants.UseRapier) {
+            result.useRapier = true;
+        }
+        return result;
     }
 
     topologicalSort(cards) {
