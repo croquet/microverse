@@ -12,6 +12,7 @@ const config = {
         path: path.join(__dirname, 'dist'),
         filename: 'lib/[name]-[contenthash:8].js',
         chunkFilename: 'lib/chunk-[name]-[contenthash:8].js',
+        webassemblyModuleFilename: "lib/[modulehash].wasm",
         clean: true
     },
     resolve: {
@@ -30,18 +31,10 @@ const config = {
         port: 9009,
     },
     module: {
-        noParse: /\.wasm$/,
         rules: [
             {
                 test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
                 type: 'asset/resource',
-            },
-            {
-                test: /\.wasm$/,
-                type: 'asset/resource',
-                generator: {
-                    outputPath: "lib/"
-                }
             },
         ]
     },

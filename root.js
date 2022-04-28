@@ -4,7 +4,7 @@
 
 import {
     Constants, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, ThreeRenderManager} from "@croquet/worldcore";
+    InputManager, PlayerManager, ThreeRenderManager, RapierPhysicsManager} from "@croquet/worldcore";
 import { AvatarActor, } from './src/DAvatar.js';
 import {
     KeyFocusManager, SyncedStateManager,
@@ -165,7 +165,7 @@ class MyPlayerManager extends PlayerManager {
         if (this.presentationMode === playerId) {return;}
         this.followers.delete(playerId);
         this.publish("playerManager", "presentationCountChanged");
-   }
+    }
 
     playerLeft(player) {
         console.log("playerLeft", player);
@@ -194,6 +194,7 @@ class MyModelRoot extends ModelRoot {
             DynaverseAppManager,
             BehaviorModelManager,
             FontModelManager,
+            RapierPhysicsManager,
         ];
     }
     init(options, persistentData) {

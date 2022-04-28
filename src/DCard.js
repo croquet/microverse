@@ -353,6 +353,11 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
         return [];
     }
+
+    get rigidBody() {
+        // return this.$rigidBody;
+        return this.call("Rapier$RapierActor", "getRigidBody");
+    }
 }
 CardActor.register('CardActor');
 
