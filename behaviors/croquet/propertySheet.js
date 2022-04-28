@@ -22,7 +22,6 @@ class PropertySheetActor {
     }
 
     dismissSheet(id) {
-        console.log(id, this.id);
         if (this.dismiss) {
             this.dismiss.destroy();
         }
@@ -34,7 +33,6 @@ class PropertySheetActor {
     }
 
     newWindow(extent, position) {
-        console.log("add");
         let sheetWindow = this.createCard({
             name: 'window',
             behaviorModules: ["PropertySheetWindow"],
@@ -136,6 +134,10 @@ class PropertySheetActor {
         }
         if (data.action === "Duplicate") {
             this.target.duplicate();
+            return;
+        }
+        if (data.action === "Save") {
+            this.target.saveCard();
             return;
         }
         console.log(data);
@@ -614,6 +616,7 @@ class ActionMenuActor {
             {label: "------------"},
             {label: "Duplicate"},
             {label: "Delete"},
+            {label: "Save"},
         ];
 
         this.menu.call("Menu$MenuActor", "setItems", items);

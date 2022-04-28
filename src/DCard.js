@@ -5,8 +5,8 @@
 // Collaborative Card Object
 
 import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService,
-    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
-    q_euler, q_multiply } from '@croquet/worldcore';
+         v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
+         q_euler, q_multiply, Constants } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
@@ -230,6 +230,32 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
         data.translation = [t[0] + 2, t[1], t[2]];
         this.createCard(data);
+    }
+
+    saveCard() {
+        let saver = new WorldSaver(CardActor);
+        let json = {};
+        let card = saver.collectCardData(this);
+        delete card.parent;
+        json.cards = [{card}];
+        if (this._behaviorModules) {
+            let modules = this.behaviorManager.save(this._behaviorModules)
+            json.behaviorModules = modules;
+        }
+        if (Constants.UserRapier) {
+            json.useRapier = true;
+        }
+
+        let string = saver.stringify(json);
+
+        let result = {name: this._name || "card", version: "1", data: JSON.parse(string)};
+
+        let div = document.createElement("a");
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 4));
+
+        div.setAttribute("href", dataStr);
+        div.setAttribute("download", "scene.json");
+        div.click();
     }
 
     showControls(toWhom) {

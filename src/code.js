@@ -63,12 +63,12 @@ export const AM_Code = superclass => class extends superclass {
         }
         if (this._behaviorModules) {
             this._behaviorModules.forEach((name) => { /* name: Bar */
-                let modules = this.behaviorManager.modules.get(name);
+                let module = this.behaviorManager.modules.get(name);
                 if (!module) {
                     console.error(`unknown module ${name} is being destroyed`);
                     return;
                 }
-                let {actorBehaviors, pawnBehaviors} = modules;
+                let {actorBehaviors, pawnBehaviors} = module;
                 if (actorBehaviors) {
                     for (let behavior of actorBehaviors.values()) {
                         this.behaviorManager.modelUnuse(this, behavior);
@@ -326,11 +326,11 @@ export const PM_Code = superclass => class extends superclass {
         }
         if (this.actor._behaviorModules) {
             this.actor._behaviorModules.forEach((name) => { /* name: Bar */
-                let modules = this.actor.behaviorManager.modules.get(name);
+                let module = this.actor.behaviorManager.modules.get(name);
                 if (!module) {
                     console.error(`unknown module ${name} is specified`);
                 }
-                let {pawnBehaviors} = modules;
+                let {pawnBehaviors} = module;
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
                         if (behavior.$behavior.destroy) {
@@ -767,8 +767,11 @@ export class BehaviorModelManager extends ModelService {
         this.publish(this.id, "callViewSetupAll", toPublish);
     }
 
-    save() {
+    save(optModuleNames) {
         let filtered = [...this.moduleDefs].filter(([_key, value]) => !value.systemModule);
+        if (optModuleNames) {
+            filtered = filtered.filter(([key, _value]) => optModuleNames.includes(key));
+        }
         return new Map([...filtered]);
     }
 
