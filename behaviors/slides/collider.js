@@ -35,7 +35,7 @@ class ColliderActor {
         let r = this.rigidBody;
         if (r) {
             r.applyForce({x: 0, y: 400, z: 2}, true);
-            r.applyTorque({x: Math.random() * 50.0, y: Math.random() * 500, z: Math.random() * 50}, true);
+            r.applyTorque({x: Math.random() * 50.0, y: Math.random() * 20, z: Math.random() * 50}, true);
         }
     }
 
