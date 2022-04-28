@@ -145,9 +145,29 @@ export function init(Constants) {
         },
         {
             card: {
+                name: "multiblaster",
+                className: "MultiBlaster",
+                translation: [-4, cardHeight, -29],
+                rotation: [0, Math.PI / 2, 0],
+                scale: [4, 4, 4],
+                layers: ["pointer"],
+                multiuser: true,
+                type: "2d",
+                textureType: "canvas",
+                textureWidth: 1024,
+                textureHeight: 1024,
+                frameColor: frameColor,
+                cornerRadius: 0.05,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true
+            }
+        },
+        {
+            card: {
                 name:"bouncinglogo",
                 className: "BouncingLogo",
-                translation: [-4, cardHeight, -29],
+                translation: [-4, cardHeight, -35],
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 width: 1,
