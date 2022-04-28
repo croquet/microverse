@@ -12,7 +12,7 @@
   "author": "Croquet Corporation",
   "license": "ISC",
   "devDependencies": {
-    "@croquet/microverse-watch-server": "^1.0.0",
-    "@croquet/microverse-file-server": "^1.0.0"
+    "@croquet/microverse-watch-server": "^1.0.3",
+    "@croquet/microverse-file-server": "^1.0.1"
   }
 }
