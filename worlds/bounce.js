@@ -164,7 +164,7 @@ export function init(Constants) {
                 layers: ["pointer"],
                 translation: [0, 25, -21],
                 scale: [0.25, 0.25, 0.25],
-                behaviorModules: ["Rapier", "FlightTracker", "Collider"],
+                behaviorModules: ["Rapier", "Elected", "FlightTracker", "Collider"],
                 rapierSize: 2,
                 rapierShape: "ball",
                 color: 0x0000ff,

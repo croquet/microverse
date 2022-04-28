@@ -339,7 +339,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.joystick = document.getElementById("joystick");
             this.knob = document.getElementById("knob");
             this.releaseHandler = (e) => {
-                console.log(e);
                 for (let k in this.capturedPointers) {
                     this.hiddenknob.releasePointerCapture(k);
                 }
