@@ -32,6 +32,11 @@ export function init(Constants) {
                 translation:[0, -1.7, 0],
                 dataScale:[1,1,1],
                 shadow: true,
+
+                placeholder: true,
+                placeholderSize: [100, 0.01, 100],
+                placeholderColor: 0xcccccc,
+                placeholderOffset: [0, -1.7, 0],
             }
         },
         {
