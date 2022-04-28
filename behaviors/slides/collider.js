@@ -28,6 +28,7 @@ class ColliderActor {
         this.call("Rapier$RapierActor", "createCollider", cd);
 
         this.addEventListener("pointerTap", "jolt");
+        this.listen("translating", "translated");
     }
 
     jolt() {
@@ -35,6 +36,13 @@ class ColliderActor {
         if (r) {
             r.applyForce({x: 0, y: 400, z: 2}, true);
             r.applyTorque({x: Math.random() * 50.0, y: Math.random() * 500, z: Math.random() * 50}, true);
+        }
+    }
+
+    translated() {
+        // may not be a very efficient way to detect it
+        if (this._translation[1] < -1000) {
+            this.destroy();
         }
     }
 }
