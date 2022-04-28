@@ -99,8 +99,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     onLookTo(e) {
-        this.set({lookPitch: e[0], lookYaw: e[1]});
+        let [pitch, yaw, lookOffset] = e;
+        this.set({lookPitch: pitch, lookYaw: yaw});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
+        this.lookOffset = lookOffset;
         this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
@@ -193,7 +195,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             if(followMe) {
                 this.moveTo(followMe.translation);
                 this.rotateTo(followMe.rotation);
-                this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch});
+                this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch, lookOffset: followMe.lookOffset});
             } else {
                 this.follow = null;
             }
@@ -419,6 +421,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     setLookAngles(data) {
         this._lookPitch = data.pitch;
         this._lookYaw = data.yaw;
+        if (data.lookOffset) {
+            this._lookOffset = data.lookOffset;
+        }
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -508,12 +513,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         });
     }
 
-    lookTo(pitch, yaw) {
+    lookTo(pitch, yaw, lookOffset) {
         this._lookPitch = pitch;
         this._lookYaw = yaw;
         this.lastLookTime = this.time;
         this.lastLookCache = null;
-        this.say("avatarLookTo", [pitch, yaw]);
+        this.say("avatarLookTo", [pitch, yaw, lookOffset]);
         this.say("lookGlobalChanged");
     }
 
@@ -851,7 +856,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         z = Math.min(100, Math.max(z,0));
         this._lookOffset = [this.lookOffset[0], z, z];
         let pitch = (this._lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
-        this.lookTo(pitch, q_yaw(this._rotation));
+        this.lookTo(pitch, q_yaw(this._rotation), this._lookOffset);
     }
 
     fadeNearby() {
