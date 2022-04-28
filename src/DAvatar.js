@@ -68,6 +68,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         if (!presentationMode) {return;}
         if (this.follow !== this.playerId) {
             this.follow = null;
+            this.say("setLookAngles", {lookOffset: [0, 0, 0]});
             manager.leavePresentation(this.playerId);
         }
     }
@@ -419,10 +420,15 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     setLookAngles(data) {
-        this._lookPitch = data.pitch;
-        this._lookYaw = data.yaw;
-        if (data.lookOffset) {
-            this._lookOffset = data.lookOffset;
+        let {pitch, yaw, lookOffset} = data;
+        if (pitch !== undefined) {
+            this._lookPitch = pitch;
+        }
+        if (yaw !== undefined) {
+            this._lookYaw = yaw;
+        }
+        if (lookOffset !== undefined) {
+            this._lookOffset = lookOffset;
         }
     }
 
