@@ -21,6 +21,14 @@ export function init(Constants) {
 
     // const frameColor = 0x888888;
 
+    const baseY = -1;
+    const wallHeight = 3;
+    const wallThick = 0.2;
+    const bt = [0, baseY, -20]; // bt for base translation
+    const baseSize = [20, 1, 20];
+    const half = baseSize[0] / 2;
+    const wallBase = bt[1] + wallHeight / 2 + baseSize[1] / 2;
+
     Constants.DefaultCards = [
         {
             card: {
@@ -45,30 +53,14 @@ export function init(Constants) {
                 dataType: "jpg",
             }
         },
-        /*
-    // slides: ["3Ty3Bbs4szi78KqNTyGrH0FVMEqE023P_eSIBhC8knE4PCAgJCdue3syPTgxJ3ohJ3o3JjslITEgej07eyF7EzACNi04HScVPwU3FgwwZxMsNSItIwEfAw0NZns9O3o3JjslITEgejk9NyY7IjEmJzF7PTs9AQIbOwY-Ag1mI2YtMTdjAy44GGxhGBsmHQU-AT4cMCYSImAcGSBnZHswNSA1exIeHBALYiMgPBcAYxwtYh0CBAQ_G2EyYx8sEm0WFjsOFSNiDDItAGMhNxk", "3V_rhbXp8a1PLyayumtWeAAGGfyLTKjRrD4suceOjMuoPiIiJiVseXkwPzozJXgjJXg1JDknIzMieD85eSN5ETIANC86HyUXPQc1FA4yZREuNyAvIQMdAQ8PZHk_OXg1JDknIzMieDs_NSQ5IDMkJTN5Pzk_AwAZOQQ8AA9kIWQvMzVhASw6Gm5jGhkkHwc8AzweMiQQIGIeGyJlZnkyNyI3eT00JBoDOWACJxcHFC4OBQljGCM8GwEsPyAbHhwkBxsEbgEzARIkIBIFZxM"],
-        {
-            card: {
-                name:"Imported Box",
-                type: "object",
-                layers: ["pointer"],
-                translation:[4, 0.4, -10],
-                dataScale:[1, 1, 1],
-                behaviorModules: ["Slides"],
-                //rotation:[0, Math.pi/4, 0],
-                shadow: true,
-                slides: ["3Ty3Bbs4szi78KqNTyGrH0FVMEqE023P_eSIBhC8knE4PCAgJCdue3syPTgxJ3ohJ3o3JjslITEgej07eyF7EzACNi04HScVPwU3FgwwZxMsNSItIwEfAw0NZns9O3o3JjslITEgejk9NyY7IjEmJzF7PTs9AQIbOwY-Ag1mI2YtMTdjAy44GGxhGBsmHQU-AT4cMCYSImAcGSBnZHswNSA1exIeHBALYiMgPBcAYxwtYh0CBAQ_G2EyYx8sEm0WFjsOFSNiDDItAGMhNxk"],
-            }
-        },
-        */
         {
             card: {
                 name:"base",
                 type: "object",
                 layers: ["pointer"],
-                translation: [0, 0, -20],
+                translation: bt,
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [20, 1, 20],
+                rapierSize: baseSize,
                 color: 0xcc4444,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
@@ -80,10 +72,10 @@ export function init(Constants) {
                 name:"base 1",
                 type: "object",
                 layers: ["pointer"],
-                translation: [0.5, 1.5, -10.5],
+                translation: [bt[0] - wallThick / 2, wallBase, bt[2] + half - wallThick / 2],
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [19, 2, 1],
-                color: 0xdd4444,
+                rapierSize: [baseSize[0] - wallThick, wallHeight, wallThick],
+                color: 0xbb6666,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
                 shadow: true,
@@ -94,10 +86,10 @@ export function init(Constants) {
                 name:"base 2",
                 type: "object",
                 layers: ["pointer"],
-                translation: [9.5, 1.5, -20.5],
+                translation: [bt[0] + half - wallThick / 2, wallBase, bt[2] + wallThick / 2],
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [1, 2, 19],
-                color: 0xdd4444,
+                rapierSize: [wallThick, wallHeight, baseSize[0] - wallThick],
+                color: 0xbb6666,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
                 shadow: true,
@@ -108,10 +100,10 @@ export function init(Constants) {
                 name:"base 3",
                 type: "object",
                 layers: ["pointer"],
-                translation: [-0.5, 1.5, -29.5],
+                translation: [bt[0] + wallThick / 2, wallBase, bt[2] - half + wallThick / 2],
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [19, 2, 1],
-                color: 0xdd4444,
+                rapierSize: [baseSize[0] - wallThick, wallHeight, wallThick],
+                color: 0xbb6666,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
                 shadow: true,
@@ -122,10 +114,10 @@ export function init(Constants) {
                 name:"base 4",
                 type: "object",
                 layers: ["pointer"],
-                translation: [-9.5, 1.5, -19.5],
+                translation: [bt[0] - half + wallThick / 2, wallBase, bt[2] - wallThick / 2],
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [1, 2, 19],
-                color: 0xdd4444,
+                rapierSize: [wallThick, wallHeight, baseSize[0] - wallThick],
+                color: 0xbb6666,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
                 shadow: true,
@@ -136,7 +128,7 @@ export function init(Constants) {
                 name:"c1",
                 type: "object",
                 layers: ["pointer"],
-                translation: [1, 20, -20],
+                translation: [bt[0] + 1, 20, bt[2] - 1],
                 behaviorModules: ["Rapier", "Collider"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
@@ -149,7 +141,7 @@ export function init(Constants) {
                 name:"c2",
                 type: "object",
                 layers: ["pointer"],
-                translation: [-1, 20, -20],
+                translation: [bt[0] - 1, 19, bt[2]],
                 behaviorModules: ["Rapier", "Collider"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
@@ -162,7 +154,7 @@ export function init(Constants) {
                 name:"c3",
                 type: "object",
                 layers: ["pointer"],
-                translation: [0, 25, -21],
+                translation: [bt[0], 25, bt[2] + 1],
                 scale: [0.25, 0.25, 0.25],
                 behaviorModules: ["Rapier", "Elected", "FlightTracker", "Collider"],
                 rapierSize: 2,
@@ -176,7 +168,7 @@ export function init(Constants) {
                 name:"wooden box",
                 type: "object",
                 layers: ["pointer"],
-                translation:[2, 20, -20],
+                translation:[bt[0] + 2, 22, bt[2] - 1],
                 behaviorModules: ["Rapier", "Slides", "Collider"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
@@ -184,6 +176,5 @@ export function init(Constants) {
                 slides: ["3Ty3Bbs4szi78KqNTyGrH0FVMEqE023P_eSIBhC8knE4PCAgJCdue3syPTgxJ3ohJ3o3JjslITEgej07eyF7EzACNi04HScVPwU3FgwwZxMsNSItIwEfAw0NZns9O3o3JjslITEgejk9NyY7IjEmJzF7PTs9AQIbOwY-Ag1mI2YtMTdjAy44GGxhGBsmHQU-AT4cMCYSImAcGSBnZHswNSA1exIeHBALYiMgPBcAYxwtYh0CBAQ_G2EyYx8sEm0WFjsOFSNiDDItAGMhNxk", "3V_rhbXp8a1PLyayumtWeAAGGfyLTKjRrD4suceOjMuoPiIiJiVseXkwPzozJXgjJXg1JDknIzMieD85eSN5ETIANC86HyUXPQc1FA4yZREuNyAvIQMdAQ8PZHk_OXg1JDknIzMieDs_NSQ5IDMkJTN5Pzk_AwAZOQQ8AA9kIWQvMzVhASw6Gm5jGhkkHwc8AzweMiQQIGIeGyJlZnkyNyI3eT00JBoDOWACJxcHFC4OBQljGCM8GwEsPyAbHhwkBxsEbgEzARIkIBIFZxM"],
             }
         },
-        
     ];
 }
