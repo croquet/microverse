@@ -48,39 +48,26 @@ class SpinPawn {
     }
 
     onPointerDown(p3d) {
-        this.base = this.theta(p3d.xyz);
-        this.baseRotation = [...this._rotation];
-        this.say("stopSpinning");
         this.moveBuffer = [];
+        this.say("stopSpinning");
+        this._startDrag = p3d.xy;
+        this._baseRotation = this._rotation;
     }
 
     onPointerMove(p3d) {
         this.moveBuffer.push(p3d.xyz);
-        if (this.moveBuffer.length > 3) {
-            this.moveBuffer.shift();
-        }
-        let next = this.theta(p3d.xyz);
-        let newAngle = ((next - this.base) + Math.PI * 2) % (Math.PI * 2);
-        let qAngle = Worldcore.q_euler(0, newAngle, 0);
-
-        this.say("setRotation", Worldcore.q_multiply(this.baseRotation, qAngle));
-        // this.setRotation(Worldcore.q_multiply(this.baseRotation, qAngle));
-        newAngle = newAngle < Math.PI ? newAngle : newAngle - Math.PI * 2;
-        this.say("newAngle", newAngle);
+        this.deltaAngle = (p3d.xy[0] - this._startDrag[0]) / 2 / 180 * Math.PI;
+        let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
+        this.rotateTo(newRot);
+        // this.say("newAngle", newAngle);
     }
 
-    onPointerUp(p3d) {
-        if(p3d.xyz){ // clean up and see if we can spin
-            if (this.moveBuffer.length < 3) {return;}
-            let prev = this.theta(this.moveBuffer[0]);
-            let next = this.theta(p3d.xyz);
-            this.onPointerMove(p3d);
-            this.deltaAngle = (next + (Math.PI * 2)) % (Math.PI * 2) - (prev + (Math.PI * 2)) % (Math.PI * 2)
-            if(Math.abs(this.deltaAngle) > 0.001) {
-                let a = this.deltaAngle;
-                a = Math.min(Math.max(-0.1, a), 0.1);
-                this.say("startSpinning", a);
-            }
+    onPointerUp(_p3d) {
+        if (this.moveBuffer.length < 3) {return;}
+        if(Math.abs(this.deltaAngle) > 0.001) {
+            let a = this.deltaAngle;
+            a = Math.min(Math.max(-0.1, a), 0.1);
+            this.say("startSpinning", a);
         }
     }
 

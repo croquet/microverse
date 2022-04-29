@@ -401,6 +401,7 @@ export const PM_Pointer = superclass => class extends superclass {
             }
         }
         if (this.focusPawn) {
+            rc.xy  = e.xy;
             this.invokeListeners("pointerDown", this.focusPawn, rc);
         }
     }
@@ -413,6 +414,7 @@ export const PM_Pointer = superclass => class extends superclass {
         this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerUp"));
         if (this.focusPawn) {
+            rc.xy  = e.xy;
             this.invokeListeners("pointerUp", this.focusPawn, rc);
         }
         this.isPointerDown = false;
@@ -424,15 +426,18 @@ export const PM_Pointer = superclass => class extends superclass {
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerMove"));
         if (this.hoverPawn !== rc.pawn) {
             if (this.hoverPawn) {
+                rc.xy  = e.xy;
                 this.invokeListeners("pointerLeave", this.hoverPawn, rc);
             }
             this.hoverPawn = rc.pawn;
             if (this.hoverPawn) {
+                rc.xy  = e.xy;
                 this.invokeListeners("pointerEnter", this.hoverPawn, rc);
             }
         }
 
         if (this.isPointerDown && this.focusPawn && this.focusPawn === rc.pawn) { // dubious check
+            rc.xy  = e.xy;
             this.invokeListeners("pointerMove", this.focusPawn, rc);
         }
     }
@@ -441,6 +446,7 @@ export const PM_Pointer = superclass => class extends superclass {
         this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("click"));
         if (rc.pawn) {
+            rc.xy  = e.xy;
             this.invokeListeners("click", rc.pawn, rc);
         }
     }
@@ -449,6 +455,7 @@ export const PM_Pointer = superclass => class extends superclass {
         this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown", true), true);
         if (rc.pawn) {
+            rc.xy  = e.xy;
             this.invokeListeners("pointerDoubleDown", rc.pawn, rc);
         }
     }
@@ -457,6 +464,7 @@ export const PM_Pointer = superclass => class extends superclass {
         this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerTap"));
         if (rc.pawn) {
+            rc.xy  = e.xy;
             this.invokeListeners("pointerTap", rc.pawn, rc);
         }
     }
@@ -481,8 +489,10 @@ export const PM_Pointer = superclass => class extends superclass {
         if (rc.pawn) {
             pe.targetId = rc.pawn.actor.id;
             pe.xyz = rc.xyz;
+            pe.xy = rc.xy;
             pe.uv = rc.uv;
             pe.normal = rc.normal;
+            pe.distance = rc.distance;
         }
         return pe;
     }
