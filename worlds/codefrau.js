@@ -68,6 +68,7 @@ export function init(Constants) {
                 height: 4,
                 cornerRadius: 0.05,
                 shadow: true,
+                multiuser: true,
                 targetURL: "?world=default&q=hf1c8u7b04#pw=2VFO_4QYZOb2-sxdS5--ig",
             }
         },

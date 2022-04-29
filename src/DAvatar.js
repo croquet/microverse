@@ -562,10 +562,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             pitch: this._lookPitch,
             yaw: this._lookYaw,
             lookOffset: this._lookOffset,
+            leader: this.actor.service("PlayerManager").presentationMode === this.viewId,
         };
     }
 
-    worldChanged(isPrimary, spec={}) {
+    worldChanged(isPrimary, spec) {
         // our avatar just came into or left this world through a portal
         // if this world is primary, we need to match the position per spec
         // if this world is secondary, then the avatar left and we need to hide it
@@ -573,15 +574,25 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             inThisWorld: isPrimary,
         };
         // not working yet so commented out for now
-        // if (spec) {
+        if (spec) {
         //     actorSpec.translation = spec.translation;
         //     actorSpec.rotation = spec.rotation;
         //     if (spec.pitch) this._lookPitch = spec.pitch;
         //     if (spec.yaw) this._lookYaw = spec.yaw;
         //     if (spec.lookOffset) this._lookOffset = spec.lookOffset;
-        // }
+        }
         this.say("_set", actorSpec);
-    }
+        // take followers with us
+        let manager = this.actor.service("PlayerManager");
+        if (isPrimary && spec?.leader) {
+            if (!manager.presentationMode) {
+                this.say("comeToMe");
+            }
+        }
+        if (!isPrimary && manager.presentationMode === this.viewId) {
+            this.say("stopPresentation");
+        }
+}
 
     update(time, delta) {
         super.update(time, delta);
