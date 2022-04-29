@@ -393,11 +393,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 if (e.source === window.parent) switch (e.data.message) {
                     case "croquet:microverse:window-type":
                         const isPrimary = e.data.windowType === "primary";
-                        const wasSecondary = !!this.portalCameraMatrix;
+                        const wasSecondary = !!this.portalLook;
                         if (isPrimary && wasSecondary) {
                             // TODO: apply the portal camera matrix to move avatar itself
                             // to make entering visually smooth
-                            this.portalCameraMatrix = null;
+                            this.portalLook = null;
                             this.refreshCameraTransform();
                         }
                         this.say("setInThisWorld", isPrimary);
@@ -405,8 +405,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                         window.parent.postMessage({message: "croquet:microverse:started"}, "*");
                         break;
                     case "croquet:microverse:portal-update":
-                        const { cameraMatrix } = e.data;
-                        if (cameraMatrix) this.portalCameraMatrix = cameraMatrix;
+                        if (!this.actor.inThisWorld) {
+                            const { cameraMatrix } = e.data;
+                            if (cameraMatrix) this.portalLook = cameraMatrix;
+                        }
                         break;
                 }
             }
@@ -540,8 +542,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     get lookGlobal() {
         if (this.isMyPlayerPawn) {
-            return this.walkLook;
-        }else return this.global;
+            if (this.portalLook) return this.portalLook;
+            else return this.walkLook;
+        } else return this.global;
     }
 
     get walkLook() {
@@ -574,14 +577,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.lastTranslation = this.translation;
     }
 
-    refreshCameraTransform() {
-        if (this.portalCameraMatrix) {
-            const render = this.service("ThreeRenderManager");
-            render.camera.matrix.fromArray(this.portalCameraMatrix);
-            render.camera.matrixWorldNeedsUpdate = true;
-        } else super.refreshCameraTransform();
-    }
-
     collision(collideList){
         let [tx, ty, tz] = [...this.translation];
 
@@ -590,7 +585,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let box = new THREE.Box3();
         box.min.set(tx-radius, ty-EYE_HEIGHT, tz-radius);
         box.max.set(tx+radius, ty+EYE_HEIGHT/6, tz+radius);
-        
+
         collideList.forEach(c => {
             let cBox = box.clone();
            // console.log(cBox)
