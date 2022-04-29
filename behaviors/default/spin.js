@@ -60,6 +60,13 @@ class SpinPawn {
         let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
         this.rotateTo(newRot);
         // this.say("newAngle", newAngle);
+        if (this.moveBuffer.length >= 3) {
+            setTimeout(() => this.shiftMoveBuffer(), 100);
+        }
+    }
+
+    shiftMoveBuffer() {
+        this.moveBuffer.shift();
     }
 
     onPointerUp(_p3d) {
