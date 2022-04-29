@@ -32,8 +32,6 @@ export function getWindowType() {
                 // to toggle the HUD
             }
         });
-        // after 500 ms we assume the parent iframe is not a shell, so we are
-        setTimeout(() => resolve("shell"), 500);
     });
 }
 
