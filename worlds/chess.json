@@ -1,6 +1,6 @@
 {
     "name": "Unknown",
-    "comment": "You can launch this with ?worl=worlds/chess.json",
+    "comment": "You can launch this with ?world=worlds/chess.json",
     "version": "1",
     "data": {
         "behaviorModules": {
