@@ -23,13 +23,11 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         super.init(options);
         this.avatarIndex = options.index;
 
-        this.inThisWorld = false;   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
         this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
-        this.listen("setInThisWorld", this.setInThisWorld);
         this.listen("setTranslation", this.setTranslation);
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
@@ -45,6 +43,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     get lookPitch() {return this._lookPitch || 0;};
     get lookYaw() {return this._lookYaw || 0;};
     get lookNormal() {return v3_rotate([0,0,-1], this.rotation);}
+    get inThisWorld() {return !!this._inThisWorld;}   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
 
     setSpin(q) {
         super.setSpin(q);
@@ -75,11 +74,6 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     stopPresentation() {
         this.service("PlayerManager").stopPresentation();
-    }
-
-    setInThisWorld(v) {
-        this.inThisWorld = v;
-        this.publish("playerManager", "presentationCountChanged"); // trigger showNumbers()
     }
 
     setTranslation(v) {
@@ -400,7 +394,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                             this.portalLook = null;
                             this.refreshCameraTransform();
                         }
-                        this.say("setInThisWorld", isPrimary);
+                        this.worldChanged(isPrimary, e.data.avatarSpec);
                         // tell shell that we got this message (TODO: should only send this once)
                         window.parent.postMessage({message: "croquet:microverse:started"}, "*");
                         break;
@@ -414,10 +408,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
             window.addEventListener("message", this.cameraListener);
             this.say("resetHeight");
-            this.subscribe("playerManager", "presentationCountChanged", this.showNumbers)
+            this.subscribe("playerManager", "presentationCountChanged", this.showNumbers);
             this.listen("setLookAngles", this.setLookAngles);
             this.showNumbers();
         }
+        this.listen("_inThisWorld", this.showNumbers);
         this.constructVisual();
     }
 
@@ -553,6 +548,16 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         const m1 = m4_rotationQ(pitchRotation);
         const m2 = m4_multiply(m1, m0);
         return m4_multiply(m2, this.global);
+    }
+
+    worldChanged(isPrimary, spec={}) {
+        // our avatar just came into or left this world through a portal
+        // if this world is primary, we need to match the position per spec
+        // if this world is secondary, then the avatar left and we need to hide it
+        const actorSpec = {
+            inThisWorld: isPrimary,
+        };
+        this.say("_set", actorSpec);
     }
 
     update(time, delta) {
