@@ -135,7 +135,7 @@ class Shell {
                 return;
             case "croquet:microverse:portal-enter":
                 if (fromFrame === this.currentFrame) {
-                    this.enterPortal(data.portalId, true);
+                    this.enterPortal(data.portalId, true, data.avatarSpec);
                 } else {
                     console.warn("portal-enter from non-current portal-" + fromPortalId);
                 }
@@ -155,7 +155,7 @@ class Shell {
         }
     }
 
-    sendWindowType(frame) {
+    sendWindowType(frame, avatarSpec=null) {
         if (frame.interval) return;
         frame.interval = setInterval(() => {
             // there are two listeners to this message:
@@ -165,12 +165,12 @@ class Shell {
             // so we keep sending this message until the avatar is constructed
             // then it will send "croquet:microverse:started" which clears this interval (below)
             const windowType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
-            this.sendToPortal(frame.portalId, {message: "croquet:microverse:window-type", windowType});
+            this.sendToPortal(frame.portalId, {message: "croquet:microverse:window-type", windowType, avatarSpec});
             // console.log(`send window type to portal-${frame.portalId}: ${windowType}`);
         }, 200);
     }
 
-    enterPortal(toPortalId, pushState=true) {
+    enterPortal(toPortalId, pushState=true, avatarSpec=null) {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
         fromFrame.style.zIndex = -1;
@@ -183,6 +183,6 @@ class Shell {
         this.currentFrame = toFrame;
         this.currentFrame.focus();
         this.sendWindowType(fromFrame);
-        this.sendWindowType(toFrame);
+        this.sendWindowType(toFrame, avatarSpec);
     }
 }

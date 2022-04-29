@@ -4,7 +4,7 @@
 import {
     Constants, Data, App, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
-    m4_multiply, m4_rotationQ, m4_translation, q_multiply} from "@croquet/worldcore";
+    m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
@@ -550,6 +550,21 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         return m4_multiply(m2, this.global);
     }
 
+    specForPortal(portal) {
+        // we are about to enter this portal. meaning we disappear from this world and appear in the target world
+        // visually nothing should change, so we need this avatar's position relative to the portal, as well as
+        // its look pitch and offset. This will be passed to worldChanged() in the target world.
+        const t = m4_invert(portal.global);
+        const m = m4_multiply(t, this.global);
+        return {
+            translation: m4_getTranslation(m),
+            rotation: m4_getRotation(m),
+            pitch: this._lookPitch,
+            yaw: this._lookYaw,
+            lookOffset: this._lookOffset,
+        };
+    }
+
     worldChanged(isPrimary, spec={}) {
         // our avatar just came into or left this world through a portal
         // if this world is primary, we need to match the position per spec
@@ -557,6 +572,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         const actorSpec = {
             inThisWorld: isPrimary,
         };
+        // not working yet so commented out for now
+        // if (spec) {
+        //     actorSpec.translation = spec.translation;
+        //     actorSpec.rotation = spec.rotation;
+        //     if (spec.pitch) this._lookPitch = spec.pitch;
+        //     if (spec.yaw) this._lookYaw = spec.yaw;
+        //     if (spec.lookOffset) this._lookOffset = spec.lookOffset;
+        // }
         this.say("_set", actorSpec);
     }
 
