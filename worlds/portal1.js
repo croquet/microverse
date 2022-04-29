@@ -187,6 +187,7 @@ export function init(Constants) {
                 height: 4,
                 depth: 0.05,
                 cornerRadius: 0.05,
+                multiuser: true,
                 targetURL: "?world=portal2&q=zz7wltu2pv#pw=YuPGUxzqQ3nU5eoglP9WhA",
             }
         },
