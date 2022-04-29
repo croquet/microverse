@@ -40,7 +40,7 @@ class Shell {
         this.frames = new Map(); // portalId => frame
         App.autoSession();
         App.autoPassword();
-        this.currentFrame = this.addFrame(location.href, "primary");
+        this.currentFrame = this.addFrame(location.href);
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
         }, null, this.currentFrame.src);
@@ -54,8 +54,10 @@ class Shell {
                 for (const [portalId, frame] of this.frames) {
                     if (e.source === frame.contentWindow) {
                         this.receiveFromPortal(portalId, frame, e.data);
+                        return;
                     }
                 }
+                console.warn(iframeId, "shell received message not in portal list", e.data);
             }
         });
 
@@ -83,7 +85,7 @@ class Shell {
         });
     }
 
-    addFrame(url, windowType="secondary") {
+    addFrame(url) {
         let portalId;
         do { portalId = Math.random().toString(36).substring(2, 15); } while (this.frames.has(portalId));
         const frame = document.createElement("iframe");
@@ -95,18 +97,10 @@ class Shell {
         frame.style.height = "100%";
         frame.style.border = "none";
         frame.style.zIndex = -this.frames.size;
-        frame.interval = setInterval(() => {
-            // there are two listeners to this message:
-            // 1. the frame itself in shell.js (see below)
-            // 2. the avatar in DAvatar.js
-            // the avatar only gets constructed after joining the session
-            // so we keep sending this message until the avatar is constructed
-            // then it will send "croquet:microverse:started" which clears this interval (below)
-            this.sendToPortal(portalId, {message: "croquet:microverse:window-type", windowType});
-        }, 50);
         frame.portalId = portalId;
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
+        this.sendWindowType(frame);
         // console.log("add frame", portalId, url);
         return frame;
     }
@@ -114,8 +108,14 @@ class Shell {
     receiveFromPortal(fromPortalId, fromFrame, data) {
         // console.log(`from portal-${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
+            case "croquet:microverse:starting":
+                // this is the immediate reply to our "croquet:microverse:window-type" message
+                // nothing to do yet until fully started
+                return;
             case "croquet:microverse:started":
+                // the session was started and player's inThisWorld flag has been set
                 clearInterval(fromFrame.interval);
+                fromFrame.interval = null;
                 return;
             case "croquet:microverse:load-world":
                 const url = new URL(data.url, location.href).href;
@@ -140,6 +140,8 @@ class Shell {
                     console.warn("portal-enter from non-current portal-" + fromPortalId);
                 }
                 return;
+            default:
+                console.warn(iframeId, `shell received message from portal-${fromPortalId}`, data);
         }
     }
 
@@ -153,13 +155,26 @@ class Shell {
         }
     }
 
+    sendWindowType(frame) {
+        if (frame.interval) return;
+        frame.interval = setInterval(() => {
+            // there are two listeners to this message:
+            // 1. the frame itself in shell.js (see below)
+            // 2. the avatar in DAvatar.js
+            // the avatar only gets constructed after joining the session
+            // so we keep sending this message until the avatar is constructed
+            // then it will send "croquet:microverse:started" which clears this interval (below)
+            const windowType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
+            this.sendToPortal(frame.portalId, {message: "croquet:microverse:window-type", windowType});
+            // console.log(`send window type to portal-${frame.portalId}: ${windowType}`);
+        }, 200);
+    }
+
     enterPortal(toPortalId, pushState=true) {
-        const currentFrame = this.currentFrame;
+        const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
-        currentFrame.style.zIndex = -1;
+        fromFrame.style.zIndex = -1;
         toFrame.style.zIndex = 0;
-        this.sendToPortal(toPortalId, {message: "croquet:microverse:window-type", windowType: "primary"});
-        this.sendToPortal(currentFrame.portalId, {message: "croquet:microverse:window-type", windowType: "secondary"});
         if (pushState) {
             window.history.pushState({
                 portalId: toFrame.portalId,
@@ -167,5 +182,7 @@ class Shell {
         }
         this.currentFrame = toFrame;
         this.currentFrame.focus();
+        this.sendWindowType(fromFrame);
+        this.sendWindowType(toFrame);
     }
 }
