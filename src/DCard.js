@@ -443,6 +443,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (!this.colliderObject) {
             let collider = new THREE.Group();
             this.setColliderObject(collider);
+            collider.collider = true;
         }
     }
 

@@ -580,6 +580,22 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         } else super.refreshCameraTransform();
     }
 
+    collision(collideList){
+        let [tx, ty, tz] = [...this.translation];
+
+        const radius = this.actor.collisionRadius;
+
+        let box = new THREE.Box3();
+        box.min.set(tx-radius, ty-EYE_HEIGHT, tz-radius);
+        box.max.set(tx+radius, ty+EYE_HEIGHT/6, tz+radius);
+        
+        collideList.forEach(c => {
+            let cBox = box.clone();
+           // console.log(cBox)
+        })
+    }
+
+
     findFloor(move){
         const walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if(!walkLayer)return false;
