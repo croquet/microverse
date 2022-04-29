@@ -444,8 +444,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = [...manager.players.values()].filter(p => p.inThisWorld).length;
             if (!total) total = 1; // we are obviously in the world, even if we haven't received the setInThisWorld message yet
-            let followers = [...manager.followers].filter(p => p.inThisWorld).length;
             if (manager.presentationMode) {
+                let followers = [...manager.followers].filter(viewId => manager.player(viewId).inThisWorld).length;
                 userCountReadOut.textContent = `${followers}/${total}`;
             } else {
                 userCountReadOut.textContent = `${total}`;
