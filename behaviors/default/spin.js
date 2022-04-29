@@ -63,6 +63,8 @@ class SpinPawn {
     }
 
     onPointerUp(_p3d) {
+        this._startDrag = null;
+        this._baseRotation = null;
         if (this.moveBuffer.length < 3) {return;}
         if(Math.abs(this.deltaAngle) > 0.001) {
             let a = this.deltaAngle;
