@@ -222,7 +222,7 @@ class MyModelRoot extends ModelRoot {
             DynaverseAppManager,
             BehaviorModelManager,
             FontModelManager,
-            ...(Constants.UseRapier ? [RapierPhysicsManager] : [])
+            ...(Constants.UseRapier ? [{service: RapierPhysicsManager, options: {useCollisionEventQueue: true}}] : [])
         ];
     }
     init(options, persistentData) {

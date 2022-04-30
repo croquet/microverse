@@ -4,9 +4,10 @@
 //
 // Collaborative Card Object
 
-import { THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService,
-         v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
-         q_euler, q_multiply, Constants } from '@croquet/worldcore';
+import {
+    THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService,
+    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
+    q_euler, q_multiply, Constants } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
@@ -384,6 +385,13 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         // return this.$rigidBody;
         return this.call("Rapier$RapierActor", "getRigidBody");
     }
+
+    contactEvent(rb1, rb2, started) {
+        return this.call(this.contactEventHandlerBehavior, this.contactEventHandlerMethod, rb1, rb2, started);
+    }
+    intersectionEvent(rb1, rb2, intersecting) {
+        return this.call(this.intersectionEventHandlerBehavior, this.intersectionEventHandlerMethod, rb1, rb2, intersecting);
+    }
 }
 CardActor.register('CardActor');
 
@@ -548,7 +556,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             texture.repeat.set( size[0], size[2] );
-            
             let pGeometry = new THREE.BoxGeometry(...size);
             let pMaterial = new THREE.MeshStandardMaterial({map:texture, color: color, side: THREE.DoubleSide});
 
@@ -722,7 +729,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 }
 
                 let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius);
-                let material = this.makePlaneMaterial(depth, color||0xffffff, frameColor, fullBright);
+                let material = this.makePlaneMaterial(depth, color || 0xffffff, frameColor, fullBright);
 
                 if (this.texture) {
                     material[0].map = this.texture;

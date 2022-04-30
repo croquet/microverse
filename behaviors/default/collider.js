@@ -3,6 +3,7 @@ class ColliderActor {
         let kinematic;
         let rapierType = this._cardData.rapierType;
         let rapierShape = this._cardData.rapierShape;
+        let rapierSensor = this._cardData.rapierSensor;
         if (rapierType === "positionBased") {
             kinematic = Worldcore.RAPIER.RigidBodyDesc.newKinematicPositionBased();
         } else if (rapierType === "static") {
@@ -25,9 +26,19 @@ class ColliderActor {
         cd.setRestitution(this._cardData.rapierRestitution || 0.5);
         cd.setFriction(this._cardData.rapierFriction || 1);
         cd.setDensity(this._cardData.rapierDensity || 1.5);
+
+        if (rapierSensor) {
+            console.log("sensor");
+            this.registerIntersectionEventHandler("intersection");
+            cd.setSensor(true);
+            cd.setActiveEvents(Worldcore.RAPIER.ActiveEvents.CONTACT_EVENTS |
+                               Worldcore.RAPIER.ActiveEvents.INTERSECTION_EVENTS);
+        }
         this.call("Rapier$RapierActor", "createCollider", cd);
 
-        this.addEventListener("pointerTap", "jolt");
+        if (!rapierType) {
+            this.addEventListener("pointerTap", "jolt");
+        }
         this.listen("translating", "translated");
     }
 
@@ -35,7 +46,7 @@ class ColliderActor {
         let r = this.rigidBody;
         if (r) {
             r.applyForce({x: 0, y: 400, z: 0}, true);
-            r.applyTorque({x: Math.random() * 50.0, y: Math.random() * 20, z: Math.random() * 50}, true);
+            r.applyTorque({x: Math.random() * 50, y: Math.random() * 20, z: Math.random() * 50}, true);
         }
     }
 
@@ -43,6 +54,33 @@ class ColliderActor {
         // may not be a very efficient way to detect it
         if (this._translation[1] < -1000) {
             this.destroy();
+        }
+    }
+
+    registerContactEventHandler(methodName) {
+        let behavior = this._behavior;
+        let physicsManager = this.service("RapierPhysicsManager");
+        this.contactEventHandlerBehavior = `${behavior.module.name}$${behavior.$behaviorName}`;
+        this.contactEventHandlerMethod = methodName;
+        physicsManager.registerContactEventHandler(this._target);
+    }
+
+    registerIntersectionEventHandler(methodName) {
+        let behavior = this._behavior;
+        let physicsManager = this.service("RapierPhysicsManager");
+        this.intersectionEventHandlerBehavior = `${behavior.module.name}$${behavior.$behaviorName}`;
+        this.intersectionEventHandlerMethod = methodName;
+        physicsManager.registerIntersectionEventHandler(this._target);
+    }
+
+    intersection(card1, card2, intersecting) {
+        console.log(card1, card2, intersecting);
+        if (!intersecting) {return;}
+        if (card1.id !== this.id) {
+            card1.destroy();
+        }
+        if (card2.id !== this.id) {
+            card2.destroy();
         }
     }
 }
