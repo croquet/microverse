@@ -127,8 +127,10 @@ class MyPlayerManager extends PlayerManager {
         this.presentationMode = null; // or the viewId of the leader
         this.followers = new Set();
 
-        this.subscribe("playerManager", "destroy", this.playerLeft);
-        this.subscribe("playerManager", "create", this.playerEntered);
+        this.subscribe("playerManager", "create", this.playerCreated);
+        this.subscribe("playerManager", "destroy", this.playerDestroyed);
+        this.subscribe("playerManager", "enter", this.playerEnteredWorld);
+        this.subscribe("playerManager", "leave", this.playerLeftWorld);
     }
 
     createPlayer(options) {
@@ -140,6 +142,23 @@ class MyPlayerManager extends PlayerManager {
         return AvatarActor.create(options);
     }
 
+    destroyPlayer(player) {
+        if (player.inWorld) player.set({inWorld: false});
+        super.destroyPlayer(player);
+    }
+
+    playerInWorldChanged(player) {
+        if (player.inWorld) {
+            this.publish("playerManager", "enter", player);
+        } else {
+            this.publish("playerManager", "leave", player);
+        }
+    }
+
+    playersInWorld() {
+        return [...this.players.values()].filter((player) => player.inWorld);
+    }
+
     startPresentation(playerId) {
         if (this.presentationMode && this.presentationMode !== playerId) {
             return; // somebody is already presenting
@@ -147,41 +166,50 @@ class MyPlayerManager extends PlayerManager {
 
         this.presentationMode = playerId;
 
-        this.players.forEach((player, id) => {
-            this.followers.add(id);
+        this.playersInWorld().forEach((player) => {
+            this.followers.add(player.playerId);
         });
         this.publish("playerManager", "presentationStarted", playerId);
-        this.publish("playerManager", "presentationCountChanged");
+        this.publish("playerManager", "playerCountChanged");
     }
 
     stopPresentation() {
         this.presentationMode = null;
         this.publish("playerManager", "presentationStopped");
-        this.publish("playerManager", "presentationCountChanged");
-        this.followers = new Set();
+        this.publish("playerManager", "playerCountChanged");
+        this.followers.clear();
     }
 
     leavePresentation(playerId) {
         if (this.presentationMode === playerId) {return;}
         this.followers.delete(playerId);
-        this.publish("playerManager", "presentationCountChanged");
+        this.publish("playerManager", "playerCountChanged");
     }
 
-    playerLeft(player) {
-        console.log("playerLeft", player);
+    playerEnteredWorld(player) {
+        console.log("playerEnteredWorld", player);
+        if (this.presentationMode) {
+            this.followers.add(player.playerId);
+            player.presentationStarted(this.presentationMode);
+        }
+        this.publish("playerManager", "playerCountChanged");
+    }
+
+    playerLeftWorld(player) {
+        console.log("playerLeftWorld", player);
         if (player.playerId === this.presentationMode) {
             this.stopPresentation();
         }
         this.followers.delete(player.playerId);
-        this.publish("playerManager", "presentationCountChanged");
+        this.publish("playerManager", "playerCountChanged");
     }
 
-    playerEntered(player) {
-        console.log("playerEntered", player);
-        if (this.presentationMode) {
-            player.presentationStarted(this.presentationMode);
-        }
-        this.publish("playerManager", "presentationCountChanged");
+    playerCreated(player) {
+        this.publish("playerManager", "playerCountChanged");
+    }
+
+    playerDestroyed(player) {
+        this.publish("playerManager", "playerCountChanged");
     }
 }
 

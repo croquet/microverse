@@ -33,6 +33,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
         this.listen("stopPresentation", this.stopPresentation);
+        this.listen("_inWorld", this.inWorldChanged);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
         this.listen("resetHeight", this.resetHeight);
@@ -43,7 +44,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     get lookPitch() {return this._lookPitch || 0;};
     get lookYaw() {return this._lookYaw || 0;};
     get lookNormal() {return v3_rotate([0,0,-1], this.rotation);}
-    get inThisWorld() {return !!this._inThisWorld;}   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
+    get inWorld() {return !!this._inWorld;}   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
 
     setSpin(q) {
         super.setSpin(q);
@@ -74,6 +75,10 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     stopPresentation() {
         this.service("PlayerManager").stopPresentation();
+    }
+
+    inWorldChanged({o, v}) {
+        if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
     }
 
     setTranslation(v) {
@@ -164,7 +169,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     presentationStarted(playerId) {
-        if(this.playerId !== playerId) {
+        if (this.playerId !== playerId && this.inWorld) {
             let leader = this.service("PlayerManager").player(playerId);
             this.goTo(leader.translation, leader.rotation, false);
             this.follow = playerId;
@@ -392,14 +397,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                             // TODO: apply the portal camera matrix to move avatar itself
                             // to make entering visually smooth
                             this.portalLook = null;
-                            this.refreshCameraTransform();
                         }
-                        this.worldChanged(isPrimary, e.data.avatarSpec);
+                        this.refreshCameraTransform();
+                        this.windowTypeChanged(isPrimary, e.data.avatarSpec);
                         // tell shell that we got this message (TODO: should only send this once)
                         window.parent.postMessage({message: "croquet:microverse:started"}, "*");
                         break;
                     case "croquet:microverse:portal-update":
-                        if (!this.actor.inThisWorld) {
+                        if (!this.actor.inWorld) {
                             const { cameraMatrix } = e.data;
                             if (cameraMatrix) this.portalLook = cameraMatrix;
                         }
@@ -408,11 +413,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
             window.addEventListener("message", this.cameraListener);
             this.say("resetHeight");
-            this.subscribe("playerManager", "presentationCountChanged", this.showNumbers);
+            this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
             this.listen("setLookAngles", this.setLookAngles);
             this.showNumbers();
         }
-        this.listen("_inThisWorld", this.showNumbers);
         this.constructVisual();
     }
 
@@ -440,11 +444,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (userCountReadOut) {
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = manager.players.size;
-            let here = [...manager.players.values()].filter(p => p.inThisWorld).length;
+            let here = manager.playersInWorld().length;
             if (!here) here = 1; // we are obviously in the world
             if (here !== total) total = `${here}+${total-here}`;
             if (manager.presentationMode) {
-                let followers = [...manager.followers].filter(viewId => manager.player(viewId).inThisWorld).length;
+                let followers = manager.followers.size;
                 userCountReadOut.textContent = `${followers}/${total}`;
             } else {
                 userCountReadOut.textContent = `${total}`;
@@ -516,7 +520,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.addToLayers('avatar');
             model.name = "Avatar";
             this.setRenderObject(model);  // note the extension
-            this.avatar.visible = this.actor.inThisWorld;
+            this.avatar.visible = this.actor.inWorld;
         });
     }
 
@@ -553,12 +557,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     specForPortal(portal) {
         // we are about to enter this portal. meaning we disappear from this world and appear in the target world
         // visually nothing should change, so we need this avatar's position relative to the portal, as well as
-        // its look pitch and offset. This will be passed to worldChanged() in the target world.
+        // its look pitch and offset. This will be passed to windowTypeChanged() in the target world.
         const t = m4_invert(portal.global);
         const m = m4_multiply(t, this.global);
         return {
-            translation: m4_getTranslation(m),
-            rotation: m4_getRotation(m),
+            // translation: m4_getTranslation(m),
+            // rotation: m4_getRotation(m),
             pitch: this._lookPitch,
             yaw: this._lookYaw,
             lookOffset: this._lookOffset,
@@ -566,31 +570,29 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         };
     }
 
-    worldChanged(isPrimary, spec) {
+    windowTypeChanged(isPrimary, spec) {
         // our avatar just came into or left this world through a portal
         // if this world is primary, we need to match the position per spec
         // if this world is secondary, then the avatar left and we need to hide it
         const actorSpec = {
-            inThisWorld: isPrimary,
+            inWorld: isPrimary,
         };
-        // not working yet so commented out for now
-        if (spec) {
-        //     actorSpec.translation = spec.translation;
-        //     actorSpec.rotation = spec.rotation;
-        //     if (spec.pitch) this._lookPitch = spec.pitch;
-        //     if (spec.yaw) this._lookYaw = spec.yaw;
-        //     if (spec.lookOffset) this._lookOffset = spec.lookOffset;
+        if (isPrimary && spec) {
+            // move actor to the right place
+            actorSpec.translation = spec.translation;
+            actorSpec.rotation = spec.rotation;
+            // copy camera settings to pawn
+            if (spec.pitch) this._lookPitch = spec.pitch;
+            if (spec.yaw) this._lookYaw = spec.yaw;
+            if (spec.lookOffset) this._lookOffset = spec.lookOffset;
         }
         this.say("_set", actorSpec);
-        // take followers with us
-        let manager = this.actor.service("PlayerManager");
+        // start presenting in new space too
         if (isPrimary && spec?.leader) {
+            let manager = this.actor.service("PlayerManager");
             if (!manager.presentationMode) {
                 this.say("comeToMe");
             }
-        }
-        if (!isPrimary && manager.presentationMode === this.viewId) {
-            this.say("stopPresentation");
         }
 }
 
@@ -925,7 +927,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let p = GetPawn(a.id);
             if (a.follow) {
                 p.setOpacity(0); // get out of my way
-            } else if (!this.actor.inThisWorld) {
+            } else if (!this.actor.inWorld) {
                 p.setOpacity(1); // we are not even here
             } else {
                 let m = this.lookGlobal; // camera location
@@ -942,7 +944,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     setOpacity(opacity) {
         if (this.avatar) {
             let transparent = opacity !== 1;
-            this.avatar.visible = this.actor.inThisWorld && opacity !== 0;
+            this.avatar.visible = this.actor.inWorld && opacity !== 0;
             this.avatar.traverse(n => {
                 if (n.material) {
                     n.material.opacity = opacity;

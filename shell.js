@@ -113,7 +113,7 @@ class Shell {
                 // nothing to do yet until fully started
                 return;
             case "croquet:microverse:started":
-                // the session was started and player's inThisWorld flag has been set
+                // the session was started and player's inWorld flag has been set
                 clearInterval(fromFrame.interval);
                 fromFrame.interval = null;
                 return;
