@@ -59,6 +59,8 @@ The `setup()` method of `ColliderActor` checks the `rapierType` and `rapierShape
         this.listen("translating", "translated");
 ```
 
+Alternatively, a new version of the Worldcore Rapier bindings enabled the contactEvents and intersectionEvents. See the part of `setup()` that uses the `rapierSensor` property and how it enables the contact- and intersectionEvent callbacks.
+
 The `ColliderPawn` behavior creates a Three JS mesh with a simple geometry that matches with the value in "rapierShape". For a demo purpose, the creation of the mesh is guarded by `if (this.shape.children.length === 0)`, meaning that it does not replace a shape that is already there.
 
 ```JavaScript
