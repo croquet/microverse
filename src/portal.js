@@ -96,13 +96,14 @@ export class PortalPawn extends CardPawn {
     }
 
     enterPortal() {
+        // NOTE THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
+        // we also jump between worlds using the browser's "forward/back" buttons
         console.log(this.viewId, "enter portal", this.portalId);
-        // send current view spec to the target world so the avatar appears
-        // in the right place / orientation and the rendered image does not change
         const avatarActor = this.actor.service("PlayerManager").player(this.viewId);
         const avatarPawn = GetPawn(avatarActor.id);
         const avatarSpec = avatarPawn.specForPortal(this);
         this.sendToShell({message: "croquet:microverse:portal-enter", portalId: this.portalId, avatarSpec});
+        // shell will swap iframes and trigger avatarPawn.windowTypeChanged() for this user in both worlds
     }
 
     receiveFromShell(data) {

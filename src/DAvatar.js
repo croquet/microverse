@@ -32,6 +32,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
+        this.listen("followMeToWorld", this.followMeToWorld);
         this.listen("stopPresentation", this.stopPresentation);
         this.listen("_inWorld", this.inWorldChanged);
         this.listen("fileUploaded", "fileUploaded");
@@ -166,6 +167,20 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     comeToMe() {
         this.norm = this.lookNormal;
         this.service("PlayerManager").startPresentation(this.playerId);
+    }
+
+    followMeToWorld(targetURL) {
+        const manager = this.service("PlayerManager");
+        if (manager.presentationMode === this.playerId) {
+            for (const playerId of manager.followers) {
+                const follower = manager.player(playerId);
+                follower.leaveToWorld(targetURL);
+            }
+        }
+    }
+
+    leaveToWorld(targetURL) {
+        this.say("leaveToWorld", targetURL);
     }
 
     presentationStarted(playerId) {
@@ -399,9 +414,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                             this.portalLook = null;
                         }
                         this.refreshCameraTransform();
-                        this.windowTypeChanged(isPrimary, e.data.avatarSpec);
+                        this.windowTypeChanged(isPrimary, e.data.spec);
                         // tell shell that we got this message (TODO: should only send this once)
-                        window.parent.postMessage({message: "croquet:microverse:started"}, "*");
+                        this.sendToShell({message: "croquet:microverse:started"});
                         break;
                     case "croquet:microverse:portal-update":
                         if (!this.actor.inWorld) {
@@ -415,9 +430,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.say("resetHeight");
             this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
             this.listen("setLookAngles", this.setLookAngles);
+            this.listen("leaveToWorld", this.leaveToWorld);
             this.showNumbers();
         }
         this.constructVisual();
+    }
+
+    get presenting() {
+        return this.actor.service("PlayerManager").presentationMode === this.viewId;
     }
 
     setLookAngles(data) {
@@ -455,7 +475,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         }
 
-        comeHere.setAttribute("presenting", manager.presentationMode === this.viewId);
+        comeHere.setAttribute("presenting", this.presenting);
     }
 
     setEditMode(evt) {
@@ -566,18 +586,20 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             pitch: this._lookPitch,
             yaw: this._lookYaw,
             lookOffset: this._lookOffset,
-            leader: this.actor.service("PlayerManager").presentationMode === this.viewId,
+            presenting: this.presenting,
         };
     }
 
     windowTypeChanged(isPrimary, spec) {
-        // our avatar just came into or left this world through a portal
-        // if this world is primary, we need to match the position per spec
-        // if this world is secondary, then the avatar left and we need to hide it
+        // our avatar just came into or left this world, either through a portal
+        // (in which case we have a view spec), or through a navigation event (browser's back/forward)
+        // in all cases we set the actor's inWorld which will show/hide the avatar
+        const enteringWorld = isPrimary;
+        const leavingWorld = !isPrimary;
         const actorSpec = {
-            inWorld: isPrimary,
+            inWorld: enteringWorld,
         };
-        if (isPrimary && spec) {
+        if (enteringWorld && spec) {
             // move actor to the right place
             actorSpec.translation = spec.translation;
             actorSpec.rotation = spec.rotation;
@@ -586,15 +608,25 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             if (spec.yaw) this._lookYaw = spec.yaw;
             if (spec.lookOffset) this._lookOffset = spec.lookOffset;
         }
+        // if we were presenting, tell followers to come with us
+        if (leavingWorld && this.presenting) {
+            this.say("followMeToWorld", spec.targetURL);
+            // calls leaveToWorld() in followers
+        }
+        // now actually leave or enter the world (stops presenting in old world)
         this.say("_set", actorSpec);
         // start presenting in new space too
-        if (isPrimary && spec?.leader) {
+        if (enteringWorld && spec?.presenting) {
             let manager = this.actor.service("PlayerManager");
             if (!manager.presentationMode) {
                 this.say("comeToMe");
             }
         }
-}
+    }
+
+    leaveToWorld(targetURL) {
+        this.sendToShell({message: "croquet:microverse:enter-world", targetURL});
+    }
 
     update(time, delta) {
         super.update(time, delta);
@@ -1026,5 +1058,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
 
         this.publish(model.id, "loadDone", key);
+    }
+
+    sendToShell(data) {
+        window.parent.postMessage(data, "*");
     }
 }

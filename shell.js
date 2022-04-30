@@ -140,6 +140,18 @@ class Shell {
                     console.warn("portal-enter from non-current portal-" + fromPortalId);
                 }
                 return;
+            case "croquet:microverse:enter-world":
+                if (fromFrame === this.currentFrame) {
+                    let targetFrame = [...this.frames.values()].find(f => f.src === data.targetURL);
+                    if (!targetFrame) {
+                        console.log("enter-world: no frame for", data.targetURL);
+                        targetFrame = this.addFrame(url);
+                    }
+                    this.enterPortal(targetFrame.portalId, true);
+                } else {
+                    console.warn("enter-world from non-current portal-" + fromPortalId);
+                }
+                return;
             default:
                 console.warn(iframeId, `shell received message from portal-${fromPortalId}`, data);
         }
@@ -155,7 +167,7 @@ class Shell {
         }
     }
 
-    sendWindowType(frame, avatarSpec=null) {
+    sendWindowType(frame, spec) {
         if (frame.interval) return;
         frame.interval = setInterval(() => {
             // there are two listeners to this message:
@@ -165,7 +177,7 @@ class Shell {
             // so we keep sending this message until the avatar is constructed
             // then it will send "croquet:microverse:started" which clears this interval (below)
             const windowType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
-            this.sendToPortal(frame.portalId, {message: "croquet:microverse:window-type", windowType, avatarSpec});
+            this.sendToPortal(frame.portalId, {message: "croquet:microverse:window-type", windowType, spec});
             // console.log(`send window type to portal-${frame.portalId}: ${windowType}`);
         }, 200);
     }
@@ -173,16 +185,17 @@ class Shell {
     enterPortal(toPortalId, pushState=true, avatarSpec=null) {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
+        const targetURL = toFrame.src;
         fromFrame.style.zIndex = -1;
         toFrame.style.zIndex = 0;
         if (pushState) {
             window.history.pushState({
                 portalId: toFrame.portalId,
-            }, null, toFrame.src);
+            }, null, targetURL);
         }
         this.currentFrame = toFrame;
         this.currentFrame.focus();
-        this.sendWindowType(fromFrame);
+        this.sendWindowType(fromFrame, {targetURL});
         this.sendWindowType(toFrame, avatarSpec);
     }
 }

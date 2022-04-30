@@ -187,7 +187,7 @@ class MyPlayerManager extends PlayerManager {
     }
 
     playerEnteredWorld(player) {
-        console.log("playerEnteredWorld", player);
+        console.log(this.sessionId, "playerEnteredWorld", player);
         if (this.presentationMode) {
             this.followers.add(player.playerId);
             player.presentationStarted(this.presentationMode);
@@ -196,7 +196,7 @@ class MyPlayerManager extends PlayerManager {
     }
 
     playerLeftWorld(player) {
-        console.log("playerLeftWorld", player);
+        console.log(this.sessionId, "playerLeftWorld", player);
         if (player.playerId === this.presentationMode) {
             this.stopPresentation();
         }
