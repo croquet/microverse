@@ -249,13 +249,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
         let string = saver.stringify(json);
 
-        let result = {name: this._name || "card", version: "1", data: JSON.parse(string)};
+        let name = this._name || "card";
+
+        let result = {name, version: "1", data: JSON.parse(string)};
 
         let div = document.createElement("a");
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 4));
 
         div.setAttribute("href", dataStr);
-        div.setAttribute("download", "scene.json");
+        div.setAttribute("download", `${name}.crqt.json`);
         div.click();
     }
 
