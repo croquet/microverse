@@ -642,7 +642,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
         this.lastUpdateTime = time;
         if(this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
-        if (this.actor.fall && !this.findFloor()) {
+        if (this.actor.fall && !this.collide()) {
             if (this.translation !== this.lastTranslation) {
                 this.setTranslation(this.lastTranslation);
             }
@@ -651,7 +651,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.lastTranslation = this.translation;
     }
 
-    collision(collideList){
+    collideBVH(collideList){
 
         // uses:
         // https://github.com/gkjohnson/three-mesh-bvh
@@ -706,19 +706,19 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
 
-    findFloor(move){
+    collide(){
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if(!walkLayer)return false;
 
         // first check for BVH colliders
         // let collideList = walkLayer.filter(obj => obj.collider);
-        // if(collideList.length>0) { this.collision(collideList); return true; }
+        // if(collideList.length>0) { this.collideBVH(collideList); return true; }
 
         // then check for floor objects
         //walkLayer = walkLayer.filter(obj=> !obj.collider);
         //if(walkLayer.length === 0)return false;
 
-        this.walkcaster.ray.origin.set( ...(move || this.translation));
+        this.walkcaster.ray.origin.set( ...this.translation);
         const intersections = this.walkcaster.intersectObjects( walkLayer, true );
 
         if(intersections.length > 0){
