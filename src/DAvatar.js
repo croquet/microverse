@@ -3,7 +3,7 @@
 // info@croquet.io
 import {
     Constants, Data, App, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_transform, v3_add, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+    v3_transform, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { PM_Pointer} from "./Pointer.js";
@@ -15,6 +15,7 @@ let avatarModelPromises = [];
 export let EYE_HEIGHT = 1.676;
 export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
+export let PORTAL_DISTANCE = 1; 
 export let isMobile = !!("ontouchstart" in window);
 
 export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
@@ -348,6 +349,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.walkCamera = new THREE.Object3D();
 
             this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ));
+            this.portalcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
+
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
@@ -705,8 +708,41 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if(newPosition !== undefined) this.setTranslation(newPosition.toArray());
     }
 
+    hitPawn(obj3d){
+
+        while(obj3d){
+            if(obj3d.wcPawn)return obj3d.wcPawn;
+            obj3d = obj3d.parent;
+        }
+        return undefined;
+    }
+
+    collidePortal(){
+        let portalLayer = this.service("ThreeRenderManager").threeLayer('portal');
+        if(!portalLayer)return false; 
+
+        let dir = v3_sub(this.translation, this.lastTranslation);
+        // not moving then return false
+        if(!dir.some(item=>item !==0))return false;
+
+        dir = v3_normalize(dir);
+        this.portalcaster.ray.direction.set( ...dir);
+        this.portalcaster.ray.origin.set( ...this.translation);
+        const intersections = this.portalcaster.intersectObjects( portalLayer, true );
+        if(intersections.length>0){
+            let portal = this.hitPawn(intersections[0].object);
+            if(portal!==undefined){
+                portal.enterPortal();
+                return true;
+            }
+        }
+        return false;
+    }
 
     collide(){
+
+        if(this.collidePortal())return true; 
+
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if(!walkLayer)return false;
 
