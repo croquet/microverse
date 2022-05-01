@@ -45,6 +45,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     get lookPitch() {return this._lookPitch || 0;};
     get lookYaw() {return this._lookYaw || 0;};
     get lookNormal() {return v3_rotate([0,0,-1], this.rotation);}
+    get collisionRadius() { return this._collisionRadius || 0.375}
     get inWorld() {return !!this._inWorld;}   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
 
     setSpin(q) {
@@ -651,24 +652,72 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     collision(collideList){
-        let [tx, ty, tz] = [...this.translation];
+
+        // uses:
+        // https://github.com/gkjohnson/three-mesh-bvh
+
+        let triPoint = new THREE.Vector3();
+        let capsulePoint = new THREE.Vector3();
 
         const radius = this.actor.collisionRadius;
-
-        let box = new THREE.Box3();
-        box.min.set(tx-radius, ty-EYE_HEIGHT, tz-radius);
-        box.max.set(tx+radius, ty+EYE_HEIGHT/6, tz+radius);
-
+        let head = EYE_HEIGHT/6;
+        let newPosition = [...this._translation];
+        
         collideList.forEach(c => {
-            let cBox = box.clone();
-           // console.log(cBox)
+            let iMat = new THREE.Matrix4();
+            iMat.copy(c.matrixWorld).invert();
+
+            let v = new THREE.Vector3(...newPosition);
+            v.applyMatrix4(iMat); // shift this into the BVH frame
+
+            let segment = new THREE.Line3( v.clone(), v.clone());
+
+            segment.start.y += (head-radius);
+            segment.end.y -= (EYE_HEIGHT-radius);
+            let cBox = new THREE.Box3();
+            cBox.min.set(v.x-radius, v.y-EYE_HEIGHT, v.z-radius);
+            cBox.max.set(v.x+radius, v.y+EYE_HEIGHT/6, v.z+radius);
+            let minDistance = 1000000;
+            c.children[0].geometry.boundsTree.shapecast({
+                intersectsBounds: box => box.intersectsBox( cBox ),
+                intersectsTriangle: tri => {
+                    const distance = tri.closestPointToSegment( segment, triPoint, capsulePoint );
+                    if ( distance < radius ) {
+                        const depth = radius - distance;
+                        const direction = capsulePoint.sub( triPoint ).normalize();
+        
+                        segment.start.addScaledVector( direction, depth );
+                        segment.end.addScaledVector( direction, depth );
+                    }
+        
+                }
+            });
+
+            newPosition = segment.start;
+            newPosition.applyMatrix4( c.matrixWorld ); // convert back to world coordinates
+            newPosition.y -= (head-radius);
+
+            let deltaV = [newPosition.x - this.translation[0], 
+                newPosition.y - this.translation[1], 
+                newPosition.z - this.translation[2]
+            ];
         })
+        if(newPosition !== undefined) this.setTranslation(newPosition.toArray());
     }
 
 
     findFloor(move){
-        const walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
+        let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if(!walkLayer)return false;
+
+        // first check for BVH colliders
+        // let collideList = walkLayer.filter(obj => obj.collider);
+        // if(collideList.length>0) { this.collision(collideList); return true; }
+
+        // then check for floor objects
+        //walkLayer = walkLayer.filter(obj=> !obj.collider);
+        //if(walkLayer.length === 0)return false;
+
         this.walkcaster.ray.origin.set( ...(move || this.translation));
         const intersections = this.walkcaster.intersectObjects( walkLayer, true );
 

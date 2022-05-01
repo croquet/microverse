@@ -58,7 +58,7 @@ export function init(Constants) {
                 rotation: [0, 0, 0],
                 depth: 0.05,
                 type: "2d",
-                layers: ["pointer"],
+                layers: ["pointer", "portal"],
                 behaviorModules: ["Spin"],
                 // textureType: "image",
                 // textureLocation: "./assets/images/earthbase.png",
