@@ -3,9 +3,6 @@ import { THREE, GetPawn } from "@croquet/worldcore";
 import { CardActor, CardPawn } from "./DCard.js";
 
 export class PortalActor extends CardActor {
-    init(options) {
-        super.init(options);
-    }
 
     get targetURL() { return this._cardData.targetURL; }
 

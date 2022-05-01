@@ -179,7 +179,7 @@ export function init(Constants) {
                 translation: [-4, cardHeight, -40],
                 rotation: [0, Math.PI / 2, 0],
                 type: "2d",
-                layers: ["pointer"],
+                layers: ["pointer", "portal"],
                 behaviorModules: ["Spin"],
                 color: 0xFF66CC,
                 frameColor: frameColor,
