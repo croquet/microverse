@@ -26,6 +26,13 @@ This guide will enable you to quickly set up the Croquet Microverse Builder. Ref
 ## Detailed Instructions
 ---
 
+### Prerequisite
+
+1. Npm. Please refer to the installation page on [npmjs.com](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+2. Git. Please refer to the installation page on [git-scm.com](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+
+Npm and git are large software packages and explaining them is not in the scope of this document. We only use their most basic features. So if you don't have those packages on your computer yet, look for the simplest installation method for your platform.
+
 ### Clone or Fork the Github Repository
 
 You can find the most up to date Croquet Microverse Builder along with this document and tutorials in the `microverse-builder` Github repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.

@@ -7,8 +7,13 @@
 
 <info@croquet.io>
 
-Please refer to the QuickStart.md in the `docs` directory to get started. Key concepts and the features of Croquet Microverse and development workflow are explained in other documents in `docs`. The following is the bare minimum steps to take to run Croquet Microverse on your computer:
+Please refer to the [./docs/QuickStart.md](./docs/QuickStart.md) to get started. Key concepts and the features of Croquet Microverse and development workflow are explained in other documents in the [docs](./docs) directory. The following is the bare minimum steps to take to run Croquet Microverse on your computer:
 
+## Prerequisite
+1. Npm. Please refer to the installation page on [npmjs.com](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+2. Git. Please refer to the installation page on [git-scm.com](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+
+Npm and git are large software packages and explaining them is not in the scope of this document. We only use their most basic features. So if you don't have those packages on your computer yet, look for the simplest installation method for your platform.
 
 ## The First Steps to Run
 1. Clone or fork the Github repository from <https://github.com/croquet/microverse-builder>.
