@@ -289,7 +289,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         normal[1] = 0;
         let nsq = v3_sqrMag(normal);
         let rotPoint;
-        if(nsq > 0.0001){
+        if (nsq > 0.0001) {
             normal = v3_normalize(normal);
             let theta = Math.atan2(normal[0], normal[2]);
             rotPoint = q_euler(0, theta, 0);
@@ -304,6 +304,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         let options = {
             name:'sticky note',
             className: "TextFieldActor",
+            behaviorModules: ["StickyNote"],
             translation: tackPoint,
             rotation: rotPoint,
             multiusexor: true,
@@ -718,8 +719,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     collidePortal(){
-        let portalLayer = this.service("ThreeRenderManager").threeLayer('portal');
-        if(!portalLayer)return false; 
+        let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
+        if(!portalLayer)return false;
 
         let dir = v3_sub(this.translation, this.lastTranslation);
         // not moving then return false

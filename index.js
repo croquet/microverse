@@ -10,7 +10,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "menu.js", "elected.js", "propertySheet.js", "rapier.js"
+    "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js"
 ];
 
 async function startMicroverse() {

@@ -10,7 +10,7 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js"
+        "menu.js", "elected.js", "propertySheet.js" "stickyNote.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/demoWorld";
