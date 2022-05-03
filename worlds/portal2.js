@@ -1,4 +1,4 @@
-// demoWorld2.js
+// tutorial2.js
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
@@ -13,7 +13,7 @@ export function init(Constants) {
         "menu.js", "elected.js", "propertySheet.js", "stickyNote.js"
     ];
 
-    Constants.UserBehaviorDirectory = "behaviors/demoWorld";
+    Constants.UserBehaviorDirectory = "behaviors/tutorial";
     Constants.UserBehaviorModules = [
         "lights.js", "gridFloor.js", "joeTheBox.js"
     ];
