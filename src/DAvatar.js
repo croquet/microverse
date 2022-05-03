@@ -1137,7 +1137,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.say("setFloor", p, 100);
     }
 
-    loadFromFile(data) {
+    loadFromFile(data, asScene) {
         let model = this.actor.wellKnownModel("ModelRoot");
 
         let array = new TextEncoder().encode(data);
@@ -1152,7 +1152,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             ind += 2880;
         }
 
-        this.publish(model.id, "loadDone", key);
+        this.publish(model.id, "loadDone", {asScene, key});
     }
 
     sendToShell(data) {

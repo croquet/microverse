@@ -668,8 +668,10 @@ export class BehaviorModelManager extends ModelService {
 
     loadLibraries(codeArray) {
         let changed = [];
+        let nameMap = new Map();
         codeArray.forEach((moduleDef) => {
             let {action, name, systemModule, filePath} = moduleDef;
+            let internalName = name;
             if (!action || action === "add") {
                 let def = {...moduleDef};
                 delete def.action;
@@ -680,7 +682,9 @@ export class BehaviorModelManager extends ModelService {
                     def.pawnBehaviors = new Map(def.pawnBehaviors);
                 }
 
-                name = this.createAvailableName(name, filePath); // it may be the same name
+                name = this.createAvailableName(internalName, filePath); // it may be the same name
+
+                nameMap.set(internalName, name);
 
                 this.externalNames.set(`${filePath}$${moduleDef.name}`, name);
                 this.moduleDefs.set(name, def);
@@ -765,12 +769,23 @@ export class BehaviorModelManager extends ModelService {
             }
         });
         this.publish(this.id, "callViewSetupAll", toPublish);
+        return nameMap;
     }
 
     save(optModuleNames) {
         let filtered = [...this.moduleDefs].filter(([_key, value]) => !value.systemModule);
         if (optModuleNames) {
             filtered = filtered.filter(([key, _value]) => optModuleNames.includes(key));
+            filtered = filtered.map(([key, m]) => {
+                let newM = {...m};
+                if (newM.filePath) {
+                    function randomString() {
+                        return Math.floor(Math.random() * 36 ** 10).toString(36);
+                    }
+                    newM.filePath = `${randomString()}/${randomString()}`;
+                }
+                return [key, newM];
+            });
         }
         return new Map([...filtered]);
     }

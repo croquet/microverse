@@ -204,11 +204,11 @@ class MyPlayerManager extends PlayerManager {
         this.publish("playerManager", "playerCountChanged");
     }
 
-    playerCreated(player) {
+    playerCreated(_player) {
         this.publish("playerManager", "playerCountChanged");
     }
 
-    playerDestroyed(player) {
+    playerDestroyed(_player) {
         this.publish("playerManager", "playerCountChanged");
     }
 }
@@ -317,13 +317,14 @@ class MyModelRoot extends ModelRoot {
         // the persistent data should never contain a system behavior
         if (version === "1") {
             let behaviorManager = this.service("BehaviorModelManager");
-            behaviorManager.loadLibraries([...moduleDefs.values()]);
+            return behaviorManager.loadLibraries([...moduleDefs.values()]);
         }
+        return null;
     }
 
-    load(array, version) {
+    load(cards, version) {
         if (version === "1") {
-            return CardActor.load(array, this, version);
+            return CardActor.load(cards, this, version);
         }
     }
 
@@ -355,7 +356,8 @@ class MyModelRoot extends ModelRoot {
         this.loadBuffer.push(buf);
     }
 
-    loadDone(key) {
+    loadDone(data) {
+        let {key, asScene} = data;
         if (key !== this.loadKey) {return;}
 
         let array = this.loadBuffer;
@@ -380,18 +382,18 @@ class MyModelRoot extends ModelRoot {
         if (savedData.version === "1") {
             let string = JSON.stringify(savedData.data);
             savedData.data = string;
-            this.loadFromFile(savedData);
+            this.loadFromFile(savedData, asScene);
         }
     }
 
-    loadFromFile({ _name, version, data }) {
+    loadFromFile({ _name, version, data }, asScene) {
         try {
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
 
-            this.loadBehaviorModules(json.behaviorModules, version);
+            let nameMap = this.loadBehaviorModules(json.behaviorModules, version);
             if (json.cards) {
-                this.load(json.cards, version);
+                this.load({array: json.cards, nameMap: asScene ? null : nameMap}, version);
             }
         } catch (error) {
             console.error("error in loading persistent data", error);

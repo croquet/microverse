@@ -265,7 +265,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
         let distance = (toWhom.distance || 6);
         distance = Math.min(distance * 0.7, 4);
-        if(avatar){
+        if (avatar) {
             let pose = avatar.dropPose(distance, [1, 0, 0]);
             if (!this.behaviorManager.modules.get("PropertySheet")) {return;}
             let menu = this.createCard({
@@ -321,7 +321,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         return saver.collectCardData(this, true);
     }
 
-    static load(array, world, version) {
+    static load(cards, world, version) {
+        let array;
+        let nameMap;
+        if (Array.isArray(cards)) {
+            array = cards;
+        } else {
+            array = cards.array;
+            nameMap = cards.nameMap;
+        }
         // it is supposed to load a JSONable structure from array, but a special case is made
         // for the parent property where you can give an actual object
         if (version === "1") {
@@ -367,6 +375,12 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
                 if (Array.isArray(card.dataRotation) && card.dataRotation.length === 3) {
                     options.dataRotation = q_euler(...card.dataRotation);
+                }
+
+                if (nameMap) {
+                    if (options.behaviorModules) {
+                        options.behaviorModules = options.behaviorModules.map((n) => nameMap.get(n) || n);
+                    }
                 }
 
                 let actor = Cls.create(options);
