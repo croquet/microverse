@@ -10,12 +10,12 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js"
+        "menu.js", "propertySheet.js", "stickyNote.js"
     ];
 
-    Constants.UserBehaviorDirectory = "behaviors/tutorial";
+    Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "lights.js", "gridFloor.js", "joeTheBox.js"
+        "lights.js"
     ];
 
     const frameColor = 0x888888;
@@ -58,17 +58,6 @@ export function init(Constants) {
                 color: 0xbbbbbb,
                 cornerRadius: 0.05,
                 depth: 0.05,
-                shadow: true,
-            }
-        },
-        {
-            card: {
-                name:"Joe the Box",
-                behaviorModules: ["JoeTheBox"],
-                layers: ["pointer"],
-                type: "object",
-                translation:[-4, 0.4, -10],
-                //rotation:[0, Math.pi/4, 0],
                 shadow: true,
             }
         },
