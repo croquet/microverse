@@ -96,13 +96,28 @@ class Shell {
         frame.style.width = "100%";
         frame.style.height = "100%";
         frame.style.border = "none";
-        frame.style.zIndex = -this.frames.size;
+        frame.style.zIndex = -this.frames.size; // put new frame behind all other frames
         frame.portalId = portalId;
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
         this.sendWindowType(frame);
         // console.log("add frame", portalId, url);
         return frame;
+    }
+
+    sortFrames(firstFrame, secondFrame) {
+        // we dont really support more than two frames yet,
+        // so for now we just make sure those two frames are on top
+        const sorted = [...this.frames.values()].sort((a, b) => {
+            if (a === firstFrame) return 1;
+            if (b === firstFrame) return -1;
+            if (a === secondFrame) return 1;
+            if (b === secondFrame) return -1;
+            return 0;
+        });
+        for (let i = 0; i < sorted.length; i++) {
+            sorted[i].style.zIndex = -i;
+        }
     }
 
     receiveFromPortal(fromPortalId, fromFrame, data) {
@@ -186,8 +201,7 @@ class Shell {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
         const targetURL = toFrame.src;
-        fromFrame.style.zIndex = -1;
-        toFrame.style.zIndex = 0;
+        this.sortFrames(fromFrame, toFrame);
         if (pushState) {
             window.history.pushState({
                 portalId: toFrame.portalId,
