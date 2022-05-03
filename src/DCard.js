@@ -164,16 +164,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         }
     }
 
-    sayDeck(message, vars){
-        if(this._parent !== undefined)this.publish(this._parent.id, message, vars);
-        else this.publish(this.id, message, vars);
-    }
-
-    listenDeck(message, method){
-        if(this._parent !== undefined)this.subscribe(this._parent.id, message, method);
-        else this.subscribe(this.id, message, method);
-    }
-
     get pawn() { return CardPawn; }
     get layers() { return this._layers || ['pointer']; }
     get isCard() {return true;}
@@ -348,7 +338,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
                     let runs = [{text: behavior ? behavior.code : ""}];
 
-                    options = {...options,
+                    options = {
+                        ...options,
                         isSticky: false,
                         backgroundColor: 0xFFFFFF,
                         textScale: options.textScale || 0.002,
@@ -1138,18 +1129,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         spec.lastTime = newTime;
 
         this.future(1000 / 20).runAnimation();
-    }
-
-    sayDeck(message, data) {
-        if (this.actor._parent) {
-            return this.publish(this.actor._parent.id, message, data);
-        }
-        this.publish(this.actor.id, message, data);
-    }
-
-    listenDeck(message, method) {
-        if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
-        else this.subscribe(this.actor.id, message, method);
     }
 
     selectEdit(){

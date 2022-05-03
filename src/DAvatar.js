@@ -60,7 +60,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
     }
 
     setVelocitySpin(vq) {
-        super.setVelocitySpin(vq);
+        super.setSpin(vq[0]);
+        super.setVelocity(vq[1]);
         this.leavePresentation();
     }
 
@@ -771,6 +772,11 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 return true;
             }else {this.isFalling = false; return true; }// we are on level ground
         }return false; // try to find the ground...
+    }
+
+    setVelocitySpin(vq) {
+        super.setVelocity(vq[0]);
+        super.setSpin(vq[1]);
     }
 
     startMMotion(e) {

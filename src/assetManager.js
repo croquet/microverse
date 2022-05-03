@@ -1,6 +1,7 @@
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
-// info@croquet.io/* globals JSZip Croquet */
+// info@croquet.io
+/* globals JSZip */
 
 const MAX_IMPORT_MB = 100; // aggregate
 
@@ -41,7 +42,7 @@ export class AssetManager {
 
     checkFile(entry, item, importSizeChecker) {
         if (entry.isDirectory) {
-            return this.analyzeDirectory(entry, importSizeChecker).catch((err) => {
+            return this.analyzeDirectory(entry, importSizeChecker).catch((_err) => {
                 throw new Error("directory could not be zipped");
             });
             // returns {zip, type}
@@ -64,7 +65,6 @@ export class AssetManager {
 
     async handleFileDrop(items) {
         const importSizeChecker = new ImportChecker();
-        const specPromises = [];
 
         if (items.length > 1) {
             console.warn("multiple files or dirs dropped");
@@ -92,7 +92,7 @@ export class AssetManager {
         const processEntries = () => {
             const { path, entry, depth } = todo.pop();
             if (entry.isDirectory) {
-                return new Promise((resolve, reject) => {
+                return new Promise((resolve, _reject) => {
                     entry.createReader().readEntries(entries => {
                         for (const entryInDir of entries) {
                             todo.push({ path: entryInDir.fullPath, entry: entryInDir, depth: depth + 1 });
@@ -125,7 +125,7 @@ export class AssetManager {
             }
         };
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve, _reject) => {
             while (todo.length > 0) {
                 await processEntries();
             }
@@ -200,7 +200,6 @@ export class AssetManager {
         };
     }
 
-
     use(dataId, userId) {
         let obj = this.assetCache[dataId];
         if (!obj) {return null;}
@@ -221,7 +220,7 @@ export class AssetManager {
     revoke(dataId, userId) {
         let obj = this.assetCache[dataId];
         if (!obj) {return null;}
-        let {buffer, objectURL, blob, userIds} = obj;
+        let {_buffer, objectURL, _blob, userIds} = obj;
         let ind = userIds.indexOf(userId);
         if (ind >= 0) {
             userIds.splice(ind, 1);
@@ -331,7 +330,7 @@ export class Loader {
             return zip.file(name).async("uint8array").then((content) => {
                 let blob = new Blob([content], {type: `image/${type}`});
                 let reader = new FileReader();
-                return new Promise((resolve, reject) => {
+                return new Promise((resolve, _reject) => {
                     reader.addEventListener("load", () => {
                         imgContents[localName] = reader.result;
                         resolve(reader.result);
@@ -453,14 +452,14 @@ export class Loader {
 
         return getBuffer().then((data) => {
             let loader = new THREE.GLTFLoader();
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve, _reject) => {
                 let draco = new THREE.DRACOLoader();
                 draco.setDecoderConfig({type: 'wasm'});
                 draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
                 loader.setDRACOLoader(draco);
                 return loader.parse(data, null, (obj) => resolve(obj));
             }).then((loaded) => {
-                let {scene, scenes, cameras, animations} = loaded;
+                let {scene, animations} = loaded;
                 if (animations.length > 0) {
                     const mixer = new THREE.AnimationMixer(scene);
                     mixer.clipAction(animations[0]).play();
@@ -483,8 +482,8 @@ export class Loader {
 
         let contents = await setupFiles();
 
-        let svg = await new Promise((resolve, reject) => {
-            const {fullBright, color, frameColor, depth, shadow, singleSided} = options;
+        let svg = await new Promise((resolve, _reject) => {
+            const {fullBright, color, frameColor, depth, _shadow, _singleSided} = options;
             const M = fullBright ? THREE.MeshBasicMaterial : THREE.MeshStandardMaterial;
             const loader = new THREE.SVGLoader();
             let offset = 0;
@@ -498,17 +497,19 @@ export class Loader {
                         let material = new M( {
                             color: new THREE.Color().setStyle( fillColor ),
                             opacity: path.userData.style.fillOpacity,
-                            side: (depth?THREE.FrontSide:THREE.DoubleSide),
+                            side: (depth ? THREE.FrontSide : THREE.DoubleSide),
                         } );
-                        if(color)material.color=new THREE.Color(color);
+                        if(color)material.color = new THREE.Color(color);
                         if(depth)material = [material, new THREE.MeshStandardMaterial({color:frameColor, metalness:1.0})];
                         const shapes = THREE.SVGLoader.createShapes( path );
                         for ( let j = 0; j < shapes.length; j ++ ) {
                             const shape = shapes[ j ];
                             let geometry;
-                            if(depth)
-                                geometry = new THREE.ExtrudeGeometry( shape, {depth:1+offset, bevelEnabled:false})
-                            else geometry = new THREE.ShapeGeometry( shape );
+                            if (depth) {
+                                geometry = new THREE.ExtrudeGeometry( shape, {depth: 1 + offset, bevelEnabled:false})
+                            } else {
+                                geometry = new THREE.ShapeGeometry( shape );
+                            }
                             const mesh = new THREE.Mesh( geometry, material );
                             mesh.position.z += depth;
                             offset += 0.002;
@@ -546,10 +547,6 @@ export class Loader {
         });
         return svg;
     }
-
-//    importIMG(buffer, options, THREE) {
-//        return {"img": URL.createObjectURL(new Blob([buffer]))};
-//    }
 
     async importIMG(buffer, options, THREE) {
         let objectURL = URL.createObjectURL(new Blob([buffer]));
@@ -624,9 +621,11 @@ export function normalizeSVG(svgGroup, depth, shadow, three) {
         let sc = 1 / mx;
         svgGroup.position.multiplyScalar(sc);
         let sg = svgGroup.scale;
-        if(depth)
-            svgGroup.scale.set(sg.x*sc, sg.y*sc, depth);
-        else svgGroup.scale.multiplyScale(sc);
+        if (depth) {
+            svgGroup.scale.set(sg.x * sc, sg.y * sc, depth);
+        } else {
+            svgGroup.scale.multiplyScale(sc);
+        }
     }
 
     svgGroup.traverse(obj => {
@@ -648,8 +647,8 @@ function normalizeUV(uvArray, uvNormal, bb) {
     let index = 0;
     let count = 0;
     for(let i = 0; i < uvArray.length;i++) {
-        count+=index;
-        if(!uvNormal[count*3]+2){ // if z is 0, then do nothing
+        count += index;
+        if(!uvNormal[count * 3] + 2) { // if z is 0, then do nothing
             uvArray[i] = (uvArray[i] - o[index]) * s[index];
             if (index) uvArray[i] = 1 - uvArray[i];
         }
@@ -676,7 +675,7 @@ function boundingBox(obj, bigBox, depth) {
     if (obj.children) {
         obj.children.forEach(child => boundingBox(child, bigBox, depth + 1));
     }
-        return bigBox;
+    return bigBox;
 }
 
 function extent3D(obj, bb) {
@@ -705,11 +704,12 @@ export function addTexture(group, texture) {
     //const texture = new THREE.TextureLoader().load(url);
     group.traverse((child) => {
         if (child.material) {
-            if(Array.isArray(child.material)){
+            if(Array.isArray(child.material)) {
                 child.material[0].map = texture;
                 //child.material[2].map = texture;
+            } else {
+                child.material.map = texture;
             }
-            else child.material.map = texture;
         }
     });
 }
@@ -717,11 +717,12 @@ export function addTexture(group, texture) {
 export function addEnvMap(group, envMap){
     group.traverse((child) => {
         if (child.material) {
-            if(Array.isArray(child.material)){
+            if (Array.isArray(child.material)) {
                 child.material[0].envMap = envMap;
                 child.material[1].envMap = envMap;
+            } else {
+                child.material.envMap = envMap;
             }
-            else child.material.envMap = envMap;
         }
     });
 }

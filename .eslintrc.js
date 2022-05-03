@@ -59,6 +59,8 @@ module.exports = {
     'no-undef': [ 'error', { "typeof": true }],
     'no-use-before-define': [ 'off' ],
 
+    "no-dupe-class-members": "error",
+
     'no-template-curly-in-string': [ 'warn' ],
 
     "no-prototype-builtins": ["off"],
