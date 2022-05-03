@@ -145,7 +145,8 @@ class Shell {
                 this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, url});
                 return;
             case "croquet:microverse:portal-update":
-                if (data.cameraMatrix && data.portalId === this.currentFrame.portalId) return; // don't let inner world modify outer world
+                const toFrame = this.frames.get(data.portalId);
+                if (+fromFrame.style.zIndex <= +toFrame.style.zIndex) return; // don't let inner world modify outer world
                 this.sendToPortal(data.portalId, {...data, portalId: undefined});
                 return;
             case "croquet:microverse:portal-enter":
