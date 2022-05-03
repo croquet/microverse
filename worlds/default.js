@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "bridge.js", "flightTracker.js", "spin.js", "lights.js",
+        "demo.js", "bitcoinTracker.js", "flightTracker.js", "spin.js", "lights.js",
         "slides.js", "collider.js",
     ];
 
@@ -23,10 +23,10 @@ export function init(Constants) {
     const frameColor = 0x888888;
     const cardHeight = 0.5;
 
-    const baseY = -1;
+    const baseY = 6;
     const wallHeight = 3;
     const wallThick = 0.2;
-    const bt = [-20, baseY, 53]; // bt for base translation
+    const bt = [-20, baseY, 48]; // bt for base translation
     const baseSize = [20, 1, 20];
     const half = baseSize[0] / 2;
     const wallBase = bt[1] + wallHeight / 2 + baseSize[1] / 2;
@@ -281,14 +281,6 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"bridge",
-                type: "object",
-                translation: [4, cardHeight, 12],
-                behaviorModules: ["Bridge"],
-            }
-        },
-        {
-            card: {
                 name: "bitcointracker",
                 translation: [-4, cardHeight, -6],
                 rotation: [0, Math.PI / 2, 0],
@@ -335,25 +327,12 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"kill plane",
-                type: "object",
-                translation: [bt[0], bt[1] - 3, bt[2]],
-                behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [baseSize[0] * 3, baseSize[1] * 3, baseSize[2] * 3],
-                color: 0x997777,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                rapierSensor: true,
-                shadow: true,
-            }
-        },
-        
-        {
-            card: {
                 name:"base",
                 type: "object",
                 layers: ["pointer"],
+                rotation: [-Math.PI / 6, 0, 0],
                 translation: bt,
+
                 behaviorModules: ["Rapier", "Collider"],
                 rapierSize: baseSize,
                 color: 0x997777,
@@ -364,27 +343,15 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"base 1",
-                type: "object",
-                layers: ["pointer"],
-                translation: [bt[0] - wallThick / 2, wallBase, bt[2] + half - wallThick / 2],
-                behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [baseSize[0] - wallThick, wallHeight, wallThick],
-                color: 0xbb6666,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
-            }
-        },
-        {
-            card: {
                 name:"base 2",
                 type: "object",
                 layers: ["pointer"],
-                translation: [bt[0] + half - wallThick / 2, wallBase, bt[2] + wallThick / 2],
+
+                translation: [bt[0], -0.9588848050836909, bt[2] - 13.3],
+                rotation: [-Math.PI / 8, 0, 0],
                 behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [wallThick, wallHeight, baseSize[0] - wallThick],
-                color: 0xbb6666,
+                rapierSize: [baseSize[0], baseSize[1], baseSize[2] / 2],
+                color: 0x997777,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
                 shadow: true,
@@ -392,69 +359,16 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"base 3",
+                name:"spray",
                 type: "object",
                 layers: ["pointer"],
-                translation: [bt[0] + wallThick / 2, wallBase, bt[2] - half + wallThick / 2],
-                behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [baseSize[0] - wallThick, wallHeight, wallThick],
-                color: 0xbb6666,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
-            }
-        },
-        {
-            card: {
-                name:"base 4",
-                type: "object",
-                layers: ["pointer"],
-                translation: [bt[0] - half + wallThick / 2, wallBase, bt[2] - wallThick / 2],
-                behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [wallThick, wallHeight, baseSize[0] - wallThick],
-                color: 0xbb6666,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
-            }
-        },
-        {
-            card: {
-                name:"c1",
-                type: "object",
-                layers: ["pointer"],
-                translation: [bt[0] + 1, 20, bt[2] - 1],
-                behaviorModules: ["Rapier", "Collider"],
+                multiuser: true,
+                translation: [bt[0], 20, bt[2] + 2],
+                behaviorModules: ["Spray", "Rapier", "Collider"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
-                color: 0xff0000,
-                shadow: true,
-            }
-        },
-        {
-            card: {
-                name:"c2",
-                type: "object",
-                layers: ["pointer"],
-                translation: [bt[0] - 1, 19, bt[2]],
-                behaviorModules: ["Rapier", "Collider"],
-                rapierSize: [1, 1, 1],
-                rapierShape: "cuboid",
-                color: 0x00ff00,
-                shadow: true,
-            }
-        },
-        {
-            card: {
-                name:"c3",
-                type: "object",
-                layers: ["pointer"],
-                translation: [bt[0], 25, bt[2] + 1],
-                scale: [0.25, 0.25, 0.25],
-                behaviorModules: ["Rapier", "Elected", "FlightTracker", "Collider"],
-                rapierSize: 2,
-                rapierShape: "ball",
-                color: 0x0000ff,
+                rapierType: "positionBased",
+                color: 0xcccccc,
                 shadow: true,
             }
         },
@@ -462,9 +376,10 @@ export function init(Constants) {
             card: {
                 name:"wooden box",
                 type: "object",
+                multiuser: true,
                 layers: ["pointer"],
-                translation:[bt[0] + 2, 22, bt[2] - 1],
-                behaviorModules: ["Rapier", "Slides", "Collider"],
+                translation:[bt[0] + 2, 0.5, bt[2] - 1],
+                behaviorModules: ["Slides"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
                 shadow: true,
