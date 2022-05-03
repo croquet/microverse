@@ -6,7 +6,7 @@ import {
     v3_transform, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
-import { PM_Pointer} from "./Pointer.js";
+import {PM_Pointer} from "./Pointer.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
 import {setupWorldMenuButton} from "./worldMenu.js";
@@ -15,7 +15,7 @@ let avatarModelPromises = [];
 export let EYE_HEIGHT = 1.676;
 export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
-export let PORTAL_DISTANCE = 1; 
+export let PORTAL_DISTANCE = 1;
 export let isMobile = !!("ontouchstart" in window);
 
 export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
@@ -42,12 +42,12 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
     }
-    get pawn() {return AvatarPawn};
-    get lookPitch() {return this._lookPitch || 0;};
-    get lookYaw() {return this._lookYaw || 0;};
-    get lookNormal() {return v3_rotate([0,0,-1], this.rotation);}
-    get collisionRadius() { return this._collisionRadius || 0.375}
-    get inWorld() {return !!this._inWorld;}   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
+    get pawn() { return AvatarPawn; }
+    get lookPitch() { return this._lookPitch || 0; }
+    get lookYaw() { return this._lookYaw || 0; }
+    get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
+    get collisionRadius() { return this._collisionRadius || 0.375; }
+    get inWorld() { return !!this._inWorld; }   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
 
     setSpin(q) {
         super.setSpin(q);
@@ -149,7 +149,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             this.vEnd = v3_add(point, v3_scale(normal, p3d.offset));
             normal[1] = 0; // clear up and down
             let nsq = v3_sqrMag(normal);
-            if(nsq < 0.0001){
+            if (nsq < 0.0001) {
                 this.qEnd = this.rotation; // use the current rotation
             }else {
                 normal = v3_normalize(normal);
@@ -198,19 +198,19 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.follow = null;
     }
 
-    goToStep(delta, t){
+    goToStep(delta, t) {
         if (!t) t = delta;
         if (t >= 1) t = 1;
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t);
         this.set({translation: v, rotation: q})
-        if(t < 1) this.future(50).goToStep(delta, t + delta);
+        if (t < 1) this.future(50).goToStep(delta, t + delta);
     }
 
     tick(delta) {
-        if(this.follow) {
+        if (this.follow) {
             let followMe = this.service("PlayerManager").players.get(this.follow);
-            if(followMe) {
+            if (followMe) {
                 this.moveTo(followMe.translation);
                 this.rotateTo(followMe.rotation);
                 this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch, lookOffset: followMe.lookOffset});
@@ -349,8 +349,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             this.walkCamera = new THREE.Object3D();
 
-            this.walkcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ));
-            this.portalcaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
+            this.walkcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0));
+            this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
@@ -507,7 +507,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.AvatarNames.length));
     }
 
-    get lookOffset(){ return this._lookOffset || [0,0,0]; }
+    get lookOffset() { return this._lookOffset || [0,0,0]; }
     get lookPitch() { return this._lookPitch || 0; }
     get lookYaw() { return this._lookYaw || 0; }
 
@@ -641,7 +641,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         super.update(time, delta);
         if (!this.isMyPlayerPawn || !this.actor.inWorld) {return;}
 
-        if(this.isFalling) {
+        if (this.isFalling) {
             let t = this._translation;
             this._translation = [t[0], this.floor, t[2]];
         }
@@ -649,7 +649,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
         if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
         this.lastUpdateTime = time;
-        if(this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
+        if (this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
         if (this.actor.fall && !this.collide()) {
             if (this.translation !== this.lastTranslation) {
                 this.setTranslation(this.lastTranslation);
@@ -659,7 +659,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.lastTranslation = this.translation;
     }
 
-    collideBVH(collideList){
+    collideBVH(collideList) {
 
         // uses:
         // https://github.com/gkjohnson/three-mesh-bvh
@@ -670,7 +670,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         const radius = this.actor.collisionRadius;
         let head = EYE_HEIGHT/6;
         let newPosition = [...this._translation];
-        
+
         collideList.forEach(c => {
             let iMat = new THREE.Matrix4();
             iMat.copy(c.matrixWorld).invert();
@@ -678,7 +678,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let v = new THREE.Vector3(...newPosition);
             v.applyMatrix4(iMat); // shift this into the BVH frame
 
-            let segment = new THREE.Line3( v.clone(), v.clone());
+            let segment = new THREE.Line3(v.clone(), v.clone());
 
             segment.start.y += (head-radius);
             segment.end.y -= (EYE_HEIGHT-radius);
@@ -687,56 +687,56 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             cBox.max.set(v.x+radius, v.y+EYE_HEIGHT/6, v.z+radius);
             let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
-                intersectsBounds: box => box.intersectsBox( cBox ),
+                intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
-                    const distance = tri.closestPointToSegment( segment, triPoint, capsulePoint );
-                    if ( distance < radius ) {
+                    const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
+                    if (distance < radius) {
                         const depth = radius - distance;
-                        const direction = capsulePoint.sub( triPoint ).normalize();
-        
-                        segment.start.addScaledVector( direction, depth );
-                        segment.end.addScaledVector( direction, depth );
+                        const direction = capsulePoint.sub(triPoint).normalize();
+
+                        segment.start.addScaledVector(direction, depth);
+                        segment.end.addScaledVector(direction, depth);
                     }
-        
+
                 }
             });
 
             newPosition = segment.start;
-            newPosition.applyMatrix4( c.matrixWorld ); // convert back to world coordinates
+            newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
             newPosition.y -= (head-radius);
 
-            let deltaV = [newPosition.x - this.translation[0], 
-                newPosition.y - this.translation[1], 
+            let deltaV = [newPosition.x - this.translation[0],
+                newPosition.y - this.translation[1],
                 newPosition.z - this.translation[2]
             ];
         })
-        if(newPosition !== undefined) this.setTranslation(newPosition.toArray());
+        if (newPosition !== undefined) this.setTranslation(newPosition.toArray());
     }
 
-    hitPawn(obj3d){
+    hitPawn(obj3d) {
 
-        while(obj3d){
-            if(obj3d.wcPawn)return obj3d.wcPawn;
+        while (obj3d) {
+            if (obj3d.wcPawn) return obj3d.wcPawn;
             obj3d = obj3d.parent;
         }
         return undefined;
     }
 
-    collidePortal(){
+    collidePortal() {
         let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
-        if(!portalLayer)return false;
+        if (!portalLayer) return false;
 
         let dir = v3_sub(this.translation, this.lastTranslation);
         // not moving then return false
-        if(!dir.some(item=>item !==0))return false;
+        if (!dir.some(item => item !== 0)) return false;
 
         dir = v3_normalize(dir);
-        this.portalcaster.ray.direction.set( ...dir);
-        this.portalcaster.ray.origin.set( ...this.translation);
-        const intersections = this.portalcaster.intersectObjects( portalLayer, true );
-        if(intersections.length>0){
+        this.portalcaster.ray.direction.set(...dir);
+        this.portalcaster.ray.origin.set(...this.translation);
+        const intersections = this.portalcaster.intersectObjects(portalLayer, true);
+        if (intersections.length>0) {
             let portal = this.hitPawn(intersections[0].object);
-            if(portal!==undefined){
+            if (portal) {
                 portal.enterPortal();
                 return true;
             }
@@ -744,30 +744,29 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         return false;
     }
 
-    collide(){
-
-        if(this.collidePortal())return true; 
+    collide() {
+        if (this.collidePortal()) return true;
 
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
-        if(!walkLayer)return false;
+        if (!walkLayer) return false;
 
         // first check for BVH colliders
         // let collideList = walkLayer.filter(obj => obj.collider);
-        // if(collideList.length>0) { this.collideBVH(collideList); return true; }
+        // if (collideList.length>0) { this.collideBVH(collideList); return true; }
 
         // then check for floor objects
         //walkLayer = walkLayer.filter(obj=> !obj.collider);
-        //if(walkLayer.length === 0)return false;
+        //if(walkLayer.length === 0) return false;
 
-        this.walkcaster.ray.origin.set( ...this.translation);
-        const intersections = this.walkcaster.intersectObjects( walkLayer, true );
+        this.walkcaster.ray.origin.set(...this.translation);
+        const intersections = this.walkcaster.intersectObjects(walkLayer, true);
 
-        if(intersections.length > 0){
+        if (intersections.length > 0) {
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront-EYE_HEIGHT, EYE_HEIGHT/8); // can only fall 1/8 EYE_HEIGHT at a time
-            if(Math.abs(delta)>EYE_EPSILON){ // moving up or down...
+            if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
                 let t = this.translation;
-                let p = t[1]-delta;
+                let p = t[1] - delta;
                 this.isFalling  = true;
                 this.setFloor(p);
                 return true;
@@ -775,7 +774,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }return false; // try to find the ground...
     }
 
-    startMMotion( e ){
+    startMMotion(e) {
         e.preventDefault();
         e.stopPropagation();
         this.knobX = e.clientX;
@@ -785,7 +784,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.basePosition = e.xy;
     }
 
-    endMMotion( e ){
+    endMMotion(e) {
         e?.preventDefault();
         e?.stopPropagation();
         this.activeMMotion = false;
@@ -799,7 +798,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         e.preventDefault();
         e.stopPropagation();
 
-        if( this.activeMMotion ){
+        if (this.activeMMotion) {
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
 
@@ -824,9 +823,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doKeyDown(e){
+    doKeyDown(e) {
         super.doKeyDown(e);
-        switch(e.key){
+        switch(e.key) {
             case 'Shift': this.shiftKey = true; break;
             case 'Control': this.ctrlKey = true; break;
             case 'Alt': this.altKey = true; break;
@@ -848,8 +847,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.setVelocity([0, 0, 0.01]);
                 break;
             default:
-                if(this.ctrlKey){
-                    switch(e.key){
+                if (this.ctrlKey) {
+                    switch(e.key) {
                         case 'a':
                             console.log("MyAvatar");
                             console.log("translation: ",this.actor.translation);
@@ -858,7 +857,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                             console.log("scale:", this.actor.scale);
                             break;
                         case 'p':
-                            if(this.profiling){
+                            if (this.profiling) {
                                 console.log("end profiling");
                                 console.profileEnd("profile");
                                 this.profiling = false;
@@ -874,9 +873,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doKeyUp(e){
+    doKeyUp(e) {
         super.doKeyUp(e);
-        switch(e.key){
+        switch(e.key) {
             case 'Shift': this.shiftKey = false; break;
             case 'Control': this.ctrlKey = false; break;
             case 'Alt': this.altKey = false; break;
@@ -903,7 +902,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.say("addSticky", pe);
     }
 
-    xy2yp(xy){
+    xy2yp(xy) {
         let camera = this.service("ThreeRenderManager").camera;
         let fov = camera.fov/2;
         let h = window.innerHeight/2;
@@ -912,9 +911,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         return[c*(xy[0]-w), c*(h-xy[1])];
     }
 
-    doPointerTap(e){
-        if(this.editPawn){ // this gets set in doPointerDown
-//            if(this.editMode){ // if we are in edit mode, clear it
+    doPointerTap(e) {
+        if (this.editPawn) { // this gets set in doPointerDown
+//            if (this.editMode) { // if we are in edit mode, clear it
                 this.editPawn.unselectEdit();
                 this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
                 this.editPawn = null;
@@ -943,8 +942,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }*/
     }
 
-    doPointerDown(e){
-        if(this.ctrlKey || this.editPawn){
+    doPointerDown(e) {
+        if (this.ctrlKey || this.editPawn) {
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer')); // add walk if you want to edit the world
             this.targetDistance = rc.distance;
@@ -953,8 +952,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             let pawn = GetPawn(p3e.targetId);
             pawn = pawn || null;
 
-            if(this.editPawn !== pawn){
-                if(this.editPawn){
+            if (this.editPawn !== pawn) {
+                if (this.editPawn) {
                     console.log('doPointerDown clear old editPawn')
                     this.editPawn.unselectEdit();
                     this.editPawn = null;
@@ -962,13 +961,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 }
                 console.log('doPointerDown set new editPawn', pawn)
                 this.editMode = false; // this gets set later
-                if(pawn){
+                if (pawn) {
                     this.editPawn = pawn;
                     this.editPointerId = e.id;
                     this.editPawn.selectEdit();
                     this.isPointerDown = true;
                     this.buttonDown = e.button;
-                    if(!p3e.normal){p3e.normal = this.actor.lookNormal}
+                    if (!p3e.normal) {p3e.normal = this.actor.lookNormal}
                     this.p3eDown = p3e;
                 }
             }else{
@@ -976,29 +975,29 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             }
         } else {
             super.doPointerDown(e);
-            if(!this.focusPawn){
+            if (!this.focusPawn) {
                 this.dragWorld = this.xy2yp(e.xy);
                 this._lookYaw = q_yaw(this._rotation);
             }
         }
     }
 
-    doPointerMove(e){
-        if(this.editMode){ // pawn is in an edit mode
-            if(this.isPointerDown){
+    doPointerMove(e) {
+        if (this.editMode) { // pawn is in an edit mode
+            if (this.isPointerDown) {
                 console.log('doPointerMove editMode')
             }
-        }else if(this.editPawn){
+        }else if (this.editPawn) {
             // pawn is in drag mode
             if (e.id === this.editPointerId) {
-                if(this.buttonDown === 0)
+                if (this.buttonDown === 0)
                     this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
-                else if(this.buttonDown == 2)
+                else if (this.buttonDown == 2)
                     this.editPawn.rotatePlane(this.setRayCast(e.xy), this.p3eDown);
             }
         }else {
             super.doPointerMove(e);
-            if(!this.focusPawn && this.isPointerDown){
+            if (!this.focusPawn && this.isPointerDown) {
                 let yp = this.xy2yp(e.xy);
                 let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0])* this.yawDirection);
                 let pitch = this._lookPitch + this.dragWorld[1] -yp[1];
@@ -1082,7 +1081,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.say("goHome", [[0,0,0], [0,0,0,1]]);
     }
 
-    comeToMe(){
+    comeToMe() {
         let manager = this.actor.service("PlayerManager");
         if (!manager.presentationMode) {
             this.say("comeToMe");
@@ -1094,7 +1093,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    jumpToNote(isShift){
+    jumpToNote(isShift) {
         // collect the notes
         // console.log(this.actor.service('CardManager').cards);
         // jump to the next one or last
@@ -1116,13 +1115,13 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    setTranslation(v){
+    setTranslation(v) {
         this._translation = v;
         this.onLocalChanged();
         this.say("setTranslation", v);
     }
 
-    setFloor(p){
+    setFloor(p) {
         // we don't want to touch the x/z values because they are
         // computed from avatar velocity. _translation x/z values are old.
         let t = this._translation;
