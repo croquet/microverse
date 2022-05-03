@@ -588,10 +588,16 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         // visually nothing should change, so we need this avatar's position relative to the portal, as well as
         // its look pitch and offset. This will be passed to windowTypeChanged() in the target world.
         const t = m4_invert(portal.global);
-        const m = m4_multiply(t, this.global);
+        const m = m4_multiply(this.global, t);
+        // const log = (c, m) => console.log(c+"\n"+m.map((v, i) => +v.toFixed(2) + (i % 4 == 3 ? "\n" : ",")).join(''));
+        // log("portal", portal.global);
+        // log("avatar", this.global);
+        // log("m", m);
+        const translation = m4_getTranslation(m);
+        const rotation = m4_getRotation(m);
         return {
-            // translation: m4_getTranslation(m),
-            // rotation: m4_getRotation(m),
+            translation,
+            rotation,
             pitch: this._lookPitch,
             yaw: this._lookYaw,
             lookOffset: this._lookOffset,
