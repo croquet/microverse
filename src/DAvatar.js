@@ -426,7 +426,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                     case "croquet:microverse:portal-update":
                         if (!this.actor.inWorld) {
                             const { cameraMatrix } = e.data;
-                            if (cameraMatrix) this.portalLook = cameraMatrix;
+                            if (cameraMatrix) {
+                                this.portalLook = cameraMatrix;
+                                this.refreshCameraTransform();
+                            }
                         }
                         break;
                 }
@@ -636,7 +639,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     update(time, delta) {
         super.update(time, delta);
-        if (!this.isMyPlayerPawn) {return;}
+        if (!this.isMyPlayerPawn || !this.actor.inWorld) {return;}
 
         if(this.isFalling) {
             let t = this._translation;
