@@ -105,14 +105,14 @@ class Shell {
         return frame;
     }
 
-    sortFrames(firstFrame, secondFrame) {
+    sortFrames(mainFrame, portalFrame) {
         // we dont really support more than two frames yet,
         // so for now we just make sure those two frames are on top
         const sorted = [...this.frames.values()].sort((a, b) => {
-            if (a === firstFrame) return 1;
-            if (b === firstFrame) return -1;
-            if (a === secondFrame) return 1;
-            if (b === secondFrame) return -1;
+            if (a === mainFrame) return -1;
+            if (b === mainFrame) return 1;
+            if (a === portalFrame) return -1;
+            if (b === portalFrame) return 1;
             return 0;
         });
         for (let i = 0; i < sorted.length; i++) {
@@ -202,7 +202,7 @@ class Shell {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
         const targetURL = toFrame.src;
-        this.sortFrames(fromFrame, toFrame);
+        this.sortFrames(toFrame, fromFrame);
         if (pushState) {
             window.history.pushState({
                 portalId: toFrame.portalId,
