@@ -114,9 +114,34 @@ class ColliderPawn {
 
 class SprayActor {
     setup() {
-        this.running = true;
-        this.spray();
+        if (this.running === undefined) {
+            this.running = true;
+            this.spray();
+        }
         this.addEventListener("pointerDown", "toggle");
+    }
+
+    randomColor() {
+        let h = Math.random();
+        let s = 0.8;
+        let v = 0.8;
+        let r, g, b, i, f, p, q, t;
+        i = Math.floor(h * 6);
+        f = h * 6 - i;
+        p = v * (1 - s);
+        q = v * (1 - f * s);
+        t = v * (1 - (1 - f) * s);
+        switch (i % 6) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+        }
+        return ((Math.round(r * 255) << 16) +
+                (Math.round(g * 255) << 8) +
+                Math.round(b * 255))
     }
 
     spray() {
@@ -129,7 +154,6 @@ class SprayActor {
         let z = Math.random() * -100;
         let shape;
         let size;
-        let color;
 
         let dice = Math.random();
 
@@ -137,14 +161,13 @@ class SprayActor {
             this.createCard({
                 name:"earth",
                 type: "object",
-                translation: [bt[0] - 1, 19, bt[2] - 2],
+                translation: [bt[0], 19, bt[2] - 2],
                 layers: ["pointer"],
                 scale: [0.25, 0.25, 0.25],
                 behaviorModules: ["Rapier", "FlightTracker", "Collider"],
                 rapierSize: 2,
                 rapierShape: "ball",
                 rapierForce: {x, y: 100, z},
-                color: 0x0000ff,
                 shadow: true,
             });
             return;
@@ -154,7 +177,7 @@ class SprayActor {
             this.createCard({
                 name:"wooden box",
                 type: "object",
-                translation: [bt[0] - 1, 19, bt[2] - 2],
+                translation: [bt[0], 19, bt[2] - 2],
                 layers: ["pointer"],
                 behaviorModules: ["Rapier", "Slides", "Collider"],
                 rapierSize: [1, 1, 1],
@@ -166,20 +189,20 @@ class SprayActor {
             return;
         }
 
+        let color = this.randomColor();
+
         if (dice < 0.6) {
             shape = "cuboid";
             size = [1, 1, 1];
-            color = 0xdd2222;
         } else {
             shape = "ball";
             size = 2;
-            color = 0x22dd22;
         }
 
         this.createCard({
             type: "object",
             layers: ["pointer"],
-            translation: [bt[0] - 1, 19, bt[2] - 2],
+            translation: [bt[0], 19, bt[2] - 2],
             behaviorModules: ["Rapier", "Collider"],
             rapierSize: size,
             rapierForce: {x, y: 100, z},

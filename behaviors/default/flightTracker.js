@@ -112,6 +112,7 @@ class FlightTrackerPawn {
         const vertices = [];
         let e = new THREE.Euler();
         let v = new THREE.Vector3();
+        if (!this.actor.planes) {return;}
         this.actor.planes.forEach(val=>{
             // val[1] long
             // val[2] lat
