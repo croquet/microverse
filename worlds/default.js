@@ -329,10 +329,9 @@ export function init(Constants) {
             card: {
                 name:"base",
                 type: "object",
-                layers: ["pointer"],
+                layers: ["pointer", "walk"],
                 rotation: [-Math.PI / 6, 0, 0],
                 translation: bt,
-
                 behaviorModules: ["Rapier", "Collider"],
                 rapierSize: baseSize,
                 color: 0x997777,
@@ -345,8 +344,7 @@ export function init(Constants) {
             card: {
                 name:"base 2",
                 type: "object",
-                layers: ["pointer"],
-
+                layers: ["pointer", "walk"],
                 translation: [bt[0], -0.9588848050836909, bt[2] - 13.3],
                 rotation: [-Math.PI / 8, 0, 0],
                 behaviorModules: ["Rapier", "Collider"],

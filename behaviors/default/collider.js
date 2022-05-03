@@ -115,7 +115,7 @@ class ColliderPawn {
 class SprayActor {
     setup() {
         this.running = true;
-        // this.spray();
+        this.spray();
         this.addEventListener("pointerDown", "toggle");
     }
 
