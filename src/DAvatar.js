@@ -613,6 +613,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             if (spec.yaw) this._lookYaw = spec.yaw;
             if (spec.lookOffset) this._lookOffset = spec.lookOffset;
         }
+        if (leavingWorld) this.releaseHandler();
         // if we were presenting, tell followers to come with us
         if (leavingWorld && this.presenting) {
             this.say("followMeToWorld", spec.targetURL);
@@ -782,8 +783,8 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     endMMotion( e ){
-        e.preventDefault();
-        e.stopPropagation();
+        e?.preventDefault();
+        e?.stopPropagation();
         this.activeMMotion = false;
         this.vq = undefined;
         this.setVelocitySpin([0, 0, 0],q_identity());
