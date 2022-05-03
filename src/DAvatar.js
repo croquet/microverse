@@ -412,15 +412,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.cameraListener = e => {
                 if (e.source === window.parent) switch (e.data.message) {
                     case "croquet:microverse:window-type":
-                        const isPrimary = e.data.windowType === "primary";
-                        const wasSecondary = !!this.portalLook;
-                        if (isPrimary && wasSecondary) {
-                            // TODO: apply the portal camera matrix to move avatar itself
-                            // to make entering visually smooth
-                            this.portalLook = null;
-                        }
-                        this.refreshCameraTransform();
-                        this.windowTypeChanged(isPrimary, e.data.spec);
+                        this.windowTypeChanged(e.data.windowType === "primary", e.data.spec);
                         // tell shell that we got this message (TODO: should only send this once)
                         this.sendToShell({message: "croquet:microverse:started"});
                         break;
@@ -570,7 +562,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
     get lookGlobal() {
         if (this.isMyPlayerPawn) {
-            if (this.portalLook) return this.portalLook;
+            if (!this.actor.inWorld && this.portalLook) return this.portalLook;
             else return this.walkLook;
         } else return this.global;
     }
@@ -628,6 +620,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (leavingWorld && this.presenting) {
             this.say("followMeToWorld", spec.targetURL);
             // calls leaveToWorld() in followers
+            // which will result in windowTypeChanged() on follower's clients
         }
         // now actually leave or enter the world (stops presenting in old world)
         this.say("_set", actorSpec);
