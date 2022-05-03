@@ -226,7 +226,7 @@ export const AM_Code = superclass => class extends superclass {
 
         let copy = {
             name: current.name, systemModule: current.systemModule,
-            filePath: current.filePath,
+            location: current.location,
             actorBehaviors: new Map([...current.actorBehaviors]),
             pawnBehaviors: new Map([...current.pawnBehaviors]),
         };
@@ -553,7 +553,7 @@ class ScriptingModule extends Model {
         super.init(options);
         this.name = options.name;
         this.systemModule = options.systemModule;
-        this.filePath = options.filePath;
+        this.location = options.location;
     }
 }
 
@@ -567,9 +567,9 @@ export class BehaviorModelManager extends ModelService {
     init(name) {
         super.init(name || "BehaviorModelManager");
 
-        this.moduleDefs = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, filePath:string?}>
+        this.moduleDefs = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, location:string?}>
 
-        this.modules = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, filePath:string?}>
+        this.modules = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, location:string?}>
 
         this.behaviors = new Map(); // {name: ScriptingBehavior}
 
@@ -585,11 +585,11 @@ export class BehaviorModelManager extends ModelService {
         this.subscribe(this.id, "loadDone", "loadDone");
     }
 
-    createAvailableName(name, filePath) {
+    createAvailableName(name, location) {
         let current = this.moduleDefs.get(name);
         if (!current) {return name;}
 
-        if (current.filePath === filePath) {
+        if (current.location === location) {
             return name;
         }
 
@@ -670,7 +670,7 @@ export class BehaviorModelManager extends ModelService {
         let changed = [];
         let nameMap = new Map();
         codeArray.forEach((moduleDef) => {
-            let {action, name, systemModule, filePath} = moduleDef;
+            let {action, name, systemModule, location} = moduleDef;
             let internalName = name;
             if (!action || action === "add") {
                 let def = {...moduleDef};
@@ -682,18 +682,18 @@ export class BehaviorModelManager extends ModelService {
                     def.pawnBehaviors = new Map(def.pawnBehaviors);
                 }
 
-                name = this.createAvailableName(internalName, filePath); // it may be the same name
+                name = this.createAvailableName(internalName, location); // it may be the same name
 
                 nameMap.set(internalName, name);
 
-                this.externalNames.set(`${filePath}$${moduleDef.name}`, name);
+                this.externalNames.set(`${location}$${moduleDef.name}`, name);
                 this.moduleDefs.set(name, def);
 
                 let m = {actorBehaviors: new Map(), pawnBehaviors: new Map()};
 
                 let module = this.modules.get(name);
                 if (!module) {
-                    module = ScriptingModule.create({name: def.name, systemModule: def.systemModule, filePath: filePath});
+                    module = ScriptingModule.create({name: def.name, systemModule: def.systemModule, location: location});
                 }
                 module.externalName = name;
 
@@ -701,13 +701,13 @@ export class BehaviorModelManager extends ModelService {
                     if (moduleDef[behaviorType]) {
                         let map = moduleDef[behaviorType];
                         for (let [behaviorName, codeString] of map) {
-                            // so when filePath is set, and the external name was
+                            // so when location is set, and the external name was
                             // synthesized due to a collision, we look up the external name
                             // from file path and module name.
                             // there should not be any other case.
 
                             // maybe be undefined
-                            let externalName = this.externalNames.get(`${filePath}$${moduleDef.name}`);
+                            let externalName = this.externalNames.get(`${location}$${moduleDef.name}`);
                             let behavior = this.lookup(externalName, behaviorName);
                             if (!behavior) {
                                 behavior = ScriptingBehavior.create({
@@ -735,14 +735,14 @@ export class BehaviorModelManager extends ModelService {
 
             if (action === "remove") {
                 for (let [k, v] of this.modules) {
-                    if (v.filePath === filePath) {
+                    if (v.location === location) {
                         /*for (let behaviorName of v.actorBehaviors.keys()) {
                             this.behaviors.delete(behaviorName);
                         }
                         for (let behaviorName of v.pawnBehaviors.keys()) {
                             this.behaviors.delete(behaviorName);
                             }*/
-                        this.externalNameMap.delete(filePath);
+                        this.externalNameMap.delete(location);
                         this.modules.delete(k);
                         this.moduleDefs.delete(k);
                     }
@@ -778,11 +778,11 @@ export class BehaviorModelManager extends ModelService {
             filtered = filtered.filter(([key, _value]) => optModuleNames.includes(key));
             filtered = filtered.map(([key, m]) => {
                 let newM = {...m};
-                if (newM.filePath) {
+                if (newM.location) {
                     function randomString() {
                         return Math.floor(Math.random() * 36 ** 10).toString(36);
                     }
-                    newM.filePath = `${randomString()}/${randomString()}`;
+                    newM.location = `${randomString()}/${randomString()}`;
                 }
                 return [key, newM];
             });
@@ -960,18 +960,18 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 let library = new CodeLibrary();
                 allData.forEach((obj) => {
                     let dot = obj.name.lastIndexOf(".");
-                    let filePath = obj.name.slice(0, dot);
+                    let location = obj.name.slice(0, dot);
                     let isSystem = obj.name.startsWith("croquet");
-                    library.add(obj.data.default, filePath, isSystem);
+                    library.add(obj.data.default, location, isSystem);
                 });
 
                 let sendBuffer = [];
                 let key = Math.random();
 
                 for (let [_k, m] of library.modules) {
-                    let {actorBehaviors, pawnBehaviors, name, filePath, systemModule} = m;
+                    let {actorBehaviors, pawnBehaviors, name, location, systemModule} = m;
                     sendBuffer.push({
-                        name, systemModule, filePath,
+                        name, systemModule, location,
                         actorBehaviors: [...actorBehaviors],
                         pawnBehaviors: [...pawnBehaviors]
                     });
@@ -998,13 +998,13 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
 export class CodeLibrary {
     constructor() {
         this.modules = new Map(); // for behaviors
-        // {name /*Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, filePath:string?}
+        // {name /*Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, location:string?}
 
         this.functions = new Map();
         this.classes = new Map();
     }
 
-    add(library, filePath, isSystem) {
+    add(library, location, isSystem) {
         if (library.modules) {
             library.modules.forEach(module => {
                 let {name, actorBehaviors, pawnBehaviors} = module;
@@ -1022,11 +1022,11 @@ export class CodeLibrary {
                 }
                 let already = this.modules.get(name);
                 if (already) {
-                    console.log(`a module ${name} is defined in ${filePath} and ${already.filePath}`);
+                    console.log(`a module ${name} is defined in ${location} and ${already.location}`);
                 }
                 this.modules.set(name, {
                     name,
-                    filePath,
+                    location,
                     actorBehaviors: actors,
                     pawnBehaviors: pawns,
                     systemModule: isSystem
