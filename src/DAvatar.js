@@ -261,13 +261,14 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         if (type === "img") {
             options = {
                 ...options,
-                ...{
-                    textureLocation: dataId, textureType: "image", scale: [4, 4, 4],
-                    cornerRadius: 0.02, fullBright: false
-                }
+                textureLocation: dataId,
+                textureType: "image",
+                scale: [4, 4, 4],
+                cornerRadius: 0.02,
+                fullBright: false,
             };
         } else {
-            options = {...options, ...{dataLocation: dataId}};
+            options = {...options, dataLocation: dataId};
         }
 
         if (type !== "exr") {
@@ -714,7 +715,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     hitPawn(obj3d) {
-
         while (obj3d) {
             if (obj3d.wcPawn) return obj3d.wcPawn;
             obj3d = obj3d.parent;

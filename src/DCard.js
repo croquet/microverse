@@ -340,13 +340,13 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
 
                     let runs = [{text: behavior ? behavior.code : ""}];
 
-                    options = {...options, ...{
+                    options = {...options,
                         isSticky: false,
                         backgroundColor: 0xFFFFFF,
                         textScale: options.textScale || 0.002,
                         isExternal: true,
                         runs: runs,
-                    }};
+                    };
                     Cls = TextFieldActor;
                 } else if (card.className) {
                     Cls = appManager.get(card.className);
@@ -727,7 +727,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                     width = textureWidth * scale;
                     height = textureHeight * scale;
 
-                    this.properties2D = {...this.properties2D, ...{width, height, textureWidth, textureHeight}};
+                    this.properties2D = {...this.properties2D, width, height, textureWidth, textureHeight};
                 }
 
                 let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius);
