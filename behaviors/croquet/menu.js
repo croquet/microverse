@@ -161,7 +161,7 @@ class MenuActor {
 
 class MenuPawn {
     setup() {
-        this.listen("_cardData", "cardDataUpdated");
+        this.listen("cardDataSet", "cardDataUpdated");
 
         if (this.actor.items && this.actor.items.length > 0 && this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
             this.cardDataUpdated();

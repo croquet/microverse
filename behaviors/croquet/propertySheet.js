@@ -329,7 +329,7 @@ class PropertySheetWindowPawn {
 
         this.addEventListener("pointerDown", "pointerDown");
         this.addEventListener("pointerUp", "pointerUp");
-        this.listen("_cardData", "cardDataUpdated");
+        this.listen("cardDataSet", "cardDataUpdated");
     }
 
     cardDataUpdated() {

@@ -418,7 +418,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.listen("doUnselectEdit", this.doUnselectEdit);
         this.listen("updateTranslation", this.updateTranslation);
         this.listen("updateRotation", this.updateRotation);
-        this.listen("_cardData", this.cardDataUpdated);
+        this.listen("cardDataSet", this.cardDataUpdated);
         this.listen("updateShape", this.updateShape);
         this.constructCard();
     }
