@@ -32,6 +32,10 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     init(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
 
+        if (!cardOptions.layers) {
+            cardOptions.layers = ["pointer"];
+        }
+
         // coming from different mixins, but still used by listen.
         this.scriptListeners = new Map();
         super.init(cardOptions);
@@ -141,6 +145,16 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this._behaviorModules = [...oldSystemModules, ...options.behaviorModules];
     }
 
+    addLayer(newLayerName) {
+        if (this._layers.includes(newLayerName)) {return;}
+        this.set({layers: [...this._layers, newLayerName]});
+    }
+
+    removeLayer(layerName) {
+        if (!this._layers.includes(layerName)) {return;}
+        this._layers = this._layers.filter((layer) => layer !== layerName);
+    }
+
     setCardData(options) {
         let newOptions = {...this._cardData, ...options};
         this.set({cardData: newOptions});
@@ -165,7 +179,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     }
 
     get pawn() { return CardPawn; }
-    get layers() { return this._layers || ['pointer']; }
+    get layers() { return this._layers; }
     get isCard() {return true;}
     get name() {return this._name || 'Card'}
     get color() {return this._color || 0xffffff}
@@ -420,6 +434,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.listen("updateRotation", this.updateRotation);
         this.listen("cardDataSet", this.cardDataUpdated);
         this.listen("updateShape", this.updateShape);
+        this.listen("layersSet", this.updateLayers);
         this.constructCard();
     }
 
@@ -474,7 +489,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
     }
 
-    cleanupShape(_options) {
+    updateLayers() {
         let oldLayers = this.layers();
         let toRemove = [];
         oldLayers.forEach((layerName) => {
@@ -489,7 +504,10 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (origLayers) {
             this.addToLayers(...origLayers);
         }
+    }
 
+    cleanupShape(_options) {
+        this.updateLayers();
         delete this.isFlat;
 
         if (this.placeholder) {
@@ -1007,9 +1025,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.publish(pe.pointerId, "goThere", pe);
     }
 
-    showControls(actorId){
-        console.log("Pawn showControls", actorId)
-        this.say("showControls", actorId);
+    showControls(actorInfo) {
+        this.say("showControls", actorInfo);
     }
 
     setColor(color) {
