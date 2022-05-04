@@ -35,7 +35,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("comeToMe", this.comeToMe);
         this.listen("followMeToWorld", this.followMeToWorld);
         this.listen("stopPresentation", this.stopPresentation);
-        this.listen("_inWorld", this.inWorldChanged);
+        this.listen("inWorldSet", this.inWorldSet);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
         this.listen("resetHeight", this.resetHeight);
@@ -81,7 +81,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.service("PlayerManager").stopPresentation();
     }
 
-    inWorldChanged({o, v}) {
+    inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
     }
 
