@@ -25,7 +25,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
         this.future(0).dropoutTick();
     }
 
-    get isMultiuser() { return this._multiuser; }
+    get isMultiuser() { return this._multiuser === undefined ? true : this._multiuser }
     get isHovered() { return this.hovered.size};
     get isFocused() { return this.focused.size};
 

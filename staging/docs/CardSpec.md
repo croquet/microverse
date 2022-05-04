@@ -1,11 +1,4 @@
-# Croquet Microverse Builder
-## The Card Specification
-
-**Copyright (c) 2022 Croquet Corporation**
-
-<https://croquet.io>
-
-<info@croquet.io>
+# Croquet Microverse Builder Card Specification (CardSpec)
 
 ## Introduction
 
@@ -206,13 +199,13 @@ pointer
 ### Type
 
 ```TypeScript
-type Layers = "walk"|"pointer"|"lighting"
+type Layers = "walk"|"pointer"|"lighting"|"portal"
 Array<Layers>|undefined
 ```
 
 ### Description
 
-It is an array of "walk", "pointer", "lighting", and future extensions.  If the value contains "walk", the avatar uses the "find floor" mechanism to keep its y coordinates. If the value contains "pointer", user interaction via the pointing device takes this object into account.
+It is an array of "walk", "pointer", "lighting", and future extensions.  If the value contains "walk", the avatar uses the "find floor" mechanism to keep its y coordinates. If the value contains "pointer", user interaction via the pointing device takes this object into account. It defaults to `["pointer"]`.
 
 ---
 
@@ -230,7 +223,7 @@ pointer
 boolean
 ```
 
-Specifies whether the card automatically locks other users out when one user is interacting.
+Specifies whether the card automatically locks other users out when one user is interacting. It defaults to `true`.
 
 ---
 
@@ -874,3 +867,5 @@ For convenience, you can pass in an object as the value for `parent` in this cas
 As long as a value can be serialized in JSON, you can specify a new property in the card specification with any property name. You can use the value from a behavior you attach to the card. Such a value is stored in the actor's property called `_cardData`. A behavior for the CardActor can read and write the value by accessing `this._cardData.foo`, and a behavior for the CardPawn can read the value by accessing `this.actor._cardData.foo`.
 
 A behavior can create a property on the model directly, namely to execute something like `this.foo = 42`. this is fine but the value will not be stored in the persistent data; so when you run the new session with a new version of Croquet Microverse, such a value will not be carried over. Choose to store the value in `_cardData` if you want to carry a value over to a new session from persistent data, or store it directly in the actor when that is not necessary.
+
+**Copyright (c) 2022 Croquet Corporation**
