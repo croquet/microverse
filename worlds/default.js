@@ -15,7 +15,7 @@ export function init(Constants) {
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
         "demo.js", "bitcoinTracker.js", "flightTracker.js", "spin.js", "lights.js",
-        "slides.js", "collider.js",
+        "slides.js", "cascade.js",
     ];
 
     Constants.UseRapier = true;
@@ -332,7 +332,7 @@ export function init(Constants) {
                 layers: ["pointer", "walk"],
                 rotation: [-Math.PI / 6, 0, 0],
                 translation: bt,
-                behaviorModules: ["Rapier", "Collider"],
+                behaviorModules: ["Rapier", "Cascade"],
                 rapierSize: baseSize,
                 color: 0x997777,
                 rapierShape: "cuboid",
@@ -347,7 +347,7 @@ export function init(Constants) {
                 layers: ["pointer", "walk"],
                 translation: [bt[0], -0.9588848050836909, bt[2] - 13.3],
                 rotation: [-Math.PI / 8, 0, 0],
-                behaviorModules: ["Rapier", "Collider"],
+                behaviorModules: ["Rapier", "Cascade"],
                 rapierSize: [baseSize[0], baseSize[1], baseSize[2] / 2],
                 color: 0x997777,
                 rapierShape: "cuboid",
@@ -362,7 +362,7 @@ export function init(Constants) {
                 layers: ["pointer"],
                 multiuser: true,
                 translation: [bt[0], 20, bt[2] + 2],
-                behaviorModules: ["Spray", "Rapier", "Collider"],
+                behaviorModules: ["Spray", "Rapier", "Cascade"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
                 rapierType: "positionBased",

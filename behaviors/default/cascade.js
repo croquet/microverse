@@ -1,4 +1,4 @@
-class ColliderActor {
+class CascadeActor {
     setup() {
         let kinematic;
         let rapierType = this._cardData.rapierType;
@@ -90,7 +90,7 @@ class ColliderActor {
     }
 }
 
-class ColliderPawn {
+class CascadePawn {
     setup() {
         if (this.shape.children.length === 0) {
             let rapierShape = this.actor._cardData.rapierShape;
@@ -99,11 +99,15 @@ class ColliderPawn {
                 let geometry = new Worldcore.THREE.SphereGeometry(s / 2, 32, 16);
                 let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
                 this.obj = new Worldcore.THREE.Mesh(geometry, material);
+                this.obj.castShadow = this.actor._cardData.shadow;
+                this.obj.receiveShadow = this.actor._cardData.shadow;
             } else if (rapierShape === "cuboid") {
                 let s = this.actor._cardData.rapierSize || [1, 1, 1];
                 let geometry = new Worldcore.THREE.BoxGeometry(...s);
                 let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
                 this.obj = new Worldcore.THREE.Mesh(geometry, material);
+                this.obj.castShadow = this.actor._cardData.shadow;
+                this.obj.receiveShadow = this.actor._cardData.shadow;
             }
             this.shape.add(this.obj);
         }
@@ -164,7 +168,7 @@ class SprayActor {
                 translation: [bt[0], 19, bt[2] - 2],
                 layers: ["pointer"],
                 scale: [0.25, 0.25, 0.25],
-                behaviorModules: ["Rapier", "FlightTracker", "Collider"],
+                behaviorModules: ["Rapier", "FlightTracker", "Cascade"],
                 rapierSize: 2,
                 rapierShape: "ball",
                 rapierForce: {x, y: 100, z},
@@ -179,7 +183,7 @@ class SprayActor {
                 type: "object",
                 translation: [bt[0], 19, bt[2] - 2],
                 layers: ["pointer"],
-                behaviorModules: ["Rapier", "Slides", "Collider"],
+                behaviorModules: ["Rapier", "Slides", "Cascade"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
                 rapierForce: {x, y: 100, z},
@@ -203,7 +207,7 @@ class SprayActor {
             type: "object",
             layers: ["pointer"],
             translation: [bt[0], 19, bt[2] - 2],
-            behaviorModules: ["Rapier", "Collider"],
+            behaviorModules: ["Rapier", "Cascade"],
             rapierSize: size,
             rapierForce: {x, y: 100, z},
             rapierShape: shape,
@@ -223,9 +227,9 @@ class SprayActor {
 export default {
     modules: [
         {
-            name: "Collider",
-            actorBehaviors: [ColliderActor],
-            pawnBehaviors: [ColliderPawn]
+            name: "Cascade",
+            actorBehaviors: [CascadeActor],
+            pawnBehaviors: [CascadePawn]
         },
         {
             name: "Spray",
