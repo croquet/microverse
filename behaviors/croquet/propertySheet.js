@@ -131,11 +131,11 @@ class PropertySheetActor {
             return;
         }
         if (data.action === "Duplicate") {
-            this.target.duplicate();
+            this.target.duplicate(data);
             return;
         }
         if (data.action === "Save") {
-            this.target.saveCard();
+            this.target.saveCard(data);
             return;
         }
         console.log(data);

@@ -134,7 +134,11 @@ class MenuActor {
                     i.selected = !i.selected;
                     this.selectionChanged(i);
                 } else {
-                    this.publish(this._parent.id, "fire", {action: item.label, id: this.id});
+                    this.publish(this._parent.id, "fire", {
+                        action: item.label,
+                        id: this.id,
+                        viewId: data.viewId
+                    });
                     return;
                 }
             } else {
@@ -176,20 +180,25 @@ class MenuPawn {
 
 class MenuItemActor {
     setup() {
-        this.addEventListener("pointerTap", "click");
     }
 
-    click(_evt) {
-        let text = this.value;
-        if (text.startsWith("-") || text.startsWith(" ")) {return;}
-        this.publish(this.id, "fire", {id: this.id, name: this._cardData.name});
-    }
 }
 
 class MenuItemPawn {
     setup() {
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addEventListener("pointerDoubleDown", "nop");
+        this.addEventListener("pointerTap", "click");
+    }
+
+    click(_evt) {
+        let text = this.actor.value;
+        if (text.startsWith("-") || text.startsWith(" ")) {return;}
+        this.publish(this.actor.id, "fire", {
+            id: this.actor.id,
+            name: this.actor._cardData.name,
+            viewId: this.viewId
+        });
     }
 }
 

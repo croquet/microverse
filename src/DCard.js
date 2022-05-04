@@ -237,32 +237,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.createCard(data);
     }
 
-    saveCard() {
-        let saver = new WorldSaver(CardActor);
-        let json = {};
-        let card = saver.collectCardData(this);
-        delete card.parent;
-        json.cards = [{card}];
-        if (this._behaviorModules) {
-            let modules = this.behaviorManager.save(this._behaviorModules)
-            json.behaviorModules = modules;
-        }
-        if (Constants.UserRapier) {
-            json.useRapier = true;
-        }
-
-        let string = saver.stringify(json);
-
-        let name = this._name || "card";
-
-        let result = {name, version: "1", data: JSON.parse(string)};
-
-        let div = document.createElement("a");
-        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 4));
-
-        div.setAttribute("href", dataStr);
-        div.setAttribute("download", `${name}.crqt.json`);
-        div.click();
+    saveCard(data) {
+        this.say("saveCard", data);
     }
 
     showControls(toWhom) {
@@ -435,6 +411,8 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.listen("cardDataSet", this.cardDataUpdated);
         this.listen("updateShape", this.updateShape);
         this.listen("layersSet", this.updateLayers);
+
+        this.listen("saveCard", this.saveCard);
         this.constructCard();
     }
 
@@ -1255,6 +1233,33 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             line.geometry.dispose();
             line.material.dispose();
         }
+    }
+
+    saveCard(data) {
+        if (data.viewId !== this.viewId) {return;}
+
+        let saver = new WorldSaver(CardActor);
+        let json = {};
+        let card = saver.collectCardData(this.actor);
+        delete card.parent;
+        json.cards = [{card}];
+        if (this.actor._behaviorModules) {
+            let modules = this.actor.behaviorManager.save(this.actor._behaviorModules)
+            json.behaviorModules = modules;
+        }
+        if (Constants.UserRapier) {
+            json.useRapier = true;
+        }
+
+        let string = saver.stringify(json);
+        let name = this._name || "card";
+        let result = {name, version: "1", data: JSON.parse(string)};
+
+        let div = document.createElement("a");
+        let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 4));
+        div.setAttribute("href", dataStr);
+        div.setAttribute("download", `${name}.crqt.json`);
+        div.click();
     }
 }
 
