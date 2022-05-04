@@ -256,7 +256,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         let distance = (toWhom.distance || 6);
         distance = Math.min(distance * 0.7, 4);
         if (avatar) {
-            let pose = avatar.dropPose(distance, [1, 0, 0]);
+            let pose = avatar.dropPose(distance, [1, 1, 0]);
             if (!this.behaviorManager.modules.get("PropertySheet")) {return;}
             let menu = this.createCard({
                 name: "property panel",
@@ -267,8 +267,8 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
                 fullBright: true,
                 color: 0xffffff,
                 frameColor: 0x666666,
-                width: 2,
-                height: 2.8,
+                width: 3,
+                height: 3.2,
                 cornerRadius: 0.02,
                 depth: 0.02,
                 noSave: true,

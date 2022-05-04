@@ -651,7 +651,8 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupMesh() {
-        let depth = this.actor.depth;
+        let depth = this.actor._cardData.depth;
+        let cornerRadius = this.actor._cardData.cornerRadius || 0.05;
         let {backgroundColor, frameColor, fullBright} = this.actor._cardData;
 
         if (!backgroundColor) {
@@ -666,7 +667,7 @@ export class TextFieldPawn extends CardPawn {
         if (depth === 0) {
             this.geometry = new THREE.PlaneGeometry(0, 0);
         } else {
-            this.geometry = this.roundedCornerGeometry(0, 0, depth, 0.1);
+            this.geometry = this.roundedCornerGeometry(0, 0, depth, cornerRadius);
         }
 
         let material = this.makePlaneMaterial(depth, backgroundColor, frameColor, fullBright);
@@ -1075,6 +1076,7 @@ export class TextFieldPawn extends CardPawn {
     setExtent() {
         let extent = this.actor.extent;
         let depth = this.actor.depth;
+        let cornerRadius = this.actor._cardData.cornerRadius || 0.05;
         let autoResize = this.actor._cardData.autoResize;
         if (!this.textMesh) {return;}
         let newWidth = (autoResize ? this.warota.newWidth : extent.width) * this.textScale();
@@ -1082,7 +1084,7 @@ export class TextFieldPawn extends CardPawn {
         if (newWidth !== this.plane.geometry.parameters.width ||
             newHeight !== this.plane.geometry.parameters.height ||
             depth !== this.plane.geometry.parameters.depth) {
-            let geometry = depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerGeometry(newWidth, newHeight, depth, 0.1);
+            let geometry = depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerGeometry(newWidth, newHeight, depth, cornerRadius);
             this.plane.geometry = geometry;
             this.geometry.dispose();
             this.geometry = geometry;

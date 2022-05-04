@@ -34,7 +34,7 @@ class MenuActor {
                     runs: [{text: item.label}],
                     behaviorModules: ["MenuItem"],
                     width: 1,
-                    textScale: 0.0020,
+                    textScale: 0.0018,
                     height: 0.15,
                     noSave: true,
                     fullBright: true,

@@ -50,8 +50,7 @@ class PropertySheetActor {
     setObject(target) {
         console.log("setObject");
         this.target = target;
-        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.3, y: 0.7});
-
+        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.9, y: 0.4});
         this.behaviorMenu = this.createCard({
             name: 'behavior menu',
             behaviorModules: ["BehaviorMenu"],
@@ -66,7 +65,7 @@ class PropertySheetActor {
         this.subscribe(this.behaviorMenu.id, "extentChanged", "menuExtentChanged")
         this.behaviorMenu.call("BehaviorMenu$BehaviorMenuActor", "show");
 
-        this.cardSpecWindow = this.newWindow({x: 1.9, y: 1}, {x:  0, y: -0.6});
+        this.cardSpecWindow = this.newWindow({x: 1.7, y: 2.8}, {x:  -0.4, y: 0});
 
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
@@ -78,13 +77,14 @@ class PropertySheetActor {
             margins: {left: 8, top: 8, right: 8, bottom: 8},
             textScale: 0.0014,
             backgroundColor: 0xffffff,
-            width: 1.9 - 0.04,
-            height: 1 - 0.04,
+            width: 1.7 - 0.04,
+            height: 2.8 - 0.04,
             depth: 0.002,
             autoResize: false,
             noDismissButton: true,
             borderRadius: 0.013,
             fullBright: true,
+            cornerRadius: 0,
             runs: [{text: ""}],
             noSave: true,
         });
@@ -93,8 +93,7 @@ class PropertySheetActor {
         this.cardSpec.loadAndReset(cardDataString);
         this.subscribe(this.cardSpec.id, "text", "cardSpecAccept");
 
-        this.actionMenuWindow = this.newWindow({x: 0.8, y: 0.6}, {x: -0.5, y: 1.0});
-
+        this.actionMenuWindow = this.newWindow({x: 0.8, y: 0.6}, {x: 0.9, y: -1.1});
         this.actionMenu = this.createCard({
             name: 'action menu',
             behaviorModules: ["ActionMenu"],
@@ -119,7 +118,6 @@ class PropertySheetActor {
     }
 
     actionMenuExtentChanged(data) {
-        console.log("actionMenuExtentChanged", data);
         if (this.actionMenuWindow) {
             this.actionMenuWindow.setCardData({width: data.x + 0.05, height: data.y + 0.05});
         }
@@ -345,10 +343,10 @@ class PropertySheetWindowPawn {
         let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
         let edge = {};
 
-        if (vec.x < -(extent.x / 2) + 0.02) {edge.x = "left";}
-        if (vec.x > (extent.x / 2) - 0.02) {edge.x = "right";}
-        if (vec.y < -(extent.y / 2) + 0.02) {edge.y = "bottom";}
-        if (vec.y > (extent.y / 2) - 0.02) {edge.y = "top";}
+        if (vec.x < -(extent.x / 2) + 0.05) {edge.x = "left";}
+        if (vec.x > (extent.x / 2) - 0.05) {edge.x = "right";}
+        if (vec.y < -(extent.y / 2) + 0.05) {edge.y = "bottom";}
+        if (vec.y > (extent.y / 2) - 0.05) {edge.y = "top";}
 
         if (!edge.x && !edge.y) {return;}
 
