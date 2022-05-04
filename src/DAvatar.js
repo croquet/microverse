@@ -467,7 +467,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = manager.players.size;
             let here = manager.playersInWorld().length;
-            if (!here) here = 1; // we are obviously in the world
             if (here !== total) total = `${here}+${total-here}`;
             if (manager.presentationMode) {
                 let followers = manager.followers.size;
