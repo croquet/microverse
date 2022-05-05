@@ -38,7 +38,7 @@ Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js`. 
 
 ```
 const apiKey = "paste your apiKey from croquet.io/keys";
-const appId = "type your own appId such as com.example.mymicroverse";
+const appId = "type your own appId such as com.example.david.mymicroverse";
 export default {apiKey, appId};
 
 // you may export other Croquet session parameters to override default values.
@@ -49,7 +49,7 @@ Paste your Croquet API key and type an application ID of your choice in the `api
 #### apiKey.js
 ```
 const apiKey = "1_a2b3c4e5f6g7h8i9j0kxyzzyqwerty142nsj6fasdsadad";
-const appId = "com.foo.mymicroverse";
+const appId = "com.example.david.mymicroverse";
 export default {apiKey, appId};
 ```
 
