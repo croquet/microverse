@@ -22,7 +22,7 @@ Pre-Alpha version 0.01
 
 The Croquet Microverse is a browser-based 3D shared experience platform and OS. It includes the ability to collaboratively create 2D and 3D multi-user experiences. It runs on PCs, mobile devices including tablets and smartphones, and AR/VR devices.
 
-This guide will enable you to quickly set up Croquet Microverse Builder and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding. 
+This guide will enable you to quickly set up Croquet Microverse Builder and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding.
 
 ## TLDR
 1. Clone the Github repository <https://github.com/croquet/microverse-builder>
@@ -32,11 +32,11 @@ This guide will enable you to quickly set up Croquet Microverse Builder and intr
    <br>`cd microverse-builder`
 4. Create the apiKey.js file from apiKey.js-example and the API Key above.
    <br>`cp apiKey.js-example apiKey.js # and edit apiKey.js`
- 
-In the terminal run 
-    
+
+In the terminal run
+
 ```npm i```
-   
+
 and then
 
 ```npm start```
@@ -85,19 +85,19 @@ You can find the most up to date Croquet Microverse library as well as this docu
 Developing any Croquet application requires an API key that you can obtain from Croquet. It requires you to sign up as a developer to access this. You can sign up as a Croquet developer here:
 <https://croquet.io/developers/index.html>
 
-Select the [Sign Up](https://croquet.io/keys/) button in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go. 
+Select the [Sign Up](https://croquet.io/keys/) button in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go.
 
 
 
 ---
 ### 3. Create the apiKey.js File
-Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js` and then edit the two properties called `apiKey` and `appId` in the file. 
+Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js` and then edit the two properties called `apiKey` and `appId` in the file.
 
 #### apiKey.js-example
 
 ```
-const apiKey = "<insert your apiKey from croquet.io/keys>";
-const appId = "<specify your own appId such as com.foo.mymicroverse>";
+const apiKey = "paste your apiKey from croquet.io/keys";
+const appId = "type your own appId such as com.example.mymicroverse";
 export default {apiKey, appId};
 
 // you may export other Croquet session parameters to override default values.
@@ -108,7 +108,7 @@ Place your Croquet generated API keys and application ID into this and save the 
 #### apiKey.js
 ```
 const apiKey = "1_a2b3c4e5f6g7h8i9j0kxyzzyqwerty142nsj6fasdsadad";
-const appId = "io.croquet.david.awesome-app";
+const appId = "com.example.mymicroverse";
 export default {apiKey, appId};
 ```
 
@@ -137,7 +137,7 @@ Your new Microverse awaits...
 ### 5. The Watch Server
 The watch server enables you to edit code from your own IDE and have it injected and run inside the Croquet Microverse while it is running without the need to reload. The watch server is automatically launched when execute `npm start`. You can start the watch server on its own by running `npm run watch-server`. The watch-server by default starts watching the directory called `behaviors`. If you want to create a separate set of behavior files in a different directory, you supply an argument to the watch-server by `npm run watch-server -- aDirectory`.
 
-You can try out the live IDE now with the default world. Simply run `localhost:9684`. Once it is launched you will see a menu icon in the bottom left hand corner. Select this and you will see a large QR code underneath which is are three menu items. `Save` and `Load` allow you to save the entire state of the world in a JSON file (try it) and then load it back into an empty world. 
+You can try out the live IDE now with the default world. Simply run `localhost:9684`. Once it is launched you will see a menu icon in the bottom left hand corner. Select this and you will see a large QR code underneath which is are three menu items. `Save` and `Load` allow you to save the entire state of the world in a JSON file (try it) and then load it back into an empty world.
 
 ![Microverse Menu](./assets/MicroverseMenu.png)
 
@@ -145,12 +145,12 @@ The next item, `Connect` connects directly to the watch-server. Now you can acce
 
 ![Microverse IDE](./assets/MicroverseIDE.png)
 
-Of course you can modify the actual executable dynamically as well. This makes development within Microverse amazingly smooth and fun. 
+Of course you can modify the actual executable dynamically as well. This makes development within Microverse amazingly smooth and fun.
 
 #### Edit or add a new files
 You can easily add a new file in the watched directory (by default `behaviors/default/` or your own behaviors directory), and if the file follows the standard behavior structure of other files, it will be automatically available.
 
-### 6. Make Your Own New World 
+### 6. Make Your Own New World
 You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way). If you start microverse with ?world=worldFileName, the file at `worlds/worldFileName.js` is used to start the world.
 
 ## Worlds, Cards and Behaviors
@@ -163,13 +163,13 @@ Every visible object in a Microverse is a kind of card. Some cards are flat like
 
 Cards can have virtually any shape. As a simple example, you can define a card using a regular SVG shape. The resulting card may be flat or can be extruded - depending on the depth property.
 
-Cards can contain other cards - for example, a button object can be defined that is “contained” by another card. Any card can contain another card, defining a hierarchy. The bottom-level card is the root card. 
+Cards can contain other cards - for example, a button object can be defined that is “contained” by another card. Any card can contain another card, defining a hierarchy. The bottom-level card is the root card.
 
 Cards can manage events - users can interact with them or their leaves. For example, a slider widget is a kind of card that allows a user to drag a handle back and forth. It is self contained, but will send messages about what state the slider is in as it changes. If another card is a text display card it can scroll based upon where the slider says it is. If another user is moving the slider, then the document will scroll, but the local slider will update as well.
 
 2D cards can have canvases. A canvas on a 2D card can itself be implemented as a full application. The canvas is texture mapped onto the card. When a user interacts with a canvas, it is via a card which forwards the event to the canvas.
 
-A collection of cards and surfaces with a common root card define a Deck. Cards and surfaces within a deck can communicate with each other via sayDeck/listenDeck messages. 
+A collection of cards and surfaces with a common root card define a Deck. Cards and surfaces within a deck can communicate with each other via sayDeck/listenDeck messages.
 
 ### Layers
 
@@ -191,7 +191,7 @@ The current layers are:
 
 ### Behaviors
 
-Behaviors are code objects that can be applied to a card. They enable the card to interact with the user, other cards, and even the live external world. Behaviors are typically short Javascript applications that are very easy to write. 
+Behaviors are code objects that can be applied to a card. They enable the card to interact with the user, other cards, and even the live external world. Behaviors are typically short Javascript applications that are very easy to write.
 
 ## Constructing a New World
 ---
@@ -203,7 +203,7 @@ It looks like this:
 
 ![Demoworld1](./assets/demoWorld1.png)
 
-As you can see, this world is shared with another user. demoWorld1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that let's us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/demoWorld1.js to see the following code. The init function is used to define the objects that make up the world. 
+As you can see, this world is shared with another user. demoWorld1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that let's us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/demoWorld1.js to see the following code. The init function is used to define the objects that make up the world.
 
 The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
@@ -277,7 +277,7 @@ The final section is where we define the cards. A card is easily defined by a nu
 }
 ```
 
-Let's explore the properties that are used to define the cards. 
+Let's explore the properties that are used to define the cards.
 
 `name:` This is used to identify the card within the world and can be any string.
 
@@ -344,7 +344,7 @@ export default {
 }
 ```
 
-It is a very simple behavior. The major part of the system is to construct the 3D floor and apply a grid to it. You may recognize that it uses the Three.js 3D rendering system. 
+It is a very simple behavior. The major part of the system is to construct the 3D floor and apply a grid to it. You may recognize that it uses the Three.js 3D rendering system.
 
 There are three parts to this behavior. The first is what we call the "actor". In Croquet, the actor is the replicated state of the object - the part that Croquet guarantees is exactly the same on every users machines at all times. In this case, the GridFloorActor doesn't have much to do to keep things in sync and is really just a placeholder.
 
@@ -364,11 +364,11 @@ Croquet Microverse is built on top of a number of other systems. The most import
 
 [Croquet Documentation Main Page](https://croquet.io/docs/)
 
-The [Croquet OS kernel](https://croquet.io/docs/croquet/) is an extremely low-latency multi-user replicated computation platform. 
+The [Croquet OS kernel](https://croquet.io/docs/croquet/) is an extremely low-latency multi-user replicated computation platform.
 
-The [Croquet Worldcore framework](https://croquet.io/docs/worldcore/) defines the actor/pawn architecture underlying the Croquet Metaverse cards. 
+The [Croquet Worldcore framework](https://croquet.io/docs/worldcore/) defines the actor/pawn architecture underlying the Croquet Metaverse cards.
 
-[Three.js](https://threejs.org) provides the 3D rendering framework. It is an extremely powerful, flexible and well defined library. 
+[Three.js](https://threejs.org) provides the 3D rendering framework. It is an extremely powerful, flexible and well defined library.
 
 Croquet Microverse utilizes the [Rapier Physics Engine](https://rapier.rs/). Written in Rust and running in WebAssembly, Rapier is an open source, very high-performance but easy to create multiuser, interactive physics simulations.
 
