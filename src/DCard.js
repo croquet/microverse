@@ -77,7 +77,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         if (!options.behaviorModules) {return;}
         let behaviorManager = this.behaviorManager;
 
-
         let allNewActorBehaviors = [];
         let allNewPawnBehaviors = [];
 
@@ -282,10 +281,6 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.updateBehaviors({behaviorModules});
     }
 
-    setCardSpec(data) {
-        console.log(data);
-    }
-
     intrinsicProperties() {return intrinsicProperties;}
 
     saySelectEdit() {
@@ -398,7 +393,6 @@ CardActor.register('CardActor');
 
 
 export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget, PM_Code) {
-
     constructor(actor) {
         super(actor);
         this.addToLayers(...actor.layers);
@@ -785,6 +779,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         */
     }
 
+    /*
     constructLighting(options) {
         console.log( "constructLighting", options.dataLocation );
         let assetManager = this.service("AssetManager").assetManager;
@@ -814,6 +809,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             });
         }
     }
+    */
 
     setupObj(obj, options) {
         if (options.dataScale) {
