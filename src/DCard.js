@@ -1252,13 +1252,13 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         }
 
         let string = saver.stringify(json);
-        let name = this._name || "card";
+        let name = this.actor._name || "card";
         let result = {name, version: "1", data: JSON.parse(string)};
 
         let div = document.createElement("a");
         let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result, null, 4));
         div.setAttribute("href", dataStr);
-        div.setAttribute("download", `${name}.crqt.json`);
+        div.setAttribute("download", `${name}.vrse`);
         div.click();
     }
 }
