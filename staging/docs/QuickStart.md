@@ -2,20 +2,23 @@
 
 ## Introduction
 
-This guide will enable you to quickly set up the Croquet Microverse Builder. Refer to tutorials in the docs directory for its key concepts and features that let you build new shared worlds.
+This guide will enable you to quickly set up the Croquet Microverse Builder. Refer to tutorials in the docs directory for its key concepts and features that let you build shared worlds.
 
-## Prerequisite
+## Prerequisites
 
-1. [Node.js and npm](https://nodejs.org/)
+1. [Node](https://nodejs.org/)
 2. [Git](https://git-scm.com)
+3. Web browser (we recommend [Chrome](https://chrome.google.com/) at this time)
 
-Node.js, npm and git are large software packages and explaining them is not in the scope of this document. We only use their most basic features. If you don't have those packages on your computer yet, spend a little time to look for a simplest installation method for your platform.
+Our tools are written in JavaScript and need Node.js to run. In particular the `npm` command provided by Node is used to install JS packages. Microverse Builder is hosted on GitHub and the instructions assume you use the command line `git` client to access it.
 
-## Detailed Installation Steps
+The users of your worlds do not need these tools. Microverse worlds are deployed as static web pages so only a web browser is needed to visit them.
 
-### Clone or Fork the Github Repository
+## Installation Steps
 
-You can find the up to date Croquet Microverse Builder along with documentation in the [microverse-builder Github repository](https://github.com/croquet/microverse-builder). Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
+### Clone or Fork the GitHub Repository
+
+You can find the latest Croquet Microverse Builder along with documentation in the [`croquet/microverse-builder`](https://github.com/croquet/microverse-builder) repository on GitHub. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
 
 `git clone https://github.com/croquet/microverse-builder.git`
 
@@ -24,9 +27,9 @@ Alternatively, fork the repository to your account and clone your repository.
 ---
 ### Obtain your API Key
 
-Developing any Croquet application requires an API key that you can obtain from Croquet. You can sign up as a Croquet developer and obtrain an API key at the [Croquet Developers Portal](https://croquet.io/keys).
+Any Croquet application requires an API key to access the Croquet Reflector Network.
 
-Create a Croquet account by following the the "Create one here" link on the sign in page. Once you sign up, your first key is automatically generated. Additional application specific API keys with URL restrictions can be created as well.  (See the deployment section of this document for further details).
+Create a free account at [croquet.io/keys](https://croquet.io/keys/), which automatically generates a "development key". Additional application specific API keys with URL restrictions can be created as well (see the deployment section of this document for further details).
 
 ### Create the apiKey.js File
 Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js`. Then edit the two properties in the file named `apiKey` and `appId`. The appId needs to be [dot-separated words](https://developer.android.com/studio/build/application-id), such as "com.example.myapp". Refer to the API document of [`Session.join()`](https://croquet.io/docs/croquet/Session.html#.join) for other parameters you can specify.
@@ -41,7 +44,7 @@ export default {apiKey, appId};
 // you may export other Croquet session parameters to override default values.
 ```
 
-Enter your Croquet API key and an application ID of your choice in the `apiKey.js` file and save it.
+Paste your Croquet API key and type an application ID of your choice in the `apiKey.js` file and save it.
 
 #### apiKey.js
 ```
@@ -50,19 +53,19 @@ const appId = "com.foo.mymicroverse";
 export default {apiKey, appId};
 ```
 
-### Install Packages and Start the Croquet Microverse
+### Install Packages and start Microverse
 
-Set up the the local servers. In a terminal window, change to the microverse-builder folder then run the `npm install` command to install packages:
+Set up the local servers. In a terminal window, change to the microverse-builder folder then run the `npm install` command to install packages:
 * `cd microverse-builder` (or the directory where the microverse-builder repo was downloaded.)
 * `npm install`
 
 Start the local servers.  In the same terminal window, run `npm start` to start the servers.
 * `npm start`
 
-This will start two servers. The first is the file server on localhost:9684. The second is the watch-server that enables you to inject code changes into a running session. 
+This will start two servers. The first is the file server on localhost:9684. The second is the watch-server that enables you to inject code changes into a running session.
 
-The servers can be run independently as well. 
-* `npm run file-server` starts the file server.  
+The servers can be run independently as well.
+* `npm run file-server` starts the file server.
 * `npm run watch-server` starts the watch-server.
 
 You should see something similar to this:
