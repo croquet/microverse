@@ -1,9 +1,33 @@
+/*
+
+  This is a wrapper to call Rapier features. It is expected to be used
+  a user-defined behavior module that creates a rigid body and a
+  collider description. (see behaviors/default/cascade.js for an
+  example.)
+*/
+
 class RapierActor {
     destroy() {
         this.removeRigidBody();
     }
 
     getRigidBody() {
+        /*
+          A "dollar-property" is a special model-side property naming
+          convention which excludes the data to be stored in the
+          snapshot.  In this case, rigidBody contains handles into the
+          WASM based physics engine session and it cannot be
+          transported to another computer.
+
+          When a user joins an existing session, the snapshot will not
+          contain this.$rigidBody. So it is lazily initialized when it
+          is accessed.
+
+          The implementation of RapierPhysicsManager is in Worldcore:
+
+          https://github.com/croquet/worldcore/blob/main/packages/rapier/src
+        */
+
         if (!this.$rigidBody) {
             if (this.rigidBodyHandle === undefined) return undefined;
             const physicsManager =  this.service('RapierPhysicsManager');
@@ -21,6 +45,11 @@ class RapierActor {
         this.rigidBodyHandle = this.$rigidBody.handle;
         physicsManager.rigidBodies[this.rigidBodyHandle] = this._target;
 
+        /*
+          Those events are handled so that when a position-based object
+          was moved from the user program, the object's position and
+          rotatino in the simulation are updated.
+        */
         if (this.getRigidBody().bodyType() === Worldcore.RAPIER.RigidBodyType.KinematicPositionBased) {
             this.listen("setTranslation", "Rapier$RapierActor.setKinematicTranslation");
             this.listen("setRotation", "Rapier$RapierActor.setKinematicRotation");
