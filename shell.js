@@ -50,7 +50,7 @@ class Shell {
         // TODO: create HUD only when needed?
 
         window.addEventListener("message", e => {
-            if (e.data.message?.startsWith("croquet:microverse:")) {
+            if (e.data?.message?.startsWith("croquet:microverse:")) {
                 for (const [portalId, frame] of this.frames) {
                     if (e.source === frame.contentWindow) {
                         this.receiveFromPortal(portalId, frame, e.data);

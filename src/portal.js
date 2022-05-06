@@ -18,7 +18,7 @@ export class PortalPawn extends CardPawn {
 
         // create listener for messages from shell
         this.shellListener = e => {
-            if (e.source === window.parent && e.data.message?.startsWith("croquet:microverse:")) {
+            if (e.source === window.parent && e.data?.message?.startsWith("croquet:microverse:")) {
                 this.receiveFromShell(e.data);
             }
         }
