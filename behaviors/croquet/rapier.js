@@ -78,8 +78,8 @@ class RapierActor {
     createCollider(cd) {
         this.removeCollider();
         const physicsManager = this.service('RapierPhysicsManager');
-        this.$collider = physicsManager.world.createCollider(cd, this.rigidBodyHandle);
-        this.colliderHandle = this.$collider.handle;
+        let collider = physicsManager.world.createCollider(cd, this.rigidBodyHandle);
+        this.colliderHandle = collider.handle;
         return this.colliderHandle;
     }
 
