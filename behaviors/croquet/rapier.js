@@ -8,6 +8,7 @@
 
 class RapierActor {
     destroy() {
+        this.removeCollider();
         this.removeRigidBody();
     }
 
@@ -15,9 +16,8 @@ class RapierActor {
         /*
           A "dollar-property" is a special model-side property naming
           convention which excludes the data to be stored in the
-          snapshot.  In this case, rigidBody contains handles into the
-          WASM based physics engine session and it cannot be
-          transported to another computer.
+          snapshot. In this case, rigidBody is a cache to hold onto
+          the rigidBody object.
 
           When a user joins an existing session, the snapshot will not
           contain this.$rigidBody. So it is lazily initialized when it
@@ -66,18 +66,29 @@ class RapierActor {
     }
 
     removeRigidBody() {
-        if (!this.getRigidBody()) return;
+        let r = this.getRigidBody();
+        if (!r) return;
         const physicsManager = this.service('RapierPhysicsManager');
-        physicsManager.rigidBodies[this.rigidBodyHandle] = undefined;
-        physicsManager.world.removeRigidBody(this.getRigidBody());
-        this.rigidBodyHandle = undefined;
-        this.$rigidBody = undefined;
+        physicsManager.world.removeRigidBody(r);
+        delete physicsManager.rigidBodies[this.rigidBodyHandle];
+        delete this.rigidBodyHandle;
+        delete this.$rigidBody;
     }
 
     createCollider(cd) {
+        this.removeCollider();
         const physicsManager = this.service('RapierPhysicsManager');
-        const c = physicsManager.world.createCollider(cd, this.rigidBodyHandle);
-        return c.handle;
+        this.$collider = physicsManager.world.createCollider(cd, this.rigidBodyHandle);
+        this.colliderHandle = this.$collider.handle;
+        return this.colliderHandle;
+    }
+
+    removeCollider() {
+        if (this.colliderHandle === undefined) return;
+        const physicsManager = this.service('RapierPhysicsManager');
+        let world = physicsManager.world;
+        world.removeCollider(world.getCollider(this.colliderHandle));
+        delete this.colliderHandle;
     }
 }
 
@@ -85,7 +96,7 @@ export default {
     modules: [
         {
             name: "Rapier",
-            pawnBehaviors: [RapierActor]
+            actorBehaviors: [RapierActor]
         }
     ]
 }

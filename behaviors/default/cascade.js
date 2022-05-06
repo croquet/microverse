@@ -79,7 +79,7 @@ class CascadeActor {
             cd.setActiveEvents(Worldcore.RAPIER.ActiveEvents.CONTACT_EVENTS |
                                Worldcore.RAPIER.ActiveEvents.INTERSECTION_EVENTS);
         }
-        this.call("Rapier$RapierActor", "createCollider", cd);
+        this.collider = this.call("Rapier$RapierActor", "createCollider", cd);
 
         /*
           If this is a regular moving object, add an event handler for pointerTap to invoke
