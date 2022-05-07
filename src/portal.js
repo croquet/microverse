@@ -1,6 +1,8 @@
 import { THREE, GetPawn } from "@croquet/worldcore";
 
 import { CardActor, CardPawn } from "./DCard.js";
+import { addShellListener, removeShellListener, sendToShell } from "./frame.js";
+
 
 export class PortalActor extends CardActor {
 
@@ -16,13 +18,6 @@ export class PortalPawn extends CardPawn {
     constructor(actor) {
         super(actor);
 
-        // create listener for messages from shell
-        this.shellListener = e => {
-            if (e.source === window.parent && e.data?.message?.startsWith("croquet:microverse:")) {
-                this.receiveFromShell(e.data);
-            }
-        }
-        window.addEventListener("message", this.shellListener);
 
         this.portalId = undefined;
         this.targetMatrix = new THREE.Matrix4();
@@ -31,10 +26,14 @@ export class PortalPawn extends CardPawn {
 
         this.addEventListener("pointerDown", "nop");
         this.addEventListener("keyDown", e => e.key === " " && this.enterPortal());
+
+        this.shellListener = (command, data) => this.receiveFromShell(command, data);
+        addShellListener(this.shellListener);
     }
 
     destroy() {
-        window.removeEventListener("message", this.shellListener);
+        removeShellListener(this.shellListener);
+        super.destroy();
     }
 
     makePlaneMaterial(...args) {
@@ -69,7 +68,7 @@ export class PortalPawn extends CardPawn {
         targetMatrix.invert();
         targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
         if (!targetMatrixBefore.equals(targetMatrix)) {
-            this.sendToShell({message: "croquet:microverse:portal-update", portalId, cameraMatrix: targetMatrix.elements});
+            sendToShell("portal-update", { portalId, cameraMatrix: targetMatrix.elements });
             targetMatrixBefore.copy(targetMatrix);
         }
     }
@@ -85,8 +84,7 @@ export class PortalPawn extends CardPawn {
     }
 
     loadTargetWorld() {
-        this.sendToShell({
-            message: "croquet:microverse:load-world",
+        sendToShell("load-world", {
             url: this.actor.targetURL,
             portalId: this.portalId, // initially undefined
         });
@@ -99,23 +97,19 @@ export class PortalPawn extends CardPawn {
         const avatarActor = this.actor.service("PlayerManager").player(this.viewId);
         const avatarPawn = GetPawn(avatarActor.id);
         const avatarSpec = avatarPawn.specForPortal(this);
-        this.sendToShell({message: "croquet:microverse:portal-enter", portalId: this.portalId, avatarSpec});
-        // shell will swap iframes and trigger avatarPawn.windowTypeChanged() for this user in both worlds
+        sendToShell("portal-enter", { portalId: this.portalId, avatarSpec });
+        // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
     }
 
-    receiveFromShell(data) {
-        switch (data.message) {
-            case "croquet:microverse:portal-opened":
-                this.portalId = data.portalId;
+    receiveFromShell(command, { portalId }) {
+        switch (command) {
+            case "portal-opened":
+                this.portalId = portalId;
                 this.updatePortalCamera();
                 break;
-            case "croquet:microverse:window-type":
+            case "frame-type":
                 this.updatePortalCamera();
                 break
         }
-    }
-
-    sendToShell(data) {
-        window.parent.postMessage(data, "*");
     }
 }

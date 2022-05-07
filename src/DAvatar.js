@@ -6,7 +6,7 @@ import {
     v3_transform, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
-import { isPrimaryFrame } from "./frame.js";
+import { isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
@@ -413,16 +413,15 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 });
             });
 
-            this.cameraListener = e => {
-                if (e.source === window.parent) switch (e.data.message) {
-                    case "croquet:microverse:window-type":
-                        this.windowTypeChanged(e.data.windowType === "primary", e.data.spec);
-                        // tell shell that we got this message (TODO: should only send this once)
-                        this.sendToShell({message: "croquet:microverse:started"});
+            this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
+                switch (command) {
+                    case "frame-type":
+                        this.frameTypeChanged(frameType === "primary", spec);
+                        // tell shell that we received this command (TODO: should only send this once)
+                        sendToShell("started");
                         break;
-                    case "croquet:microverse:portal-update":
+                    case "portal-update":
                         if (!this.actor.inWorld) {
-                            const { cameraMatrix } = e.data;
                             if (cameraMatrix) {
                                 this.portalLook = cameraMatrix;
                                 this.refreshCameraTransform();
@@ -431,7 +430,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                         break;
                 }
             }
-            window.addEventListener("message", this.cameraListener);
+            addShellListener(this.cameraListener);
             this.say("resetHeight");
             this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
             this.listen("setLookAngles", this.setLookAngles);
@@ -557,9 +556,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.say("lookGlobalChanged");
     }
 
-    destroy() { // When the pawn is destroyed, we dispose of our Three.js objects.
+    destroy() {
+        removeShellListener(this.cameraListener);
+        // When the pawn is destroyed, we dispose of our Three.js objects.
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
-        window.removeEventListener("message", this.cameraListener);
         super.destroy();
     }
 
@@ -581,7 +581,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     specForPortal(portal) {
         // we are about to enter this portal. meaning we disappear from this world and appear in the target world
         // visually nothing should change, so we need this avatar's position relative to the portal, as well as
-        // its look pitch and offset. This will be passed to windowTypeChanged() in the target world.
+        // its look pitch and offset. This will be passed to frameTypeChanged() in the target world.
         const t = m4_invert(portal.global);
         const m = m4_multiply(this.global, t);
         // const log = (c, m) => console.log(c+"\n"+m.map((v, i) => +v.toFixed(2) + (i % 4 == 3 ? "\n" : ",")).join(''));
@@ -600,7 +600,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         };
     }
 
-    windowTypeChanged(isPrimary, spec) {
+    frameTypeChanged(isPrimary, spec) {
         // our avatar just came into or left this world, either through a portal
         // (in which case we have a view spec), or through a navigation event (browser's back/forward)
         // in all cases we set the actor's inWorld which will show/hide the avatar
@@ -623,7 +623,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         if (leavingWorld && this.presenting) {
             this.say("followMeToWorld", spec.targetURL);
             // calls leaveToWorld() in followers
-            // which will result in windowTypeChanged() on follower's clients
+            // which will result in frameTypeChanged() on follower's clients
         }
         // now actually leave or enter the world (stops presenting in old world)
         this.say("_set", actorSpec);
@@ -637,7 +637,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     leaveToWorld(targetURL) {
-        this.sendToShell({message: "croquet:microverse:enter-world", targetURL});
+        sendToShell("enter-world", { targetURL });
     }
 
     update(time, delta) {
@@ -1154,9 +1154,5 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
 
         this.publish(model.id, "loadDone", {asScene, key});
-    }
-
-    sendToShell(data) {
-        window.parent.postMessage(data, "*");
     }
 }

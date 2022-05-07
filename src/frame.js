@@ -32,8 +32,8 @@ window.addEventListener("message", e => {
 // if this frame is the primary frame, then this is the current world
 export let isPrimaryFrame = false;
 
-addShellListener((command, { windowType }) => {
-    if (command === "window-type") {
-        isPrimaryFrame = windowType === "primary";
+addShellListener((command, { frameType }) => {
+    if (command === "frame-type") {
+        isPrimaryFrame = frameType === "primary";
     }
 });

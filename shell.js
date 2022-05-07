@@ -9,7 +9,7 @@ export function startShell() {
 // answer "shell" if this window is the outer shell of the app
 // answer "primary", if this window is the top-most iframe showing the current world
 // answer "secondary", if this window is another iframe showing a world in a portal
-export function getWindowType() {
+export function getFrameType() {
     // if we're not running in an iframe this is very fast
     const runningAsFrame = window.self !== window.parent;
     if (!runningAsFrame) return "shell";
@@ -17,14 +17,14 @@ export function getWindowType() {
     return new Promise(resolve => {
         window.addEventListener("message", e => {
             if (e.source === window.parent) {
-                const { message, windowType } = e.data;
-                if (message === "croquet:microverse:window-type") {
+                const { message, frameType } = e.data;
+                if (message === "croquet:microverse:frame-type") {
                     window.parent.postMessage({message: "croquet:microverse:starting"}, "*");
                     // our parent is the shell, so we are not
-                    resolve(windowType); // "primary" or "secondary"
+                    resolve(frameType); // "primary" or "secondary"
                     document.body.style.background = "transparent";
-                    document.getElementById("hud").classList.toggle("current-world", windowType === "primary");
-                    if (windowType === "primary") window.focus();
+                    document.getElementById("hud").classList.toggle("current-world", frameType === "primary");
+                    if (frameType === "primary") window.focus();
                     return;
                 }
                 // we ignore all other messages here, each portal pawn has its own listener
@@ -100,7 +100,7 @@ class Shell {
         frame.portalId = portalId;
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
-        this.sendWindowType(frame);
+        this.sendFrameType(frame);
         // console.log("add frame", portalId, url);
         return frame;
     }
@@ -124,7 +124,7 @@ class Shell {
         // console.log(`from portal-${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
             case "croquet:microverse:starting":
-                // this is the immediate reply to our "croquet:microverse:window-type" message
+                // this is the immediate reply to our "croquet:microverse:frame-type" message
                 // nothing to do yet until fully started
                 return;
             case "croquet:microverse:started":
@@ -183,7 +183,7 @@ class Shell {
         }
     }
 
-    sendWindowType(frame, spec) {
+    sendFrameType(frame, spec) {
         if (frame.interval) return;
         frame.interval = setInterval(() => {
             // there are two listeners to this message:
@@ -192,9 +192,9 @@ class Shell {
             // the avatar only gets constructed after joining the session
             // so we keep sending this message until the avatar is constructed
             // then it will send "croquet:microverse:started" which clears this interval (below)
-            const windowType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
-            this.sendToPortal(frame.portalId, {message: "croquet:microverse:window-type", windowType, spec});
-            // console.log(`send window type to portal-${frame.portalId}: ${windowType}`);
+            const frameType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
+            this.sendToPortal(frame.portalId, {message: "croquet:microverse:frame-type", frameType, spec});
+            // console.log(`send window type to portal-${frame.portalId}: ${frameType}`);
         }, 200);
     }
 
@@ -210,7 +210,7 @@ class Shell {
         }
         this.currentFrame = toFrame;
         this.currentFrame.focus();
-        this.sendWindowType(fromFrame, {targetURL});
-        this.sendWindowType(toFrame, avatarSpec);
+        this.sendFrameType(toFrame, avatarSpec);
+        this.sendFrameType(fromFrame, {targetURL});
     }
 }
