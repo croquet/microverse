@@ -6,6 +6,7 @@ import {
     v3_transform, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
+import { isPrimaryFrame } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
 
@@ -41,6 +42,8 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("resetHeight", this.resetHeight);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
+
+        if (isPrimaryFrame) this.say("_set", { inWorld: true });
     }
     get pawn() { return AvatarPawn; }
     get lookPitch() { return this._lookPitch || 0; }
