@@ -1,3 +1,8 @@
+// Spin
+// Copyright 2022 Croquet Corporation
+// Croquet Microverse
+// Adds a simple spin around y to a Tron
+
 class SpinActor {
     setup() {
         this.listen("startSpinning", "startSpinning");
@@ -73,7 +78,7 @@ class SpinPawn {
         this._startDrag = null;
         this._baseRotation = null;
         if (this.moveBuffer.length < 3) {return;}
-        if(Math.abs(this.deltaAngle) > 0.001) {
+        if(Math.abs(this.deltaAngle) > 0.01) {
             let a = this.deltaAngle;
             a = Math.min(Math.max(-0.1, a), 0.1);
             this.say("startSpinning", a);

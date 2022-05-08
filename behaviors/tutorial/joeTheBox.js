@@ -1,7 +1,7 @@
 // Joe the Box
 // Copyright 2022 Croquet Corporation
 // Croquet Microverse
-// Generates a simple gridded floor card
+// Generates a simple 3D box with a grid texture
 
 class JoeTheBoxActor {
     setup() {
