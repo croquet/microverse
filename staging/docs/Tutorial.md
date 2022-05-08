@@ -11,12 +11,13 @@ Pre-Alpha version 0.01
 
 ## TO BE DONE
 1. Discuss Actor/Pawn development model
-2. DemoWorld2 - extend the card to interact with user (random color)
-3. DemoWorld3 - flamingo + Circle
-4. DemoWorld4 - more complex behavior
-5. DemoWorld5 - live data visualization
-6. DemoWorld6 - external data stream
-7. Card Properties
+2. xTutorial 2 - construct a 3D model world
+3. xTutorial 3 - extend the card to interact with user (random color)
+4. xTutorial 4 - flamingo + Circle
+5. xTutorial 5 - more complex behavior
+6. xTutorial 6 - live data visualization
+7. xTutorial 7 - external data stream
+8. Card Properties
 
 ## Introduction
 
@@ -189,28 +190,32 @@ The current layers are:
 
 `avatar` - contains the avatars in the world
 
+`portal` - this card is a portal into another world
+
 ### Behaviors
 
 Behaviors are code objects that can be applied to a card. They enable the card to interact with the user, other cards, and even the live external world. Behaviors are typically short Javascript applications that are very easy to write.
 
-## Constructing a New World
+## Constructing New Worlds
 ---
-A number of demo worlds are included with the Microverse repository. We will use these to demonstrate how to create worlds, cards and behaviors. The first world we will visit is demoWorld1.js. You can try this world out immediately once you have installed the repository and run npm start. The launch URL is:
+## Tutorial 1
 
-<http://localhost:9684/?world=demoWorld1>
+A number of demo worlds are included with the Microverse repository. We will use these to demonstrate how to create worlds, cards and behaviors. The first world we will visit is tutorial1.js. You can try this world out immediately once you have installed the repository and run npm start. The launch URL is:
+
+<http://localhost:9684/?world=tutorial1>
 
 It looks like this:
 
 ![Demoworld1](./assets/demoWorld1.png)
 
-As you can see, this world is shared with another user. demoWorld1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that let's us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/demoWorld1.js to see the following code. The init function is used to define the objects that make up the world.
+As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that let's us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world. 
 
 The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
 **Avatars are still under construction and will evolve rapidly as we move toward the Microverse Beta release.**
 
 ```Javascript
-// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
 
@@ -229,7 +234,7 @@ The next group are the user behaviors. These are created by the creator of the w
         "menu.js", "elected.js", "propertySheet.js"
     ];
 
-    Constants.UserBehaviorDirectory = "behaviors/demoWorld";
+    Constants.UserBehaviorDirectory = "behaviors/tutorial";
     Constants.UserBehaviorModules = [
         "lights.js", "gridFloor.js"
     ];
@@ -287,13 +292,13 @@ Let's explore the properties that are used to define the cards.
 
 `layers: ['walk', 'pointer']`
 
-`translation: [0, -0.75, -10]` A three element array that specifies the location in the world that the card will be placed.
+`translation: [0, -0.75, -10]` A three element array that specifies the location of the card in the world. These values are in meters. The first element is the x-coordinate, in this case it is 0 so it is in the same x-location as the avatar when it starts. The next is the y-coordinate, which indicates its height above 0. Croquet sets 0 to be the location of the avatar's camera or eye height, so -0.75 places the center of teh card at -0.75 meters beneath the eye point. The last is the z-coordinate which for Croquet and WebGL is defined as a negative value when looking into the screen. Thus, -10 will place the card 10 meters away in front of the avatar.
 
-`scale: [4,4,4]` A three element array that defines how a card will be scaled. Cards are usually imported to be contained within a 1x1x1 box for easier management.
+`scale: [4,4,4]` A three element array that defines how a card will be scaled. Cards are usually imported or defined to be contained within a 1x1x1 box for easier management.
 
 `type: 'object'` This defines the nature of the card. Some cards are 2D objects, some 3D and there are a number of others.
 
-`shadow: true` Specifies that this card will be both a recipient and a caster of shadows in the world.
+`shadow: true` Specifies that this card will be both a recipient and a caster of shadows in the world. [note: we will want to seperate recipient and caster into separate flags].
 
 A full list of card properties will be available at the end of this document.
 
@@ -305,7 +310,7 @@ Now let's take a look at the simple behavior we use to define the floor we are w
 
 This is the code:
 
-```
+```javascript
 // Grid Floor
 // Croquet Microverse
 // Generates a simple gridded floor card
@@ -348,9 +353,153 @@ It is a very simple behavior. The major part of the system is to construct the 3
 
 There are three parts to this behavior. The first is what we call the "actor". In Croquet, the actor is the replicated state of the object - the part that Croquet guarantees is exactly the same on every users machines at all times. In this case, the GridFloorActor doesn't have much to do to keep things in sync and is really just a placeholder.
 
-The second part is what we call the "pawn". As might be clear from its name, it is controlled by the actor and it's job is to represent the state of the actor as it the actor is updated - whether from the local user or a remote user. In this case, the only job of the GridFloorPawn is to construct something for us to stand on. As you can see, the floor is simply a three.js BoxGeometry with a grid texture applied to it.
+The second part is what we call the "pawn". As might be clear from its name, it is controlled by the actor and it's job is to represent the state of the actor as the actor is updated - whether from the local user or a remote user. In this case, the only job of the GridFloorPawn is to construct something for us to stand on. As you can see, the floor is simply a three.js BoxGeometry with a grid texture applied to it.
 
 The last part of the behavior code is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
+
+---
+
+## Tutorial 2
+In this next tutorial, we will load a 3D model of a gallery where we will place a number of objects. We will also define a number of new behaviors that will add a simple interaction to the objects in that world.
+
+The launch URL is:
+
+http://localhost:9684/?world=tutorial2
+
+Here is an image of the world we will be constructing:
+
+![Tutorial 2](./assets/tutorial2.png)
+
+There are a number of additional cards defined in this world, but everything is still quite simple. Let's start with the definition of the gallery.
+
+```javascript
+    const frameColor = 0x888888;
+
+    Constants.DefaultCards = [
+        {
+            card: {
+                name:"world model",
+                type: "3d",
+                dataLocation: "./assets/3D/artgallery_042122.glb.zip",
+                dataScale:[1,1,1],
+                singleSided: true,
+                shadow: true,
+                layers: ["walk"],
+                translation:[0, -1.7, 0],
+                shadow: true,
+
+                placeholder: true,
+                placeholderSize: [100, 0.01, 100],
+                placeholderColor: 0xcccccc,
+                placeholderOffset: [0, -1.7, 0],
+            }
+        },
+
+```
+
+As you can see, this is a bit more complex than the previous creation of the simple grid floor, but not that much.
+
+```javascript
+type: "3d",
+dataLocation: "./assets/3D/artgallery_042122.glb.zip",
+dataScale:[1,1,1],
+```
+
+The most important change is we are now referencing a 3D model that is in our assets folder. This is the model of the gallery and was original created in Blender and exported as a single GLB file including textures. It was then zipped for faster transfer.
+
+We also specify that the type is "3d", so that the file loader has some hint of how to manage it. 
+
+We set dataScale: to [1,1,1] as that tells the importer that one unit in the model corresponds to one unit in the world - in this case, both are in meters.
+
+The placeholder fields are there to define a floor to allow the avatars to walk around while the rest of the scene is loading. The placeholder is just a version of the grid floor we saw in Tutorial 1. We define the size, color and offset of the floor here.
+
+The next two cards - the light card and the image card are exactly the same.
+
+```javascript
+{
+    card: {
+        name: "light",
+        layers: ["light"],
+        type: "lighting",
+        behaviorModules: ["Light"],
+        dataLocation: "./assets/sky/shanghai_riverside_2k.exr",
+        dataType: "exr",
+    }
+},
+{
+    card: {
+        name: "image card",
+        translation: [0, 0.4, -10],
+        //rotation: [0, Math.PI / 2, 0],
+        scale: [4, 4, 4],
+        type: "2d",
+        textureType: "image",
+        textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
+        fullBright: true,
+        frameColor: 0xcccccc,
+        color: 0xbbbbbb,
+        cornerRadius: 0.05,
+        depth: 0.05,
+        shadow: true,
+    }
+},
+```
+
+The two new cards are different however. The first card is the "Joe the Box" card which is defined by a behavior similar to the grid floor that we saw earlier. The second box is loaded from the 3D assets in the same way that the gallery itself was loaded.
+
+```javascript
+{
+    card: {
+        name:"Joe the Box",
+        behaviorModules: ["JoeTheBox"],
+        layers: ["pointer"],
+        type: "object",
+        translation:[-4, 0.4, -10],
+        //rotation:[0, Math.pi/4, 0],
+        shadow: true,
+    }
+},     
+{
+    card: {
+        name:"Imported Box",
+        type: "3d",
+        dataLocation: "./assets/3D/testcube_1m.glb.zip",
+        layers: ["pointer"],
+        translation:[4, 0.4, -10],
+        dataScale:[1,1,1],
+        //rotation:[0, Math.pi/4, 0],
+        shadow: true,
+    }
+},     
+
+```
+
+
+---
+
+## Tutorial 3
+
+xyzzy
+
+---
+
+## Tutorial 4
+
+xyzzy
+
+---
+
+## Tutorial 5
+
+xyzzy
+
+---
+
+## Tutorial 6
+
+
+
+
 
 ## Actor/Pawn Relationship
 

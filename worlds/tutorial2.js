@@ -15,7 +15,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/tutorial";
     Constants.UserBehaviorModules = [
-        "lights.js", "gridFloor.js", "joeTheBox.js"
+        "lights.js", "gridFloor.js", "joeTheBox.js", "simpleSpin.js"
     ];
 
     const frameColor = 0x888888;
@@ -26,11 +26,11 @@ export function init(Constants) {
                 name:"world model",
                 type: "3d",
                 dataLocation: "./assets/3D/artgallery_042122.glb.zip",
+                dataScale:[1,1,1],
                 singleSided: true,
                 shadow: true,
                 layers: ["walk"],
                 translation:[0, -1.7, 0],
-                dataScale:[1,1,1],
                 shadow: true,
 
                 placeholder: true,
@@ -69,11 +69,10 @@ export function init(Constants) {
         {
             card: {
                 name:"Joe the Box",
-                behaviorModules: ["JoeTheBox"],
+                behaviorModules: ["JoeTheBox", "SimpleSpin"],
                 layers: ["pointer"],
                 type: "object",
                 translation:[-4, 0.4, -10],
-                //rotation:[0, Math.pi/4, 0],
                 shadow: true,
             }
         },     

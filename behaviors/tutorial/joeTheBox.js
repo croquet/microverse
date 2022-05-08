@@ -1,4 +1,5 @@
 // Joe the Box
+// Copyright 2022 Croquet Corporation
 // Croquet Microverse
 // Generates a simple gridded floor card
 
