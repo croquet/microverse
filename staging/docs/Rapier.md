@@ -1,11 +1,4 @@
-# Croquet Microverse Builder
-## The Rapier Physics Engine in Croquet Microverse
-
-**Copyright (c) 2022 Croquet Corporation**
-
-<https://croquet.io>
-
-<info@croquet.io>
+# The Rapier Physics Engine in Croquet Microverse Builder
 
 ## Introduction
 
@@ -13,7 +6,7 @@ The Croquet Microverse Builder can use the [Rapier Physics Engine](https://rapie
 
 We use the Rapier bindings provided by [Worldcore](https://github.com/croquet/worldcore/blob/main/packages/rapier/src/RapierPhysics.js). Rapier simulates the motion of the objects bit-identically on the model side. In other words, the simulation is decoupled from the visual appearances. The Microverse provides a behavior module called "Rapier" (`behaviors/croquet/rapier.js`) that replaces `AM_RapierPhysics` from Worldcore. The rest is all done in the "user land"; you can see an example behavior module called "Cascade" in `behaviors/default/cascade.js` and the default world where it is used.
 
-First let us look at `default.js`. You can see that several cards with `Rapier` and `Collider` as their behavior modules:
+First let us look at `default.js`. You can see that several cards have `Rapier` and `Collider` as their behavior modules:
 
 
 ```JavaScript
@@ -53,7 +46,7 @@ class CascadeActor {
 
 ```
 
-The `setup()` method of `CascadeActor` checks the `rapierType` and `rapierShape`, and creates a rigid body description and the collider description. There are two `call`s to `"Rapier$RapierActor"`, which invoke the method defined in the Rapier behavior module.  The last part of `setup()` adds a bit of interactive feature, and also the "kill plane".  The `translated()` method is called when the rigid body moves. The method checks the y-coodinates of the object, and then destroy itself when it fell out the simulation. When a position of a rigid body goes infinity, Rapier simulation crashes. So it is a good idea to have a bound in your simulation.
+The `setup()` method of `CascadeActor` checks the `rapierType` and `rapierShape`, and creates a rigid body description and a collider description. There are two `call`s to `"Rapier$RapierActor"`, which invoke the method defined in the Rapier behavior module.  The last part of `setup()` adds a bit of an interactive feature, and also the "kill plane".  The `translated()` method is called when the rigid body moves. The method checks the y-coodinates of the object, and then destroys itself when it falls out of the simulation. When a position of a rigid body goes to infinity, the Rapier simulation crashes. So it is a good idea to have a boundary in your simulation.
 
 ```JavaScript
         this.addEventListener("pointerTap", "jolt");
@@ -62,7 +55,7 @@ The `setup()` method of `CascadeActor` checks the `rapierType` and `rapierShape`
 
 Alternatively, Rapier bindings enables the contactEvents and intersectionEvents to fire. See the part of `setup()` that uses the `rapierSensor` property and how it enables the contact- and intersectionEvent callbacks.
 
-The `CascadePawn` behavior creates a Three JS mesh with a simple geometry that matches with the value in "rapierShape". For a demo purpose, the creation of the mesh is guarded by `if (this.shape.children.length === 0)`, meaning that it does not replace a shape that is already there.
+The `CascadePawn` behavior creates a Three JS mesh with a simple geometry that matches with the value in "rapierShape". For the demo purpose of the demo, the creation of the mesh is guarded by `if (this.shape.children.length === 0)`, meaning that it does not replace a shape that is already there.
 
 ```JavaScript
 class CascadePawn {
@@ -86,3 +79,6 @@ To prevent a double tap action from triggering the "jump to" feature, we remove 
 So this is it!  Note again that the property names, such as `rapierType`, `rapierShape`, `rapierSize` are all "user defined". Those are used in this example, but you can define your own property and use it from your behaviors.
 
 Also note that adding and removing a behavior can be done dynamically. You can start with an card that does not participate in the simulation but later you can add the card to the simulation by attaching "Rapier" behavior. This gives you more flexibility in creating your own worlds.
+
+**Copyright (c) 2022 Croquet Corporation**
+
