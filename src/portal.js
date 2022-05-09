@@ -36,19 +36,28 @@ export class PortalPawn extends CardPawn {
         super.destroy();
     }
 
-    makePlaneMaterial(...args) {
-        super.makePlaneMaterial(...args);
+    objectCreated(obj, options) {
+        super.objectCreated(obj, options);
+        this.applyPortalMateria(obj);
+    }
+
+    applyPortalMateria(obj) {
+        if (!obj.material) obj = obj.children[0];
 
         // we're erasing the framebuffer (overwriting with 0,0,0,0)
         // glBlendFunc(GL_ZERO, GL_ZERO);
 
-        this.material[0] = new THREE.MeshBasicMaterial({
+        const portalMaterial = new THREE.MeshBasicMaterial({
             blending: THREE.CustomBlending,
             blendSrc: THREE.ZeroFactor,
             blendDst: THREE.ZeroFactor,
         });
 
-        return this.material;
+        if (Array.isArray(obj.material)) {
+            obj.material[0] = portalMaterial;
+        } else {
+            obj.material = portalMaterial;
+        }
     }
 
     // double-click should move avatar to the front of the portal

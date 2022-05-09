@@ -710,6 +710,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 if (Array.isArray(obj.material)) {
                     obj.material.dispose = arrayDispose;
                 }
+                this.objectCreated(obj);
                 this.shape.add(obj);
             });
         } else {
@@ -736,6 +737,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 let obj = new THREE.Mesh(geometry, material);
                 obj.castShadow = shadow;
                 obj.name = "2d";
+                this.objectCreated(obj);
                 this.shape.add(obj);
             });
         }
@@ -827,6 +829,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         if (options.dataRotation) {
             obj.quaternion.set(...options.dataRotation);
         }
+    }
+
+    objectCreated() {
     }
 
     roundedCornerGeometry(width, height, depth, cornerRadius) {
