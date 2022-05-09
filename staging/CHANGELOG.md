@@ -19,5 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 2022-05-6
 ### Added
 - A new layer called "portal".
+- A way to create a new card with Sticky Note.
 
 ### Changed
+- The default value for multiuser flag is now true.
+- The behaviors of an exported card are detatched from the file editing.
+- Instead of "_" change event names, use the property name + "Set" for change event names.
+
+### Fixed
+- Memory Leak in Rapier.js.
+- Saving a card only save the file for the initiating user.
+- Movement after coming back from dormancy.
+
+### Pending
+- Avatar collision with walls.
+- Numerous improvements to the Portals.
+
