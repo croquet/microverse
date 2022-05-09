@@ -8,7 +8,7 @@ class DriveActor {
         }
         this.addEventListener("keyDown", "control");
         this.addEventListener("pointerDown", "nop");
-        // this.scriptSubscribe("scope", "newAngle", "newAngle");
+        // this.subscribe("scope", "newAngle", "newAngle");
     }
     run() {
         if (!this.running) {return;}

@@ -395,8 +395,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             editButton.onpointerdown = (evt) => this.setEditMode(evt);
             editButton.onpointerup = (evt) => this.clearEditMode(evt);
 
-            let qrCanvas = App.makeQRCanvas({width: 180, height: 180});
-            setupWorldMenuButton(this, qrCanvas);
+            setupWorldMenuButton(this, App, this.sessionId);
 
             this.assetManager = this.service("AssetManager");
             window.assetManager = this.assetManager.assetManager;

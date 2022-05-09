@@ -103,11 +103,20 @@ body {
 #editModeBttn {top: 50%; left:10px; transform: translate(0, -50%); display: none}
 #editModeBttn[mobile="true"] {display: flex;}
 
-#worldMenu {
+.worldMenu {
     position: absolute;
     bottom: 50px;
     left: 50px;
     z-index: 200;
+    display: none;
+}
+
+.menuVisible {
+    display: block;
+}
+
+.statsHidden {
+    display: none;
 }
 
 .menu-qr {
@@ -116,6 +125,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#qrDiv {
+    width: 90%;
 }
 
 .menu-item {

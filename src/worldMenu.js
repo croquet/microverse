@@ -1,4 +1,5 @@
 let worldMenu = null;
+let worldMenuVisible = false;
 let imageInput = null;
 
 function qrPressed(_myAvatar, url) {
@@ -8,7 +9,6 @@ function qrPressed(_myAvatar, url) {
     let a = div.querySelector("#link");
     a.click();
     div.remove();
-    console.log("qr");
 }
 
 function savePressed(myAvatar) {
@@ -19,9 +19,9 @@ function savePressed(myAvatar) {
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData(), null, 4));
 
     div.setAttribute("href", dataStr);
-    div.setAttribute("download", "scene.json");
+    div.setAttribute("download", "scene.vrse");
     div.click();
-    if (worldMenu) {
+    if (worldMenuVisible) {
         toggleMenu();
     }
 }
@@ -49,60 +49,100 @@ function loadPressed(myAvatar) {
     document.body.appendChild(imageInput);
 
     imageInput.click();
-    if (worldMenu) {
+    if (worldMenuVisible) {
         toggleMenu();
     }
-    console.log("load");
 }
 
 function connectPressed() {
     window.BehaviorViewManager.setURL("ws://localhost:9011");
-    if (worldMenu) {
+    if (worldMenuVisible) {
         toggleMenu();
+    }
+}
+
+function switchQRView(_myAvatar) {
+    let qrDiv = worldMenu.querySelector("#qrDiv");
+    let statsDiv = worldMenu.querySelector("#statsDiv");
+
+    let cls = "statsHidden";
+
+    if (qrDiv.classList.contains(cls)) {
+        qrDiv.classList.toggle(cls, false);
+        statsDiv.classList.toggle(cls, true);
+    } else {
+        qrDiv.classList.toggle(cls, true);
+        statsDiv.classList.toggle(cls, false);
     }
 }
 
 function forceStop(myAvatar) {
     myAvatar.say("stopPresentation");
-    if (worldMenu) {
+    if (worldMenuVisible) {
         toggleMenu();
     }
 }
 
-function toggleMenu(myAvatar, qrCanvas) {
-    if (worldMenu) {
-        worldMenu.remove();
-        worldMenu = null;
-        return null;
+function initWorldMenu(badge) {
+    let html = document.createElement("div");
+    html.id = "worldMenu";
+    html.classList.add("worldMenu");
+
+    html.appendChild(badge);
+    badge.id = "worldMenu-qr";
+    badge.classList.add("menu-qr", "menu-item");
+
+    let buttons = `
+<div id="worldMenu-save" class="menu-label menu-item">
+    <span class="menu-label-text">Save</span>
+    <div class="menu-icon save-icon"></div>
+</div>
+<div id="worldMenu-load" class="menu-label menu-item">
+    <span class="menu-label-text">Load</span>
+    <div class="menu-icon load-icon"></div>
+</div>
+<div id="worldMenu-connect" class="menu-label menu-item">
+    <span class="menu-label-text">Connect</span>
+    <div class="menu-icon connect-icon"></div>
+</div>`.trim();
+
+    let div = document.createElement("div");
+    div.innerHTML = buttons;
+
+    let save = div.querySelector("#worldMenu-save");
+    let load = div.querySelector("#worldMenu-load");
+    let connect = div.querySelector("#worldMenu-connect");
+
+    html.appendChild(save);
+    html.appendChild(load);
+    html.appendChild(connect);
+
+    worldMenu = html;
+    worldMenuVisible = false;
+    document.body.appendChild(worldMenu);
+}
+
+function toggleMenu(myAvatar) {
+    if (worldMenuVisible) {
+        worldMenu.classList.remove("menuVisible");
+        worldMenuVisible = false;
+        return;
     }
 
-    let presentation = myAvatar.actor.service("PlayerManager").presentationMode ? `
+    if (worldMenu.lastChild.id === "worldMenu-forceStop") {
+        worldMenu.lastChild.remove();
+    }
+
+    if (myAvatar.actor.service("PlayerManager").presentationMode) {
+        let presentation = `
 <div id="worldMenu-forceStop" class="menu-label menu-item">
     <span class="menu-label-text">Stop Presentation</span>
-</div>` : "";
+</div>`.trim();
 
-    let html = `
-<div id="worldMenu", class="worldMenu">
-    <div id="worldMenu-qr" class="menu-qr menu-item"></div>
-    <div id="worldMenu-save" class="menu-label menu-item">
-       <span class="menu-label-text">Save</span>
-       <div class="menu-icon save-icon"></div>
-    </div>
-    <div id="worldMenu-load" class="menu-label menu-item">
-       <span class="menu-label-text">Load</span>
-       <div class="menu-icon load-icon"></div>
-    </div>
-    <div id="worldMenu-connect" class="menu-label menu-item">
-       <span class="menu-label-text">Connect</span>
-       <div class="menu-icon connect-icon"></div>
-    </div>
-    ${presentation}
-</div>`;
-
-    let dom = document.createElement("div");
-    dom.innerHTML = html;
-    worldMenu = dom.querySelector("#worldMenu");
-    document.body.appendChild(worldMenu);
+        let div = document.createElement("div");
+        div.innerHTML = presentation;
+        worldMenu.appendChild(div.firstChild);
+    }
 
     let div;
 
@@ -110,9 +150,13 @@ function toggleMenu(myAvatar, qrCanvas) {
     div.onclick = (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
+
+        if (evt.shiftKey) {
+            switchQRView(myAvatar);
+            return;
+        }
         qrPressed(myAvatar, window.location);
     }
-    div.appendChild(qrCanvas);
 
     div = worldMenu.querySelector("#worldMenu-save");
     div.onclick = (evt) => {
@@ -136,12 +180,33 @@ function toggleMenu(myAvatar, qrCanvas) {
         div.onclick = () => forceStop(myAvatar);
     }
 
-    document.body.appendChild(worldMenu);
-
+    worldMenuVisible = true;
+    worldMenu.classList.add("menuVisible");
     return worldMenu;
 }
 
-export function setupWorldMenuButton(myAvatar, qrCanvas) {
+export function setupWorldMenuButton(myAvatar, App, sessionId) {
+    if (!worldMenu) {
+        let ownerDiv = document.createElement("div");
+        let statsDiv = document.createElement("div");
+        statsDiv.id = "statsDiv";
+        let qrDiv = document.createElement("div");
+        qrDiv.id = "qrDiv";
+
+        statsDiv.classList.add("statsHidden");
+
+        ownerDiv.appendChild(qrDiv);
+        ownerDiv.appendChild(statsDiv);
+
+        App.root = ownerDiv;
+        App.badge = false;
+        App.qrcode = qrDiv;
+        App.stats = statsDiv;
+        App.makeSessionWidgets(sessionId);
+        qrDiv.onclick = null;
+
+        initWorldMenu(ownerDiv);
+    }
     let worldMenuButton = document.querySelector("#worldMenuBttn");
-    worldMenuButton.onclick = () => toggleMenu(myAvatar, qrCanvas);
+    worldMenuButton.onclick = () => toggleMenu(myAvatar);
 }
