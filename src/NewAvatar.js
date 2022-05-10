@@ -46,8 +46,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
 
         this.listen("velocitySet", this.setVelocity);
-
-        if (isPrimaryFrame) this.say("_set", { inWorld: true });
     }
 
     get pawn() { return AvatarPawn; }
@@ -422,6 +420,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                 });
             });
 
+            // keep track of being in the primary frame or not
+            this.isPrimary = isPrimaryFrame;
+            this.say("_set", { inWorld: this.isPrimary });
             this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
                 switch (command) {
                     case "frame-type":

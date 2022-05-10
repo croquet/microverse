@@ -42,8 +42,6 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("resetHeight", this.resetHeight);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
-
-        if (isPrimaryFrame) this.say("_set", { inWorld: true });
     }
     get pawn() { return AvatarPawn; }
     get lookPitch() { return this._lookPitch || 0; }
@@ -412,6 +410,9 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 });
             });
 
+            // keep track of being in the primary frame or not
+            this.isPrimary = isPrimaryFrame;
+            this.say("_set", { inWorld: this.isPrimary });
             this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
                 switch (command) {
                     case "frame-type":
