@@ -4,12 +4,13 @@
 
 import {
     Constants, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, ThreeRenderManager, RapierPhysicsManager} from "@croquet/worldcore";
-import { AvatarActor, } from './src/DAvatar.js';
+    InputManager, PlayerManager, ThreeRenderManager, RapierPhysicsManager, q_euler} from "@croquet/worldcore";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { AvatarActor, } from './src/NewAvatar.js';
+
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
 //import { DLight } from './src/DLight.js';
 import { TextFieldActor } from './src/text/text.js';
@@ -134,11 +135,23 @@ class MyPlayerManager extends PlayerManager {
     }
 
     createPlayer(options) {
-        options.index = this.avatarCount;
+        let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
         console.log("MyPlayerManager", this.avatarCount);
-        // options.lookYaw = toRad(45); for testing
-        options.color = [Math.random(), Math.random(), Math.random(), 1];
+        options.noSave = true;
+        options.type = "3d";
+        options.name = Constants.AvatarNames[index];
+        options.singleSided = true;
+        options.dataScale = [0.3, 0.3, 0.3];
+        options.dataRotation = q_euler(0, Math.PI, 0);
+        let dataLocation = options.name;
+
+        // compatibility when we wrote AvatarNames with shorter names.
+        if (!name.endsWith(".zip") && name.length < 40) {
+            dataLocation = `./assets/avatars/${options.name}.zip`;
+        }
+        
+        options.dataLocation = dataLocation;
         return AvatarActor.create(options);
     }
 
@@ -449,7 +462,6 @@ export function startWorld(appParameters) {
         flags: ["microverse"],
     };
 
-    // App.makeWidgetDock();
     return loadLoaders()
         .then(() => {
             return loadInitialBehaviors(Constants.SystemBehaviorModules, Constants.SystemBehaviorDirectory);

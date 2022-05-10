@@ -13,7 +13,6 @@ import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
-import { EYE_HEIGHT } from './DAvatar.js';
 import { WorldSaver } from './worldSaver.js';
 
 // import { forEach } from 'jszip';
@@ -999,7 +998,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             pe.offset = pose[1]; // distance from target
             pe.look = true;
         } else {
-            pe.offset = EYE_HEIGHT;
+            // pe.offset = Constants.EYE_HEIGHT; // filled in by the receiving side
         }
         this.publish(pe.pointerId, "goThere", pe);
     }
