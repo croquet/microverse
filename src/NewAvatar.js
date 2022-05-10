@@ -565,6 +565,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             yaw: this._lookYaw,
             lookOffset: this._lookOffset,
             presenting: this.presenting,
+            cardData: this.actor._cardData,
         };
     }
 
@@ -581,6 +582,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             // move actor to the right place
             actorSpec.translation = spec.translation;
             actorSpec.rotation = spec.rotation;
+            actorSpec.cardData = spec.cardData;
             // copy camera settings to pawn
             if (spec.pitch) this._lookPitch = spec.pitch;
             if (spec.yaw) this._lookYaw = spec.yaw;
