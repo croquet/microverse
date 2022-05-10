@@ -335,24 +335,15 @@ export const PM_Pointer = superclass => class extends superclass {
 
         this.future(0).focusTick();
 
-        if (this.service("UIManager")) {
-            this.subscribe("ui", "pointerDown", this.doPointerDown);
-            this.subscribe("ui", "pointerUp", this.doPointerUp);
-            this.subscribe("ui", "pointerMove", this.doPointerMove);
-            this.subscribe("ui", "click", this.doPointerClick);
-            this.subscribe("ui", "wheel", this.doPointerWheel);
-            this.subscribe("ui", "doubleDown", this.doPointerDoubleDown);
-            this.subscribe("ui", "tap", this.doPointerTap);
-        } else {
-            this.subscribe("input", "pointerDown", this.doPointerDown);
-            this.subscribe("input", "pointerUp", this.doPointerUp);
-            this.subscribe("input", "pointerMove", this.doPointerMove);
-            this.subscribe("input", "click", this.doPointerClick);
-            this.subscribe("input", "wheel", this.doPointerWheel);
-            this.subscribe("input", "doubleDown", this.doPointerDoubleDown);
-            this.subscribe("input", "tap", this.doPointerTap);
-        }
+        /* Microverse uses InputManager from Worldcore */
 
+        this.subscribe("input", "pointerDown", this.doPointerDown);
+        this.subscribe("input", "pointerUp", this.doPointerUp);
+        this.subscribe("input", "pointerMove", this.doPointerMove);
+        this.subscribe("input", "click", this.doPointerClick);
+        this.subscribe("input", "wheel", this.doPointerWheel);
+        this.subscribe("input", "doubleDown", this.doPointerDoubleDown);
+        this.subscribe("input", "tap", this.doPointerTap);
         this.subscribe("input", "keyDown", this.doKeyDown);
         this.subscribe("input", "keyUp", this.doKeyUp);
     }

@@ -498,8 +498,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
-        this.ctrlKey = true;
-        console.log("setEditMode", this.ctrlKey);
+        this.service("InputManager").setModifierKeys({ctrlKey: true});
     }
 
     clearEditMode(evt) {
@@ -507,8 +506,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         evt.target.releasePointerCapture(evt.pointerId);
         delete this.capturedPointers[evt.pointerId];
         evt.stopPropagation();
-        this.ctrlKey = false;
-        console.log("clearEditMode", this.ctrlKey);
+        this.service("InputManager").setModifierKeys({ctrlKey: false});
     }
 
     get lookOffset() { return this._lookOffset || [0,0,0]; }
@@ -805,10 +803,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     doKeyDown(e) {
         super.doKeyDown(e);
         switch(e.key) {
-            case 'Shift': this.shiftKey = true; break;
-            case 'Control': this.ctrlKey = true; break;
-            case 'Alt': this.altKey = true; break;
-            case 'Tab': this.jumpToNote(this.shiftKey); break;
+            case 'Tab': this.jumpToNote(e.shiftKey); break;
             case 'w': case 'W': // forward
                 this.yawDirection = -2;
                 this.setVelocity([0,0, -0.01]);
@@ -826,7 +821,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                 this.setVelocity([0, 0, 0.01]);
                 break;
             default:
-                if (this.ctrlKey) {
+                if (e.ctrlKey) {
                     switch(e.key) {
                         case 'a':
                             console.log("MyAvatar");
@@ -855,9 +850,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     doKeyUp(e) {
         super.doKeyUp(e);
         switch(e.key) {
-            case 'Shift': this.shiftKey = false; break;
-            case 'Control': this.ctrlKey = false; break;
-            case 'Alt': this.altKey = false; break;
             case 'w': case 'W': case 'a': case 'A':
             case 'd': case 'D': case 's': case 'S':
                 this.yawDirection = -1;
@@ -867,7 +859,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     doPointerDoubleDown(e) {
-        if (this.shiftKey && this.shiftDouble) {
+        if (e.shiftKey && this.shiftDouble) {
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
             let pe = this.pointerEvent(rc);
@@ -920,7 +912,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     doPointerDown(e) {
-        if (this.ctrlKey || this.editPawn) {
+        if (e.ctrlKey) {
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer')); // add walk if you want to edit the world
             this.targetDistance = rc.distance;
@@ -1007,7 +999,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     doPointerWheel(e) {
         /*
         const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
-        if (rc.pawn && this.ctrlKey) {
+        if (rc.pawn && e.ctrlKey) {
             this.invokeListeners("pointerWheel", rc.pawn, rc, e);
             return;
         }
