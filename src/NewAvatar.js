@@ -426,7 +426,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
                 switch (command) {
                     case "frame-type":
-                        this.frameTypeChanged(frameType === "primary", spec);
+                        const isPrimary = frameType === "primary";
+                        if (isPrimary !== this.isPrimary) {
+                            this.frameTypeChanged(isPrimary, spec);
+                            this.isPrimary = isPrimary;
+                        }
                         // tell shell that we received this command (TODO: should only send this once)
                         sendToShell("started");
                         break;
