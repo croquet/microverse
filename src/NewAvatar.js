@@ -394,7 +394,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
-            document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
             document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
@@ -450,6 +449,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.listen("setLookAngles", this.setLookAngles);
             this.listen("leaveToWorld", this.leaveToWorld);
             this.showNumbers();
+            console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
         }
     }
 
@@ -1067,22 +1067,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         // collect the notes
         // console.log(this.actor.service('CardManager').cards);
         // jump to the next one or last
-    }
-
-    toggleFullScreen(e) {
-        e.stopPropagation();
-        e.preventDefault();
-
-        if (!document.fullscreenElement) {
-            // If the document is not in full screen mode
-            // make the document full screen
-            document.body.requestFullscreen();
-        } else {
-            // Otherwise exit the full screen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
     }
 
     setTranslation(v) {
