@@ -267,7 +267,10 @@ class SprayActor {
         coordinates. For a more controll example would add cards to an
         owner card.
         */
-        const bt = [-20, 0, 53]; // bt for base translation
+
+        let t = this.translation;
+
+        const bt = [t[0], t[1] - 1.5, t[2] - 1]; // bt for base translation
 
         let x = Math.random() * 200 - 100;
         let z = Math.random() * -100;
@@ -283,7 +286,7 @@ class SprayActor {
             this.createCard({
                 name:"earth",
                 type: "object",
-                translation: [bt[0], 19, bt[2] - 2],
+                translation: bt,
                 layers: ["pointer"],
                 scale: [0.25, 0.25, 0.25],
                 behaviorModules: ["Rapier", "FlightTracker", "Cascade"],
@@ -308,7 +311,7 @@ class SprayActor {
             this.createCard({
                 name:"wooden box",
                 type: "object",
-                translation: [bt[0], 19, bt[2] - 2],
+                translation: bt,
                 layers: ["pointer"],
                 behaviorModules: ["Rapier", "Slides", "Cascade"],
                 rapierSize: [1, 1, 1],
@@ -340,7 +343,7 @@ class SprayActor {
         this.createCard({
             type: "object",
             layers: ["pointer"],
-            translation: [bt[0], 19, bt[2] - 2],
+            translation: bt,
             behaviorModules: ["Rapier", "Cascade"],
             rapierSize: size,
             rapierForce: {x, y: 100, z},
