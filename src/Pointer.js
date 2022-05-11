@@ -346,6 +346,94 @@ export const PM_Pointer = superclass => class extends superclass {
         this.subscribe("input", "tap", this.doPointerTap);
         this.subscribe("input", "keyDown", this.doKeyDown);
         this.subscribe("input", "keyUp", this.doKeyUp);
+
+        this.firstResponders = new Map(); // {eventType -> [{eventMask, pawn}]} // eventMask should be exclusive
+        this.lastResponders = new Map(); // {eventType -> [{eventMask, pawn}]} // eventMask should be exclusive
+    }
+
+    modifierEqual(e1, e2) {
+        return !!e1.altKey === !!e2.altKey && !!e1.ctrlKey === !!e2.ctrlKey && !!e1.metaKey === !!e2.metaKey && !!e1.shiftKey === !!e2.shiftKey;
+    }
+
+    addResponder(responders, eventType, eventMask, pawn) {
+        let array = responders.get(eventType);
+        if (!array) {
+            array = [];
+            responders.set(eventType, array);
+        }
+        array.forEach((obj) => {
+            let ms = ["altKey", "shiftKey", "ctrlKey", "metaKey"];
+            for (let i = 0; i < ms.length; i++) {
+                if (obj.eventMask[ms[i]] && eventMask[ms[i]]) {
+                    throw new Error(`${ms[i]} is already handled for ${eventType}`);
+                }
+            }
+        });
+        array.push({eventMask, pawn});
+    }
+
+    removeRespoonder(responders, eventType, eventMask, pawn) {
+        let array = responders.get(eventType);
+        if (!array) {return;}
+        let responderIndex = array.findIndex((obj) => {
+            let ms = ["altKey", "shiftKey", "ctrlKey", "metaKey"];
+            let all = true;
+            for (let i = 0; i < ms.length; i++) {
+                all = all && (obj.eventMask[ms[i]] && eventMask[ms[i]]);
+            }
+            return all;
+        });
+
+        if (responderIndex >= 0 && array[responderIndex].pawn === pawn) {
+            array.splice(responderIndex, 1);
+        }
+    }
+
+    findResponder(responders, e, eventType, requireModefier) {
+        let array = responders.get(eventType);
+        if (!array) {return null;}
+        let responderIndex = array.findIndex((obj) => {
+            let ms = ["altKey", "shiftKey", "ctrlKey", "metaKey"];
+            let all = true;
+            let any = false;
+            for (let i = 0; i < ms.length; i++) {
+                if (e[ms[i]]) {
+                    any = true;
+                    all = all && obj.eventMask[ms[i]];
+                }
+            }
+            if (requireModefier && !any) {return false;}
+            return all;
+        });
+
+        if (responderIndex >= 0) {
+            return array[responderIndex].pawn;
+        }
+        return null;
+    }
+
+    addFirstResponder(eventType, eventMask, pawn) {
+        return this.addResponder(this.firstResponders, eventType, eventMask, pawn);
+    }
+
+    removeFirstRespoonder(eventType, eventMask, pawn) {
+        return this.removeRespoonder(this.firstResponders, eventType, eventMask, pawn);
+    }
+
+    findFirstResponder(e, eventType) {
+        return this.findResponder(this.firstResponders, e, eventType, true);
+    }
+
+    addLastResponder(eventType, eventMask, pawn) {
+        return this.addResponder(this.lastResponders, eventType, eventMask, pawn);
+    }
+
+    removeLastRespoonder(eventType, eventMask, pawn) {
+        return this.removeRespoonder(this.lastResponders, eventType, eventMask, pawn);
+    }
+
+    findLastResponder(e, eventType) {
+        return this.findResponder(this.lastResponders, e, eventType, false);
     }
 
     destroy() {
@@ -369,20 +457,33 @@ export const PM_Pointer = superclass => class extends superclass {
         });
     }
 
-    invokeListeners(type, target, rc, optEvent) {
+    invokeListeners(type, target, rc, wcEvent) {
         let array = target.eventListeners.get(type);
-        let event = optEvent;
-        if (!event) {
-            event = this.pointerEvent(rc);
+        let event;
+        if (!rc) {
+            event = wcEvent;
+        } else {
+            event = this.pointerEvent(rc, wcEvent);
         }
         if (array) {
             array.forEach((n) => n.listener.call(target, event));
         }
     }
 
+    pointerCapture(toPawn) {
+        this.focusPawn = toPawn;
+    }
+
     doPointerDown(e) {
+        let eventType = "pointerDown";
         this.focusTime = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDown"));
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
         if (e.button === 0) {
             this.isPointerDown = true;
             if (this.focusPawn !== rc.pawn) {
@@ -392,98 +493,199 @@ export const PM_Pointer = superclass => class extends superclass {
             }
         }
         if (this.focusPawn) {
-            rc.xy  = e.xy;
-            this.invokeListeners("pointerDown", this.focusPawn, rc);
+            this.invokeListeners(eventType, this.focusPawn, rc, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, rc, e);
+            }
         }
-    }
-
-    pointerCapture(toPawn) {
-        this.focusPawn = toPawn;
     }
 
     doPointerUp(e) {
+        let eventType = "pointerUp";
         this.focusTime = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerUp"));
-        if (this.focusPawn) {
-            rc.xy  = e.xy;
-            this.invokeListeners("pointerUp", this.focusPawn, rc);
-        }
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
         this.isPointerDown = false;
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
+        if (this.focusPawn) {
+            this.invokeListeners(eventType, this.focusPawn, rc, e);
+        }
+
+        // this is dubious but we clear the editPawn anyway.
+        let lastResponder = this.findLastResponder(e, eventType);
+        if (lastResponder) {
+            return this.invokeListeners(eventType, lastResponder, rc, e);
+        }
         // this.focusPawn = null;
-    };
+    }
 
     doPointerMove(e) {
+        let eventType = "pointerMove";
         this.focusTimeout = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerMove"));
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
         if (this.hoverPawn !== rc.pawn) {
             if (this.hoverPawn) {
-                rc.xy  = e.xy;
-                this.invokeListeners("pointerLeave", this.hoverPawn, rc);
+                this.invokeListeners("pointerLeave", this.hoverPawn, rc, e);
             }
             this.hoverPawn = rc.pawn;
             if (this.hoverPawn) {
-                rc.xy  = e.xy;
-                this.invokeListeners("pointerEnter", this.hoverPawn, rc);
+                this.invokeListeners("pointerEnter", this.hoverPawn, rc, e);
             }
         }
 
         if (this.isPointerDown && this.focusPawn && this.focusPawn === rc.pawn) { // dubious check
-            rc.xy  = e.xy;
-            this.invokeListeners("pointerMove", this.focusPawn, rc);
+            this.invokeListeners(eventType, this.focusPawn, rc, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, rc, e);
+            }
         }
     }
 
     doPointerClick(e) {
+        let eventType = "click";
         this.focusTime = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("click"));
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
         if (rc.pawn) {
-            rc.xy  = e.xy;
-            this.invokeListeners("click", rc.pawn, rc);
+            this.invokeListeners(eventType, rc.pawn, rc, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, rc, e);
+            }
         }
     }
 
     doPointerDoubleDown(e) {
+        let eventType = "pointerDoubleDown";
         this.focusTimeout = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerDoubleDown", true), true);
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType, true), true);
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
         if (rc.pawn) {
-            rc.xy  = e.xy;
-            this.invokeListeners("pointerDoubleDown", rc.pawn, rc);
+            this.invokeListeners(eventType, rc.pawn, rc, e);
+        }
+    }
+
+    doPointerWheel(e) {
+        let eventType = "pointerWheel";
+        this.focusTimeout = this.now();
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType, true), true);
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
+        if (rc.pawn) {
+            this.invokeListeners(eventType, rc.pawn, rc, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, rc, e);
+            }
         }
     }
 
     doPointerTap(e) {
+        let eventType = "pointerTap";
         this.focusTimeout = this.now();
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerTap"));
+        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, rc, e);
+        }
+
         if (rc.pawn) {
-            rc.xy  = e.xy;
-            this.invokeListeners("pointerTap", rc.pawn, rc);
+            this.invokeListeners(eventType, rc.pawn, rc, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, rc, e);
+            }
         }
     }
 
     doKeyDown(e) {
+        let eventType = "keyDown";
         this.focusTime = this.now();
+
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, null, e);
+        }
+
         if (this.focusPawn) {
-            this.invokeListeners("keyDown", this.focusPawn, null, e);
+            this.invokeListeners(eventType, this.focusPawn, null, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, null, e);
+            }
         }
     }
 
     doKeyUp(e) {
+        let eventType = "keyUp";
         this.focusTime = this.now();
 
+        let firstResponder = this.findFirstResponder(e, eventType);
+        if (firstResponder) {
+            return this.invokeListeners(eventType, firstResponder, null, e);
+        }
+
         if (this.focusPawn) {
-            this.invokeListeners("keyUp", this.focusPawn, null, e);
+            this.invokeListeners(eventType, this.focusPawn, null, e);
+        } else {
+            let lastResponder = this.findLastResponder(e, eventType);
+            if (lastResponder) {
+                return this.invokeListeners(eventType, lastResponder, null, e);
+            }
         }
     }
 
-    pointerEvent(rc) {
+    pointerEvent(rc, wcEvent) {
         const pe = {pointerId: this.actor.id}
         if (rc.pawn) {
             pe.targetId = rc.pawn.actor.id;
             pe.xyz = rc.xyz;
-            pe.xy = rc.xy;
             pe.uv = rc.uv;
             pe.normal = rc.normal;
             pe.distance = rc.distance;
+        }
+        pe.ctrlKey = wcEvent.ctrlKey;
+        pe.altKey = wcEvent.altKey;
+        pe.shiftKey = wcEvent.shiftKey;
+        pe.metaKey = wcEvent.metaKey;
+        pe.xy = wcEvent.xy;
+        pe.id = wcEvent.id;
+        pe.button = wcEvent.button;
+        if (wcEvent.deltaY) {
+            pe.deltaY = wcEvent.deltaY;
         }
         return pe;
     }

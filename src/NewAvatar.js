@@ -450,6 +450,35 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.listen("setLookAngles", this.setLookAngles);
             this.listen("leaveToWorld", this.leaveToWorld);
             this.showNumbers();
+
+            this.addFirstResponder("pointerDown", {ctrlKey: true}, this);
+            this.addLastResponder("pointerDown", {}, this);
+            this.addEventListener("pointerDown", this.pointerDown);
+
+            this.addFirstResponder("pointerMove", {ctrlKey: true}, this);
+            this.addLastResponder("pointerMove", {}, this);
+            this.addEventListener("pointerMove", this.pointerMove);
+
+            this.addLastResponder("pointerUp", {ctrlKey: true}, this);
+            this.addEventListener("pointerUp", this.pointerUp);
+
+            this.addLastResponder("pointerWheel", {}, this);
+            this.addEventListener("pointerWheel", this.pointerWheel);
+
+            this.addLastResponder("pointerTap", {ctrlKey: true}, this);
+            this.addEventListener("pointerTap", this.pointerTap);
+
+            this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+            this.addFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
+            this.addEventListener("pointerDoubleDown", this.addSticky);
+
+            this.addLastResponder("keyDown", {}, this);
+            this.addEventListener("keyDown", this.keyDown);
+
+            this.addLastResponder("keyUp", {}, this);
+            this.addEventListener("keyUp", this.keyUp);
+            
+            this.listen("goThere", this.stopFalling);
         }
     }
 
@@ -800,8 +829,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
     }
 
-    doKeyDown(e) {
-        super.doKeyDown(e);
+    keyDown(e) {
         switch(e.key) {
             case 'Tab': this.jumpToNote(e.shiftKey); break;
             case 'w': case 'W': // forward
@@ -847,8 +875,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
     }
 
-    doKeyUp(e) {
-        super.doKeyUp(e);
+    keyUp(e) {
         switch(e.key) {
             case 'w': case 'W': case 'a': case 'A':
             case 'd': case 'D': case 's': case 'S':
@@ -858,19 +885,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
     }
 
-    doPointerDoubleDown(e) {
-        if (e.shiftKey && this.shiftDouble) {
+    addSticky(e) {
+        if (e.shiftKey) {
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
-            let pe = this.pointerEvent(rc);
+            let pe = this.pointerEvent(rc, e);
             return this.shiftDouble(pe);
         }
-        this.isFalling = false;
-        super.doPointerDoubleDown(e);
     }
 
     shiftDouble(pe) {
         this.say("addSticky", pe);
+    }
+
+    stopFalling() {
+        this.isFalling = false;
     }
 
     xy2yp(xy) {
@@ -882,82 +911,47 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         return[c * (xy[0] - w), c * (h - xy[1])];
     }
 
-    doPointerTap(e) {
-        if (this.editPawn) { // this gets set in doPointerDown
-            this.editPawn.unselectEdit();
-            this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
-            this.editPawn = null;
-            this.editPointerId = null;
-            this.editMode = false;
-        } else {
-            // so that subsequent pointer up can clean up a few things
-            try {
-                super.doPointerTap(e);
-            } catch(e) {
-                console.log(e);
-            }
-        }
-        /*
-                this.editPawn = null;
-                this.editPointerId = null;
-                this.editMode = false;
-                console.log("doPointerTap clear editMode")
-            } else {
-                console.log("doPointerTap set editMode")
-                this.editMode = true; // otherwise, set it
-                console.log("doPointerTap",this.actor.id);
-                this.editPawn.showControls(this.actor.id);
-            }
-        }*/
-    }
-
-    doPointerDown(e) {
-        if (e.ctrlKey) {
+    pointerDown(e) {
+        if (e.ctrlKey) { // should be the first responder case
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer')); // add walk if you want to edit the world
+            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
             this.targetDistance = rc.distance;
-            let p3e = this.pointerEvent(rc);
+            let p3e = this.pointerEvent(rc, e);
             p3e.lookNormal = this.actor.lookNormal;
             let pawn = GetPawn(p3e.targetId);
             pawn = pawn || null;
 
             if (this.editPawn !== pawn) {
                 if (this.editPawn) {
-                    console.log('doPointerDown clear old editPawn')
+                    console.log('pointerDown clear old editPawn')
                     this.editPawn.unselectEdit();
                     this.editPawn = null;
                     this.editPointerId = null;
                 }
-                console.log('doPointerDown set new editPawn', pawn)
-                this.editMode = false; // this gets set later
+                console.log('pointerDown set new editPawn', pawn)
                 if (pawn) {
                     this.editPawn = pawn;
                     this.editPointerId = e.id;
                     this.editPawn.selectEdit();
-                    this.isPointerDown = true;
                     this.buttonDown = e.button;
                     if (!p3e.normal) {p3e.normal = this.actor.lookNormal}
                     this.p3eDown = p3e;
                 }
-            }else{
-                console.log("doPointerDown in editMode")
+            } else {
+                console.log("pointerDown in editMode")
             }
         } else {
-            super.doPointerDown(e);
             if (!this.focusPawn) {
+                // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
                 this._lookYaw = q_yaw(this._rotation);
             }
         }
     }
 
-    doPointerMove(e) {
-        if (this.editMode) { // pawn is in an edit mode
-            if (this.isPointerDown) {
-                console.log('doPointerMove editMode')
-            }
-        }else if (this.editPawn) {
-            // pawn is in drag mode
+    pointerMove(e) {
+        if (this.editPawn) {
+            // a pawn is selected for draggging
             if (e.id === this.editPointerId) {
                 if (this.buttonDown === 0) {
                     this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
@@ -966,7 +960,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                 }
             }
         }else {
-            super.doPointerMove(e);
+            // we should add and remove responders dynamically so that we don't have to check things this way
             if (!this.focusPawn && this.isPointerDown) {
                 let yp = this.xy2yp(e.xy);
                 let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
@@ -978,32 +972,26 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
     }
 
-    doPointerUp(e) {
-        this.isPointerDown = false;
-        if (this.editMode) {
-            console.log("doPointerUp editMode");
-            return;
-        }
-
+    pointerUp(e) {
         if (this.editPawn) {
             this.editPawn.unselectEdit();
             this.editPawn = null;
             this.editPointerId = null;
             this.p3eDown = null;
-            return;
-
+            this.buttonDown = null;
         }
-        super.doPointerUp(e);
     }
 
-    doPointerWheel(e) {
-        /*
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
-        if (rc.pawn && e.ctrlKey) {
-            this.invokeListeners("pointerWheel", rc.pawn, rc, e);
-            return;
+    pointerTap(e) {
+        if (this.editPawn) { // this gets set in pointerDown
+            this.editPawn.unselectEdit();
+            this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
+            this.editPawn = null;
+            this.editPointerId = null;
         }
-        */
+    }
+
+    pointerWheel(e) {
         let z = this.lookOffset[2];
         z += Math.max(1,z) * e.deltaY / 1000.0;
         z = Math.min(100, Math.max(z,0));
