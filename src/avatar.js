@@ -396,6 +396,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
             document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
+            document.getElementById("editModeBttn").setAttribute("pressed", false);
 
             let editButton = document.getElementById("editModeBttn");
             editButton.onpointerdown = (evt) => this.setEditMode(evt);
@@ -523,6 +524,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     setEditMode(evt) {
+        evt.target.setAttribute("pressed", true);
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
@@ -530,6 +532,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     clearEditMode(evt) {
+        evt.target.setAttribute("pressed", false);
         if (this.capturedPointers[evt.pointerId] !== "editModeBttn") {return;}
         evt.target.releasePointerCapture(evt.pointerId);
         delete this.capturedPointers[evt.pointerId];

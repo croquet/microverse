@@ -109,7 +109,12 @@ body {
 #fullscreenBttn {top:10px; left:10px;}
 #worldMenuBttn {bottom:10px; left:10px;}
 #editModeBttn {top: 50%; left:10px; transform: translate(0, -50%); display: none}
+
 #editModeBttn[mobile="true"] {display: flex;}
+#editModeBttn[pressed="true"] {background-color:#80808080;}
+#editModeBttn[pressed="false"] {background-color: #d3d3d380;}
+
+.no-pointer-events {pointer-events: none;}
 
 .worldMenu {
     position: absolute;
