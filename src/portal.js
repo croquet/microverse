@@ -6,7 +6,9 @@ import { addShellListener, removeShellListener, sendToShell } from "./frame.js";
 
 export class PortalActor extends CardActor {
 
-    get targetURL() { return this._cardData.targetURL; }
+    get portalURL() {
+        return this._cardData.portalURL;
+    }
 
     get pawn() {return PortalPawn;}
 
@@ -94,7 +96,7 @@ export class PortalPawn extends CardPawn {
 
     loadTargetWorld() {
         sendToShell("load-world", {
-            url: this.actor.targetURL,
+            url: this.actor.portalURL,
             portalId: this.portalId, // initially undefined
         });
     }

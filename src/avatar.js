@@ -185,18 +185,18 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.service("PlayerManager").startPresentation(this.playerId);
     }
 
-    followMeToWorld(targetURL) {
+    followMeToWorld(portalURL) {
         const manager = this.service("PlayerManager");
         if (manager.presentationMode === this.playerId) {
             for (const playerId of manager.followers) {
                 const follower = manager.player(playerId);
-                follower.leaveToWorld(targetURL);
+                follower.leaveToWorld(portalURL);
             }
         }
     }
 
-    leaveToWorld(targetURL) {
-        this.say("leaveToWorld", targetURL);
+    leaveToWorld(portalURL) {
+        this.say("leaveToWorld", portalURL);
     }
 
     presentationStarted(playerId) {
@@ -630,7 +630,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         if (leavingWorld) this.releaseHandler();
         // if we were presenting, tell followers to come with us
         if (leavingWorld && this.presenting) {
-            this.say("followMeToWorld", spec.targetURL);
+            this.say("followMeToWorld", spec.portalURL);
             // calls leaveToWorld() in followers
             // which will result in frameTypeChanged() on follower's clients
         }
@@ -645,8 +645,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
     }
 
-    leaveToWorld(targetURL) {
-        sendToShell("enter-world", { targetURL });
+    leaveToWorld(portalURL) {
+        sendToShell("enter-world", { portalURL });
     }
 
     update(time, delta) {

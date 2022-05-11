@@ -88,7 +88,7 @@ export function init(Constants) {
                 depth: 0.05,
                 cornerRadius: 0.05,
                 multiuser: true,
-                targetURL: "?world=portal1&q=llepplm7k3#pw=YAv65WDiOrW7jFMVSACd6g",
+                portalURL: "?world=portal1&q=llepplm7k3#pw=YAv65WDiOrW7jFMVSACd6g",
             }
         },
     ];

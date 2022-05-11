@@ -176,9 +176,9 @@ class Shell {
                 return;
             case "croquet:microverse:enter-world":
                 if (fromFrame === this.currentFrame) {
-                    let targetFrame = [...this.frames.values()].find(f => f.src === data.targetURL);
+                    let targetFrame = [...this.frames.values()].find(f => f.src === data.portalURL);
                     if (!targetFrame) {
-                        console.log("enter-world: no frame for", data.targetURL);
+                        console.log("enter-world: no frame for", data.portalURL);
                         targetFrame = this.addFrame(url);
                     }
                     this.enterPortal(targetFrame.portalId, true);
@@ -219,16 +219,16 @@ class Shell {
     enterPortal(toPortalId, pushState=true, avatarSpec=null) {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
-        const targetURL = toFrame.src;
+        const portalURL = toFrame.src;
         this.sortFrames(toFrame, fromFrame);
         if (pushState) {
             window.history.pushState({
                 portalId: toFrame.portalId,
-            }, null, targetURL);
+            }, null, portalURL);
         }
         this.currentFrame = toFrame;
         this.currentFrame.focus();
         this.sendFrameType(toFrame, avatarSpec);
-        this.sendFrameType(fromFrame, {targetURL});
+        this.sendFrameType(fromFrame, {portalURL});
     }
 }
