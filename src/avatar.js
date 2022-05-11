@@ -1,36 +1,39 @@
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
+
 import {
-    Constants, Data, App, ViewService, mix, GetPawn, Pawn, Actor, AM_Player, AM_Predictive, PM_Predictive, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_transform, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+    Data, App, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
+    v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
-import {addShadows, AssetManager as BasicAssetManager} from "./assetManager.js";
+import {CardActor, CardPawn} from "./DCard.js";
 
 import {setupWorldMenuButton} from "./worldMenu.js";
 
-let avatarModelPromises = [];
-export let EYE_HEIGHT = 1.676;
+let EYE_HEIGHT = 1.676;
 export let EYE_EPSILON = 0.01;
 export let THROTTLE = 50;
 export let PORTAL_DISTANCE = 1;
 export let isMobile = !!("ontouchstart" in window);
 
-export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
+export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
-        // this presumes we are selecting the next avatar in a list - this is not what will happen in the future
+        let playerId = options.playerId;
+        delete options.playerId;
         super.init(options);
-        this.avatarIndex = options.index;
+        this._playerId = playerId;
+        this._layers = ["avatar"];
 
         this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
+
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
-        this.listen("setTranslation", this.setTranslation);
+        //this.listen("setTranslation", this.setTranslation);
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
@@ -42,29 +45,42 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
         this.listen("resetHeight", this.resetHeight);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
+
+        this.listen("velocitySet", this.setVelocity);
     }
+
     get pawn() { return AvatarPawn; }
     get lookPitch() { return this._lookPitch || 0; }
     get lookYaw() { return this._lookYaw || 0; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
     get collisionRadius() { return this._collisionRadius || 0.375; }
-    get inWorld() { return !!this._inWorld; }   // our user is either in this world or rendering a portal (in which case the avatar is invisible)
+    get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
+    /*
     setSpin(q) {
-        super.setSpin(q);
+        // super.setSpin(q);
+        this.leavePresentation();
+    }
+    */
+
+    setVelocity(_v) {
+        // super.setVelocity(v);
         this.leavePresentation();
     }
 
-    setVelocity(v) {
-        super.setVelocity(v);
-        this.leavePresentation();
-    }
-
+    /*
     setVelocitySpin(vq) {
-        super.setSpin(vq[0]);
-        super.setVelocity(vq[1]);
+        // super.setSpin(vq[0]);
+        // super.setVelocity(vq[1]);
         this.leavePresentation();
     }
+    */
+
+    /*
+    setTranslation(v) {
+        this.translation = v;
+    }
+    */
 
     leavePresentation() {
         if (!this.follow) {return;}
@@ -84,10 +100,6 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
     inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
-    }
-
-    setTranslation(v) {
-        this.translation = v;
     }
 
     setFloor(p) {
@@ -148,7 +160,7 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
             this.restoreTargetId = p3d.targetId;
             let normal = [...(p3d.normal || this.lookNormal)]; //target normal may not exist
             let point = p3d.xyz;
-            this.vEnd = v3_add(point, v3_scale(normal, p3d.offset));
+            this.vEnd = v3_add(point, v3_scale(normal, p3d.offset || EYE_HEIGHT));
             normal[1] = 0; // clear up and down
             let nsq = v3_sqrMag(normal);
             if (nsq < 0.0001) {
@@ -330,19 +342,18 @@ export class AvatarActor extends mix(Actor).with(AM_Player, AM_Predictive) {
 
 AvatarActor.register('AvatarActor');
 
-export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
+export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
-        this.addToLayers('avatar');
         this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
-        this.avatarIndex = actor.avatarIndex;
+
         this._lookPitch = this.actor.lookPitch;
         this._lookYaw = this.actor.lookYaw;
         this._rotation = q_euler(0, this.lookYaw, 0);
-        this._lookOffset = [0,0,0]; // Vector displacing the camera from the avatar origin.
+        this._lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         if (this.isMyPlayerPawn) {
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
@@ -384,7 +395,6 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
             this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
-            document.getElementById("fullscreenBttn").onclick = (e) => this.toggleFullScreen(e);
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
             document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
@@ -415,7 +425,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.say("_set", { inWorld: this.isPrimary });
             this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
                 switch (command) {
-                    case "frame-type":
+                    case "frame-type" :
                         const isPrimary = frameType === "primary";
                         if (isPrimary !== this.isPrimary) {
                             this.frameTypeChanged(isPrimary, spec);
@@ -440,8 +450,37 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             this.listen("setLookAngles", this.setLookAngles);
             this.listen("leaveToWorld", this.leaveToWorld);
             this.showNumbers();
+
+            this.addFirstResponder("pointerDown", {ctrlKey: true}, this);
+            this.addLastResponder("pointerDown", {}, this);
+            this.addEventListener("pointerDown", this.pointerDown);
+
+            this.addFirstResponder("pointerMove", {ctrlKey: true}, this);
+            this.addLastResponder("pointerMove", {}, this);
+            this.addEventListener("pointerMove", this.pointerMove);
+
+            this.addLastResponder("pointerUp", {ctrlKey: true}, this);
+            this.addEventListener("pointerUp", this.pointerUp);
+
+            this.addLastResponder("pointerWheel", {}, this);
+            this.addEventListener("pointerWheel", this.pointerWheel);
+
+            this.addLastResponder("pointerTap", {ctrlKey: true}, this);
+            this.addEventListener("pointerTap", this.pointerTap);
+
+            this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+            this.addFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
+            this.addEventListener("pointerDoubleDown", this.addSticky);
+
+            this.addLastResponder("keyDown", {}, this);
+            this.addEventListener("keyDown", this.keyDown);
+
+            this.addLastResponder("keyUp", {}, this);
+            this.addEventListener("keyUp", this.keyUp);
+
+            this.listen("goThere", this.stopFalling);
+            console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
         }
-        this.constructVisual();
     }
 
     get presenting() {
@@ -473,7 +512,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = manager.players.size;
             let here = manager.playersInWorld().length;
-            if (here !== total) total = `${here}+${total-here}`;
+            if (here !== total) total = `${here}+${total - here}`;
             if (manager.presentationMode) {
                 let followers = manager.followers.size;
                 userCountReadOut.textContent = `${followers}/${total}`;
@@ -489,8 +528,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         evt.target.setPointerCapture(evt.pointerId);
         this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
-        this.ctrlKey = true;
-        console.log("setEditMode", this.ctrlKey);
+        this.service("InputManager").setModifierKeys({ctrlKey: true});
     }
 
     clearEditMode(evt) {
@@ -498,58 +536,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         evt.target.releasePointerCapture(evt.pointerId);
         delete this.capturedPointers[evt.pointerId];
         evt.stopPropagation();
-        this.ctrlKey = false;
-        console.log("clearEditMode", this.ctrlKey);
-    }
-
-    constructVisual() {
-        this.setupAvatar(this.getAvatarModel(this.avatarIndex % Constants.AvatarNames.length));
+        this.service("InputManager").setModifierKeys({ctrlKey: false});
     }
 
     get lookOffset() { return this._lookOffset || [0,0,0]; }
     get lookPitch() { return this._lookPitch || 0; }
     get lookYaw() { return this._lookYaw || 0; }
-
-    getAvatarModel(index) {
-        if (avatarModelPromises[index]) {
-            return avatarModelPromises[index];
-        }
-
-        let name = Constants.AvatarNames[index];
-        if (!name) {name = Constants.AvatarNames[0];}
-
-        let promise = fetch(`./assets/avatars/${name}.zip`)
-            .then((resp) => resp.arrayBuffer())
-            .then((arrayBuffer) => new BasicAssetManager().load(new Uint8Array(arrayBuffer), "glb", THREE))
-            .then((obj) => {
-                addShadows(obj, true, true, THREE);
-                obj.scale.set(0.3,0.3,0.3);
-                obj.rotation.set(0, Math.PI, 0);
-                let group = new THREE.Group();
-                group.add(obj);
-                return group;
-            });
-
-        avatarModelPromises[index] = promise;
-        return promise;
-    }
-
-    setupAvatar(modelPromise) {// create the avatar (cloned from above)
-        modelPromise.then((model) => {
-            model = this.avatar = model.clone();
-            model.traverse(n => {
-                if (n.material) {
-                    n.material = n.material.clone();
-                }
-            });
-
-            if (this.doomed) {return;}
-            this.addToLayers('avatar');
-            model.name = "Avatar";
-            this.setRenderObject(model);  // note the extension
-            this.avatar.visible = this.actor.inWorld;
-        });
-    }
 
     lookTo(pitch, yaw, lookOffset) {
         this._lookPitch = pitch;
@@ -601,6 +593,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             yaw: this._lookYaw,
             lookOffset: this._lookOffset,
             presenting: this.presenting,
+            cardData: this.actor._cardData,
         };
     }
 
@@ -617,6 +610,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
             // move actor to the right place
             actorSpec.translation = spec.translation;
             actorSpec.rotation = spec.rotation;
+            actorSpec.cardData = spec.cardData;
             // copy camera settings to pawn
             if (spec.pitch) this._lookPitch = spec.pitch;
             if (spec.yaw) this._lookYaw = spec.yaw;
@@ -675,7 +669,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         let capsulePoint = new THREE.Vector3();
 
         const radius = this.actor.collisionRadius;
-        let head = EYE_HEIGHT/6;
+        let head = EYE_HEIGHT / 6;
         let newPosition = [...this._translation];
 
         collideList.forEach(c => {
@@ -687,12 +681,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             let segment = new THREE.Line3(v.clone(), v.clone());
 
-            segment.start.y += (head-radius);
-            segment.end.y -= (EYE_HEIGHT-radius);
+            segment.start.y += (head - radius);
+            segment.end.y -= (EYE_HEIGHT - radius);
             let cBox = new THREE.Box3();
-            cBox.min.set(v.x-radius, v.y-EYE_HEIGHT, v.z-radius);
-            cBox.max.set(v.x+radius, v.y+EYE_HEIGHT/6, v.z+radius);
-            let minDistance = 1000000;
+            cBox.min.set(v.x - radius, v.y - EYE_HEIGHT, v.z - radius);
+            cBox.max.set(v.x + radius, v.y + EYE_HEIGHT / 6, v.z + radius);
+            // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
@@ -710,12 +704,14 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
             newPosition = segment.start;
             newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
-            newPosition.y -= (head-radius);
+            newPosition.y -= (head - radius);
 
+            /*
             let deltaV = [newPosition.x - this.translation[0],
                 newPosition.y - this.translation[1],
                 newPosition.z - this.translation[2]
             ];
+            */
         })
         if (newPosition !== undefined) this.setTranslation(newPosition.toArray());
     }
@@ -740,7 +736,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.portalcaster.ray.direction.set(...dir);
         this.portalcaster.ray.origin.set(...this.translation);
         const intersections = this.portalcaster.intersectObjects(portalLayer, true);
-        if (intersections.length>0) {
+        if (intersections.length > 0) {
             let portal = this.hitPawn(intersections[0].object);
             if (portal) {
                 portal.enterPortal();
@@ -769,7 +765,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
 
         if (intersections.length > 0) {
             let dFront = intersections[0].distance;
-            let delta = Math.min(dFront-EYE_HEIGHT, EYE_HEIGHT/8); // can only fall 1/8 EYE_HEIGHT at a time
+            let delta = Math.min(dFront - EYE_HEIGHT, EYE_HEIGHT / 8); // can only fall 1/8 EYE_HEIGHT at a time
             if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
                 let t = this.translation;
                 let p = t[1] - delta;
@@ -800,7 +796,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         e?.stopPropagation();
         this.activeMMotion = false;
         this.vq = undefined;
-        this.setVelocitySpin([0, 0, 0],q_identity());
+        this.setVelocitySpin([0, 0, 0], q_identity());
         this.hiddenknob.style.transform = "translate(0px, 0px)";
         this.knob.style.transform = "translate(30px, 30px)";
     }
@@ -834,16 +830,12 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doKeyDown(e) {
-        super.doKeyDown(e);
+    keyDown(e) {
         switch(e.key) {
-            case 'Shift': this.shiftKey = true; break;
-            case 'Control': this.ctrlKey = true; break;
-            case 'Alt': this.altKey = true; break;
-            case 'Tab': this.jumpToNote(this.shiftKey); break;
+            case 'Tab': this.jumpToNote(e.shiftKey); break;
             case 'w': case 'W': // forward
                 this.yawDirection = -2;
-                this.setVelocity([0,0,-0.01]);
+                this.setVelocity([0,0, -0.01]);
                 break;
             case 'a': case 'A': // left strafe
                 this.yawDirection = -2;
@@ -858,7 +850,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                 this.setVelocity([0, 0, 0.01]);
                 break;
             default:
-                if (this.ctrlKey) {
+                if (e.ctrlKey) {
                     switch(e.key) {
                         case 'a':
                             console.log("MyAvatar");
@@ -872,7 +864,7 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
                                 console.log("end profiling");
                                 console.profileEnd("profile");
                                 this.profiling = false;
-                            }else{
+                            } else {
                                 this.profiling = true;
                                 console.log("start profiling");
                                 console.profile("profile");
@@ -884,167 +876,123 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    doKeyUp(e) {
-        super.doKeyUp(e);
+    keyUp(e) {
         switch(e.key) {
-            case 'Shift': this.shiftKey = false; break;
-            case 'Control': this.ctrlKey = false; break;
-            case 'Alt': this.altKey = false; break;
             case 'w': case 'W': case 'a': case 'A':
             case 'd': case 'D': case 's': case 'S':
                 this.yawDirection = -1;
                 this.setVelocity([0, 0, 0]);
-            break;
+                break;
         }
     }
 
-    doPointerDoubleDown(e) {
-        if (this.shiftKey && this.shiftDouble) {
+    addSticky(e) {
+        if (e.shiftKey) {
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
-            let pe = this.pointerEvent(rc);
+            let pe = this.pointerEvent(rc, e);
             return this.shiftDouble(pe);
         }
-        this.isFalling = false;
-        super.doPointerDoubleDown(e);
     }
 
     shiftDouble(pe) {
         this.say("addSticky", pe);
     }
 
+    stopFalling() {
+        this.isFalling = false;
+    }
+
     xy2yp(xy) {
         let camera = this.service("ThreeRenderManager").camera;
-        let fov = camera.fov/2;
-        let h = window.innerHeight/2;
-        let w = window.innerWidth/2;
-        let c = (fov*Math.PI/180)/h;
-        return[c*(xy[0]-w), c*(h-xy[1])];
+        let fov = camera.fov / 2;
+        let h = window.innerHeight / 2;
+        let w = window.innerWidth / 2;
+        let c = (fov * Math.PI / 180) / h;
+        return[c * (xy[0] - w), c * (h - xy[1])];
     }
 
-    doPointerTap(e) {
-        if (this.editPawn) { // this gets set in doPointerDown
-//            if (this.editMode) { // if we are in edit mode, clear it
-                this.editPawn.unselectEdit();
-                this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
-                this.editPawn = null;
-                this.editPointerId = null;
-                this.editMode = false;
-//            }
-        } else {
-            // so that subsequent pointer up can clean up a few things
-            try {
-                super.doPointerTap(e);
-            } catch(e) {
-                console.log(e);
-            }
-        }
-        /*
-                this.editPawn = null;
-                this.editPointerId = null;
-                this.editMode = false;
-                console.log("doPointerTap clear editMode")
-            } else {
-                console.log("doPointerTap set editMode")
-                this.editMode = true; // otherwise, set it
-                console.log("doPointerTap",this.actor.id);
-                this.editPawn.showControls(this.actor.id);
-            }
-        }*/
-    }
-
-    doPointerDown(e) {
-        if (this.ctrlKey || this.editPawn) {
+    pointerDown(e) {
+        if (e.ctrlKey) { // should be the first responder case
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer')); // add walk if you want to edit the world
+            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
             this.targetDistance = rc.distance;
-            let p3e = this.pointerEvent(rc);
+            let p3e = this.pointerEvent(rc, e);
             p3e.lookNormal = this.actor.lookNormal;
             let pawn = GetPawn(p3e.targetId);
             pawn = pawn || null;
 
             if (this.editPawn !== pawn) {
                 if (this.editPawn) {
-                    console.log('doPointerDown clear old editPawn')
+                    console.log('pointerDown clear old editPawn')
                     this.editPawn.unselectEdit();
                     this.editPawn = null;
                     this.editPointerId = null;
                 }
-                console.log('doPointerDown set new editPawn', pawn)
-                this.editMode = false; // this gets set later
+                console.log('pointerDown set new editPawn', pawn)
                 if (pawn) {
                     this.editPawn = pawn;
                     this.editPointerId = e.id;
                     this.editPawn.selectEdit();
-                    this.isPointerDown = true;
                     this.buttonDown = e.button;
                     if (!p3e.normal) {p3e.normal = this.actor.lookNormal}
                     this.p3eDown = p3e;
                 }
-            }else{
-                console.log("doPointerDown in editMode")
+            } else {
+                console.log("pointerDown in editMode")
             }
         } else {
-            super.doPointerDown(e);
             if (!this.focusPawn) {
+                // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
                 this._lookYaw = q_yaw(this._rotation);
             }
         }
     }
 
-    doPointerMove(e) {
-        if (this.editMode) { // pawn is in an edit mode
-            if (this.isPointerDown) {
-                console.log('doPointerMove editMode')
-            }
-        }else if (this.editPawn) {
-            // pawn is in drag mode
+    pointerMove(e) {
+        if (this.editPawn) {
+            // a pawn is selected for draggging
             if (e.id === this.editPointerId) {
-                if (this.buttonDown === 0)
+                if (this.buttonDown === 0) {
                     this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
-                else if (this.buttonDown == 2)
+                }else if (this.buttonDown == 2) {
                     this.editPawn.rotatePlane(this.setRayCast(e.xy), this.p3eDown);
+                }
             }
         }else {
-            super.doPointerMove(e);
+            // we should add and remove responders dynamically so that we don't have to check things this way
             if (!this.focusPawn && this.isPointerDown) {
                 let yp = this.xy2yp(e.xy);
-                let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0])* this.yawDirection);
-                let pitch = this._lookPitch + this.dragWorld[1] -yp[1];
-                pitch = pitch>1 ? 1 : (pitch<-1 ? -1: pitch);
+                let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
+                let pitch = this._lookPitch + this.dragWorld[1] - yp[1];
+                pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
                 this.dragWorld = yp;
                 this.lookTo(pitch, yaw);
             }
         }
     }
 
-    doPointerUp(e) {
-        this.isPointerDown = false;
-        if (this.editMode) {
-            console.log("doPointerUp editMode");
-            return;
-        }
-
+    pointerUp(_e) {
         if (this.editPawn) {
             this.editPawn.unselectEdit();
             this.editPawn = null;
             this.editPointerId = null;
             this.p3eDown = null;
-            return;
-
+            this.buttonDown = null;
         }
-        super.doPointerUp(e);
     }
 
-    doPointerWheel(e) {
-        /*
-        const rc = this.pointerRaycast(e.xy, this.getTargets("pointerWheel"));
-        if (rc.pawn && this.ctrlKey) {
-            this.invokeListeners("pointerWheel", rc.pawn, rc, e);
-            return;
+    pointerTap(_e) {
+        if (this.editPawn) { // this gets set in pointerDown
+            this.editPawn.unselectEdit();
+            this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
+            this.editPawn = null;
+            this.editPointerId = null;
         }
-        */
+    }
+
+    pointerWheel(e) {
         let z = this.lookOffset[2];
         z += Math.max(1,z) * e.deltaY / 1000.0;
         z = Math.min(100, Math.max(z,0));
@@ -1074,10 +1022,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
     }
 
     setOpacity(opacity) {
-        if (this.avatar) {
+        if (this.shape) {
             let transparent = opacity !== 1;
-            this.avatar.visible = this.actor.inWorld && opacity !== 0;
-            this.avatar.traverse(n => {
+            this.shape.visible = this.actor.inWorld && opacity !== 0;
+            this.shape.traverse(n => {
                 if (n.material) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
@@ -1104,26 +1052,10 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         }
     }
 
-    jumpToNote(isShift) {
+    jumpToNote(_isShift) {
         // collect the notes
         // console.log(this.actor.service('CardManager').cards);
         // jump to the next one or last
-    }
-
-    toggleFullScreen(e) {
-        e.stopPropagation();
-        e.preventDefault();
-
-        if (!document.fullscreenElement) {
-            // If the document is not in full screen mode
-            // make the document full screen
-            document.body.requestFullscreen();
-        } else {
-            // Otherwise exit the full screen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
     }
 
     setTranslation(v) {
@@ -1160,3 +1092,4 @@ export class AvatarPawn extends mix(Pawn).with(PM_Player, PM_Predictive, PM_Thre
         this.publish(model.id, "loadDone", {asScene, key});
     }
 }
+

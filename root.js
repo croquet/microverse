@@ -9,7 +9,7 @@ import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
 import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
-import { AvatarActor, } from './src/NewAvatar.js';
+import { AvatarActor, } from './src/avatar.js';
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
 //import { DLight } from './src/DLight.js';
