@@ -511,13 +511,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = manager.players.size;
             let here = manager.playersInWorld().length;
-            if (here !== total) total = `${here}+${total - here}`;
+            let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
+            if (here !== total) {
+                let watching = total - here;
+                tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;
+                total = `${here}+${watching}`;
+            }
             if (manager.presentationMode) {
                 let followers = manager.followers.size;
                 userCountReadOut.textContent = `${followers}/${total}`;
+                tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
             } else {
                 userCountReadOut.textContent = `${total}`;
             }
+            comeHere.setAttribute("title", tooltip);
         }
 
         comeHere.setAttribute("presenting", this.presenting);
