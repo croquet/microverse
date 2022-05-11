@@ -16,7 +16,7 @@ const defaultSystemBehaviorModules = [
 async function startMicroverse() {
     let {basedir, basename} = basenames();
 
-    if (!basename.endsWith(".json")) {
+    if (!basename.endsWith(".vrse")) {
         // eval to hide import from webpack
         const worldModule = await eval(`import("${basedir}worlds/${basename}.js")`);
         // use bit-identical math for constant initialization

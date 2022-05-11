@@ -13,7 +13,7 @@ A behavior is a class extension mechanism. It is like a subclass of a card which
 Therefore, creating a Croquet Microverse world means to arrange your 3D objects in the world, including the terrain model, and specify behaviors to some objects. Other user can join a world where you can collaboratively create it.  Once you are satisfied, the world definition can be saved into a file, or card specifications can be extracted to the world file.
 
 ## Start a demo world
-You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.json`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .json, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like Github Gist.
+You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.vrse`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .vrse, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like Github Gist.
 
 One of the demo worlds in the repository is called `tutorial1`, and can be entered by opening <http://localhost:9684/?world=tutorial1>
 
@@ -305,11 +305,11 @@ Note however that the content is not evaluated as a JavaScript expression; rathe
 
 ## Saving the World to a File
 
-With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the bottom-left menu to create a JSON file. If you specify the location of the JSON file to the `?world=` URL parameter, the content will be used to start the world.
+With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the bottom-left menu to create a VRSE file. If you specify the location of the VRSE file to the `?world=` URL parameter, the content will be used to start the world.
 
 ## Persistence
 The system internally records "persistent data" at 60 second intervals when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
 
-Also note that the start file, either in `.js` or `.json`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
+Also note that the start file, either in `.js` or `.vrse`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
 **Copyright (c) 2022 Croquet Corporation**

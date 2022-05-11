@@ -138,7 +138,7 @@ Your new Microverse awaits...
 ### 5. The Watch Server
 The watch server enables you to edit code from your own IDE and have it injected and run inside the Croquet Microverse while it is running without the need to reload. The watch server is automatically launched when execute `npm start`. You can start the watch server on its own by running `npm run watch-server`. The watch-server by default starts watching the directory called `behaviors`. If you want to create a separate set of behavior files in a different directory, you supply an argument to the watch-server by `npm run watch-server -- aDirectory`.
 
-You can try out the live IDE now with the default world. Simply run `localhost:9684`. Once it is launched you will see a menu icon in the bottom left hand corner. Select this and you will see a large QR code underneath which is are three menu items. `Save` and `Load` allow you to save the entire state of the world in a JSON file (try it) and then load it back into an empty world.
+You can try out the live IDE now with the default world. Simply run `localhost:9684`. Once it is launched you will see a menu icon in the bottom left hand corner. Select this and you will see a large QR code underneath which is are three menu items. `Save` and `Load` allow you to save the entire state of the world in a VRSE file (try it) and then load it back into an empty world.
 
 ![Microverse Menu](./assets/MicroverseMenu.png)
 
