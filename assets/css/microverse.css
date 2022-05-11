@@ -37,8 +37,10 @@ body {
     box-sizing: border-box;
     text-align: center;
     pointer-events: none;
-    z-index: 1; /* TODO Solve this in HTML */
+    z-index: 1;
+    /* TODO Solve this in HTML */
 }
+
 #joystick {
     box-sizing: border-box;
     position: fixed;
@@ -52,8 +54,9 @@ body {
     border-radius: 60px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     opacity: 0.75;
-    z-index:200;
+    z-index: 200;
 }
+
 #knob {
     position: fixed;
     transform: translate(30px, 30px);
@@ -64,8 +67,9 @@ body {
     border-radius: 40px;
     background-color: #FFF;
     opacity: 0.75;
-    z-index:200;
+    z-index: 200;
 }
+
 #hiddenknob {
     position: fixed;
     transform: translate(0px, 0px);
@@ -74,18 +78,21 @@ body {
     border-radius: 60px;
     background-color: #FFF;
     opacity: 0.25;
-    z-index:301;
+    z-index: 301;
 }
+
 .info-text {
     color: #fff;
     z-index: 200;
     text-shadow: 2px 2px #000000;
 }
+
 .no-select {
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
 }
+
 .bttn {
     position: fixed;
     background-color: #d3d3d380;
@@ -101,20 +108,55 @@ body {
     align-items: center;
     box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
+
 .bttn:hover {
-    background-color:#80808080;
+    background-color: #80808080;
 }
-#homeBttn {bottom: 10px; left: 20%; transform: translate(0, -50%)}
-#usersComeHereBttn {bottom: 10px; right:20%; transform: translate(0, -50%)}
-#fullscreenBttn {top:10px; left:10px;}
-#worldMenuBttn {bottom:10px; left:10px;}
-#editModeBttn {top: 50%; left:10px; transform: translate(0, -50%); display: none}
 
-#editModeBttn[mobile="true"] {display: flex;}
-#editModeBttn[pressed="true"] {background-color:#80808080;}
-#editModeBttn[pressed="false"] {background-color: #d3d3d380;}
+#homeBttn {
+    bottom: 10px;
+    left: 20%;
+    transform: translate(0, -50%)
+}
 
-.no-pointer-events {pointer-events: none;}
+#usersComeHereBttn {
+    bottom: 10px;
+    right: 20%;
+    transform: translate(0, -50%)
+}
+
+#fullscreenBttn {
+    top: 10px;
+    left: 10px;
+}
+
+#worldMenuBttn {
+    bottom: 10px;
+    left: 10px;
+}
+
+#editModeBttn {
+    top: 50%;
+    left: 10px;
+    transform: translate(0, -50%);
+    display: none
+}
+
+#editModeBttn[mobile="true"] {
+    display: flex;
+}
+
+#editModeBttn[pressed="true"] {
+    background-color: #80808080;
+}
+
+#editModeBttn[pressed="false"] {
+    background-color: #d3d3d380;
+}
+
+.no-pointer-events {
+    pointer-events: none;
+}
 
 .worldMenu {
     position: absolute;
