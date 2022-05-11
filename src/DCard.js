@@ -919,7 +919,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     cardDataUpdated(data) {
-        if (data.v.targetURL) debugger;
         // it might be independently implemented in a behavior, and independently subscribed
 
         if (this.actor._cardData.type !== "2d") {return;}

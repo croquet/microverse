@@ -424,7 +424,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.say("_set", { inWorld: this.isPrimary });
             this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
                 switch (command) {
-                    case "frame-type" :
+                    case "frame-type":
                         const isPrimary = frameType === "primary";
                         if (isPrimary !== this.isPrimary) {
                             this.frameTypeChanged(isPrimary, spec);
