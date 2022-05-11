@@ -47,6 +47,8 @@ class Shell {
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
         hud.parentElement.removeChild(hud);
+        const shellHud = document.getElementById("shell-hud");
+        shellHud.classList.toggle("is-shell", true);
         // TODO: create HUD only when needed?
 
         window.addEventListener("message", e => {
@@ -83,6 +85,22 @@ class Shell {
                 console.warn(`popstate: location=${document.location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
         });
+
+        document.getElementById("fullscreenBttn").onclick = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+
+            if (!document.fullscreenElement) {
+                // If the document is not in full screen mode
+                // make the document full screen
+                document.body.requestFullscreen();
+            } else {
+                // Otherwise exit the full screen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
     }
 
     addFrame(url) {

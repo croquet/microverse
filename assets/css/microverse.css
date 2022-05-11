@@ -21,6 +21,14 @@ body {
     display: block;
 }
 
+#shell-hud {
+    display: none;
+}
+
+#shell-hud.is-shell {
+    display: block;
+}
+
 #info {
     position: fixed;
     top: 0px;
