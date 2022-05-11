@@ -5,6 +5,8 @@
 import * as Worldcore from "@croquet/worldcore";
 const {ViewService, ModelService, GetPawn, Model} = Worldcore;
 
+import {CardActor} from "./DCard.js";
+
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, module, behavior) {
     if (object[isProxy]) {
@@ -264,6 +266,18 @@ export const AM_Code = superclass => class extends superclass {
 
         return rcvr.constructor.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
         this.publish(this.sessionId, "triggerPersist");
+    }
+
+    queryCards(_options) {
+        let actorManager = this.service("ActorManager");
+
+        let inheritsFrom = (a) => {
+            if (a === Object) {return false;}
+            if (a === null) {return false;}
+            if (a.constructor === CardActor) {return true;}
+            return inheritsFrom(a.__proto__);
+        };
+        return [...actorManager.actors].filter((a) => inheritsFrom(a[1])).map((a) => a[1]);
     }
 }
 
