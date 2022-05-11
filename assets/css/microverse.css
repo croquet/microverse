@@ -75,7 +75,7 @@ body {
     transform: translate(0px, 0px);
     width: 120px;
     height: 120px;
-    border-radius: 60px;
+    border-radius: 50%;
     background-color: #FFF;
     opacity: 0.25;
     z-index: 301;
@@ -115,13 +115,13 @@ body {
 
 #homeBttn {
     bottom: 10px;
-    left: 20%;
+    left: 10%;
     transform: translate(0, -50%)
 }
 
 #usersComeHereBttn {
     bottom: 10px;
-    right: 20%;
+    right: 10%;
     transform: translate(0, -50%)
 }
 
@@ -131,8 +131,8 @@ body {
 }
 
 #worldMenuBttn {
-    bottom: 10px;
-    left: 10px;
+    top: 10px;
+    right: 10px;
 }
 
 #editModeBttn {
@@ -160,8 +160,8 @@ body {
 
 .worldMenu {
     position: absolute;
-    bottom: 50px;
-    left: 50px;
+    top: 70px;
+    right: 10px;
     z-index: 200;
     display: none;
 }
@@ -259,4 +259,44 @@ body {
 
 #usersComeHereBttn[presenting="true"] {
     background-color: #880000;
+}
+
+@media (max-width:600px) {
+    #hiddenknob {
+        width: 83px;
+        height: 82px;
+    }
+
+    #joystick {
+        bottom: 18px;
+        width: 85;
+        height: 85;
+    }
+
+    #knob {
+        left: -10px;
+        top: -10px;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+
+@media (min-width:2000px) {
+    #hiddenknob {
+        width: 134px;
+        height: 134px;
+    }
+
+    #joystick {
+        bottom: 65px;
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+    }
+
+    #knob {
+        width: 75px;
+        height: 74px;
+    }
 }
