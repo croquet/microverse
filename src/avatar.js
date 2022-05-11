@@ -479,6 +479,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
             this.listen("goThere", this.stopFalling);
             console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
+
+            this.wasdVelocity = [0, 0, 0];
         }
     }
 
@@ -842,23 +844,35 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     keyDown(e) {
+        let w = this.wasdVelocity;
+        console.log(w);
+        let nw;
         switch(e.key) {
-            case 'Tab': this.jumpToNote(e); break;
+            case 'Tab':
+                this.jumpToNote(e); break;
             case 'w': case 'W': // forward
                 this.yawDirection = -2;
-                this.setVelocity([0,0, -0.01]);
+                nw = w[2] === 0.01 ? 0 : -0.01;
+                this.wasdVelocity = [w[0], w[1], nw];
+                this.setVelocity(this.wasdVelocity);
                 break;
             case 'a': case 'A': // left strafe
                 this.yawDirection = -2;
-                this.setVelocity([-0.01, 0, 0]);
+                nw = w[0] === 0.01 ? 0 : -0.01;
+                this.wasdVelocity = [nw, w[1], w[2]];
+                this.setVelocity(this.wasdVelocity);
                 break;
             case 'd': case 'D': // right strafe
                 this.yawDirection = -2;
-                this.setVelocity([0.01, 0, 0]);
+                nw = w[0] === -0.01 ? 0 : 0.01;
+                this.wasdVelocity = [nw, w[1], w[2]];
+                this.setVelocity(this.wasdVelocity);
                 break;
             case 's': case 'S': // backward
                 this.yawDirection = -2;
-                this.setVelocity([0, 0, 0.01]);
+                nw = w[2] === -0.01 ? 0 : 0.01;
+                this.wasdVelocity = [w[0], w[1], nw];
+                this.setVelocity(this.wasdVelocity);
                 break;
             default:
                 if (e.ctrlKey) {
@@ -888,11 +902,32 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     keyUp(e) {
+        let w = this.wasdVelocity;
+        let nw;
         switch(e.key) {
-            case 'w': case 'W': case 'a': case 'A':
-            case 'd': case 'D': case 's': case 'S':
+            case 'w': case 'W': // forward
                 this.yawDirection = -1;
-                this.setVelocity([0, 0, 0]);
+                nw = w[2] === 0 ? 0.01 : 0;
+                this.wasdVelocity = [w[0], w[1], nw];
+                this.setVelocity(this.wasdVelocity);
+                break;
+            case 'a': case 'A': // left strafe
+                this.yawDirection = -1;
+                nw = w[0] === 0 ? 0.01 : 0;
+                this.wasdVelocity = [nw, w[1], w[2]];
+                this.setVelocity(this.wasdVelocity);
+                break;
+            case 'd': case 'D': // right strafe
+                this.yawDirection = -1;
+                nw = w[0] === 0 ? -0.01 : 0;
+                this.wasdVelocity = [nw, w[1], w[2]];
+                this.setVelocity(this.wasdVelocity);
+                break;
+            case 's': case 'S': // backward
+                this.yawDirection = -1;
+                nw = w[2] === 0 ? -0.01 : 0;
+                this.wasdVelocity = [w[0], w[1], nw];
+                this.setVelocity(this.wasdVelocity);
                 break;
         }
     }
