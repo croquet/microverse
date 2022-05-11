@@ -268,16 +268,15 @@ export const AM_Code = superclass => class extends superclass {
         this.publish(this.sessionId, "triggerPersist");
     }
 
-    queryCards(_options) {
+    queryCards(options, requestor) {
         let actorManager = this.service("ActorManager");
-
-        let inheritsFrom = (a) => {
-            if (a === Object) {return false;}
-            if (a === null) {return false;}
-            if (a.constructor === CardActor) {return true;}
-            return inheritsFrom(a.__proto__);
-        };
-        return [...actorManager.actors].filter((a) => inheritsFrom(a[1])).map((a) => a[1]);
+        let cards = [...actorManager.actors].filter((a) => a[1] instanceof CardActor).map(a => a[1]);
+        if (options.moduleName && options.methodName) {
+            cards = cards.filter((c) => requestor.call(options.moduleName, options.methodName, c));
+        } else if (options.methodName) {
+            cards = cards.filter((c) => requestor[options.methodName].call(requestor, c));
+        }
+        return cards;
     }
 }
 

@@ -14,10 +14,10 @@ import {CardActor, CardPawn} from "./DCard.js";
 import {setupWorldMenuButton} from "./worldMenu.js";
 
 let EYE_HEIGHT = 1.676;
-export let EYE_EPSILON = 0.01;
-export let THROTTLE = 50;
-export let PORTAL_DISTANCE = 1;
-export let isMobile = !!("ontouchstart" in window);
+let EYE_EPSILON = 0.01;
+//let THROTTLE = 50;
+let PORTAL_DISTANCE = 1;
+let isMobile = !!("ontouchstart" in window);
 
 export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
@@ -120,7 +120,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let [pitch, yaw, lookOffset] = e;
         this.set({lookPitch: pitch, lookYaw: yaw});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
-        this.lookOffset = lookOffset;
+        if (lookOffset) this.lookOffset = lookOffset;
         this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
@@ -348,10 +348,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
 
-        this._lookPitch = this.actor.lookPitch;
-        this._lookYaw = this.actor.lookYaw;
+        this.lookPitch = this.actor.lookPitch;
+        this.lookYaw = this.actor.lookYaw;
         this._rotation = q_euler(0, this.lookYaw, 0);
-        this._lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
+        this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         if (this.isMyPlayerPawn) {
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
@@ -489,13 +489,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     setLookAngles(data) {
         let {pitch, yaw, lookOffset} = data;
         if (pitch !== undefined) {
-            this._lookPitch = pitch;
+            this.lookPitch = pitch;
         }
         if (yaw !== undefined) {
-            this._lookYaw = yaw;
+            this.lookYaw = yaw;
         }
         if (lookOffset !== undefined) {
-            this._lookOffset = lookOffset;
+            this.lookOffset = lookOffset;
         }
     }
 
@@ -540,17 +540,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         this.service("InputManager").setModifierKeys({ctrlKey: false});
     }
 
-    get lookOffset() { return this._lookOffset || [0,0,0]; }
-    get lookPitch() { return this._lookPitch || 0; }
-    get lookYaw() { return this._lookYaw || 0; }
-
     lookTo(pitch, yaw, lookOffset) {
-        this._lookPitch = pitch;
-        this._lookYaw = yaw;
+        if (pitch) {this.lookPitch = pitch;}
+        if (yaw) {this.lookYaw = yaw;}
         this.lastLookTime = this.time;
         this.lastLookCache = null;
         this.say("avatarLookTo", [pitch, yaw, lookOffset]);
         this.say("lookGlobalChanged");
+    }
+
+    setTranslation(v) {
+        this._translation = v;
+        this.onLocalChanged();
+        this.say("setTranslation", v);
     }
 
     destroy() {
@@ -561,7 +563,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     get lookGlobal() {
-        if (this.isMyPlayerPawn) {
+        if (this.isMyPlayerPawn && this.lookOffset) {
+            // this is called from ThreeCamera's constructor but the look* values are not intialized yet
             if (!this.actor.inWorld && this.portalLook) return this.portalLook;
             else return this.walkLook;
         } else return this.global;
@@ -590,9 +593,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         return {
             translation,
             rotation,
-            pitch: this._lookPitch,
-            yaw: this._lookYaw,
-            lookOffset: this._lookOffset,
+            pitch: this.lookPitch,
+            yaw: this.lookYaw,
+            lookOffset: this.lookOffset,
             presenting: this.presenting,
             cardData: this.actor._cardData,
         };
@@ -613,9 +616,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             actorSpec.rotation = spec.rotation;
             actorSpec.cardData = spec.cardData;
             // copy camera settings to pawn
-            if (spec.pitch) this._lookPitch = spec.pitch;
-            if (spec.yaw) this._lookYaw = spec.yaw;
-            if (spec.lookOffset) this._lookOffset = spec.lookOffset;
+            if (spec.pitch) this.lookPitch = spec.pitch;
+            if (spec.yaw) this.lookYaw = spec.yaw;
+            if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
         if (leavingWorld) this.releaseHandler();
         // if we were presenting, tell followers to come with us
@@ -833,7 +836,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
     keyDown(e) {
         switch(e.key) {
-            case 'Tab': this.jumpToNote(e.shiftKey); break;
+            case 'Tab': this.jumpToNote(e); break;
             case 'w': case 'W': // forward
                 this.yawDirection = -2;
                 this.setVelocity([0,0, -0.01]);
@@ -892,12 +895,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
             let pe = this.pointerEvent(rc, e);
-            return this.shiftDouble(pe);
+            this.say("addSticky", pe);
         }
-    }
-
-    shiftDouble(pe) {
-        this.say("addSticky", pe);
     }
 
     stopFalling() {
@@ -940,13 +939,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                     this.p3eDown = p3e;
                 }
             } else {
-                console.log("pointerDown in editMode")
+                console.log("pointerDown in editMode");
             }
         } else {
             if (!this.focusPawn) {
                 // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
-                this._lookYaw = q_yaw(this._rotation);
+                this.lookYaw = q_yaw(this._rotation);
             }
         }
     }
@@ -965,8 +964,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             // we should add and remove responders dynamically so that we don't have to check things this way
             if (!this.focusPawn && this.isPointerDown) {
                 let yp = this.xy2yp(e.xy);
-                let yaw = (this._lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
-                let pitch = this._lookPitch + this.dragWorld[1] - yp[1];
+                let yaw = (this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
+                let pitch = this.lookPitch + this.dragWorld[1] - yp[1];
                 pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
                 this.dragWorld = yp;
                 this.lookTo(pitch, yaw);
@@ -997,9 +996,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         let z = this.lookOffset[2];
         z += Math.max(1,z) * e.deltaY / 1000.0;
         z = Math.min(100, Math.max(z,0));
-        this._lookOffset = [this.lookOffset[0], z, z];
-        let pitch = (this._lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
-        this.lookTo(pitch, q_yaw(this._rotation), this._lookOffset);
+        this.lookOffset = [this.lookOffset[0], z, z];
+        let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
+        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset);
     }
 
     fadeNearby() {
@@ -1053,16 +1052,49 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
     }
 
-    jumpToNote(_isShift) {
+    jumpToNote(e) {
+        let cards = this.actor.queryCards({methodName: "filterNotes"}, this);
+        let lastIndex;
+        if (this.lastCardId === undefined) {
+            lastIndex = 0;
+        } else {
+            lastIndex = cards.findIndex(c => c.id === this.lastCardId);
+            if (e.shiftKey) {
+                lastIndex--;
+            } else {
+                lastIndex++;
+            }
+        }
+
+        if (lastIndex >= cards.length) {
+            lastIndex = 0;
+        }
+
+        if (lastIndex < 0) {
+            lastIndex = cards.length - 1;
+        }
+
+        let newCard = cards[lastIndex];
+
+        if (newCard) {
+            console.log(newCard);
+            this.lastCardId = newCard.id;
+            let pawn = GetPawn(newCard.id);
+            let pose = pawn.getJumpToPose ? pawn.getJumpToPose() : null;
+
+            if (pose) {
+                let obj = {xyz: pose[0], offset: pose[1], look: true, targetId: newCard.id, normal: pawn.hitNormal || [0, 0, 1]};
+                this.say("goThere", obj);
+            }
+        }
+
         // collect the notes
         // console.log(this.actor.service('CardManager').cards);
         // jump to the next one or last
     }
 
-    setTranslation(v) {
-        this._translation = v;
-        this.onLocalChanged();
-        this.say("setTranslation", v);
+    filterNotes(c) {
+        return c._behaviorModules && c._behaviorModules.includes("StickyNote");
     }
 
     setFloor(p) {
