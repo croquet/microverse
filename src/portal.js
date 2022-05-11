@@ -6,11 +6,9 @@ import { addShellListener, removeShellListener, sendToShell } from "./frame.js";
 
 export class PortalActor extends CardActor {
 
-    get portalURL() {
-        return this._cardData.portalURL;
-    }
+    get portalURL() { return this._cardData.portalURL; }
 
-    get pawn() {return PortalPawn;}
+    get pawn() { return PortalPawn; }
 
 }
 
