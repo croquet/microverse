@@ -22,13 +22,11 @@ class DriveActor {
             this.avatar.rotateTo(this._rotation);
         }
     }
-
     ride() {
         let actors = this.queryCards();
         let avatar = actors.find(o => o.layers.includes("avatar"));
         this.avatar = avatar;
     }
-                    
     /*
     newAngle(angle) {
         // angle = angle / 20;
@@ -42,7 +40,7 @@ class DriveActor {
         this.rotateTo(q);
     }
     forwardBy(dist) {
-        let v = Worldcore.v3_rotate([dist, 0, 0], this.rotation)
+        let v = Worldcore.v3_rotate([dist, 0, 0], this.rotation);
         this.translateTo([
             this.translation[0] + v[0],
             this.translation[1] + v[1],
