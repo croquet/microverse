@@ -12,9 +12,9 @@
 
 class RapierActor {
     destroy() {
+        this.removeImpulseJoint();
         this.removeCollider();
         this.removeRigidBody();
-        this.removeImpulseJoint();
     }
 
     getRigidBody() {
@@ -111,7 +111,10 @@ class RapierActor {
         if (this.jointHandle === undefined) return;
         const physicsManager = this.service('RapierPhysicsManager');
         let world = physicsManager.world;
-        world.removeJoint(world.getJoint(this.jointHandle));
+        let joint = world.getJoint(this.jointHandle);
+        if (joint) {
+            world.removeJoint(joint);
+        }
         delete this.jointHandle;
     }
 }
