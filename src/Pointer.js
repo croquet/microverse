@@ -660,11 +660,12 @@ export const PM_Pointer = superclass => class extends superclass {
 
         if (this.focusPawn) {
             this.invokeListeners(eventType, this.focusPawn, null, e);
-        } else {
-            let lastResponder = this.findLastResponder(e, eventType);
-            if (lastResponder) {
-                return this.invokeListeners(eventType, lastResponder, null, e);
-            }
+        }
+
+        // this falling through part is also a hack, but we want to clear the wasd key bits in avatar.
+        let lastResponder = this.findLastResponder(e, eventType);
+        if (lastResponder) {
+            return this.invokeListeners(eventType, lastResponder, null, e);
         }
     }
 

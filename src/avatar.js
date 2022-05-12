@@ -481,6 +481,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
 
             this.wasdVelocity = [0, 0, 0];
+            this.wasdMap = {w: false, a: false, d: false, s: false};
         }
     }
 
@@ -845,33 +846,34 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
     keyDown(e) {
         let w = this.wasdVelocity;
-        console.log(w);
         let nw;
         switch(e.key) {
             case 'Tab':
                 this.jumpToNote(e); break;
             case 'w': case 'W': // forward
-                this.yawDirection = -2;
-                nw = w[2] === 0.01 ? 0 : -0.01;
-                this.wasdVelocity = [w[0], w[1], nw];
-                this.setVelocity(this.wasdVelocity);
-                break;
             case 'a': case 'A': // left strafe
-                this.yawDirection = -2;
-                nw = w[0] === 0.01 ? 0 : -0.01;
-                this.wasdVelocity = [nw, w[1], w[2]];
-                this.setVelocity(this.wasdVelocity);
-                break;
             case 'd': case 'D': // right strafe
-                this.yawDirection = -2;
-                nw = w[0] === -0.01 ? 0 : 0.01;
-                this.wasdVelocity = [nw, w[1], w[2]];
-                this.setVelocity(this.wasdVelocity);
-                break;
             case 's': case 'S': // backward
                 this.yawDirection = -2;
-                nw = w[2] === -0.01 ? 0 : 0.01;
-                this.wasdVelocity = [w[0], w[1], nw];
+                this.wasdMap[e.key.toLowerCase()] = true;
+                switch (e.key) {
+                    case 'w': case 'W': // forward
+                        nw = w[2] === 0.01 ? 0 : -0.01;
+                        this.wasdVelocity = [w[0], w[1], nw];
+                        break;
+                    case 'a': case 'A': // left strafe
+                        nw = w[0] === 0.01 ? 0 : -0.01;
+                        this.wasdVelocity = [nw, w[1], w[2]];
+                        break;
+                    case 'd': case 'D': // right strafe
+                        nw = w[0] === -0.01 ? 0 : 0.01;
+                        this.wasdVelocity = [nw, w[1], w[2]];
+                        break;
+                    case 's': case 'S': // backward
+                        nw = w[2] === -0.01 ? 0 : 0.01;
+                        this.wasdVelocity = [w[0], w[1], nw];
+                        break;
+                }
                 this.setVelocity(this.wasdVelocity);
                 break;
             default:
@@ -902,33 +904,31 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     keyUp(e) {
-        let w = this.wasdVelocity;
-        let nw;
         switch(e.key) {
             case 'w': case 'W': // forward
-                this.yawDirection = -1;
-                nw = w[2] === 0 ? 0.01 : 0;
-                this.wasdVelocity = [w[0], w[1], nw];
-                this.setVelocity(this.wasdVelocity);
-                break;
             case 'a': case 'A': // left strafe
-                this.yawDirection = -1;
-                nw = w[0] === 0 ? 0.01 : 0;
-                this.wasdVelocity = [nw, w[1], w[2]];
-                this.setVelocity(this.wasdVelocity);
-                break;
             case 'd': case 'D': // right strafe
-                this.yawDirection = -1;
-                nw = w[0] === 0 ? -0.01 : 0;
-                this.wasdVelocity = [nw, w[1], w[2]];
-                this.setVelocity(this.wasdVelocity);
-                break;
             case 's': case 'S': // backward
                 this.yawDirection = -1;
-                nw = w[2] === 0 ? -0.01 : 0;
-                this.wasdVelocity = [w[0], w[1], nw];
+                this.wasdMap[e.key.toLowerCase()] = false;
+                let h;
+                if (this.wasdMap.a && !this.wasdMap.d) {
+                    h = -0.01;
+                } else if (!this.wasdMap.a && this.wasdMap.d) {
+                    h = 0.01;
+                } else {
+                    h = 0;
+                }
+                let v;
+                if (this.wasdMap.w && !this.wasdMap.s) {
+                    v = -0.01;
+                } else if (!this.wasdMap.w && this.wasdMap.s) {
+                    v = 0.01;
+                } else {
+                    v = 0;
+                }
+                this.wasdVelocity = [h, 0, v];
                 this.setVelocity(this.wasdVelocity);
-                break;
         }
     }
 
