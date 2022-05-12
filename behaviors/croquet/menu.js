@@ -1,8 +1,29 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
+/*
+
+A sample implementation of a menu. The selection and actions are on
+the model side.  A menu is essentially an array of cards laid out
+vertically. The MenuItem module is attached to each item that adds pointerTap event listener. The menu receives an event (fire) from one of items, and calls relay, which in turn publishes an event (fire) to is parent.
+
+*/
+
+/*
+
+MenuActor creates a list of menu items in the form of:
+
+    [{label<string>, card?<card>, selected<boolean>}]
+
+The label is used to distinguish the item. The optional card will be
+used as a menu item, otherwise a small read only text field is
+created.
+
+*/
+
 class MenuActor {
     setItems(list) {
-        console.log("setItems");
-        // list takes the form of:
-        // [{label<string>, card?<card>, selected<boolean>}]
 
         if (this.items) {
             this.items.forEach((obj) => {
@@ -177,6 +198,18 @@ class MenuPawn {
         obj.position.set(0, 0, -0.1);
     }
 }
+
+/*
+
+MenuItem add pointerTap event handler that publishes fire event, (if
+the label does not start with space or hyphen, which is used to
+indicate that the item is a place holder or delimiter.
+
+The default pointerDoubleDown listener is replaced with the "nop" (no
+operation) action to prevent it from causing the default jumping
+behavior when the user tries to select an item.
+
+*/
 
 class MenuItemActor {
     setup() {

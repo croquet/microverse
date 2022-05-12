@@ -1,6 +1,31 @@
-// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
+
+/*
+
+It is useful to be able to "elect" one peer to take a certain action
+on its view side. For example, the elected view may fetch an external
+data stream from internet and feed data in the shared session for all
+peers.
+
+This module provides a generic way to elect one peer. It is expected be used with another behavior modules
+that actually takes an action (such as fetching data) based on the
+election result.  See examples in behaviors/default/bitcoinTraker.js
+and behaviors/default/flightTracker.js.
+
+*/
+
+/*
+
+ElectedActor keeps all active views. Its this.views property is a Set
+that retains the order of elements (viewIds), thus we can just pick
+the first entry as the leader of the peers.
+
+setup() may be called multiple times in its life cycle. So assignment
+into this.views is guarded by an if statement.
+
+*/
 
 class ElectedActor {
     setup() {
@@ -27,6 +52,21 @@ class ElectedActor {
         }
     }
 }
+
+/*
+
+ElectedPawn publishes an event when the elected peer changes. The
+electionStatusRequested() method is called when the accompanying
+behavior is being setup(), so that the view can check if the view is
+already elected.
+
+For other cases, the onViewElected() method is called when the model
+chooses a new leader and checks if the peer was either newly unelected
+or elected. It publishes the event handleElected and handleUnelected,
+and the accompanying behavior attached to the same object is expected
+to handle the event.
+
+*/
 
 class ElectedPawn {
     setup() {

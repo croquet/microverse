@@ -1,3 +1,20 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
+/*
+
+A sticky note may be used to create a new card, when the content is a
+card spec and Ctrl-s or Cmd-s (save) is pressed.
+
+We don't evaluate the content as code; rather, we try to separate the
+content into lines, then split the line befor and after a colon (":"),
+and feed the part after colon JSON.parse(). Properties known to
+contain a rotation are special cased so that if the value is an array of
+3-elements, it is converted to a quaternion.
+
+*/
+
 class StickyNoteActor {
     setup() {
         this.subscribe(this.id, "text", "cardSpecAccept");

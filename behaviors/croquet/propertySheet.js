@@ -1,3 +1,25 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
+/*
+
+PropertySheet holds a few other "windows" as if it is a traditional
+2.5 D display area. By default, it contains a menu (MenuActor) for the
+list of available modules, another menu for typical actions, and a
+text area where the user can enter a card spec to modify the card.
+
+The content of the card spec area is not evaluated as JavaScript
+code. Rather it splits the content into lines, and then each line is
+splited at a colon (":"). The second part is parsed by JSON.parse()
+and used as a value for the property name specified by the first part.
+
+Properties known to
+contain a rotation are special cased so that if the value is an array of
+3-elements, it is converted to a quaternion.
+
+*/
+
 class PropertySheetActor {
     setup() {
         if (this.windows) {
@@ -138,7 +160,6 @@ class PropertySheetActor {
             this.target.saveCard(data);
             return;
         }
-        console.log(data);
     }
 
     cardSpecString(target) {
@@ -269,6 +290,16 @@ class PropertySheetPawn {
     }
 }
 
+/*
+
+PropertySheetWindow is an area on the PropertySheet. It allows the
+user to drag it on the PropertySheet by picking a narrow band from the
+edge. (But as of writing, the pointer is not "captured" so it stops
+moving when the pointer moves with in the area that also handles
+pointerMove.
+
+*/
+
 class PropertySheetWindowActor {
     setup() {
         if (this.dismiss) {
@@ -372,6 +403,13 @@ class PropertySheetWindowPawn {
         }
     }
 }
+
+/*
+
+PropertySheetDismissButton publishes a dismiss event. The container is
+expected to subscribe to it to destroy itself.
+
+*/
 
 class PropertySheetDismissActor {
     setup() {

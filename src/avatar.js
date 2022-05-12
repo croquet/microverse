@@ -1167,4 +1167,3 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         this.publish(model.id, "loadDone", {asScene, key});
     }
 }
-
