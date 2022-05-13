@@ -124,8 +124,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
-    goHome(there) {
-        let [v, q] = there;
+    goHome() {
+        let [v, q] = [[0,0,0], [0,0,0,1]];
         this.goTo(v, q, false);
         this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: [0, 0, 0]});
         this.set({lookPitch: 0, lookYaw: 0});
@@ -344,7 +344,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
-        this.fore = this.back = this.left = this.right = 0;
         this.opacity = 1;
         this.activeMMotion = false; // mobile motion initally inactive
 
@@ -1082,8 +1081,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     goHome() {
-        console.log("goHome")
-        this.say("goHome", [[0,0,0], [0,0,0,1]]);
+        this.say("goHome");
     }
 
     comeToMe() {
