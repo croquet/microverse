@@ -49,9 +49,13 @@ export class PortalPawn extends CardPawn {
             blendSrc: THREE.ZeroFactor,
             blendDst: THREE.ZeroFactor,
         });
+        portalMaterial.side = THREE.BackSide;
 
         if (Array.isArray(obj.material)) {
             obj.material[0] = portalMaterial;
+            for (let i = 1; i < obj.material.length; i++) {
+                obj.material[i].side = THREE.BackSide;
+            }
         } else {
             obj.material = portalMaterial;
         }
