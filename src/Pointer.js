@@ -356,13 +356,30 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     addResponder(responders, eventType, eventMask, pawn) {
+        if (pawn._target) {pawn = pawn._target;}
+        let ms = ["altKey", "shiftKey", "ctrlKey", "metaKey"];
         let array = responders.get(eventType);
         if (!array) {
             array = [];
             responders.set(eventType, array);
         }
+
+        function has() {
+            for (let i = 0; i < array.length; i++) {
+                let obj = array[i];
+                let all = true;
+
+                for (let i = 0; i < ms.length; i++) {
+                    all = all && obj.eventMask[ms[i]] === eventMask[ms[i]]
+                }
+                if (obj.pawn === pawn && all) {return true;}
+            }
+            return false;
+        }
+
+        if (has()) {return;}
+
         array.forEach((obj) => {
-            let ms = ["altKey", "shiftKey", "ctrlKey", "metaKey"];
             for (let i = 0; i < ms.length; i++) {
                 if (obj.eventMask[ms[i]] && eventMask[ms[i]]) {
                     throw new Error(`${ms[i]} is already handled for ${eventType}`);
@@ -373,6 +390,7 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     removeRespoonder(responders, eventType, eventMask, pawn) {
+        if (pawn._target) {pawn = pawn._target;}
         let array = responders.get(eventType);
         if (!array) {return;}
         let responderIndex = array.findIndex((obj) => {

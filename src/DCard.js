@@ -183,22 +183,16 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
     get color() {return this._color || 0xffffff}
 
     uv2xy(uv) {
-        return [this._cardData.textureWidth * uv[0],this._cardData.textureHeight * (1 - uv[1])];
-    }
-    get width() {
-        return this._cardData.width || 1024;
-    }
-    get height() {
-        return this._cardData.height || 1024;
+        return [this._cardData.textureWidth * uv[0], this._cardData.textureHeight * (1 - uv[1])];
     }
 
-    setTranslation(v){
+    setTranslation(v) {
         this._translation = v;
         this.localChanged();
         this.say("updateTranslation", v);
     }
 
-    setRotation(q){
+    setRotation(q) {
         this._rotation = q;
         this.localChanged();
         this.say("updateRotation", q);
@@ -969,17 +963,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         return this.actor.uv2xy(uv);
     }
 
-    world2local(xyz){
-        return this.shape.worldToLocal(new THREE.Vector3(...xyz)).toArray();
-    }
-
-    get width() {
-        return this.actor.width;
-    }
-    get height() {
-        return this.actor.height;
-    }
-
     onFocus(_pointerId) {
         console.log("focused")
     }
@@ -1139,54 +1122,55 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.future(1000 / 20).runAnimation();
     }
 
-    selectEdit(){
+    selectEdit() {
         this.say('selectEdit');
     }
 
-    unselectEdit(){
+    unselectEdit() {
         this.say('unselectEdit')
         this._plane = undefined;
     }
 
-    doSelectEdit(){
+    doSelectEdit() {
         console.log("doSelectEdit")
-        if(this.renderObject){
+        if (this.renderObject) {
             this.addWire(this.renderObject);
         }
     }
 
-    doUnselectEdit(){
+    doUnselectEdit() {
         console.log("doUnselectEdit")
-        if(this.renderObject){
+        if (this.renderObject) {
             this.removeWire(this.renderObject);
         }
     }
 
-    setTranslation(v){
+    setTranslation(v) {
         this._translation = v;
         this.onLocalChanged();
         this.say("setTranslation", v);
     }
 
-    updateTranslation(v){
-        if(!this._plane){ // only do this if you are not dragging
+    updateTranslation(v) {
+        if (!this._plane) { // only do this if you are not dragging
             this._translation = v;
             this.onLocalChanged();
         }
     }
 
-    setRotation(q){
+    setRotation(q) {
         this._rotation = q;
         this.onLocalChanged();
         this.say("setRotation", q);
     }
 
-    updateRotation(q){
-        if(!this._plane){ // only do this if you are not dragging
+    updateRotation(q) {
+        if (!this._plane) { // only do this if you are not dragging
             this._rotation = q;
             this.onLocalChanged();
         }
     }
+
     nop() {}
 
     addWire(obj3d) {

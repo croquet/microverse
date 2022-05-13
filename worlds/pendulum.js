@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "rapier.js"
+        "rapier.js", "avatar.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/pendulum";

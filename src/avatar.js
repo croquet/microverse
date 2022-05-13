@@ -450,6 +450,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.listen("leaveToWorld", this.leaveToWorld);
             this.showNumbers();
 
+            /*
+
             this.addFirstResponder("pointerTap", {ctrlKey: true}, this);
             this.addEventListener("pointerTap", this.pointerTap);
 
@@ -476,6 +478,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
             this.addLastResponder("keyUp", {}, this);
             this.addEventListener("keyUp", this.keyUp);
+
+            */
 
             this.listen("goThere", this.stopFalling);
             console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
@@ -1095,6 +1099,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     jumpToNote(e) {
+        // collect the notes and jump to the next one or last.
         let cards = this.actor.queryCards({methodName: "filterNotes"}, this);
         let lastIndex;
         if (this.lastCardId === undefined) {
@@ -1129,10 +1134,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                 this.say("goThere", obj);
             }
         }
-
-        // collect the notes
-        // console.log(this.actor.service('CardManager').cards);
-        // jump to the next one or last
     }
 
     filterNotes(c) {

@@ -270,7 +270,7 @@ export const AM_Code = superclass => class extends superclass {
 
     queryCards(options, requestor) {
         let actorManager = this.service("ActorManager");
-        let cards = [...actorManager.actors].filter((a) => a[1] instanceof CardActor).map(a => a[1]);
+        let cards = [...actorManager.actors].filter((a) => a[1].isCard).map(a => a[1]);
         if (options.moduleName && options.methodName) {
             cards = cards.filter((c) => requestor.call(options.moduleName, options.methodName, c));
         } else if (options.methodName) {

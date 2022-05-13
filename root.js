@@ -150,8 +150,14 @@ class MyPlayerManager extends PlayerManager {
         if (!name.endsWith(".zip") && name.length < 40) {
             dataLocation = `./assets/avatars/${options.name}.zip`;
         }
-        
         options.dataLocation = dataLocation;
+
+        let behaviorManager = this.service("BehaviorModelManager");
+
+         if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
+            options.behaviorModules = ["AvatarEventHandler"];
+        }
+        
         return AvatarActor.create(options);
     }
 
