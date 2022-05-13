@@ -1,5 +1,9 @@
 class AvatarPawn {
     setup() {
+        // This is a workaround to mitigate an issue with the initialization with mixins
+        if (!this.firstResponders) {this.firstResponders = new Map();}
+        if (!this.lastResponders) {this.lastResponders = new Map();}
+        
         this.addFirstResponder("pointerTap", {ctrlKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
 
