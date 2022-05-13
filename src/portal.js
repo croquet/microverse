@@ -5,13 +5,36 @@ import { addShellListener, removeShellListener, sendToShell } from "./frame.js";
 
 
 export class PortalActor extends CardActor {
+    init(options) {
+        super.init(options);
+        this.listen("setResolvedPortalURL", this.setResolvedPortalURL);
+    }
 
     get portalURL() { return this._cardData.portalURL; }
 
     get pawn() { return PortalPawn; }
 
-}
+    setResolvedPortalURL(portalURL) {
+        // if multiple peers try to resolve the same portalURL,
+        // we only accept the first one
+        if (!this.resolvedPortalURL()) {
+            this.setCardData({ portalURL });
+        }
+    }
 
+    resolvedPortalURL() {
+        // this is called from the pawn – must not modify!
+        // a portalURL is resolved if it has session name and password
+        const fakeBaseURL = "https://example.com/";
+        const url = new URL(this.portalURL, fakeBaseURL);
+        const searchParams = url.searchParams;
+        const hashParams = new URLSearchParams(url.hash.slice(1));
+        const sessionName = searchParams.get("q");
+        const password = hashParams.get("pw");
+        if (sessionName && password) return this.portalURL;
+        return null;
+    }
+}
 PortalActor.register("PortalActor");
 
 export class PortalPawn extends CardPawn {
@@ -26,6 +49,16 @@ export class PortalPawn extends CardPawn {
 
         this.addEventListener("pointerDown", "nop");
         this.addEventListener("keyDown", e => e.key === " " && this.enterPortal());
+
+        this.listen("cardDataSet", () => {
+            if (this.resolvePortalURLCallback) {
+                const portalURL = this.actor.resolvedPortalURL();
+                if (portalURL) {
+                    this.resolvePortalURLCallback(portalURL);
+                    this.resolvePortalURLCallback = null;
+                }
+            }
+        });
 
         this.shellListener = (command, data) => this.receiveFromShell(command, data);
         addShellListener(this.shellListener);
@@ -92,10 +125,26 @@ export class PortalPawn extends CardPawn {
         this.loadTargetWorld();
     }
 
-    loadTargetWorld() {
-        sendToShell("load-world", {
-            url: this.actor.portalURL,
+    async loadTargetWorld() {
+        const portalURL = await this.resolvePortalURL();
+        sendToShell("portal-load", {
+            portalURL,
             portalId: this.portalId, // initially undefined
+        });
+    }
+
+    async resolvePortalURL() {
+        // if portalURL does not have a sessionName or password, we need to resolve it
+        // we do this by asking the shell to resolve it because a frame might exist that
+        // matches the portalURL and has a sessionName and password
+        // however, we also need to use the same portal URL for all users
+        // so after the shell resolved it, we send it to our actor
+        // which will accept and broadcast only the first resolved URL
+        const portalURL = this.actor.resolvedPortalURL();
+        if (portalURL) return portalURL;
+        return new Promise(resolve => {
+            this.resolvePortalURLCallback = resolve;
+            sendToShell("portal-resolve", { portalURL: this.actor.portalURL });
         });
     }
 
@@ -110,15 +159,22 @@ export class PortalPawn extends CardPawn {
         // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
     }
 
-    receiveFromShell(command, { portalId }) {
+    receiveFromShell(command, { portalId, portalURL }) {
         switch (command) {
             case "portal-opened":
                 this.portalId = portalId;
+                if (this.actor.portalURL !== portalURL) {
+                    console.log("portal URL changed from", this.actor.portalURL, "to", portalURL);
+                    this.say("setCardData", { portalURL });
+                }
                 this.updatePortalCamera();
                 break;
             case "frame-type":
                 this.updatePortalCamera();
-                break
+                break;
+            case "portal-resolved":
+                this.say("setResolvedPortalURL", portalURL);
+                break;
         }
     }
 }
