@@ -1,3 +1,21 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
+/*
+
+This module manages a list of recent values from a bitcoin position
+server. It is used with the Elected module, so that one of
+participants is chosen to fetch values.
+
+*/
+
+/*
+
+BitcoinTrackerActor's history is a list of {date<milliseconds>, and amount<dollar>}
+
+*/
+
 class BitcoinTrackerActor {
     setup() {
         if (!this.history) {
@@ -12,6 +30,8 @@ class BitcoinTrackerActor {
     }
 
     onBitcoinData({date, amount}) {
+        // Adds a new entry if it is more than 1000 miliiseconds after
+        // the last data point, and publishes value-change event.
         if (date - this.latest().date < 1000) return;
         this.addEntries({date, amount});
         this.sayDeck("value-changed", amount);
@@ -37,12 +57,22 @@ class BitcoinTrackerPawn {
 
         this.onBTCUSDChanged();
 
+        // Those two messages are sent from the Elected module.
+        // When handleElected is sent, it signifies that it newly becomes a leader.
+        // When handleUnelected is sent, it signifies that it is not a leader anymore.
         this.listen("handleElected", "handleElected");
         this.listen("handleUnelected", "handleUnelected");
 
+        // Upon start up, this message query the current status from the Elected module.
         this.say("electionStatusRequested");
     }
 
+    /*
+      When this peer is elected, this creates a socket.
+
+      When data is undefined, it is a result from electionStatusRequested.
+      When data and data.to is filled with the elected viewId.
+    */
     handleElected(data) {
         if (!data || data.to === this.viewId) {
             console.log("bitcoin elected");
@@ -50,6 +80,9 @@ class BitcoinTrackerPawn {
         }
     }
 
+    /*
+      When this peer is unelected.
+    */
     handleUnelected() {
         console.log("bitcoin unelected");
         this.closeSocket();
@@ -90,6 +123,9 @@ class BitcoinTrackerPawn {
         return this.actorCall("BitcoinTrackerActor", "latest");
     }
 
+    /*
+      At the initialization time, we fetch more data via an http end point.
+    */
     fetchHistory() {
         console.log("Fetching BTC-USD history from Coinbase...");
         return fetch(`https://api.coinbase.com/v2/prices/BTC-USD/historic?period=day`).then((response) => {
@@ -103,6 +139,12 @@ class BitcoinTrackerPawn {
             this.say("BTC-USD-history", newer);
         });
     }
+
+    /*
+      The card that has this module is expected to be "2d" type with textureType: "canvas".
+      this.canvas is the DOM canvas element.
+      The setColor event at the end informs other related cards to change their color.
+    */
 
     onBTCUSDChanged() {
         //console.log("changed");
