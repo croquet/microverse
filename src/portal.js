@@ -124,7 +124,6 @@ export class PortalPawn extends CardPawn {
             if (portalURL.startsWith(fakeBase)) {
                 portalURL = portalURL.slice(fakeBase.length);
             }
-            console.log("portalURL was", this.actor.portalURL, "now", portalURL);
             this.say("setCardData", { portalURL });
         }
         return portalURL;
@@ -145,10 +144,7 @@ export class PortalPawn extends CardPawn {
         switch (command) {
             case "portal-opened":
                 this.portalId = portalId;
-                if (this.actor.portalURL !== portalURL) {
-                    console.log("portal URL changed from", this.actor.portalURL, "to", portalURL);
-                    this.say("setCardData", { portalURL });
-                }
+                if (this.actor.portalURL !== portalURL) this.say("setCardData", { portalURL });
                 this.updatePortalCamera();
                 break;
             case "frame-type":

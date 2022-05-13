@@ -163,7 +163,7 @@ class Shell {
                 }
                 targetFrame = this.findFrame(data.portalURL);
                 if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
-                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, portalURL: targetFrame.src});
+                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, portalURL: makeRelative(targetFrame.src)});
                 return;
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
@@ -262,4 +262,12 @@ class Shell {
         this.sendFrameType(toFrame, avatarSpec);
         this.sendFrameType(fromFrame, {portalURL});
     }
+}
+
+function makeRelative(portalURL) {
+    let base = new URL(location.href);
+    let url = new URL(portalURL, base);
+    if (url.origin !== base.origin) return url.toString();
+    return url.pathname + url.search + url.hash;
+    // TODO: this always answers a full path, we could try to make it relative (shorter)
 }
