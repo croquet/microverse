@@ -1260,7 +1260,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
         let allModules = [];
 
-        debugger;
         cards.forEach((spec) => {
             if (spec.card.behaviorModules) {
                 allModules.push(...spec.card.behaviorModules);

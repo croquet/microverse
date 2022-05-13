@@ -450,6 +450,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.listen("leaveToWorld", this.leaveToWorld);
             this.showNumbers();
 
+            this.addFirstResponder("pointerTap", {ctrlKey: true}, this);
+            this.addEventListener("pointerTap", this.pointerTap);
+
             this.addFirstResponder("pointerDown", {ctrlKey: true}, this);
             this.addLastResponder("pointerDown", {}, this);
             this.addEventListener("pointerDown", this.pointerDown);
@@ -463,9 +466,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
             this.addLastResponder("pointerWheel", {}, this);
             this.addEventListener("pointerWheel", this.pointerWheel);
-
-            this.addLastResponder("pointerTap", {ctrlKey: true}, this);
-            this.addEventListener("pointerTap", this.pointerTap);
 
             this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
             this.addFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
