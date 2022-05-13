@@ -6,44 +6,25 @@ export function startShell() {
     shell = new Shell();
 }
 
-// answer "shell" if this window is the outer shell of the app
-// answer "primary", if this window is the top-most iframe showing the current world
-// answer "secondary", if this window is another iframe showing a world in a portal
-export function getFrameType() {
-    // if we're not running in an iframe this is very fast
-    const runningAsFrame = window.self !== window.parent;
-    if (!runningAsFrame) return "shell";
-    // otherwise, we need to communicate with the parent iframe, which might take a while
-    return new Promise(resolve => {
-        window.addEventListener("message", e => {
-            if (e.source === window.parent) {
-                const { message, frameType } = e.data;
-                if (message === "croquet:microverse:frame-type") {
-                    window.parent.postMessage({message: "croquet:microverse:starting"}, "*");
-                    // our parent is the shell, so we are not
-                    resolve(frameType); // "primary" or "secondary"
-                    document.body.style.background = "transparent";
-                    document.getElementById("hud").classList.toggle("current-world", frameType === "primary");
-                    if (frameType === "primary") window.focus();
-                    return;
-                }
-                // we ignore all other messages here, each portal pawn has its own listener
-                // but this listener stays active for the whole lifetime of the app
-                // to toggle the HUD
-            }
-        });
-    });
+export function isShellFrame() {
+    const isOuterFrame = window.self === window.parent;
+    if (isOuterFrame) return true;
+    const portalId = new URL(location.href).searchParams.get("portal");
+    return !portalId;
 }
 
 class Shell {
     constructor() {
+        console.log("starting shell");
         this.frames = new Map(); // portalId => frame
+        // ensure that we have a session and password
         App.autoSession();
         App.autoPassword();
         this.currentFrame = this.addFrame(App.sessionURL);
+        const portalURL = deleteParameter(this.currentFrame.src, "portal");
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
-        }, null, this.currentFrame.src);
+        }, null, portalURL);
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
         hud.parentElement.removeChild(hud);
@@ -59,7 +40,8 @@ class Shell {
                         return;
                     }
                 }
-                console.warn(iframeId, "shell received message not in portal list", e.data);
+                console.warn("shell received message not in portal list", e.data);
+                debugger
             }
         });
 
@@ -107,7 +89,7 @@ class Shell {
         let portalId;
         do { portalId = Math.random().toString(36).substring(2, 15); } while (this.frames.has(portalId));
         const frame = document.createElement("iframe");
-        frame.src = portalURL;
+        frame.src = addParameter(portalURL, "portal", portalId); // presence of portalId determines if this is the shell or a world
         frame.style.position = "absolute";
         frame.style.top = "0";
         frame.style.left = "0";
@@ -141,10 +123,6 @@ class Shell {
     receiveFromPortal(fromPortalId, fromFrame, data) {
         // console.log(`from portal-${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
-            case "croquet:microverse:starting":
-                // this is the immediate reply to our "croquet:microverse:frame-type" message
-                // nothing to do yet until fully started
-                return;
             case "croquet:microverse:started":
                 // the session was started and player's inWorld flag has been set
                 clearInterval(fromFrame.interval);
@@ -156,7 +134,7 @@ class Shell {
                     const url = new URL(data.portalURL, location.href).href;
                     targetFrame = this.frames.get(data.portalId);
                     if (targetFrame.src !== url) {
-                        console.log("portal-load:", portalId, "replacing", targetFrame.src, "with", url, "portalURL", data.portalURL);
+                        console.log("portal-load:", data.portalId, "replacing", targetFrame.src, "with", url, "portalURL", data.portalURL);
                         targetFrame.src = url;
                     }
                     return;
@@ -190,7 +168,7 @@ class Shell {
                 }
                 return;
             default:
-                console.warn(iframeId, `shell received message from portal-${fromPortalId}`, data);
+                console.warn(`shell received unhandled message from portal-${fromPortalId}`, data);
         }
     }
 
@@ -209,6 +187,7 @@ class Shell {
             if (frameUrl.pathname !== url.pathname) continue;
             // all portalURL params must match
             for (const [key, value] of new URLSearchParams(url.search)) {
+                if (key === "portal") continue;
                 if (frameUrl.searchParams.get(key) !== value) continue outer;
             }
             // as well as all portalURL hash params
@@ -250,7 +229,7 @@ class Shell {
     enterPortal(toPortalId, pushState=true, avatarSpec=null) {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
-        const portalURL = toFrame.src;
+        const portalURL = deleteParameter(toFrame.src, "portal");
         this.sortFrames(toFrame, fromFrame);
         if (pushState) {
             window.history.pushState({
@@ -270,4 +249,16 @@ function makeRelative(portalURL) {
     if (url.origin !== base.origin) return url.toString();
     return url.pathname + url.search + url.hash;
     // TODO: this always answers a full path, we could try to make it relative (shorter)
+}
+
+function addParameter(url, key, value) {
+    const urlObj = new URL(url, location.href);
+    urlObj.searchParams.set(key, value);
+    return urlObj.toString();
+}
+
+function deleteParameter(url, key) {
+    const urlObj = new URL(url, location.href);
+    urlObj.searchParams.delete(key);
+    return urlObj.toString();
 }

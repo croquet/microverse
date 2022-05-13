@@ -157,7 +157,7 @@ class MyPlayerManager extends PlayerManager {
          if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
             options.behaviorModules = ["AvatarEventHandler"];
         }
-        
+
         return AvatarActor.create(options);
     }
 
@@ -450,6 +450,12 @@ class MyViewRoot extends ViewRoot {
     }
 }
 
+function deleteParameter(url, key) {
+    const urlObj = new URL(url, location.href);
+    urlObj.searchParams.delete(key);
+    return urlObj.toString();
+}
+
 export function startWorld(appParameters) {
     // appParameters are loaded from apiKey.js (see index.js)
     // and typically provide apiKey and appId
@@ -467,6 +473,9 @@ export function startWorld(appParameters) {
         // which identifies microverse sessions for billing
         flags: ["microverse"],
     };
+
+    // remove portal parameter from url for QR code
+    App.sessionURL = deleteParameter(App.sessionURL, "portal");
 
     return loadLoaders()
         .then(() => {

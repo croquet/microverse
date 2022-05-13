@@ -30,10 +30,19 @@ window.addEventListener("message", e => {
 });
 
 // if this frame is the primary frame, then this is the current world
-export let isPrimaryFrame = false;
+export let isPrimaryFrame;
+
+export const frameId = new URL(window.location.href).searchParams.get("portal");
 
 addShellListener((command, { frameType }) => {
     if (command === "frame-type") {
-        isPrimaryFrame = frameType === "primary";
+        const primary = frameType === "primary";
+        if (isPrimaryFrame !== primary) {
+            console.log(frameId, "frame-type", frameType);
+            isPrimaryFrame = primary;
+            document.body.style.background = "transparent";
+            document.getElementById("hud").classList.toggle("current-world", isPrimaryFrame);
+            if (isPrimaryFrame) window.focus();
+        }
     }
 });
