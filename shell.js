@@ -150,10 +150,6 @@ class Shell {
                 clearInterval(fromFrame.interval);
                 fromFrame.interval = null;
                 return;
-            case "croquet:microverse:portal-resolve":
-                const portalURL = this.resolvePortal(data.portalURL);
-                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-resolved", portalURL });
-                return;
             case "croquet:microverse:portal-load":
                 let targetFrame;
                 if (data.portalId) {
@@ -226,33 +222,6 @@ class Shell {
         return null;
     }
 
-    resolvePortal(portalURL) {
-        let frame = this.findFrame(portalURL);
-        if (frame) return frame.src;
-        const url = new URL(portalURL, location.href);
-        const searchParams = url.searchParams;
-        const hashParams = new URLSearchParams(url.hash.slice(1));
-        let sessionName = searchParams.get("q");
-        let password = hashParams.get("pw");
-        if (!sessionName || !password) {
-            if (!sessionName) {
-                sessionName = Math.floor(Math.random() * 36**10).toString(36);
-                password = '';
-                searchParams.set("q", sessionName);
-            }
-            if (!password) {
-                const random = new Uint8Array(16);
-                window.crypto.getRandomValues(random);
-                password = toBase64url(random.buffer);
-                hashParams.set("pw", password);
-                url.hash = hashParams.toString();
-            }
-        }
-        // we can't create a frame yet because other peers may also
-        // be trying to resolve the same portal
-        return url.toString();
-    }
-
     sendToPortal(toPortalId, data) {
         const frame = this.frames.get(toPortalId);
         if (frame) {
@@ -293,11 +262,4 @@ class Shell {
         this.sendFrameType(toFrame, avatarSpec);
         this.sendFrameType(fromFrame, {portalURL});
     }
-}
-
-function toBase64url(bits) {
-    return btoa(String.fromCharCode(...new Uint8Array(bits)))
-        .replace(/=/g, "")
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_");
 }
