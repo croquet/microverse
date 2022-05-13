@@ -51,7 +51,7 @@ class Shell {
             let frame = this.frames.get(portalId);
             // user may have navigated too far, try to make that work
             if (!frame) for (const [p, f] of this.frames) {
-                if (f.src === location.href) {
+                if (deleteParameter(f.src, "portal") === location.href) {
                     frame = f;
                     portalId = p;
                     break;
@@ -61,7 +61,7 @@ class Shell {
             // (could also try to load into an iframe but that might give us trouble)
             if (!frame) location.reload();
             // we have an iframe, so we enter it
-            if (frame.src === location.href) {
+            if (deleteParameter(frame.src, "portal") === location.href) {
                 this.enterPortal(portalId, false);
             } else {
                 console.warn(`popstate: location=${document.location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
