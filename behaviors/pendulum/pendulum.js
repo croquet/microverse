@@ -66,8 +66,8 @@ class PendulumActor {
             type: "object",
             name,
             pendulumProto: true,
+            parent: this,
             behaviorModules: ["PendulumLink", "PendulumJoint"],
-            noSave: true,
         });
     }
 

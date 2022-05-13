@@ -239,6 +239,15 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         this.say("saveCard", data);
     }
 
+    allChildrenMap(cards) {
+        if (!cards) {cards = new Map();}
+        cards.set(this.id, this);
+        if (this.children) {
+            this.children.forEach(c => c.allChildrenMap(cards));
+        }
+        return cards;
+    }
+
     showControls(toWhom) {
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
         let distance = (toWhom.distance || 6);
@@ -1242,15 +1251,25 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     saveCard(data) {
         if (data.viewId !== this.viewId) {return;}
 
+        let cardsMap = this.actor.allChildrenMap();
         let saver = new WorldSaver(CardActor);
         let json = {};
-        let card = saver.collectCardData(this.actor);
-        delete card.parent;
-        json.cards = [{card}];
-        if (this.actor._behaviorModules) {
-            let modules = this.actor.behaviorManager.save(this.actor._behaviorModules)
-            json.behaviorModules = modules;
-        }
+        let cards = saver.collectData(cardsMap);
+        delete cards[0].card.parent;
+        json.cards = cards;
+
+        let allModules = [];
+
+        debugger;
+        cards.forEach((spec) => {
+            if (spec.card.behaviorModules) {
+                allModules.push(...spec.card.behaviorModules);
+            }
+        });
+
+        let modules = this.actor.behaviorManager.save(allModules)
+        json.behaviorModules = modules;
+
         if (Constants.UserRapier) {
             json.useRapier = true;
         }
