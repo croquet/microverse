@@ -1,8 +1,6 @@
 class AvatarPawn {
     setup() {
-        // This is a workaround to mitigate an issue with the initialization with mixins
-        if (!this.firstResponders) {this.firstResponders = new Map();}
-        if (!this.lastResponders) {this.lastResponders = new Map();}
+        if (!this.isMyPlayerPawn) {return;}
         
         this.addFirstResponder("pointerTap", {ctrlKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
@@ -33,7 +31,8 @@ class AvatarPawn {
     }
 
     destroy() {
-        console.log("avatar event handler destroy");
+        if (!this.isMyPlayerPawn) {return;}
+        console.log("avatar event handler destroyed");
         this.removeFirstResponder("pointerTap", {ctrlKey: true}, this);
         this.removeEventListener("pointerTap", this.pointerTap);
 

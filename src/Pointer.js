@@ -347,8 +347,9 @@ export const PM_Pointer = superclass => class extends superclass {
         this.subscribe("input", "keyDown", this.doKeyDown);
         this.subscribe("input", "keyUp", this.doKeyUp);
 
-        this.firstResponders = new Map(); // {eventType -> [{eventMask, pawn}]} // eventMask should be exclusive
-        this.lastResponders = new Map(); // {eventType -> [{eventMask, pawn}]} // eventMask should be exclusive
+        this.firstResponders = new Map();
+        this.lastResponders = new Map();
+        // {eventType -> [{eventMask, pawn}]} // eventMask should be exclusive
     }
 
     modifierEqual(e1, e2) {
