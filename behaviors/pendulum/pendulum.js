@@ -11,21 +11,24 @@ class PendulumActor {
             }
 
             let card;
+            let translation = [0, i * 1.5 + 8, -10];
+            let name = `link${i}`;
             if (i === 0) {
                 card = this.createCard({
                     type: "3d",
                     dataLocation: "3_EGjDfsBvE93taoFG1Uq6hS6MtH_JMHT33IaSwpij0gR1tbX1wVAABJRkNKXAFaXAFMXUBeWkpbAUZAAFoAaEt5TVZDZlxuRH5MbXdLHGhXTllWWHpkeHZ2HQBGQAFMXUBeWkpbAUJGTF1AWUpdXEoATHBmAldHRFZ5Wn9NYnpJSktgZVpESmRBRHt2YW1fYnV4W3gZXh1iRGQeegBLTltOAF1ment6SR0dQGhFHhhZfE1KYxdeGm12d1dCVUldf3pYaEoWRFoaSVlZF2I",
                     modelType: "glb",
-                    translation: [0, i * 1.5 + 5, -10],
-                    name: `link${i}`,
-                    behaviorModules: ["Rapier"],
+                    translation,
+                    name,
+                    pendulumProto: true,
+                    behaviorModules: ["Rapier", "PendulumLink"],
                     noSave: true,
                 });
             } else {
                 card = this.createCard({
                     type: "object",
-                    translation: [0, i * 1.5 + 5, -10],
-                    name: `link${i}`,
+                    translation,
+                    name,
                     behaviorModules: ["Rapier", "PendulumLink"],
                     noSave: true,
                 });
@@ -55,8 +58,16 @@ class PendulumActor {
                 "Rapier$RapierActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1],
                 {x: 0, y: 1, z: 0}, {x: 0, y: -1, z: 0}
             );
-            // card.future(3000).destroy(); 
+            // card.future(3000).destroy();
             return card;
+        });
+
+        this.jointProto = this.createCard({
+            type: "object",
+            name,
+            pendulumProto: true,
+            behaviorModules: ["PendulumLink", "PendulumJoint"],
+            noSave: true,
         });
     }
 
@@ -121,12 +132,13 @@ class PendulumLinkPawn {
           Uncomment the cyclinder case to add the cylinder shape.
 
         */
+        if (this.actor._cardData.pendulumProto) {return;}
         this.shape.children.forEach((c) => this.shape.remove(c));
         this.shape.children = [];
 
-        let s = [0.1, 2.1];
+        let s = [0.1, 2.2];
         let geometry = new Worldcore.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xcccccc});
+        let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xcccccc, metalness: 0.6});
         this.obj = new Worldcore.THREE.Mesh(geometry, material);
         this.obj.castShadow = this.actor._cardData.shadow;
         this.obj.receiveShadow = this.actor._cardData.shadow;
