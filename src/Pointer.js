@@ -434,7 +434,7 @@ export const PM_Pointer = superclass => class extends superclass {
         return this.addResponder(this.firstResponders, eventType, eventMask, pawn);
     }
 
-    removeFirstRespoonder(eventType, eventMask, pawn) {
+    removeFirstResponder(eventType, eventMask, pawn) {
         return this.removeRespoonder(this.firstResponders, eventType, eventMask, pawn);
     }
 
@@ -446,7 +446,7 @@ export const PM_Pointer = superclass => class extends superclass {
         return this.addResponder(this.lastResponders, eventType, eventMask, pawn);
     }
 
-    removeLastRespoonder(eventType, eventMask, pawn) {
+    removeLastResponder(eventType, eventMask, pawn) {
         return this.removeRespoonder(this.lastResponders, eventType, eventMask, pawn);
     }
 

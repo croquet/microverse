@@ -27,6 +27,36 @@ class AvatarPawn {
         this.addLastResponder("keyUp", {}, this);
         this.addEventListener("keyUp", this.keyUp);
     }
+
+    destroy() {
+        console.log("avatar event handler destroy");
+        this.removeFirstResponder("pointerTap", {ctrlKey: true}, this);
+        this.removeEventListener("pointerTap", this.pointerTap);
+
+        this.removeFirstResponder("pointerDown", {ctrlKey: true}, this);
+        this.removeLastResponder("pointerDown", {}, this);
+        this.removeEventListener("pointerDown", this.pointerDown);
+
+        this.removeFirstResponder("pointerMove", {ctrlKey: true}, this);
+        this.removeLastResponder("pointerMove", {}, this);
+        this.removeEventListener("pointerMove", this.pointerMove);
+
+        this.removeLastResponder("pointerUp", {ctrlKey: true}, this);
+        this.removeEventListener("pointerUp", this.pointerUp);
+
+        this.removeLastResponder("pointerWheel", {}, this);
+        this.removeEventListener("pointerWheel", this.pointerWheel);
+
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.removeFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
+        this.removeEventListener("pointerDoubleDown", this.addSticky);
+
+        this.removeLastResponder("keyDown", {}, this);
+        this.removeEventListener("keyDown", this.keyDown);
+
+        this.removeLastResponder("keyUp", {}, this);
+        this.removeEventListener("keyUp", this.keyUp);
+    }
 }
 
 export default {
