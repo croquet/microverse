@@ -279,7 +279,7 @@ class SprayActor {
 
         let dice = Math.random();
 
-        if (dice < 0.1) {
+        if (dice < 0.01) {
             /*
               The FlightTracker behavior is used, but without the "Elected" behavior, it does not start fetching the live data. It is used solely to create the Earth appearance.
             */
@@ -298,7 +298,7 @@ class SprayActor {
             return;
         }
 
-        if (dice < 0.2) {
+        if (dice < 0.02) {
             /*
               Any card that has different behaviors can participate in the
               simulation by having the "Rapier" and in this case the "Cascade"
