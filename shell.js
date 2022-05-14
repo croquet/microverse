@@ -21,7 +21,7 @@ class Shell {
         App.autoSession();
         App.autoPassword();
         this.currentFrame = this.addFrame(App.sessionURL);
-        const portalURL = deleteParameter(this.currentFrame.src, "portal");
+        const portalURL = frameToPortalURL(this.currentFrame.src, this.currentFrame.portalId);
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
         }, null, portalURL);
@@ -51,7 +51,7 @@ class Shell {
             let frame = this.frames.get(portalId);
             // user may have navigated too far, try to make that work
             if (!frame) for (const [p, f] of this.frames) {
-                if (deleteParameter(f.src, "portal") === location.href) {
+                if (frameToPortalURL(f.src) === frameToPortalURL(location.href)) {
                     frame = f;
                     portalId = p;
                     break;
@@ -61,10 +61,10 @@ class Shell {
             // (could also try to load into an iframe but that might give us trouble)
             if (!frame) location.reload();
             // we have an iframe, so we enter it
-            if (deleteParameter(frame.src, "portal") === location.href) {
+            if (frameToPortalURL(frame.src) === frameToPortalURL(location.href)) {
                 this.enterPortal(portalId, false);
             } else {
-                console.warn(`popstate: location=${document.location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
+                console.warn(`popstate: location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
         });
 
@@ -89,7 +89,7 @@ class Shell {
         let portalId;
         do { portalId = Math.random().toString(36).substring(2, 15); } while (this.frames.has(portalId));
         const frame = document.createElement("iframe");
-        frame.src = addParameter(portalURL, "portal", portalId); // presence of portalId determines if this is the shell or a world
+        frame.src = portalToFrameURL(portalURL, portalId);
         frame.style.position = "absolute";
         frame.style.top = "0";
         frame.style.left = "0";
@@ -131,9 +131,9 @@ class Shell {
             case "croquet:microverse:portal-load":
                 let targetFrame;
                 if (data.portalId) {
-                    const url = new URL(data.portalURL, location.href).href;
+                    const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
-                    if (targetFrame.src !== url) {
+                    if (portalToFrameURL(targetFrame.src) !== url) {
                         console.log("portal-load:", data.portalId, "replacing", targetFrame.src, "with", url, "portalURL", data.portalURL);
                         targetFrame.src = url;
                     }
@@ -141,7 +141,7 @@ class Shell {
                 }
                 targetFrame = this.findFrame(data.portalURL);
                 if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
-                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, portalURL: makeRelative(targetFrame.src)});
+                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, portalURL: frameToPortalURL(targetFrame.src)});
                 return;
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
@@ -222,18 +222,18 @@ class Shell {
             // then it will send "croquet:microverse:started" which clears this interval (below)
             const frameType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
             this.sendToPortal(frame.portalId, {message: "croquet:microverse:frame-type", frameType, spec});
-            // console.log(`send window type to portal-${frame.portalId}: ${frameType}`);
+            // console.log(`send frame type to portal-${frame.portalId}: ${frameType}`);
         }, 200);
     }
 
     enterPortal(toPortalId, pushState=true, avatarSpec=null) {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
-        const portalURL = deleteParameter(toFrame.src, "portal");
+        const portalURL = frameToPortalURL(toFrame.src, toPortalId);
         this.sortFrames(toFrame, fromFrame);
         if (pushState) {
             window.history.pushState({
-                portalId: toFrame.portalId,
+                portalId: toPortalId,
             }, null, portalURL);
         }
         this.currentFrame = toFrame;
@@ -243,9 +243,9 @@ class Shell {
     }
 }
 
-function makeRelative(portalURL) {
+function makeRelative(fullUrl) {
     let base = new URL(location.href);
-    let url = new URL(portalURL, base);
+    let url = new URL(fullUrl, base);
     if (url.origin !== base.origin) return url.toString();
     return url.pathname + url.search + url.hash;
     // TODO: this always answers a full path, we could try to make it relative (shorter)
@@ -261,4 +261,12 @@ function deleteParameter(url, key) {
     const urlObj = new URL(url, location.href);
     urlObj.searchParams.delete(key);
     return urlObj.toString();
+}
+
+function portalToFrameURL(portalURL, portalId) {
+    return addParameter(portalURL, "portal", portalId);
+}
+
+function frameToPortalURL(frameURL) {
+    return makeRelative(deleteParameter(frameURL, "portal"));
 }

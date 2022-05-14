@@ -32,6 +32,7 @@ window.addEventListener("message", e => {
 // if this frame is the primary frame, then this is the current world
 export let isPrimaryFrame;
 
+// this is the portalId of the current frame
 export const frameId = new URL(window.location.href).searchParams.get("portal");
 
 addShellListener((command, { frameType }) => {
