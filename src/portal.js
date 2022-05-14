@@ -36,6 +36,7 @@ export class PortalPawn extends CardPawn {
     objectCreated(obj, options) {
         super.objectCreated(obj, options);
         this.applyPortalMateria(obj);
+        this.addParticles();
     }
 
     applyPortalMateria(obj) {
@@ -49,16 +50,61 @@ export class PortalPawn extends CardPawn {
             blendSrc: THREE.ZeroFactor,
             blendDst: THREE.ZeroFactor,
         });
-        portalMaterial.side = THREE.BackSide;
 
         if (Array.isArray(obj.material)) {
             obj.material[0] = portalMaterial;
-            for (let i = 1; i < obj.material.length; i++) {
-                obj.material[i].side = THREE.BackSide;
-            }
         } else {
             obj.material = portalMaterial;
         }
+    }
+
+    addParticles() {
+        const width = this.actor._cardData.width * 0.5 + 0.002;
+        const height = this.actor._cardData.height * 0.5 + 0.002;
+        const particles = 1000;
+        const uniforms = {
+            pointTexture: { value: new THREE.TextureLoader().load( './assets/images/spark.png' ) }
+        };
+        const shaderMaterial = new THREE.ShaderMaterial( {
+            uniforms,
+            vertexShader: `
+                attribute float size;
+                void main() {
+                    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                    gl_PointSize = size * ( 20.0 / -mvPosition.z );
+                    gl_Position = projectionMatrix * mvPosition;
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D pointTexture;
+                void main() {
+                    gl_FragColor = texture2D( pointTexture, gl_PointCoord );
+                }
+            `,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            transparent: true,
+            vertexColors: true
+        } );
+
+        const positions = [];
+        const sizes = [];
+        for ( let i = 0; i < particles; i ++ ) {
+            const edge = Math.random() * 2 - 1;
+            const side = Math.random() < 0.5 ? 1 : -1;
+            const swap = Math.random() < 0.5;
+            positions.push((swap ? edge : side) * width);
+            positions.push((swap ? side : edge) * height);
+            positions.push(0);
+            sizes.push( 20 );
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+        geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setUsage( THREE.DynamicDrawUsage ) );
+
+        this.particleSystem = new THREE.Points( geometry, shaderMaterial );
+
+        this.shape.add(this.particleSystem);
     }
 
     // double-click should move avatar to the front of the portal
@@ -66,9 +112,10 @@ export class PortalPawn extends CardPawn {
         return [0, 0, 1];
     }
 
-    update() {
+    update(t) {
         super.update();
         this.updatePortalCamera();
+        this.updateParticles();
     }
 
     updatePortalCamera() {
@@ -81,6 +128,17 @@ export class PortalPawn extends CardPawn {
             sendToShell("portal-update", { portalId, cameraMatrix: targetMatrix.elements });
             targetMatrixBefore.copy(targetMatrix);
         }
+    }
+
+    updateParticles() {
+        if (!this.particleSystem) return;
+        const { geometry} = this.particleSystem;
+        const sizes = geometry.attributes.size.array;
+        const time = Date.now() / 100;
+        for ( let i = 0; i < sizes.length; i ++ ) {
+            sizes[ i ] = 10 * ( 1 + Math.sin( 0.1 * i + time ) );
+        }
+        geometry.attributes.size.needsUpdate = true;
     }
 
     updateShape(options) {

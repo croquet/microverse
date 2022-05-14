@@ -185,7 +185,7 @@ export function init(Constants) {
                 frameColor: frameColor,
                 width: 4,
                 height: 4,
-                depth: 0.05,
+                depth: 0.001,
                 cornerRadius: 0.05,
                 multiuser: true,
                 portalURL: "?world=portal2",
