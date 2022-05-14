@@ -148,28 +148,28 @@ export const AM_PointerTarget = superclass => class extends superclass {
         if (!this.doomed) this.future(1000).dropoutTick();
     }
 
-    hoverRequested(pointerId) {
-        this.hovered.add(pointerId);
+    hoverRequested(avatarId) {
+        this.hovered.add(avatarId);
     }
 
-    unhoverRequested(pointerId) {
-        this.hovered.delete(pointerId);
+    unhoverRequested(avatarId) {
+        this.hovered.delete(avatarId);
     }
 
-    _onTryFocus(pointerId) {
-        if (this.focused.has(pointerId)) return;
+    _onTryFocus(avatarId) {
+        if (this.focused.has(avatarId)) return;
         if (!this.isMultiuser && this.focused.size > 0) {
-            this.say("focusFailure", pointerId);
+            this.say("focusFailure", avatarId);
         } else {
-            this.focused.add(pointerId);
-            this.say("focusSuccess", pointerId);
-            this.dispatchEvent({eventName: "focus", evt: pointerId});
+            this.focused.add(avatarId);
+            this.say("focusSuccess", avatarId);
+            this.dispatchEvent({eventName: "focus", evt: avatarId});
         }
     }
 
-    _onBlur(pointerId) {
-        this.focused.delete(pointerId);
-        this.dispatchEvent({eventName: "blur", evt: pointerId});
+    _onBlur(avatarId) {
+        this.focused.delete(avatarId);
+        this.dispatchEvent({eventName: "blur", evt: avatarId});
     }
 
     checkFocus(pe) {
@@ -206,14 +206,14 @@ export const PM_PointerTarget = superclass => class extends superclass {
 
     destroy() {
         const hoverEnd = new Set(this.actor.hovered);
-        hoverEnd.forEach( pointerId => {
-            const pointerPawn = GetPawn(pointerId);
+        hoverEnd.forEach( avatarId => {
+            const pointerPawn = GetPawn(avatarId);
             if (pointerPawn) pointerPawn.hoverPawn = null;
         });
 
         const focusEnd = new Set(this.actor.focused);
-        focusEnd.forEach( pointerId => {
-            const pointerPawn = GetPawn(pointerId);
+        focusEnd.forEach( avatarId => {
+            const pointerPawn = GetPawn(avatarId);
             if (pointerPawn) pointerPawn.focusPawn = null;
         });
         super.destroy();
@@ -295,24 +295,24 @@ export const PM_PointerTarget = superclass => class extends superclass {
     get isHovered() { return this.actor.isHovered; }
     get isFocused() { return this.actor.isFocused; }
 
-    _onFocusFailure(pointerId) {
-        const pointerPawn = GetPawn(pointerId);
+    _onFocusFailure(avatarId) {
+        const pointerPawn = GetPawn(avatarId);
         if (pointerPawn) pointerPawn.focusPawn = null;
         let array = this.eventListeners.get("focusFailure");
         if (array) {
             array.forEach((obj) => {
-                obj.listner.call(this, pointerId);
+                obj.listner.call(this, avatarId);
             });
         }
     }
 
-    _onFocusSuccess(pointerId) {
-        const pointerPawn = GetPawn(pointerId);
+    _onFocusSuccess(avatarId) {
+        const pointerPawn = GetPawn(avatarId);
         if (pointerPawn) pointerPawn.focusPawn = this;
         let array = this.eventListeners.get("focusSuccess");
         if (array) {
             array.forEach((obj) => {
-                obj.listner.call(this, pointerId);
+                obj.listner.call(this, avatarId);
             });
         }
     }
@@ -689,7 +689,7 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     pointerEvent(rc, wcEvent) {
-        const pe = {pointerId: this.actor.id}
+        const pe = {avatarId: this.actor.id}
         if (rc.pawn) {
             pe.targetId = rc.pawn.actor.id;
             pe.xyz = rc.xyz;
