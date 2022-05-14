@@ -5,8 +5,6 @@
 import * as Worldcore from "@croquet/worldcore";
 const {ViewService, ModelService, GetPawn, Model} = Worldcore;
 
-import {CardActor} from "./DCard.js";
-
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, module, behavior) {
     if (object[isProxy]) {

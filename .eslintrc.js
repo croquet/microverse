@@ -20,6 +20,7 @@ module.exports = {
     'no-dupe-keys': ['error'],
     'no-implicit-globals': ['error'],
     'no-trailing-spaces': ['error'],
+    'no-unreachable': ["error"],
     'indent': ['warn', 4, {
       SwitchCase: 1,
       VariableDeclarator: 1,

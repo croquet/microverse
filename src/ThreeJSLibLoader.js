@@ -6,7 +6,7 @@ export function loadThreeJSLib(lib, THREE) {
     if (!window.THREE) {
         window.THREE = THREE;
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _reject) => {
         let script = document.createElement("script");
         let version = window.__THREE__;
 
