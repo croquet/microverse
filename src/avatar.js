@@ -345,7 +345,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         super(actor);
         this.lastUpdateTime = 0;
         this.opacity = 1;
-        this.activeMMotion = false; // mobile motion initally inactive
 
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
@@ -368,32 +367,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
             // clip halfspace behind portalCamera
             this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
-
-            this.capturedPointers = {};
-            this.joystick = document.getElementById("joystick");
-            this.knob = document.getElementById("knob");
-            this.releaseHandler = (e) => {
-                for (let k in this.capturedPointers) {
-                    this.hiddenknob.releasePointerCapture(k);
-                }
-                this.capturedPointers = {};
-                this.endMMotion(e);
-            };
-
-            this.hiddenknob = document.getElementById("hiddenknob");
-            this.hiddenknob.onpointerdown = (e) => {
-                if (e.pointerId !== undefined) {
-                    this.capturedPointers[e.pointerId] = "hiddenKnob";
-                    this.hiddenknob.setPointerCapture(e.pointerId);
-                }
-                this.startMMotion(e); // use the knob to start
-            };
-            //this.hiddenknob.onpointerenter = (e) => console.log("pointerEnter")
-            // this.hiddenknob.onpointerleave = (e) => this.releaseHandler(e);
-            this.hiddenknob.onpointermove = (e) => this.continueMMotion(e);
-            this.hiddenknob.onpointerup = (e) => this.releaseHandler(e);
-            this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
-            this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
@@ -424,7 +397,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             // keep track of being in the primary frame or not
             this.isPrimary = isPrimaryFrame;
             this.say("_set", { inWorld: this.isPrimary });
-            this.cameraListener = (command, { frameType, spec, cameraMatrix}) => {
+            this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy}) => {
                 switch (command) {
                     case "frame-type":
                         const isPrimary = frameType === "primary";
@@ -443,9 +416,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                             }
                         }
                         break;
+                    case "motion-start":
+                        this.startMMotion();
+                        if (dx || dy) this.updateMMotion(dx, dy);
+                        break;
+                    case "motion-end":
+                        this.endMMotion();
+                        break;
+                    case "motion-update":
+                        this.updateMMotion(dx, dy);
+                        break;
                 }
             }
-            addShellListener(this.cameraListener);
+            addShellListener(this.shellListener);
             this.say("resetHeight");
             this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
             this.listen("setLookAngles", this.setLookAngles);
@@ -542,16 +525,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     setEditMode(evt) {
         evt.target.setAttribute("pressed", true);
         evt.target.setPointerCapture(evt.pointerId);
-        this.capturedPointers[evt.pointerId] = "editModeBttn";
         evt.stopPropagation();
         this.service("InputManager").setModifierKeys({ctrlKey: true});
     }
 
     clearEditMode(evt) {
         evt.target.setAttribute("pressed", false);
-        if (this.capturedPointers[evt.pointerId] !== "editModeBttn") {return;}
         evt.target.releasePointerCapture(evt.pointerId);
-        delete this.capturedPointers[evt.pointerId];
         evt.stopPropagation();
         this.service("InputManager").setModifierKeys({ctrlKey: false});
     }
@@ -572,7 +552,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     destroy() {
-        removeShellListener(this.cameraListener);
+        removeShellListener(this.shellListener);
         // When the pawn is destroyed, we dispose of our Three.js objects.
         // the avatar memory will be reclaimed when the scene is destroyed - it is a clone, so leave the  geometry and material alone.
         super.destroy();
@@ -636,7 +616,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             if (spec.yaw) this.lookYaw = spec.yaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
-        if (leavingWorld) this.releaseHandler();
+        if (leavingWorld) this.endMMotion();
         // if we were presenting, tell followers to come with us
         if (leavingWorld && this.presenting) {
             this.say("followMeToWorld", spec.portalURL);
@@ -818,53 +798,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         super.setSpin(vq[1]);
     }
 
-    startMMotion(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.knobX = e.clientX;
-        this.knobY = e.clientY;
+    startMMotion() {
         this.say("startMMotion");
-        this.activeMMotion = true;
-        this.basePosition = e.xy;
     }
 
-    endMMotion(e) {
-        e?.preventDefault();
-        e?.stopPropagation();
+    endMMotion() {
         this.activeMMotion = false;
         this.vq = undefined;
         this.setVelocitySpin([0, 0, 0], q_identity());
-        this.hiddenknob.style.transform = "translate(0px, 0px)";
-        this.knob.style.transform = "translate(30px, 30px)";
     }
 
-    continueMMotion(e) {
-        e.preventDefault();
-        e.stopPropagation();
+    updateMMotion(dx, dy) {
+        // move the avatar
+        let v = dy * 0.000075;
+        v = Math.min(Math.max(v, -0.01), 0.01);
 
-        if (this.activeMMotion) {
-            let dx = e.clientX - this.knobX;
-            let dy = e.clientY - this.knobY;
-
-            // move the avatar
-            let v = dy * 0.000075;
-            v = Math.min(Math.max(v, -0.01), 0.01);
-
-            const yaw = dx * (isMobile ? -0.00001 : -0.000005);
-            const qyaw = q_euler(0, yaw ,0);
-            this.vq = [[0,0,v], qyaw];
-
-            this.hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
-
-            let ds = dx ** 2 + dy ** 2;
-            if (ds > 30 * 30) {
-                ds = Math.sqrt(ds);
-                dx = 30 * dx / ds;
-                dy = 30 * dy / ds;
-            }
-
-            this.knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
-        }
+        const yaw = dx * (isMobile ? -0.00001 : -0.000005);
+        const qyaw = q_euler(0, yaw ,0);
+        this.vq = [[0,0,v], qyaw];
     }
 
     keyDown(e) {

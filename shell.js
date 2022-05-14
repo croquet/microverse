@@ -83,6 +83,33 @@ class Shell {
                 }
             }
         }
+
+        // joystick sends events into current frame
+        this.capturedPointers = {};
+        this.joystick = document.getElementById("joystick");
+        this.knob = document.getElementById("knob");
+        this.releaseHandler = (e) => {
+            for (let k in this.capturedPointers) {
+                this.hiddenknob.releasePointerCapture(k);
+            }
+            this.capturedPointers = {};
+            this.endMMotion(e);
+        };
+        this.hiddenknob = document.getElementById("hiddenknob");
+        this.hiddenknob.onpointerdown = (e) => {
+            if (e.pointerId !== undefined) {
+                this.capturedPointers[e.pointerId] = "hiddenKnob";
+                this.hiddenknob.setPointerCapture(e.pointerId);
+            }
+            this.startMMotion(e); // use the knob to start
+        };
+        //this.hiddenknob.onpointerenter = (e) => console.log("pointerEnter")
+        // this.hiddenknob.onpointerleave = (e) => this.releaseHandler(e);
+        this.hiddenknob.onpointermove = (e) => this.updateMMotion(e);
+        this.hiddenknob.onpointerup = (e) => this.releaseHandler(e);
+        this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
+        this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
+
     }
 
     addFrame(portalURL) {
@@ -240,7 +267,57 @@ class Shell {
         this.currentFrame.focus();
         this.sendFrameType(toFrame, avatarSpec);
         this.sendFrameType(fromFrame, {portalURL});
+        if (this.activeMMotion) {
+            const { dx, dy } = this.activeMMotion;
+            this.sendToPortal(this.currentFrame.portalId, { message: "croquet:microverse:motion-start", dx, dy });
+        }
     }
+
+    // mouse motion via joystick element
+
+    startMMotion(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.knobX = e.clientX;
+        this.knobY = e.clientY;
+        this.activeMMotion = { dx: 0, dy: 0 };
+        this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-start"});
+    }
+
+    endMMotion(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.activeMMotion = null;
+        this.hiddenknob.style.transform = "translate(0px, 0px)";
+        this.knob.style.transform = "translate(30px, 30px)";
+        this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-end"});
+    }
+
+    updateMMotion(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (this.activeMMotion) {
+            let dx = e.clientX - this.knobX;
+            let dy = e.clientY - this.knobY;
+
+            this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-update", dx, dy});
+            this.activeMMotion.dx = dx;
+            this.activeMMotion.dy = dy;
+
+            this.hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
+
+            let ds = dx ** 2 + dy ** 2;
+            if (ds > 30 * 30) {
+                ds = Math.sqrt(ds);
+                dx = 30 * dx / ds;
+                dy = 30 * dy / ds;
+            }
+
+            this.knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
+        }
+    }
+
 }
 
 function makeRelative(fullUrl) {
