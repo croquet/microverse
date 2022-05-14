@@ -366,6 +366,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
 
+            // clip halfspace behind portalCamera
+            this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+
             this.capturedPointers = {};
             this.joystick = document.getElementById("joystick");
             this.knob = document.getElementById("knob");
@@ -657,6 +660,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
     update(time, delta) {
         super.update(time, delta);
+        this.refreshPortalClip();
         if (!this.isMyPlayerPawn || !this.actor.inWorld) {return;}
 
         if (this.isFalling) {
@@ -675,6 +679,22 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         }
 
         this.lastTranslation = this.translation;
+    }
+
+    refreshPortalClip() {
+        if (this.portalClip) {
+            let { clippingPlanes } = this.service("ThreeRenderManager").renderer;
+            if (this.actor.inWorld) {
+                // we are in the world, so we turn off portal clipping
+                const idx = clippingPlanes.indexOf(this.portalClip);
+                if (idx >= 0) clippingPlanes.splice(idx, 1);
+            } else {
+                // we are rendering a portal, so we turn on portal clipping
+                if (!clippingPlanes.includes(this.portalClip)) {
+                    clippingPlanes.push(this.portalClip);
+                }
+            }
+        }
     }
 
     collideBVH(collideList) {
