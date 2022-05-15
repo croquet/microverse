@@ -3,8 +3,9 @@
 // info@croquet.io
 
 import {
-    Data, App, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, v3_lerp, q_slerp, THREE,
+    THREE, Data, App, mix, GetPawn, AM_Player, PM_Player, PM_SmoothedDriver, PM_ThreeCamera, PM_ThreeVisible,
+    v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform,
+    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
@@ -15,7 +16,7 @@ import {setupWorldMenuButton} from "./worldMenu.js";
 
 let EYE_HEIGHT = 1.676;
 let EYE_EPSILON = 0.01;
-//let THROTTLE = 50;
+let THROTTLE = 50;
 let PORTAL_DISTANCE = 1;
 let isMobile = !!("ontouchstart" in window);
 
@@ -33,7 +34,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
-        //this.listen("setTranslation", this.setTranslation);
         this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
@@ -45,8 +45,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("resetHeight", this.resetHeight);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
-
-        this.listen("velocitySet", this.setVelocity);
     }
 
     get pawn() { return AvatarPawn; }
@@ -55,32 +53,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
     get collisionRadius() { return this._collisionRadius || 0.375; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
-
-    /*
-    setSpin(q) {
-        // super.setSpin(q);
-        this.leavePresentation();
-    }
-    */
-
-    setVelocity(_v) {
-        // super.setVelocity(v);
-        this.leavePresentation();
-    }
-
-    /*
-    setVelocitySpin(vq) {
-        // super.setSpin(vq[0]);
-        // super.setVelocity(vq[1]);
-        this.leavePresentation();
-    }
-    */
-
-    /*
-    setTranslation(v) {
-        this.translation = v;
-    }
-    */
 
     leavePresentation() {
         if (!this.follow) {return;}
@@ -118,9 +90,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     onLookTo(e) {
         let [pitch, yaw, lookOffset] = e;
+        console.log("A.onLookTo", pitch, yaw, lookOffset)
         this.set({lookPitch: pitch, lookYaw: yaw});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
-        if (lookOffset) this.lookOffset = lookOffset;
+        if (typeof lookOffset!=='undefined') this.lookOffset = lookOffset;
         this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
@@ -129,6 +102,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.goTo(v, q, false);
         this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: [0, 0, 0]});
         this.set({lookPitch: 0, lookYaw: 0});
+        this.lookOffset = [0,0,0];
     }
 
     goTo(v, q, fall) {
@@ -217,7 +191,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (t >= 1) t = 1;
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t);
-        this.set({translation: v, rotation: q})
+        this.set({translation: v, rotation: q});
+        this.say("forceOnPosition");
         if (t < 1) this.future(50).goToStep(delta, t + delta);
     }
 
@@ -225,9 +200,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (this.follow) {
             let followMe = this.service("PlayerManager").players.get(this.follow);
             if (followMe) {
-                this.moveTo(followMe.translation);
-                this.rotateTo(followMe.rotation);
+                //this.moveTo(followMe.translation);
+                //this.rotateTo(followMe.rotation);
                 this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch, lookOffset: followMe.lookOffset});
+                //this.say("forceOnPosition");
             } else {
                 this.follow = null;
             }
@@ -340,10 +316,16 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
 AvatarActor.register('AvatarActor');
 
-export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
+export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
+    get spin() {return this._spin || q_identity()}
+    set spin(s){this._spin = s;}
+    get velocity() {return this._velocity|| v3_zero() }
+    set velocity(v){this._velocity = v;}
+
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
+        this.lastTranslation = this.actor.translation;
         this.opacity = 1;
 
         this.lookPitch = this.actor.lookPitch;
@@ -465,6 +447,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             this.addEventListener("keyUp", this.keyUp);
 
             */
+           //this.listenOnce("forceScaleSet", this.onScale);
+            this.listen("forceOnRotation", this.onRotation);
+            this.listen("forceOnTranslation", this.onTranslation);
+            this.listen("forceOnPosition", this.onPosition);
 
             this.listen("goThere", this.stopFalling);
             console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
@@ -478,8 +464,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         return this.actor.service("PlayerManager").presentationMode === this.viewId;
     }
 
+    onPosition(){
+        super.onPosition();
+        if (!this._global) {
+            this.say("viewGlobalChanged");
+            if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
+        }        
+    }
     setLookAngles(data) {
+        console.log(data)
         let {pitch, yaw, lookOffset} = data;
+        this.lookTo(pitch, yaw, lookOffset);
+        /*
         if (pitch !== undefined) {
             this.lookPitch = pitch;
         }
@@ -489,6 +485,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         if (lookOffset !== undefined) {
             this.lookOffset = lookOffset;
         }
+        */
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -537,18 +534,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     lookTo(pitch, yaw, lookOffset) {
-        if (pitch) {this.lookPitch = pitch;}
-        if (yaw) {this.lookYaw = yaw;}
+        if (typeof pitch !== 'undefined') {this.lookPitch = pitch;}
+        if (typeof yaw !== 'undefined') {this.lookYaw = yaw;}
+        if(typeof lookOffset!== 'undefined') {this.lookOffset = lookOffset;}
         this.lastLookTime = this.time;
         this.lastLookCache = null;
+        let q = q_euler(0, this.lookYaw, 0);
+        this.rotateTo(q);
         this.say("avatarLookTo", [pitch, yaw, lookOffset]);
-        this.say("lookGlobalChanged");
-    }
-
-    setTranslation(v) {
-        this._translation = v;
-        this.onLocalChanged();
-        this.say("setTranslation", v);
+        if (!this._global) {
+            this.say("viewGlobalChanged");
+            if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
+        }
     }
 
     destroy() {
@@ -639,26 +636,41 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
     }
 
     update(time, delta) {
-        super.update(time, delta);
-        this.refreshPortalClip();
-        if (!this.isMyPlayerPawn || !this.actor.inWorld) {return;}
-
-        if (this.isFalling) {
-            let t = this._translation;
-            this._translation = [t[0], this.floor, t[2]];
-        }
-        this.refreshCameraTransform();
-
-        if (time - this.lastUpdateTime <= (this.isFalling ? 50 : 200)) {return;}
-        this.lastUpdateTime = time;
-        if (this.vq) { this.setVelocitySpin(this.vq); this.vq = undefined;}
-        if (this.actor.fall && !this.collide()) {
-            if (this.translation !== this.lastTranslation) {
-                this.setTranslation(this.lastTranslation);
+        if (this.isMyPlayerPawn && this.actor.inWorld && !this.actor.follow) {
+            let moving = this.updatePose(delta);
+            if (this.actor.fall && time-this.lastUpdateTime>THROTTLE) {
+                this.collide();
+                this.lastUpdateTime = time;
+                this.lastTranslation = this.vq.v;
             }
+            if(moving || this.isFalling){
+                this.positionTo(this.vq.v, this.vq.q, 50);
+             }
+            this.refreshPortalClip();
+            this.refreshCameraTransform();
         }
+        super.update(time, delta);
+    }
 
-        this.lastTranslation = this.translation;
+    // compute motion from spin and velocity
+    updatePose(delta){
+        let q, v, moving;
+        let tug = this.tug;
+        if (delta) tug = Math.min(1, tug * delta / 15);
+
+        if (!q_isZero(this.spin)) {
+            q=q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
+            console.log("updatePose", q)
+            this.moving = true;
+        }else q=this.rotation; 
+        if (!v3_isZero(this.velocity)) {
+            const relative = v3_scale(this.velocity, delta);
+            const move = v3_transform(relative, m4_rotationQ(this.rotation));
+            v=v3_add(this.translation, move);
+            moving = true;
+        }else v=this.translation;
+        this.vq = {v:v, q:q};
+        return moving;
     }
 
     refreshPortalClip() {
@@ -730,10 +742,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
             ];
             */
         })
-        if (newPosition !== undefined) this.setTranslation(newPosition.toArray());
+      //  if (newPosition !== undefined) this.setTranslation(newPosition.toArray());
+      // use this.vq.v
     }
 
-    hitPawn(obj3d) {
+    // given the 3D object, find the pawn
+    pawnFrom3D(obj3d) {
         while (obj3d) {
             if (obj3d.wcPawn) return obj3d.wcPawn;
             obj3d = obj3d.parent;
@@ -745,7 +759,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
         if (!portalLayer) return false;
 
-        let dir = v3_sub(this.translation, this.lastTranslation);
+        let dir = v3_sub(this.vq.v, this.lastTranslation);
         // not moving then return false
         if (!dir.some(item => item !== 0)) return false;
 
@@ -754,7 +768,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         this.portalcaster.ray.origin.set(...this.translation);
         const intersections = this.portalcaster.intersectObjects(portalLayer, true);
         if (intersections.length > 0) {
-            let portal = this.hitPawn(intersections[0].object);
+            let portal = this.pawnFrom3D(intersections[0].object);
             if (portal) {
                 portal.enterPortal();
                 return true;
@@ -776,26 +790,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         // then check for floor objects
         //walkLayer = walkLayer.filter(obj=> !obj.collider);
         //if(walkLayer.length === 0) return false;
-
-        this.walkcaster.ray.origin.set(...this.translation);
+        this.walkcaster.ray.origin.set(...this.vq.v);
         const intersections = this.walkcaster.intersectObjects(walkLayer, true);
-
         if (intersections.length > 0) {
             let dFront = intersections[0].distance;
             let delta = Math.min(dFront - EYE_HEIGHT, EYE_HEIGHT / 8); // can only fall 1/8 EYE_HEIGHT at a time
             if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
-                let t = this.translation;
+                let t = this.vq.v;
                 let p = t[1] - delta;
                 this.isFalling  = true;
-                this.setFloor(p);
+                this.vq.v[1]=p;
+                //this.setFloor(p);
                 return true;
             }else {this.isFalling = false; return true; }// we are on level ground
         }return false; // try to find the ground...
-    }
-
-    setVelocitySpin(vq) {
-        super.setVelocity(vq[0]);
-        super.setSpin(vq[1]);
     }
 
     startMMotion() {
@@ -804,8 +812,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
 
     endMMotion() {
         this.activeMMotion = false;
-        this.vq = undefined;
-        this.setVelocitySpin([0, 0, 0], q_identity());
+        this.spin = q_identity();
+        this.velocity = [0,0,0];
     }
 
     updateMMotion(dx, dy) {
@@ -814,8 +822,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         v = Math.min(Math.max(v, -0.01), 0.01);
 
         const yaw = dx * (isMobile ? -0.00001 : -0.000005);
-        const qyaw = q_euler(0, yaw ,0);
-        this.vq = [[0,0,v], qyaw];
+        this.spin = q_euler(0, yaw ,0);
+        this.velocity = [0,0,v];
     }
 
     keyDown(e) {
@@ -848,7 +856,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                         this.wasdVelocity = [w[0], w[1], nw];
                         break;
                 }
-                this.setVelocity(this.wasdVelocity);
+                this.velocity = this.wasdVelocity;
                 break;
             default:
                 if (e.ctrlKey) {
@@ -902,7 +910,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                     v = 0;
                 }
                 this.wasdVelocity = [h, 0, v];
-                this.setVelocity(this.wasdVelocity);
+                this.velocity = this.wasdVelocity;;
         }
     }
 
@@ -1014,7 +1022,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
         z = Math.min(100, Math.max(z,0));
         this.lookOffset = [this.lookOffset[0], z, z];
         let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
-        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset);
+        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //, 
     }
 
     fadeNearby() {
@@ -1029,7 +1037,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible, P
                 let m = this.lookGlobal; // camera location
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
                 m = a.global; // avatar location
-                let av = new THREE.Vector3(m[12], m[13], m[14])
+                let av = new THREE.Vector3(m[12], m[13], m[14]);
                 let d = Math.min(1, cv.distanceToSquared(av) / 10);
                 p.setOpacity(d);
             }
