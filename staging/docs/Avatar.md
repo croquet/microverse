@@ -8,7 +8,7 @@ The base actor class of the avatar is called AvatarActor, and the base pawn clas
 
 Other participants' avatars shown in the session are also cards. However, typically the card for an avatar is not on the "pointer" layer so usually you cannot drag it around or get the property sheet.
 
-## AvatardActor Properties
+## AvatarActor Properties
 
 ### `lookPitch:number`
 
