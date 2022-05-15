@@ -996,7 +996,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         } else {
             // pe.offset = Constants.EYE_HEIGHT; // filled in by the receiving side
         }
-        this.publish(pe.pointerId, "goThere", pe);
+        this.publish(pe.avatarId, "goThere", pe);
     }
 
     showControls(actorInfo) {

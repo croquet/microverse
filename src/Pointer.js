@@ -387,7 +387,7 @@ export const PM_Pointer = superclass => class extends superclass {
                 }
             }
         });
-        array.push({eventMask, pawn});
+        array.unshift({eventMask, pawn});
     }
 
     removeRespoonder(responders, eventType, eventMask, pawn) {
