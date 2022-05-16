@@ -57,10 +57,12 @@ class SpinPawn {
         this.say("stopSpinning");
         this._startDrag = p3d.xy;
         this._baseRotation = this._rotation;
+        let avatar = Worldcore.GetPawn(p3d.avatarId);
+        avatar.addFirstResponder("pointerMove", {}, this);
     }
 
     onPointerMove(p3d) {
-        this.moveBuffer.push(p3d.xyz);
+        this.moveBuffer.push(p3d.xy);
         this.deltaAngle = (p3d.xy[0] - this._startDrag[0]) / 2 / 180 * Math.PI;
         let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
         this.rotateTo(newRot);
@@ -74,7 +76,9 @@ class SpinPawn {
         this.moveBuffer.shift();
     }
 
-    onPointerUp(_p3d) {
+    onPointerUp(p3d) {
+        let avatar = Worldcore.GetPawn(p3d.avatarId);
+        avatar.removeFirstResponder("pointerMove", {}, this);
         this._startDrag = null;
         this._baseRotation = null;
         if (this.moveBuffer.length < 3) {return;}

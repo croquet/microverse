@@ -1002,6 +1002,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.p3eDown = null;
             this.buttonDown = null;
         }
+
+        // Below is a workaround to support an incomplete user program.
+        // If there are left over first responders (pointer capture) from a user object,
+        // delete them here.
+        if (this.firstResponders) {
+            for (let [_eventType, array] of this.firstResponders) {
+                for (let i = array.length - 1; i >= 0; i--) {
+                    let obj = array[i];
+                    if (obj.pawn !== this) {
+                        array.splice(i, 1);
+                    }
+                }
+            }
+        }
     }
 
     pointerTap(_e) {

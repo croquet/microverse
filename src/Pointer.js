@@ -398,7 +398,9 @@ export const PM_Pointer = superclass => class extends superclass {
             let ms = ["altKey", "shiftKey", "ctrlKey", "metaKey"];
             let all = true;
             for (let i = 0; i < ms.length; i++) {
-                all = all && (obj.eventMask[ms[i]] && eventMask[ms[i]]);
+                if (obj.eventMask[ms[i]]) {
+                    all = all && eventMask[ms[i]];
+                }
             }
             return all;
         });
@@ -420,6 +422,10 @@ export const PM_Pointer = superclass => class extends superclass {
                     any = true;
                     all = all && obj.eventMask[ms[i]];
                 }
+            }
+
+            if (requireModefier && (Object.keys(obj.eventMask).length === 0 && !any)) {
+                return true;
             }
             if (requireModefier && !any) {return false;}
             return all;
@@ -704,6 +710,7 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.xy = wcEvent.xy;
         pe.id = wcEvent.id;
         pe.button = wcEvent.button;
+        pe.buttons = wcEvent.buttons;
         if (wcEvent.deltaY !== undefined) {
             pe.deltaY = wcEvent.deltaY;
         }
