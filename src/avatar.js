@@ -469,12 +469,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     onPosition(){
-        super.onPosition();
-        if (!this._global) {
-            this.say("viewGlobalChanged");
-            if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
-        }        
+        this._rotation = this.actor.rotation;
+        this._translation = this.actor.translation;
+        this.onLocalChanged();
+        this.globalChanged();
     }
+
     setLookAngles(data) {
         let {pitch, yaw, lookOffset} = data;
         this.lookTo(pitch, yaw, lookOffset);
@@ -534,10 +534,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let q = q_euler(0, this.lookYaw, 0);
         this.rotateTo(q);
         this.say("avatarLookTo", [pitch, yaw, lookOffset]);
-        if (!this._global) {
-            this.say("viewGlobalChanged");
-            if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
-        }
+        this.globalChanged();
     }
 
     destroy() {
@@ -632,11 +629,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
         this.lookOffset = this.actor.lookOffset;
-        if (!this._global) {
-            this.say("viewGlobalChanged");
-            if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
-        }
-       // this.lookTo(this.actor.lookPitch, this.actor.lookYaw, this.actor.lookOffset); 
+        this.globalChanged();
     }
 
     update(time, delta) {
