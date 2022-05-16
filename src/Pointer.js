@@ -8,7 +8,9 @@ import { GetPawn, RegisterMixin } from "@croquet/worldcore";
 //-- AM_PointerTarget ----------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-// Add to an actor to have it handle card pointer events.
+// Copied from the implementaion in Worldcore, but heavily modified to support event listener style dynamic manipulation of event listeners.
+
+// eventListeners:Map<eventName:EventName, Array<{moduleName:string, behaviorName:string, eventName:string, listener:string}>>
 
 export const AM_PointerTarget = superclass => class extends superclass {
     init(options) {
@@ -29,6 +31,12 @@ export const AM_PointerTarget = superclass => class extends superclass {
     get isHovered() { return this.hovered.size};
     get isFocused() { return this.focused.size};
 
+    // When an actor-side event listener for a pointer event is added,
+    // the pawn automatically sends the pointer event over the
+    // dispatchEvent Croquet event.  If the lister registered has
+    // moduleName and behaviorName, it invokes the behavior method.
+    // Otherwise, it looks up the method from the base object and
+    // invokes it.
     dispatchEvent(data) {
         // console.log("dispatchEvent", data);
         let {eventName, evt} = data;
@@ -135,6 +143,8 @@ export const AM_PointerTarget = superclass => class extends superclass {
         }
     }
 
+    // this is being phased out as whether hover and focus should be
+    // exclusive or not depends on the action specified by a behavior.
     dropoutTick() {
         const am = this.service("ActorManager");
         const testHovered = new Set(this.hovered);
@@ -182,7 +192,13 @@ RegisterMixin(AM_PointerTarget);
 //-- PM_PointerTarget ----------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-// Add to a pawn to have it be targeted by PM_Pointer
+// Copied from the implementaion in Worldcore, but heavily modified to support event listener style dynamic manipulation of event listeners.
+
+// eventListeners:Map<eventName:EventName, Array<{name:string, eventName:string, listener:function}>>
+// This manages the event listeners added to the pawn side.
+
+// modelListeners:Map<eventName:EventName, func:function
+// When an event listener for a pointer event is added to the actor side, the pawn was notified so that it should send a dispatchEvent when the specified pointerEvent type occurs on the pawn side.
 
 export const PM_PointerTarget = superclass => class extends superclass {
     constructor(actor) {
@@ -284,6 +300,10 @@ export const PM_PointerTarget = superclass => class extends superclass {
         this.removeEventListener(eventName, func, `dispatch_${eventName}`);
     }
 
+    // this is called only upon the initialization time. If the actor
+    // already has some entries in the eventListeners, the pawn sets
+    // up the disptchEvent link for them.
+
     registerAllEventListeners() {
         if (!this.actor.eventListeners) {return;}
         for (let eventName of this.actor.eventListeners.keys()) {
@@ -322,8 +342,9 @@ export const PM_PointerTarget = superclass => class extends superclass {
 //-- PM_Pointer ----------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-// Add to an avatar to allow it to use card pointer events.
-// Requires the ThreeCamera raycaster.
+// Copied from the implementaion in Worldcore, but heavily modified to support event listener style dynamic manipulation of event listeners.
+
+// This mixin is used by the avatar to implement the event routing.
 
 export const PM_Pointer = superclass => class extends superclass {
     constructor(actor) {
