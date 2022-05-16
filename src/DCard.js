@@ -67,8 +67,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         let {cardOptions, cardData} = this.separateOptions(options);
         this.updateBehaviors(options);
         this.set({...cardOptions});
-        this._cardData = cardData;
-
+        this.set({cardData: cardData});
         this.say("updateShape", options);
     }
 

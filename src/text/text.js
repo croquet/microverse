@@ -511,7 +511,7 @@ export class TextFieldPawn extends CardPawn {
         this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("keyDown", "keyDown");
 
-        this.listen("_cardData", "cardDataUpdated");
+        this.listen("cardDataSet", "cardDataUpdated");
     }
 
     destroy() {
