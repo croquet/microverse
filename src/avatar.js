@@ -625,7 +625,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     forceFollow(){
-        this.onPosition();
+  //      this.onPosition();
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
         this.lookOffset = this.actor.lookOffset;
@@ -633,19 +633,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     update(time, delta) {
-        if(this.actor.follow)return;
-        if (this.isMyPlayerPawn && this.actor.inWorld) {
-            let moving = this.updatePose(delta);
-            if (this.actor.fall && time-this.lastUpdateTime>THROTTLE) {
-                this.collide();
-                this.lastUpdateTime = time;
-                this.lastTranslation = this.vq.v;
+        if(!this.actor.follow){
+            if (this.isMyPlayerPawn && this.actor.inWorld) {
+                let moving = this.updatePose(delta);
+                if (this.actor.fall && time-this.lastUpdateTime>THROTTLE) {
+                    this.collide();
+                    this.lastUpdateTime = time;
+                    this.lastTranslation = this.vq.v;
+                }
+                if(moving || this.isFalling){
+                    this.positionTo(this.vq.v, this.vq.q, 50);
+                }
+                this.refreshPortalClip();
+                this.refreshCameraTransform();
             }
-            if(moving || this.isFalling){
-                this.positionTo(this.vq.v, this.vq.q, 50);
-             }
-            this.refreshPortalClip();
-            this.refreshCameraTransform();
         }
         super.update(time, delta);
     }
