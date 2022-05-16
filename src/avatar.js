@@ -50,6 +50,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get pawn() { return AvatarPawn; }
     get lookPitch() { return this._lookPitch || 0; }
     get lookYaw() { return this._lookYaw || 0; }
+    get lookOffset() { return this._lookOffset || 0; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
     get collisionRadius() { return this._collisionRadius || 0.375; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
@@ -92,7 +93,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let [pitch, yaw, lookOffset] = e;
         this.set({lookPitch: pitch, lookYaw: yaw});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
-        if (typeof lookOffset!=='undefined') this.lookOffset = lookOffset;
+        if (typeof lookOffset!=='undefined') this._lookOffset = lookOffset;
         this.restoreTargetId = undefined; // if you look around, you can't jump back
     }
 
@@ -101,7 +102,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.goTo(v, q, false);
         this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: [0, 0, 0]});
         this.set({lookPitch: 0, lookYaw: 0});
-        this.lookOffset = [0,0,0];
+        this._lookOffset = [0,0,0];
     }
 
     goTo(v, q, fall) {
@@ -197,14 +198,16 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     tick(delta) {
         if (this.follow) {
-            console.log("tick", this.id, this.follow)
             let followMe = this.service("PlayerManager").players.get(this.follow);
             if (followMe) {
                 this.positionTo({v:followMe.translation, q:followMe.rotation});
+                this._lookYaw = followMe.lookYaw;
+                this._lookPitch = followMe.lookPitch;
+                this._lookOffset = followMe.lookOffset;
                 //this.moveTo(followMe.translation);
                 //this.rotateTo(followMe.rotation);
                 //this.say("setLookAngles", { pitch: followMe.lookPitch, lookOffset: followMe.lookOffset});//yaw: followMe.lookYaw,
-                this.say("forceOnPosition");
+                this.say("forceFollow");
             } else {
                 this.presentationStopped();
             }
@@ -450,11 +453,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             */
            //this.listenOnce("forceScaleSet", this.onScale);
-            this.listen("forceOnRotation", this.onRotation);
-            this.listen("forceOnTranslation", this.onTranslation);
+            this.listen("forceFollow", this.forceFollow);
             this.listen("forceOnPosition", this.onPosition);
-            this.listen("presentationStarted", this.presentationStarted);
-            this.listen("presentationStopped", this.presentationStopped);
+
             this.listen("goThere", this.stopFalling);
             console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
 
@@ -467,30 +468,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return this.actor.service("PlayerManager").presentationMode === this.viewId;
     }
 
-    presentationStarted(){
-        //this.listen("rotationSet", ()=>console.log("hello there"));
-        this.listen("rotationSet", this.onRotation);
-        this.listen("translationSet", this.onTranslation);
-        console.log("=========presentation started=============")
-    }
-
-    presentationStopped(){
-        this.ignore("rotationSet");
-        this.ignore("translationSet");
-        console.log("=========presentation stopped=============")
-    }
-
-onRotation(){
-    console.log("onRotation")
-    super.onRotation();
-}
-
     onPosition(){
         super.onPosition();
         if (!this._global) {
             this.say("viewGlobalChanged");
             if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
-        }
+        }        
     }
     setLookAngles(data) {
         let {pitch, yaw, lookOffset} = data;
@@ -644,9 +627,20 @@ onRotation(){
         sendToShell("enter-world", { portalURL });
     }
 
+    forceFollow(){
+        this.onPosition();
+        this.lookPitch = this.actor.lookPitch;
+        this.lookYaw = this.actor.lookYaw;
+        this.lookOffset = this.actor.lookOffset;
+        if (!this._global) {
+            this.say("viewGlobalChanged");
+            if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
+        }
+       // this.lookTo(this.actor.lookPitch, this.actor.lookYaw, this.actor.lookOffset); 
+    }
+
     update(time, delta) {
         if(this.actor.follow)return;
-        console.log("update", this.actor.id, this.actor.follow)
         if (this.isMyPlayerPawn && this.actor.inWorld) {
             let moving = this.updatePose(delta);
             if (this.actor.fall && time-this.lastUpdateTime>THROTTLE) {
@@ -672,7 +666,7 @@ onRotation(){
         if (!q_isZero(this.spin)) {
             q=q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
             this.moving = true;
-        }else q=this.rotation;
+        }else q=this.rotation; 
         if (!v3_isZero(this.velocity)) {
             const relative = v3_scale(this.velocity, delta);
             const move = v3_transform(relative, m4_rotationQ(this.rotation));
@@ -1032,7 +1026,7 @@ onRotation(){
         z = Math.min(100, Math.max(z,0));
         this.lookOffset = [this.lookOffset[0], z, z];
         let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
-        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //,
+        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //, 
     }
 
     fadeNearby() {
