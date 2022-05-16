@@ -70,6 +70,7 @@ export function init(Constants) {
                 shadow: true,
                 multiuser: true,
                 portalURL: "?world=default",
+                sparkle: true,
             }
         },
     ];

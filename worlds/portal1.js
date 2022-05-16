@@ -189,6 +189,7 @@ export function init(Constants) {
                 cornerRadius: 0.05,
                 multiuser: true,
                 portalURL: "?world=portal2",
+                sparkle: false,
             }
         },
         {

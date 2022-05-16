@@ -7,6 +7,8 @@ import { addShellListener, removeShellListener, sendToShell, frameId } from "./f
 export class PortalActor extends CardActor {
     get portalURL() { return this._cardData.portalURL; }
 
+    get sparkle() { return this._cardData.sparkle; }
+
     get pawn() { return PortalPawn; }
 }
 PortalActor.register("PortalActor");
@@ -36,7 +38,7 @@ export class PortalPawn extends CardPawn {
     objectCreated(obj, options) {
         super.objectCreated(obj, options);
         this.applyPortalMateria(obj);
-        this.addParticles();
+        if (this.actor.sparkle) this.addParticles();
     }
 
     applyPortalMateria(obj) {
@@ -59,6 +61,7 @@ export class PortalPawn extends CardPawn {
     }
 
     addParticles() {
+        if (this.particleSystem) return;
         const width = this.actor._cardData.width * 0.5 + 0.002;
         const height = this.actor._cardData.height * 0.5 + 0.002;
         const z = 0.01;
@@ -109,6 +112,12 @@ export class PortalPawn extends CardPawn {
         this.shape.add(this.particleSystem);
     }
 
+    removeParticles() {
+        if (!this.particleSystem) return;
+        this.shape.remove(this.particleSystem);
+        this.particleSystem = undefined;
+    }
+
     // double-click should move avatar to the front of the portal
     get hitNormal() {
         return [0, 0, 1];
@@ -133,6 +142,8 @@ export class PortalPawn extends CardPawn {
     }
 
     updateParticles() {
+        if (this.actor.sparkle && !this.particleSystem) this.addParticles();
+        else if (!this.actor.sparkle && this.particleSystem) this.removeParticles();
         if (!this.particleSystem) return;
         const { geometry} = this.particleSystem;
         const sizes = geometry.attributes.size.array;
@@ -143,14 +154,18 @@ export class PortalPawn extends CardPawn {
         geometry.attributes.size.needsUpdate = true;
     }
 
+    // HACK to get informed if card data changes because cardDataUpdated is not called
+    // when editing in inspector sheet
     updateShape(options) {
         super.updateShape(options);
         this.loadTargetWorld();
+        this.updateParticles();
     }
 
     cardDataUpdated(data) {
         super.cardDataUpdated(data);
         this.loadTargetWorld();
+        this.updateParticles();
     }
 
     loadTargetWorld() {
