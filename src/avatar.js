@@ -490,7 +490,7 @@ onRotation(){
         if (!this._global) {
             this.say("viewGlobalChanged");
             if (this.children) this.children.forEach(child => child.onGlobalChanged()); // If our global changes, so do the globals of our children
-        }        
+        }
     }
     setLookAngles(data) {
         let {pitch, yaw, lookOffset} = data;
@@ -672,7 +672,7 @@ onRotation(){
         if (!q_isZero(this.spin)) {
             q=q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
             this.moving = true;
-        }else q=this.rotation; 
+        }else q=this.rotation;
         if (!v3_isZero(this.velocity)) {
             const relative = v3_scale(this.velocity, delta);
             const move = v3_transform(relative, m4_rotationQ(this.rotation));
@@ -1032,7 +1032,7 @@ onRotation(){
         z = Math.min(100, Math.max(z,0));
         this.lookOffset = [this.lookOffset[0], z, z];
         let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
-        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //, 
+        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //,
     }
 
     fadeNearby() {

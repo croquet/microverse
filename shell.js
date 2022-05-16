@@ -15,6 +15,11 @@ export function isShellFrame() {
 
 class Shell {
     constructor() {
+        const canonicalUrl = shellToCanonicalURL(location.href);
+        if (canonicalUrl !== location.href) {
+            console.log("redirecting to canonical URL", canonicalUrl);
+            location.href = canonicalUrl; // causes reload
+        }
         console.log("starting shell");
         this.frames = new Map(); // portalId => frame
         // ensure that we have a session and password
@@ -25,6 +30,7 @@ class Shell {
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
         }, null, portalURL);
+        document.title = portalURL;
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
         hud.parentElement.removeChild(hud);
@@ -50,19 +56,24 @@ class Shell {
             let { portalId } = e.state;
             let frame = this.frames.get(portalId);
             // user may have navigated too far, try to make that work
-            if (!frame) for (const [p, f] of this.frames) {
-                if (frameToPortalURL(f.src) === frameToPortalURL(location.href)) {
-                    frame = f;
-                    portalId = p;
-                    break;
+            if (!frame) {
+                const portalURL = frameToPortalURL(shellToCanonicalURL(location.href));
+                for (const [p, f] of this.frames) {
+                    if (frameToPortalURL(f.src) === portalURL) {
+                        frame = f;
+                        portalId = p;
+                        break;
+                    }
                 }
             }
             // if we don't have an iframe for this url, we jump there
             // (could also try to load into an iframe but that might give us trouble)
             if (!frame) location.reload();
             // we have an iframe, so we enter it
-            if (frameToPortalURL(frame.src) === frameToPortalURL(location.href)) {
+            const portalURL = frameToPortalURL(frame.src);
+            if (portalURL === shellToCanonicalURL(location.href)) {
                 this.enterPortal(portalId, false);
+                document.title = portalURL;
             } else {
                 console.warn(`popstate: location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
@@ -160,15 +171,15 @@ class Shell {
                 if (data.portalId) {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
-                    if (portalToFrameURL(targetFrame.src) !== url) {
-                        console.log("portal-load:", data.portalId, "replacing", targetFrame.src, "with", url, "portalURL", data.portalURL);
+                    if (portalToFrameURL(targetFrame.src, data.portalId) !== url) {
+                        // console.log("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
                         targetFrame.src = url;
                     }
                     return;
                 }
                 targetFrame = this.findFrame(data.portalURL);
                 if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
-                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId, portalURL: frameToPortalURL(targetFrame.src)});
+                this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId});
                 return;
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
@@ -258,11 +269,23 @@ class Shell {
         const toFrame = this.frames.get(toPortalId);
         const portalURL = frameToPortalURL(toFrame.src, toPortalId);
         this.sortFrames(toFrame, fromFrame);
-        if (pushState) {
+        if (pushState) try {
             window.history.pushState({
                 portalId: toPortalId,
             }, null, portalURL);
+        } catch (e) {
+            // probably failed because portalURL has a different origin
+            // print error only if same origin
+            if (new URL(portalURL, location.href).origin === window.location.origin) {
+                console.error(e);
+            }
+            // we could reload the page but that would be disruptive
+            // instead, we stay on the same origin but change the URL
+            window.history.pushState({
+                portalId: toPortalId,
+            }, null, portalToShellURL(portalURL));
         }
+        document.title = portalURL;
         this.currentFrame = toFrame;
         this.currentFrame.focus();
         this.sendFrameType(toFrame, avatarSpec);
@@ -320,14 +343,6 @@ class Shell {
 
 }
 
-function makeRelative(fullUrl) {
-    let base = new URL(location.href);
-    let url = new URL(fullUrl, base);
-    if (url.origin !== base.origin) return url.toString();
-    return url.pathname + url.search + url.hash;
-    // TODO: this always answers a full path, we could try to make it relative (shorter)
-}
-
 function addParameter(url, key, value) {
     const urlObj = new URL(url, location.href);
     urlObj.searchParams.set(key, value);
@@ -340,10 +355,47 @@ function deleteParameter(url, key) {
     return urlObj.toString();
 }
 
+// each iframe's src is the portal URL plus `?portal=<portalId>`
+// which the shell uses to know if it needs to load a world
+// into this frame or if it's the shell frame itself (without `?portal`)
+
 function portalToFrameURL(portalURL, portalId) {
     return addParameter(portalURL, "portal", portalId);
 }
 
 function frameToPortalURL(frameURL) {
-    return makeRelative(deleteParameter(frameURL, "portal"));
+    return deleteParameter(frameURL, "portal");
+}
+
+// we need canonical URLs for navigating between different origins
+// the iframe.src can be cross-origin, but the address bar can't
+// instead, we add a `?canonical=<base>` parameter to the address bar
+// which has the actual current world base URL without any parameters
+
+function portalToShellURL(portalURL) {
+    const url = new URL(portalURL, location.href);
+    const shellUrl = new URL(location.href);
+    // move all search params to the shell URL
+    for (const [key, value] of url.searchParams) {
+        shellUrl.searchParams.set(key, value);
+    }
+    url.search = '';
+    // move hash params to shell URL
+    shellUrl.hash = url.hash;
+    url.hash = '';
+    // add portal URL to shell URL
+    shellUrl.searchParams.set("canonical", url.href);
+    return shellUrl.toString();
+}
+
+function shellToCanonicalURL(shellURL) {
+    const original = new URL(shellURL);
+    // if we don't have a canonical URL, we don't have to do anything
+    const canonical = original.searchParams.get("canonical");
+    if (!canonical) return original.toString();
+    original.searchParams.delete("canonical");
+    const canonicalUrl = new URL(canonical);
+    canonicalUrl.search = original.search;
+    canonicalUrl.hash = original.hash;
+    return canonicalUrl.toString();
 }
