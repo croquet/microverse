@@ -5,9 +5,11 @@
 // Collaborative Card Object
 
 import {
-    THREE, PM_ThreeVisible, Actor, Pawn, mix, AM_Predictive, PM_Predictive, Data, ModelService, ViewService,
-    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag,
-    q_euler, q_multiply, Constants } from '@croquet/worldcore';
+    Data, Constants, // re-exported from @croquet/croquet
+    THREE, THREE_MESH_BVH, // re-exported from @croquet/worldcore-three
+    Actor, Pawn, ModelService, ViewService, mix, AM_Predictive, PM_Predictive, PM_ThreeVisible,
+    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag, q_euler, q_multiply,
+} from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
@@ -16,6 +18,8 @@ import { AM_Code, PM_Code } from './code.js';
 import { WorldSaver } from './worldSaver.js';
 
 // import { forEach } from 'jszip';
+
+const { MeshBVH, MeshBVHVisualizer } = THREE_MESH_BVH;
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "behaviorModules", "multiuser", "name", "noSave"];
 
@@ -768,8 +772,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
         let BufferGeometryUtils = window.THREE.BufferGeometryUtils;
         const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( geometries, false);
-        let TRM = this.service("ThreeRenderManager");
-        mergedGeometry.boundsTree = new TRM.MeshBVH( mergedGeometry, { lazyGeneration: false } );
+        mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
         let collider = new THREE.Mesh( mergedGeometry );
         collider.material.wireframe = true;
         collider.material.opacity = 0.5;
@@ -780,7 +783,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         this.colliderObject.add(collider);
 
         /*
-          let visualizer = new TRM.MeshBVHVisualizer( collider, 10 );
+          let visualizer = new MeshBVHVisualizer( collider, 10 );
           visualizer.visible = true;
 
           this.shape.parent.add(visualizer)
