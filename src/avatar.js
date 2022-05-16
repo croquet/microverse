@@ -1,4 +1,4 @@
-// Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
 
@@ -30,7 +30,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
         this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
-
+        this.set({tickStep: 30});
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
@@ -60,7 +60,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let presentationMode = manager.presentationMode;
         if (!presentationMode) {return;}
         if (this.follow !== this.playerId) {
-            this.follow = null;
+            this.presentationStopped();
             this.say("setLookAngles", {lookOffset: [0, 0, 0]});
             manager.leavePresentation(this.playerId);
         }
@@ -90,7 +90,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     onLookTo(e) {
         let [pitch, yaw, lookOffset] = e;
-        console.log("A.onLookTo", pitch, yaw, lookOffset)
         this.set({lookPitch: pitch, lookYaw: yaw});
         this.rotateTo(q_euler(0, this.lookYaw, 0));
         if (typeof lookOffset!=='undefined') this.lookOffset = lookOffset;
@@ -198,17 +197,20 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     tick(delta) {
         if (this.follow) {
+            console.log("tick", this.id, this.follow)
             let followMe = this.service("PlayerManager").players.get(this.follow);
             if (followMe) {
+                this.positionTo({v:followMe.translation, q:followMe.rotation});
                 //this.moveTo(followMe.translation);
                 //this.rotateTo(followMe.rotation);
-                this.say("setLookAngles", {yaw: followMe.lookYaw, pitch: followMe.lookPitch, lookOffset: followMe.lookOffset});
-                //this.say("forceOnPosition");
+                //this.say("setLookAngles", { pitch: followMe.lookPitch, lookOffset: followMe.lookOffset});//yaw: followMe.lookYaw,
+                this.say("forceOnPosition");
             } else {
-                this.follow = null;
+                this.presentationStopped();
             }
         }
-        super.tick(delta);
+        if (!this.doomed) this.future(this.tickStep).tick(this.tickStep);
+       // super.tick(delta);
     }
 
     dropPose(distance, optOffset) {
@@ -451,7 +453,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.listen("forceOnRotation", this.onRotation);
             this.listen("forceOnTranslation", this.onTranslation);
             this.listen("forceOnPosition", this.onPosition);
-
+            this.listen("presentationStarted", this.presentationStarted);
+            this.listen("presentationStopped", this.presentationStopped);
             this.listen("goThere", this.stopFalling);
             console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
 
@@ -464,6 +467,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return this.actor.service("PlayerManager").presentationMode === this.viewId;
     }
 
+    presentationStarted(){
+        //this.listen("rotationSet", ()=>console.log("hello there"));
+        this.listen("rotationSet", this.onRotation);
+        this.listen("translationSet", this.onTranslation);
+        console.log("=========presentation started=============")
+    }
+
+    presentationStopped(){
+        this.ignore("rotationSet");
+        this.ignore("translationSet");
+        console.log("=========presentation stopped=============")
+    }
+
+onRotation(){
+    console.log("onRotation")
+    super.onRotation();
+}
+
     onPosition(){
         super.onPosition();
         if (!this._global) {
@@ -472,20 +493,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }        
     }
     setLookAngles(data) {
-        console.log(data)
         let {pitch, yaw, lookOffset} = data;
         this.lookTo(pitch, yaw, lookOffset);
-        /*
-        if (pitch !== undefined) {
-            this.lookPitch = pitch;
-        }
-        if (yaw !== undefined) {
-            this.lookYaw = yaw;
-        }
-        if (lookOffset !== undefined) {
-            this.lookOffset = lookOffset;
-        }
-        */
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -636,7 +645,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     update(time, delta) {
-        if (this.isMyPlayerPawn && this.actor.inWorld && !this.actor.follow) {
+        if(this.actor.follow)return;
+        console.log("update", this.actor.id, this.actor.follow)
+        if (this.isMyPlayerPawn && this.actor.inWorld) {
             let moving = this.updatePose(delta);
             if (this.actor.fall && time-this.lastUpdateTime>THROTTLE) {
                 this.collide();
@@ -660,7 +671,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         if (!q_isZero(this.spin)) {
             q=q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
-            console.log("updatePose", q)
             this.moving = true;
         }else q=this.rotation; 
         if (!v3_isZero(this.velocity)) {
