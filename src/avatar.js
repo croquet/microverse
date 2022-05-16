@@ -625,10 +625,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     forceFollow(){
-  //      this.onPosition();
-        this.lookPitch = this.actor.lookPitch;
-        this.lookYaw = this.actor.lookYaw;
-        this.lookOffset = this.actor.lookOffset;
+        this.lookTo(this.actor.lookPitch, q_yaw(this._rotation), this.actor.lookOffset);         
         this.globalChanged();
     }
 
