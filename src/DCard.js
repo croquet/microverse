@@ -933,10 +933,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
         let obj = this.shape.children.find((o) => o.name === "2d");
         if (!obj || !obj.children || obj.children === 0) {return;}
         obj = obj.children[0];
-        if (data.o.color !== data.v.color || data.o.frameColor !== data.v.frameColor ||
-            data.o.depth !== data.v.depth || data.o.height !== data.v.height ||
-            data.o.width !== data.v.width || data.o.cornerRadius !== data.v.cornerRadius ||
-            data.o.fullBright !== data.v.fullBright) {
+        if (this.didPropertyChange(data, ["depth", "width", "height", "color", "frameColor", "cornerRadius", "fullBright"])) {
             let {depth, width, height, color, frameColor, cornerRadius, fullBright} = data.v;
 
             depth = (depth !== undefined) ? depth : 0.05;
@@ -949,12 +946,20 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
             let material = this.makePlaneMaterial(depth, color, frameColor, fullBright);
 
-            if (data.o.depth !== data.v.depth || data.o.height !== data.v.height ||
-                data.o.width !== data.v.width || data.o.cornerRadius !== data.v.cornerRadius) {
+            if (this.didPropertyChange(data, ["depth", "width", "height", "cornerRadius"])) {
                 let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius)
                 obj.geometry = geometry;
             }
             obj.material = material;
+        }
+    }
+
+    // TODO: move this to utility function in Worldcore (kernel/src/Utilities.js)
+    didPropertyChange({ o, v }, propertyName) {
+        if (Array.isArray(propertyName)) {
+            return propertyName.some((name) => o[name] !== v[name]);
+        } else {
+            return o[propertyName] !== v[propertyName];
         }
     }
 
