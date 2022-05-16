@@ -154,18 +154,16 @@ export class PortalPawn extends CardPawn {
         geometry.attributes.size.needsUpdate = true;
     }
 
-    // HACK to get informed if card data changes because cardDataUpdated is not called
-    // when editing in inspector sheet
     updateShape(options) {
+        this.removeParticles();
         super.updateShape(options);
-        this.loadTargetWorld();
-        this.updateParticles();
+        this.updateParticles(); // rebuild with new shape
     }
 
     cardDataUpdated(data) {
         super.cardDataUpdated(data);
-        this.loadTargetWorld();
-        this.updateParticles();
+        if (this.didPropertyChange(data, "portalURL")) this.loadTargetWorld();
+        if (this.didPropertyChange(data, "sparkle")) this.updateParticles();
     }
 
     loadTargetWorld() {
