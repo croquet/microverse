@@ -61,6 +61,7 @@ export class PortalPawn extends CardPawn {
     addParticles() {
         const width = this.actor._cardData.width * 0.5 + 0.002;
         const height = this.actor._cardData.height * 0.5 + 0.002;
+        const z = 0.01;
         const particles = 1000;
         const uniforms = {
             pointTexture: { value: new THREE.TextureLoader().load( './assets/images/spark.png' ) }
@@ -71,6 +72,7 @@ export class PortalPawn extends CardPawn {
                 attribute float size;
                 void main() {
                     vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                    mvPosition += vec4( 0.0, 0.0, 0.1, 0.0 ); // offset towards camera to avoid z clipping
                     gl_PointSize = size * ( 20.0 / -mvPosition.z );
                     gl_Position = projectionMatrix * mvPosition;
                 }
@@ -95,8 +97,8 @@ export class PortalPawn extends CardPawn {
             const swap = Math.random() < 0.5;
             positions.push((swap ? edge : side) * width);
             positions.push((swap ? side : edge) * height);
-            positions.push(0);
-            sizes.push( 20 );
+            positions.push(z);
+            sizes.push(20);
         }
         const geometry = new THREE.BufferGeometry();
         geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
@@ -163,8 +165,7 @@ export class PortalPawn extends CardPawn {
         // if portalURL does not have a sessionName or password, we need to resolve it
         // we do this by appending our own sessionName and password to the URL
         let portalURL = this.actor.portalURL;
-        const fakeBase = "https://example.com/";
-        const portalTempUrl = new URL(portalURL, fakeBase);
+        const portalTempUrl = new URL(portalURL, location.href);
         const portalSearchParams = portalTempUrl.searchParams;
         const portalHashParams = new URLSearchParams(portalTempUrl.hash.slice(1));
         let sessionName = portalSearchParams.get("q");
@@ -182,13 +183,19 @@ export class PortalPawn extends CardPawn {
                 portalHashParams.set("pw", password);
                 portalTempUrl.hash = portalHashParams.toString();
             }
-            portalURL = portalTempUrl.toString();
-            if (portalURL.startsWith(fakeBase)) {
-                portalURL = portalURL.slice(fakeBase.length);
-            }
-            this.say("setCardData", { portalURL });
         }
-        return portalURL;
+        // remove origin from portalURL if it is the same as the world URL
+        // we could also construct an even shorter relative URL, but this is easier
+        portalURL = portalTempUrl.toString();
+        if (portalTempUrl.origin === location.origin) {
+            portalURL = portalURL.slice(location.origin.length);
+            if (portalTempUrl.pathname === location.pathname) {
+                portalURL = portalURL.slice(location.pathname.length);
+            }
+        }
+        if (this.actor.portalURL !== portalURL) this.say("setCardData", { portalURL });
+        // send full URL to shell
+        return portalTempUrl.toString();
     }
 
     enterPortal() {
@@ -206,7 +213,6 @@ export class PortalPawn extends CardPawn {
         switch (command) {
             case "portal-opened":
                 this.portalId = portalId;
-                if (this.actor.portalURL !== portalURL) this.say("setCardData", { portalURL });
                 this.updatePortalCamera();
                 break;
             case "frame-type":
