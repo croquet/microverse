@@ -26,7 +26,7 @@ The Croquet Microverse is a browser-based 3D shared experience platform and OS. 
 This guide will enable you to quickly set up Croquet Microverse Builder and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding.
 
 ## TLDR
-1. Clone the Github repository <https://github.com/croquet/microverse-builder>
+1. Clone the GitHub repository <https://github.com/croquet/microverse-builder>
     <br>(`git clone https://github.com/croquet/microverse-builder`)
 2. Obtain your Croquet API Key <https://croquet.io/keys/>
 3. Open a terminal and set the path to your new Microverse-Builder folder.
@@ -75,9 +75,9 @@ The best resource for help in developing Croquet Microverse worlds is on our Dis
 ## Steps Towards Creating Your Microverse
 ---
 
-### 1. Clone the Github Repository
+### 1. Clone the GitHub Repository
 
-You can find the most up to date Croquet Microverse library as well as this document in the Microverse-Builder Github repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
+You can find the most up to date Croquet Microverse library as well as this document in the Microverse-Builder GitHub repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
 <https://github.com/croquet/microverse-builder>
 
 ---
@@ -86,7 +86,7 @@ You can find the most up to date Croquet Microverse library as well as this docu
 Developing any Croquet application requires an API key that you can obtain from Croquet. It requires you to sign up as a developer to access this. You can sign up as a Croquet developer here:
 <https://croquet.io/developers/index.html>
 
-Select the [Sign Up](https://croquet.io/keys/) button in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go.
+Select the [Create one here](https://croquet.io/keys/) link in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go.
 
 
 
@@ -208,7 +208,7 @@ It looks like this:
 
 ![Demoworld1](./assets/demoWorld1.png)
 
-As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that let's us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world. 
+As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world. 
 
 The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
@@ -240,7 +240,7 @@ The next group are the user behaviors. These are created by the creator of the w
     ];
 ```
 
-The final section is where we define the cards. A card is easily defined by a number of parameters including the name, type, where it is first loaded into the world, and how it will be used. Perhaps most important is we can associated a behavior to the card here. A behavior can define how a card is constructed, or how it acts when a user interacts with it, or how it can access live external data streams. Here, the first card, the "world model" is defined by the "GridFloor" module. We will take a look at that shortly. The next card defines the lighting in this world. It is a bit more sophisticated, but is relatively easy to use. The last card creates a much more card-like object. A floating object in the middle of the scene with the Croquet logo applied.
+The final section is where we define the cards. A card is easily defined by a number of parameters including the name, type, where it is first loaded into the world, and how it will be used. Perhaps most important is we can associate a behavior to the card here. A behavior can define how a card is constructed, or how it acts when a user interacts with it, or how it can access live external data streams. Here, the first card, the "world model" is defined by the "GridFloor" module. We will take a look at that shortly. The next card defines the lighting in this world. It is a bit more sophisticated, but is relatively easy to use. The last card creates a much more card-like object. A floating object in the middle of the scene with the Croquet logo applied.
 
 ```Javascript
     Constants.DefaultCards = [
@@ -288,7 +288,7 @@ Let's explore the properties that are used to define the cards.
 
 `behaviorModules:`  This is a list of the behaviors that will be applied to a card.
 
-`layers:`  An array that pecifies how the card will be used. Here we have one card defined as 'walk', one as 'light' and one as 'pointer'. If you wished to have a card that you could both walk on and interact with you simply specify:
+`layers:`  An array that specifies how the card will be used. Here we have one card defined as 'walk', one as 'light' and one as 'pointer'. If you wished to have a card that you could both walk on and interact with you simply specify:
 
 `layers: ['walk', 'pointer']`
 
@@ -298,7 +298,7 @@ Let's explore the properties that are used to define the cards.
 
 `type: 'object'` This defines the nature of the card. Some cards are 2D objects, some 3D and there are a number of others.
 
-`shadow: true` Specifies that this card will be both a recipient and a caster of shadows in the world. [note: we will want to seperate recipient and caster into separate flags].
+`shadow: true` Specifies that this card will be both a recipient and a caster of shadows in the world. [note: we will want to separate recipient and caster into separate flags].
 
 A full list of card properties will be available at the end of this document.
 
@@ -368,7 +368,7 @@ http://localhost:9684/?world=tutorial2
 
 Here is an image of the world we will be constructing:
 
-![Tutorial 2](./assets/tutorial2.png)
+![Tutorial 2](./assets/Tutorial2.png)
 
 There are a number of additional cards defined in this world, but everything is still quite simple. Let's start with the definition of the gallery.
 
@@ -405,7 +405,7 @@ dataLocation: "./assets/3D/artgallery_042122.glb.zip",
 dataScale:[1,1,1],
 ```
 
-The most important change is we are now referencing a 3D model that is in our assets folder. This is the model of the gallery and was original created in Blender and exported as a single GLB file including textures. It was then zipped for faster transfer.
+The most important change is we are now referencing a 3D model that is in our assets folder. This is the model of the gallery and was originally created in Blender and exported as a single GLB file including textures. It was then zipped for faster transfer.
 
 We also specify that the type is "3d", so that the file loader has some hint of how to manage it. 
 
@@ -517,7 +517,7 @@ The [Croquet OS kernel](https://croquet.io/docs/croquet/) is an extremely low-la
 
 The [Croquet Worldcore framework](https://croquet.io/docs/worldcore/) defines the actor/pawn architecture underlying the Croquet Metaverse cards.
 
-[Three.js](https://threejs.org) provides the 3D rendering framework. It is an extremely powerful, flexible and well defined library.
+[Three.js](https://threejs.org) provides the 3D rendering framework. It is an extremely powerful, flexible and well-defined library.
 
 Croquet Microverse utilizes the [Rapier Physics Engine](https://rapier.rs/). Written in Rust and running in WebAssembly, Rapier is an open source, very high-performance but easy to create multiuser, interactive physics simulations.
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The "avatar" of Croquet Microverse handles user interaction such as mouse and keyboard, manages the "camera" of the 3D scene.  The avatar is implemented as a special kind of a [card](./Card.md). The default listeners for user interaction, such as the WASD key and pointer navigation, Ctrl-Click editting etc. are specified in a behavior module so that you can implement a new set and turn on and off certain actions. You can also attach some other behaviors to add world-specific features.
+The "avatar" of Croquet Microverse handles user interaction such as mouse and keyboard, manages the "camera" of the 3D scene.  The avatar is implemented as a special kind of [card](./Card.md). The default listeners for user interaction, such as the WASD key and pointer navigation, Ctrl-Click editting etc. are specified in a behavior module so that you can implement a new set and turn on and off certain actions. You can also attach some other behaviors to add world-specific features.
 
 The base actor class of the avatar is called AvatarActor, and the base pawn class is called AvatarPawn. Because it is a card, its visual appearance is specified in the same way for a 3D model-type card.
 
@@ -12,7 +12,7 @@ Other participants' avatars shown in the session are also cards. However, typica
 
 ### `lookPitch:number`
 
-The avatar's camera rotation around the X axis (the axis going from left to right; thus a posivive value indicates to look "up" ,and a negative value indicates to look "down".)
+The avatar's camera rotation around the X axis (the axis going from left to right; thus a positive value indicates to look "up" ,and a negative value indicates to look "down".)
 
 To get desired effects, use the set method:
 

@@ -4,7 +4,7 @@
 
 A card in Croquet Microverse is defined as a declarative specification. The specification can be serialized into JSON and transmitted or stored, and then can be loaded into a different Croquet Microverse world, used to start a new world.
 
-A specification can be also used to rebuild an exisiting card without losing identity. This allows you to interactively build up a world while exploraing different alternatives quickly.
+A specification can be also used to rebuild an existing card without losing identity. This allows you to interactively build up a world while exploring different alternatives quickly.
 
 For example, we have a 3D model of a car with a behavior that makes the car drivable:
 
@@ -24,7 +24,7 @@ It is defined as:
     dataRotation: [-0.7071067811865475, 0, 0, 0.7071067811865476],
 ```
 
-In the following, we describe the properties and how they interact with each other.  You can see examples in the files in the `worlds` directory, and also some behavors use the specification to create a new card dynamically with the call to `createCard()`.
+In the following, we describe the properties and how they interact with each other.  You can see examples in the files in the `worlds` directory, and also some behaviors use the specification to create a new card dynamically with the call to `createCard()`.
 
 ## Concepts
 
@@ -76,7 +76,7 @@ Array<number, number, number>|undefined
 
 ### Description
 
-Specifies the scale in xyz axises of the card. It defaults to [1, 1, 1] when not specified.
+Specifies the scale in xyz axes of the card. It defaults to [1, 1, 1] when not specified.
 
 ---
 
@@ -96,7 +96,7 @@ Array<number, number, number, number?>|undefined
 
 ### Description
 
-Specifies the rotation of the card. If the Array has three elements, it is interpred as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
+Specifies the rotation of the card. If the Array has three elements, it is interpreted as an euler angle.  If the array has four elements, it is interpreted as a quaternion. It defaults to [0, 0, 0, 1] (no rotation) when not specified.
 
 ---
 
@@ -118,7 +118,7 @@ Array<number, number, number>|undefined
 
 A 3D model loaded as part of a card may have its own offset. You can use dataTranslation as a "one time" fix to translate the 3D model when loading.
 
-Specifies the xyz coodinates of the translation for the loaded model. It defaults to [0, 0, 0] when not specified.
+Specifies the xyz coordinates of the translation for the loaded model. It defaults to [0, 0, 0] when not specified.
 
 ---
 
@@ -162,7 +162,7 @@ Array<number, number, number, number?>|undefined
 
 A 3D model loaded as part of a card may have a rotation that does not match with the orientation of the card. You can use dataRotation as a "one time" fix to rotate the 3D model when loading.
 
-Specifies the rotation of the loaded model. If the Array has three elements, it is interpred as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
+Specifies the rotation of the loaded model. If the Array has three elements, it is interpreted as an euler angle.  If the array has four elements, it is interpreted as aquaternion. It defaults to [0, 0, 0, 1] (no rotation) when not speficied.
 
 ---
 
@@ -182,7 +182,7 @@ string|CardActor|undefined
 
 ### Description
 
-This property sets up the display scene hierarchy. Special care is taken when an actual CardActor is passed in, and also during an intialization the interpretation of the value changes.  See more information on the `parent` property below.
+This property sets up the display scene hierarchy. Special care is taken when an actual CardActor is passed in, and also during an initialization the interpretation of the value changes.  See more information on the `parent` property below.
 
 ---
 
@@ -247,7 +247,7 @@ Type|undefined
 ```
 
 ### Description
-When it is "2d", it creates a 2d flat object and enables optional texture specifiction (see texture related properties below).
+When it is "2d", it creates a 2d flat object and enables optional texture specification (see texture related properties below).
 When it is "3d, it loads an 3D data from `dataLocation`.
 When it is "text", the card becomes a text area.
 When it is "code", it creates a text area but has some more functionality to support in world code editing.
@@ -313,7 +313,7 @@ Meter|undefined
 ```
 
 ### Description
-When the cards "type" is "2d", depth is used to specify the amount of extrution. It defaults to 0.05 (in meters).
+When the cards "type" is "2d", depth is used to specify the amount of extrusion. It defaults to 0.05 (in meters).
 
 ---
 
@@ -415,11 +415,11 @@ TextureType|undefined
 ```
 
 ### Description
-When it is "image, it loads an image data from `textureLocation` and creates Texture of Three.js.
+When it is "image", it loads an image data from `textureLocation` and creates Texture of Three.js.
 When it is "canvas", it creates a DOM canvas and binds it to CanvasTexture of Three.js.
 When it is undefined, it does not allocate a texture
 
-The created texture is assinged to `this.texture` property of the `CardPawn`.
+The created texture is assigned to `this.texture` property of the `CardPawn`.
 
 --- 
 
@@ -462,7 +462,7 @@ Pixels|undefined
 
 ### Description
 
-Those values specifies the texture's size in pixels, when the `type` is "2d".
+Those values specify the texture's size in pixels, when the `type` is "2d".
 
 They default to 512.
 
@@ -525,7 +525,7 @@ boolean
 
 ### Description
 
-Put a simple Three.js object while loading a (large) 3D model.  When the model loading is finished the place holder will be removed automatically.
+Put a simple Three.js object while loading a (large) 3D model.  When the model loading is finished the placeholder will be removed automatically.
 
 ---
 
@@ -677,7 +677,7 @@ boolean
 
 ### Description
 
-When the card's type is "code" or "text", "autoResize" specifies whether the text field should resize itself to show entire text contents. It defeaults to false.
+When the card's type is "code" or "text", "autoResize" specifies whether the text field should resize itself to show entire text contents. It defaults to false.
 
 ---
 
@@ -800,7 +800,7 @@ When true, the card is not stored in the persistent data.
 
 ## The `parent` property
 
-The `parent` property is used differently depending on the context. In the world file (such as `default.js`), you sometimes wnat to specify hierarchical cards. as a short hand, you can specify the `Constants.DefaultCards with a simple `id` field and refer to it from subsequent cards:
+The `parent` property is used differently depending on the context. In the world file (such as `default.js`), you sometimes want to specify hierarchical cards. As a shorthand, you can specify the `Constants.DefaultCards with a simple `id` field and refer to it from subsequent cards:
 
 ```JavaScript
 Constants.DefaultCards = [

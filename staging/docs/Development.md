@@ -13,7 +13,7 @@ A behavior is a class extension mechanism. It is like a subclass of a card which
 Therefore, creating a Croquet Microverse world means to arrange your 3D objects in the world, including the terrain model, and specify behaviors to some objects. Other user can join a world where you can collaboratively create it.  Once you are satisfied, the world definition can be saved into a file, or card specifications can be extracted to the world file.
 
 ## Start a demo world
-You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.vrse`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .vrse, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like Github Gist.
+You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.vrse`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .vrse, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like GitHub Gist.
 
 One of the demo worlds in the repository is called `tutorial1`, and can be entered by opening <http://localhost:9684/?world=tutorial1>
 
@@ -93,7 +93,7 @@ You can also specify a list of behaviors for a card. A behavior can define the v
 
 Behaviors are a class extension mechanism in the Croquet Microverse. It is like subclassing to enhance a card, but you can attach and detach a behavior to/from the actor and the pawn dynamically.
 
-Since a behavior typically requires an actor side and pawn side to work together, we package list of behaviors for the actor and pawn which are separate into a into an entity we call the "behavior module", 
+Since a behavior typically requires an actor side and pawn side to work together, we package list of behaviors for the actor and pawn which are separate into an entity we call the "behavior module", 
 
 From our tutorial1, let us look at the behaviors in the GridFloor module.
 
@@ -140,7 +140,7 @@ Since this module only defines the visual representation, it does not have any a
 
 Because behaviors are dynamically modified and attached and detached, their "life cycle" needs some attention. Namely, when the definition is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. Also, when a behavior is detached from the card, the `destroy` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is designed to automatically reconnects and reconstruct the view smart when the tab comes back to the foreground.  However, it means that the `setup()` method may be called again at that moment.
 
-In the `GridFloorPawn` case, we simply removes all children that `this.shape` might have first, and then create the new floor Mesh.
+In the `GridFloorPawn` case, we simply remove all children that `this.shape` might have first, and then create the new floor Mesh.
 
 The `Worldcore` variable contains all of the exported functions and objects from the Worldcore package. Refer to the [Worldcore documentation](https://croquet.io/docs/worldcore) for what is available. The most commonly used one is `Worldcore.THREE`, which in turn contains all exports from Three.js.
 
@@ -264,7 +264,7 @@ However, other kinds of initialization often requires some care. For example, cr
 
 Also if a behavior for a pawn creates Three.js objects, the `setup()` typically removes them before creating new ones, as shown in the GridFloor example.
 
-But don't worry to much about this details initially.  Even if you forget to add them at the beginning, the system will keep working, and you can incrementally (and quickly!) correct your code.
+But don't worry too much about these details initially.  Even if you forget to add them at the beginning, the system will keep working, and you can incrementally (and quickly!) correct your code.
 
 While you listed the name of the behaviors in the world file, such as `tutorial1.js`, this is only necessary to load the behaviors that are used in the `DefaultCards` list.  Once you press the "Connect" button in the menu, all behavior modules that the watch server watches become available.
 
@@ -289,7 +289,7 @@ Inevitably you will encounter errors during the development. And because your co
 
 Once you figure this out, you can put a breakpoint in the offending method and step execute.
 
-A Croquet Microverse session may lock up when Three.js crashes with NaN or Infinity or some other values that are created by the program, you create an infinite loop in JavaScript, or any other reasons that is hard to guard against. But don't worry. Your work is typically saved on the disk, and you can just re-launch a fresh session. It is useful to time to time to update your start `.js` file so that next session has all things you want.
+A Croquet Microverse session may lock up when Three.js crashes with NaN or Infinity or some other values that are created by the program, you create an infinite loop in JavaScript, or any other reasons that is hard to guard against. But don't worry. Your work is typically saved on the disk, and you can just re-launch a fresh session. It is useful to time to update your start `.js` file so that next session has all things you want.
 
 ## The Property Sheet
 
@@ -301,7 +301,7 @@ You can duplicate or delete the card from "actions". If you multi-select the mod
 
 The text area below shows the properties of the card in the format that is compatible with the card specification in the world file.  You can edit values and hit Ctrl-S (on Windows) or Cmd-S (on Mac), and the values are used to update the card. Also, you can copy the contents to your world file.
 
-Note however that the content is not evaluated as a JavaScript expression; rather, each line of the text is parsed, and the part after ":" is passed with `JSON.parse()` to create the value. (This is to avoid opening up full `eval()`  feature from the propety sheet.)
+Note however that the content is not evaluated as a JavaScript expression; rather, each line of the text is parsed, and the part after ":" is passed with `JSON.parse()` to create the value. (This is to avoid opening up full `eval()`  feature from the property sheet.)
 
 ## Saving the World to a File
 

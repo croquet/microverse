@@ -51,7 +51,7 @@ The rotation of the card in quaternion.
 ### `_scale`
 `Array<number, number, number>`
 
-The scale of the card in three axies.
+The scale of the card in three axes.
 
 ### `_layers`
 `Array<string>`
@@ -60,10 +60,10 @@ Layers specifies how the card is treated when a special action is taken. Typical
 
 * "walk": The avatar stays on the geometry of the card.
 * "pointer": The pointer action is enabled.
-* "portal": the avatar tests if the card it is going through needs to take the avatar to a connect world.
+* "portal": the avatar tests if the card it is going through needs to take the avatar to a connected world.
 
 ### `_parent`
-The cards in the world are organized in a hierarchical parent-children structure. The `_parent` specifies its parent. Note that this is a "logical" structure. All cards are held as a direct child of the Three.JS scene, with automtic matrix composition for nested cards.
+The cards in the world are organized in a hierarchical parent-children structure. The `_parent` specifies its parent. Note that this is a "logical" structure. All cards are held as a direct child of the Three.JS scene, with automatic matrix composition for nested cards.
 
 ### `_behaviorModules`
 `Array<string>`
@@ -87,7 +87,7 @@ Any other values that the CardActor holds are stored in an object stored in the 
 
 ### `createCard(cardSpec:object):CardActor`
 
-This method creates a new card (a CardActor on the model side and a CardPawn on the view side), according tbased on the `cardSpec`.
+This method creates a new card (a CardActor on the model side and a CardPawn on the view side), based on the `cardSpec`.
 
 ### `destroy()`
 
@@ -125,7 +125,7 @@ This method updates some elements in the `_cardData` object. The current value a
 ### `addEventListener(eventName:EventName, listener:function|string)`
 `type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
 
-This method adds a "listener" to be invoked when an event occures on the card.  When `listener` is a function, it has to have a form of `this.mthName` where `mthName` is an existing method name of CardActor or the behavior itself. When listener is a string, it has to be the name of a method at CardActor or the behavior itself. The listener added by this Actor-side `addEventListener()` is invoked when any user in the world causes the corresponding user pointer or key event.
+This method adds a "listener" to be invoked when an event occurs on the card.  When `listener` is a function, it has to have a form of `this.mthName` where `mthName` is an existing method name of CardActor or the behavior itself. When listener is a string, it has to be the name of a method at CardActor or the behavior itself. The listener added by this Actor-side `addEventListener()` is invoked when any user in the world causes the corresponding user pointer or key event.
 
 Calling this method with the same arguments removes the previous listener before adding the new one. This semantics ensures that dynamically-modified method will be used.
 
@@ -226,7 +226,7 @@ this.future(20).call("Module$Behavior", "mth");
 ### `addEventListener(eventName:EventName, listener:function|string)`
 `type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
 
-This method adds a "listener" to be invoked when an event occures on the pawn of a card. When `listener` is a string, it has to have the name of an existing method of CardPawn or the behavior itself. (Internally the function object is stored in the event listener data structure.)
+This method adds a "listener" to be invoked when an event occurs on the pawn of a card. When `listener` is a string, it has to have the name of an existing method of CardPawn or the behavior itself. (Internally the function object is stored in the event listener data structure.)
 
 Calling this with the same arguments (thus the string form) removes the previous listener and then add the new one. This semantics ensures that dynamically-modified method will be used.
 

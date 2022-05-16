@@ -84,13 +84,13 @@ If you have another device on the local network and the computer is visible from
 
 ### Deployment
 
-You can copy all files in `behaviors`, `assets`, `lib`, `meta`, and `worlds` along with `index.html` and `apiKey.js` to your publicly accessible HTTP server to have your own deployment. You can also use a hosting services such as Netlify and Vercel, which let you connect your Github repository to automate deployment. Note that the auto generated default apiKey for your Croquet account allows anybody to use it from any site.  In order to protect your API key from unauthorized use, you should create a new apiKey with URL restriction limited to your site.
+You can copy all files in `behaviors`, `assets`, `lib`, `meta`, and `worlds` along with `index.html` and `apiKey.js` to your publicly accessible HTTP server to have your own deployment. You can also use a hosting services such as Netlify and Vercel, which let you connect your GitHub repository to automate deployment. Note that the auto generated default apiKey for your Croquet account allows anybody to use it from any site.  In order to protect your API key from unauthorized use, you should create a new apiKey with URL restriction limited to your site.
 
 Many of files in the `assets` directory are used for the default demo worlds and may not be necessary for your own world.  You can safely remove them from your deployment if you are not using them.
 
 ### Updates
 
-Croquet will continuously update this repository with new features and bug fixes. Most of files affected will be under the `lib` and `assets` directory but occasionally some files in the worlds, including `default.js`, will be modified. If you edit `default.js` in your clone, fetching upstream updates may cause conflicts. Making your world file under a different name and launching it with the URL option `?world=` can avoid conflicts.  However, the recommended approach is to merge our changes into your version of `default.js`.
+Croquet will continuously update this repository with new features and bug fixes. Most of the files affected will be under the `lib` and `assets` directory but occasionally some files in the worlds, including `default.js`, will be modified. If you edit `default.js` in your clone, fetching upstream updates may cause conflicts. Making your world file under a different name and launching it with the URL option `?world=` can avoid conflicts.  However, the recommended approach is to merge our changes into your version of `default.js`.
 
 ## Resources
 ---

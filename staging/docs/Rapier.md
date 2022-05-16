@@ -78,7 +78,7 @@ To prevent a double tap action from triggering the "jump to" feature, we remove 
 
 So this is it!  Note again that the property names, such as `rapierType`, `rapierShape`, `rapierSize` are all "user defined". Those are used in this example, but you can define your own property and use it from your behaviors.
 
-Also note that adding and removing a behavior can be done dynamically. You can start with an card that does not participate in the simulation but later you can add the card to the simulation by attaching "Rapier" behavior. This gives you more flexibility in creating your own worlds.
+Also note that adding and removing a behavior can be done dynamically. You can start with a card that does not participate in the simulation but later you can add the card to the simulation by attaching "Rapier" behavior. This gives you more flexibility in creating your own worlds.
 
 **Copyright (c) 2022 Croquet Corporation**
 

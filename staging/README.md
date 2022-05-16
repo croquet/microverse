@@ -8,8 +8,8 @@ Croquet Microverse Builder is a framework to build multiplayer immersive 3D virt
 
 * [Croquet OS](https://croquet.io/docs/croquet) provides a clean substrate to build multiuser applications.
 * [Worldcore Framework](https://croquet.io/docs/worldcore) provides an abstraction to build 3D applications on top of Croquet OS.
-* "Cards" and "Behaviors" abstractions provides a uniform object model, and pluggable bahavior descriptions for those objects.It also allows integration with your text editor to support multiuser live programming.
-* [Three.JS](https://threejs.org) provides instustrial strength 3D rendering backend.
+* "Cards" and "Behaviors" abstractions provides a uniform object model, and pluggable behavior descriptions for those objects.It also allows integration with your text editor to support multiuser live programming.
+* [Three.JS](https://threejs.org) provides industrial strength 3D rendering backend.
 * All Web technology in your browser is available to access different media, real world data into the virtual world, and vice versa.
 
 By combining all together, Croquet Microverse Builder helps developers to create a metaverse world interactively and quickly. And, the deployed web app requires zero-installation to run on users computers.
