@@ -641,10 +641,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 if(moving || this.isFalling){
                     this.positionTo(this.vq.v, this.vq.q, 50);
                 }
-                this.refreshPortalClip();
                 this.refreshCameraTransform();
             }
         }
+        this.refreshPortalClip();
         super.update(time, delta);
     }
 
