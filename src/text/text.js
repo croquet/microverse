@@ -651,7 +651,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupMesh() {
-        let depth = this.actor._cardData.depth;
+        let depth = this.actor._cardData.depth || 0.01;
         let cornerRadius = this.actor._cardData.cornerRadius || 0.05;
         let {backgroundColor, frameColor, fullBright} = this.actor._cardData;
 
