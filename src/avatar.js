@@ -355,7 +355,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.lastPortalTranslation = this.translation;
 
             // clip halfspace behind portalCamera
-            this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+            this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.2); // 0.2 is to cover the gap of the portal thickness
 
             document.getElementById("homeBttn").onclick = () => this.goHome();
             document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
