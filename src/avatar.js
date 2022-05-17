@@ -4,7 +4,7 @@
 
 import {
     THREE, Data, App, mix, GetPawn, AM_Player, PM_Player, PM_SmoothedDriver, PM_ThreeCamera, PM_ThreeVisible,
-    v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform,
+    v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
@@ -351,6 +351,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             this.future(100).fadeNearby();
             this.lastTranslation = this.translation;
+            this.lastPortalTranslation = this.translation;
 
             // clip halfspace behind portalCamera
             this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
@@ -765,13 +766,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
         if (!portalLayer) return false;
 
-        let dir = v3_sub(this.vq.v, this.lastTranslation);
+        let dir = v3_sub(this.vq.v, this.lastPortalTranslation);
+        this.lastPortalTranslation = this.vq.v;
+        let len = Math.max(v3_magnitude(dir), PORTAL_DISTANCE);
         // not moving then return false
         if (!dir.some(item => item !== 0)) return false;
 
         dir = v3_normalize(dir);
+        this.portalcaster.far = len;
         this.portalcaster.ray.direction.set(...dir);
-        this.portalcaster.ray.origin.set(...this.translation);
+        this.portalcaster.ray.origin.set(...this.lastPortalTranslation);
         const intersections = this.portalcaster.intersectObjects(portalLayer, true);
         if (intersections.length > 0) {
             let portal = this.pawnFrom3D(intersections[0].object);
