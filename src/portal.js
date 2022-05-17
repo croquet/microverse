@@ -64,7 +64,6 @@ export class PortalPawn extends CardPawn {
         if (this.particleSystem) return;
         const width = this.actor._cardData.width * 0.5 + 0.002;
         const height = this.actor._cardData.height * 0.5 + 0.002;
-        const z = 0.01;
         const particles = 1000;
         const uniforms = {
             pointTexture: { value: new THREE.TextureLoader().load( './assets/images/spark.png' ) }
@@ -100,7 +99,7 @@ export class PortalPawn extends CardPawn {
             const swap = Math.random() < 0.5;
             positions.push((swap ? edge : side) * width);
             positions.push((swap ? side : edge) * height);
-            positions.push(z);
+            positions.push(0);
             sizes.push(20);
         }
         const geometry = new THREE.BufferGeometry();
