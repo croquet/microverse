@@ -16,7 +16,8 @@ import {setupWorldMenuButton} from "./worldMenu.js";
 
 let EYE_HEIGHT = 1.676;
 let EYE_EPSILON = 0.01;
-let THROTTLE = 50;
+let FALL_DISTANCE = EYE_HEIGHT/20;
+let THROTTLE = 20;
 let PORTAL_DISTANCE = 1;
 let isMobile = !!("ontouchstart" in window);
 
@@ -52,7 +53,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get lookYaw() { return this._lookYaw || 0; }
     get lookOffset() { return this._lookOffset || 0; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._collisionRadius || 0.375; }
+    get collisionRadius() { return this._collisionRadius || 0.5; } //0.375; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     leavePresentation() {
@@ -657,7 +658,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         if (!q_isZero(this.spin)) {
             q=q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
-            this.moving = true;
+            moving = true;
         }else q=this.rotation; 
         if (!v3_isZero(this.velocity)) {
             const relative = v3_scale(this.velocity, delta);
@@ -706,13 +707,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         const radius = this.actor.collisionRadius;
         let head = EYE_HEIGHT / 6;
-        let newPosition = [...this._translation];
-
+        let v=[...this.vq.v];
+        if(this.doFall){
+            v[1]-=FALL_DISTANCE;
+            this.doFall = false;
+        }
+        let positionChanged = false;
+        let newPosition = new THREE.Vector3(...v);
         collideList.forEach(c => {
             let iMat = new THREE.Matrix4();
             iMat.copy(c.matrixWorld).invert();
 
-            let v = new THREE.Vector3(...newPosition);
+            v = newPosition;
             v.applyMatrix4(iMat); // shift this into the BVH frame
 
             let segment = new THREE.Line3(v.clone(), v.clone());
@@ -722,6 +728,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let cBox = new THREE.Box3();
             cBox.min.set(v.x - radius, v.y - EYE_HEIGHT, v.z - radius);
             cBox.max.set(v.x + radius, v.y + EYE_HEIGHT / 6, v.z + radius);
+
             // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
@@ -733,11 +740,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
                         segment.start.addScaledVector(direction, depth);
                         segment.end.addScaledVector(direction, depth);
+                        positionChanged = true;
                     }
 
                 }
             });
-
             newPosition = segment.start;
             newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
             newPosition.y -= (head - radius);
@@ -749,8 +756,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             ];
             */
         })
-      //  if (newPosition !== undefined) this.setTranslation(newPosition.toArray());
-      // use this.vq.v
+        if(positionChanged){
+            this.vq.v = newPosition.toArray();
+            return true;
+        }else {
+            this.doFall = true;
+            return false;
+        }
     }
 
     // given the 3D object, find the pawn
@@ -794,8 +806,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!walkLayer) return false;
 
         // first check for BVH colliders
-        // let collideList = walkLayer.filter(obj => obj.collider);
-        // if (collideList.length>0) { this.collideBVH(collideList); return true; }
+        let collideList = walkLayer.filter(obj => obj.collider);
+        if (collideList.length>0) { if(this.collideBVH(collideList))return true; }
 
         // then check for floor objects
         //walkLayer = walkLayer.filter(obj=> !obj.collider);
