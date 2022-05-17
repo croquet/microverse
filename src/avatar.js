@@ -53,7 +53,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get lookYaw() { return this._lookYaw || 0; }
     get lookOffset() { return this._lookOffset || 0; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._collisionRadius || 0.5; } //0.375; }
+    get collisionRadius() { return this._collisionRadius || 0.6; } //0.375; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     leavePresentation() {
