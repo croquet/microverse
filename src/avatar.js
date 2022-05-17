@@ -680,6 +680,17 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 if (!clippingPlanes.includes(this.portalClip)) {
                     clippingPlanes.push(this.portalClip);
                 }
+                // check which half-space of the portal the camera is in,
+                // and flip the portal's clip plane to the other side if needed
+                const cameraInFrontOfPortalPlane = this.lookGlobal[14] > 0;
+                const clippingBehindPortalPlane = this.portalClip.normal.z < 0;
+                if (clippingBehindPortalPlane !== cameraInFrontOfPortalPlane) {
+                    this.portalClip.normal.negate();
+                }
+                // this ensures we can look "through" the portal from behind
+                // and see the other half space
+                // TODO: we assume the portal is at the origin looking down the z axis
+                // when this is no longer true, we need to update this code
             }
         }
     }
