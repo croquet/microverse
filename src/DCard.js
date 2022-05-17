@@ -844,42 +844,48 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 
     roundedCornerGeometry(width, height, depth, cornerRadius) {
-        let x = - width / 2;
-        let y = - height / 2;
+        let x = height / 2;
+        let y = width / 2;
+        let z = depth / 2;
         let radius = cornerRadius === undefined ? 0 : cornerRadius;
 
         let shape = new THREE.Shape();
-        shape.moveTo(x, y + radius);
-        shape.lineTo(x, y + height - radius);
-        shape.quadraticCurveTo(x, y + height, x + radius, y + height);
-        shape.lineTo(x + width - radius, y + height);
-        shape.quadraticCurveTo(x + width, y + height, x + width, y + height - radius);
-        shape.lineTo(x + width, y + radius);
-        shape.quadraticCurveTo(x + width, y, x + width - radius, y);
-        shape.lineTo(x + radius, y);
-        shape.quadraticCurveTo( x, y, x, y + radius);
+        shape.moveTo(-x, -y + radius);
+        shape.lineTo(-x,  y - radius);
+        shape.quadraticCurveTo(-x, y, -x + radius, y);
+        shape.lineTo(x - radius, y);
+        shape.quadraticCurveTo(x, y, x, y - radius);
+        shape.lineTo(x, -y + radius);
+        shape.quadraticCurveTo(x, -y, x - radius, -y);
+        shape.lineTo(-x + radius, -y);
+        shape.quadraticCurveTo( -x, -y, -x, -y + radius);
 
-        let geometry = new THREE.ExtrudeGeometry(shape, {depth, bevelEnabled: false});
+        let extrudePath = new THREE.LineCurve3(new THREE.Vector3(0, 0, z), new THREE.Vector3(0, 0, -z));
+        extrudePath.arcLengthDivisions = 3;
+        let geometry = new THREE.ExtrudeGeometry(shape, {extrudePath});
+
         geometry.parameters.width = width;
         geometry.parameters.height = height;
         geometry.parameters.depth = depth;
 
         let normalizeUV = (uvArray, bb) => {
-            let s = [bb.max.x - bb.min.x, bb.max.y - bb.min.y];
-            s[0] = s[0] > 0 ? 1 / s[0] : 1;
-            s[1] = s[1] > 0 ? -1 / s[1] : -1;
-            let o = [bb.min.x, -bb.min.y];
-            let index = 0;
-            for(let i = 0; i < uvArray.length; i++) {
-                uvArray[i] = (uvArray[i] - o[index]) * s[index];
-                if (index) uvArray[i] = 1 - uvArray[i];
-                index = index === 0 ? 1 : 0;
+            let w = bb.max.x - bb.min.x;
+            let h = bb.max.y - bb.min.y;
+            if (w && h) {
+                let wScale = 1;
+                let hScale = 1;
+                if (h > w) hScale = h / w;
+                else if (w > h) wScale = w / h;
+                for (let i = 0; i < uvArray.length; i += 2) {
+                    uvArray[i  ] = uvArray[i  ] * wScale + 0.5;
+                    uvArray[i+1] = uvArray[i+1] * hScale + 0.5;
+                }
             }
         };
 
         let boundingBox = new THREE.Box3(
-            new THREE.Vector3(-width / 2, -height / 2, -depth / 2),
-            new THREE.Vector3(width / 2, height / 2, depth / 2));
+            new THREE.Vector3(-x, -y, -z),
+            new THREE.Vector3( x,  y,  z));
 
         let uv = geometry.getAttribute('uv');
         normalizeUV(uv.array, boundingBox);
