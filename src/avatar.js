@@ -514,8 +514,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     showNumbers() {
         let manager = this.actor.service("PlayerManager");
         let comeHere = document.getElementById("usersComeHereBttn");
-        let userCountReadOut = comeHere.querySelector("#userCountReadOut");
-        if (userCountReadOut) {
+        let userCountReadout = comeHere.querySelector("#userCountReadout");
+        if (userCountReadout) {
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = manager.players.size;
             let here = manager.playersInWorld().length;
@@ -527,10 +527,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
             if (manager.presentationMode) {
                 let followers = manager.followers.size;
-                userCountReadOut.textContent = `${followers}/${total}`;
+                userCountReadout.textContent = `${followers}/${total}`;
                 tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
             } else {
-                userCountReadOut.textContent = `${total}`;
+                userCountReadout.textContent = `${total}`;
             }
             comeHere.setAttribute("title", tooltip);
         }
