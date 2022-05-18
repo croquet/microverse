@@ -3,20 +3,23 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2022-04-29
+## 2022-05-13
 ### Added
-- The follow button has participant count readout.
-- The follow feature works also when the leader goes to the birds eye view.
-- Avatars translucency adjustment when following or being seen through a portal.
-- The Rapier-based physics simulation. (rapier.js and collider.js)
-- The prototype version of portals.
-- Save an individual card into a file.
+- Full screen mode work with portals
 
 ### Changed
-- 3D events that event handler receives has the "xy" property that is in the display coordinates.
-- Spin behavior uses xy to spin an object a bit more smoothly.
+- Use .vrse extension for saved/exported file name.
+- Make Avatar be a kind of card, thus one can write behaviors for it.
+- The world menu is moved to top right.
 
-## 2022-05-6
+### Fixed 
+- A divergence issue due to a view code used in model.
+- Avatar look is preserved when walking through a portal.
+- The faucet in the cascade demo can be moved.
+- Embedding Microverse into an iframe works.
+- A whiteout bug due to 0 being treated as falsy.
+
+## 2022-05-06
 ### Added
 - A new layer called "portal".
 - A way to create a new card with Sticky Note.
@@ -34,4 +37,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Pending
 - Avatar collision with walls.
 - Numerous improvements to the Portals.
+
+## 2022-04-29
+### Added
+- The follow button has participant count readout.
+- The follow feature works also when the leader goes to the birds eye view.
+- Avatars translucency adjustment when following or being seen through a portal.
+- The Rapier-based physics simulation. (rapier.js and collider.js)
+- The prototype version of portals.
+- Save an individual card into a file.
+
+### Changed
+- 3D events that event handler receives has the "xy" property that is in the display coordinates.
+- Spin behavior uses xy to spin an object a bit more smoothly.
 
