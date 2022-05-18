@@ -5,7 +5,7 @@ let imageInput = null;
 function qrPressed(_myAvatar, url) {
     let div = document.createElement("div");
     div.innerHTML = `<a id="link" target="_blank" rel="noopener noreferrer" href="${url}"></a>`;
-    document.body.appendChild(div);
+    document.getElementById("hud").appendChild(div);
     let a = div.querySelector("#link");
     a.click();
     div.remove();
@@ -46,7 +46,7 @@ function loadPressed(myAvatar) {
         };
     }
 
-    document.body.appendChild(imageInput);
+    document.getElementById("hud").appendChild(imageInput);
 
     imageInput.click();
     if (worldMenuVisible) {
@@ -119,7 +119,7 @@ function initWorldMenu(badge) {
 
     worldMenu = html;
     worldMenuVisible = false;
-    document.body.appendChild(worldMenu);
+    document.getElementById("hud").appendChild(worldMenu);
 }
 
 function toggleMenu(myAvatar) {
