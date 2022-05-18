@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 
+html {
+    height: 100%;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -12,6 +15,7 @@ body {
     overscroll-behavior: none;
     overflow: hidden;
     touch-action: none;
+    height: 100%;
 }
 
 #hud {
@@ -270,8 +274,8 @@ body {
 
     #joystick {
         bottom: 18px;
-        width: 85;
-        height: 85;
+        width: 85px;
+        height: 85px;
     }
 
     #knob {
