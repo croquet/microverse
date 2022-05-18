@@ -597,7 +597,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             }
 
             if (options.placeholder) {
-                console.log("need to delete collider for boxmesh");
+                console.log("delete collider for placeholder");
                 this.cleanupColliderObject();
                 this.shape.remove(this.placeholder);
             }
