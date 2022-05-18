@@ -571,6 +571,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
             this.placeholder = mesh;
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
+            if (this.actor.layers.indexOf('walk') >= 0) {
+                this.constructCollider(this.placeholder);
+            }
             this.shape.add(this.placeholder);
         }
 
@@ -593,6 +596,12 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 this.future(500).runAnimation();
             }
 
+            if (options.placeholder) {
+                console.log("need to delete collider for boxmesh");
+                this.cleanupColliderObject();
+                this.shape.remove(this.placeholder);
+            }
+
             if (this.actor.layers.indexOf('walk') >= 0) {
                 this.constructCollider(obj);
             }
@@ -609,10 +618,6 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
                 obj.material.dispose = arrayDispose;
             }
 
-            if (options.placeholder) {
-                // console.log("need to delete collider for boxmesh");
-                this.shape.remove(this.placeholder);
-            }
         });
     }
 
