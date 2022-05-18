@@ -11,6 +11,7 @@ body {
     line-height: 24px;
     overscroll-behavior: none;
     overflow: hidden;
+    touch-action: none;
 }
 
 #hud {
