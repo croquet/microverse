@@ -262,13 +262,15 @@ export const AM_Code = superclass => class extends superclass {
         // oh, boy
         let rcvr = this[isProxy] ? this._target : this;
 
+        let card = rcvr.constructor.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
         this.publish(this.sessionId, "triggerPersist");
-        return rcvr.constructor.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        return card;
     }
 
     queryCards(options, requestor) {
         let actorManager = this.service("ActorManager");
         let cards = [...actorManager.actors].filter((a) => a[1].isCard).map(a => a[1]);
+        if (!options) {return cards;}
         if (options.moduleName && options.methodName) {
             cards = cards.filter((c) => requestor.call(options.moduleName, options.methodName, c));
         } else if (options.methodName) {
