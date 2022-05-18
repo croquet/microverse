@@ -64,7 +64,6 @@ class CascadeActor {
 
         cd.setRestitution(this._cardData.rapierRestitution || 0.5);
         cd.setFriction(this._cardData.rapierFriction || 1);
-        console.log(this._cardData.rapierDensity || 1.5);
         cd.setDensity(this._cardData.rapierDensity || 1.5);
 
         /*
