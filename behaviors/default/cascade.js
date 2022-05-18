@@ -64,6 +64,7 @@ class CascadeActor {
 
         cd.setRestitution(this._cardData.rapierRestitution || 0.5);
         cd.setFriction(this._cardData.rapierFriction || 1);
+        console.log(this._cardData.rapierDensity || 1.5);
         cd.setDensity(this._cardData.rapierDensity || 1.5);
 
         /*
@@ -276,6 +277,7 @@ class SprayActor {
         let z = Math.random() * -100;
         let shape;
         let size;
+        let density;
 
         let dice = Math.random();
 
@@ -328,6 +330,7 @@ class SprayActor {
         if (dice < 0.6) {
             shape = "cuboid";
             size = [1, 1, 1];
+            density: 1.5;
         } else {
             /*
               uncomment to add cylinder to the simulation.
@@ -338,7 +341,9 @@ class SprayActor {
             }*/
             shape = "ball";
             size = 2;
+            density = 0.4;
         }
+
 
         this.createCard({
             type: "object",
@@ -348,6 +353,7 @@ class SprayActor {
             rapierSize: size,
             rapierForce: {x, y: 100, z},
             rapierShape: shape,
+            rapierDensity: density,
             color: color,
             shadow: true,
         });

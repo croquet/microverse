@@ -92,7 +92,10 @@ class RapierActor {
         if (this.colliderHandle === undefined) return;
         const physicsManager = this.service('RapierPhysicsManager');
         let world = physicsManager.world;
-        world.removeCollider(world.getCollider(this.colliderHandle));
+        let collider = world.getCollider(this.colliderHandle);
+        if (collider) {
+            world.removeCollider(collider);
+        }
         delete this.colliderHandle;
     }
 
