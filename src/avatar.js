@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import {
-    THREE, Data, App, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
+    THREE, Data, App, View, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
@@ -53,7 +53,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("leavePresentation", this.leavePresentation);
     }
 
-    get pawn() { return AvatarPawn; }
+    get pawn() { return AvatarPawnFactory; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
     get collisionRadius() { return this._collisionRadius || 0.6; } //0.375; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
@@ -320,6 +320,16 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
 AvatarActor.register('AvatarActor');
 
+class AvatarPawnFactory extends View {
+    constructor(actor) {
+        super(actor);
+        if (this.viewId === actor.playerId) {
+            return new AvatarPawn(actor);
+        }
+        return new RemoteAvatarPawn(actor);
+    }
+}
+
 const PM_SmoothedDriver = superclass => class extends superclass {
     constructor(options) {
         super(options);
@@ -376,6 +386,37 @@ const PM_SmoothedDriver = superclass => class extends superclass {
     }
 }
 
+class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
+    constructor(actor) {
+        super(actor);
+        this.lastUpdateTime = 0;
+        this.lastTranslation = this.actor.translation;
+        this.opacity = 1;
+
+        this.spin = q_identity();
+        this.velocity = [0, 0, 0];
+
+        this.lookPitch = this.actor.lookPitch;
+        this.lookYaw = this.actor.lookYaw;
+        this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
+        this._rotation = q_euler(0, this.lookYaw, 0);
+    }
+
+    setOpacity(opacity) {
+        if (this.shape) {
+            let transparent = opacity !== 1;
+            this.shape.visible = this.actor.inWorld && opacity !== 0;
+            this.shape.traverse(n => {
+                if (n.material) {
+                    n.material.opacity = opacity;
+                    n.material.transparent = transparent;
+                    n.material.needsUpdate = true;
+                }
+            });
+        }
+    }
+}
+
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
@@ -391,7 +432,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
 
-        if (this.isMyPlayerPawn) {
+        if (true) {
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
             this.scene = renderMgr.scene;
@@ -568,8 +609,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     get lookGlobal() {
-        if (this.isMyPlayerPawn && this.lookOffset) {
-            // this is called from ThreeCamera's constructor but the look* values are not intialized yet
+        if (this.lookOffset) {
+            // This test above is relevant only at the start up.
+            // This is called from ThreeCamera's constructor but
+            // the look* values are not intialized yet.
             if (!this.actor.inWorld && this.portalLook) return this.portalLook;
             else return this.walkLook;
         } else return this.global;
@@ -649,7 +692,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     update(time, delta) {
         if (!this.actor.follow) {
-            if (this.isMyPlayerPawn && this.actor.inWorld) {
+            if (this.actor.inWorld) {
                 let moving = this.updatePose(delta);
                 if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
                     this.collide();
@@ -662,9 +705,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.refreshCameraTransform();
             }
         } else {
-            if (this.isMyPlayerPawn) {
-                this.localDriver = false;
-            }
+            this.localDriver = false;
         }
         this.refreshPortalClip();
         super.update(time, delta);
@@ -678,9 +719,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (delta) tug = Math.min(1, tug * delta / 15);
 
         if (!q_isZero(this.spin)) {
-            q=q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
+            q = q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
             moving = true;
-        }else q=this.rotation; 
+        } else {
+            q = this.rotation;
+        }
         if (!v3_isZero(this.velocity)) {
             const relative = v3_scale(this.velocity, delta);
             const move = v3_transform(relative, m4_rotationQ(this.rotation));
