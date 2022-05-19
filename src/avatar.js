@@ -410,6 +410,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
                 if (n.material) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
+                    n.material.side = THREE.DoubleSide;
                     n.material.needsUpdate = true;
                 }
             });
@@ -1161,6 +1162,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 if (n.material) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
+                    n.material.side = THREE.DoubleSide;
                     n.material.needsUpdate = true;
                 }
             });
