@@ -699,8 +699,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.collide();
                     this.lastUpdateTime = time;
                     this.lastTranslation = this.vq.v;
-                }
-                if (moving || this.isFalling) {
                     this.positionTo(this.vq.v, this.vq.q);
                 }
                 this.refreshCameraTransform();
@@ -775,10 +773,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const radius = this.actor.collisionRadius;
         let head = EYE_HEIGHT / 6;
         let v=[...this.vq.v];
-        if(this.doFall){
-            v[1]-=FALL_DISTANCE;
-            this.doFall = false;
-        }
+      //  if(this.doFall){
+       //     v[1]-=FALL_DISTANCE;
+       //     this.doFall = false;
+       // }
         let positionChanged = false;
         let newPosition = new THREE.Vector3(...v);
         collideList.forEach(c => {
@@ -815,7 +813,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             newPosition = segment.start;
             newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
             newPosition.y -= (head - radius);
-
             /*
             let deltaV = [newPosition.x - this.translation[0],
                 newPosition.y - this.translation[1],
@@ -825,10 +822,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         })
         if(positionChanged){
             this.vq.v = newPosition.toArray();
-            return true;
         }else {
-            this.doFall = true;
-            return false;
+            this.isFalling = true;
         }
     }
 
@@ -871,28 +866,30 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return false;
-
+        console.log(this.isFalling)
+        if(this.isFalling){
+            this.vq.v[1] -= FALL_DISTANCE;
+            this.isFalling = false;
+        }
         // first check for BVH colliders
         let collideList = walkLayer.filter(obj => obj.collider);
-        if (collideList.length>0) { if(this.collideBVH(collideList))return true; }
-
-        // then check for floor objects
-        //walkLayer = walkLayer.filter(obj=> !obj.collider);
-        //if(walkLayer.length === 0) return false;
+        if (collideList.length>0) { this.collideBVH(collideList); }
+        return;
+        // then check for other floor objects
+        walkLayer = walkLayer.filter(obj=> !obj.collider);
+        if(walkLayer.length === 0) return false;
         this.walkcaster.ray.origin.set(...this.vq.v);
         const intersections = this.walkcaster.intersectObjects(walkLayer, true);
         if (intersections.length > 0) {
             let dFront = intersections[0].distance;
-            let delta = Math.min(dFront - EYE_HEIGHT, EYE_HEIGHT / 8); // can only fall 1/8 EYE_HEIGHT at a time
+            let delta = dFront - EYE_HEIGHT; 
             if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
                 let t = this.vq.v;
                 let p = t[1] - delta;
-                this.isFalling  = true;
                 this.vq.v[1] = p;
-                //this.setFloor(p);
                 return true;
-            }else {this.isFalling = false; return true; }// we are on level ground
-        }return false; // try to find the ground...
+            }
+        }
     }
 
     startMMotion() {
