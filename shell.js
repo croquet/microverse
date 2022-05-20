@@ -198,7 +198,7 @@ class Shell {
                     let targetFrame = this.findFrame(data.portalURL);
                     if (!targetFrame) {
                         console.log("enter-world: no frame for", data.portalURL);
-                        targetFrame = this.addFrame(url);
+                        targetFrame = this.addFrame(data.portalURL);
                     }
                     this.enterPortal(targetFrame.portalId, true);
                 } else {
