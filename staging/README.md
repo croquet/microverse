@@ -40,7 +40,7 @@ If you just want to try it out quickly, follow these steps:
    `npm i`
 and then
    `npm start`
-6. Open browser at `localhost:9684` and enter a new world.
+6. Open browser at `localhost:9684`. Make sure that your local firewall is not blocking access.
 7. Copy the URL shown in the browser tab and copy it into a new tab. Also, replace localhost with the IP address (probably something like 192.168.0.123) and open it from another device on the local network.
 
 ## Discussion / Contributing
