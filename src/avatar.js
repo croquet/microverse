@@ -866,7 +866,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return false;
-        console.log(this.isFalling)
         if(this.isFalling){
             this.vq.v[1] -= FALL_DISTANCE;
             this.isFalling = false;
