@@ -471,16 +471,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.assetManager = this.service("AssetManager");
             window.assetManager = this.assetManager.assetManager;
 
-            this.assetManager.assetManager.setupHandlersOn(window, (buffer, fileName, type) => {
-                return Data.store(this.sessionId, buffer, true).then((handle) => {
-                    let dataId = Data.toId(handle);
-                    let pose = this.dropPose(6);
-                    this.say("fileUploaded", {
-                        dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
-                        translation: pose.translation,
-                        rotation: pose.rotation
-                    });
-                });
+            // drop and paste
+            this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+                if (type === "pastedtext") this.pasteText(buffer);
+                else this.uploadFile(buffer, fileName, type);
             });
 
             // keep track of being in the primary frame or not
@@ -551,6 +545,17 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (yaw !== undefined) {this.lookYaw = yaw;}
         if (lookOffset !== undefined) {this.lookOffset = lookOffset;}
         this.onLocalChanged();
+    }
+
+    async uploadFile(buffer, fileName, type) {
+        let handle = await Data.store(this.sessionId, buffer);
+        let dataId = Data.toId(handle);
+        let pose = this.dropPose(6);
+        this.say("fileUploaded", {
+            dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
+            translation: pose.translation,
+            rotation: pose.rotation
+        });
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar

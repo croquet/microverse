@@ -40,14 +40,7 @@ export class AssetManager {
         this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr"]);
     }
 
-    checkFile(entry, item, importSizeChecker) {
-        if (entry.isDirectory) {
-            return this.analyzeDirectory(entry, importSizeChecker).catch((_err) => {
-                throw new Error("directory could not be zipped");
-            });
-            // returns {zip, type}
-        }
-
+    fetchFile(item) {
         const file = item.getAsFile(); // getAsFile() is a method of DataTransferItem
         const type = this.getFileType(file.name);
 
@@ -63,7 +56,7 @@ export class AssetManager {
         throw new Error("could not read a file");
     }
 
-    async handleFileDrop(items) {
+    async handleFiles(items) {
         const importSizeChecker = new ImportChecker();
 
         if (items.length > 1) {
@@ -71,14 +64,19 @@ export class AssetManager {
         }
 
         const item = items[0];
+
         const entry = item.getAsEntry ? item.getAsEntry()
             : (item.webkitGetAsEntry ? item.webkitGetAsEntry() : null);
+        if (entry && entry.isDirectory) try {
+            return this.analyzeDirectory(entry, importSizeChecker);
+            // returns {zip, type}
+        } catch(_err) {
+            throw Error("directory could not be zipped");
+        }
 
-        if (!entry) {return Promise.resolve(null);}
-
-        return this.checkFile(entry, item, importSizeChecker).then((obj) => {
-            return {...obj, fileName: entry.fullPath};
-        });
+        let obj = await this.fetchFile(item, importSizeChecker);
+        if (entry) obj.fileName = entry.fullPath;
+        return obj;
     }
 
     async analyzeDirectory(dirEntry, importSizeChecker) {
@@ -157,37 +155,20 @@ export class AssetManager {
         });
     }
 
-    drop(evt) {
-        function isFileDrop(evt) {
-            const dt = evt.dataTransfer;
-            for (let i = 0; i < dt.types.length; i++) {
-                if (dt.types[i] === "Files") return true;
-            }
-            return false;
-        }
+    async drop(data) {
+        let hasFiles = [...data.types].includes("Files");
+        if (!hasFiles) return null;
 
-        if (!isFileDrop(evt)) {return Promise.resolve(null);}
+        let {zip, file, type, fileName} = await this.handleFiles(data.items);
 
-        let fullPath;
-        let fileType;
+        if (zip) return zip.generateAsync({type: "uint8array"});
 
-        return this.handleFileDrop(evt.dataTransfer.items).then(({zip, file, type, fileName}) => {
-            fullPath = fileName;
-            fileType = type;
-            if (zip) {
-                return zip.generateAsync({type : "uint8array"});
-            }
-            return Promise.resolve(file);
-        }).then((buffer) => {
-            return {fileName: fullPath, type: fileType, buffer};
-        });
+        return { fileName, type, buffer: file };
     }
 
     setupHandlersOn(dom, callback) {
-        dom.ondragover = (evt) => evt.preventDefault();
-        dom.ondrop = (evt) => {
-            evt.preventDefault();
-            this.drop(evt).then((obj) => {
+        const handleData = (data) =>{
+            this.drop(data).then((obj) => {
                 if (!obj) {
                     console.log("not a file");
                     return;
@@ -197,6 +178,15 @@ export class AssetManager {
                     callback(buffer, fileName, type);
                 }
             });
+        };
+        dom.ondragover = (evt) => evt.preventDefault();
+        dom.ondrop = (evt) => {
+            evt.preventDefault();
+            handleData(evt.dataTransfer);
+        }
+        dom.onpaste = (evt) => {
+            evt.preventDefault();
+            handleData(evt.clipboardData || window.clipboardData);
         };
     }
 
