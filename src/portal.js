@@ -72,19 +72,24 @@ export class PortalPawn extends CardPawn {
             uniforms,
             vertexShader: `
                 attribute float size;
+                #include <clipping_planes_pars_vertex>
                 void main() {
-                    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+                    #include <begin_vertex>
+                    #include <project_vertex>
                     mvPosition += vec4( 0.0, 0.0, 0.1, 0.0 ); // offset towards camera to avoid z clipping
+                    #include <clipping_planes_vertex>
                     gl_PointSize = size * ( 20.0 / -mvPosition.z );
-                    gl_Position = projectionMatrix * mvPosition;
                 }
             `,
             fragmentShader: `
                 uniform sampler2D pointTexture;
+                #include <clipping_planes_pars_fragment>
                 void main() {
+                    #include <clipping_planes_fragment>
                     gl_FragColor = texture2D( pointTexture, gl_PointCoord );
                 }
             `,
+            clipping: true,
             blending: THREE.AdditiveBlending,
             depthWrite: false,
             transparent: true,
