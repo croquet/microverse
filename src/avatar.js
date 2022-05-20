@@ -1157,7 +1157,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let transparent = opacity !== 1;
             this.shape.visible = this.actor.inWorld && opacity !== 0;
             this.shape.traverse(n => {
-                if (n.material) {
+                if (n.material && n.material.opacity !== opacity) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
                     n.material.side = THREE.DoubleSide;
