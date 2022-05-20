@@ -8,7 +8,7 @@ import {
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
-import { CardActor, VideoManager, DynaverseAppManager } from './src/DCard.js';
+import { CardActor, VideoManager, MicroverseAppManager } from './src/DCard.js';
 import { AvatarActor, } from './src/avatar.js';
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
@@ -238,7 +238,7 @@ class MyModelRoot extends ModelRoot {
     static modelServices() {
         return [
             MyPlayerManager,
-            DynaverseAppManager,
+            MicroverseAppManager,
             BehaviorModelManager,
             FontModelManager,
             ...(Constants.UseRapier ? [{service: RapierPhysicsManager, options: {useCollisionEventQueue: true}}] : [])
@@ -247,7 +247,7 @@ class MyModelRoot extends ModelRoot {
     init(options, persistentData) {
         super.init(options);
 
-        let appManager = this.service("DynaverseAppManager");
+        let appManager = this.service("MicroverseAppManager");
         appManager.add(MultiBlaster);
         appManager.add(BouncingBall);
         appManager.add(BouncingLogo);

@@ -236,7 +236,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     fileUploaded(data) {
         let {dataId, fileName, type, translation, rotation} = data;
-        let appManager = this.service("DynaverseAppManager");
+        let appManager = this.service("MicroverseAppManager");
         let CA = appManager.get("CardActor");
 
         let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" ? "2d" : "3d");
@@ -293,7 +293,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             tackPoint[1] += 2;
         }
 
-        let appManager = this.service("DynaverseAppManager");
+        let appManager = this.service("MicroverseAppManager");
         let CA = appManager.get("CardActor");
 
         let options = {

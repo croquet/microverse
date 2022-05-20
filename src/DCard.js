@@ -313,7 +313,7 @@ export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, 
         // it is supposed to load a JSONable structure from array, but a special case is made
         // for the parent property where you can give an actual object
         if (version === "1") {
-            let appManager = world.service("DynaverseAppManager");
+            let appManager = world.service("MicroverseAppManager");
             let behaviorManager = world.service("BehaviorModelManager");
             let map = new Map();
             return array.map(({id, card}) => {
@@ -1287,9 +1287,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     }
 }
 
-export class DynaverseAppManager extends ModelService {
+export class MicroverseAppManager extends ModelService {
     init(_options) {
-        super.init("DynaverseAppManager");
+        super.init("MicroverseAppManager");
         // this.$apps = options.registry; // new Map() {[name]: cls}
     }
 
@@ -1311,7 +1311,7 @@ export class DynaverseAppManager extends ModelService {
     }
 }
 
-DynaverseAppManager.register("DynaverseAppManager");
+MicroverseAppManager.register("MicroverseAppManager");
 
 export class VideoManager extends ViewService {
     constructor(name) {
