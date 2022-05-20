@@ -391,7 +391,7 @@ class PropertySheetWindowPawn {
 
         this.didSetDownInfo = true;
 
-        let avatar = this.service("PawnManager").get(evt.pointerId);
+        let avatar = this.service("PawnManager").get(evt.avatarId);
         if (avatar) {
             avatar.pointerCapture(this._parent);
         }
@@ -490,8 +490,7 @@ class PropertySheetEditPawn {
     }
 
     tap(p3d) {
-        if (!p3d.pointerId) {return;}
-        let avatar = this.service("PawnManager").get(p3d.pointerId);
+        let avatar = this.service("PawnManager").get(p3d.avatarId);
         if (!avatar) {return;}
         if (!this.shape.name) {return;}
         let space = this.shape.name.indexOf(" ");
