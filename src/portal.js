@@ -23,8 +23,14 @@ export class PortalPawn extends CardPawn {
         this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
 
+        this.setGhostWorld({ v: this.actor.ghostWorld });
+        this.listen("ghostWorldSet", this.setGhostWorld);
+
         this.addEventListener("pointerDown", "nop");
-        this.addEventListener("keyDown", e => e.key === " " && this.enterPortal());
+        this.addEventListener("keyDown", e => { switch (e.key) {
+            case " ": this.enterPortal(); break;
+            case "Escape": this.say("_set", { ghostWorld: !this.actor._ghostWorld }); break;
+        }});
 
         this.shellListener = (command, data) => this.receiveFromShell(command, data);
         addShellListener(this.shellListener);
@@ -224,6 +230,17 @@ export class PortalPawn extends CardPawn {
         const avatarSpec = avatarPawn.specForPortal(this);
         sendToShell("portal-enter", { portalId: this.portalId, avatarSpec });
         // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
+    }
+
+    setGhostWorld({v}) {
+        const canvas = document.getElementById("ThreeCanvas");
+        if (v) {
+            // make our own world translucent, blurry, and desaturated so
+            // the portal world becames visible
+            canvas.style.filter = "opacity(80%) saturate(30%) contrast(80%) blur(4px)";
+        } else {
+            canvas.style.filter = "";
+        }
     }
 
     receiveFromShell(command, { portalId, portalURL }) {
