@@ -1144,7 +1144,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
                 m = a.global; // avatar location
                 let av = new THREE.Vector3(m[12], m[13], m[14]);
-                let d = Math.min(1, cv.distanceToSquared(av) / 10);
+                // fade between 0.5 and 3.3 meters (but we used squared distance)
+                let d = Math.min(Math.max((cv.distanceToSquared(av) - 0.7) / 10, 0), 1);
                 p.setOpacity(d);
             }
         }
