@@ -34,7 +34,6 @@ class SpinningActor {
     }
 }
 
-
 export default {
     modules: [
         {
@@ -43,5 +42,3 @@ export default {
         }
     ]
 }
-
-/* globals Worldcore */

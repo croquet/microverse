@@ -15,7 +15,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/tutorial";
     Constants.UserBehaviorModules = [
-        "lights.js", "gridFloor.js", "joeTheBox.js", "simpleSpin.js"
+        "lights.js", "joeTheBox.js", "simpleSpin.js"
     ];
 
     // const frameColor = 0x888888;

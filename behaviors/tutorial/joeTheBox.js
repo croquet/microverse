@@ -3,11 +3,6 @@
 // Croquet Microverse
 // Generates a simple 3D box with a grid texture
 
-class JoeTheBoxActor {
-    setup() {
-        // nothing to do here yet
-    }
-}
 
 class JoeTheBoxPawn {
     setup() {
@@ -32,7 +27,6 @@ export default {
     modules: [
         {
             name: "JoeTheBox",
-            actorBehaviors: [JoeTheBoxActor],
             pawnBehaviors: [JoeTheBoxPawn],
         }
     ]
