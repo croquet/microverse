@@ -831,8 +831,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         })
         if(positionChanged){
             this.vq.v = newPosition.toArray();
+            return true;
         }else {
             this.isFalling = true;
+            return false;
         }
     }
 
@@ -875,27 +877,27 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return false;
+
         if(this.isFalling){
             this.vq.v[1] -= FALL_DISTANCE;
             this.isFalling = false;
         }
         // first check for BVH colliders
+        let bvh = false; // if bvh is true then we collided with something 
         let collideList = walkLayer.filter(obj => obj.collider);
-        if (collideList.length>0) { this.collideBVH(collideList); }
-        return;
+        if (collideList.length>0) { bvh = this.collideBVH(collideList); }
+
         // then check for other floor objects
         walkLayer = walkLayer.filter(obj=> !obj.collider);
-        if(walkLayer.length === 0) return false;
+        if(walkLayer.length === 0) return;
         this.walkcaster.ray.origin.set(...this.vq.v);
         const intersections = this.walkcaster.intersectObjects(walkLayer, true);
+
         if (intersections.length > 0) {
-            let dFront = intersections[0].distance;
-            let delta = dFront - EYE_HEIGHT; 
+            let delta = intersections[0].distance - EYE_HEIGHT; 
+            if(bvh && delta>0)return;
             if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
-                let t = this.vq.v;
-                let p = t[1] - delta;
-                this.vq.v[1] = p;
-                return true;
+                this.vq.v[1] -= delta;
             }
         }
     }
