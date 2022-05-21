@@ -50,10 +50,18 @@ export class AssetManager {
                     throw new Error("unsupported file type");
                 }
 
-                return {type, file: spec.buffer};
+                return {type, buffer: spec.buffer};
             });
         }
         throw new Error("could not read a file");
+    }
+
+    async handlePasteText(items) {
+        for (const item of items) {
+            if (item.kind === "string" && item.type === "text/plain") {
+                return new Promise(resolve => item.getAsString(resolve));
+            }
+        }
     }
 
     async handleFiles(items) {
@@ -74,7 +82,7 @@ export class AssetManager {
             throw Error("directory could not be zipped");
         }
 
-        let obj = await this.fetchFile(item, importSizeChecker);
+        let obj = await this.fetchFile(item);
         if (entry) obj.fileName = entry.fullPath;
         return obj;
     }
@@ -157,27 +165,28 @@ export class AssetManager {
 
     async drop(data) {
         let hasFiles = [...data.types].includes("Files");
-        if (!hasFiles) return null;
-
-        let {zip, file, type, fileName} = await this.handleFiles(data.items);
-
-        if (zip) return zip.generateAsync({type: "uint8array"});
-
-        return { fileName, type, buffer: file };
+        if (hasFiles) {
+            let {zip, buffer, type, fileName} = await this.handleFiles(data.items);
+            if (zip) return zip.generateAsync({type: "uint8array"});
+            return { fileName, type, buffer };
+        } else {
+            let buffer = await this.handlePasteText(data.items);
+            if (buffer) return { type: "pastedtext", buffer };
+        }
+        return null;
     }
 
     setupHandlersOn(dom, callback) {
-        const handleData = (data) =>{
-            this.drop(data).then((obj) => {
-                if (!obj) {
-                    console.log("not a file");
-                    return;
-                }
-                let {buffer, fileName, type} = obj;
-                if (callback) {
-                    callback(buffer, fileName, type);
-                }
-            });
+        const handleData = async (data) => {
+            let obj = await this.drop(data);
+            if (!obj) {
+                console.log("not a file");
+                return;
+            }
+            let {buffer, fileName, type} = obj;
+            if (callback) {
+                callback(buffer, fileName, type);
+            };
         };
         dom.ondragover = (evt) => evt.preventDefault();
         dom.ondrop = (evt) => {

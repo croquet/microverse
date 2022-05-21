@@ -47,6 +47,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("inWorldSet", this.inWorldSet);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
+        this.listen("textPasted", this.textPasted);
         this.listen("resetHeight", this.resetHeight);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
@@ -277,43 +278,81 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.publish(this.sessionId, "triggerPersist");
     }
 
+    textPasted({string, translation, rotation}) {
+        if (string.startsWith("http://") || string.startsWith("https://")) {
+            this.createPortal(translation, rotation, string);
+        } else {
+            this.createStickyNote(translation, rotation, string);
+        }
+    }
+
     addSticky(pe) {
         const tackOffset = 0.1;
         let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
         let normal = [...pe.normal]; // clear up and down
         normal[1] = 0;
         let nsq = v3_sqrMag(normal);
-        let rotPoint;
+        let rotation;
         if (nsq > 0.0001) {
             normal = v3_normalize(normal);
             let theta = Math.atan2(normal[0], normal[2]);
-            rotPoint = q_euler(0, theta, 0);
+            rotation = q_euler(0, theta, 0);
         } else {
-            rotPoint = this.rotation;
+            rotation = this.rotation;
             tackPoint[1] += 2;
         }
+        this.createStickyNote(tackPoint, rotation);
+    }
 
+    createStickyNote(translation, rotation, text="") {
         let appManager = this.service("MicroverseAppManager");
         let CA = appManager.get("CardActor");
 
+        let runs = [];
+        if (text) runs.push({text});
         let options = {
             name:'sticky note',
             className: "TextFieldActor",
             behaviorModules: ["StickyNote"],
-            translation: tackPoint,
-            rotation: rotPoint,
+            translation,
+            rotation,
             type: "text",
             depth: 0.05,
             margins: {left: 20, top: 20, right: 20, bottom: 20},
             backgroundColor: 0xf4e056,
             frameColor: 0xfad912,
-            runs: [],
+            runs,
             width: 1,
             height: 1,
             textScale: 0.002
         };
 
         CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        this.publish(this.sessionId, "triggerPersist");
+    }
+
+    createPortal(translation, rotation, portalURL) {
+        let appManager = this.service("MicroverseAppManager");
+        let CA = appManager.get("CardActor");
+
+        let card = {
+            name: "portal",
+            className: "PortalActor",
+            translation,
+            rotation,
+            type: "2d",
+            layers: ["pointer", "portal"],
+            color: 0xFF66CC,
+            frameColor: 0x888888,
+            width: 2,
+            height: 3,
+            depth: 0.2,
+            cornerRadius: 0.05,
+            portalURL,
+            sparkle: false,
+        };
+
+        CA.load([{card}], this.wellKnownModel("ModelRoot"), "1");
         this.publish(this.sessionId, "triggerPersist");
     }
 }
@@ -553,6 +592,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let pose = this.dropPose(6);
         this.say("fileUploaded", {
             dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
+            translation: pose.translation,
+            rotation: pose.rotation
+        });
+    }
+
+    async pasteText(string) {
+        const MAX_PASTE_LENGTH = 2000;
+        if (string.length > MAX_PASTE_LENGTH) {
+            console.warn("Paste too long, truncating");
+            string = string.substr(0, MAX_PASTE_LENGTH);
+        }
+        let pose = this.dropPose(6);
+        this.say("textPasted", {
+            string,
             translation: pose.translation,
             rotation: pose.rotation
         });
@@ -883,7 +936,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.isFalling = false;
         }
         // first check for BVH colliders
-        let bvh = false; // if bvh is true then we collided with something 
+        let bvh = false; // if bvh is true then we collided with something
         let collideList = walkLayer.filter(obj => obj.collider);
         if (collideList.length>0) { bvh = this.collideBVH(collideList); }
 
@@ -894,8 +947,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const intersections = this.walkcaster.intersectObjects(walkLayer, true);
 
         if (intersections.length > 0) {
-            let delta = intersections[0].distance - EYE_HEIGHT; 
-            if(bvh && delta>0)return;
+            let delta = intersections[0].distance - EYE_HEIGHT;
+            if (bvh && delta>0) return;
             if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
                 this.vq.v[1] -= delta;
             }
