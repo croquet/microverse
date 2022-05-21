@@ -8,7 +8,7 @@ import {
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
-import { isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
+import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./DCard.js";
 
@@ -739,6 +739,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // which will result in frameTypeChanged() on follower's clients
         }
         // now actually leave or enter the world (stops presenting in old world)
+        console.log(`portal-${frameId} frame now ${isPrimary ? "primary" : "secondary"} set`, actorSpec);
         this.say("_set", actorSpec);
         // start presenting in new space too
         if (enteringWorld && spec?.presenting) {
