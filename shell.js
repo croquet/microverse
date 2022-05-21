@@ -288,7 +288,9 @@ class Shell {
         document.title = portalURL;
         this.currentFrame = toFrame;
         this.currentFrame.focus();
+        console.log(`shell: sending frame-type to portal-${toPortalId}`, avatarSpec);
         this.sendFrameType(toFrame, avatarSpec);
+        console.log(`shell: sending frame-type to portal-${toPortalId}`, {portalURL});
         this.sendFrameType(fromFrame, {portalURL});
         if (this.activeMMotion) {
             const { dx, dy } = this.activeMMotion;

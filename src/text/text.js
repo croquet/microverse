@@ -965,23 +965,25 @@ export class TextFieldPawn extends CardPawn {
 
         clipboardAPI().then((result) => {
             if (!result) {
+                let { copyElement } = this.service("KeyFocusManager");
+
                 if (!isiOSDevice) {
-                    this.copyElement.value = text;
-                    this.copyElement.select();
-                    this.copyElement.setSelectionRange(0, 99999);
+                    copyElement.value = text;
+                    copyElement.select();
+                    copyElement.setSelectionRange(0, 99999);
                     document.execCommand("copy");
                     return;
                 }
 
                 let range = document.createRange();
-                range.selectNodeContents(this.copyElement);
-                this.copyElement.textContent = text;
+                range.selectNodeContents(copyElement);
+                copyElement.textContent = text;
 
                 let selection = window.getSelection();
                 selection.removeAllRanges();
                 selection.addRange(range);
 
-                this.copyElement.setSelectionRange(0, 100000);
+                copyElement.setSelectionRange(0, 100000);
                 document.execCommand('copy');
             }
         });
@@ -1006,10 +1008,11 @@ export class TextFieldPawn extends CardPawn {
 
         return clipboardAPI().then((result) => {
             if (result === null) {
-                this.copyElement.focus();
-                this.copyElement.textContent = "";
+                let { copyElement } = this.service("KeyFocusManager");
+                copyElement.focus();
+                copyElement.textContent = "";
                 document.execCommand("paste");
-                return this.copyElement.textContent;
+                return copyElement.textContent;
             }
             return result;
         }).then((text) => {
