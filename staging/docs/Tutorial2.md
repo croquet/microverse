@@ -100,17 +100,16 @@ The next two cards - the light card and the image card are exactly the same.
 },
 ```
 
-The two new cards are different however. The first card is the "Joe the Box" card which is defined by a behavior similar to the grid floor that we saw earlier. The second box is loaded from the 3D assets in the same way that the gallery itself was loaded.
+The two new cards are different however. The first card is the "Joe the Box" card which is defined by a behavior similar to the grid floor that we saw earlier. Also note that Joe includes the "SimpleSpin" behavior. The second box is loaded from the 3D assets in the same way that the gallery itself was loaded.
 
 ```javascript
 {
     card: {
         name:"Joe the Box",
-        behaviorModules: ["JoeTheBox"],
+        behaviorModules: ["JoeTheBox", "SimpleSpin"],
         layers: ["pointer"],
         type: "object",
         translation:[-4, 0.4, -10],
-        //rotation:[0, Math.pi/4, 0],
         shadow: true,
     }
 },     
@@ -122,7 +121,6 @@ The two new cards are different however. The first card is the "Joe the Box" car
         layers: ["pointer"],
         translation:[4, 0.4, -10],
         dataScale:[1,1,1],
-        //rotation:[0, Math.pi/4, 0],
         shadow: true,
     }
 },     
@@ -131,7 +129,9 @@ The two new cards are different however. The first card is the "Joe the Box" car
 
 ## Behaviors
 
-There are two new behaviors for us to explore. The first is "joeTheBox", a very simple pawn construction behavior. This version of Joe has no simulation or shared interactions associated with it, thus there is no actor behavior. The second is "simpleSpin", a simple actor user interaction and simulation behavior. SimpleSpin is focused on user interaction and simulation, so this has no pawn behavior.
+There are two new behaviors for us to explore. The first is "joeTheBox", a very simple pawn construction behavior. This version of Joe has no simulation or shared interactions associated with it, thus there is no actor behavior. The second is "simpleSpin", a simple actor user interaction and simulation behavior. SimpleSpin is focused on user interaction and simulation, so this has no pawn behavior. The introductory tutorial has an overview of the actor and pawn system and their relationship.
+
+[Tutorial Intro: Actor Pawn Relationship](./Tutorial1.md#actor-pawn-relationship)
 
 ## Joe
 
@@ -179,16 +179,14 @@ The last thing to do is define the export of the module containing the behavior.
 
 ## SimpleSpin
 
-The next behavior demonstrates an actor side interactive behavior. This behavior is a bit more complex than Joe, but it will illustrate some of the most amazing features of the Croquet OS.
+The next behavior demonstrates an actor side user interaction behavior. This behavior is a bit more complex than Joe, but it will illustrate some of the most amazing features of the Croquet OS. The simpleSpin 
 
 ```javascript
 class SpinningActor {
     setup() {
-        if (this.spinning) {
-            this.spinning = false; // start without spinning
-        }
-        this.angle = 0;
-        this.spinSpeed = 0.01;
+        this.spinning = false; // start without spinning
+        this.angle = 0; // the initial angle
+        this.spinSpeed = 0.01; // how fast will we spin (in radians)
         this.addEventListener("pointerDown", "toggle");
     }
 
@@ -201,9 +199,7 @@ class SpinningActor {
 
     toggle() {
         this.spinning = !this.spinning;
-        if (this.spinning) {
-            this.step();
-        }
+        if (this.spinning) this.step();
     }
 
     destroy() {
@@ -221,3 +217,13 @@ export default {
     ]
 }
 ```
+
+The setup() function initiates a number of variables that simpleSpin will be using. 
+
+Setup also initiates the user event "pointerDown". What this means is that when a user clicks or taps the card, the "toggle" function will be called. In this case, the toggle function flips the "spinning" variable from true to false and back. If ```this.spinning``` is set to true, then the ```step()``` function is called which is where the interesting stuff happens. ***The code in an actor behavior runs bit identically on every participating machine*** - if I tap the box the SpinningActor behavior is attached to, you will not just see it begin to spin, but the spin will be perfectly replicated on your system and mine.
+
+The step() function first tests if it is spinning or not. The next line is one of the central aspects of how the Croquet OS runs and maintains perfect synchronization.
+
+```this.future(20).step();```
+
+The Croquet OS works by guaranteeing synchronization of simulations and user events. This is done by moving the system clock over to a kind of server we call a Croquet reflector. The reflector will send two kinds of events - those initiated by the user and regular tick update events - these tick update rate is set when the world is first initiated. The default tick update rate for Croquet Microverse worlds is 30 Hz. This is not the same as the render update rate which is determined by the speed of your display and your CPU/GPU. Both of these events include a timestamp that informs the client side of the system to what time to compute its pending simulations. These simulations are 
