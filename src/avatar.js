@@ -39,7 +39,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startMMotion", this.startFalling);
-        this.listen("setFloor", this.setFloor);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
         this.listen("followMeToWorld", this.followMeToWorld);
@@ -56,7 +55,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     get pawn() { return AvatarPawnFactory; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._collisionRadius || 0.6; } //0.375; }
+    get collisionRadius() { return this._collisionRadius || 0.375; } //0.375; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     leavePresentation() {
@@ -77,11 +76,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
-    }
-
-    setFloor(p) {
-        let t = this.translation;
-        this.translation = [t[0], p, t[2]];
     }
 
     startFalling() {
@@ -789,6 +783,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!v3_isZero(this.velocity)) {
             const relative = v3_scale(this.velocity, delta);
             const move = v3_transform(relative, m4_rotationQ(this.rotation));
+            // set the moveRadius (used for collision detection) to scale with velocity
+            this.moveRadius = Math.min(0.8, this.actor.collisionRadius + 50*v3_sqrMag(move));
             v = v3_add(this.translation, move);
             moving = true;
         } else {
@@ -833,7 +829,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let triPoint = new THREE.Vector3();
         let capsulePoint = new THREE.Vector3();
 
-        const radius = this.actor.collisionRadius;
+        const radius = this.moveRadius;
+
         let head = EYE_HEIGHT / 6;
         let v=[...this.vq.v];
       //  if(this.doFall){
@@ -1286,16 +1283,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     filterNotes(c) {
         return c._behaviorModules && c._behaviorModules.includes("StickyNote");
-    }
-
-    setFloor(p) {
-        // we don't want to touch the x/z values because they are
-        // computed from avatar velocity. _translation x/z values are old.
-        let t = this._translation;
-        this._translation = [t[0], p, t[2]];
-        this.floor = p;
-        this.onLocalChanged();
-        this.say("setFloor", p, 100);
     }
 
     loadFromFile(data, asScene) {
