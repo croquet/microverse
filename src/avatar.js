@@ -16,7 +16,8 @@ import {setupWorldMenuButton} from "./worldMenu.js";
 
 let EYE_HEIGHT = 1.676;
 let EYE_EPSILON = 0.01;
-let FALL_DISTANCE = EYE_HEIGHT / 20;
+let FALL_DISTANCE = EYE_HEIGHT / 10;
+let MAX_FALL = -50;
 let THROTTLE = 20;
 let PORTAL_DISTANCE = 1;
 let isMobile = !!("ontouchstart" in window);
@@ -55,7 +56,9 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     get pawn() { return AvatarPawnFactory; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._collisionRadius || 0.375; } //0.375; }
+    get collisionRadius() { return this._collisionRadius || 0.375; } // minimum collison radius for avatar
+    get maxFall(){ return this._maxFall || MAX_FALL; } // max fall before we goHome()
+    get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     leavePresentation() {
@@ -930,8 +933,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!walkLayer) return false;
 
         if(this.isFalling){
-            this.vq.v[1] -= FALL_DISTANCE;
+            this.vq.v[1] -= this.actor.fallDistance;
             this.isFalling = false;
+            if(this.vq.v[1]<this.actor.maxFall){this.goHome(); return;}
         }
         // first check for BVH colliders
         let bvh = false; // if bvh is true then we collided with something
@@ -946,7 +950,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         if (intersections.length > 0) {
             let delta = intersections[0].distance - EYE_HEIGHT;
-            if (bvh && delta>0) return;
+            if (bvh && delta>0) return; // we are standing on a bvh so ignore falling
             if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
                 this.vq.v[1] -= delta;
             }
