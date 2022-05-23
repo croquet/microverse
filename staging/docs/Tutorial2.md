@@ -220,10 +220,23 @@ export default {
 
 The setup() function initiates a number of variables that simpleSpin will be using. 
 
-Setup also initiates the user event "pointerDown". What this means is that when a user clicks or taps the card, the "toggle" function will be called. In this case, the toggle function flips the "spinning" variable from true to false and back. If ```this.spinning``` is set to true, then the ```step()``` function is called which is where the interesting stuff happens. ***The code in an actor behavior runs bit identically on every participating machine*** - if I tap the box the SpinningActor behavior is attached to, you will not just see it begin to spin, but the spin will be perfectly replicated on your system and mine.
+Setup also initiates the user event "pointerDown". When a user clicks or taps the card, the "toggle" function will be called. In this case, the toggle function flips the "spinning" variable from true to false and back. If ```this.spinning``` is set to true, then the ```step()``` function is called which is where the interesting stuff happens. ***The code in an actor behavior runs bit identically on every participating machine*** - if I tap the box the SpinningActor behavior is attached to, you will not just see it begin to spin, but the spin will be perfectly replicated on your system and mine.
 
 The step() function first tests if it is spinning or not. The next line is one of the central aspects of how the Croquet OS runs and maintains perfect synchronization.
 
 ```this.future(20).step();```
 
-The Croquet OS works by guaranteeing synchronization of simulations and user events. This is done by moving the system clock over to a kind of server we call a Croquet reflector. The reflector will send two kinds of events - those initiated by the user and regular tick update events - these tick update rate is set when the world is first initiated. The default tick update rate for Croquet Microverse worlds is 30 Hz. This is not the same as the render update rate which is determined by the speed of your display and your CPU/GPU. Both of these events include a timestamp that informs the client side of the system to what time to compute its pending simulations. These simulations are 
+The Croquet OS works by guaranteeing synchronization of simulations and user events. This is done by moving the system clock over to a kind of server we call a Croquet reflector. The reflector will send two kinds of events - those initiated by the user in their client and sent to the reflector for distribution to the other participants in a session and regular tick update events - these tick update rate is set when the world is first initiated. The default tick update rate for Croquet Microverse worlds is 30 Hz. This is not the same as the render update rate which is determined by the speed of your display and your CPU/GPU. Both of these events include a timestamp that informs the client side of the system to what time to compute its pending simulations. These simulations run bit identically and "virtually" simultaneously on every users system.
+
+The next two lines are the actual update of the rotation of the target object.
+
+```javascript
+        this.angle+=this.spinSpeed;
+        this.set({rotation: Worldcore.q_euler(0, this.angle, 0)});
+```
+
+We add the spinSpeed to the current angle, then we inform the actor that the rotation has been updated using the ```this.set()``` function. The rotation field requires a quaternion, so we use the ```Worldcore.q_euler()``` function to generate a quaternion from this.angle around the y-axis. Worldcore does the work of informing the pawn that the rotation has been changed, so our target object - the cube, starts rotating.
+
+The Microverse platform was built on Worldcore, so it would be useful for you to have some familiarity with it as well. The documentation for Worldcore is available here:
+
+https://croquet.io/docs/worldcore/
