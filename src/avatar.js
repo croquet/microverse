@@ -475,6 +475,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = q_euler(0, this.lookYaw, 0);
 
         this.moveRadius = this.actor.collisionRadius;
+        this.isFalling = false;
 
         if (true) {
             let renderMgr = this.service("ThreeRenderManager");
@@ -761,11 +762,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.collide();
                     this.lastUpdateTime = time;
                     this.lastTranslation = this.vq.v;
-
-                    if (!v3_equals(this.actor._translation, this.vq.v) ||
-                        !q_equals(this.actor._rotation, this.vq.q)) {
-                        this.positionTo(this.vq.v, this.vq.q);
-                    }
+                    this.positionTo(this.vq.v, this.vq.q);
                 }
                 this.refreshCameraTransform();
             }
@@ -875,7 +872,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         segment.end.addScaledVector(direction, depth);
                         positionChanged = true;
                     }
-
                 }
             });
             newPosition = segment.start;
