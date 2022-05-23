@@ -34,9 +34,9 @@ export function init(Constants) {
                 shadow: true,
 
                 placeholder: true,
-                placeholderSize: [400, 1, 400],
+                placeholderSize: [400, 0.1, 400],
                 placeholderColor: 0x808080,
-                placeholderOffset: [0, -1.7, 0],
+                placeholderOffset: [0, 0, 0],
             }
         },
         {

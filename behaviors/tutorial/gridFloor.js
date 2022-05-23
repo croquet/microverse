@@ -19,7 +19,7 @@ class GridFloorPawn {
         texture.repeat.set( 100, 100 );
 
         this.floor = new THREE.Mesh(
-            new THREE.BoxGeometry( 100, 1, 100, 1, 1, 1 ),
+            new THREE.BoxGeometry( 100, 0.1, 100, 1, 1, 1 ),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
         this.floor.receiveShadow = true;
         this.shape.add(this.floor);

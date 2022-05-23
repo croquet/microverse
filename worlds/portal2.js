@@ -33,9 +33,9 @@ export function init(Constants) {
                 shadow: true,
 
                 placeholder: true,
-                placeholderSize: [100, 1, 100],
+                placeholderSize: [100, 0.1, 100],
                 placeholderColor: 0xcccccc,
-                placeholderOffset: [0, -1.7, 0],
+                placeholderOffset: [0, 0, 0],
             }
         },
         {
@@ -52,7 +52,7 @@ export function init(Constants) {
             card: {
                 name: "portal",
                 className: "PortalActor",
-                translation: [0, -1.2, -10],
+                translation: [0, 0, -10],
                 rotation: [0, 0, 0],
                 type: "2d",
                 layers: ["pointer", "portal"],

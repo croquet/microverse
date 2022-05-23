@@ -47,7 +47,7 @@ export function init(Constants) {
                 placeholder: true,
                 placeholderSize: [100, 0.01, 100],
                 placeholderColor: 0xcccccc,
-                placeholderOffset: [0, -1.7, 0],
+                placeholderOffset: [0, 0, 0],
 
             }
         },
