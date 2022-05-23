@@ -1,7 +1,7 @@
 # Croquet Microverse Builder
 ## Tutorial
 
-Pre-Alpha version 0.01
+Microverse Alpha
 
 **Copyright (c) 2022 Croquet Corporation**
 
@@ -223,4 +223,4 @@ Croquet Microverse utilizes the [Rapier Physics Engine](https://rapier.rs/). Wri
 The following tutorials will provide a great start to creating your own living Microverse. Let's get started.
 
 * [Tutorial1.md](./Tutorial1.md)
-* [Tutorial2.md](./Tutorial1.md)
+* [Tutorial2.md](./Tutorial2.md)

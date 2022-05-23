@@ -1,7 +1,7 @@
 # Croquet Microverse Builder
 # Tutorial 2
 
-Pre-Alpha version 0.01
+Microverse Alpha
 
 **Copyright (c) 2022 Croquet Corporation**
 
@@ -33,14 +33,14 @@ There are a number of additional cards defined in this world, but everything is 
     Constants.DefaultCards = [
         {
             card: {
-                name:"world model",
+                name: "world model",
                 type: "3d",
                 dataLocation: "./assets/3D/artgallery_042122.glb.zip",
-                dataScale:[1,1,1],
+                dataScale: [1,1,1],
                 singleSided: true,
                 shadow: true,
                 layers: ["walk"],
-                translation:[0, -1.7, 0],
+                translation: [0, -1.7, 0],
                 shadow: true,
 
                 placeholder: true,
@@ -57,12 +57,12 @@ As you can see, this is a bit more complex than the previous creation of the sim
 ```javascript
 type: "3d",
 dataLocation: "./assets/3D/artgallery_042122.glb.zip",
-dataScale:[1,1,1],
+dataScale: [1,1,1],
 ```
 
 The most important change is we are now referencing a 3D model that is in our assets folder. This is the model of the gallery and was originally created in Blender and exported as a single GLB file including textures. It was then zipped for faster transfer.
 
-We also specify that the type is "3d", so that the file loader has some hint of how to manage it. 
+We also specify that the type is "3d", so that the file loader has some hint of how to manage it.
 
 We set dataScale: to [1,1,1] as that tells the importer that one unit in the model corresponds to one unit in the world - in this case, both are in meters.
 
@@ -105,25 +105,25 @@ The two new cards are different however. The first card is the "Joe the Box" car
 ```javascript
 {
     card: {
-        name:"Joe the Box",
+        name: "Joe the Box",
         behaviorModules: ["JoeTheBox", "SimpleSpin"],
         layers: ["pointer"],
         type: "object",
-        translation:[-4, 0.4, -10],
+        translation: [-4, 0.4, -10],
         shadow: true,
     }
-},     
+},
 {
     card: {
-        name:"Imported Box",
+        name: "Imported Box",
         type: "3d",
         dataLocation: "./assets/3D/testcube_1m.glb.zip",
         layers: ["pointer"],
-        translation:[4, 0.4, -10],
-        dataScale:[1,1,1],
+        translation: [4, 0.4, -10],
+        dataScale: [1,1,1],
         shadow: true,
     }
-},     
+},
 
 ```
 
@@ -141,16 +141,16 @@ This is first version of the "joeTheBox.js" behavior. We will introduce more adv
 ```javascript
 class JoeTheBoxPawn {
     setup() {
-        console.log("Building JoeTheBox")
+        console.log("Building JoeTheBox");
         const THREE = Worldcore.THREE;
         const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 10, 10 );
+        texture.repeat.set(10, 10);
 
         this.box = new THREE.Mesh(
-            new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ),
+            new THREE.BoxGeometry(1, 1, 1, 1, 1, 1),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
         this.box.receiveShadow = true;
         this.box.castShadow = true;
@@ -179,7 +179,7 @@ The last thing to do is define the export of the module containing the behavior.
 
 ## SimpleSpin
 
-The next behavior demonstrates an actor side user interaction behavior. This behavior is a bit more complex than Joe, but it will illustrate some of the most amazing features of the Croquet OS. The simpleSpin 
+The next behavior demonstrates an actor side user interaction behavior. This behavior is a bit more complex than Joe, but it will illustrate some of the most amazing features of the Croquet OS. The simpleSpin
 
 ```javascript
 class SpinningActor {
@@ -191,7 +191,7 @@ class SpinningActor {
     }
 
     step() {
-        if (!this.spinning) {return;}
+        if (!this.spinning) return;
         this.future(20).step();
         this.angle+=this.spinSpeed;
         this.set({rotation: Worldcore.q_euler(0, this.angle, 0)});
@@ -218,7 +218,7 @@ export default {
 }
 ```
 
-The setup() function initiates a number of variables that simpleSpin will be using. 
+The setup() function initiates a number of variables that simpleSpin will be using.
 
 Setup also initiates the user event "pointerDown". When a user clicks or taps the card, the "toggle" function will be called. In this case, the toggle function flips the "spinning" variable from true to false and back. If ```this.spinning``` is set to true, then the ```step()``` function is called which is where the interesting stuff happens. ***The code in an actor behavior runs bit identically on every participating machine*** - if I tap the box the SpinningActor behavior is attached to, you will not just see it begin to spin, but the spin will be perfectly replicated on your system and mine.
 
@@ -231,8 +231,8 @@ The Croquet OS works by guaranteeing synchronization of simulations and user eve
 The next two lines are the actual update of the rotation of the target object.
 
 ```javascript
-        this.angle+=this.spinSpeed;
-        this.set({rotation: Worldcore.q_euler(0, this.angle, 0)});
+        this.angle += this.spinSpeed;
+        this.set({ rotation: Worldcore.q_euler(0, this.angle, 0) });
 ```
 
 We add the spinSpeed to the current angle, then we inform the actor that the rotation has been updated using the ```this.set()``` function. The rotation field requires a quaternion, so we use the ```Worldcore.q_euler()``` function to generate a quaternion from this.angle around the y-axis. Worldcore does the work of informing the pawn that the rotation has been changed, so our target object - the cube, starts rotating.
@@ -241,7 +241,7 @@ The Microverse platform was built on Worldcore, so it would be useful for you to
 
 https://croquet.io/docs/worldcore/
 
-The last thing we want to do is enable you to remove the SimpleSpin behavior. The destroy() function is called when a behavior is removed. Here we can first remove the pointerDown event listener and then set this.spinning to be undefined. 
+The last thing we want to do is enable you to remove the SimpleSpin behavior. The destroy() function is called when a behavior is removed. Here we can first remove the pointerDown event listener and then set this.spinning to be undefined.
 
 ```javascript
         this.removeEventListener("pointerDown", "toggle");

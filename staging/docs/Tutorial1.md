@@ -1,7 +1,7 @@
 # Croquet Microverse Builder
 # Tutorial 1
 
-Pre-Alpha version 0.01
+Microverse Alpha
 
 **Copyright (c) 2022 Croquet Corporation**
 
@@ -13,7 +13,7 @@ It looks like this:
 
 ![Demoworld1](./assets/demoWorld1.png)
 
-As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world. 
+As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world.
 
 The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
@@ -55,7 +55,7 @@ The final section is where we define the cards. A card is easily defined by a nu
                 behaviorModules: ["GridFloor"],
                 layers: ["walk"],
                 type: "object",
-                translation:[0, -1.7, 0],
+                translation: [0, -1.7, 0],
                 shadow: true,
             }
         },
@@ -133,10 +133,10 @@ class GridFloorPawn {
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set( 100, 100 );
+        texture.repeat.set(100, 100);
 
         this.floor = new THREE.Mesh(
-            new THREE.BoxGeometry( 100, 1, 100, 1, 1, 1 ),
+            new THREE.BoxGeometry(100, 1, 100, 1, 1, 1),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
         this.floor.receiveShadow = true;
         this.shape.add(this.floor);
@@ -162,4 +162,4 @@ The second part is what we call the "pawn". As might be clear from its name, it 
 
 The last part of the behavior code is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
 
-* [Tutorial2.md](./Tutorial.md)
+* [Tutorial2.md](./Tutorial2.md)
