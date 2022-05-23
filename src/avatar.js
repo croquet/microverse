@@ -4,8 +4,8 @@
 
 import {
     THREE, Data, App, View, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
-    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
+    v3_zero, v3_isZero, v3_equals, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
+    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
@@ -385,7 +385,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isRotating = false;
             this.onLocalChanged();
         } else {
-            // this.localDriver = false;
+            this.localDriver = false;
         }
         super.positionTo(v, q, throttle);
     }
@@ -397,7 +397,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isScaling = false;
             this.onLocalChanged();
         } else {
-            // this.localDriver = false;
+            this.localDriver = false;
         }
         super.scaleTo(v, throttle);
     }
@@ -409,7 +409,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isRotating = false;
             this.onLocalChanged();
         } else {
-            // this.localDriver = false;
+            this.localDriver = false;
         }
         super.rotateTo(q, throttle);
     }
@@ -421,7 +421,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isTranslating = false;
             this.onLocalChanged();
         } else {
-            // this.localDriver = false;
+            this.localDriver = false;
         }
         super.translateTo(v, throttle);
     }
@@ -759,7 +759,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.collide();
                     this.lastUpdateTime = time;
                     this.lastTranslation = this.vq.v;
-                    this.positionTo(this.vq.v, this.vq.q);
+
+                    if (!v3_equals(this.actor._translation, this.vq.v) ||
+                        !q_equals(this.actor._rotation, this.vq.q)) {
+                        this.positionTo(this.vq.v, this.vq.q);
+                    }
                 }
                 this.refreshCameraTransform();
             }
