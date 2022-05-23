@@ -27,10 +27,11 @@ export function init(Constants) {
                 type: "3d",
                 singleSided: true,
                 shadow: true,
+                translation:[0, -1.7, 0],
                 placeholder: true,
                 placeholderSize: [400, 1, 400],
                 placeholderColor: 0x808080,
-                placeholderOffset: [0, -0.663, 0],
+                placeholderOffset: [0, -1.7, 0],
             }
         },
         {
