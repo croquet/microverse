@@ -204,7 +204,7 @@ class SpinningActor {
 
     destroy() {
         this.removeEventListener("pointerDown", "toggle");
-        this.spinning = false;
+        this.spinning = undefined;
     }
 }
 
@@ -240,3 +240,10 @@ We add the spinSpeed to the current angle, then we inform the actor that the rot
 The Microverse platform was built on Worldcore, so it would be useful for you to have some familiarity with it as well. The documentation for Worldcore is available here:
 
 https://croquet.io/docs/worldcore/
+
+The last thing we want to do is enable you to remove the SimpleSpin behavior. The destroy() function is called when a behavior is removed. Here we can first remove the pointerDown event listener and then set this.spinning to be undefined. 
+
+```javascript
+        this.removeEventListener("pointerDown", "toggle");
+        this.spinning = undefined;
+```
