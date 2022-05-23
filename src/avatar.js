@@ -474,6 +474,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
 
+        this.moveRadius = this.actor.collisionRadius;
+
         if (true) {
             let renderMgr = this.service("ThreeRenderManager");
             this.camera = renderMgr.camera;
@@ -829,7 +831,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     collideBVH(collideList) {
-
         // uses:
         // https://github.com/gkjohnson/three-mesh-bvh
 
