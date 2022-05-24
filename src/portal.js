@@ -29,7 +29,7 @@ export class PortalPawn extends CardPawn {
         this.addEventListener("pointerDown", "nop");
         this.addEventListener("keyDown", e => { switch (e.key) {
             case " ": this.enterPortal(); break;
-            case "Escape": this.say("_set", { ghostWorld: !this.actor._ghostWorld }); break;
+            case "G": case "g": this.say("_set", { ghostWorld: !this.actor._ghostWorld }); break;
         }});
 
         this.shellListener = (command, data) => this.receiveFromShell(command, data);
