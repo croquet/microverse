@@ -160,7 +160,7 @@ class Shell {
     }
 
     receiveFromPortal(fromPortalId, fromFrame, data) {
-        // console.log(`from portal-${fromPortalId}: ${JSON.stringify(data)}`);
+        // console.log(`shell received from ${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
             case "croquet:microverse:started":
                 // the session was started and player's inWorld flag has been set
@@ -296,9 +296,9 @@ class Shell {
         document.title = portalURL;
         this.currentFrame = toFrame;
         this.currentFrame.focus();
-        console.log(`shell: sending frame-type to portal-${toPortalId}`, avatarSpec);
+        console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, avatarSpec);
         this.sendFrameType(toFrame, avatarSpec);
-        console.log(`shell: sending frame-type to portal-${toPortalId}`, {portalURL});
+        console.log(`shell: sending frame-type "secondary" to portal-${fromFrame.portalId}`, {portalURL});
         this.sendFrameType(fromFrame, {portalURL});
         if (this.activeMMotion) {
             const { dx, dy } = this.activeMMotion;

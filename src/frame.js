@@ -35,11 +35,12 @@ window.addEventListener("message", e => {
 // if this frame is the primary frame, then this is the current world
 export let isPrimaryFrame;
 
-addShellListener((command, { frameType }) => {
+addShellListener((command, data) => {
+    // console.log(`${frameId} received: ${JSON.stringify(data)}`);
     if (command === "frame-type") {
-        const primary = frameType === "primary";
+        const primary = data.frameType === "primary";
         if (isPrimaryFrame !== primary) {
-            console.log(frameId, "frame-type", frameType);
+            console.log(frameId, "frame-type", data.frameType);
             isPrimaryFrame = primary;
             document.body.style.background = "transparent";
             document.getElementById("hud").classList.toggle("current-world", isPrimaryFrame);

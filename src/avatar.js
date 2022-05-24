@@ -739,7 +739,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // which will result in frameTypeChanged() on follower's clients
         }
         // now actually leave or enter the world (stops presenting in old world)
-        console.log(`portal-${frameId} frame now ${isPrimary ? "primary" : "secondary"} set`, actorSpec);
+        console.log(`portal-${frameId} frame now ${isPrimary ? "primary" : "secondary"}, setting actor`, actorSpec);
         this.say("_set", actorSpec);
         // start presenting in new space too
         if (enteringWorld && spec?.presenting) {
