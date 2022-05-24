@@ -704,11 +704,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return {
             translation,
             rotation,
-            pitch: this.lookPitch,
-            yaw: this.lookYaw,
+            lookPitch: this.lookPitch,
+            lookYaw: this.lookYaw,
             lookOffset: this.lookOffset,
-            presenting: this.presenting,
-            cardData: this.actor._cardData,
+            presenting: this.presenting,    // keep presenting
+            cardData: this.actor._cardData, // keep avatar appearance
         };
     }
 
@@ -726,9 +726,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             actorSpec.translation = spec.translation;
             actorSpec.rotation = spec.rotation;
             actorSpec.cardData = spec.cardData;
+            // move pawn to the right place
+            this._translation = spec.translation;
+            this._rotation = spec.rotation;
             // copy camera settings to pawn
-            if (spec.pitch) this.lookPitch = spec.pitch;
-            if (spec.yaw) this.lookYaw = spec.yaw;
+            if (spec.lookPitch) this.lookPitch = spec.lookPitch;
+            if (spec.lookYaw) this.lookYaw = spec.lookYaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
         if (leavingWorld) this.endMMotion();
