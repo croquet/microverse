@@ -1,7 +1,7 @@
 import { THREE, GetPawn } from "@croquet/worldcore";
 
 import { CardActor, CardPawn } from "./DCard.js";
-import { addShellListener, removeShellListener, sendToShell, frameId } from "./frame.js";
+import { addShellListener, removeShellListener, sendToShell, frameId, isPrimaryFrame } from "./frame.js";
 
 
 export class PortalActor extends CardActor {
@@ -23,7 +23,7 @@ export class PortalPawn extends CardPawn {
         this.targetMatrixBefore = new THREE.Matrix4();
         this.loadTargetWorld();
 
-        this.setGhostWorld({ v: this.actor.ghostWorld });
+        this.setGhostWorld({ v: this.actor._ghostWorld });
         this.listen("ghostWorldSet", this.setGhostWorld);
 
         this.addEventListener("pointerDown", "nop");
@@ -234,7 +234,7 @@ export class PortalPawn extends CardPawn {
 
     setGhostWorld({v}) {
         const canvas = document.getElementById("ThreeCanvas");
-        if (v) {
+        if (v && isPrimaryFrame) {
             // make our own world translucent, blurry, and desaturated so
             // the portal world becames visible
             canvas.style.filter = "opacity(80%) saturate(30%) contrast(80%) blur(4px)";
@@ -243,7 +243,7 @@ export class PortalPawn extends CardPawn {
         }
     }
 
-    receiveFromShell(command, { portalId, portalURL }) {
+    receiveFromShell(command, { portalId }) {
         switch (command) {
             case "portal-opened":
                 this.portalId = portalId;
@@ -251,6 +251,7 @@ export class PortalPawn extends CardPawn {
                 break;
             case "frame-type":
                 this.updatePortalCamera();
+                this.setGhostWorld({v: this.actor._ghostWorld});
                 break;
         }
     }
