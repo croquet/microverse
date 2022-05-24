@@ -237,7 +237,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let appManager = this.service("MicroverseAppManager");
         let CA = appManager.get("CardActor");
 
-        let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" ? "2d" : "3d");
+        let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" || type === "pdf" ? "2d" : "3d");
 
         let options = {
             name: fileName,
@@ -258,6 +258,21 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 scale: [4, 4, 4],
                 cornerRadius: 0.02,
                 fullBright: false,
+            };
+        } else if (type === "pdf") {
+            options = {
+                ...options,
+                className: "PDFView",
+                scale: [4, 4, 4],
+                layers: ["pointer"],
+                multiuser: true,
+                type: "2d",
+                textureLocation: dataId,
+                frameColor: 0xffffff,
+                cornerRadius: 0.05,
+                color: 0xffffff,
+                depth: 0.05,
+                fullBright: true
             };
         } else {
             options = {...options, dataLocation: dataId};

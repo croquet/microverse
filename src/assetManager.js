@@ -37,7 +37,7 @@ export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {buffer, dataURL, blob, userIds: [id]}}
         this.objectURLs = {}; // {[viewId]: [dataIds]}
-        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr"]);
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf"]);
     }
 
     fetchFile(item) {
@@ -75,11 +75,13 @@ export class AssetManager {
 
         const entry = item.getAsEntry ? item.getAsEntry()
             : (item.webkitGetAsEntry ? item.webkitGetAsEntry() : null);
-        if (entry && entry.isDirectory) try {
-            return this.analyzeDirectory(entry, importSizeChecker);
-            // returns {zip, type}
-        } catch(_err) {
-            throw Error("directory could not be zipped");
+        if (entry && entry.isDirectory) {
+            try {
+                return this.analyzeDirectory(entry, importSizeChecker);
+                // returns {zip, type}
+            } catch(_err) {
+                throw Error("directory could not be zipped");
+            }
         }
 
         let obj = await this.fetchFile(item);
