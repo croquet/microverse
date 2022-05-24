@@ -22,6 +22,7 @@ class Shell {
         }
         console.log("starting shell");
         this.frames = new Map(); // portalId => frame
+        this.portalData = new Map(); // portalId => portalData
         // ensure that we have a session and password
         App.autoSession();
         App.autoPassword();
@@ -184,7 +185,9 @@ class Shell {
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
                 if (+fromFrame.style.zIndex <= +toFrame.style.zIndex) return; // don't let inner world modify outer world
-                this.sendToPortal(data.portalId, {...data, portalId: undefined});
+                this.sendToPortal(data.portalId, data);
+                // remember portalData so we can send them to the portal when it is opened
+                this.portalData.set(data.portalId, data);
                 return;
             case "croquet:microverse:portal-enter":
                 if (fromFrame === this.currentFrame) {
@@ -253,13 +256,18 @@ class Shell {
         if (frame.interval) return;
         frame.interval = setInterval(() => {
             // there are two listeners to this message:
-            // 1. the frame itself in shell.js (see below)
+            // 1. the frame itself in frame.js
             // 2. the avatar in DAvatar.js
             // the avatar only gets constructed after joining the session
             // so we keep sending this message until the avatar is constructed
             // then it will send "croquet:microverse:started" which clears this interval (below)
             const frameType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
             this.sendToPortal(frame.portalId, {message: "croquet:microverse:frame-type", frameType, spec});
+            // send camera to portal
+            if (frameType === "secondary") {
+                const data = this.portalData.get(frame.portalId);
+                if (data) this.sendToPortal(frame.portalId, data);
+            }
             // console.log(`send frame type to portal-${frame.portalId}: ${frameType}`);
         }, 200);
     }
