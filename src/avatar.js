@@ -22,6 +22,7 @@ let THROTTLE = 20;
 let PORTAL_DISTANCE = 1;
 let COLLISION_RADIUS = EYE_HEIGHT / 5;
 let isMobile = !!("ontouchstart" in window);
+let initialPortalLook;
 
 export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
@@ -495,6 +496,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lookYaw = this.actor.lookYaw;
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
+        this.portalLook = initialPortalLook;
 
         this.moveRadius = this.actor.collisionRadius;
         this.isFalling = false;
@@ -553,11 +555,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         sendToShell("started");
                         break;
                     case "portal-update":
-                        if (!this.actor.inWorld) {
-                            if (cameraMatrix) {
-                                this.portalLook = cameraMatrix;
-                                this.refreshCameraTransform();
-                            }
+                        if (cameraMatrix) {
+                            this.portalLook = cameraMatrix;
+                            initialPortalLook = cameraMatrix;
+                            if (!this.isPrimary) this.refreshCameraTransform();
                         }
                         break;
                     case "motion-start":
@@ -698,7 +699,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // This test above is relevant only at the start up.
             // This is called from ThreeCamera's constructor but
             // the look* values are not intialized yet.
-            if (!this.actor.inWorld && this.portalLook) return this.portalLook;
+            if (!this.isPrimary && this.portalLook) return this.portalLook;
             else return this.walkLook;
         } else return this.global;
     }
@@ -829,29 +830,27 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     refreshPortalClip() {
-        if (this.portalClip) {
-            let { clippingPlanes } = this.service("ThreeRenderManager").renderer;
-            if (isPrimaryFrame) {
-                // we are the top world, so we turn off portal clipping
-                const idx = clippingPlanes.indexOf(this.portalClip);
-                if (idx >= 0) clippingPlanes.splice(idx, 1);
-            } else {
-                // we are rendering a portal, so we turn on portal clipping
-                if (!clippingPlanes.includes(this.portalClip)) {
-                    clippingPlanes.push(this.portalClip);
-                }
-                // check which half-space of the portal the camera is in,
-                // and flip the portal's clip plane to the other side if needed
-                const cameraInFrontOfPortalPlane = this.lookGlobal[14] > 0;
-                const clippingBehindPortalPlane = this.portalClip.normal.z < 0;
-                if (clippingBehindPortalPlane !== cameraInFrontOfPortalPlane) {
-                    this.portalClip.normal.negate();
-                }
-                // this ensures we can look "through" the portal from behind
-                // and see the other half space
-                // TODO: we assume the portal is at the origin looking down the z axis
-                // when this is no longer true, we need to update this code
+        let { clippingPlanes } = this.service("ThreeRenderManager").renderer;
+        if (this.isPrimary) {
+            // we are the top world, so we turn off portal clipping
+            const idx = clippingPlanes.indexOf(this.portalClip);
+            if (idx >= 0) clippingPlanes.splice(idx, 1);
+        } else {
+            // we are rendering a portal, so we turn on portal clipping
+            if (!clippingPlanes.includes(this.portalClip)) {
+                clippingPlanes.push(this.portalClip);
             }
+            // check which half-space of the portal the camera is in,
+            // and flip the portal's clip plane to the other side if needed
+            const cameraInFrontOfPortalPlane = this.lookGlobal[14] > 0;
+            const clippingBehindPortalPlane = this.portalClip.normal.z < 0;
+            if (clippingBehindPortalPlane !== cameraInFrontOfPortalPlane) {
+                this.portalClip.normal.negate();
+            }
+            // this ensures we can look "through" the portal from behind
+            // and see the other half space
+            // TODO: we assume the portal is at the origin looking down the z axis
+            // when this is no longer true, we need to update this code
         }
     }
 
@@ -866,7 +865,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let head = EYE_HEIGHT / 6;
         let v=[...this.vq.v];
- 
+
         let positionChanged = false;
         let newPosition = new THREE.Vector3(...v);
         collideList.forEach(c => {
@@ -958,7 +957,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.isFalling = false;
             if(this.vq.v[1]<this.actor.maxFall){this.goHome(); return;}
         }
-        
+
         // then check for other floor objects
         let collideList = walkLayer.filter(obj=> !obj.collider);
         if(walkLayer.length >= 0) {
