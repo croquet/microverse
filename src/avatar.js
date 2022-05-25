@@ -16,10 +16,11 @@ import {setupWorldMenuButton} from "./worldMenu.js";
 
 let EYE_HEIGHT = 1.676;
 let EYE_EPSILON = 0.01;
-let FALL_DISTANCE = EYE_HEIGHT / 10;
+let FALL_DISTANCE = EYE_HEIGHT / 12;
 let MAX_FALL = -50;
 let THROTTLE = 20;
 let PORTAL_DISTANCE = 1;
+let COLLISION_RADIUS = EYE_HEIGHT / 5;
 let isMobile = !!("ontouchstart" in window);
 
 export class AvatarActor extends mix(CardActor).with(AM_Player) {
@@ -56,7 +57,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     get pawn() { return AvatarPawnFactory; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._collisionRadius || 0.375; } // minimum collison radius for avatar
+    get collisionRadius() { return this._collisionRadius || COLLISION_RADIUS; } // minimum collison radius for avatar
     get maxFall(){ return this._maxFall || MAX_FALL; } // max fall before we goHome()
     get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
@@ -865,10 +866,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let head = EYE_HEIGHT / 6;
         let v=[...this.vq.v];
-      //  if(this.doFall){
-       //     v[1]-=FALL_DISTANCE;
-       //     this.doFall = false;
-       // }
+ 
         let positionChanged = false;
         let newPosition = new THREE.Vector3(...v);
         collideList.forEach(c => {
@@ -904,13 +902,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             newPosition = segment.start;
             newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
             newPosition.y -= (head - radius);
-            /*
-            let deltaV = [newPosition.x - this.translation[0],
-                newPosition.y - this.translation[1],
-                newPosition.z - this.translation[2]
-            ];
-            */
         })
+
         if(positionChanged){
             this.vq.v = newPosition.toArray();
             return true;
@@ -965,24 +958,23 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.isFalling = false;
             if(this.vq.v[1]<this.actor.maxFall){this.goHome(); return;}
         }
-        // first check for BVH colliders
-        let bvh = false; // if bvh is true then we collided with something
-        let collideList = walkLayer.filter(obj => obj.collider);
-        if (collideList.length>0) { bvh = this.collideBVH(collideList); }
-
+        
         // then check for other floor objects
-        walkLayer = walkLayer.filter(obj=> !obj.collider);
-        if(walkLayer.length === 0) return;
-        this.walkcaster.ray.origin.set(...this.vq.v);
-        const intersections = this.walkcaster.intersectObjects(walkLayer, true);
+        let collideList = walkLayer.filter(obj=> !obj.collider);
+        if(walkLayer.length >= 0) {
+            this.walkcaster.ray.origin.set(...this.vq.v);
+            const intersections = this.walkcaster.intersectObjects(walkLayer, true);
 
-        if (intersections.length > 0) {
-            let delta = intersections[0].distance - EYE_HEIGHT;
-            if (bvh && delta>0) return; // we are standing on a bvh so ignore falling
-            if (Math.abs(delta) > EYE_EPSILON) { // moving up or down...
-                this.vq.v[1] -= delta;
+            if (intersections.length > 0) {
+                let delta = intersections[0].distance - EYE_HEIGHT;
+                if (delta<0) { // can only move up - we have already fallen
+                    this.vq.v[1] -= delta;
+                }
             }
         }
+        // check for BVH colliders
+        collideList = walkLayer.filter(obj => obj.collider);
+        if (collideList.length>0) {this.collideBVH(collideList); }
     }
 
     startMMotion() {
