@@ -3,6 +3,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-05-20
+### Added
+- Particle effect for portals.
+- A feature to caputure the pointer with the first responder mechanism.
+- Immediate local avatar movement before updating peers.
+
+## Fixed
+### Portals clipping issues.
+### Collision with walls and floor works smoother.
+### Watch server works on Windows by handling backslash path properly.
+
+Changed
+### Extruded Shape has z=0 at center.
+### the default index.html now has <DOCTYPE !html>
+
 ## 2022-05-13
 ### Added
 - Full screen mode work with portals
@@ -12,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make Avatar be a kind of card, thus one can write behaviors for it.
 - The world menu is moved to top right.
 
-### Fixed 
+### Fixed
 - A divergence issue due to a view code used in model.
 - Avatar look is preserved when walking through a portal.
 - The faucet in the cascade demo can be moved.
