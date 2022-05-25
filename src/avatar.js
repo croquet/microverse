@@ -766,6 +766,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.say("comeToMe");
             }
         }
+        this.refreshPortalClip();
     }
 
     leaveToWorld(portalURL) {
@@ -821,8 +822,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     refreshPortalClip() {
         if (this.portalClip) {
             let { clippingPlanes } = this.service("ThreeRenderManager").renderer;
-            if (this.actor.inWorld) {
-                // we are in the world, so we turn off portal clipping
+            if (isPrimaryFrame) {
+                // we are the top world, so we turn off portal clipping
                 const idx = clippingPlanes.indexOf(this.portalClip);
                 if (idx >= 0) clippingPlanes.splice(idx, 1);
             } else {
