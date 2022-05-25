@@ -35,8 +35,8 @@ export function init(Constants) {
         {
             card: {
                 name:"world model",
-                dataScale: [10, 10, 10],
-                dataTranslation: [108, -18.5, -128],
+                dataScale: [9, 9, 9],
+                dataTranslation: [108, -17.5, -128],
                 dataRotation: [0, Math.PI / 12 * 5, 0],
                 // dataTranslation: [22, -10.7, -20],
                 layers: ["walk"],
