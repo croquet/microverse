@@ -179,15 +179,21 @@ class MyPlayerManager extends PlayerManager {
         return [...this.players.values()].filter((player) => player.inWorld);
     }
 
-    startPresentation(playerId) {
+    startPresentation(playerId, teleport) {
         if (this.presentationMode && this.presentationMode !== playerId) {
             return; // somebody is already presenting
         }
 
         this.presentationMode = playerId;
 
+        let { translation, rotation } = this.players.get(playerId);
+
         this.playersInWorld().forEach((player) => {
             this.followers.add(player.playerId);
+            if (teleport) {
+                player.set({ translation, rotation });
+                player.say("forceOnPosition");
+            }
         });
         this.publish("playerManager", "presentationStarted", playerId);
         this.publish("playerManager", "playerCountChanged");
@@ -210,7 +216,7 @@ class MyPlayerManager extends PlayerManager {
         console.log(this.sessionId, "playerEnteredWorld", player);
         if (this.presentationMode) {
             this.followers.add(player.playerId);
-            player.presentationStarted(this.presentationMode);
+            player.presentationStarted(this.presentationMode, true);
         }
         this.publish("playerManager", "playerCountChanged");
     }

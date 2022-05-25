@@ -157,9 +157,9 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.goToStep(0.1);
     }
 
-    comeToMe() {
+    comeToMe(teleport) {
         this.norm = this.lookNormal;
-        this.service("PlayerManager").startPresentation(this.playerId);
+        this.service("PlayerManager").startPresentation(this.playerId, teleport);
     }
 
     followMeToWorld(portalURL) {
@@ -176,10 +176,16 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.say("leaveToWorld", portalURL);
     }
 
-    presentationStarted(playerId) {
+    presentationStarted(playerId, teleport) {
         if (this.playerId !== playerId && this.inWorld) {
             let leader = this.service("PlayerManager").player(playerId);
-            this.goTo(leader.translation, leader.rotation, false);
+            if (teleport) {
+                this._translation = [...leader.translation];
+                this._rotation = [...leader.rotation];
+                this.say("forceOnPosition");
+            } else {
+                this.goTo(leader.translation, leader.rotation, false);
+            }
             this.follow = playerId;
             this.fall = false;
         }
@@ -740,10 +746,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // move actor to the right place
             actorSpec.translation = spec.translation;
             actorSpec.rotation = spec.rotation;
+            // keep avatar appearance
             actorSpec.cardData = spec.cardData;
             // move pawn to the right place
             this._translation = spec.translation;
             this._rotation = spec.rotation;
+            this.onLocalChanged();
             // copy camera settings to pawn
             if (spec.lookPitch) this.lookPitch = spec.lookPitch;
             if (spec.lookYaw) this.lookYaw = spec.lookYaw;
@@ -763,7 +771,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (enteringWorld && spec?.presenting) {
             let manager = this.actor.service("PlayerManager");
             if (!manager.presentationMode) {
-                this.say("comeToMe");
+                this.say("comeToMe", true);
             }
         }
         this.refreshPortalClip();
