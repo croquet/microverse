@@ -9,27 +9,13 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatar.js"
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "avatar.js"
     ];
 
-    Constants.UserBehaviorDirectory = "behaviors/default";
+    Constants.UserBehaviorDirectory = "behaviors/campus";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "flightTracker.js", "spin.js", "lights.js",
-        "slides.js", "cascade.js",
+        "lights.js", "livemap.js"
     ];
-
-    Constants.UseRapier = true;
-
-    const frameColor = 0x888888;
-    const cardHeight = 0.5;
-
-    const baseY = 6;
-    const wallHeight = 3;
-    const wallThick = 0.2;
-    const bt = [-20, baseY, 48]; // bt for base translation
-    const baseSize = [20, 1, 20];
-    const half = baseSize[0] / 2;
-    const wallBase = bt[1] + wallHeight / 2 + baseSize[1] / 2;
 
     Constants.DefaultCards = [
         {
@@ -63,5 +49,13 @@ export function init(Constants) {
                 dataType: "jpg",
             }
         },
+        {
+            card: {
+                name: "live map",
+                layers: ["pointer"],
+                type: "object",
+                behaviorModules: ["CampusMap"],
+            }
+        }
     ];
 }

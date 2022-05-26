@@ -943,7 +943,9 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
     cardDataUpdated(data) {
         // it might be independently implemented in a behavior, and independently subscribed
 
-        if (this.actor._cardData.type !== "2d") {return;}
+        if (this.didPropertyChange(data, ["type", "dataLocation", "dataRotation", "dataScale"])) return this.updateShape();
+
+        if (data.v.type !== "2d") {return;}
         let obj = this.shape.children.find((o) => o.name === "2d");
         if (!obj || !obj.children || obj.children === 0) {return;}
         obj = obj.children[0];
