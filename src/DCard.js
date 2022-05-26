@@ -947,7 +947,7 @@ export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_
 
         if (data.v.type !== "2d") {return;}
         let obj = this.shape.children.find((o) => o.name === "2d");
-        if (!obj || !obj.children || obj.children === 0) {return;}
+        if (!obj || !obj.children || obj.children.length === 0) {return;}
         obj = obj.children[0];
         if (this.didPropertyChange(data, ["depth", "width", "height", "color", "frameColor", "cornerRadius", "fullBright"])) {
             let {depth, width, height, color, frameColor, cornerRadius, fullBright} = data.v;
