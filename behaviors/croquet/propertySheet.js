@@ -393,13 +393,17 @@ class PropertySheetWindowPawn {
 
         let avatar = this.service("PawnManager").get(evt.avatarId);
         if (avatar) {
-            avatar.pointerCapture(this._parent);
+            avatar.addFirstResponder("pointerMove", {}, this._parent);
         }
     }
 
-    pointerUp() {
+    pointerUp(evt) {
         if (this.didSetDownInfo && this._parent) {
             delete this._parent.downInfo;
+            let avatar = this.service("PawnManager").get(evt.avatarId);
+            if (avatar) {
+                avatar.removeFirstResponder("pointerMove", {}, this._parent);
+            }
         }
     }
 }
