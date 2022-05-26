@@ -2,6 +2,8 @@ let worldMenu = null;
 let worldMenuVisible = false;
 let imageInput = null;
 
+let isMobile = !!("ontouchstart" in window);
+
 function qrPressed(_myAvatar, url) {
     let div = document.createElement("div");
     div.innerHTML = `<a id="link" target="_blank" rel="noopener noreferrer" href="${url}"></a>`;
@@ -151,7 +153,7 @@ function toggleMenu(myAvatar) {
         evt.preventDefault();
         evt.stopPropagation();
 
-        if (evt.shiftKey) {
+        if (evt.shiftKey || isMobile) {
             switchQRView(myAvatar);
             return;
         }
