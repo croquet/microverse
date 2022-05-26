@@ -79,10 +79,24 @@ class SpinPawn {
     onPointerUp(p3d) {
         let avatar = Worldcore.GetPawn(p3d.avatarId);
         avatar.removeFirstResponder("pointerMove", {}, this);
+        this.moveBuffer.push(p3d.xy);
+
         this._startDrag = null;
         this._baseRotation = null;
+
         if (this.moveBuffer.length < 3) {return;}
-        if(Math.abs(this.deltaAngle) > 0.01) {
+
+        this.moveBuffer = this.moveBuffer.slice(this.moveBuffer.length - 3);
+
+        let signs = new Set();
+        for (let i = 0; i < this.moveBuffer.length - 1; i++) {
+            signs.add(Math.sign(this.moveBuffer[i + 1][0] - this.moveBuffer[i][0]));
+        }
+        if (signs.has(-1) && signs.has(1)) {return;}
+
+        this.deltaAngle = (this.moveBuffer[this.moveBuffer.length - 1][0] - this.moveBuffer[0][0]) / 2 / 180 * Math.PI;
+
+        if (Math.abs(this.deltaAngle) > 0.01) {
             let a = this.deltaAngle;
             a = Math.min(Math.max(-0.1, a), 0.1);
             this.say("startSpinning", a);
