@@ -18,7 +18,6 @@ import { PortalActor } from './src/portal.js';
 import { WorldSaver } from './src/worldSaver.js';
 // apps -------------------------------------------
 import { MultiBlaster } from './apps/multiblaster.js';
-import { PDFView } from './apps/pdfview.js';
 import { BouncingBall, BouncingLogo } from './apps/bouncingBall.js';
 
 import JSZip from 'jszip';

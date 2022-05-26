@@ -269,17 +269,18 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         } else if (type === "pdf") {
             options = {
                 ...options,
-                className: "PDFView",
+                behaviorModules: ["PDFView"],
                 scale: [4, 4, 4],
                 layers: ["pointer"],
                 multiuser: true,
                 type: "2d",
-                textureLocation: dataId,
+                textureType: "canvas",
                 frameColor: 0xffffff,
                 cornerRadius: 0.05,
                 color: 0xffffff,
                 depth: 0.05,
-                fullBright: true
+                fullBright: true,
+                pdfLocation: dataId
             };
         } else {
             options = {...options, dataLocation: dataId};
