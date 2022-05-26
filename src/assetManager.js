@@ -37,7 +37,7 @@ export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {buffer, dataURL, blob, userIds: [id]}}
         this.objectURLs = {}; // {[viewId]: [dataIds]}
-        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf"]);
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf", "vrse"]);
     }
 
     fetchFile(item) {

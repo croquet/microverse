@@ -154,7 +154,7 @@ class MyPlayerManager extends PlayerManager {
 
         let behaviorManager = this.service("BehaviorModelManager");
 
-         if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
+        if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
             options.behaviorModules = ["AvatarEventHandler"];
         }
 
@@ -382,7 +382,7 @@ class MyModelRoot extends ModelRoot {
     }
 
     loadDone(data) {
-        let {key, asScene} = data;
+        let {key, asScene, pose} = data;
         if (key !== this.loadKey) {return;}
 
         let array = this.loadBuffer;
@@ -407,18 +407,24 @@ class MyModelRoot extends ModelRoot {
         if (savedData.version === "1") {
             let string = JSON.stringify(savedData.data);
             savedData.data = string;
-            this.loadFromFile(savedData, asScene);
+            this.loadFromFile(savedData, asScene, pose);
         }
     }
 
-    loadFromFile({ _name, version, data }, asScene) {
+    loadFromFile({ _name, version, data }, asScene, pose) {
         try {
             let saver = new WorldSaver(CardActor);
             let json = saver.parse(data);
 
             let nameMap = this.loadBehaviorModules(json.behaviorModules, version);
             if (json.cards) {
-                this.load({array: json.cards, nameMap: asScene ? null : nameMap}, version);
+                let result = this.load({array: json.cards, nameMap: asScene ? null : nameMap}, version);
+                if (pose) {
+                    result.forEach((card) => {
+                        card._translation = pose.translation;
+                        card._rotation = pose.rotation;
+                    });
+                }
             }
         } catch (error) {
             console.error("error in loading persistent data", error);

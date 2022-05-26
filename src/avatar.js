@@ -533,8 +533,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             // drop and paste
             this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
-                if (type === "pastedtext") this.pasteText(buffer);
-                else this.uploadFile(buffer, fileName, type);
+                if (type === "pastedtext") {
+                    this.pasteText(buffer);
+                } else if (type === "vrse") {
+                    this.loadvrse(buffer);
+                } else {
+                    this.uploadFile(buffer, fileName, type);
+                }
             });
 
             // keep track of being in the primary frame or not
@@ -629,6 +634,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             translation: pose.translation,
             rotation: pose.rotation
         });
+    }
+
+    loadvrse(buffer) {
+        let result = new TextDecoder("utf-8").decode(buffer);
+        this.loadFromFile(result, false, true);
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -1305,7 +1315,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return c._behaviorModules && c._behaviorModules.includes("StickyNote");
     }
 
-    loadFromFile(data, asScene) {
+    loadFromFile(data, asScene, inFront) {
         let model = this.actor.wellKnownModel("ModelRoot");
 
         let array = new TextEncoder().encode(data);
@@ -1320,6 +1330,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             ind += 2880;
         }
 
-        this.publish(model.id, "loadDone", {asScene, key});
+        let pose;
+
+        if (inFront) {
+            pose = this.dropPose(6);
+        }
+        this.publish(model.id, "loadDone", {asScene, key, pose});
     }
 }
