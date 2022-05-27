@@ -265,6 +265,11 @@ This method publishes a Croquet event in the scope of `this.actor._parent.id` if
 
 This method subscribes a Croquet event in the scope of `this.actor._parent.id` if `this.actor._parent` is not undefined, or in `this.actor.id` if it is undefined. Note that `this.parent` is resolved at the first time it is called, and any change to `this.actor._parent` will not update the subscription.
 
+
+### `addUpdateRequest(array:Array<behaviorName, methodName>)`
+
+A pawn behavior can request a method callback when CardPawn's `update()` method is invoked. behaviorName and methodName will be "registered in the pawn, and for each `update()` call, the behavior method is invoked.
+
 ### `roundedCornerGeometry(width:number, height:number, depth:number, cornerRadius:number):Geometry`
 
 This method creates a flat card like Three.JS geometry in specified in `width`, `height`, `depth`, and `cornerRadius`.
