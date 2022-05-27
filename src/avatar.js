@@ -405,14 +405,16 @@ const PM_SmoothedDriver = superclass => class extends superclass {
         this.ignore("positionSet");
     }
 
+    /*
     // If our global changes, so do the globals of our children
-    globalChanged(){
-        if (!this._global){
+    globalChanged() {
+        if (!this._global) {
             this.say("viewGlobalChanged");
-            if(this.children) 
-                this.children.forEach(child => child.onGlobalChanged()); 
+            if (this.children)  {
+                this.children.forEach(child => child.onGlobalChanged());
+            }
         }
-    }
+    }*/
 
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
@@ -421,25 +423,27 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._rotation = q;
             this.onLocalChanged();
             this.localDriver = true;
+            this.isTranslating = false;
+            this.isRotating = false;
         } else {
             this.localDriver = false;
         }
         super.positionTo(v, q, throttle);
-        this.globalChanged();
+        // this.globalChanged();
     }
 
     scaleTo(v, throttle) {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
             this._scale = v;
-            this.isScaling = false;
             this.onLocalChanged();
+            this.isScaling = false;
             this.localDriver = true;
         } else {
             this.localDriver = false;
         }
         super.scaleTo(v, throttle);
-        this.globalChanged();
+        // this.globalChanged();
     }
 
     rotateTo(q, throttle) {
@@ -448,11 +452,12 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._rotation = q;
             this.onLocalChanged();
             this.localDriver = true;
+            this.isRotating = false;
         } else {
             this.localDriver = false;
         }
         super.rotateTo(q, throttle);
-        this.globalChanged();
+        // this.globalChanged();
     }
 
     translateTo(v, throttle)  {
@@ -466,7 +471,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.localDriver = false;
         }
         super.translateTo(v, throttle);
-        this.globalChanged();
+        // this.globalChanged();
     }
 }
 
@@ -625,7 +630,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = this.actor.rotation;
         this._translation = this.actor.translation;
         this.onLocalChanged();
-        this.globalChanged();
+        //this.globalChanged();
     }
 
     setLookAngles(data) {
