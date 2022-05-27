@@ -56,7 +56,7 @@ body {
     width: 126px;
     height: 126px;
     border: 3px solid #FFF;
-    border-radius: 60px;
+    border-radius: 50%;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     opacity: 0.75;
     z-index: 200;
@@ -266,9 +266,9 @@ body {
     background-color: #880000;
 }
 
-@media (max-width:600px) {
+@media (max-width:600px), (max-height:600px) {
     #hiddenknob {
-        width: 83px;
+        width: 82px;
         height: 82px;
     }
 
@@ -279,29 +279,33 @@ body {
     }
 
     #knob {
-        left: -10px;
-        top: -10px;
         width: 40px;
         height: 40px;
     }
 }
 
+@media (max-height:600px) {
+    #joystick {
+        bottom: 45px;
+    }
+}
 
-@media (min-width:2000px) {
+@media (min-width:1900px) {
     #hiddenknob {
-        width: 134px;
-        height: 134px;
+        width: 135px;
+        height: 135px;
     }
 
     #joystick {
         bottom: 65px;
         width: 140px;
         height: 140px;
-        border-radius: 50%;
     }
 
     #knob {
         width: 75px;
-        height: 74px;
+        height: 75px;
+        left: -8px;
+        top: -8px;
     }
 }

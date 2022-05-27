@@ -100,6 +100,13 @@ class Shell {
         this.capturedPointers = {};
         this.joystick = document.getElementById("joystick");
         this.knob = document.getElementById("knob");
+        this.hiddenknob = document.getElementById("hiddenknob");
+
+        this.knobStyle = window.getComputedStyle(this.knob);
+        let radius = parseFloat(this.knobStyle.width) / 2;
+        this.hiddenknob.style.transform = "translate(0px, 0px)";
+        this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
+
         this.releaseHandler = (e) => {
             for (let k in this.capturedPointers) {
                 this.hiddenknob.releasePointerCapture(k);
@@ -107,7 +114,6 @@ class Shell {
             this.capturedPointers = {};
             this.endMMotion(e);
         };
-        this.hiddenknob = document.getElementById("hiddenknob");
         this.hiddenknob.onpointerdown = (e) => {
             if (e.pointerId !== undefined) {
                 this.capturedPointers[e.pointerId] = "hiddenKnob";
@@ -321,8 +327,9 @@ class Shell {
         e.preventDefault();
         e.stopPropagation();
         this.activeMMotion = null;
+        let radius = parseFloat(this.knobStyle.width) / 2;
         this.hiddenknob.style.transform = "translate(0px, 0px)";
-        this.knob.style.transform = "translate(30px, 30px)";
+        this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
         this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-end"});
     }
 
@@ -334,6 +341,9 @@ class Shell {
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
 
+            let radius = parseFloat(this.knobStyle.width) / 2;
+            let left = parseFloat(this.knobStyle.left) / 2;
+
             this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-update", dx, dy});
             this.activeMMotion.dx = dx;
             this.activeMMotion.dy = dy;
@@ -341,16 +351,15 @@ class Shell {
             this.hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
             let ds = dx ** 2 + dy ** 2;
-            if (ds > 30 * 30) {
+            if (ds > (radius + left) ** 2) {
                 ds = Math.sqrt(ds);
-                dx = 30 * dx / ds;
-                dy = 30 * dy / ds;
+                dx = (radius + left) * dx / ds;
+                dy = (radius + left) * dy / ds;
             }
 
-            this.knob.style.transform = `translate(${30 + dx}px, ${30 + dy}px)`;
+            this.knob.style.transform = `translate(${radius + dx}px, ${radius + dy}px)`;
         }
     }
-
 }
 
 function addParameter(url, key, value) {
