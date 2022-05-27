@@ -22,7 +22,7 @@ const MAX_V = 0.05;
 const KEY_V = MAX_V/2;
 const MAX_SPIN = 0.001;
 const COLLIDE_THROTTLE = 50;
-const THROTTLE = 20; // 15;
+const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 1;
 const COLLISION_RADIUS = EYE_HEIGHT / 5;
 const isMobile = !!("ontouchstart" in window);
@@ -969,7 +969,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastPortalTranslation = this.vq.v;
         let len = Math.max(v3_magnitude(dir), PORTAL_DISTANCE);
         // not moving then return false
-        if (!dir.some(item => item !== 0)) return false;
+        if (v3_zero(dir)) return false;
 
         dir = v3_normalize(dir);
         this.portalcaster.far = len;
