@@ -39,7 +39,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
         this.lookPitch = 0;
         this.lookYaw = 0;
-        this.lookOffset = [0, 0, 0];
+        this.lookOffset = v3_zero();
 
         this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
@@ -111,9 +111,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let v = v3_zero();
         let q = q_identity();
         this.goTo(v, q, false);
-        this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: v3_zero()});
-        this.set({lookPitch: 0, lookYaw: 0});
         this.lookOffset = v3_zero();
+        this.lookPitch = 0;
+        this.lookYaw = 0;
+        this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: this.lookOffset});
     }
 
     goTo(v, q, fall) {
@@ -158,7 +159,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             if (p3d.look) {
                 let pitch = q_pitch(this.qEnd);
                 let yaw = q_yaw(this.qEnd);
-                this.set({lookPitch: pitch, lookYaw: yaw});
+                this.lookPitch = pitch;
+                this.lookYaw = yaw;
                 this.say("setLookAngles", {pitch, yaw});
             }
         }
@@ -166,7 +168,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     comeToMe(teleport) {
-        this.norm = this.lookNormal;
         this.service("PlayerManager").startPresentation(this.playerId, teleport);
     }
 
@@ -219,6 +220,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             if (followMe) {
                 this.positionTo({v: followMe._translation, q: followMe._rotation});
                 this.lookOffset = followMe.lookOffset;
+                this.lookPitch = followMe.lookPitch;
+                this.lookYaw = followMe.lookYaw;
                 this.say("setLookAngles", {pitch: followMe.lookPitch, yaw: followMe.lookYaw, lookOffset: followMe.lookOffset});
             } else {
                 this.presentationStopped();
@@ -642,7 +645,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (pitch !== undefined) {this.lookPitch = pitch;}
         if (yaw !== undefined) {this.lookYaw = yaw;}
         if (lookOffset !== undefined) {this.lookOffset = lookOffset;}
-        this.onLocalChanged();
     }
 
     async uploadFile(buffer, fileName, type) {
@@ -1026,14 +1028,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     startMMotion() {
         this.spin = q_identity();
-        this.velocity = [0,0,0];
+        this.velocity = v3_zero();
         this.say("startMMotion");
     }
 
     endMMotion() {
         this.activeMMotion = false;
         this.spin = q_identity();
-        this.velocity = [0,0,0];
+        this.velocity = v3_zero();
     }
 
     updateMMotion(dx, dy) {
