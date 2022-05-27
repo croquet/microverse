@@ -58,7 +58,6 @@ console.log(this);
             page++;
             percent -= 100 + GAP;
         }
-        percent = Math.round(percent);
 
         if (page !== oldPage || percent !== oldPercent) {
             this.scrollPosition = { page, percent };
@@ -104,10 +103,10 @@ class PDFPawn {
         this.texture = this.threeObj.material[0].map = new THREE.CanvasTexture(this.canvas);
 console.log(this);
 
-        this.pages = [];
-        this.visiblePages = {}; // page number => time page became visible
-        this.renderQueue = [];
-        this.renderingPage = null;
+        this.pages = []; // sparse array of page number to details
+        this.visiblePages = []; // sparse array of page number to time page became visible
+        this.renderQueue = []; // page numbers to render when we have time
+        this.renderingPage = false; // false at startup, to trigger immediate first render
 
         this.loadDocument(this.actor._cardData.pdfLocation).then(() => {
             this.ensurePageEntry(1); // to resize the card
@@ -140,9 +139,10 @@ console.log(this);
         if (!numPages) return;
 
         const { canvas, context } = this;
+        const { width: canvWidth, height: canvHeight } = canvas;
         context.fillStyle = "#888";
-        context.fillRect(0, 0, canvas.width, canvas.height);
-        this.texture.needsUpdate = true;
+        context.fillRect(0, 0, canvWidth, canvHeight);
+        this.texture.needsUpdate = true; // whether or not we draw anything below
 
         const { page, percent } = scrollPosition;
         let p = page, yStart = percent / 100, finished = false, shownHeight = 0;
@@ -151,13 +151,17 @@ console.log(this);
             const { renderResult, renderWidth, renderHeight } = pageEntry;
             if (renderHeight === undefined) return; // not ready yet
 
+            const yStartCoord = Math.floor(yStart * renderHeight); // -ve when gap is showing at top
             if (renderResult) {
-                const sourceWidth = renderWidth;
-                const sourceHeight = renderHeight;
-                context.drawImage(renderResult, 0, yStart * renderHeight, sourceWidth, sourceHeight, 0, shownHeight, sourceWidth, sourceHeight);
+                // for Safari we need to be sure not to refer to any out-of-bounds pixels on either the source or destination canvas (whereas Chrome doesn't care)
+                const sourceWidth = Math.min(renderWidth, canvWidth);
+                const yStartOnSource = Math.max(0, yStartCoord);
+                const yStartOnDest = yStartCoord < 0 ? -yStartCoord : shownHeight;
+                const sourceHeight = Math.min(renderHeight - yStartOnSource, canvHeight - yStartOnDest);
+                context.drawImage(renderResult, 0, yStartOnSource, sourceWidth, sourceHeight, 0, yStartOnDest, sourceWidth, sourceHeight);
             }
-            shownHeight += renderHeight - yStart * renderHeight + this.PAGE_GAP; // whether drawn or not
-            if (p === this.actor.numPages || shownHeight >= this.canvas.height) finished = true;
+            shownHeight += Math.ceil(renderHeight - yStartCoord + this.PAGE_GAP); // whether drawn or not
+            if (p === this.actor.numPages || shownHeight >= canvHeight) finished = true;
             else {
                 p++;
                 yStart = 0;
@@ -175,7 +179,7 @@ console.log(this);
         const { page, percent } = scrollPosition;
 
         const prevVisible = this.visiblePages;
-        const nowVisible = this.visiblePages = {};
+        const nowVisible = this.visiblePages = [];
         let p = page, yStart = percent / 100, shownHeight = 0;
         while (true) {
             if (prevVisible[p]) nowVisible[p] = prevVisible[p];
@@ -201,20 +205,41 @@ console.log(this);
         if (!scrollPosition || !this.PAGE_GAP) return;
 
         const { page } = scrollPosition;
+        const { numPages } = this.actor;
 
         const queue = this.renderQueue = [];
         const queueIfNeeded = pageNumber => {
-            if (pageNumber < 1 || pageNumber > this.actor.numPages) return;
+            if (pageNumber < 1) pageNumber += numPages;
+            else if (pageNumber > numPages) pageNumber -= numPages;
 
             const pageEntry = this.ensurePageEntry(pageNumber);
             if (pageEntry.page && !pageEntry.renderTask) queue.push(pageNumber);
         };
 
-        queueIfNeeded(page);
-        for (let diff = 1; diff < 4; diff++) {
+        // queue nearby pages for rendering (up to 3 pages away)
+        const range = Math.min(numPages, 4);
+        for (let diff = 1; diff < range; diff++) {
             queueIfNeeded(page + diff);
             queueIfNeeded(page - diff);
         }
+
+        // and discard the renderings of pages over 5 away
+        const discardIfOver = 5;
+        this.pages.forEach((pageEntry, otherPage) => {
+            if (otherPage === page) return;
+
+            if (pageEntry.renderResult) {
+                // take account of wrapping around the end
+                const minDist = otherPage > page
+                    ? Math.min(otherPage - page, page + numPages - otherPage)
+                    : Math.min(page - otherPage, otherPage + numPages - page);
+                if (minDist > discardIfOver) {
+// console.log(`p${otherPage} discarded`);
+                    pageEntry.renderResult = null;
+                    pageEntry.renderTask = null;
+                }
+            }
+        });
     }
 
     processRenderQueue() {
@@ -230,31 +255,33 @@ console.log(this);
 
         // if we're already rendering a page that is currently on display, don't
         // interfere.
-        if (this.renderingPage && Object.keys(this.visiblePages).includes(this.renderingPage)) return;
+        const visibles = this.visiblePages;
+        if (this.renderingPage && visibles[this.renderingPage]) return;
 
-        const RENDER_WAIT = 200; // ms
+        // the first time we render, no need to confirm that the page is hanging around
+        const RENDER_WAIT = this.renderingPage === false ? 0 : 200; // ms
         const now = Date.now();
-        for (const [ pageNumber, time ] of Object.entries(this.visiblePages)) {
-            if (now - time < RENDER_WAIT) continue;
+        visibles.forEach((visibleTime, pageNumber) => {
+            if (now - visibleTime < RENDER_WAIT) return;
 
             const pageEntry = this.ensurePageEntry(pageNumber);
             if (pageEntry.page && !pageEntry.renderTask) {
-                this.startRendering(pageNumber);
+                this.startRendering(pageNumber); // cancelling any other render task
                 return;
             }
-        }
+        });
 
-        if (this.renderingPage) return; // allow whatever job it is to keep running
+        if (this.renderingPage) return; // not currently a visible page, but allow it to keep running
 
         const queue = this.renderQueue;
         if (queue.length === 0) return;
 
         const toRender = queue[0];
-        const entry = this.ensurePageEntry(toRender);
-        if (!entry.page) return; // try again later
+        const pageEntry = this.ensurePageEntry(toRender);
+        if (!pageEntry.page) return; // try again later
 
         queue.shift();
-        if (!entry.renderTask) this.startRendering(toRender);
+        if (!pageEntry.renderTask) this.startRendering(toRender);
     }
 
     startRendering(pageNumber) {
@@ -283,20 +310,20 @@ console.log(this);
         const renderTask = pageEntry.renderTask = page.render(renderContext);
         renderTask.promise.then(
             () => {
-console.log(`p${pageNumber} rendered`);
+// console.log(`p${pageNumber} rendered`);
                 this.renderingPage = null;
                 pageEntry.renderResult = canvas;
                 this.finishedRendering(pageNumber);
             },
             () => {
-console.log(`p${pageNumber} cancelled`);
+// console.log(`p${pageNumber} cancelled`);
                 pageEntry.renderTask = null; // so we'll try again later
             }
         );
     }
 
     finishedRendering(pageNumber) {
-        if (Object.keys(this.visiblePages).includes(String(pageNumber))) this.drawAtScrollPosition();
+        if (this.visiblePages[pageNumber]) this.drawAtScrollPosition();
     }
 
     adjustCardSize(width, height) {
@@ -319,7 +346,7 @@ console.log(`p${pageNumber} cancelled`);
         obj.material[0].map.dispose();
         this.texture = obj.material[0].map = new THREE.CanvasTexture(this.canvas);
 
-        this.PAGE_GAP = height * this.actor.PAGE_GAP_PERCENT / 100; // pixels between displayed pages
+        this.PAGE_GAP = Math.floor(renderScale * height * this.actor.PAGE_GAP_PERCENT / 100); // pixels between displayed pages
     }
 
     ensurePageEntry(pageNumber) {
@@ -342,8 +369,8 @@ console.log(`p${pageNumber} cancelled`);
             const renderScale = TEXTURE_SIZE / maxDim * 0.999;
             const { width: renderWidth, height: renderHeight } = proxy.getViewport({ scale: renderScale });
             entry.renderScale = renderScale;
-            entry.renderWidth = renderWidth;
-            entry.renderHeight = renderHeight;
+            entry.renderWidth = Math.floor(renderWidth);
+            entry.renderHeight = Math.floor(renderHeight);
 
             if (pageNumber === 1) this.adjustCardSize(width, height);
         });
@@ -351,16 +378,24 @@ console.log(`p${pageNumber} cancelled`);
     }
 
     onPointerDown(p3d) {
-        // empty for now, but apparently needed to be able to grab focus
-        // if (!p3d.uv) {return;}
-        // this.changePage(1);
+        if (!p3d.uv) {return;}
+
+        this.changePage(1);
     }
 
     onPointerWheel(evt) {
         if (!this.pdf || !this.PAGE_GAP) return;
 
-        let percent = evt.deltaY / this.canvas.height * 100;
+        const THROTTLE = 50; // ms
+        const now = Date.now();
+        this.cumulativeWheelDelta = (this.cumulativeWheelDelta || 0) + evt.deltaY;
+        if (now - (this.lastPointerWheel || 0) < THROTTLE) return;
+        this.lastPointerWheel = now;
+
+        const WHEEL_SCALE = 4;
+        let percent = this.cumulativeWheelDelta * WHEEL_SCALE / this.canvas.height * 100;
         if (Math.abs(percent) > 50) percent = 50 * Math.sign(percent);
+        this.cumulativeWheelDelta = 0;
 
         this.say("scrollByPercent", percent);
     }
@@ -368,8 +403,14 @@ console.log(`p${pageNumber} cancelled`);
     onKeyDown(e) {
         if (e.repeat) return;
         switch (e.key) {
-            case "ArrowLeft":  this.changePage(-1); break;
-            case "ArrowRight": this.changePage(1); break;
+            case "ArrowLeft":
+            case "ArrowUp":
+                this.changePage(-1);
+                break;
+            case "ArrowRight":
+            case "ArrowDown":
+                this.changePage(1);
+                break;
             default:
         }
     }
