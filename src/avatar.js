@@ -222,7 +222,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 this.presentationStopped();
             }
         }
-        if (!this.doomed) this.future(THROTTLE).tick(this.tickStep);
+        if (!this.doomed) this.future(this._tickStep).tick(this._tickStep);
     }
 
     dropPose(distance, optOffset) {
