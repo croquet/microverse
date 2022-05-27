@@ -15,7 +15,7 @@ export function init(Constants) {
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
         "demo.js", "bitcoinTracker.js", "flightTracker.js", "spin.js", "lights.js",
-        "slides.js", "cascade.js",
+        "slides.js", "cascade.js", "bouncingBall.js"
     ];
 
     Constants.UseRapier = true;
@@ -166,9 +166,9 @@ export function init(Constants) {
         {
             card: {
                 name:"bouncinglogo",
-                className: "BouncingLogo",
                 translation: [-4, cardHeight, -35],
                 rotation: [0, Math.PI / 2, 0],
+                behaviorModules: ["BouncingBall"],
                 scale: [4, 4, 4],
                 width: 1,
                 height: 1,
