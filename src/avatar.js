@@ -4,8 +4,8 @@
 
 import {
     THREE, Data, App, View, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_zero, v3_isZero, v3_equals, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
-    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
+    v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
+    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
@@ -19,7 +19,7 @@ const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
 const MAX_FALL = -50;
 const MAX_V = 0.05;
-const KEY_V = MAX_V/2;
+const KEY_V = MAX_V / 2;
 const MAX_SPIN = 0.001;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
@@ -330,12 +330,15 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.createStickyNote(tackPoint, rotation);
     }
 
-    createStickyNote(translation, rotation, text="") {
+    createStickyNote(translation, rotation, text) {
         let appManager = this.service("MicroverseAppManager");
         let CA = appManager.get("CardActor");
 
         let runs = [];
-        if (text) runs.push({text});
+        if (!text) {
+            text = "";
+        }
+        runs.push({text});
         let options = {
             name:'sticky note',
             className: "TextFieldActor",
@@ -859,7 +862,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             const relative = v3_scale(this.velocity, delta);
             const move = v3_transform(relative, m4_rotationQ(this.rotation));
             // set the moveRadius (used for collision detection) to scale with velocity
-            this.moveRadius = Math.min(0.8, this.actor.collisionRadius + 50*v3_sqrMag(move));
+            this.moveRadius = Math.min(0.8, this.actor.collisionRadius + 50 * v3_sqrMag(move));
             v = v3_add(this.translation, move);
             moving = true;
         } else {
@@ -904,7 +907,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const radius = this.moveRadius;
 
         let head = EYE_HEIGHT / 6;
-        let v=[...this.vq.v];
+        let v = [...this.vq.v];
 
         let positionChanged = false;
         let newPosition = new THREE.Vector3(...v);
@@ -992,10 +995,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return false;
 
-        if(this.isFalling){
+        if (this.isFalling) {
             this.vq.v[1] -= this.actor.fallDistance;
             this.isFalling = false;
-            if(this.vq.v[1]<this.actor.maxFall){this.goHome(); return;}
+            if(this.vq.v[1] < this.actor.maxFall){
+                this.goHome();
+                return;
+            }
         }
 
         // then check for other floor objects
@@ -1006,14 +1012,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             if (intersections.length > 0) {
                 let delta = intersections[0].distance - EYE_HEIGHT;
-                if (delta<0) { // can only move up - we have already fallen
+                if (delta < 0) { // can only move up - we have already fallen
                     this.vq.v[1] -= delta;
                 }
             }
         }
         // check for BVH colliders
         collideList = walkLayer.filter(obj => obj.collider);
-        if (collideList.length>0) {this.collideBVH(collideList); }
+        if (collideList.length > 0) {this.collideBVH(collideList); }
     }
 
     startMMotion() {
