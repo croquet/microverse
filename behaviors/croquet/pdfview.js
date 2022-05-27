@@ -158,7 +158,8 @@ console.log(this);
                 const yStartOnSource = Math.max(0, yStartCoord);
                 const yStartOnDest = yStartCoord < 0 ? -yStartCoord : shownHeight;
                 const sourceHeight = Math.min(renderHeight - yStartOnSource, canvHeight - yStartOnDest);
-                context.drawImage(renderResult, 0, yStartOnSource, sourceWidth, sourceHeight, 0, yStartOnDest, sourceWidth, sourceHeight);
+                // context.drawImage(renderResult, 0, yStartOnSource, sourceWidth, sourceHeight, 0, yStartOnDest, sourceWidth, sourceHeight);
+                context.putImageData(renderResult, 0, yStartOnDest - yStartOnSource, 0, yStartOnSource, sourceWidth, sourceHeight);
             }
             shownHeight += Math.ceil(renderHeight - yStartCoord + this.PAGE_GAP); // whether drawn or not
             if (p === this.actor.numPages || shownHeight >= canvHeight) finished = true;
@@ -298,7 +299,8 @@ console.log(this);
         const viewport = page.getViewport({ scale: renderScale });
         // console.log({viewport});
         // Prepare canvas using PDF page dimensions
-        const canvas = document.createElement("canvas");
+        if (!this.renderCanvas) this.renderCanvas = document.createElement("canvas");
+        const canvas = this.renderCanvas;
         const context = canvas.getContext("2d");
         canvas.height = viewport.height;
         canvas.width = viewport.width;
@@ -312,7 +314,7 @@ console.log(this);
             () => {
 // console.log(`p${pageNumber} rendered`);
                 this.renderingPage = null;
-                pageEntry.renderResult = canvas;
+                pageEntry.renderResult = context.getImageData(0, 0, viewport.width, viewport.height);
                 this.finishedRendering(pageNumber);
             },
             () => {
