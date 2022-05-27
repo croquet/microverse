@@ -816,6 +816,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.refreshCameraTransform();
             }
         } else {
+            this.localDriver = false;
             super.update(time, delta);
         }
         this.refreshPortalClip();
