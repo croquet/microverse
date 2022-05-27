@@ -15,12 +15,13 @@ import {CardActor, CardPawn} from "./DCard.js";
 import {setupWorldMenuButton} from "./worldMenu.js";
 
 const EYE_HEIGHT = 1.676;
-const EYE_EPSILON = 0.01;
+// const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
 const MAX_FALL = -50;
 const MAX_V = 0.05;
 const KEY_V = MAX_V / 2;
-const MAX_SPIN = 0.001;
+const MAX_SPIN = 0.0005;
+const JOYSTICK_V = 0.000035;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 1;
@@ -826,7 +827,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     update(time, delta) {
         if (!this.actor.follow) {
             if (this.actor.inWorld) {
-                let moving = this.updatePose(delta);
+                // let moving = this.updatePose(delta);
+                this.updatePose(delta);
                 if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
                     if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                         this.lastCollideTime = time;
@@ -1036,10 +1038,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     updateMMotion(dx, dy) {
         // move the avatar
-        let v = dy * 0.000075;
+        let v = dy * JOYSTICK_V;
         v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
-        const yaw = dx * (isMobile ? -MAX_SPIN : -MAX_SPIN);
+        const yaw = dx * (isMobile ? -2 * MAX_SPIN : -MAX_SPIN);
         this.spin = q_euler(0, yaw ,0);
         this.velocity = [0,0,v];
         this.say("leavePresentation");
