@@ -207,6 +207,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t);
         this.positionTo({v, q});
+        this.say("forceOnPosition");
         if (t < 1) this.future(50).goToStep(delta, t + delta);
     }
 
