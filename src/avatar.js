@@ -412,7 +412,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
         this.ignore("positionSet");
     }
 
-    /*
     // If our global changes, so do the globals of our children
     globalChanged() {
         if (!this._global) {
@@ -421,7 +420,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
                 this.children.forEach(child => child.onGlobalChanged());
             }
         }
-    }*/
+    }
 
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
@@ -436,7 +435,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.localDriver = false;
         }
         super.positionTo(v, q, throttle);
-        // this.globalChanged();
+        this.globalChanged();
     }
 
     scaleTo(v, throttle) {
@@ -450,7 +449,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.localDriver = false;
         }
         super.scaleTo(v, throttle);
-        // this.globalChanged();
+        this.globalChanged();
     }
 
     rotateTo(q, throttle) {
@@ -464,7 +463,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.localDriver = false;
         }
         super.rotateTo(q, throttle);
-        // this.globalChanged();
+        this.globalChanged();
     }
 
     translateTo(v, throttle)  {
@@ -478,7 +477,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.localDriver = false;
         }
         super.translateTo(v, throttle);
-        // this.globalChanged();
+        this.globalChanged();
     }
 }
 
@@ -637,7 +636,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = this.actor.rotation;
         this._translation = this.actor.translation;
         this.onLocalChanged();
-        //this.globalChanged();
+        this.globalChanged();
     }
 
     setLookAngles(data) {
@@ -1273,7 +1272,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 p.setOpacity(1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
                 p.setOpacity(0); // never render followers
-            } else if ((p === this || a._playerId === presentationMode) && v3_isZero(a.lookOffset)) {
+            } else if ((p === this || a._playerId === presentationMode) && v3_isZero(a.lookOffset) && this.actor.follow) {
                 p.setOpacity(0); // never render me or leader in 1st person
             } else { // fade based on their (or our own) distance between avatar and camera
                 let m = this.lookGlobal; // camera location
