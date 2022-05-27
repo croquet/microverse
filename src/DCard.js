@@ -51,6 +51,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.listen("setRotation", this.setRotation);
         this.listen("showControls", this.showControls);
         this.listen("setCardData", this.setCardData);
+
+        this.listen("dataScaleComputed", this.dataScaleComputed);
     }
 
     separateOptions(options) {
@@ -199,6 +201,14 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this._rotation = q;
         this.localChanged();
         this.say("updateRotation", q);
+    }
+
+    dataScaleComputed(s) {
+        if (s === undefined) {
+            delete this._cardData.dataScale;
+        } else {
+            this._cardData.dataScale = s;
+        }
     }
 
     textChanged() {
@@ -836,6 +846,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let max = Math.max(size.x, size.y, size.z);
             let s = 4 / max;
             obj.scale.set(s, s, s);
+            // this is sent by all views at this moment
+            this.say("dataScaleComputed", [s, s, s]);
         }
         if (options.dataTranslation) {
             obj.position.set(...options.dataTranslation);
