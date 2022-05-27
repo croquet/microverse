@@ -294,6 +294,7 @@ class SprayActor {
                 rapierSize: 2,
                 rapierShape: "ball",
                 rapierForce: {x, y: 100, z},
+                density: 10,
                 shadow: true,
             });
             return;

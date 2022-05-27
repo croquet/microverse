@@ -26,7 +26,8 @@ export function init(Constants) {
     const baseY = 6;
     const wallHeight = 3;
     const wallThick = 0.2;
-    const bt = [-20, baseY, 48]; // bt for base translation
+    const bt = [-20, baseY, 64]; // bt for base translation
+
     const baseSize = [20, 1, 20];
     const half = baseSize[0] / 2;
     const wallBase = bt[1] + wallHeight / 2 + baseSize[1] / 2;
@@ -349,6 +350,21 @@ export function init(Constants) {
                 rotation: [-Math.PI / 8, 0, 0],
                 behaviorModules: ["Rapier", "Cascade"],
                 rapierSize: [baseSize[0], baseSize[1], baseSize[2] / 2],
+                color: 0x997777,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 3",
+                type: "object",
+                layers: ["pointer", "walk"],
+                translation: [bt[0], -1.78, bt[2] - 17.76],
+                rotation: [0, 0, 0],
+                behaviorModules: ["Rapier", "Cascade"],
+                rapierSize: [baseSize[0], baseSize[1], baseSize[2] / 4],
                 color: 0x997777,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
