@@ -405,6 +405,15 @@ const PM_SmoothedDriver = superclass => class extends superclass {
         this.ignore("positionSet");
     }
 
+    // If our global changes, so do the globals of our children
+    globalChanged(){
+        if (!this._global){
+            this.say("viewGlobalChanged");
+            if(this.children) 
+                this.children.forEach(child => child.onGlobalChanged()); 
+        }
+    }
+
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
@@ -616,6 +625,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = this.actor.rotation;
         this._translation = this.actor.translation;
         this.onLocalChanged();
+        this.globalChanged();
     }
 
     setLookAngles(data) {
