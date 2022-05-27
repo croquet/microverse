@@ -911,7 +911,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         if (depth > 0) {
             let second;
-            second = new THREE.MeshPhongMaterial({color: frameColor, side: THREE.FrontSide, metalness:1.0});
+            second = new THREE.MeshPhongMaterial({color: frameColor, side: THREE.FrontSide});
             material = [material, second ];
         }
 
