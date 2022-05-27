@@ -523,11 +523,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.opacity = 1;
 
         this.spin = q_identity();
-        this.velocity = [0, 0, 0];
+        this.velocity = v3_zero();
 
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
-        this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
+        this.lookOffset = v3_zero(); // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
         this.portalLook = initialPortalLook;
 
