@@ -4,8 +4,8 @@
 
 import {
     THREE, Data, App, View, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
-    v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude,
-    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply,
+    v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
+    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
     m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
@@ -425,14 +425,16 @@ const PM_SmoothedDriver = superclass => class extends superclass {
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
+            // and we special case here for avatar movement
+            if (v3_equals(this._translation, v) && (q_equals(this._rotation, q))) {
+                return;
+            }
+            console.log("send");
             this._translation = v;
             this._rotation = q;
             this.onLocalChanged();
-            this.localDriver = true;
             this.isTranslating = false;
             this.isRotating = false;
-        } else {
-            this.localDriver = false;
         }
         super.positionTo(v, q, throttle);
         this.globalChanged();
@@ -444,9 +446,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._scale = v;
             this.onLocalChanged();
             this.isScaling = false;
-            this.localDriver = true;
-        } else {
-            this.localDriver = false;
         }
         super.scaleTo(v, throttle);
         this.globalChanged();
@@ -457,10 +456,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             throttle = throttle || this.throttle;
             this._rotation = q;
             this.onLocalChanged();
-            this.localDriver = true;
             this.isRotating = false;
-        } else {
-            this.localDriver = false;
         }
         super.rotateTo(q, throttle);
         this.globalChanged();
@@ -473,8 +469,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isTranslating = false;
             this.localDriver = true,
             this.onLocalChanged();
-        } else {
-            this.localDriver = false;
         }
         super.translateTo(v, throttle);
         this.globalChanged();
@@ -828,21 +822,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     update(time, delta) {
         if (!this.actor.follow) {
             if (this.actor.inWorld) {
-                // let moving = this.updatePose(delta);
-                this.updatePose(delta);
-                if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
-                    if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
-                        this.lastCollideTime = time;
-                        this.collide();
+                let moving = this.updatePose(delta);
+                if (moving) {
+                    if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+                        if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
+                            this.lastCollideTime = time;
+                            this.collide();
+                        }
+                        this.lastUpdateTime = time;
+                        this.lastTranslation = this.vq.v;
+                        this.positionTo(this.vq.v, this.vq.q);
                     }
-                    this.lastUpdateTime = time;
-                    this.lastTranslation = this.vq.v;
-                    this.positionTo(this.vq.v, this.vq.q);
                 }
                 this.refreshCameraTransform();
             }
         } else {
-            this.localDriver = false;
             super.update(time, delta);
         }
         this.refreshPortalClip();
@@ -1272,7 +1266,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 p.setOpacity(1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
                 p.setOpacity(0); // never render followers
-            } else if ((p === this || a._playerId === presentationMode) && v3_isZero(a.lookOffset) && this.actor.follow) {
+            } else if ((p === this || a._playerId === presentationMode) && v3_isZero(a.lookOffset)) {
                 p.setOpacity(0); // never render me or leader in 1st person
             } else { // fade based on their (or our own) distance between avatar and camera
                 let m = this.lookGlobal; // camera location
