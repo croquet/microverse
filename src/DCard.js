@@ -564,7 +564,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             texture.wrapT = THREE.RepeatWrapping;
             texture.repeat.set( size[0], size[2] );
             let pGeometry = new THREE.BoxGeometry(...size);
-            let pMaterial = new THREE.MeshStandardMaterial({map:texture, color: color, side: THREE.DoubleSide});
+            let pMaterial = new THREE.MeshStandardMaterial({map:texture, color: color, side: THREE.FrontSide});
 
             let mesh = new THREE.Mesh(pGeometry, pMaterial);
             mesh.receiveShadow = true;
@@ -904,14 +904,14 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         let material;
         if (!fullBright) {
-            material = new THREE.MeshStandardMaterial({color, side: THREE.DoubleSide});
+            material = new THREE.MeshPhongMaterial({color:color, side: THREE.FrontSide});
         } else {
-            material = new THREE.MeshBasicMaterial({color, side: THREE.DoubleSide/*, emissive: color*/});
+            material = new THREE.MeshBasicMaterial({color:color, side: THREE.FrontSide/*, emissive: color*/});
         }
 
         if (depth > 0) {
             let second;
-            second = new THREE.MeshStandardMaterial({color: frameColor, side: THREE.DoubleSide, metalness:1.0});
+            second = new THREE.MeshPhongMaterial({color: frameColor, side: THREE.FrontSide, metalness:1.0});
             material = [material, second ];
         }
 
