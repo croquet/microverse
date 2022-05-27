@@ -18,7 +18,7 @@ const EYE_HEIGHT = 1.676;
 const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
 const MAX_FALL = -50;
-const MAX_V = 0.08;
+const MAX_V = 0.04;
 const KEY_V = MAX_V/2;
 const MAX_SPIN = 0.0001;
 const COLLIDE_THROTTLE = 50;
@@ -1028,7 +1028,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let v = dy * 0.000075;
         v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
-        const yaw = dx * (isMobile ? -MAX_SPIN : -5*MAX_SPIN);
+        const yaw = dx * (isMobile ? -5 * MAX_SPIN : -2 * MAX_SPIN);
         this.spin = q_euler(0, yaw ,0);
         this.velocity = [0,0,v];
         this.say("leavePresentation");
