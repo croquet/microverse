@@ -426,7 +426,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
             // and we special case here for avatar movement
-            if (v3_equals(this._translation, v) && (q_equals(this._rotation, q))) {
+            if (v3_equals(this._translation, v, .0001) && (q_equals(this._rotation, q, 0.00001))) {
                 return;
             }
             console.log("send");
@@ -823,16 +823,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!this.actor.follow) {
             if (this.actor.inWorld) {
                 let moving = this.updatePose(delta);
-                if (moving) {
-                    if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
-                        if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
-                            this.lastCollideTime = time;
-                            this.collide();
-                        }
-                        this.lastUpdateTime = time;
-                        this.lastTranslation = this.vq.v;
-                        this.positionTo(this.vq.v, this.vq.q);
+                if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+                    if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
+                        this.lastCollideTime = time;
+                        this.collide();
                     }
+                    this.lastUpdateTime = time;
+                    this.lastTranslation = this.vq.v;
+                    this.positionTo(this.vq.v, this.vq.q);
                 }
                 this.refreshCameraTransform();
             }
