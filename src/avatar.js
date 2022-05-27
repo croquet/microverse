@@ -21,7 +21,8 @@ const MAX_FALL = -50;
 const MAX_V = 0.08;
 const KEY_V = MAX_V/2;
 const MAX_SPIN = 0.0001;
-const THROTTLE = 20;
+const COLLIDE_THROTTLE = 50;
+const THROTTLE = 20; // 15;
 const PORTAL_DISTANCE = 1;
 const COLLISION_RADIUS = EYE_HEIGHT / 5;
 const isMobile = !!("ontouchstart" in window);
@@ -496,6 +497,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
+        this.lastCollideTime = 0;
         this.lastTranslation = this.actor.translation;
         this.opacity = 1;
 
@@ -808,7 +810,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (this.actor.inWorld) {
                 let moving = this.updatePose(delta);
                 if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
-                    this.collide();
+                    if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
+                        this.lastCollideTime = time;
+                        this.collide();
+                    }
                     this.lastUpdateTime = time;
                     this.lastTranslation = this.vq.v;
                     this.positionTo(this.vq.v, this.vq.q);
