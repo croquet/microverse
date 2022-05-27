@@ -14,14 +14,17 @@ import {CardActor, CardPawn} from "./DCard.js";
 
 import {setupWorldMenuButton} from "./worldMenu.js";
 
-let EYE_HEIGHT = 1.676;
-let EYE_EPSILON = 0.01;
-let FALL_DISTANCE = EYE_HEIGHT / 12;
-let MAX_FALL = -50;
-let THROTTLE = 20;
-let PORTAL_DISTANCE = 1;
-let COLLISION_RADIUS = EYE_HEIGHT / 5;
-let isMobile = !!("ontouchstart" in window);
+const EYE_HEIGHT = 1.676;
+const EYE_EPSILON = 0.01;
+const FALL_DISTANCE = EYE_HEIGHT / 12;
+const MAX_FALL = -50;
+const MAX_V = 0.08;
+const KEY_V = MAX_V/2;
+const MAX_SPIN = 0.0001;
+const THROTTLE = 20;
+const PORTAL_DISTANCE = 1;
+const COLLISION_RADIUS = EYE_HEIGHT / 5;
+const isMobile = !!("ontouchstart" in window);
 let initialPortalLook;
 
 export class AvatarActor extends mix(CardActor).with(AM_Player) {
@@ -405,10 +408,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._translation = v;
             this._rotation = q;
             this.onLocalChanged();
-        } else {
-            this.localDriver = false;
         }
         super.positionTo(v, q, throttle);
+        this.globalChanged();
     }
 
     scaleTo(v, throttle) {
@@ -417,10 +419,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._scale = v;
             this.isScaling = false;
             this.onLocalChanged();
-        } else {
-            this.localDriver = false;
         }
         super.scaleTo(v, throttle);
+        this.globalChanged();
     }
 
     rotateTo(q, throttle) {
@@ -428,10 +429,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             throttle = throttle || this.throttle;
             this._rotation = q;
             this.onLocalChanged();
-        } else {
-            this.localDriver = false;
         }
         super.rotateTo(q, throttle);
+        this.globalChanged();
     }
 
     translateTo(v, throttle)  {
@@ -440,10 +440,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._translation = v;
             this.isTranslating = false;
             this.onLocalChanged();
-        } else {
-            this.localDriver = false;
         }
         super.translateTo(v, throttle);
+        this.globalChanged();
     }
 }
 
@@ -802,11 +801,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
                 this.refreshCameraTransform();
             }
-        } else {
-            this.localDriver = false;
         }
         this.refreshPortalClip();
-        super.update(time, delta);
+    //    super.update(time, delta);
     }
 
     // compute motion from spin and velocity
@@ -815,7 +812,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let moving = false;
         let tug = this.tug;
         if (delta) tug = Math.min(1, tug * delta / 15);
-
+        
         if (!q_isZero(this.spin)) {
             q = q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
             moving = true;
@@ -984,6 +981,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     startMMotion() {
+        this.spin = q_identity();
+        this.velocity = [0,0,0];
         this.say("startMMotion");
     }
 
@@ -996,9 +995,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     updateMMotion(dx, dy) {
         // move the avatar
         let v = dy * 0.000075;
-        v = Math.min(Math.max(v, -0.01), 0.01);
+        v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
-        const yaw = dx * (isMobile ? -0.00001 : -0.000005);
+        const yaw = dx * (isMobile ? -MAX_SPIN : -5*MAX_SPIN);
         this.spin = q_euler(0, yaw ,0);
         this.velocity = [0,0,v];
         this.say("leavePresentation");
@@ -1018,19 +1017,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.wasdMap[e.key.toLowerCase()] = true;
                 switch (e.key) {
                     case 'w': case 'W': // forward
-                        nw = w[2] === 0.01 ? 0 : -0.01;
+                        nw = w[2] === KEY_V ? 0 : -KEY_V;
                         this.wasdVelocity = [w[0], w[1], nw];
                         break;
                     case 'a': case 'A': // left strafe
-                        nw = w[0] === 0.01 ? 0 : -0.01;
+                        nw = w[0] === KEY_V ? 0 : -KEY_V;
                         this.wasdVelocity = [nw, w[1], w[2]];
                         break;
                     case 'd': case 'D': // right strafe
-                        nw = w[0] === -0.01 ? 0 : 0.01;
+                        nw = w[0] === -KEY_V ? 0 : KEY_V;
                         this.wasdVelocity = [nw, w[1], w[2]];
                         break;
                     case 's': case 'S': // backward
-                        nw = w[2] === -0.01 ? 0 : 0.01;
+                        nw = w[2] === -KEY_V ? 0 : KEY_V;
                         this.wasdVelocity = [w[0], w[1], nw];
                         break;
                 }

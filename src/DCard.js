@@ -7,7 +7,7 @@
 import {
     Data, Constants, // re-exported from @croquet/croquet
     THREE, THREE_MESH_BVH, // re-exported from @croquet/worldcore-three
-    Actor, Pawn, ModelService, ViewService, mix, AM_Predictive, PM_Predictive, PM_ThreeVisible,
+    Actor, Pawn, ModelService, ViewService, mix, PM_ThreeVisible, AM_Smoothed, PM_Smoothed,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag, q_euler, q_multiply,
 } from '@croquet/worldcore';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
@@ -28,7 +28,7 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 //-- CardActor ------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
-export class CardActor extends mix(Actor).with(AM_Predictive, AM_PointerTarget, AM_Code) {
+export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM_Code) {
     // this should be in AM_SPATIAL but that would require changing Worldcore mixins
     static okayToIgnore() { return [ "$local", "$global", "$rigidBody" ]; }
 
@@ -402,7 +402,7 @@ CardActor.register('CardActor');
 //------------------------------------------------------------------------------------------
 
 
-export class CardPawn extends mix(Pawn).with(PM_Predictive, PM_ThreeVisible, PM_PointerTarget, PM_Code) {
+export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_PointerTarget, PM_Code) {
     constructor(actor) {
         super(actor);
         this.addToLayers(...actor.layers);
