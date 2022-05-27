@@ -57,6 +57,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
+        this.future(0).tick();
     }
 
     get pawn() { return AvatarPawnFactory; }
@@ -220,7 +221,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 this.presentationStopped();
             }
         }
-        if (!this.doomed) this.future(this.tickStep).tick(this.tickStep);
+        if (!this.doomed) this.future(THROTTLE).tick(this.tickStep);
     }
 
     dropPose(distance, optOffset) {
@@ -408,6 +409,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._translation = v;
             this._rotation = q;
             this.onLocalChanged();
+            this.localDriver = true;
+        } else {
+            this.localDriver = false;
         }
         super.positionTo(v, q, throttle);
         this.globalChanged();
@@ -419,6 +423,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this._scale = v;
             this.isScaling = false;
             this.onLocalChanged();
+            this.localDriver = true;
+        } else {
+            this.localDriver = false;
         }
         super.scaleTo(v, throttle);
         this.globalChanged();
@@ -429,6 +436,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             throttle = throttle || this.throttle;
             this._rotation = q;
             this.onLocalChanged();
+            this.localDriver = true;
+        } else {
+            this.localDriver = false;
         }
         super.rotateTo(q, throttle);
         this.globalChanged();
@@ -439,7 +449,10 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             throttle = throttle || this.throttle;
             this._translation = v;
             this.isTranslating = false;
+            this.localDriver = true,
             this.onLocalChanged();
+        } else {
+            this.localDriver = false;
         }
         super.translateTo(v, throttle);
         this.globalChanged();
@@ -801,9 +814,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
                 this.refreshCameraTransform();
             }
+        } else {
+            super.update(time, delta);
         }
         this.refreshPortalClip();
-    //    super.update(time, delta);
     }
 
     // compute motion from spin and velocity
@@ -812,7 +826,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let moving = false;
         let tug = this.tug;
         if (delta) tug = Math.min(1, tug * delta / 15);
-        
+
         if (!q_isZero(this.spin)) {
             q = q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
             moving = true;
