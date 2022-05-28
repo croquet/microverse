@@ -12,7 +12,7 @@ class PendulumActor {
             }
 
             let card;
-            let translation = [t[0], t[1] - i * 0.5, t[2]];
+            let translation = [t[0], t[1] - i * 2, t[2]];
             let name = `link${i}`;
             if (i === d - 1) {
                 card = this.createCard({
@@ -21,6 +21,7 @@ class PendulumActor {
                     modelType: "glb",
                     translation,
                     name,
+                    parent: this,
                     pendulumProto: true,
                     behaviorModules: ["Rapier", "PendulumLink"],
                     noSave: true,
@@ -30,27 +31,25 @@ class PendulumActor {
                     type: "object",
                     translation,
                     name,
+                    parent: this,
                     behaviorModules: ["Rapier", "PendulumLink"],
                     noSave: true,
                 });
             }
             card.call("Rapier$RapierActor", "createRigidBody", kinematic);
 
-            let cd;
-            if (i === d - 1) {
-                let s = [0.02,  0.4];
-                s = [s[1] / 2, s[0]];
-                cd = Worldcore.RAPIER.ColliderDesc.cylinder(...s);
-                cd.setDensity(0.0000001);
-            } else {
-                let s = [0.01, 0.25];
-                s = [s[1] / 2, s[0]];
-                cd = Worldcore.RAPIER.ColliderDesc.cylinder(...s);
-                cd.setDensity(0.00001);
-            }
+            let s = [0.1, 1];
+            s = [s[1] / 2, s[0]];
+            let cd = Worldcore.RAPIER.ColliderDesc.cylinder(...s);
 
             cd.setRestitution(0.5);
-            cd.setFriction(0.2);
+            cd.setFriction(1);
+
+            if (i === d - 1) {
+                cd.setDensity(10);
+            } else {
+                cd.setDensity(1.5);
+            }
 
             card.call("Rapier$RapierActor", "createCollider", cd);
             return card;
@@ -60,15 +59,13 @@ class PendulumActor {
             let card = this.createCard({
                 type: "object",
                 name: `joint${i}`,
+                parent: this,
                 behaviorModules: ["Rapier"],
                 noSave: true,
             });
-
-            let len = i === d - 2 ? 0.4 : 0.25;
-
             card.call(
                 "Rapier$RapierActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1],
-                {x: 0, y: -len, z: 0}, {x: 0, y: len, z: 0}
+                {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 0}
             );
             // card.future(3000).destroy();
             return card;
@@ -134,7 +131,7 @@ class PendulumLinkActor {
         // Apply an upward force and random spin.
         let r = this.rigidBody;
         if (r) {
-            r.applyForce({x: 0.000000001, y: 0, z: 0}, true);
+            r.applyForce({x: 40, y: 0, z: 0}, true);
             // r.applyTorque({x: Math.random() * 50, y: Math.random() * 20, z: Math.random() * 50}, true);
         }
     }
@@ -159,7 +156,7 @@ class PendulumLinkPawn {
         this.shape.children.forEach((c) => this.shape.remove(c));
         this.shape.children = [];
 
-        let s = [0.1, 0.62];
+        let s = [0.1, 2.3];
         let geometry = new Worldcore.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
         let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xcccccc, metalness: 0.6});
         this.obj = new Worldcore.THREE.Mesh(geometry, material);
