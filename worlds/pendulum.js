@@ -49,7 +49,7 @@ export function init(Constants) {
         {
             card: {
                 name:"pendulum",
-                translation: [0, 22, -20],
+                translation: [0, 5, -20],
                 type: "object",
                 behaviorModules: ["Rapier", "Pendulum"],
                 layers: ["pointer"],
