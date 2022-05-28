@@ -103,7 +103,7 @@ class Shell {
         this.hiddenknob = document.getElementById("hiddenknob");
 
         this.knobStyle = window.getComputedStyle(this.knob);
-        let radius = parseFloat(this.knobStyle.width) / 2;
+        let radius = (parseFloat(this.knobStyle.width) / 2) || 30;
         this.hiddenknob.style.transform = "translate(0px, 0px)";
         this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
 
