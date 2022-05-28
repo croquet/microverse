@@ -284,10 +284,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 layers: ["pointer"],
                 multiuser: true,
                 type: "2d",
-                textureType: "canvas",
                 frameColor: 0xffffff,
-                cornerRadius: 0.05,
-                color: 0xffffff,
+                color: 0x888888,
                 depth: 0.05,
                 fullBright: true,
                 pdfLocation: dataId

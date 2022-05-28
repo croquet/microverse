@@ -85,8 +85,6 @@ class PDFPawn {
 
         this.setupRun = true;
 
-        this.threeObj = this.shape.children.find((o) => o.name === "2d");
-
         this.addEventListener("pointerDown", "onPointerDown");
         // this.addEventListener("pointerMove", "onPointerMove");
         // this.addEventListener("pointerUp", "onPointerUp");
@@ -94,19 +92,17 @@ class PDFPawn {
         // this.addEventListener("keyUp", "onKeyUp");
         this.addEventListener("pointerWheel", "onPointerWheel");
 
-        this.renderedPage = null;
         this.listen("drawAtScrollPosition", "drawAtScrollPosition");
-
-        const canvas = this.canvas = document.createElement("canvas");
-        canvas.id = this.actor._cardData.name || this.id;
-        this.context = canvas.getContext("2d");
-        this.texture = this.threeObj.material[0].map = new THREE.CanvasTexture(this.canvas);
 console.log(this);
 
+        this.substrateObj = this.shape.children.find((o) => o.name === "2d");
+
+        this.TEXTURE_SIZE = 4096;
         this.pages = []; // sparse array of page number to details
         this.visiblePages = []; // sparse array of page number to time page became visible
         this.renderQueue = []; // page numbers to render when we have time
         this.renderingPage = false; // false at startup, to trigger immediate first render
+        this.pageMeshPool = [];
 
         this.loadDocument(this.actor._cardData.pdfLocation).then(() => {
             this.ensurePageEntry(1); // to resize the card
@@ -138,36 +134,76 @@ console.log(this);
         const { numPages, scrollPosition } = this.actor;
         if (!numPages) return;
 
-        const { canvas, context } = this;
-        const { width: canvWidth, height: canvHeight } = canvas;
-        context.fillStyle = "#888";
-        context.fillRect(0, 0, canvWidth, canvHeight);
-        this.texture.needsUpdate = true; // whether or not we draw anything below
-
-        const { page, percent } = scrollPosition;
-        let p = page, yStart = percent / 100, finished = false, shownHeight = 0;
-        while (!finished) {
-            const pageEntry = this.ensurePageEntry(p);
-            const { renderResult, renderWidth, renderHeight } = pageEntry;
-            if (renderHeight === undefined) return; // not ready yet
-
-            const yStartCoord = Math.floor(yStart * renderHeight); // -ve when gap is showing at top
-            if (renderResult) {
-                // for Safari we need to be sure not to refer to any out-of-bounds pixels on either the source or destination canvas (whereas Chrome doesn't care)
-                const sourceWidth = Math.min(renderWidth, canvWidth);
-                const yStartOnSource = Math.max(0, yStartCoord);
-                const yStartOnDest = yStartCoord < 0 ? -yStartCoord : shownHeight;
-                const sourceHeight = Math.min(renderHeight - yStartOnSource, canvHeight - yStartOnDest);
-                // context.drawImage(renderResult, 0, yStartOnSource, sourceWidth, sourceHeight, 0, yStartOnDest, sourceWidth, sourceHeight);
-                context.putImageData(renderResult, 0, yStartOnDest - yStartOnSource, 0, yStartOnSource, sourceWidth, sourceHeight);
+        // where we already have a mesh for a page we're going to display, be sure
+        // to reuse it
+        const meshPool = this.pageMeshPool;
+        this.shape.children.slice().forEach(o => {
+            if (o.name === "page") {
+                this.shape.remove(o);
+                meshPool.push(o);
             }
-            shownHeight += Math.ceil(renderHeight - yStartCoord + this.PAGE_GAP); // whether drawn or not
-            if (p === this.actor.numPages || shownHeight >= canvHeight) finished = true;
+        });
+        meshPool.forEach(mesh => {
+            if (!this.visiblePages[mesh.lastAssignedPage]) delete mesh.lastAssignedPage;
+        });
+
+        const { depth } = this.actor._cardData;
+        const { cardWidth, cardHeight } = this;
+        const { page, percent } = scrollPosition;
+        let p = page, yStart = percent / 100, shownHeight = 0;
+        while (true) {
+            const pageEntry = this.ensurePageEntry(p);
+            const { renderResult, aspectRatio } = pageEntry;
+            if (aspectRatio === undefined) return; // not ready yet
+
+            const fullPageHeight = cardWidth / aspectRatio;
+            if (renderResult) {
+                // if possible, reuse the mesh that already has this page's texture
+                let pageMesh;
+                let existingIndex = meshPool.findIndex(mesh => mesh.lastAssignedPage === p);
+                if (existingIndex < 0) existingIndex = meshPool.findIndex(mesh => !mesh.lastAssignedPage);
+                if (existingIndex < 0) pageMesh = this.makePageMesh();
+                else pageMesh = meshPool.splice(existingIndex, 1)[0];
+
+                pageMesh.lastAssignedPage = p;
+                pageMesh.geometry.dispose();
+                const imageTop = Math.max(0, yStart); // proportion from top of image
+                const topGap = yStart < 0 ? -yStart * cardHeight : 0;
+                const pageHeight = Math.min((1 - imageTop) * fullPageHeight, cardHeight - shownHeight - topGap);
+                const imageBottom = imageTop + pageHeight / fullPageHeight;
+                const geo = pageMesh.geometry = new THREE.PlaneGeometry(cardWidth, pageHeight);
+                this.shape.add(pageMesh);
+                const pageY = cardHeight / 2 - shownHeight - topGap - pageHeight / 2;
+                pageMesh.position.set(0, pageY, depth / 2 + 0.001);
+                const uv = geo.attributes.uv;
+                uv.setXY(0, 0, 1 - imageTop);
+                uv.setXY(1, 1, 1 - imageTop);
+                uv.setXY(2, 0, 1 - imageBottom);
+                uv.setXY(3, 1, 1 - imageBottom);
+                uv.needsUpdate = true;
+
+                if (!pageEntry.texture) pageEntry.texture = new THREE.Texture(renderResult);
+                if (pageMesh.material.map !== pageEntry.texture) {
+                    pageMesh.material.map = pageEntry.texture;
+                    pageEntry.texture.needsUpdate = true;
+                }
+            }
+            shownHeight += fullPageHeight - fullPageHeight * yStart + this.PAGE_GAP; // whether or not page is being shown
+            if (p === this.actor.numPages || shownHeight >= cardHeight) return;
             else {
                 p++;
                 yStart = 0;
             }
         }
+    }
+
+    makePageMesh() {
+        const { cardWidth, cardHeight } = this;
+        const pageGeometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
+        const pageMaterial = new THREE.MeshBasicMaterial({ color: "#fff", side: THREE.DoubleSide });
+        const pageMesh = new THREE.Mesh(pageGeometry, pageMaterial);
+        pageMesh.name = "page";
+        return pageMesh;
     }
 
     updateVisiblePages() {
@@ -178,6 +214,7 @@ console.log(this);
         if (!scrollPosition || !this.PAGE_GAP) return;
 
         const { page, percent } = scrollPosition;
+        const { cardWidth, cardHeight } = this;
 
         const prevVisible = this.visiblePages;
         const nowVisible = this.visiblePages = [];
@@ -189,19 +226,21 @@ console.log(this);
             if (p === this.actor.numPages) return; // end of the doc
 
             const pageEntry = this.ensurePageEntry(p);
-            const { renderHeight } = pageEntry;
-            if (renderHeight === undefined) return; // not ready yet
+            const { aspectRatio } = pageEntry;
+            if (aspectRatio === undefined) return; // not ready yet
 
-            shownHeight += renderHeight - yStart * renderHeight + this.PAGE_GAP;
-            if (shownHeight >= this.canvas.height) return;
+            const fullPageHeight = cardWidth / aspectRatio;
+            shownHeight += fullPageHeight - yStart * fullPageHeight + this.PAGE_GAP;
+            if (shownHeight >= cardHeight) return;
 
             p++;
             yStart = 0;
         }
     }
 
-    populateRenderQueue() {
-        // invoked on every update.
+    manageRenderState() {
+        // invoked on every update.  schedule rendering for pages that are nearby,
+        // and clean up render results and textures that aren't being used.
         const { scrollPosition } = this.actor;
         if (!scrollPosition || !this.PAGE_GAP) return;
 
@@ -229,15 +268,21 @@ console.log(this);
         this.pages.forEach((pageEntry, otherPage) => {
             if (otherPage === page) return;
 
+            const isVisible = !!this.visiblePages[otherPage];
             if (pageEntry.renderResult) {
-                // take account of wrapping around the end
+                // take account of wrapping from last page to first
                 const minDist = otherPage > page
                     ? Math.min(otherPage - page, page + numPages - otherPage)
                     : Math.min(page - otherPage, otherPage + numPages - page);
                 if (minDist > discardIfOver) {
-// console.log(`p${otherPage} discarded`);
+// console.log(`rendering for p${otherPage} discarded`);
                     pageEntry.renderResult = null;
                     pageEntry.renderTask = null;
+                }
+                if (pageEntry.texture && !isVisible) {
+// console.log(`texture for p${otherPage} discarded`);
+                    pageEntry.texture.dispose();
+                    pageEntry.texture = null;
                 }
             }
         });
@@ -334,21 +379,35 @@ console.log(this);
         const { depth, cornerRadius } = this.actor._cardData;
         const maxDim = Math.max(width, height);
         const cardScale = 1 / maxDim;
-        const obj = this.threeObj;
+        const cardWidth = this.cardWidth = width * cardScale;
+        const cardHeight = this.cardHeight = height * cardScale;
+        const obj = this.substrateObj;
         obj.geometry.dispose();
-        obj.geometry = this.roundedCornerGeometry(width * cardScale, height * cardScale, depth, cornerRadius);
+        obj.geometry = this.squareCornerGeometry(cardWidth, cardHeight, depth);
+        this.PAGE_GAP = cardHeight * this.actor.PAGE_GAP_PERCENT / 100; // three.js units between displayed pages
+    }
 
-        const TEXTURE_SIZE = 4096;
-        const renderScale = TEXTURE_SIZE / maxDim * 0.999;
-        // console.log({viewport});
-        // Prepare canvas using PDF page dimensions
-        this.canvas.width = renderScale * width;
-        this.canvas.height = renderScale * height;
+    squareCornerGeometry(width, height, depth) {
+        let x = height / 2;
+        let y = width / 2;
+        let z = depth / 2;
 
-        obj.material[0].map.dispose();
-        this.texture = obj.material[0].map = new THREE.CanvasTexture(this.canvas);
+        let shape = new THREE.Shape();
+        shape.moveTo(-x, -y);
+        shape.lineTo(-x, y);
+        shape.lineTo(x, y);
+        shape.lineTo(x, -y);
+        shape.lineTo(-x, -y);
 
-        this.PAGE_GAP = Math.floor(renderScale * height * this.actor.PAGE_GAP_PERCENT / 100); // pixels between displayed pages
+        let extrudePath = new THREE.LineCurve3(new THREE.Vector3(0, 0, z), new THREE.Vector3(0, 0, -z));
+        extrudePath.arcLengthDivisions = 3;
+        let geometry = new THREE.ExtrudeGeometry(shape, { extrudePath });
+
+        geometry.parameters.width = width;
+        geometry.parameters.height = height;
+        geometry.parameters.depth = depth;
+
+        return geometry;
     }
 
     ensurePageEntry(pageNumber) {
@@ -366,13 +425,10 @@ console.log(this);
             entry.width = width;
             entry.height = height;
 
-            const TEXTURE_SIZE = 4096;
             const maxDim = Math.max(width, height);
-            const renderScale = TEXTURE_SIZE / maxDim * 0.999;
-            const { width: renderWidth, height: renderHeight } = proxy.getViewport({ scale: renderScale });
+            const renderScale = this.TEXTURE_SIZE / maxDim * 0.999;
             entry.renderScale = renderScale;
-            entry.renderWidth = Math.floor(renderWidth);
-            entry.renderHeight = Math.floor(renderHeight);
+            entry.aspectRatio = width / height;
 
             if (pageNumber === 1) this.adjustCardSize(width, height);
         });
@@ -395,7 +451,7 @@ console.log(this);
         this.lastPointerWheel = now;
 
         const WHEEL_SCALE = 4;
-        let percent = this.cumulativeWheelDelta * WHEEL_SCALE / this.canvas.height * 100;
+        let percent = this.cumulativeWheelDelta * WHEEL_SCALE / this.TEXTURE_SIZE * 100;
         if (Math.abs(percent) > 50) percent = 50 * Math.sign(percent);
         this.cumulativeWheelDelta = 0;
 
@@ -426,15 +482,23 @@ console.log(this);
 
     update() {
         this.updateVisiblePages();
-        this.populateRenderQueue();
+        this.manageRenderState();
         this.processRenderQueue();
     }
 
     destroy() {
-        const obj = this.threeObj;
+        const obj = this.substrateObj;
         obj.geometry.dispose();
-        obj.material[0].map.dispose();
         this.material.dispose();
+
+        this.pageMeshPool.forEach(mesh => {
+            mesh.geometry.dispose();
+            mesh.material.dispose();
+        });
+
+        this.pages.forEach(pageEntry => {
+            if (pageEntry.texture) pageEntry.texture.dispose();
+        });
     }
 }
 
