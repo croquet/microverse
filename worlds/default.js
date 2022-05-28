@@ -364,7 +364,7 @@ export function init(Constants) {
                 translation: [bt[0], -2.11649335743053, bt[2] - 22.29],
                 rotation: [0, 0, 0],
                 behaviorModules: ["Rapier", "Cascade"],
-                rapierSize: [baseSize[0], baseSize[1], baseSize[2] / 2],
+                rapierSize: [baseSize[0], baseSize[1], baseSize[2] / 3],
                 color: 0x997777,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
