@@ -968,7 +968,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastPortalTranslation = this.vq.v;
         let len = Math.max(v3_magnitude(dir), PORTAL_DISTANCE);
         // not moving then return false
-        if (v3_zero(dir)) return false;
+        if (v3_isZero(dir)) return false;
 
         dir = v3_normalize(dir);
         this.portalcaster.far = len;
