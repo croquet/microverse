@@ -100,36 +100,36 @@ class Shell {
         this.capturedPointers = {};
         this.joystick = document.getElementById("joystick");
         this.knob = document.getElementById("knob");
-        this.hiddenknob = document.getElementById("hiddenknob");
+        this.trackingknob = document.getElementById("trackingknob");
 
         this.knobStyle = window.getComputedStyle(this.knob);
 
         window.setTimeout(() => {
             let radius = (parseFloat(this.knobStyle.width) / 2) || 30;
-            this.hiddenknob.style.transform = "translate(0px, 0px)";
+            this.trackingknob.style.transform = "translate(0px, 0px)";
             this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
         }, 1000);
 
         this.releaseHandler = (e) => {
             for (let k in this.capturedPointers) {
-                this.hiddenknob.releasePointerCapture(k);
+                this.trackingknob.releasePointerCapture(k);
             }
             this.capturedPointers = {};
             this.endMMotion(e);
         };
-        this.hiddenknob.onpointerdown = (e) => {
+        this.trackingknob.onpointerdown = (e) => {
             if (e.pointerId !== undefined) {
                 this.capturedPointers[e.pointerId] = "hiddenKnob";
-                this.hiddenknob.setPointerCapture(e.pointerId);
+                this.trackingknob.setPointerCapture(e.pointerId);
             }
             this.startMMotion(e); // use the knob to start
         };
-        //this.hiddenknob.onpointerenter = (e) => console.log("pointerEnter")
-        // this.hiddenknob.onpointerleave = (e) => this.releaseHandler(e);
-        this.hiddenknob.onpointermove = (e) => this.updateMMotion(e);
-        this.hiddenknob.onpointerup = (e) => this.releaseHandler(e);
-        this.hiddenknob.onpointercancel = (e) => this.releaseHandler(e);
-        this.hiddenknob.onlostpointercapture = (e) => this.releaseHandler(e);
+        //this.trackingknob.onpointerenter = (e) => console.log("pointerEnter")
+        // this.trackingknob.onpointerleave = (e) => this.releaseHandler(e);
+        this.trackingknob.onpointermove = (e) => this.updateMMotion(e);
+        this.trackingknob.onpointerup = (e) => this.releaseHandler(e);
+        this.trackingknob.onpointercancel = (e) => this.releaseHandler(e);
+        this.trackingknob.onlostpointercapture = (e) => this.releaseHandler(e);
 
     }
 
@@ -331,7 +331,7 @@ class Shell {
         e.stopPropagation();
         this.activeMMotion = null;
         let radius = parseFloat(this.knobStyle.width) / 2;
-        this.hiddenknob.style.transform = "translate(0px, 0px)";
+        this.trackingknob.style.transform = "translate(0px, 0px)";
         this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
         this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-end"});
     }
@@ -351,7 +351,7 @@ class Shell {
             this.activeMMotion.dx = dx;
             this.activeMMotion.dy = dy;
 
-            this.hiddenknob.style.transform = `translate(${dx}px, ${dy}px)`;
+            this.trackingknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
             let ds = dx ** 2 + dy ** 2;
             if (ds > (radius + left) ** 2) {

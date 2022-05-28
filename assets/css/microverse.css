@@ -75,7 +75,7 @@ body {
     z-index: 200;
 }
 
-#hiddenknob {
+#trackingknob {
     position: fixed;
     transform: translate(0px, 0px);
     width: 120px;
@@ -267,7 +267,7 @@ body {
 }
 
 @media (max-width:600px), (max-height:600px) {
-    #hiddenknob {
+    #trackingknob {
         width: 82px;
         height: 82px;
     }
@@ -291,7 +291,7 @@ body {
 }
 
 @media (min-width:1900px) {
-    #hiddenknob {
+    #trackingknob {
         width: 135px;
         height: 135px;
     }
