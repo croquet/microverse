@@ -429,7 +429,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             if (v3_equals(this._translation, v, .0001) && (q_equals(this._rotation, q, 0.00001))) {
                 return;
             }
-            console.log("send");
             this._translation = v;
             this._rotation = q;
             this.onLocalChanged();
