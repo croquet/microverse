@@ -526,99 +526,97 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.moveRadius = this.actor.collisionRadius;
         this.isFalling = false;
 
-        if (true) {
-            let renderMgr = this.service("ThreeRenderManager");
-            this.camera = renderMgr.camera;
-            this.scene = renderMgr.scene;
-            this.lastHeight = EYE_HEIGHT; // tracking the height above ground
-            this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
+        let renderMgr = this.service("ThreeRenderManager");
+        this.camera = renderMgr.camera;
+        this.scene = renderMgr.scene;
+        this.lastHeight = EYE_HEIGHT; // tracking the height above ground
+        this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
 
-            this.walkCamera = new THREE.Object3D();
+        this.walkCamera = new THREE.Object3D();
 
-            this.walkcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0));
-            this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
+        this.walkcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0));
+        this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
-            this.future(100).fadeNearby();
-            this.lastTranslation = this.translation;
-            this.lastPortalTranslation = this.translation;
+        this.future(100).fadeNearby();
+        this.lastTranslation = this.translation;
+        this.lastPortalTranslation = this.translation;
 
-            // clip halfspace behind portalCamera
-            this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.2); // 0.2 is to cover the gap of the portal thickness
+        // clip halfspace behind portalCamera
+        this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.2); // 0.2 is to cover the gap of the portal thickness
 
-            document.getElementById("homeBttn").onclick = () => this.goHome();
-            document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
-            document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
-            document.getElementById("editModeBttn").setAttribute("pressed", false);
+        document.getElementById("homeBttn").onclick = () => this.goHome();
+        document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
+        document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
+        document.getElementById("editModeBttn").setAttribute("pressed", false);
 
-            let editButton = document.getElementById("editModeBttn");
-            editButton.onpointerdown = (evt) => this.setEditMode(evt);
-            editButton.onpointerup = (evt) => this.clearEditMode(evt);
+        let editButton = document.getElementById("editModeBttn");
+        editButton.onpointerdown = (evt) => this.setEditMode(evt);
+        editButton.onpointerup = (evt) => this.clearEditMode(evt);
 
-            setupWorldMenuButton(this, App, this.sessionId);
+        setupWorldMenuButton(this, App, this.sessionId);
 
-            this.assetManager = this.service("AssetManager");
-            window.assetManager = this.assetManager.assetManager;
+        this.assetManager = this.service("AssetManager");
+        window.assetManager = this.assetManager.assetManager;
 
-            // drop and paste
-            this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
-                if (type === "pastedtext") {
-                    this.pasteText(buffer);
-                } else if (type === "vrse") {
-                    this.loadvrse(buffer);
-                } else {
-                    this.uploadFile(buffer, fileName, type);
-                }
-            });
-
-            // keep track of being in the primary frame or not
-            this.isPrimary = isPrimaryFrame;
-            this.say("_set", { inWorld: this.isPrimary });
-            this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy}) => {
-                switch (command) {
-                    case "frame-type":
-                        const isPrimary = frameType === "primary";
-                        if (isPrimary !== this.isPrimary) {
-                            this.frameTypeChanged(isPrimary, spec);
-                            this.isPrimary = isPrimary;
-                        }
-                        // tell shell that we received this command (TODO: should only send this once)
-                        sendToShell("started");
-                        break;
-                    case "portal-update":
-                        if (cameraMatrix) {
-                            this.portalLook = cameraMatrix;
-                            initialPortalLook = cameraMatrix;
-                            if (!this.isPrimary) this.refreshCameraTransform();
-                        }
-                        break;
-                    case "motion-start":
-                        this.startMMotion();
-                        if (dx || dy) this.updateMMotion(dx, dy);
-                        break;
-                    case "motion-end":
-                        this.endMMotion();
-                        break;
-                    case "motion-update":
-                        this.updateMMotion(dx, dy);
-                        break;
-                }
+        // drop and paste
+        this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+            if (type === "pastedtext") {
+                this.pasteText(buffer);
+            } else if (type === "vrse") {
+                this.loadvrse(buffer);
+            } else {
+                this.uploadFile(buffer, fileName, type);
             }
-            addShellListener(this.shellListener);
-            this.say("resetHeight");
-            this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
-            this.listen("setLookAngles", this.setLookAngles);
-            this.listen("leaveToWorld", this.leaveToWorld);
-            this.showNumbers();
+        });
 
-            //this.listenOnce("forceScaleSet", this.onScale);
-            this.listen("forceOnPosition", this.onPosition);
-
-            this.listen("goThere", this.stopFalling);
-            console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
-
-            this.wasdVelocity = [0, 0, 0];
-            this.wasdMap = {w: false, a: false, d: false, s: false};
+        // keep track of being in the primary frame or not
+        this.isPrimary = isPrimaryFrame;
+        this.say("_set", { inWorld: this.isPrimary });
+        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy}) => {
+            switch (command) {
+                case "frame-type":
+                    const isPrimary = frameType === "primary";
+                    if (isPrimary !== this.isPrimary) {
+                        this.frameTypeChanged(isPrimary, spec);
+                        this.isPrimary = isPrimary;
+                    }
+                    // tell shell that we received this command (TODO: should only send this once)
+                    sendToShell("started");
+                    break;
+                case "portal-update":
+                    if (cameraMatrix) {
+                        this.portalLook = cameraMatrix;
+                        initialPortalLook = cameraMatrix;
+                        if (!this.isPrimary) this.refreshCameraTransform();
+                    }
+                    break;
+                case "motion-start":
+                    this.startMMotion();
+                    if (dx || dy) this.updateMMotion(dx, dy);
+                    break;
+                case "motion-end":
+                    this.endMMotion();
+                    break;
+                case "motion-update":
+                    this.updateMMotion(dx, dy);
+                    break;
+            }
         }
+        addShellListener(this.shellListener);
+        this.say("resetHeight");
+        this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
+        this.listen("setLookAngles", this.setLookAngles);
+        this.listen("leaveToWorld", this.leaveToWorld);
+        this.showNumbers();
+
+        //this.listenOnce("forceScaleSet", this.onScale);
+        this.listen("forceOnPosition", this.onPosition);
+
+        this.listen("goThere", this.stopFalling);
+        console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
+
+        this.wasdVelocity = [0, 0, 0];
+        this.wasdMap = {w: false, a: false, d: false, s: false};
     }
 
     get presenting() {
@@ -714,8 +712,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.service("InputManager").setModifierKeys({ctrlKey: false});
     }
 
+    maybeLeavePresentation() {
+        if (this.actor.follow) {
+            this.say("leavePresentation");
+        }
+    }
+
     lookTo(pitch, yaw, lookOffset) {
-        this.say("leavePresentation");
+        this.maybeLeavePresentation();
         this.setLookAngles({pitch, yaw, lookOffset});
         this.say("avatarLookTo", [pitch, yaw, lookOffset]);
         let q = q_euler(0, this.lookYaw, 0);
@@ -1036,7 +1040,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const yaw = dx * (isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
         this.spin = q_euler(0, yaw ,0);
         this.velocity = [0,0,v];
-        this.say("leavePresentation");
+        this.maybeLeavePresentation();
     }
 
     keyDown(e) {
@@ -1070,7 +1074,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         break;
                 }
                 this.velocity = this.wasdVelocity;
-                this.say("leavePresentation");
+                this.maybeLeavePresentation();
                 break;
             default:
                 if (e.ctrlKey) {
