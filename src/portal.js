@@ -17,6 +17,7 @@ export class PortalPawn extends CardPawn {
     constructor(actor) {
         super(actor);
 
+        this.createPortalMaterials();
 
         this.portalId = undefined;
         this.targetMatrix = new THREE.Matrix4();
@@ -43,26 +44,65 @@ export class PortalPawn extends CardPawn {
 
     objectCreated(obj, options) {
         super.objectCreated(obj, options);
-        this.applyPortalMateria(obj);
+        this.applyPortalMaterial(obj);
         if (this.actor.sparkle) this.addParticles();
     }
 
-    applyPortalMateria(obj) {
-        if (!obj.material) obj = obj.children[0];
-
+    createPortalMaterials() {
+        // plain "window" portal
         // we're erasing the framebuffer (overwriting with 0,0,0,0)
         // glBlendFunc(GL_ZERO, GL_ZERO);
-
-        const portalMaterial = new THREE.MeshBasicMaterial({
+        this.portalMaterialSimple = new THREE.MeshBasicMaterial({
             blending: THREE.CustomBlending,
             blendSrc: THREE.ZeroFactor,
             blendDst: THREE.ZeroFactor,
         });
 
+        // "invisible" animated spiral portal
+        this.portalMaterialFancy = new THREE.ShaderMaterial({
+            uniforms: { time: { value: 0 } },
+            vertexShader: `
+                #include <clipping_planes_pars_vertex>
+                varying vec3 vUv;
+                void main() {
+                    #include <begin_vertex>             // transformed = position
+                    #include <project_vertex>           // mvPosition and gl_Position
+                    #include <clipping_planes_vertex>   // vClipPosition
+                    vUv = transformed;
+                }
+            `,
+            fragmentShader: `
+                uniform float time;
+                varying vec3 vUv;
+                #include <clipping_planes_pars_fragment>
+                void main() {
+                    #include <clipping_planes_fragment>
+                    float r = length(vUv.xy);
+                    float angle = atan(vUv.y, vUv.x);
+                    float alpha = sin(time * 5.0 - r * 10.0 + angle) + r - fract(time * 0.05) * 5.0 + 1.0;
+                    gl_FragColor = vec4(0, 0, 0, 1.0 - alpha); // we only care about alpha
+                }
+            `,
+            clipping: true,
+            transparent: true,
+            blending: THREE.CustomBlending,
+            blendEquation: THREE.AddEquation,
+            blendSrc: THREE.ZeroFactor,
+            blendDst: THREE.OneMinusSrcAlphaFactor,
+        });
+
+        this.portalMaterial = this.portalMaterialSimple;
+    }
+
+    applyPortalMaterial(obj) {
+        if (!obj) obj = this.shape;
+        if (!obj.material) obj = obj.children[0];
+        if (!obj) return;
+
         if (Array.isArray(obj.material)) {
-            obj.material[0] = portalMaterial;
+            obj.material[0] = this.portalMaterial;
         } else {
-            obj.material = portalMaterial;
+            obj.material = this.portalMaterial;
         }
     }
 
@@ -136,6 +176,7 @@ export class PortalPawn extends CardPawn {
     update(t) {
         super.update();
         this.updatePortalCamera();
+        this.updatePortalMaterial();
         this.updateParticles();
     }
 
@@ -148,6 +189,29 @@ export class PortalPawn extends CardPawn {
         if (!targetMatrixBefore.equals(targetMatrix)) {
             sendToShell("portal-update", { portalId, cameraMatrix: targetMatrix.elements });
             targetMatrixBefore.copy(targetMatrix);
+        }
+    }
+
+    updatePortalMaterial() {
+        let { fancy } = this.actor._cardData;
+
+        if (fancy) {
+            if (this.portalMaterial !== this.portalMaterialFancy) {
+                this.startTime = this.extrapolatedNow();
+            }
+            const time = (this.extrapolatedNow() - this.startTime) / 1000;
+            if (time < 15) {
+                this.portalMaterialFancy.uniforms.time.value = time;
+            } else {
+                fancy = false;
+                this.say("setCardData", { fancy });
+            }
+        }
+
+        const portalMaterial = fancy ? this.portalMaterialFancy : this.portalMaterialSimple;
+        if (this.portalMaterial !== portalMaterial) {
+            this.portalMaterial = portalMaterial;
+            this.applyPortalMaterial();
         }
     }
 
