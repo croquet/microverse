@@ -411,7 +411,7 @@ export const PM_Pointer = superclass => class extends superclass {
         array.unshift({eventMask, pawn});
     }
 
-    removeRespoonder(responders, eventType, eventMask, pawn) {
+    removeResponder(responders, eventType, eventMask, pawn) {
         if (pawn._target) {pawn = pawn._target;}
         let array = responders.get(eventType);
         if (!array) {return;}
@@ -459,11 +459,12 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     addFirstResponder(eventType, eventMask, pawn) {
+        console.log('first', eventType, pawn)
         return this.addResponder(this.firstResponders, eventType, eventMask, pawn);
     }
 
     removeFirstResponder(eventType, eventMask, pawn) {
-        return this.removeRespoonder(this.firstResponders, eventType, eventMask, pawn);
+        return this.removeResponder(this.firstResponders, eventType, eventMask, pawn);
     }
 
     findFirstResponder(e, eventType) {
@@ -471,11 +472,12 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     addLastResponder(eventType, eventMask, pawn) {
+        console.log('last', eventType, pawn)
         return this.addResponder(this.lastResponders, eventType, eventMask, pawn);
     }
 
     removeLastResponder(eventType, eventMask, pawn) {
-        return this.removeRespoonder(this.lastResponders, eventType, eventMask, pawn);
+        return this.removeResponder(this.lastResponders, eventType, eventMask, pawn);
     }
 
     findLastResponder(e, eventType) {
