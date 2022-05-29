@@ -1,6 +1,6 @@
 
 import { Actor, Pawn } from "@croquet/worldcore";
-import { CardActor, CardPawn} from "../src/DCard.js";
+import { CardActor, CardPawn} from "../src/card.js";
 
 /////////// Model code is executed inside of synced VM /////////// 
 

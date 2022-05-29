@@ -8,7 +8,7 @@ import {
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';
-import { CardActor, VideoManager, MicroverseAppManager } from './src/DCard.js';
+import { CardActor, VideoManager, MicroverseAppManager } from './src/card.js';
 import { AvatarActor, } from './src/avatar.js';
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";

@@ -10,7 +10,7 @@ import {
 
 import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
-import {CardActor, CardPawn} from "./DCard.js";
+import {CardActor, CardPawn} from "./card.js";
 
 import {setupWorldMenuButton} from "./worldMenu.js";
 

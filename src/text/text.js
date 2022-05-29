@@ -1,6 +1,6 @@
 import {THREE, ModelService, ViewService} from "@croquet/worldcore";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "@croquet/hybrid-msdf-text";
-import { CardActor, CardPawn } from "../DCard.js";
+import { CardActor, CardPawn } from "../card.js";
 import loadFont from "load-bmfont";
 
 import * as defaultFont from "../../assets/fonts/Roboto.json";

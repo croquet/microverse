@@ -1,6 +1,6 @@
 import { THREE, GetPawn } from "@croquet/worldcore";
 
-import { CardActor, CardPawn } from "./DCard.js";
+import { CardActor, CardPawn } from "./card.js";
 import { addShellListener, removeShellListener, sendToShell, frameId, isPrimaryFrame } from "./frame.js";
 
 
