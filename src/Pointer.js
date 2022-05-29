@@ -459,7 +459,6 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     addFirstResponder(eventType, eventMask, pawn) {
-        console.log('first', eventType, pawn)
         return this.addResponder(this.firstResponders, eventType, eventMask, pawn);
     }
 
@@ -472,7 +471,6 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     addLastResponder(eventType, eventMask, pawn) {
-        console.log('last', eventType, pawn)
         return this.addResponder(this.lastResponders, eventType, eventMask, pawn);
     }
 
