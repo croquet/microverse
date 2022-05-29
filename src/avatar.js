@@ -375,12 +375,13 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             layers: ["pointer", "portal"],
             color: 0xFF66CC,
             frameColor: 0x888888,
-            width: 2,
+            width: 3,
             height: 3,
             depth: 0.2,
             cornerRadius: 0.05,
             portalURL,
             sparkle: false,
+            fancy: true,
         };
 
         CA.load([{card}], this.wellKnownModel("ModelRoot"), "1");
