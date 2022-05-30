@@ -42,6 +42,15 @@ export class PortalPawn extends CardPawn {
         super.destroy();
     }
 
+    get globalPlane() {
+        if (!this._globalPlane) {
+            this._globalPlane = new THREE.Plane();
+            this._globalPlane.normal.set(0, 0, 1);
+            this._globalPlane.applyMatrix4(this.shape.matrixWorld);
+        }
+        return this._globalPlane;
+    }
+
     objectCreated(obj, options) {
         super.objectCreated(obj, options);
         this.applyPortalMaterial(obj);
@@ -238,6 +247,11 @@ export class PortalPawn extends CardPawn {
         super.cardDataUpdated(data);
         if (this.didPropertyChange(data, "portalURL")) this.loadTargetWorld();
         if (this.didPropertyChange(data, "sparkle")) this.updateParticles();
+    }
+
+    refreshDrawTransform() {
+        super.refreshDrawTransform();
+        this._globalPlane = null;
     }
 
     loadTargetWorld() {

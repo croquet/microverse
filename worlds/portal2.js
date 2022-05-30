@@ -52,8 +52,8 @@ export function init(Constants) {
             card: {
                 name: "portal",
                 className: "PortalActor",
-                translation: [0, 0, -10],
-                rotation: [0, 0, 0],
+                translation: [0, 0, 0.5],
+                rotation: [0, Math.PI, 0],
                 type: "2d",
                 layers: ["pointer", "portal"],
                 behaviorModules: ["Spin"],
