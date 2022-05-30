@@ -73,7 +73,7 @@ class Shell {
             // we have an iframe, so we enter it
             const portalURL = frameToPortalURL(frame.src);
             if (portalURL === shellToCanonicalURL(location.href)) {
-                this.enterPortal(portalId, false);
+                this.activateFrame(portalId, false);
                 document.title = portalURL;
             } else {
                 console.warn(`popstate: location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
@@ -200,7 +200,7 @@ class Shell {
                 return;
             case "croquet:microverse:portal-enter":
                 if (fromFrame === this.currentFrame) {
-                    this.enterPortal(data.portalId, true, data.avatarSpec);
+                    this.activateFrame(data.portalId, true, data.avatarSpec);
                 } else {
                     console.warn("portal-enter from non-current portal-" + fromPortalId);
                 }
@@ -212,7 +212,7 @@ class Shell {
                         console.log("enter-world: no frame for", data.portalURL);
                         targetFrame = this.addFrame(data.portalURL);
                     }
-                    this.enterPortal(targetFrame.portalId, true);
+                    this.activateFrame(targetFrame.portalId, true);
                 } else {
                     console.warn("enter-world from non-current portal-" + fromPortalId);
                 }
@@ -281,7 +281,7 @@ class Shell {
         }, 200);
     }
 
-    enterPortal(toPortalId, pushState=true, avatarSpec=null) {
+    activateFrame(toPortalId, pushState=true, avatarSpec=null) {
         const fromFrame = this.currentFrame;
         const toFrame = this.frames.get(toPortalId);
         const portalURL = frameToPortalURL(toFrame.src, toPortalId);
