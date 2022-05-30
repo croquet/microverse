@@ -24,7 +24,7 @@ const MAX_SPIN = 0.0004;
 const JOYSTICK_V = 0.000035;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
-const PORTAL_DISTANCE = 1;
+const PORTAL_DISTANCE = 0.2;
 const COLLISION_RADIUS = EYE_HEIGHT / 5;
 const isMobile = !!("ontouchstart" in window);
 let initialPortalLook;
