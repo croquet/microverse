@@ -381,7 +381,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             cornerRadius: 0.05,
             portalURL,
             sparkle: false,
-            fancy: true,
         };
 
         CA.load([{card}], this.wellKnownModel("ModelRoot"), "1");

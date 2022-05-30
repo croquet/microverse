@@ -56,7 +56,6 @@ export function init(Constants) {
                 rotation: [0, Math.PI, 0],
                 type: "2d",
                 layers: ["pointer", "portal"],
-                behaviorModules: ["Spin"],
                 color: 0xFF66CC,
                 frameColor: frameColor,
                 width: 4,

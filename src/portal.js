@@ -5,6 +5,13 @@ import { addShellListener, removeShellListener, sendToShell, frameId, isPrimaryF
 
 
 export class PortalActor extends CardActor {
+    init(options) {
+        super.init(options);
+        this._portalTime = this.now();
+    }
+
+    get portalTime() { return this._portalTime; }
+
     get portalURL() { return this._cardData.portalURL; }
 
     get sparkle() { return this._cardData.sparkle; }
@@ -27,7 +34,7 @@ export class PortalPawn extends CardPawn {
         this.setGhostWorld({ v: this.actor._ghostWorld });
         this.listen("ghostWorldSet", this.setGhostWorld);
 
-        this.addEventListener("pointerDown", "nop");
+        this.addEventListener("pointerDown", this.onPointerDown);
         this.addEventListener("keyDown", e => { switch (e.key) {
             case " ": this.enterPortal(); break;
             case "G": case "g": this.say("_set", { ghostWorld: !this.actor._ghostWorld }); break;
@@ -58,17 +65,8 @@ export class PortalPawn extends CardPawn {
     }
 
     createPortalMaterials() {
-        // plain "window" portal
-        // we're erasing the framebuffer (overwriting with 0,0,0,0)
-        // glBlendFunc(GL_ZERO, GL_ZERO);
-        this.portalMaterialSimple = new THREE.MeshBasicMaterial({
-            blending: THREE.CustomBlending,
-            blendSrc: THREE.ZeroFactor,
-            blendDst: THREE.ZeroFactor,
-        });
-
         // "invisible" animated spiral portal
-        this.portalMaterialFancy = new THREE.ShaderMaterial({
+        this.portalMaterial = new THREE.ShaderMaterial({
             uniforms: { time: { value: 0 } },
             vertexShader: `
                 #include <clipping_planes_pars_vertex>
@@ -99,8 +97,6 @@ export class PortalPawn extends CardPawn {
             blendSrc: THREE.ZeroFactor,
             blendDst: THREE.OneMinusSrcAlphaFactor,
         });
-
-        this.portalMaterial = this.portalMaterialSimple;
     }
 
     applyPortalMaterial(obj) {
@@ -202,26 +198,9 @@ export class PortalPawn extends CardPawn {
     }
 
     updatePortalMaterial() {
-        let { fancy } = this.actor._cardData;
-
-        if (fancy) {
-            if (this.portalMaterial !== this.portalMaterialFancy) {
-                this.startTime = this.extrapolatedNow();
-            }
-            const time = (this.extrapolatedNow() - this.startTime) / 1000;
-            if (time < 10) {
-                this.portalMaterialFancy.uniforms.time.value = time;
-            } else {
-                fancy = false;
-                this.say("setCardData", { fancy });
-            }
-        }
-
-        const portalMaterial = fancy ? this.portalMaterialFancy : this.portalMaterialSimple;
-        if (this.portalMaterial !== portalMaterial) {
-            this.portalMaterial = portalMaterial;
-            this.applyPortalMaterial();
-        }
+        let { portalTime } = this.actor;
+        const time = (this.extrapolatedNow() - portalTime) / 1000;
+        this.portalMaterial.uniforms.time.value = time;
     }
 
     updateParticles() {
@@ -252,6 +231,12 @@ export class PortalPawn extends CardPawn {
     refreshDrawTransform() {
         super.refreshDrawTransform();
         this._globalPlane = null;
+    }
+
+    onPointerDown() {
+        // replay opening animation to remind user that this is a portal
+        // and they can't interact with the inner world yet
+        this.say("_set", { portalTime: this.now() - 3000 });
     }
 
     loadTargetWorld() {
