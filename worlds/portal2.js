@@ -69,5 +69,22 @@ export function init(Constants) {
                 sparkle: false,
             }
         },
+        {
+            card: {
+                translation: [0, -1.7, -10],
+                rotation: [0, 0, 0],
+                layers: ["pointer"],
+                name: "bunny",
+                dataLocation: "3gEXauiO9PWsrE8v7T5rxpkbyvkR-69K1L7xKuHVbmsIDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIIAMxBR4LLhQmDDYEJT8DVCAfBhEeEDIsMD4-VUgOCEkEFQgWEgITSQoOBBUIEQIVFAJIK1UBAVAMKgQRCwAWDgZWNQxUPVFXACUSI1MAVy0QCBdWFTQIVhYyNBBXDEgDBhMGSDQ2XgsiNhIIIRcpESpSAwMQMCUQVAMREwE9BiYRMCkQV14PCRJTAVVWKCo",
+                dataScale: [0.02, 0.02, 0.02],
+                fileName: "/bunny-breakdance.zip",
+                modelType: "zip",
+                license: "CC-BY",
+                attribution: "'Bunny Breakdance' (https://skfb.ly/ouFFL) by pixelshoppe is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/)",
+                shadow: true,
+                singleSided: true,
+                type: "3d",
+            }
+        }
     ];
 }
