@@ -31,7 +31,7 @@ class Shell {
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
         }, null, portalURL);
-        document.title = portalURL;
+        setTitle(portalURL);
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
         hud.parentElement.removeChild(hud);
@@ -74,7 +74,7 @@ class Shell {
             const portalURL = frameToPortalURL(frame.src);
             if (portalURL === shellToCanonicalURL(location.href)) {
                 this.activateFrame(portalId, false);
-                document.title = portalURL;
+                setTitle(portalURL);
             } else {
                 console.warn(`popstate: location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
@@ -302,7 +302,7 @@ class Shell {
                 portalId: toPortalId,
             }, null, portalToShellURL(portalURL));
         }
-        document.title = portalURL;
+        setTitle(portalURL);
         this.currentFrame = toFrame;
         this.currentFrame.focus();
         console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, avatarSpec);
@@ -420,4 +420,12 @@ function shellToCanonicalURL(shellURL) {
     canonicalUrl.search = original.search;
     canonicalUrl.hash = original.hash;
     return canonicalUrl.toString();
+}
+
+// if the URL is on our own domain, strip the domain part,
+// otherwise, just the protocol
+function setTitle(url) {
+    if (url.startsWith(location.origin)) url = url.substr(location.origin.length + 1);
+    else url = url.substr(url.indexOf("://") + 3);
+    document.title = url;
 }
