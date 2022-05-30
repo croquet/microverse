@@ -993,7 +993,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!walkLayer) return false;
 
         if (this.isFalling) {
-            this.vq.v[1] -= this.actor.fallDistance;
+            let v = this.vq.v;
+            this.vq.v = [v[0], v[1] - this.actor.fallDistance, v[2]];
             this.isFalling = false;
             if(this.vq.v[1] < this.actor.maxFall){
                 this.goHome();
@@ -1010,7 +1011,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (intersections.length > 0) {
                 let delta = intersections[0].distance - EYE_HEIGHT;
                 if (delta < 0) { // can only move up - we have already fallen
-                    this.vq.v[1] -= delta;
+                    let v = this.vq.v;
+                    this.vq.v = [v[0], v[1] - delta, v[2]];
                 }
             }
         }
