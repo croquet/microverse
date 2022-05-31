@@ -96,7 +96,6 @@ class FlightTrackerPawn {
             let sendArray = this.rawPlanes.slice(this.sendex, n)
             this.say("processFlight", sendArray);
             this.sendex += this.chunkSize;
-            console.log(this.sendex, len);
             if (this.sendex > len) {
                 this.rawPlanes = [];
                 this.say("updateFlight");

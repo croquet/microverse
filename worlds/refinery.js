@@ -14,8 +14,8 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "bitcoinTracker.js", "flightTracker.js", "spin.js", "lights.js",
-        "slides.js", "cascade.js", "bouncingBall.js"
+        "demo.js", "flightTracker.js", "spin.js", "lights.js",
+        "slides.js", "cascade.js"
     ];
 
     Constants.UseRapier = true;
@@ -56,26 +56,6 @@ export function init(Constants) {
                 behaviorModules: ["Light"],
                 dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                 dataType: "jpg",
-            }
-        },
-        {
-            card: {
-                name: "text editor",
-                className: "TextFieldActor",
-                translation: [-4, cardHeight, -12],
-                rotation: [0, Math.PI / 2, 0],
-                multiuser: true,
-                depth: 0.05,
-                type: "text",
-                runs: [{text: "hello"}],
-                margins: {left: 20, top: 20, right: 20, bottom: 20},
-                backgroundColor: 0xf4e056,
-                //color: 0xf4e056,
-                frameColor: frameColor,
-                width: 2,
-                height: 2,
-                textScale: 0.002,
-                shadow: true,
             }
         },
         {
@@ -127,48 +107,6 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"bouncinglogo",
-                translation: [-4, cardHeight, -35],
-                rotation: [0, Math.PI / 2, 0],
-                behaviorModules: ["BouncingBall"],
-                scale: [4, 4, 4],
-                width: 1,
-                height: 1,
-                layers: ["pointer"],
-                multiuser: true,
-                type: "2d",
-                dataLocation: "./assets/SVG/full-circle.svg",
-                textureType: "dynamic",
-                textureWidth: 1024,
-                textureHeight: 1024,
-                frameColor: frameColor,
-                color: 0xffffff,
-                depth: 0.05,
-                fullBright: true,
-            }
-        },
-        {
-            card: {
-                translation: [-4, cardHeight, -40],
-                scale: [4, 4, 4],
-                rotation: [0, Math.PI / 2, 0],
-                layers: ["pointer"],
-                behaviorModules: ["PDFView"],
-                name: "/22.05.23 Croquet AWE Presentation.pdf",
-                color: 8947848,
-                depth: 0.05,
-                fileName: "/22.05.23 Croquet AWE Presentation.pdf",
-                frameColor: 16777215,
-                fullBright: true,
-                modelType: "pdf",
-                pdfLocation: "30zU7vniWF26Egbynrz8yyHD0fxWZ_FQC2-_h4Aqo768WEREQEMKHx9WWVxVQx5FQx5TQl9BRVVEHllfH0Ufd1RmUklceUNxW2FTcmhUA3dIUUZJR2V7Z2lpAh9ZXx5TQl9BRVVEHl1ZU0JfRlVCQ1UfHQhbQgABCXxJZERhU2kGfF5famIdWVFjeQUESV9de3p0AG9dCQRUd2NpeR9UUURRHwUJXmlkSmdpeWUFeVZIAAdBAXl3fGBYXgZDWWVvdGcJVVt8d19FdgMBUVM",
-                shadow: true,
-                singleSided: true,
-                type: "2d",
-            }
-        },
-        {
-            card: {
                 name:"flightTracker",
                 translation: [-4, 2, -50],
                 type: "object",
@@ -182,7 +120,7 @@ export function init(Constants) {
         {
             card: {
                 name:"code editor",
-                translation: [8, -0.5, 4],
+                translation: [8, -0.5, -8],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
                 type: "code",
@@ -200,59 +138,10 @@ export function init(Constants) {
             card: {
                 name:"flamingo model",
                 dataTranslation: [0, 3, 0],
+                translation: [0, 0, -8],
                 type: "3d",
                 dataLocation: "./assets/3D/Flamingo.glb.zip",
                 behaviorModules: ["Circle"]
-            }
-        },
-        {
-            card: {
-                name: "bitcointracker",
-                translation: [-4, cardHeight, -6],
-                rotation: [0, Math.PI / 2, 0],
-                scale: [4, 4, 4],
-                type: "2d",
-                textureType: "canvas",
-                textureWidth: 1024,
-                textureHeight: 768,
-                width: 1,
-                height: 0.75,
-                frameColor: frameColor,
-                // color: 0xffffff,
-                depth: 0.05,
-                cornerRadius: 0.1,
-                behaviorModules: ["Elected", "BitcoinTracker"],
-            },
-            id: "main",
-        },
-        {
-            card: {
-                name:"bitlogo",
-                translation: [-0.35, 0.35, 0.1],
-                scale: [0.25, 0.25, 0.25],
-                parent: "main",
-                type: "2d",
-                dataLocation: "./assets/SVG/BitcoinSign.svg",
-                depth: 0.05,
-                color: 0xffffff,
-                frameColor: frameColor,
-                behaviorModules: ["BitLogo"]
-            }
-        },
-
-
-
-        
-        {
-            card: {
-                name:"bar graph",
-                translation:[0, -0.3, 0.1],
-                color: 0xEEEEEE,
-                frameColor: frameColor,
-                type: "object",
-                height: 0.4,
-                parent: "main",
-                behaviorModules: ["BarGraph"],
             }
         },
         {
