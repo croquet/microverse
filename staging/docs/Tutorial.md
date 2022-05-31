@@ -186,8 +186,6 @@ The current layers are:
 
 `walk` - objects that the avatar can walk on top of
 
-`collide` - objects that the avatar can collide with
-
 `avatar` - contains the avatars in the world
 
 `portal` - this card is a portal into another world

@@ -12,7 +12,6 @@ import { CardActor, VideoManager, MicroverseAppManager } from './src/card.js';
 import { AvatarActor, } from './src/avatar.js';
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
-//import { DLight } from './src/DLight.js';
 import { TextFieldActor } from './src/text/text.js';
 import { PortalActor } from './src/portal.js';
 import { WorldSaver } from './src/worldSaver.js';
