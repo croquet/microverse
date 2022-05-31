@@ -87,7 +87,7 @@ class FlightTrackerPawn {
 
     processFlight() {
         let len = this.rawPlanes.length;
-        let nextTime = 100;
+        let nextTime = 250;
         if (len === 0) {
             if (!this.gettingFlight) this.getFlight();
         } else {
@@ -96,12 +96,14 @@ class FlightTrackerPawn {
             let sendArray = this.rawPlanes.slice(this.sendex, n)
             this.say("processFlight", sendArray);
             this.sendex += this.chunkSize;
+            console.log(this.sendex, len);
             if (this.sendex > len) {
                 this.rawPlanes = [];
                 this.say("updateFlight");
-                nextTime = 5000;
+                nextTime = 10 * 60 * 1000;
             }
         }
+        // console.log("flight tracker nextTime", nextTime);
         this.future(nextTime).processFlight();
     }
 
@@ -130,6 +132,7 @@ class FlightTrackerPawn {
         if (!data || data.to === this.viewId) {
             console.log("flight tracker elected");
             this.rawPlanes = [];
+            this.nextTime = 1000;
             this.processFlight();
         }
     }
