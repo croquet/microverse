@@ -97,7 +97,7 @@ console.log(this);
 
         this.substrateObj = this.shape.children.find((o) => o.name === "2d");
 
-        this.TEXTURE_SIZE = 4096;
+        this.TEXTURE_SIZE = 2048;
         this.pages = []; // sparse array of page number to details
         this.visiblePages = []; // sparse array of page number to time page became visible
         this.renderQueue = []; // page numbers to render when we have time
