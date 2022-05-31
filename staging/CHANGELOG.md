@@ -3,6 +3,20 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-05-27
+### Added
+- Paste an image, a text or url text to create an appropriate object.
+- A PDF file can be dropped to launch a PDF viewer.
+- A campus world with live map.
+
+### Fixed
+- Further improvements of avatar walk.
+
+### Changed
+- SpinActor checks the releasing movements more carefully.
+- Flat cards are now rendered only one side.
+- Use PhongMaterial for flat cards.
+
 ## 2022-05-20
 ### Added
 - Particle effect for portals.
