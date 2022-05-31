@@ -1267,7 +1267,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 p.setOpacity(1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
                 p.setOpacity(0); // never render followers
-            } else if ((p === this || a._playerId === presentationMode) && v3_isZero(a.lookOffset)) {
+            } else if ((p === this || (a._playerId === presentationMode && this.actor.follow)) && v3_isZero(a.lookOffset)) {
                 p.setOpacity(0); // never render me or leader in 1st person
             } else { // fade based on their (or our own) distance between avatar and camera
                 let m = this.lookGlobal; // camera location
