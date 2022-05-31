@@ -200,7 +200,7 @@ console.log(this);
     makePageMesh() {
         const { cardWidth, cardHeight } = this;
         const pageGeometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
-        const pageMaterial = new THREE.MeshBasicMaterial({ color: "#fff", side: THREE.DoubleSide });
+        const pageMaterial = new THREE.MeshBasicMaterial({ color: "#fff", side: THREE.DoubleSide, toneMapped: false });
         const pageMesh = new THREE.Mesh(pageGeometry, pageMaterial);
         pageMesh.name = "page";
         return pageMesh;
