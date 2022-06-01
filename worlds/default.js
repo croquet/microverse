@@ -69,7 +69,7 @@ export function init(Constants) {
         /*
         {
             card: {
-                translation: [-12.2, -0.4, -10.2],
+                translation: [-12, -0.4, -10.2],
                 rotation: [0, Math.PI / 2, 0],
                 layers: ["pointer", "portal"],
                 className: "PortalActor",
@@ -181,7 +181,7 @@ export function init(Constants) {
                 depth: 0.05,
                 type: "text",
                 runs: [{text: `
-translation: [-12.2, -0.4, -10.2],
+translation: [-12, -0.4, -10.2],
 rotation: [0, 1.5707963267948966, 0],
 layers: ["pointer", "portal"],
 className: "PortalActor",
