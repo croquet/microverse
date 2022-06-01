@@ -170,6 +170,42 @@ export function init(Constants) {
                 shadow: true,
             }
         },
+
+        {
+            card: {
+                name: "sticky",
+                className: "TextFieldActor",
+                translation: [-12, 0.8, -12.2],
+                behaviorModules: ["StickyNote"],
+                rotation: [0, Math.PI / 2, 0],
+                depth: 0.05,
+                type: "text",
+                runs: [{text: `
+translation: [-12.2, -0.4, -10.2],
+rotation: [0, 1.5707963267948966, 0],
+layers: ["pointer", "portal"],
+className: "PortalActor",
+color: 16737996,
+cornerRadius: 0.05,
+depth: 0.05,
+frameColor: 8947848,
+height: 2.4,
+portalURL: "?world=refinery",
+type: "2d",
+width: 1.8,
+`}],
+                margins: {left: 20, top: 20, right: 20, bottom: 20},
+                backgroundColor: 0xf4e056,
+                //color: 0xf4e056,
+                frameColor: frameColor,
+                width: 1,
+                height: 1,
+                textScale: 0.002,
+                shadow: true,
+            }
+        },
+
+        
         {
             card: {
                 translation: [11.914606500892997, 0.4, 0.25],
