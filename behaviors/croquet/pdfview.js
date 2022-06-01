@@ -1,14 +1,14 @@
 class PDFActor {
     setup() {
-        if (this.setupRun) return;
+        // these will be initialised by the first client to load the doc and figure out
+        // a suitable aspect ratio.  pageGapPercent is needed for calculating overall
+        // scroll position.
+        if (this.numPages === undefined) {
+            this.numPages = null;
+            this.pageGapPercent = null;
+            this.scrollPosition = null;
+        }
 
-        this.setupRun = true;
-
-        // will be initialised by the first client to load the doc and figure out a
-        // suitable aspect ratio.  needed for calculating overall scroll position.
-        this.pageGapPercent = null;
-
-        this.scrollPosition = null;
         this.listen("docLoaded", "docLoaded");
         this.listen("changePage", "changePage");
         this.listen("scrollByPercent", "scrollByPercent");
@@ -100,10 +100,6 @@ class PDFPawn {
             });
         }
 
-        if (this.setupRun) return;
-
-        this.setupRun = true;
-
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerMove", "onPointerMove");
         this.addEventListener("pointerUp", "onPointerUp");
@@ -127,7 +123,11 @@ class PDFPawn {
         this.pageMeshPool = [];
 console.log(this);
 
-        this.loadDocument(this.actor._cardData.pdfLocation);
+        const loaded = this.pdf ? Promise.resolve() : this.loadDocument(this.actor._cardData.pdfLocation);
+        loaded.then(() => {
+            this.numPages = this.pdf.numPages;
+            this.ensurePageEntry(1);
+        });
     }
 
     async loadDocument(pdfLocation) {
@@ -136,9 +136,8 @@ console.log(this);
         try {
             const pdfjsLib = await window.pdfjsPromise;
             this.pdf = await pdfjsLib.getDocument(objectURL).promise;
-            const numPages = this.numPages = this.pdf.numPages;
+            const numPages = this.pdf.numPages;
             console.log(`PDF with ${numPages} pages loaded`);
-            this.ensurePageEntry(1); // to determine a suitable aspect ratio for the card
         } catch(err) {
             // PDF loading error
             console.error(err.message);
