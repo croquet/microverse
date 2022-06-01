@@ -170,7 +170,7 @@ export function init(Constants) {
                 shadow: true,
             }
         },
-        {
+/*        {
             card: {
                 translation: [11.914606500892997, 0.4, -3],
                 scale: [4, 4, 4],
@@ -190,6 +190,24 @@ export function init(Constants) {
                 type: "2d",
             }
         },
-        
+*/
+        {
+            card: {
+                translation: [11.914606500892997, 0.4, -3],
+                scale: [4, 4, 4],
+                rotation: [0, -Math.PI / 2, 0],
+                layers: ["pointer"],
+                name: "/22.05.23 Croquet AWE Presentation.jpg",
+                cornerRadius: 0.02,
+                fileName: "/22.05.23 Croquet AWE Presentation.jpg",
+                fullBright: false,
+                modelType: "img",
+                shadow: true,
+                singleSided: true,
+                textureLocation: "36xe210tezWr_E_zOXjWN7_Oz_Olw09j9csX_tqBoesMXkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFtfVURZQFNERVMZVFUPTHhQcEFMREMAV0N-WVF7RloCBU9ZVXRwB0RgDl5zAWwAUH1GDg8AVRlSV0JXGXtQDkRfW3lcBXJgZVx6b1xVfm4CemVAD0R8TF1DRnBVAAdjZ0JTegZUAWc",
+                textureType: "image",
+                type: "2d",
+            }
+        }
     ];
 }
