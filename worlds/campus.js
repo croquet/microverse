@@ -14,8 +14,10 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/campus";
     Constants.UserBehaviorModules = [
-        "lights.js", "livemap.js"
+        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js"
     ];
+
+    const frameColor = 0x888888;
 
     Constants.DefaultCards = [
         {
@@ -56,6 +58,64 @@ export function init(Constants) {
                 type: "object",
                 behaviorModules: ["CampusMap"],
             }
-        }
+        },
+
+        {
+            card: {
+                name: "drive code editor",
+                translation: [149.7867578489887, 1.3960140419134306, -91.04373902664706],
+                rotation: [0, -0.8748879560491569, 0, 0.4843253703453173],
+                layers: ["pointer"],
+                type: "code",
+                behaviorModule: "Drive.DriveActor",
+                textScale: 0.001,
+                margins: {left: 32, top: 32, right: 32, bottom: 32},
+                width: 1.5,
+                height: 3.0,
+                depth: 0.05,
+                frameColor: frameColor,
+            },
+        },
+        {
+            card: {
+                name: "spin code editor",
+                translation: [149.00057781750235, 0.7483579880919803, -89.65840960085829],
+                rotation: [0, -0.8748879560491569, 0, 0.4843253703453173],
+                layers: ["pointer"],
+                type: "code",
+                behaviorModule: "Spin.SpinActor",
+                textScale: 0.001,
+                margins: {left: 32, top: 32, right: 32, bottom: 32},
+                width: 1.5,
+                height: 1.7,
+                depth: 0.05,
+                frameColor: frameColor,
+            },
+        },
+        {
+            card: {
+                name:"porsche",
+                dataRotation: [-Math.PI / 2, -Math.PI / 2, 0],
+                translation: [143.31275751948277,  -0.5025376743590352, -92.18863795132113],
+                dataScale: [0.0002660954536233986, 0.0002660954536233986, 0.0002660954536233986],
+                layers: ["pointer"],
+                type: "3d",
+                multiuser: true,
+                dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
+                behaviorModules: ["Drive"]
+            }
+        },
+        {
+            card: {
+                name:"earth",
+                translation: [147.70323689149595, 0.8838222646660217, -86.95265588900374],
+                scale: [0.3, 0.3, 0.3],
+                type: "object",
+                behaviorModules: ["Earth", "Spin"],
+                layers: ["pointer"],
+                multiuser: true,
+                color: 0xaaaaaa,
+            }
+        },
     ];
 }
