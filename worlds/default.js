@@ -170,6 +170,7 @@ export function init(Constants) {
                 shadow: true,
             }
         },
+        /*
         {
             card: {
                 translation: [11.914606500892997, 0.4, 0.25],
@@ -190,10 +191,10 @@ export function init(Constants) {
                 type: "2d",
             }
         },
-
-/*        {
+        */
+        {
             card: {
-                translation: [11.914606500892997, 0.4, -3],
+                translation: [11.914606500892997, 0.4, 0.25],
                 scale: [4, 4, 4],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
@@ -209,6 +210,5 @@ export function init(Constants) {
                 type: "2d",
             }
         }
-*/
     ];
 }
