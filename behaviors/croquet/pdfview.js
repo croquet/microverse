@@ -4,12 +4,15 @@ class PDFActor {
 
         this.setupRun = true;
 
-        this.numPages = null;
+        // will be initialised by the first client to load the doc and figure out a
+        // suitable aspect ratio.  needed for calculating overall scroll position.
+        this.pageGapPercent = null;
+
         this.scrollPosition = null;
-        this.PAGE_GAP_PERCENT = 4;
         this.listen("docLoaded", "docLoaded");
         this.listen("changePage", "changePage");
         this.listen("scrollByPercent", "scrollByPercent");
+        this.listen("requestScrollPosition", "requestScrollPosition");
 console.log(this);
     }
 
@@ -22,6 +25,7 @@ console.log(this);
     docLoaded(data) {
         // might be sent by multiple clients
         this.numPages = data.numPages;
+        this.pageGapPercent = data.pageGapPercent;
         if (this.scrollPosition === null) this.scrollPosition = { page: 1, percent: 0 };
         this.say("drawAtScrollPosition");
     }
@@ -42,23 +46,38 @@ console.log(this);
         this.say("drawAtScrollPosition");
     }
 
+    requestScrollPosition({ page, percent }) {
+        const { page: newPage, percent: newPercent } = this.normalizeScroll(page, percent);
+        this.announceScrollIfNew(newPage, newPercent);
+    }
+
     scrollByPercent(increment) {
-        const { page: oldPage, percent: oldPercent } = this.scrollPosition;
         let { page, percent } = this.scrollPosition;
-
-        const GAP = this.PAGE_GAP_PERCENT;
-
         percent += increment;
-        if (page === 1 && percent < 0) percent = 0;
-        else if (page === this.numPages && percent > 90) percent = 90;
-        else if (percent < -GAP) {
+        const { page: newPage, percent: newPercent } = this.normalizeScroll(page, percent);
+        this.announceScrollIfNew(newPage, newPercent);
+    }
+
+    normalizeScroll(page, percent) {
+        const gapPercent = this.pageGapPercent;
+
+        while (percent < -gapPercent && page > 1) {
             page--;
-            percent += 100 + GAP;
-        } else if (percent > 100) {
+            percent += 100 + gapPercent;
+        }
+        while (percent > 100 && page < this.numPages) {
             page++;
-            percent -= 100 + GAP;
+            percent -= 100 + gapPercent;
         }
 
+        if (page === 1 && percent < 0) percent = 0;
+        else if (page === this.numPages && percent > 90) percent = 90;
+
+        return { page, percent };
+    }
+
+    announceScrollIfNew(page, percent) {
+        const { page: oldPage, percent: oldPercent } = this.scrollPosition;
         if (page !== oldPage || percent !== oldPercent) {
             this.scrollPosition = { page, percent };
             this.say("drawAtScrollPosition");
@@ -86,30 +105,29 @@ class PDFPawn {
         this.setupRun = true;
 
         this.addEventListener("pointerDown", "onPointerDown");
-        // this.addEventListener("pointerMove", "onPointerMove");
-        // this.addEventListener("pointerUp", "onPointerUp");
+        this.addEventListener("pointerMove", "onPointerMove");
+        this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("keyDown", "onKeyDown");
         // this.addEventListener("keyUp", "onKeyUp");
         this.addEventListener("pointerWheel", "onPointerWheel");
 
         this.listen("drawAtScrollPosition", "drawAtScrollPosition");
-console.log(this);
+
+        let moduleName = this._behavior.module.externalName;
+        this.addUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
 
         this.substrateObj = this.shape.children.find((o) => o.name === "2d");
 
         this.TEXTURE_SIZE = 2048;
+        this.numPages = null; // also held by actor
         this.pages = []; // sparse array of page number to details
         this.visiblePages = []; // sparse array of page number to time page became visible
         this.renderQueue = []; // page numbers to render when we have time
         this.renderingPage = false; // false at startup, to trigger immediate first render
         this.pageMeshPool = [];
+console.log(this);
 
-        this.loadDocument(this.actor._cardData.pdfLocation).then(() => {
-            this.ensurePageEntry(1); // to resize the card
-        });
-
-        let moduleName = this._behavior.module.externalName;
-        this.addUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
+        this.loadDocument(this.actor._cardData.pdfLocation);
     }
 
     async loadDocument(pdfLocation) {
@@ -118,9 +136,9 @@ console.log(this);
         try {
             const pdfjsLib = await window.pdfjsPromise;
             this.pdf = await pdfjsLib.getDocument(objectURL).promise;
-            const numPages = this.pdf.numPages;
+            const numPages = this.numPages = this.pdf.numPages;
             console.log(`PDF with ${numPages} pages loaded`);
-            if (!this.actor.numPages) this.say("docLoaded", { numPages });
+            this.ensurePageEntry(1); // to determine a suitable aspect ratio for the card
         } catch(err) {
             // PDF loading error
             console.error(err.message);
@@ -129,10 +147,10 @@ console.log(this);
     }
 
     drawAtScrollPosition() {
-        if (!this.pdf || !this.PAGE_GAP) return;
+        if (!this.pdf || !this.pageGap) return;
 
-        const { numPages, scrollPosition } = this.actor;
-        if (!numPages) return;
+        const { scrollPosition } = this.actor;
+        if (!scrollPosition) return;
 
         // where we already have a mesh for a page we're going to display, be sure
         // to reuse it
@@ -188,8 +206,8 @@ console.log(this);
                     pageEntry.texture.needsUpdate = true;
                 }
             }
-            shownHeight += fullPageHeight - fullPageHeight * yStart + this.PAGE_GAP; // whether or not page is being shown
-            if (p === this.actor.numPages || shownHeight >= cardHeight) return;
+            shownHeight += fullPageHeight - fullPageHeight * yStart + this.pageGap; // whether or not page is being shown
+            if (p === this.numPages || shownHeight >= cardHeight) return;
             else {
                 p++;
                 yStart = 0;
@@ -211,7 +229,7 @@ console.log(this);
         // want to test isn't ready yet (PageProxy hasn't been fetched) we don't
         // wait for it.
         const { scrollPosition } = this.actor;
-        if (!scrollPosition || !this.PAGE_GAP) return;
+        if (!scrollPosition || !this.pageGap) return;
 
         const { page, percent } = scrollPosition;
         const { cardWidth, cardHeight } = this;
@@ -223,14 +241,14 @@ console.log(this);
             if (prevVisible[p]) nowVisible[p] = prevVisible[p];
             else nowVisible[p] = Date.now();
 
-            if (p === this.actor.numPages) return; // end of the doc
+            if (p === this.numPages) return; // end of the doc
 
             const pageEntry = this.ensurePageEntry(p);
             const { aspectRatio } = pageEntry;
             if (aspectRatio === undefined) return; // not ready yet
 
             const fullPageHeight = cardWidth / aspectRatio;
-            shownHeight += fullPageHeight - yStart * fullPageHeight + this.PAGE_GAP;
+            shownHeight += fullPageHeight - yStart * fullPageHeight + this.pageGap;
             if (shownHeight >= cardHeight) return;
 
             p++;
@@ -242,10 +260,10 @@ console.log(this);
         // invoked on every update.  schedule rendering for pages that are nearby,
         // and clean up render results and textures that aren't being used.
         const { scrollPosition } = this.actor;
-        if (!scrollPosition || !this.PAGE_GAP) return;
+        if (!scrollPosition || !this.pageGap) return; // not fully loaded yet
 
         const { page } = scrollPosition;
-        const { numPages } = this.actor;
+        const { numPages } = this;
 
         const queue = this.renderQueue = [];
         const queueIfNeeded = pageNumber => {
@@ -349,7 +367,6 @@ console.log(this);
         const context = canvas.getContext("2d");
         canvas.height = viewport.height;
         canvas.width = viewport.width;
-        // Render PDF page into canvas context
         const renderContext = {
             canvasContext: context,
             viewport
@@ -384,7 +401,16 @@ console.log(this);
         const obj = this.substrateObj;
         obj.geometry.dispose();
         obj.geometry = this.squareCornerGeometry(cardWidth, cardHeight, depth);
-        this.PAGE_GAP = cardHeight * this.actor.PAGE_GAP_PERCENT / 100; // three.js units between displayed pages
+
+        // the model needs to know a page gap (although moot if only one page).
+        // gap is arbitrarily set as 2% of page height for landscape,
+        // 1% for portrait, 1.5% for square.
+        const gapPercent = width > height ? 2 : width === height ? 1.5 : 1;
+        this.pageGap = cardHeight * gapPercent / 100; // three.js units between displayed pages
+
+        if (!this.actor.numPages) {
+            this.say("docLoaded", { pageGapPercent: gapPercent, numPages: this.numPages });
+        }
     }
 
     squareCornerGeometry(width, height, depth) {
@@ -436,13 +462,37 @@ console.log(this);
     }
 
     onPointerDown(p3d) {
-        if (!p3d.uv) {return;}
+        if (!p3d.uv) return;
 
-        this.changePage(1);
+        this.pointerDownTime = Date.now();
+        this.pointerDownY = p3d.xyz[1];
+        this.pointerDownScroll = { ...this.actor.scrollPosition };
+        this.pointerDragRange = 0; // how far user drags before releasing pointer
+    }
+
+    onPointerMove(p3d) {
+        if (!p3d.uv) return;
+
+        const THROTTLE = 50; // ms
+        const now = Date.now();
+        if (now - (this.lastPointerMove || 0) < THROTTLE) return;
+        this.lastPointerMove = now;
+
+        const { page, percent } = this.pointerDownScroll;
+        const yScale = this.actor._scale[1];
+        const percentChange = (p3d.xyz[1] - this.pointerDownY) / this.cardHeight / yScale * 100;
+        this.pointerDragRange = Math.max(this.pointerDragRange, Math.abs(percentChange));
+        this.say("requestScrollPosition", { page, percent: percent + percentChange });
+    }
+
+    onPointerUp(p3d) {
+        if (!p3d.uv) return;
+
+        if (this.pointerDragRange < 2 && Date.now() - this.pointerDownTime < 250) this.changePage(1);
     }
 
     onPointerWheel(evt) {
-        if (!this.pdf || !this.PAGE_GAP) return;
+        if (!this.pdf || !this.pageGap) return;
 
         const THROTTLE = 50; // ms
         const now = Date.now();
