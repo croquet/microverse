@@ -1035,26 +1035,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.say("showControls", actorInfo);
     }
 
-    setColor(color) {
-        this.say("setCardData", {color});
-    }
-
-    hilite(color) {
-        //viewRoot.outlinePass.selectedObjects = [this.shape];
-        if(!this.actor._fullBright){
-            let c = new THREE.Color(color);
-            this.shape.traverse(obj=>{
-                if (obj.material) {
-                    if (Array.isArray(obj.material)) {
-                        obj.material[0].emissive = c;
-                    } else {
-                        obj.material.emissive = c;
-                    }
-                }
-            });
-        }
-    }
-
     // compute and return the position and distance the avatar should jump to to see the card full screen
     getJumpToPose() {
         if(!this.isFlat) return null;
