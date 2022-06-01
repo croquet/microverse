@@ -464,9 +464,10 @@ function deleteParameter(url, key) {
     return urlObj.toString();
 }
 
-export function startWorld(appParameters) {
+export function startWorld(appParameters, world) {
     // appParameters are loaded from apiKey.js (see index.js)
     // and typically provide apiKey and appId
+
     let sessionParameters = {
         // microverse defaults
         name: appParameters.name || App.autoSession(),
@@ -475,6 +476,7 @@ export function startWorld(appParameters) {
         view: MyViewRoot,
         tps: 30,
         eventRateLimit: 60,
+        options: {world},
         // developer can override defaults
         ...appParameters,
         // except for the 'microverse' flag

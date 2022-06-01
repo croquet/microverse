@@ -10,7 +10,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js"
+    "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "pdfview.js", "avatarEvents.js"
 ];
 
 async function startMicroverse() {
@@ -46,7 +46,7 @@ async function startMicroverse() {
         throw Error("Please make sure that you have created a valid apiKey.js");
     };
     // Default parameters are filled in the body of startWorld. You can override them.
-    startWorld(apiKeysModule.default);
+    startWorld(apiKeysModule.default, `${basedir}/${basename}`);
 }
 
 function start() {
