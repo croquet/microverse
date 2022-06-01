@@ -186,7 +186,7 @@ class BitLogoPawn {
 
     setColor(color) {
         if (color === this.lastColor) {return;}
-        let material = this.makePlaneMaterial(this.actor._cardData.depth, color, this.actor._cardData.frameColor, true);
+        let material = this.makePlaneMaterial(this.actor._cardData.depth, color, this.actor._cardData.frameColor, false);
         let obj = this.shape.children.find((o) => o.name === "2d");
         if (!obj || !obj.children || obj.children.length === 0) {return;}
         obj = obj.children[0];
