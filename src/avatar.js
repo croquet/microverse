@@ -6,7 +6,7 @@ import {
     THREE, Data, App, View, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
-    m4_multiply, m4_rotationQ, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
+    m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
 
 import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
@@ -27,7 +27,9 @@ const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.2;
 const COLLISION_RADIUS = EYE_HEIGHT / 5;
 const isMobile = !!("ontouchstart" in window);
-let initialPortalLook;
+const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
+let initialPortalLookExternal;
+
 
 export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
@@ -108,8 +110,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     goHome() {
-        let v = v3_zero();
-        let q = q_identity();
+        let v, q;
+        if (this._anchor) {
+            v = this._anchor.translation;
+            q = this._anchor.rotation;
+        } else {
+            v = v3_zero();
+            q = q_identity();
+        }
         this.goTo(v, q, false);
         this.lookOffset = v3_zero();
         this.lookPitch = 0;
@@ -519,7 +527,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lookYaw = this.actor.lookYaw;
         this.lookOffset = v3_zero(); // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
-        this.portalLook = initialPortalLook;
+        this.portalLookExternal = initialPortalLookExternal;
 
         this.moveRadius = this.actor.collisionRadius;
         this.isFalling = false;
@@ -540,7 +548,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastPortalTranslation = this.translation;
 
         // clip halfspace behind portalCamera
-        this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.2); // 0.2 is to cover the gap of the portal thickness
+        this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+
+        // 0.2 is to cover the gap of the portal thickness
+        // if there is no anchor, this is the default clip plane
+        // otherwise it will be updated below
 
         document.getElementById("homeBttn").onclick = () => this.goHome();
         document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
@@ -569,7 +581,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         // keep track of being in the primary frame or not
         this.isPrimary = isPrimaryFrame;
-        this.say("_set", { inWorld: this.isPrimary });
         this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy}) => {
             switch (command) {
                 case "frame-type":
@@ -583,8 +594,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     break;
                 case "portal-update":
                     if (cameraMatrix) {
-                        this.portalLook = cameraMatrix;
-                        initialPortalLook = cameraMatrix;
+                        this.portalLookExternal = cameraMatrix;
+                        initialPortalLookExternal = cameraMatrix;
                         if (!this.isPrimary) this.refreshCameraTransform();
                     }
                     break;
@@ -601,6 +612,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
         addShellListener(this.shellListener);
+        //initialize actor
+        const actorSpec = { inWorld: this.isPrimary };
+        const anchor = this.anchorFromURL();
+        if (anchor) {
+            actorSpec.anchor = anchor; // actor or {translation, rotation}
+            actorSpec.translation = anchor.translation;
+            actorSpec.rotation = anchor.rotation;
+        }
+        this.say("_set", actorSpec);
+
         this.say("resetHeight");
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
         this.listen("setLookAngles", this.setLookAngles);
@@ -667,6 +688,26 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
         return this.actor.dropPose(distance, optOffset);
+    }
+
+    // if our URL specifies an anchor, this is our home location
+    anchorFromURL() {
+        const searchParams = new URLSearchParams(window.location.search);
+        const anchorString = searchParams.get("anchor");
+        if (!anchorString) return null;
+        // see if it's a named actor
+        const { actors } = this.actor.service("ActorManager");
+        for (const actor of actors.values()) {
+            if (actor.name === anchorString) return actor;
+        }
+        // otherwise it might be explicit coordinates
+        const coords = anchorString.split(",").map(x => parseFloat(x));
+        if (coords.length !== 7 || coords.some(x => isNaN(x))) return null;
+        const [vx, vy, vz, ru, rv, rw, rq] = coords;
+        return {
+            translation: [vx, vy, vz],
+            rotation: [ru, rv, rw, rq]
+        }
     }
 
     showNumbers() {
@@ -736,17 +777,40 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // This test above is relevant only at the start up.
             // This is called from ThreeCamera's constructor but
             // the look* values are not intialized yet.
-            if (!this.isPrimary && this.portalLook) return this.portalLook;
+            if (!this.isPrimary && this.portalLookExternal) return this.portalLook;
             else return this.walkLook;
         } else return this.global;
     }
 
+    // the camera when walking: based on avatar but also 3rd person offset
     get walkLook() {
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
         const m0 = m4_translation(this.lookOffset);
         const m1 = m4_rotationQ(pitchRotation);
         const m2 = m4_multiply(m1, m0);
         return m4_multiply(m2, this.global);
+    }
+
+    // the camera when rendering world as portal: based on external camera
+    // and our own anchor
+    get portalLook() {
+        // apply portal transform to external camera
+        const anchor = this.actor._anchor || { translation: [0,0,0], rotation: [0,0,0,1] };
+        const mtra = m4_translation(anchor.translation);
+        const mrot = m4_rotationQ(anchor.rotation);
+        const mrot_inv = m4_multiply(mrot, M4_ROTATIONY_180); // flip by 180 degrees
+        const mportal = m4_multiply(mrot_inv, mtra);
+        const mcam = m4_multiply(this.portalLookExternal, mportal);
+        // transform portal clip plane to match the anchor
+        this.portalClip.normal.set(0, 0, 1);
+        this.portalClip.constant = 0;
+        const mclip = new THREE.Matrix4();
+        mclip.set(...mrot);
+        mclip.invert();
+        this.portalClip.applyMatrix4(mclip);
+        const pos = new THREE.Vector3(...anchor.translation);
+        this.portalClip.constant = -this.portalClip.distanceToPoint(pos);
+        return mcam;
     }
 
     specForPortal(portal) {
@@ -813,7 +877,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.say("comeToMe", true);
             }
         }
-        this.refreshPortalClip();
+        this.updatePortalRender();
     }
 
     leaveToWorld(portalURL) {
@@ -838,7 +902,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         } else {
             super.update(time, delta);
         }
-        this.refreshPortalClip();
+        this.updatePortalRender();
     }
 
     // compute motion from spin and velocity
@@ -868,24 +932,32 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return moving;
     }
 
-    refreshPortalClip() {
+    // update the camera transform and clipping planes if we are rendering a portal
+    updatePortalRender() {
         let { clippingPlanes } = this.service("ThreeRenderManager").renderer;
         if (this.isPrimary) {
             // we are the top world, so we turn off portal clipping
             const idx = clippingPlanes.indexOf(this.portalClip);
             if (idx >= 0) clippingPlanes.splice(idx, 1);
         } else {
-            // we are rendering a portal, so we turn on portal clipping
+            // we are rendering a portal
+            // if we have an anchor, the anchor may have been moved
+            if (this.actor._anchor) {
+                this.refreshCameraTransform(); // updates portalClip too
+            }
+            // turn on portal clipping
             if (!clippingPlanes.includes(this.portalClip)) {
                 clippingPlanes.push(this.portalClip);
             }
             // check which half-space of the portal the camera is in,
             // and flip the portal's clip plane to the other side if needed
-            const cameraInFrontOfPortalPlane = this.lookGlobal[14] > 0;
-            const clippingBehindPortalPlane = this.portalClip.normal.z < 0;
-            if (clippingBehindPortalPlane !== cameraInFrontOfPortalPlane) {
-                this.portalClip.normal.negate();
-            }
+
+            // const cameraInFrontOfPortalPlane = this.lookGlobal[14] > 0;
+            // const clippingBehindPortalPlane = this.portalClip.normal.z < 0;
+            // if (clippingBehindPortalPlane !== cameraInFrontOfPortalPlane) {
+            //     this.portalClip.normal.negate();
+            // }
+
             // this ensures we can look "through" the portal from behind
             // and see the other half space
             // TODO: we assume the portal is at the origin looking down the z axis

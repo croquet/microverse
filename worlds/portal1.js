@@ -80,10 +80,10 @@ export function init(Constants) {
         },
         {
             card: {
-                name: "portal",
+                name: "portal-to-two",
                 className: "PortalActor",
-                translation: [0, 0, 0.5],
-                rotation: [0, Math.PI, 0],
+                translation: [0, 0, 10],
+                rotation: [0, 0, 0],
                 type: "2d",
                 layers: ["pointer", "portal"],
                 color: 0xFF66CC,
@@ -93,7 +93,7 @@ export function init(Constants) {
                 depth: 0.2,
                 cornerRadius: 0.05,
                 multiuser: true,
-                portalURL: "?world=portal2",
+                portalURL: "?world=portal2&anchor=portal-to-one",
                 sparkle: false,
             }
         },

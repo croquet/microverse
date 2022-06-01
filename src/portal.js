@@ -86,8 +86,9 @@ export class PortalPawn extends CardPawn {
                     #include <clipping_planes_fragment>
                     float r = length(vUv.xy);
                     float angle = atan(vUv.y, vUv.x);
-                    float alpha = sin(time * 15.0 - r * 10.0 + angle) + r - time * 0.5 + 1.0;
-                    gl_FragColor = vec4(0, 0, 0, 1.0 - alpha); // we only care about alpha
+                    float v = sin(time * 15.0 - r * 10.0 + angle) + r - time * 0.5 + 1.0;
+                    float alpha = clamp(1.0 - v, 0.0, 1.0);
+                    gl_FragColor = vec4(0, 0, 0, alpha); // we only care about alpha
                 }
             `,
             clipping: true,
