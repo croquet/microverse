@@ -78,7 +78,7 @@ export function init(Constants) {
                 type: "2d",
                 textureType: "image",
                 textureLocation: "./assets/images/Colony.png",
-                frameColor: 0x888888,
+                frameColor,
                 color: 0xffffff,
                 cornerRadius: 0.05,
                 depth: 0.05,
@@ -131,6 +131,7 @@ export function init(Constants) {
                 width: 1.5,
                 height: 2,
                 depth: 0.05,
+                fullBright: true,
                 frameColor: frameColor,
             }
         },

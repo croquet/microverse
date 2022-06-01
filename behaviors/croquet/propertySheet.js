@@ -43,7 +43,7 @@ class PropertySheetActor {
         this.subscribe(this.dismiss.id, "dismiss", "dismissSheet");
     }
 
-    dismissSheet(id) {
+    dismissSheet(_id) {
         if (this.dismiss) {
             this.dismiss.destroy();
         }
@@ -62,6 +62,9 @@ class PropertySheetActor {
             width: extent.x,
             height: extent.y,
             type: "object",
+            fullBright: true,
+            color: 0xcccccc,
+            backgroundColor: 0xcccccc,
             noSave: true,
         });
 
@@ -77,9 +80,12 @@ class PropertySheetActor {
             name: 'behavior menu',
             behaviorModules: ["BehaviorMenu"],
             translation: [0, 0, 0.08],
+            color: 0xcccccc,
+            backgroundColor: 0xcccccc,
             width: this.menuWindow._cardData.width,
             height: this.menuWindow._cardData.height,
             type: "object",
+            fullBright: true,
             parent: this.menuWindow,
             noSave: true,
             target: target.id});
@@ -98,7 +104,7 @@ class PropertySheetActor {
             multiuser: true,
             margins: {left: 8, top: 8, right: 8, bottom: 8},
             textScale: 0.0014,
-            backgroundColor: 0xffffff,
+            backgroundColor: 0xcccccc,
             width: 1.7 - 0.04,
             height: 2.8 - 0.04,
             depth: 0.002,
@@ -125,6 +131,8 @@ class PropertySheetActor {
             type: "object",
             parent: this.actionMenuWindow,
             noSave: true,
+            color: 0xcccccc,
+            fullBright: true,
             target: target.id});
 
         this.subscribe(this.actionMenu.id, "extentChanged", "actionMenuExtentChanged")
@@ -264,7 +272,10 @@ class PropertySheetPawn {
         this.shape.add(this.frame);
 
         let backGeometry = this.roundedCornerGeometry(extent.x - 0.02, extent.y - 0.02, 0.0001, 0.02);
-        let backMaterial = this.makePlaneMaterial(0.02, 0x525252, 0x525252, false);
+        let color = this.actor._cardData.frameColor || 0x525252;
+        let frameColor = this.actor._cardData.frameColor || 0x525252;
+        let backMaterial = this.makePlaneMaterial(0.02, color, frameColor, true);
+
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.04);
         this.shape.add(this.back);
@@ -351,7 +362,9 @@ class PropertySheetWindowPawn {
         this.shape.add(this.frame);
 
         let backGeometry = this.roundedCornerGeometry(extent.x - 0.02, extent.y - 0.02, 0.0001, 0.02);
-        let backMaterial = this.makePlaneMaterial(0.02, 0xffffff, 0xffffff, false);
+        let color = this.actor._cardData.color || 0xcccccc;
+        let frameColor = this.actor._cardData.frameColor || 0xcccccc;
+        let backMaterial = this.makePlaneMaterial(0.02, color, frameColor, true);
         this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.022);
         this.shape.add(this.back);
@@ -483,6 +496,7 @@ class PropertySheetEditActor {
             width: 1.5,
             height: 2,
             depth: 0.05,
+            fullBright: true,
             frameColor: 0x888888,
         });
     }

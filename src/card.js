@@ -339,10 +339,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     let runs = [{text: behavior ? behavior.code : ""}];
 
                     options = {
-                        ...options,
-                        backgroundColor: 0xFFFFFF,
+                        backgroundColor: 0xcccccc,
                         textScale: options.textScale || 0.002,
-                        isExternal: true,
+                        ...options,
                         runs: runs,
                     };
                     Cls = TextFieldActor;
@@ -913,12 +912,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (this.material) {
             this.material.dispose();
         }
-
         let material;
         if (!fullBright) {
             material = new THREE.MeshPhongMaterial({color:color, side: THREE.FrontSide});
         } else {
-            material = new THREE.MeshBasicMaterial({color:color, side: THREE.FrontSide/*, emissive: color*/});
+            material = new THREE.MeshBasicMaterial({color:color, side: THREE.FrontSide, toneMapped: false});
         }
 
         if (depth > 0) {
