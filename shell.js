@@ -182,7 +182,7 @@ class Shell {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
                     if (portalToFrameURL(targetFrame.src, data.portalId) !== url) {
-                        // console.log("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
+                        console.warn("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
                         targetFrame.src = url;
                     }
                     return;
@@ -384,6 +384,9 @@ function portalToFrameURL(portalURL, portalId) {
     if (filename === "") {
         url.pathname += "index.html";
     }
+    // sort params
+    const params = [...url.searchParams.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+    url.search = new URLSearchParams(params).toString();
     return url.toString();
 }
 
