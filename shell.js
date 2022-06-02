@@ -223,6 +223,7 @@ class Shell {
     }
 
     findFrame(portalURL) {
+        portalURL = portalToFrameURL(portalURL, "ignored");
         // find an existing frame for this portalURL, which may be partial,
         // in particular something loaded from a default spec (e.g. ?world=portal1)
         outer: for (const frame of this.frames.values()) {

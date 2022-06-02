@@ -89,7 +89,7 @@ export function init(Constants) {
             card: {
                 name: "portal",
                 className: "PortalActor",
-                translation: [-4.032203900612777, 0.0, -29],
+                translation: [-4, 0, -29],
                 rotation: [0, Math.PI / 2, 0],
                 type: "2d",
                 layers: ["pointer", "portal"],
