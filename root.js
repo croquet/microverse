@@ -142,6 +142,7 @@ class MyPlayerManager extends PlayerManager {
         options.singleSided = true;
         options.dataScale = [0.3, 0.3, 0.3];
         options.dataRotation = q_euler(0, Math.PI, 0);
+        options.dataTranslation = [0, -0.4, 0];
         let dataLocation = options.name;
 
         // compatibility when we wrote AvatarNames with shorter names.
