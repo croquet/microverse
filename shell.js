@@ -411,7 +411,7 @@ function frameToPortalURL(frameURL) {
     if (world === "default") url.searchParams.delete("world");
     // remove index.html
     const filename = url.pathname.split('/').pop();
-    if (filename === "index.html") url.pathname = url.pathname.slice(0, -11);
+    if (filename === "index.html") url.pathname = url.pathname.slice(0, -10);
     // that's it
     return url.toString();
 }
