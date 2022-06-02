@@ -248,7 +248,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     allChildrenMap(cards) {
         if (!cards) {cards = new Map();}
-        cards.set(this.id, this);
+        if (!this.noSave) {
+            cards.set(this.id, this);
+        }
         if (this.children) {
             this.children.forEach(c => c.allChildrenMap(cards));
         }
