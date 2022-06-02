@@ -17,7 +17,7 @@ import {setupWorldMenuButton} from "./worldMenu.js";
 const EYE_HEIGHT = 1.676;
 // const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
-const MAX_FALL = -50;
+const MAX_FALL = -20;
 const MAX_V = 0.05;
 const KEY_V = MAX_V / 2;
 const MAX_SPIN = 0.0004;
