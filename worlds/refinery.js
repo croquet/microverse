@@ -101,7 +101,7 @@ export function init(Constants) {
                 cornerRadius: 0.05,
                 shadow: true,
                 multiuser: true,
-                portalURL: "?world=default",
+                portalURL: ".",
                 sparkle: false,
             }
         },
