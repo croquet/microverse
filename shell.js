@@ -385,7 +385,19 @@ function portalToFrameURL(portalURL, portalId) {
         url.pathname += "index.html";
     }
     // sort params
-    const params = [...url.searchParams.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1);
+    const params = [...url.searchParams.entries()].sort((a, b) => {
+        // sort "world" first
+        if (a[0] === "world") return -1;
+        if (b[0] === "world") return 1;
+        // sort "portal" last
+        if (a[0] === "portal") return 1;
+        if (b[0] === "portal") return -1;
+        // sort "q" second-to-last
+        if (a[0] === "q") return 1;
+        if (b[0] === "q") return -1;
+        // otherwise sort alphabetically
+        return a[0] < b[0] ? -1 : 1;
+    });
     url.search = new URLSearchParams(params).toString();
     return url.toString();
 }
