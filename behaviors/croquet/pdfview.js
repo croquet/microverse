@@ -90,10 +90,10 @@ class PDFPawn {
         if (!window.pdfjsPromise) {
             window.pdfjsPromise = new Promise(resolve => {
                 const s = document.createElement('script');
-                s.setAttribute('src', 'https://mozilla.github.io/pdf.js/build/pdf.js');
+                s.setAttribute('src', 'https://unpkg.com/pdfjs-dist@2.14.305/build/pdf.min.js');
                 s.onload = () => {
                     const pdfjsLib = window['pdfjs-dist/build/pdf'];
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.14.305/build/pdf.worker.min.js';
                     resolve(pdfjsLib);
                 };
                 document.body.appendChild(s);
