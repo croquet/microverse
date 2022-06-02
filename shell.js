@@ -374,16 +374,12 @@ function portalToFrameURL(portalURL, portalId) {
     const url = new URL(portalURL, location.href);
     // add "portal" parameter
     url.searchParams.set("portal", portalId);
-    // add world=default
+    // remove "world=default"
     const world = url.searchParams.get("world");
-    if (!world) {
-        url.searchParams.set("world", "default");
-    }
-    // add index.html
+    if (world === "default") url.searchParams.delete("world");
+    // remove index.html
     const filename = url.pathname.split('/').pop();
-    if (filename === "") {
-        url.pathname += "index.html";
-    }
+    if (filename === "index.html") url.pathname = url.pathname.slice(0, -10);
     // sort params
     const params = [...url.searchParams.entries()].sort((a, b) => {
         // sort "world" first
