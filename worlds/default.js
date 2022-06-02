@@ -172,14 +172,12 @@ export function init(Constants) {
         {
             card: {
                 name: "portal button",
-
-                translation: [-12.0, 1.3, -10.17839395666378],
+                translation: [-12.1, 1.3, -10.17839395666378],
                 behaviorModules: ["OpenRefineryPortalButton"],
                 type: "object",
             }
         },
         /*
-
         {
             card: {
                 name: "sticky",

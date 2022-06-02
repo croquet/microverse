@@ -60,7 +60,7 @@ class OpenRefineryPortalPawn {
         this.shape.children = [];
 
         let geometry = new Worldcore.THREE.SphereGeometry(0.15, 16, 16);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: 0xcccccc});
+        let material = new Worldcore.THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.8});
         let button = new Worldcore.THREE.Mesh(geometry, material);
         this.shape.add(button);
         this.setColor();

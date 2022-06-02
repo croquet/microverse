@@ -55,6 +55,7 @@ export function init(Constants) {
             card: {
                 name: "live map",
                 layers: ["pointer"],
+                translation: [8.999125084167558, 0, -19.387417027859254],
                 type: "object",
                 behaviorModules: ["CampusMap"],
             }
