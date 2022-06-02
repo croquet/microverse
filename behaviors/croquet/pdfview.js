@@ -112,6 +112,25 @@ class PDFPawn {
         let moduleName = this._behavior.module.externalName;
         this.addUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
 
+        // if this is a reload, discard any GPU resources we were holding onto
+        if (this.pages) {
+            const meshPool = this.pageMeshPool;
+            this.shape.children.slice().forEach(o => {
+                if (o.name === "page") {
+                    this.shape.remove(o);
+                    meshPool.push(o);
+                }
+            });
+            meshPool.forEach(mesh => {
+                mesh.geometry.dispose();
+                mesh.material.dispose();
+            });
+
+            this.pages.forEach(pageEntry => {
+                if (pageEntry.texture) pageEntry.texture.dispose();
+            });
+        }
+
         this.substrateObj = this.shape.children.find((o) => o.name === "2d");
 
         this.TEXTURE_SIZE = 2048;
