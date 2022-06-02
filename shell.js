@@ -365,28 +365,40 @@ class Shell {
     }
 }
 
-function addParameter(url, key, value) {
-    const urlObj = new URL(url, location.href);
-    urlObj.searchParams.set(key, value);
-    return urlObj.toString();
-}
-
-function deleteParameter(url, key) {
-    const urlObj = new URL(url, location.href);
-    urlObj.searchParams.delete(key);
-    return urlObj.toString();
-}
-
 // each iframe's src is the portal URL plus `?portal=<portalId>`
 // which the shell uses to know if it needs to load a world
 // into this frame or if it's the shell frame itself (without `?portal`)
+// also, we standardize default args of the URL to make it comparable
 
 function portalToFrameURL(portalURL, portalId) {
-    return addParameter(portalURL, "portal", portalId);
+    const url = new URL(portalURL, location.href);
+    // add "portal" parameter
+    url.searchParams.set("portal", portalId);
+    // add world=default
+    const world = url.searchParams.get("world");
+    if (!world) {
+        url.searchParams.set("world", "default");
+    }
+    // add index.html
+    const filename = url.pathname.split('/').pop();
+    if (filename === "") {
+        url.pathname += "index.html";
+    }
+    return url.toString();
 }
 
 function frameToPortalURL(frameURL) {
-    return deleteParameter(frameURL, "portal");
+    const url = new URL(frameURL, location.href);
+    // delete "portal" parameter
+    url.searchParams.delete("portal");
+    // remove "world=default"
+    const world = url.searchParams.get("world");
+    if (world === "default") url.searchParams.delete("world");
+    // remove index.html
+    const filename = url.pathname.split('/').pop();
+    if (filename === "index.html") url.pathname = url.pathname.slice(0, -11);
+    // that's it
+    return url.toString();
 }
 
 // we need canonical URLs for navigating between different origins
@@ -411,14 +423,14 @@ function portalToShellURL(portalURL) {
 }
 
 function shellToCanonicalURL(shellURL) {
-    const original = new URL(shellURL);
-    // if we don't have a canonical URL, we don't have to do anything
-    const canonical = original.searchParams.get("canonical");
-    if (!canonical) return original.toString();
-    original.searchParams.delete("canonical");
+    const url = new URL(shellURL);
+    const canonical = url.searchParams.get("canonical");
+    if (!canonical) return shellURL;
+    // replace origin with ?canonical
+    url.searchParams.delete("canonical");
     const canonicalUrl = new URL(canonical);
-    canonicalUrl.search = original.search;
-    canonicalUrl.hash = original.hash;
+    canonicalUrl.search = url.search;
+    canonicalUrl.hash = url.hash;
     return canonicalUrl.toString();
 }
 
