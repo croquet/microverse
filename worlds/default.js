@@ -15,7 +15,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js"
+        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js"
     ];
 
     const frameColor = 0x888888;
@@ -31,7 +31,6 @@ export function init(Constants) {
                 layers: ["walk"],
                 translation:[0, -1.7, 0],
                 dataScale:[1,1,1],
-                shadow: true,
 
                 placeholder: true,
                 placeholderSize: [400, 0.1, 400],
@@ -170,6 +169,16 @@ export function init(Constants) {
                 shadow: true,
             }
         },
+        {
+            card: {
+                name: "portal button",
+
+                translation: [-12.0, 1.3, -10.17839395666378],
+                behaviorModules: ["OpenRefineryPortalButton"],
+                type: "object",
+            }
+        },
+        /*
 
         {
             card: {
@@ -204,8 +213,7 @@ width: 1.8,
                 shadow: true,
             }
         },
-
-        
+        */
         {
             card: {
                 translation: [11.914606500892997, 0.4, 0.25],
@@ -226,7 +234,8 @@ width: 1.8,
                 type: "2d",
             }
         },
-/*        {
+        /*
+          {
             card: {
                 translation: [11.914606500892997, 0.4, 0.25],
                 scale: [4, 4, 4],
@@ -244,6 +253,6 @@ width: 1.8,
                 type: "2d",
             }
         }
-*/
+        */
     ];
 }
