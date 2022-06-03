@@ -47,7 +47,6 @@ export function init(Constants) {
                // rotation: [0, 0, 0],
                 scale: [20, 20, 20],
                 layers: ["pointer"],
-                multiuser: true,
                 type: "2d",
                 dataLocation: "./assets/SVG/Verizon.svg",
                 frameColor: frameColor,
@@ -63,7 +62,6 @@ export function init(Constants) {
                // rotation: [0, 0, 0],
                 scale: [10, 10, 10],
                 layers: ["pointer"],
-                multiuser: true,
                 type: "2d",
                 dataLocation: "./assets/SVG/5G.svg",
                 frameColor: frameColor,
@@ -98,7 +96,6 @@ export function init(Constants) {
                 className: "TextFieldActor",
                 translation: [-4, cardHeight, -12],
                 rotation: [0, Math.PI / 2, 0],
-                multiuser: true,
                 depth: 0.05,
                 type: "text",
                 runs: [{text: "hello"}],
@@ -170,7 +167,6 @@ export function init(Constants) {
                 rotation: [0, Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 layers: ["pointer"],
-                multiuser: true,
                 type: "2d",
                 textureType: "canvas",
                 textureWidth: 1024,
@@ -192,7 +188,6 @@ export function init(Constants) {
                 width: 1,
                 height: 1,
                 layers: ["pointer"],
-                multiuser: true,
                 type: "2d",
                 dataLocation: "./assets/SVG/full-circle.svg",
                 textureType: "dynamic",
@@ -212,7 +207,6 @@ export function init(Constants) {
                 scale:[0.75,0.75,0.75],
                 behaviorModules: ["Elected", "FlightTracker", "Spin"],
                 layers: ["pointer"],
-                multiuser: true,
                 color: 0xaaaaaa,
             }
         },
@@ -281,7 +275,6 @@ export function init(Constants) {
                 translation: [82, -1.672, -110],
                 layers: ["pointer"],
                 type: "3d",
-                multiuser: true,
                 dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
                 behaviorModules: ["Drive"]
             }
@@ -294,7 +287,6 @@ export function init(Constants) {
                 type: "object",
                 behaviorModules: ["FlightTracker", "Spin"],
                 layers: ["pointer"],
-                multiuser: true,
                 color: 0xaaaaaa,
             }
         },

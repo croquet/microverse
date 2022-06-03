@@ -18,7 +18,6 @@ It is defined as:
     layers: ["pointer"],
     type: "3d",
     behaviorModules: ["Drive"],
-    multiuser: true,
     name: "porsche",
     dataLocation: "...",
     dataRotation: [-0.7071067811865475, 0, 0, 0.7071067811865476],
@@ -206,24 +205,6 @@ Array<Layers>|undefined
 ### Description
 
 It is an array of "walk", "pointer", "lighting", and future extensions.  If the value contains "walk", the avatar uses the "find floor" mechanism to keep its y coordinates. If the value contains "pointer", user interaction via the pointing device takes this object into account. It defaults to `["pointer"]`.
-
----
-
-### Name
-
-`multiuser`
-
-### Category
-
-pointer
-
-### Type
-
-```TypeScript
-boolean
-```
-
-Specifies whether the card automatically locks other users out when one user is interacting. It defaults to `true`.
 
 ---
 

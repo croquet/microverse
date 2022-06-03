@@ -69,11 +69,6 @@ The cards in the world are organized in a hierarchical parent-children structure
 `Array<string>`
 The list of behavior modules installed to the card.
 
-### `_multiuser`
-`boolean`
-
-The multi user flag that dictates that the event routing mechanism gives automatic lock to a particular view when the flag is false.
-
 ### `_name`
 `string`
 

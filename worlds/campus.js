@@ -102,7 +102,6 @@ export function init(Constants) {
                 dataScale: [0.0002660954536233986, 0.0002660954536233986, 0.0002660954536233986],
                 layers: ["pointer"],
                 type: "3d",
-                multiuser: true,
                 dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
                 behaviorModules: ["Drive"]
             }
@@ -116,7 +115,6 @@ export function init(Constants) {
                 type: "object",
                 behaviorModules: ["Earth", "SingleUser", "SingleUserSpin"],
                 layers: ["pointer"],
-                multiuser: true,
                 color: 0xaaaaaa,
             }
         },

@@ -92,7 +92,6 @@ export function init(Constants) {
                 height: 4,
                 depth: 0.2,
                 cornerRadius: 0.05,
-                multiuser: true,
                 portalURL: "?world=portal2",
                 sparkle: false,
             }
