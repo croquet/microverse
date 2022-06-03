@@ -237,15 +237,22 @@ class Shell {
             if (frameUrl.origin !== url.origin) continue;
             if (frameUrl.pathname !== url.pathname) continue;
             // all portalURL params must match
+            let keysChecked = 0;
             for (const [key, value] of new URLSearchParams(url.search)) {
                 if (key === "portal") continue;
+                keysChecked++;
                 if (frameUrl.searchParams.get(key) !== value) continue outer;
             }
-            // as well as all portalURL hash params
+            // other frame must not have any (non-portal) keys beyond what has been checked
+            if (Array.from(frameUrl.searchParams.keys()).filter(k => k !== "portal").length > keysChecked) continue;
+            // similarly for portalURL hash params
             const frameHashParams = new URLSearchParams(frameUrl.hash.slice(1));
+            keysChecked = 0;
             for (const [key, value] of new URLSearchParams(url.hash.slice(1))) {
+                keysChecked++;
                 if (frameHashParams.get(key) !== value) continue outer;
             }
+            if (Array.from(frameHashParams.keys()).length > keysChecked) continue;
             // if we get here, we have a match
             return frame;
         }
