@@ -51,8 +51,8 @@ export function init(Constants) {
         {
             card: {
                 name: "image card",
-                translation: [0, 0.4, -10],
-                //rotation: [0, Math.PI / 2, 0],
+                translation: [12, 0.6, -10],
+                rotation: [0, -Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
@@ -85,8 +85,8 @@ export function init(Constants) {
         {
             card: {
                 name:"bouncinglogo",
-                translation: [-4.5, 0.4, -10],
-                rotation: [0, Math.PI, 0],
+                translation: [12, 0.6, 11],
+                rotation: [0, Math.PI / 2, 0],
                 behaviorModules: ["BouncingBall"],
                 scale: [3, 3, 3],
                 width: 1,
@@ -106,7 +106,7 @@ export function init(Constants) {
         {
             card: {
                 name: "bitcointracker",
-                translation: [5, 0.5, -10],
+                translation: [-5, 0.6, -16],
                 rotation: [0, 0, 0],
                 scale: [3, 3, 3],
                 type: "2d",
@@ -154,8 +154,8 @@ export function init(Constants) {
             card: {
                 name: "text editor",
                 className: "TextFieldActor",
-                translation: [11.914606500892997, 0.4, -10],
-                rotation: [0, -Math.PI / 2, 0],
+                translation: [5.5, 0.4, -16],
+                rotation: [0, 0, 0],
                 depth: 0.05,
                 type: "text",
                 runs: [{text: "\nWelcome to the Croquet Gallery!\n"}],
