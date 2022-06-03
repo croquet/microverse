@@ -223,7 +223,7 @@ class Shell {
     }
 
     findFrame(portalURL) {
-        portalURL = portalToFrameURL(portalURL, "ignored");
+        portalURL = portalToFrameURL(portalURL, "");
         // find an existing frame for this portalURL, which may be partial,
         // in particular something loaded from a default spec (e.g. ?world=portal1)
         outer: for (const frame of this.frames.values()) {
@@ -238,8 +238,13 @@ class Shell {
             if (frameUrl.pathname !== url.pathname) continue;
             // all portalURL params must match
             for (const [key, value] of new URLSearchParams(url.search)) {
-                if (key === "portal") continue;
-                if (frameUrl.searchParams.get(key) !== value) continue outer;
+                const frameValue = frameUrl.searchParams.get(key);
+                // for "portal" and "anchor" params, empty values match
+                if ((key === "portal" || key === "anchor") && (!value || !frameValue)) continue;
+                // for "debug" param, any value matches
+                if (key === "debug") continue;
+                // for other params, exact match is required
+                if (frameValue !== value) continue outer;
             }
             // as well as all portalURL hash params
             const frameHashParams = new URLSearchParams(frameUrl.hash.slice(1));

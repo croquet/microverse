@@ -614,7 +614,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         addShellListener(this.shellListener);
         //initialize actor
         const actorSpec = { inWorld: this.isPrimary };
-        const anchor = this.anchorFromURL();
+        const anchor = this.anchorFromURL(window.location, !this.isPrimary);
         if (anchor) {
             actorSpec.anchor = anchor; // actor or {translation, rotation}
             actorSpec.translation = anchor.translation;
@@ -691,12 +691,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     // if our URL specifies an anchor, this is our home location
-    anchorFromURL() {
-        const searchParams = new URLSearchParams(window.location.search);
-        const anchorString = searchParams.get("anchor");
-        if (!anchorString) return null;
-        // see if it's a named actor
+    anchorFromURL(url, viaPortal) {
         const { actors } = this.actor.service("ActorManager");
+        const { searchParams } = new URL(url);
+        const anchorString = searchParams.get("anchor");
+        if (!anchorString) {
+            // if we just loaded this world, we'll be at 0,0,0
+            if (!viaPortal) return null;
+            // otherwise use first portal as anchor
+            for (const actor of actors.values()) {
+                if (actor.isPortal) return actor;
+            }
+            // looks like it was a one-way portal
+            return null;
+        }
+        // see if it's a named actor
         for (const actor of actors.values()) {
             if (actor.name === anchorString) return actor;
         }

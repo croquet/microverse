@@ -64,7 +64,7 @@ export function init(Constants) {
                 cornerRadius: 0.05,
                 shadow: true,
                 multiuser: true,
-                portalURL: "?world=portal1&anchor=portal-to-two",
+                portalURL: "?world=portal1",
                 sparkle: false,
             }
         },
