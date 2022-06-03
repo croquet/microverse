@@ -109,8 +109,8 @@ export function init(Constants) {
         {
             card: {
                 name:"earth",
-                translation: [147.70323689149595, 0.8838222646660217, -86.95265588900374],
-                // translation: [0, 0.8838222646660217, -5],
+                // translation: [147.70323689149595, 0.8838222646660217, -86.95265588900374],
+                translation: [0, 0.8838222646660217, -5],
                 scale: [0.3, 0.3, 0.3],
                 type: "object",
                 behaviorModules: ["Earth", "SingleUser", "SingleUserSpin"],
