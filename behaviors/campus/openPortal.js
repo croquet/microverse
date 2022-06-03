@@ -18,7 +18,7 @@ class OpenRefineryPortalActor {
         this.hasOpened = true;
 
         this.createCard({
-            translation: [104.3239736856479, 5.021534655476606, -142.8473205999199],
+            translation: [104.07644536824432, 5.026017508210918, -142.5899873815636],
             rotation: [0, -0.37369534481774874, 0, 0.9275515022151297],
             layers: ["pointer", "portal"],
             className: "PortalActor",
@@ -29,7 +29,7 @@ class OpenRefineryPortalActor {
             height: 3.3,
             portalURL: "?world=default",
             type: "2d",
-            width: 3.9,
+            width: 4.1,
         });
 
         this.say("portalChanged");
