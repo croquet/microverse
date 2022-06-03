@@ -3,7 +3,7 @@
 // Croquet Microverse
 // Adds a simple spin around y to a Tron
 
-class SpinActor {
+class SingleUserSpinActor {
     setup() {
         this.listen("startSpinning", "startSpinning");
         this.listen("stopSpinning", "stopSpinning");
@@ -39,11 +39,16 @@ class SpinActor {
     }
 }
 
-class SpinPawn {
+class SingleUserSpinPawn {
     setup() {
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("pointerMove", "onPointerMove");
+        this.listen("occupierChanged", "focusChanged");
+    }
+
+    isSingleUser() {
+        return this.actor.occupier !== undefined;
     }
 
     theta(xyz) {
@@ -53,6 +58,19 @@ class SpinPawn {
     }
 
     onPointerDown(p3d) {
+        if (!this.isSingleUser()) {
+            this.downP3d = p3d;
+            this.focusChanged();
+            return;
+        }
+        this.say("tryOccupy", this.viewId);
+        this.downP3d = p3d;
+    }
+
+    focusChanged() {
+        if (this.isSingleUser() && this.actor.occupier !== this.viewId) {return;}
+        let p3d = this.downP3d;
+        if (!p3d) {return;}
         this.moveBuffer = [];
         this.say("stopSpinning");
         this._startDrag = p3d.xy;
@@ -62,6 +80,8 @@ class SpinPawn {
     }
 
     onPointerMove(p3d) {
+        if (this.isSingleUser() && this.actor.occupier !== this.viewId) {return;}
+        if (!this.downP3d) {return;}
         this.moveBuffer.push(p3d.xy);
         this.deltaAngle = (p3d.xy[0] - this._startDrag[0]) / 2 / 180 * Math.PI;
         let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
@@ -77,8 +97,10 @@ class SpinPawn {
     }
 
     onPointerUp(p3d) {
+        this.downP3d = null;
         let avatar = Worldcore.GetPawn(p3d.avatarId);
         avatar.removeFirstResponder("pointerMove", {}, this);
+        if (this.singleUser() && this.actor.occupier !== this.viewId) {return;}
         this.moveBuffer.push(p3d.xy);
 
         this._startDrag = null;
@@ -113,9 +135,9 @@ class SpinPawn {
 export default {
     modules: [
         {
-            name: "Spin",
-            actorBehaviors: [SpinActor],
-            pawnBehaviors: [SpinPawn]
+            name: "SingleUserSpin",
+            actorBehaviors: [SingleUserSpinActor],
+            pawnBehaviors: [SingleUserSpinPawn]
         }
     ]
 }

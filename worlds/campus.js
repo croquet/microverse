@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "avatarEvents.js"
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "avatarEvents.js", "singleUser.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/campus";
@@ -110,9 +110,10 @@ export function init(Constants) {
             card: {
                 name:"earth",
                 translation: [147.70323689149595, 0.8838222646660217, -86.95265588900374],
+                // translation: [0, 0.8838222646660217, -5],
                 scale: [0.3, 0.3, 0.3],
                 type: "object",
-                behaviorModules: ["Earth", "Spin"],
+                behaviorModules: ["Earth", "SingleUser", "SingleUserSpin"],
                 layers: ["pointer"],
                 multiuser: true,
                 color: 0xaaaaaa,
