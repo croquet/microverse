@@ -34,13 +34,13 @@ class BitcoinTrackerActor {
         // the last data point, and publishes value-change event.
         if (date - this.latest().date < 1000) return;
         this.addEntries({date, amount});
-        this.sayDeck("value-changed", amount);
+        this.say("value-changed", amount);
     }
 
     onBitcoinHistory(prices) {
         const newer = prices.filter(p => p.date - this.latest().date > 25000);
         this.addEntries(...newer);
-        this.sayDeck("value-init", newer.map(v=>v.amount));
+        this.publish(this.id, "value-init", newer.map(v=>v.amount));
     }
 
     addEntries(...data) {
@@ -53,7 +53,7 @@ class BitcoinTrackerActor {
 class BitcoinTrackerPawn {
     setup() {
         this.lastAmount = 0;
-        this.listenDeck("value-changed", "onBTCUSDChanged");
+        this.listen("value-changed", "onBTCUSDChanged");
 
         this.onBTCUSDChanged();
 
@@ -143,7 +143,8 @@ class BitcoinTrackerPawn {
     /*
       The card that has this module is expected to be "2d" type with textureType: "canvas".
       this.canvas is the DOM canvas element.
-      The setColor event at the end informs other related cards to change their color.
+      The setColor event at the end informs other related pawns to change their color,
+      thus using the view's id as scope.
     */
 
     onBTCUSDChanged() {
@@ -155,22 +156,22 @@ class BitcoinTrackerPawn {
         this.lastAmount = amount;
 
         this.clear("#222222");
-        let ctx = this.canvas.getContext('2d');
-        ctx.textAlign = 'right';
+        let ctx = this.canvas.getContext("2d");
+        ctx.textAlign = "right";
         ctx.fillStyle = color;
 
         ctx.font = "40px Arial";
         ctx.fillText("BTC-USD", this.canvas.width - 40, 85);
 
-        ctx.textAlign = 'center';
+        ctx.textAlign = "center";
         ctx.font = "90px Arial";
         ctx.fillText("$" + amount.toFixed(2), this.canvas.width / 2, 100); //50+this.canvas.height/2);
         this.texture.needsUpdate = true;
-        this.sayDeck('setColor', color);
+        this.publish(this.id, "setColor", color);
     }
 
     clear(fill) {
-        let ctx = this.canvas.getContext('2d');
+        let ctx = this.canvas.getContext("2d");
         ctx.fillStyle = fill;
         ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
     }
@@ -179,8 +180,18 @@ class BitcoinTrackerPawn {
 class BitLogoPawn {
     setup() {
         // this is a case where a method of the base object is called.
-        this.subscribe(this.actor._parent.id, 'setColor', "setColor");
+        this.subscribe(this.parent.id, "setColor", "setColor");
         this.removeEventListener("pointerWheel", "onPointerWheel");
+    }
+
+    setColor(color) {
+        if (color === this.lastColor) {return;}
+        let material = this.makePlaneMaterial(this.actor._cardData.depth, color, this.actor._cardData.frameColor, false);
+        let obj = this.shape.children.find((o) => o.name === "2d");
+        if (!obj || !obj.children || obj.children.length === 0) {return;}
+        obj = obj.children[0];
+        obj.material = material;
+        this.lastColor = color;
     }
 }
 
@@ -191,8 +202,8 @@ class BarGraphActor {
             this._cardData.length = 20;
             this._cardData.height = 0.5;
         }
-        this.subscribe(this._parent.id, "value-changed", this.updateBars);
-        this.subscribe(this._parent.id, "value-init", this.initBars);
+        this.subscribe(this.parent.id, "value-changed", this.updateBars);
+        this.subscribe(this.parent.id, "value-init", this.initBars);
     }
 
     length() {
@@ -215,21 +226,21 @@ class BarGraphActor {
         }
 
         if (!notSay) {
-            this.say('updateGraph');
+            this.say("updateGraph");
         }
     }
 
     initBars(values) {
         values.forEach((value) => this.updateBars(value, true));
-        this.say('updateGraph');
+        this.say("updateGraph");
     }
 }
 
 class BarGraphPawn {
     setup() {
         this.constructBars();
-        this.listen('updateGraph', "updateGraph");
-        this.subscribe(this.actor._parent.id, 'setColor', "setColor");
+        this.listen("updateGraph", "updateGraph");
+        this.subscribe(this.parent.id, "setColor", "setColor");
         this.updateGraph();
         this.removeEventListener("pointerWheel", "onPointerWheel");
     }

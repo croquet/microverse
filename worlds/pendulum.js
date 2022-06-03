@@ -48,26 +48,13 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"pendulum holder",
-                translation: [0, 6, -10],
-                type: "2d",
-                width: 1,
-                height: 1,
-                depth: 1,
-                layers: ["pointer"],
-                scale: [0.3, 0.3, 0.3],
-                color: 0xcccccc
-            },
-            id: "holder"
-        },
-        {
-            card: {
                 name:"pendulum",
                 parent: "holder",
                 type: "object",
+                translation: [2, 5.2, -10],
                 behaviorModules: ["Rapier", "Pendulum"],
                 layers: ["pointer"],
-                multiuser: true,
+                scale: [0.3, 0.3, 0.3],
                 color: 0xaaaaaa,
             }
         },

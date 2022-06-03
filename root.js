@@ -142,6 +142,7 @@ class MyPlayerManager extends PlayerManager {
         options.singleSided = true;
         options.dataScale = [0.3, 0.3, 0.3];
         options.dataRotation = q_euler(0, Math.PI, 0);
+        options.dataTranslation = [0, -0.4, 0];
         let dataLocation = options.name;
 
         // compatibility when we wrote AvatarNames with shorter names.
@@ -464,9 +465,10 @@ function deleteParameter(url, key) {
     return urlObj.toString();
 }
 
-export function startWorld(appParameters) {
+export function startWorld(appParameters, world) {
     // appParameters are loaded from apiKey.js (see index.js)
     // and typically provide apiKey and appId
+
     let sessionParameters = {
         // microverse defaults
         name: appParameters.name || App.autoSession(),
@@ -475,6 +477,7 @@ export function startWorld(appParameters) {
         view: MyViewRoot,
         tps: 30,
         eventRateLimit: 60,
+        options: {world},
         // developer can override defaults
         ...appParameters,
         // except for the 'microverse' flag

@@ -182,7 +182,7 @@ class Shell {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
                     if (portalToFrameURL(targetFrame.src, data.portalId) !== url) {
-                        // console.log("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
+                        console.warn("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
                         targetFrame.src = url;
                     }
                     return;
@@ -223,6 +223,7 @@ class Shell {
     }
 
     findFrame(portalURL) {
+        portalURL = portalToFrameURL(portalURL, "ignored");
         // find an existing frame for this portalURL, which may be partial,
         // in particular something loaded from a default spec (e.g. ?world=portal1)
         outer: for (const frame of this.frames.values()) {
@@ -365,28 +366,51 @@ class Shell {
     }
 }
 
-function addParameter(url, key, value) {
-    const urlObj = new URL(url, location.href);
-    urlObj.searchParams.set(key, value);
-    return urlObj.toString();
-}
-
-function deleteParameter(url, key) {
-    const urlObj = new URL(url, location.href);
-    urlObj.searchParams.delete(key);
-    return urlObj.toString();
-}
-
 // each iframe's src is the portal URL plus `?portal=<portalId>`
 // which the shell uses to know if it needs to load a world
 // into this frame or if it's the shell frame itself (without `?portal`)
+// also, we standardize default args of the URL to make it comparable
 
 function portalToFrameURL(portalURL, portalId) {
-    return addParameter(portalURL, "portal", portalId);
+    const url = new URL(portalURL, location.href);
+    // add "portal" parameter
+    url.searchParams.set("portal", portalId);
+    // remove "world=default"
+    const world = url.searchParams.get("world");
+    if (world === "default") url.searchParams.delete("world");
+    // remove index.html
+    const filename = url.pathname.split('/').pop();
+    if (filename === "index.html") url.pathname = url.pathname.slice(0, -10);
+    // sort params
+    const params = [...url.searchParams.entries()].sort((a, b) => {
+        // sort "world" first
+        if (a[0] === "world") return -1;
+        if (b[0] === "world") return 1;
+        // sort "portal" last
+        if (a[0] === "portal") return 1;
+        if (b[0] === "portal") return -1;
+        // sort "q" second-to-last
+        if (a[0] === "q") return 1;
+        if (b[0] === "q") return -1;
+        // otherwise sort alphabetically
+        return a[0] < b[0] ? -1 : 1;
+    });
+    url.search = new URLSearchParams(params).toString();
+    return url.toString();
 }
 
 function frameToPortalURL(frameURL) {
-    return deleteParameter(frameURL, "portal");
+    const url = new URL(frameURL, location.href);
+    // delete "portal" parameter
+    url.searchParams.delete("portal");
+    // remove "world=default"
+    const world = url.searchParams.get("world");
+    if (world === "default") url.searchParams.delete("world");
+    // remove index.html
+    const filename = url.pathname.split('/').pop();
+    if (filename === "index.html") url.pathname = url.pathname.slice(0, -10);
+    // that's it
+    return url.toString();
 }
 
 // we need canonical URLs for navigating between different origins
@@ -411,14 +435,14 @@ function portalToShellURL(portalURL) {
 }
 
 function shellToCanonicalURL(shellURL) {
-    const original = new URL(shellURL);
-    // if we don't have a canonical URL, we don't have to do anything
-    const canonical = original.searchParams.get("canonical");
-    if (!canonical) return original.toString();
-    original.searchParams.delete("canonical");
+    const url = new URL(shellURL);
+    const canonical = url.searchParams.get("canonical");
+    if (!canonical) return shellURL;
+    // replace origin with ?canonical
+    url.searchParams.delete("canonical");
     const canonicalUrl = new URL(canonical);
-    canonicalUrl.search = original.search;
-    canonicalUrl.hash = original.hash;
+    canonicalUrl.search = url.search;
+    canonicalUrl.hash = url.hash;
     return canonicalUrl.toString();
 }
 

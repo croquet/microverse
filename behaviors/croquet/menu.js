@@ -55,11 +55,11 @@ class MenuActor {
                     runs: [{text: item.label}],
                     behaviorModules: ["MenuItem"],
                     width: 1,
-                    textScale: 0.0018,
+                    textScale: 0.0016,
                     height: 0.15,
                     noSave: true,
                     fullBright: true,
-                    backgroundColor: item.selected ? 0x606060 : 0xFFFFFF
+                    backgroundColor: item.selected ? 0x606060 : 0xcccccc
                 });
             }
 
@@ -180,7 +180,7 @@ class MenuActor {
     }
 
     selectionChanged(item) {
-        item.card.setCardData({backgroundColor: item.selected ? 0x606060 : 0xFFFFFF});
+        item.card.setCardData({backgroundColor: item.selected ? 0x606060 : 0xcccccc});
     }
 }
 

@@ -15,7 +15,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js"
+        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js"
     ];
 
     const frameColor = 0x888888;
@@ -31,7 +31,6 @@ export function init(Constants) {
                 layers: ["walk"],
                 translation:[0, -1.7, 0],
                 dataScale:[1,1,1],
-                shadow: true,
 
                 placeholder: true,
                 placeholderSize: [400, 0.1, 400],
@@ -66,9 +65,10 @@ export function init(Constants) {
                 shadow: true,
             }
         },
+        /*
         {
             card: {
-                translation: [-12.25, -0.4, -10.2],
+                translation: [-12, -0.4, -10.2],
                 rotation: [0, Math.PI / 2, 0],
                 layers: ["pointer", "portal"],
                 className: "PortalActor",
@@ -81,7 +81,7 @@ export function init(Constants) {
                 type: "2d",
                 width: 1.8,
             }
-        },
+            },*/
         {
             card: {
                 name:"bouncinglogo",
@@ -103,7 +103,6 @@ export function init(Constants) {
                 fullBright: true,
             }
         },
-
         {
             card: {
                 name: "bitcointracker",
@@ -155,7 +154,7 @@ export function init(Constants) {
             card: {
                 name: "text editor",
                 className: "TextFieldActor",
-                translation: [11.914606500892997, 0.4, -8],
+                translation: [11.914606500892997, 0.4, -10],
                 rotation: [0, -Math.PI / 2, 0],
                 depth: 0.05,
                 type: "text",
@@ -172,7 +171,50 @@ export function init(Constants) {
         },
         {
             card: {
-                translation: [11.914606500892997, 0.4, -3],
+                name: "portal button",
+                translation: [-12.1, 1.3, -10.17839395666378],
+                behaviorModules: ["OpenRefineryPortalButton"],
+                type: "object",
+            }
+        },
+        /*
+        {
+            card: {
+                name: "sticky",
+                className: "TextFieldActor",
+                translation: [-12, 0.8, -12.2],
+                behaviorModules: ["StickyNote"],
+                rotation: [0, Math.PI / 2, 0],
+                depth: 0.05,
+                type: "text",
+                runs: [{text: `
+translation: [-12, -0.4, -10.2],
+rotation: [0, 1.5707963267948966, 0],
+layers: ["pointer", "portal"],
+className: "PortalActor",
+color: 16737996,
+cornerRadius: 0.05,
+depth: 0.05,
+frameColor: 8947848,
+height: 2.4,
+portalURL: "?world=refinery",
+type: "2d",
+width: 1.8,
+`}],
+                margins: {left: 20, top: 20, right: 20, bottom: 20},
+                backgroundColor: 0xf4e056,
+                //color: 0xf4e056,
+                frameColor: frameColor,
+                width: 1,
+                height: 1,
+                textScale: 0.002,
+                shadow: true,
+            }
+        },
+        */
+        {
+            card: {
+                translation: [11.914606500892997, 0.4, 0.25],
                 scale: [4, 4, 4],
                 rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
@@ -190,6 +232,25 @@ export function init(Constants) {
                 type: "2d",
             }
         },
-        
+        /*
+          {
+            card: {
+                translation: [11.914606500892997, 0.4, 0.25],
+                scale: [4, 4, 4],
+                rotation: [0, -Math.PI / 2, 0],
+                layers: ["pointer"],
+                name: "/22.05.23 Croquet AWE Presentation.jpg",
+                cornerRadius: 0.02,
+                fileName: "/22.05.23 Croquet AWE Presentation.jpg",
+                fullBright: false,
+                modelType: "img",
+                shadow: true,
+                singleSided: true,
+                textureLocation: "36xe210tezWr_E_zOXjWN7_Oz_Olw09j9csX_tqBoesMXkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFtfVURZQFNERVMZVFUPTHhQcEFMREMAV0N-WVF7RloCBU9ZVXRwB0RgDl5zAWwAUH1GDg8AVRlSV0JXGXtQDkRfW3lcBXJgZVx6b1xVfm4CemVAD0R8TF1DRnBVAAdjZ0JTegZUAWc",
+                textureType: "image",
+                type: "2d",
+            }
+        }
+        */
     ];
 }

@@ -248,7 +248,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     allChildrenMap(cards) {
         if (!cards) {cards = new Map();}
-        cards.set(this.id, this);
+        if (!this.noSave) {
+            cards.set(this.id, this);
+        }
         if (this.children) {
             this.children.forEach(c => c.allChildrenMap(cards));
         }
@@ -339,10 +341,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     let runs = [{text: behavior ? behavior.code : ""}];
 
                     options = {
-                        ...options,
-                        backgroundColor: 0xFFFFFF,
+                        backgroundColor: 0xcccccc,
                         textScale: options.textScale || 0.002,
-                        isExternal: true,
+                        ...options,
                         runs: runs,
                     };
                     Cls = TextFieldActor;
@@ -913,12 +914,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (this.material) {
             this.material.dispose();
         }
-
         let material;
         if (!fullBright) {
             material = new THREE.MeshPhongMaterial({color:color, side: THREE.FrontSide});
         } else {
-            material = new THREE.MeshBasicMaterial({color:color, side: THREE.FrontSide/*, emissive: color*/});
+            material = new THREE.MeshBasicMaterial({color:color, side: THREE.FrontSide, toneMapped: false});
         }
 
         if (depth > 0) {
@@ -1033,26 +1033,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
     showControls(actorInfo) {
         this.say("showControls", actorInfo);
-    }
-
-    setColor(color) {
-        this.say("setCardData", {color});
-    }
-
-    hilite(color) {
-        //viewRoot.outlinePass.selectedObjects = [this.shape];
-        if(!this.actor._fullBright){
-            let c = new THREE.Color(color);
-            this.shape.traverse(obj=>{
-                if (obj.material) {
-                    if (Array.isArray(obj.material)) {
-                        obj.material[0].emissive = c;
-                    } else {
-                        obj.material.emissive = c;
-                    }
-                }
-            });
-        }
     }
 
     // compute and return the position and distance the avatar should jump to to see the card full screen
