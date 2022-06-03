@@ -802,7 +802,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const mportal = m4_multiply(mrot_inv, mtra);
         const mcam = m4_multiply(this.portalLookExternal, mportal);
         // transform portal clip plane to match the anchor
-        this.portalClip.normal.set(0, 0, 1);
+        this.portalClip.normal.set(0, 0, -1);
         this.portalClip.constant = 0;
         const mclip = new THREE.Matrix4();
         mclip.set(...mrot);
@@ -846,14 +846,29 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             inWorld: enteringWorld,
         };
         if (enteringWorld && spec) {
+            let { translation, rotation } = spec;
+            // transform spec relative to anchor
+            const anchor = this.anchorFromURL(spec.url, true);
+            if (anchor) {
+                const m_avatar_tra = m4_translation(translation);
+                const m_avatar_rot = m4_rotationQ(rotation);
+                const m_avatar = m4_multiply(m_avatar_rot, m_avatar_tra);
+                const m_anchor_tra = m4_translation(anchor.translation);
+                const m_anchor_rot = m4_rotationQ(anchor.rotation);
+                const m_anchor_rot_inv = m4_multiply(m_anchor_rot, M4_ROTATIONY_180); // flip by 180 degrees
+                const m_anchor = m4_multiply(m_anchor_rot_inv, m_anchor_tra);
+                const m = m4_multiply(m_avatar, m_anchor);
+                translation = m4_getTranslation(m);
+                rotation = m4_getRotation(m);
+            }
             // move actor to the right place
-            actorSpec.translation = spec.translation;
-            actorSpec.rotation = spec.rotation;
+            actorSpec.translation = translation;
+            actorSpec.rotation = rotation;
             // keep avatar appearance
             actorSpec.cardData = spec.cardData;
             // move pawn to the right place
-            this._translation = spec.translation;
-            this._rotation = spec.rotation;
+            this._translation = translation;
+            this._rotation = rotation;
             this.onLocalChanged();
             // copy camera settings to pawn
             if (spec.lookPitch) this.lookPitch = spec.lookPitch;

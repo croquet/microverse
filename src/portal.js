@@ -10,6 +10,8 @@ export class PortalActor extends CardActor {
         this._portalTime = this.now();
     }
 
+    get isPortal() { return true; }
+
     get portalTime() { return this._portalTime; }
 
     get portalURL() { return this._cardData.portalURL; }
@@ -292,6 +294,7 @@ export class PortalPawn extends CardPawn {
         const avatarActor = this.actor.service("PlayerManager").player(this.viewId);
         const avatarPawn = GetPawn(avatarActor.id);
         const avatarSpec = avatarPawn.specForPortal(this);
+        avatarSpec.url = this.resolvePortalURL();
         sendToShell("portal-enter", { portalId: this.portalId, avatarSpec });
         // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
     }
