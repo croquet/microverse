@@ -30,9 +30,9 @@ class AvatarPawn {
         this.addEventListener("keyUp", this.keyUp);
     }
 
-    destroy() {
+    teardown() {
         if (!this.isMyPlayerPawn) {return;}
-        console.log("avatar event handler destroyed");
+        console.log("avatar event handler detached");
         this.removeFirstResponder("pointerTap", {ctrlKey: true}, this);
         this.removeEventListener("pointerTap", this.pointerTap);
 

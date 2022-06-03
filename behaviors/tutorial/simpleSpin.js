@@ -24,7 +24,7 @@ class SpinningActor {
         if (this.spinning) this.step();
     }
 
-    destroy() {
+    teardown() {
         this.removeEventListener("pointerDown", "toggle");
         this.spinning = false;
     }

@@ -97,7 +97,7 @@ If behaviorName is specified, a behavior method attached to requestor, specified
 
 ### `destroy()`
 
-This method removes the card from the world. All `destroy()` method of installed pawn behaviors and actor behaviors are called before the CardActor is removed from the system.
+This method removes the card from the world. All `teardown()` method of installed pawn behaviors and actor behaviors are called before the CardActor is removed from the system.
 
 ### `call(behaviorName:string, methodName:string, ...values:Array<any>):any`
 

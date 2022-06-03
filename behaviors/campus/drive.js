@@ -58,7 +58,7 @@ class DriveActor {
             this.speed = Math.max(-0.2, this.speed - 0.025);
         }
     }
-    destroy() {
+    teardown() {
         this.removeEventListener("pointerDown", "toggle");
         this.removeEventListener("keyDown", "turn");
         this.running = false;

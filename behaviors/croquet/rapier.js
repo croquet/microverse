@@ -11,7 +11,7 @@
 */
 
 class RapierActor {
-    destroy() {
+    teardown() {
         this.removeImpulseJoint();
         this.removeCollider();
         this.removeRigidBody();

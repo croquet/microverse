@@ -65,7 +65,7 @@ export const AM_Code = superclass => class extends superclass {
             this._behaviorModules.forEach((name) => { /* name: Bar */
                 let module = this.behaviorManager.modules.get(name);
                 if (!module) {
-                    console.error(`unknown module ${name} is being destroyed`);
+                    console.error(`unknown module ${name} is being torn down`);
                     return;
                 }
                 let {actorBehaviors, pawnBehaviors} = module;
@@ -287,7 +287,7 @@ export const PM_Code = superclass => class extends superclass {
         let behaviorManager = this.actor.behaviorManager;
 
         this.subscribe(actor.id, "callSetup", "callSetup");
-        this.subscribe(actor.id, "callDestroy", "callDestroy");
+        this.subscribe(actor.id, "callTeardown", "callTeardown");
 
         if (actor._behaviorModules) {
             actor._behaviorModules.forEach((moduleName) => { /* name: foo.Bar */
@@ -346,8 +346,8 @@ export const PM_Code = superclass => class extends superclass {
                 let {pawnBehaviors} = module;
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
-                        if (behavior.$behavior.destroy) {
-                            this.call(`${behavior.module.name}$${behavior.$behaviorName}`, "destroy");
+                        if (behavior.$behavior.teardown) {
+                            this.call(`${behavior.module.name}$${behavior.$behaviorName}`, "teardown");
                         }
                     };
                 }
@@ -360,8 +360,8 @@ export const PM_Code = superclass => class extends superclass {
         return this.call(name, "setup");
     }
 
-    callDestroy(name) {
-        return this.call(name, "destroy");
+    callTeardown(name) {
+        return this.call(name, "teardown");
     }
 
     scriptListen(subscription, listener) {
@@ -826,8 +826,8 @@ export class BehaviorModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        if (behavior.$behavior && behavior.$behavior.destroy) {
-            behavior.future(0).invoke(model[isProxy] ? model._target : model, "destroy");
+        if (behavior.$behavior && behavior.$behavior.teardown) {
+            behavior.future(0).invoke(model[isProxy] ? model._target : model, "teardown");
         }
     }
 
@@ -855,8 +855,8 @@ export class BehaviorModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        if (behavior.$behavior && behavior.$behavior.destroy) {
-            model.say("callDestroy", `${behavior.module.externalName}$${behavior.$behaviorName}`);
+        if (behavior.$behavior && behavior.$behavior.teardown) {
+            model.say("callTeardown", `${behavior.module.externalName}$${behavior.$behaviorName}`);
         }
     }
 }

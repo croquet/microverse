@@ -26,7 +26,7 @@ class SpinActor {
         this.publish("scope", "newAngle", newAngle);
     }
 
-    destroy() {
+    teardown() {
         delete this.isSpinning;
         this.unsubscribe(this.id, "startSpinning");
         this.unsubscribe(this.id, "stopSpinning");
@@ -84,7 +84,7 @@ class SpinPawn {
         }
     }
 
-    destroy() {
+    teardown() {
         this.removeEventListener("pointerDown", "onPointerDown");
         this.removeEventListener("pointerUp", "onPointerUp");
         this.removeEventListener("pointerMove", "onPointerMove");
