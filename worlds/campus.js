@@ -9,12 +9,12 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "singleUser.js"
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "singleUser.js", "pdfview.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/campus";
     Constants.UserBehaviorModules = [
-        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js", "pendulum.js"
+        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js", "pendulum.js", "openPortal.js"
     ];
 
     const frameColor = 0x888888;
@@ -133,5 +133,16 @@ export function init(Constants) {
                 color: 0xaa6666,
             }
         },
+
+        {
+            card: {
+                name: "portal button",
+                translation: [105.67628941950562, 5.0461322473076, -140.72201642878923],
+                behaviorModules: ["OpenRefineryPortalButton"],
+                type: "object",
+            }
+        },
+        
+        
     ];
 }
