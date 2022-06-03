@@ -232,27 +232,23 @@ class Shell {
             // or just needs to be expanded
             const url = new URL(portalURL, frame.src);
             if (frame.src === url.href) return frame;
-            // origin and path must match
+            // origin and path must match (index.html was removed earlier)
             const frameUrl = new URL(frame.src);
             if (frameUrl.origin !== url.origin) continue;
             if (frameUrl.pathname !== url.pathname) continue;
-            // all portalURL params must match
-            let keysChecked = 0;
-            for (const [key, value] of new URLSearchParams(url.search)) {
-                if (key === "portal") continue;
-                keysChecked++;
-                if (frameUrl.searchParams.get(key) !== value) continue outer;
-            }
-            // other frame must not have any (non-portal) keys beyond what has been checked
-            if (Array.from(frameUrl.searchParams.keys()).filter(k => k !== "portal").length > keysChecked) continue;
-            // similarly for portalURL hash params
+            // ignore "portal" param
+            url.searchParams.delete("portal");
+            frameUrl.searchParams.delete("portal");
+            // all other params must match
+            url.searchParams.sort();
+            frameUrl.searchParams.sort();
+            if (url.searchParams.toString() !== frameUrl.searchParams.toString()) continue;
+            // similarly for hash params
+            const urlHashParams = new URLSearchParams(url.hash.slice(1));
             const frameHashParams = new URLSearchParams(frameUrl.hash.slice(1));
-            keysChecked = 0;
-            for (const [key, value] of new URLSearchParams(url.hash.slice(1))) {
-                keysChecked++;
-                if (frameHashParams.get(key) !== value) continue outer;
-            }
-            if (Array.from(frameHashParams.keys()).length > keysChecked) continue;
+            urlHashParams.sort();
+            frameHashParams.sort();
+            if (urlHashParams.toString() !== frameHashParams.toString()) continue;
             // if we get here, we have a match
             return frame;
         }
