@@ -232,13 +232,14 @@ class Shell {
             // or just needs to be expanded
             const url = new URL(portalURL, frame.src);
             if (frame.src === url.href) return frame;
-            // origin and path must match
+            // origin and path must match (index.html was removed earlier)
             const frameUrl = new URL(frame.src);
             if (frameUrl.origin !== url.origin) continue;
             if (frameUrl.pathname !== url.pathname) continue;
-            // all portalURL params must match
-            for (const [key, value] of new URLSearchParams(url.search)) {
+            // some params must match
+            for (const [key, value] of url.searchParams) {
                 const frameValue = frameUrl.searchParams.get(key);
+                frameUrl.searchParams.delete(key);
                 // for "portal" and "anchor" params, empty values match
                 if ((key === "portal" || key === "anchor") && (!value || !frameValue)) continue;
                 // for "debug" param, any value matches
@@ -246,11 +247,14 @@ class Shell {
                 // for other params, exact match is required
                 if (frameValue !== value) continue outer;
             }
-            // as well as all portalURL hash params
+            // if frameUrl has any remaining params, it doesn't match
+            if (frameUrl.searchParams.toString() !== "") continue;
+            //  hash params have to match eaxactly
+            const urlHashParams = new URLSearchParams(url.hash.slice(1));
             const frameHashParams = new URLSearchParams(frameUrl.hash.slice(1));
-            for (const [key, value] of new URLSearchParams(url.hash.slice(1))) {
-                if (frameHashParams.get(key) !== value) continue outer;
-            }
+            urlHashParams.sort();
+            frameHashParams.sort();
+            if (urlHashParams.toString() !== frameHashParams.toString()) continue;
             // if we get here, we have a match
             return frame;
         }
