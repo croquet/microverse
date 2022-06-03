@@ -63,12 +63,16 @@ class SingleUserSpinPawn {
             this.focusChanged();
             return;
         }
-        this.say("tryOccupy", this.viewId);
+        this.say("occupy", this.viewId);
         this.downP3d = p3d;
     }
 
     focusChanged() {
-        if (this.isSingleUser() && this.actor.occupier !== this.viewId) {return;}
+        // console.log("focusChanged", this.actor.occupier);
+        if (this.isSingleUser() && this.actor.occupier !== this.viewId) {
+            if (this.downP3d) {this.onPointerUp(this.downP3d);}
+            return;
+        }
         let p3d = this.downP3d;
         if (!p3d) {return;}
         this.moveBuffer = [];
@@ -80,6 +84,7 @@ class SingleUserSpinPawn {
     }
 
     onPointerMove(p3d) {
+        // console.log("pointerMove", this.actor.occupier);
         if (this.isSingleUser() && this.actor.occupier !== this.viewId) {return;}
         if (!this.downP3d) {return;}
         this.moveBuffer.push(p3d.xy);
@@ -87,6 +92,7 @@ class SingleUserSpinPawn {
         let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
         this.rotateTo(newRot);
         this.say("newAngle", this.deltaAngle);
+        this.say("occupy", this.viewId);
         if (this.moveBuffer.length >= 3) {
             setTimeout(() => this.shiftMoveBuffer(), 100);
         }
@@ -97,10 +103,11 @@ class SingleUserSpinPawn {
     }
 
     onPointerUp(p3d) {
+        this.say("unoccupy", this.viewId);
         this.downP3d = null;
         let avatar = Worldcore.GetPawn(p3d.avatarId);
         avatar.removeFirstResponder("pointerMove", {}, this);
-        if (this.singleUser() && this.actor.occupier !== this.viewId) {return;}
+        if (this.isSingleUser() && this.actor.occupier !== this.viewId) {return;}
         this.moveBuffer.push(p3d.xy);
 
         this._startDrag = null;
