@@ -90,7 +90,7 @@ export function init(Constants) {
                 name: "portal",
                 className: "PortalActor",
                 translation: [-4, 0, -29],
-                rotation: [0, Math.PI / 2, 0],
+                rotation: [0, -Math.PI / 2, 0],
                 type: "2d",
                 layers: ["pointer", "portal"],
                 color: 0xFF66CC,

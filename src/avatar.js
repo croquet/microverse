@@ -28,6 +28,7 @@ const PORTAL_DISTANCE = 0.2;
 const COLLISION_RADIUS = EYE_HEIGHT / 5;
 const isMobile = !!("ontouchstart" in window);
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
+const Q_ROTATION_180 = q_euler(0, Math.PI, 0);
 let initialPortalLookExternal;
 
 
@@ -373,6 +374,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     createPortal(translation, rotation, portalURL) {
         let appManager = this.service("MicroverseAppManager");
         let CA = appManager.get("CardActor");
+
+        // sigh - all portals are "backwards"
+        // or maybe *all* models are backwards and we need to fix dropPose and avatar models?
+        rotation = q_multiply(Q_ROTATION_180, rotation); // flip by 180 degrees
 
         let card = {
             name: "portal",
