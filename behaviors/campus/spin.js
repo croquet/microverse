@@ -3,7 +3,7 @@
 // Croquet Microverse
 // Adds a simple spin around y to a Tron
 
-class SpinActor {
+class SingleUserSpinActor {
     setup() {
         this.listen("startSpinning", "startSpinning");
         this.listen("stopSpinning", "stopSpinning");
@@ -31,7 +31,7 @@ class SpinActor {
         this.publish("scope", "newAngle", newAngle);
     }
 
-    destroy() {
+    teardown() {
         delete this.isSpinning;
         this.unsubscribe(this.id, "startSpinning");
         this.unsubscribe(this.id, "stopSpinning");
@@ -39,11 +39,20 @@ class SpinActor {
     }
 }
 
-class SpinPawn {
+class SingleUserSpinPawn {
     setup() {
         this.addEventListener("pointerDown", "onPointerDown");
         this.addEventListener("pointerUp", "onPointerUp");
         this.addEventListener("pointerMove", "onPointerMove");
+        this.listen("focusChanged", "focusChanged");
+    }
+
+    isSingleUser() {
+        return this.actor.occupier !== undefined;
+    }
+
+    hasFocus() {
+        return this.actor.occupier == this.viewId;
     }
 
     theta(xyz) {
@@ -53,6 +62,23 @@ class SpinPawn {
     }
 
     onPointerDown(p3d) {
+        if (!this.isSingleUser()) {
+            this.downP3d = p3d;
+            this.focusChanged();
+            return;
+        }
+        this.say("focus", this.viewId);
+        this.downP3d = p3d;
+    }
+
+    focusChanged() {
+        // console.log("focusChanged", this.actor.occupier);
+        if (this.isSingleUser() && !this.hasFocus()) {
+            if (this.downP3d) {this.onPointerUp(this.downP3d);}
+            return;
+        }
+        let p3d = this.downP3d;
+        if (!p3d) {return;}
         this.moveBuffer = [];
         this.say("stopSpinning");
         this._startDrag = p3d.xy;
@@ -62,11 +88,15 @@ class SpinPawn {
     }
 
     onPointerMove(p3d) {
+        // console.log("pointerMove", this.actor.occupier);
+        if (this.isSingleUser() && !this.hasFocus()) {return;}
+        if (!this.downP3d) {return;}
         this.moveBuffer.push(p3d.xy);
         this.deltaAngle = (p3d.xy[0] - this._startDrag[0]) / 2 / 180 * Math.PI;
         let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
         this.rotateTo(newRot);
         this.say("newAngle", this.deltaAngle);
+        this.say("focus", this.viewId);
         if (this.moveBuffer.length >= 3) {
             setTimeout(() => this.shiftMoveBuffer(), 100);
         }
@@ -77,8 +107,11 @@ class SpinPawn {
     }
 
     onPointerUp(p3d) {
+        this.say("unfocus", this.viewId);
+        this.downP3d = null;
         let avatar = Worldcore.GetPawn(p3d.avatarId);
         avatar.removeFirstResponder("pointerMove", {}, this);
+        if (this.isSingleUser() && !this.hasFocus()) {return;}
         this.moveBuffer.push(p3d.xy);
 
         this._startDrag = null;
@@ -103,7 +136,7 @@ class SpinPawn {
         }
     }
 
-    destroy() {
+    teardown() {
         this.removeEventListener("pointerDown", "onPointerDown");
         this.removeEventListener("pointerUp", "onPointerUp");
         this.removeEventListener("pointerMove", "onPointerMove");
@@ -113,9 +146,9 @@ class SpinPawn {
 export default {
     modules: [
         {
-            name: "Spin",
-            actorBehaviors: [SpinActor],
-            pawnBehaviors: [SpinPawn]
+            name: "SingleUserSpin",
+            actorBehaviors: [SingleUserSpinActor],
+            pawnBehaviors: [SingleUserSpinPawn]
         }
     ]
 }

@@ -9,15 +9,16 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "avatarEvents.js"
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "singleUser.js", "pdfview.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/campus";
     Constants.UserBehaviorModules = [
-        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js"
+        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js", "pendulum.js", "openPortal.js"
     ];
 
     const frameColor = 0x888888;
+    Constants.UseRapier = true;
 
     Constants.DefaultCards = [
         {
@@ -84,7 +85,7 @@ export function init(Constants) {
                 rotation: [0, -0.8748879560491569, 0, 0.4843253703453173],
                 layers: ["pointer"],
                 type: "code",
-                behaviorModule: "Spin.SpinActor",
+                behaviorModule: "SingleUserSpin.SingleUserSpinActor",
                 textScale: 0.001,
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 width: 1.5,
@@ -101,7 +102,6 @@ export function init(Constants) {
                 dataScale: [0.0002660954536233986, 0.0002660954536233986, 0.0002660954536233986],
                 layers: ["pointer"],
                 type: "3d",
-                multiuser: true,
                 dataLocation: "3Rph2fVNkc0jhp42pQF7jVIX5t2yeugm3T6CFPV1F4c4OiYmIiFofX00Oz43IXwnIXwxID0jJzcmfDs9fSd9BB4aNghrYWMwFDEIFidjEzsGZSYcOxAmajgYYH07PXwxID0jJzcmfD87MSA9JDcgITd9EyUlJhYaBj8oOzFnOTocMCEwNjZ_OgZiATQGOgE_OD0BZgU9ZR4iAjoIOX02MyYzfTwzaio-MyE7NA07NT8KFQVrNWATYAA7GRllYWMFEBhiJQskIj8xfyM9ZmI",
                 behaviorModules: ["Drive"]
             }
@@ -110,13 +110,37 @@ export function init(Constants) {
             card: {
                 name:"earth",
                 translation: [147.70323689149595, 0.8838222646660217, -86.95265588900374],
+                //translation: [0, 0.8838222646660217, -5],
                 scale: [0.3, 0.3, 0.3],
                 type: "object",
-                behaviorModules: ["Earth", "Spin"],
+                behaviorModules: ["Earth", "SingleUser", "SingleUserSpin"],
                 layers: ["pointer"],
-                multiuser: true,
                 color: 0xaaaaaa,
             }
         },
+
+        {
+            card: {
+                name:"pendulum",
+                type: "object",
+                translation: [71.17293618667556, 8.245323976153406, -106.57786383978849],
+                // translation: [68, 9.3, -102],
+                behaviorModules: ["Rapier", "Pendulum"],
+                layers: ["pointer"],
+                scale: [0.2, 0.2, 0.2],
+                color: 0xaa6666,
+            }
+        },
+
+        {
+            card: {
+                name: "portal button",
+                translation: [105.67628941950562, 5.0461322473076, -140.72201642878923],
+                behaviorModules: ["OpenRefineryPortalButton"],
+                type: "object",
+            }
+        },
+        
+        
     ];
 }

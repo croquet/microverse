@@ -17,19 +17,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
         super.init(options);
         this.eventListeners = new Map();
         this.listen("dispatchEvent", this.dispatchEvent);
-        this.hovered = new Set();
-        this.focused = new Set();
-        this.listen("hoverRequested", this.hoverRequested);
-        this.listen("unhoverRequested", this.unhoverRequested);
-
-        this.listen("blur", this._onBlur);
-        this.listen("tryFocus", this._onTryFocus);
-        this.future(0).dropoutTick();
     }
-
-    get isMultiuser() { return this._multiuser === undefined ? true : this._multiuser }
-    get isHovered() { return this.hovered.size};
-    get isFocused() { return this.focused.size};
 
     // When an actor-side event listener for a pointer event is added,
     // the pawn automatically sends the pointer event over the
@@ -142,49 +130,6 @@ export const AM_PointerTarget = superclass => class extends superclass {
             this.say("unregisterEventListener", {eventName, listener});
         }
     }
-
-    // this is being phased out as whether hover and focus should be
-    // exclusive or not depends on the action specified by a behavior.
-    dropoutTick() {
-        const am = this.service("ActorManager");
-        const testHovered = new Set(this.hovered);
-        const testFocused = new Set(this.focused);
-        testHovered.forEach(id => {
-            if (!am.has(id)) this.hovered.delete(id);
-        })
-        testFocused.forEach(id => {
-            if (!am.has(id)) this.focused.delete(id);
-        })
-        if (!this.doomed) this.future(1000).dropoutTick();
-    }
-
-    hoverRequested(avatarId) {
-        this.hovered.add(avatarId);
-    }
-
-    unhoverRequested(avatarId) {
-        this.hovered.delete(avatarId);
-    }
-
-    _onTryFocus(avatarId) {
-        if (this.focused.has(avatarId)) return;
-        if (!this.isMultiuser && this.focused.size > 0) {
-            this.say("focusFailure", avatarId);
-        } else {
-            this.focused.add(avatarId);
-            this.say("focusSuccess", avatarId);
-            this.dispatchEvent({eventName: "focus", evt: avatarId});
-        }
-    }
-
-    _onBlur(avatarId) {
-        this.focused.delete(avatarId);
-        this.dispatchEvent({eventName: "blur", evt: avatarId});
-    }
-
-    checkFocus(pe) {
-        return this.focused.has(pe.pointerId);
-    }
 }
 RegisterMixin(AM_PointerTarget);
 
@@ -209,29 +154,23 @@ export const PM_PointerTarget = superclass => class extends superclass {
         this.listen("registerEventListener", "registerEventListener");
         this.listen("unregisterEventListener", "unregisterEventListener");
 
-        // send from model to indicate that non multiuser object was already busy
-        // the user of this mixin needs to add event listeners
-        this.listen("focusFailure", this._onFocusFailure);
-        this.listen("focusSuccess", this._onFocusSuccess);
-
-        if (this.onKeyDown) this.listen("keyDown", this.onKeyDown);
-        if (this.onKeyUp) this.listen("keyUp", this.onKeyUp);
+        // if (this.onKeyDown) this.listen("keyDown", this.onKeyDown);
+        // if (this.onKeyUp) this.listen("keyUp", this.onKeyUp);
 
         this.registerAllEventListeners();
     }
 
     destroy() {
-        const hoverEnd = new Set(this.actor.hovered);
-        hoverEnd.forEach( avatarId => {
-            const pointerPawn = GetPawn(avatarId);
-            if (pointerPawn) pointerPawn.hoverPawn = null;
-        });
-
-        const focusEnd = new Set(this.actor.focused);
-        focusEnd.forEach( avatarId => {
-            const pointerPawn = GetPawn(avatarId);
-            if (pointerPawn) pointerPawn.focusPawn = null;
-        });
+        let avatar = this.actor.service("PlayerManager").players.get(this.viewId);
+        const avatarPawn = GetPawn(avatar.id);
+        if (avatarPawn) {
+            if (avatarPawn.hoverPawn === this) {
+                avatarPawn.hoverPawn = null;
+            }
+            if (avatarPawn.focusPawn === this) {
+                avatarPawn.focusPawn = null;
+            }
+        }
         super.destroy();
     }
 
@@ -310,32 +249,6 @@ export const PM_PointerTarget = superclass => class extends superclass {
             this.registerEventListener({eventName});
         }
     }
-
-    get isMultiuser() { return this.actor.isMultiuser; }
-    get isHovered() { return this.actor.isHovered; }
-    get isFocused() { return this.actor.isFocused; }
-
-    _onFocusFailure(avatarId) {
-        const pointerPawn = GetPawn(avatarId);
-        if (pointerPawn) pointerPawn.focusPawn = null;
-        let array = this.eventListeners.get("focusFailure");
-        if (array) {
-            array.forEach((obj) => {
-                obj.listner.call(this, avatarId);
-            });
-        }
-    }
-
-    _onFocusSuccess(avatarId) {
-        const pointerPawn = GetPawn(avatarId);
-        if (pointerPawn) pointerPawn.focusPawn = this;
-        let array = this.eventListeners.get("focusSuccess");
-        if (array) {
-            array.forEach((obj) => {
-                obj.listner.call(this, avatarId);
-            });
-        }
-    }
 }
 
 //------------------------------------------------------------------------------------------
@@ -350,11 +263,6 @@ export const PM_Pointer = superclass => class extends superclass {
     constructor(actor) {
         super(actor);
         if (!this.isMyPlayerPawn) {return;}
-
-        this.focusTime = this.now();
-        this.idleTimeout = 5000;
-
-        this.future(0).focusTick();
 
         /* Microverse uses InputManager from Worldcore */
 
@@ -483,15 +391,7 @@ export const PM_Pointer = superclass => class extends superclass {
     }
 
     destroy() {
-        if (this.hoverPawn) this.hoverPawn.say("hoverUnrequested", this.actor.id);
-        if (this.focusPawn) this.focusPawn.say("blur", this.actor.id);
         super.destroy();
-    }
-
-    focusTick() {
-        if (this.focusPawn && this.now() > this.focusTime + this.IdleTimeout) this.focusPawn.say("blur", this.actor.id);
-        if (!this.doomed) this.future(1000).focusTick();
-        if (this.focusPawn && this.focusPawn.doomed) {this.focusPawn = null;}
     }
 
     getTargets(type, optWalk) {
@@ -522,7 +422,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDown(e) {
         let eventType = "pointerDown";
-        this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
 
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -533,9 +432,7 @@ export const PM_Pointer = superclass => class extends superclass {
         if (e.button === 0) {
             this.isPointerDown = true;
             if (this.focusPawn !== rc.pawn) {
-                if (this.focusPawn) this.focusPawn.say("blur", this.actor.id);
                 this.focusPawn = rc.pawn;
-                if (this.focusPawn) this.focusPawn.say("tryFocus", this.actor.id);
             }
         }
         if (this.focusPawn) {
@@ -550,7 +447,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerUp(e) {
         let eventType = "pointerUp";
-        this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
 
         this.isPointerDown = false;
@@ -573,7 +469,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerMove(e) {
         let eventType = "pointerMove";
-        this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
 
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -603,7 +498,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerClick(e) {
         let eventType = "click";
-        this.focusTime = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
 
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -623,7 +517,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDoubleDown(e) {
         let eventType = "pointerDoubleDown";
-        this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType, true), true);
 
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -638,7 +531,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerWheel(e) {
         let eventType = "pointerWheel";
-        this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType, true), true);
 
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -658,7 +550,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerTap(e) {
         let eventType = "pointerTap";
-        this.focusTimeout = this.now();
         const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
 
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -678,8 +569,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doKeyDown(e) {
         let eventType = "keyDown";
-        this.focusTime = this.now();
-
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {
             return this.invokeListeners(eventType, firstResponder, null, e);
@@ -697,8 +586,6 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doKeyUp(e) {
         let eventType = "keyUp";
-        this.focusTime = this.now();
-
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {
             return this.invokeListeners(eventType, firstResponder, null, e);

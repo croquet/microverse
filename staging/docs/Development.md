@@ -138,7 +138,7 @@ export default {
 
 Since this module only defines the visual representation, it does not have any actor behaviors. The pawn behavior add a new Three.js `Mesh` to `this.shape`, which is the Three.js `Group` that represents the root of the visual apperanace.
 
-Because behaviors are dynamically modified and attached and detached, their "life cycle" needs some attention. Namely, when the definition is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. Also, when a behavior is detached from the card, the `destroy` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is designed to automatically reconnects and reconstruct the view smart when the tab comes back to the foreground.  However, it means that the `setup()` method may be called again at that moment.
+Because behaviors are dynamically modified and attached and detached, their "life cycle" needs some attention. Namely, when the definition is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. Also, when a behavior is detached from the card, the `teardown()` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is designed to automatically reconnects and reconstruct the view smart when the tab comes back to the foreground.  However, it means that the `setup()` method may be called again at that moment.
 
 In the `GridFloorPawn` case, we simply remove all children that `this.shape` might have first, and then create the new floor Mesh.
 
@@ -171,7 +171,7 @@ class SpinActor {
         this.isSpinning = false;
     }
 
-    destroy() {
+    teardown() {
         delete this.isSpinning;
         this.unsubscribe(this.id, "startSpinning");
         this.unsubscribe(this.id, "stopSpinning");
@@ -224,7 +224,7 @@ class SpinPawn {
         }
     }
 
-    destroy() {
+    teardown() {
         this.removeEventListener("pointerDown", "onPointerDown");
         this.removeEventListener("pointerUp", "onPointerUp");
         this.removeEventListener("pointerMove", "onPointerMove");
@@ -297,7 +297,7 @@ You can bring up the Property Sheet for a card by holding down the control key a
 
 ![PropertySheet](./assets/PropertySheet.png)
 
-You can duplicate or delete the card from "actions". If you multi-select the modules and then press apply, you can attach or detach the modules (and the `setup()` and `destroy()` of them are called.)
+You can duplicate or delete the card from "actions". If you multi-select the modules and then press apply, you can attach or detach the modules (and the `setup()` and `teardown()` of them are called.)
 
 The text area below shows the properties of the card in the format that is compatible with the card specification in the world file.  You can edit values and hit Ctrl-S (on Windows) or Cmd-S (on Mac), and the values are used to update the card. Also, you can copy the contents to your world file.
 

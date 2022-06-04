@@ -31,8 +31,8 @@ class LightPawn {
         this.lights = [];
     }
 
-    destroy() {
-        console.log("destroy lights");
+    teardown() {
+        console.log("teardown lights");
         if(this.background)this.background.dispose();
         this.removeLights();
     }

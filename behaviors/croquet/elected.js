@@ -113,7 +113,7 @@ class ElectedPawn {
         console.log('%cView Elected: %s (this view %s unelected ❌)', 'color: #C00', this.electedViewId || '<none>', this.viewId);
     }
 
-    destroy() {
+    teardown() {
         this.onViewElected("");
     }
 }

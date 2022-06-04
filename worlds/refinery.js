@@ -100,7 +100,6 @@ export function init(Constants) {
                 depth: 0.2,
                 cornerRadius: 0.05,
                 shadow: true,
-                multiuser: true,
                 portalURL: "?world=default",
                 sparkle: false,
             }
@@ -113,7 +112,6 @@ export function init(Constants) {
                 scale:[0.75,0.75,0.75],
                 behaviorModules: ["Elected", "FlightTracker", "Spin"],
                 layers: ["pointer"],
-                multiuser: true,
                 color: 0xaaaaaa,
             }
         },
@@ -209,7 +207,6 @@ export function init(Constants) {
                 name:"spray",
                 type: "object",
                 layers: ["pointer"],
-                multiuser: true,
                 translation: [bt[0], 20, bt[2] + 2],
                 behaviorModules: ["Spray", "Rapier", "Cascade"],
                 rapierSize: [1, 1, 1],

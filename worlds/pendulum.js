@@ -49,7 +49,6 @@ export function init(Constants) {
         {
             card: {
                 name:"pendulum",
-                parent: "holder",
                 type: "object",
                 translation: [2, 5.2, -10],
                 behaviorModules: ["Rapier", "Pendulum"],

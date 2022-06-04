@@ -291,7 +291,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 behaviorModules: ["PDFView"],
                 scale: [4, 4, 4],
                 layers: ["pointer"],
-                multiuser: true,
                 type: "2d",
                 frameColor: 0xffffff,
                 color: 0x888888,

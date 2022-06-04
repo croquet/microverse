@@ -995,18 +995,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return this.actor.uv2xy(uv);
     }
 
-    onFocus(_pointerId) {
-        console.log("focused")
-    }
-
-    onFocusFailure(_pointerId) {
-        console.log("already focused by another avatar")
-    }
-
-    onBlur(_pointerId) {
-        console.log("blurred")
-    }
-
     /*
     onPointerWheel(e) {
         let wheel = e.deltaY;

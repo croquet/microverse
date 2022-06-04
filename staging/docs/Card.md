@@ -69,11 +69,6 @@ The cards in the world are organized in a hierarchical parent-children structure
 `Array<string>`
 The list of behavior modules installed to the card.
 
-### `_multiuser`
-`boolean`
-
-The multi user flag that dictates that the event routing mechanism gives automatic lock to a particular view when the flag is false.
-
 ### `_name`
 `string`
 
@@ -97,7 +92,7 @@ If behaviorName is specified, a behavior method attached to requestor, specified
 
 ### `destroy()`
 
-This method removes the card from the world. All `destroy()` method of installed pawn behaviors and actor behaviors are called before the CardActor is removed from the system.
+This method removes the card from the world. All `teardown()` method of installed pawn behaviors and actor behaviors are called before the CardActor is removed from the system.
 
 ### `call(behaviorName:string, methodName:string, ...values:Array<any>):any`
 

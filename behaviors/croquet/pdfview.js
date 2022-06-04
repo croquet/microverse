@@ -554,7 +554,7 @@ console.log(this);
         this.processRenderQueue();
     }
 
-    destroy() {
+    teardown() {
         const obj = this.substrateObj;
         obj.geometry.dispose();
         this.material.dispose();

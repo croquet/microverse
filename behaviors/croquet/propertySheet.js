@@ -101,7 +101,6 @@ class PropertySheetActor {
             translation: [0, 0, 0.025],
             parent: this.cardSpecWindow,
             type: "text",
-            multiuser: true,
             margins: {left: 8, top: 8, right: 8, bottom: 8},
             textScale: 0.0014,
             backgroundColor: 0xcccccc,
