@@ -295,7 +295,7 @@ class PropertySheetPawn {
         let deltaX = vec.x - origDownPoint.x;
         let deltaY = vec.y - origDownPoint.y;
 
-        this.downInfo.child.say("setTranslation", [origTranslation[0] + deltaX, origTranslation[1] + deltaY, origTranslation[2]]);
+        this.downInfo.child.translateTo([origTranslation[0] + deltaX, origTranslation[1] + deltaY, origTranslation[2]]);
         // console.log(this.downInfo, pVec2);
     }
 }

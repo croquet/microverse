@@ -56,18 +56,16 @@ class RapierActor {
           rotatino in the simulation are updated.
         */
         if (this.getRigidBody().bodyType() === Worldcore.RAPIER.RigidBodyType.KinematicPositionBased) {
-            this.listen("setTranslation", "Rapier$RapierActor.setKinematicTranslation");
-            this.listen("setRotation", "Rapier$RapierActor.setKinematicRotation");
-            this.listen("moveTo", "Rapier$RapierActor.setKinematicTranslation");
-            this.listen("rotateTo", "Rapier$RapierActor.setKinematicRotation");
+            this.listen("translationSet", "Rapier$RapierActor.setKinematicTranslation");
+            this.listen("rotationSet", "Rapier$RapierActor.setKinematicRotation");
         }
     }
 
-    setKinematicTranslation(v) {
-        this.getRigidBody().setNextKinematicTranslation(new Worldcore.RAPIER.Vector3(...v));
+    setKinematicTranslation(data) {
+        this.getRigidBody().setNextKinematicTranslation(new Worldcore.RAPIER.Vector3(...data.v));
     }
-    setKinematicRotation(q) {
-        this.getRigidBody().setNextKinematicRotation(new Worldcore.RAPIER.Quaternion(...q));
+    setKinematicRotation(data) {
+        this.getRigidBody().setNextKinematicRotation(new Worldcore.RAPIER.Quaternion(...data.v));
     }
 
     removeRigidBody() {

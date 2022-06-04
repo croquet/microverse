@@ -47,8 +47,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.createShape(cardData);
         this.listen("selectEdit", this.saySelectEdit);
         this.listen("unselectEdit", this.sayUnselectEdit);
-        this.listen("setTranslation", this.setTranslation);
-        this.listen("setRotation", this.setRotation);
+        // this.listen("translationSet", this.setTranslation);
+        // this.listen("rotationSet", this.setRotation);
         this.listen("showControls", this.showControls);
         this.listen("setCardData", this.setCardData);
 
@@ -189,18 +189,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     uv2xy(uv) {
         return [this._cardData.textureWidth * uv[0], this._cardData.textureHeight * (1 - uv[1])];
-    }
-
-    setTranslation(v) {
-        this._translation = v;
-        this.localChanged();
-        this.say("updateTranslation", v);
-    }
-
-    setRotation(q) {
-        this._rotation = q;
-        this.localChanged();
-        this.say("updateRotation", q);
     }
 
     dataScaleComputed(s) {
@@ -421,8 +409,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.addEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.listen("doSelectEdit", this.doSelectEdit);
         this.listen("doUnselectEdit", this.doUnselectEdit);
-        this.listen("updateTranslation", this.updateTranslation);
-        this.listen("updateRotation", this.updateRotation);
         this.listen("cardDataSet", this.cardDataUpdated);
         this.listen("updateShape", this.updateShape);
         this.listen("layersSet", this.updateLayers);
@@ -1075,13 +1061,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let offset = v3_dot(p3e.xyz, normal);
             this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
             this.lastDrag = p3e.xyz;
+            this._startTranslation = this._translation;
         }
         let p = new THREE.Vector3();
         rayCaster.ray.intersectPlane(this._plane, p);
         let here = p.toArray();
         let delta = v3_sub(this.lastDrag, here);
-        this.lastDrag = here;
-        this.setTranslation(v3_sub(this._translation, delta));
+        this.set({translation: v3_sub(this._startTranslation, delta)});
     }
 
     rotatePlane(rayCaster, p3e){
@@ -1106,7 +1092,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let sign = v3_cross(p3e.lookNormal, delta)[1];
         if(sign < 0)angle = -angle;
         let qAngle = q_euler(0,angle,0);
-        this.setRotation(q_multiply(this.baseRotation, qAngle));
+        this.set({rotation: q_multiply(this.baseRotation, qAngle)});
     }
 
     runAnimation() {
@@ -1142,32 +1128,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         console.log("doUnselectEdit")
         if (this.renderObject) {
             this.removeWire(this.renderObject);
-        }
-    }
-
-    setTranslation(v) {
-        this._translation = v;
-        this.onLocalChanged();
-        this.say("setTranslation", v);
-    }
-
-    updateTranslation(v) {
-        if (!this._plane) { // only do this if you are not dragging
-            this._translation = v;
-            this.onLocalChanged();
-        }
-    }
-
-    setRotation(q) {
-        this._rotation = q;
-        this.onLocalChanged();
-        this.say("setRotation", q);
-    }
-
-    updateRotation(q) {
-        if (!this._plane) { // only do this if you are not dragging
-            this._rotation = q;
-            this.onLocalChanged();
         }
     }
 
