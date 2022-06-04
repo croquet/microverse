@@ -47,8 +47,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.createShape(cardData);
         this.listen("selectEdit", this.saySelectEdit);
         this.listen("unselectEdit", this.sayUnselectEdit);
-        // this.listen("translationSet", this.setTranslation);
-        // this.listen("rotationSet", this.setRotation);
         this.listen("showControls", this.showControls);
         this.listen("setCardData", this.setCardData);
 
