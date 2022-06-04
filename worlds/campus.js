@@ -85,7 +85,7 @@ export function init(Constants) {
                 rotation: [0, -0.8748879560491569, 0, 0.4843253703453173],
                 layers: ["pointer"],
                 type: "code",
-                behaviorModule: "Spin.SpinActor",
+                behaviorModule: "SingleUserSpin.SingleUserSpinActor",
                 textScale: 0.001,
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 width: 1.5,
