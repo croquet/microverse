@@ -23,6 +23,14 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
+                name: "entry",
+                translation: [-10.5, 0, -7],
+                rotation: [0, -0.7221750980702116, 0, 0.6917102917604162],
+                spawn: "default",
+            }
+        },
+        {
+            card: {
                 name:"world model",
                 type: "3d",
                 dataLocation: "./assets/3D/artgallery_042122.glb.zip",
@@ -82,8 +90,8 @@ export function init(Constants) {
             card: {
                 name: "portal-to-two",
                 className: "PortalActor",
-                translation: [0, 0, 10],
-                rotation: [0, 0, 0],
+                translation: [5, -0.11, -4],
+                rotation: [0, 0.49476498737121133, 0, 0.8690268161981913],
                 type: "2d",
                 layers: ["pointer", "portal"],
                 color: 0xFF66CC,

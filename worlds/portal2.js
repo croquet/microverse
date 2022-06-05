@@ -22,6 +22,14 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
+                name: "entry",
+                translation: [-3, 0, 4],
+                rotation: [0, -0.2797746092750467, 0, 0.960065710253728],
+                spawn: "default",
+            }
+        },
+       {
+            card: {
                 name:"world model",
                 dataScale:[1,1,1],
                 translation:[22,-1.7,-20],

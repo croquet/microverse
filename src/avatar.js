@@ -700,13 +700,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const { searchParams } = new URL(url);
         const anchorString = searchParams.get("anchor");
         if (!anchorString) {
-            // if we just loaded this world, we'll be at 0,0,0
-            if (!viaPortal) return null;
-            // otherwise use first portal as anchor
-            for (const actor of actors.values()) {
+            // if we are coming via a portal but with no anchor, assume the first portal
+            if (viaPortal) for (const actor of actors.values()) {
                 if (actor.isPortal) return actor;
             }
-            // looks like it was a one-way portal
+            // otherwise use the default anchor
+            for (const actor of actors.values()) {
+                if (actor._cardData.spawn === "default") return actor;
+            }
+            // otherwise come in at [0,0,0]
             return null;
         }
         // see if it's a named actor

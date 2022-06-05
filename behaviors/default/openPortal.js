@@ -26,10 +26,10 @@ class OpenRefineryPortalActor {
             cornerRadius: 0.05,
             depth: 0.05,
             frameColor: 8947848,
-            height: 2.4,
             portalURL: "?world=refinery",
             type: "2d",
             width: 1.8,
+            height: 2.4,
         });
 
         this.say("portalChanged");

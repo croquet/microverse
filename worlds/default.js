@@ -1,4 +1,4 @@
-// tutorial2.js
+// Default world: gallery
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
@@ -21,6 +21,15 @@ export function init(Constants) {
     const frameColor = 0x888888;
 
     Constants.DefaultCards = [
+        {
+            card: {
+                name: "entrance",
+                // same position and orientation as in openPortal.js
+                translation: [-12, -0.4, -10.2],
+                rotation: [0, -Math.PI / 2, 0],
+                spawn: "default",
+            }
+        },
         {
             card: {
                 name:"world model",
@@ -86,7 +95,7 @@ export function init(Constants) {
             card: {
                 name:"bouncinglogo",
                 translation: [12, 0.6, 11],
-                rotation: [0, Math.PI / 2, 0],
+                rotation: [0, -Math.PI / 2, 0],
                 behaviorModules: ["BouncingBall"],
                 scale: [3, 3, 3],
                 width: 1,
