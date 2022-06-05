@@ -28,7 +28,7 @@ Note that multiple behaviors installed to the same CardActor (or CardPawn) share
 
 ## CardActor Properties
 
-Due to the naming scheme of Worldcore, the properties tend to be prefixed with an underscore "_". For example, the intrinsic property to denote the translation of the card is stored in `_translation`. A behavior can read out the value by `this._translation`. However, setting an intrinsic property directly `this._translation = [1, 2, 3]` itself typically does not have desired effects, as the view needs to be notified. Typically a setter method such as `setTranslation()` is used.
+Due to the naming scheme of Worldcore, the properties tend to be prefixed with an underscore "_". For example, the intrinsic property to denote the translation of the card is stored in `_translation`. A behavior can read out the value by `this._translation`. However, setting an intrinsic property directly `this._translation = [1, 2, 3]` itself typically does not have desired effects, as the view needs to be notified. Typically a setter method such as `translateTo()` is used.
 
 When Worldcore's `set()` method is used in this form:
 
@@ -161,13 +161,28 @@ This method adds a new element to the `layers` array. If `newLayerName` is alrea
 
 This method removes an element from the `layers` array. If `layerName` is not in the `layers` array, the call does not have any effects.
 
-### `setTranslation(v:Array<number, number, number>)`
+### `translateTo(v:Vector3)`
+`type Vector3 = Array<number, number, number>`
 
-This method moves the translation of the card to the specified `[x, y, z]` coordinates without smoothing.
+This method moves the translation of the card to the specified `[x, y, z]` coordinates.
 
-### `setRotation(v:Array<number, number, number, number>)`
+### `rotateTo(v:Quotanion)`
+`type Quotanion = Array<number, number, number, number>`
 
-This method sets the translation of the card to the specified by a quaternion (`[x, y, z, w]`) without smoothing.
+This method sets the translation of the card to the specified by a quaternion (`[x, y, z, w]`).
+
+### `scaleTo(v:Vector3)`
+`type Vector3 = Array<number, number, number, number>`
+
+This method sets the scale of the card to the specified by scale factors in [x, y, z] axis.
+
+### `positionTo(v:Vector3, q:Quaternion)`
+```TypeScript```
+type Vector3 = Array<number, number, number, number>
+type Quotanion = Array<number, number, number, number>
+```
+
+This method sets the translation and rotation of the card, making sure that those two values are used in the same logical time and used for the rendering.
 
 ### `nop()`
 
@@ -273,13 +288,28 @@ This method creates a flat card like Three.JS geometry in specified in `width`, 
 
 This method creates a Three.JS material that can be used with the geometry created by `roundedCornerGeometry()`. When the depth is non-zero, thus it is expected that the geometry from `roundedCornerGeometry()` has "sides", this method returns an array of materials with `color` and `frameColor`. Otherwise, it return a material with `color`.
 
-### `setTranslation(v:Array<number, number, number>)`
+### `translateTo(v:Vector3)`
+`type Vector3 = Array<number, number, number`
 
-This method publishes an event `setTranslation`, which is handled by the corresponding actor to update the translation of all peers, and then the view on all peers.
+This method publishes an event to set the corresponding actor's translation.
 
-### `setRotation(v:Array<number, number, number, number>)`
+### `rotateTo(q:Quaternion)`
+`type Quaternion = Array<number, number, number, number>`
 
-This method publishes an event `setRotation`, which is handled by the corresponding actor to update the rotation of all peers, and then the view on all peers.
+This method publishes an event to set the corresponding actors's rotation.
+
+### `scaleTo(v:Vector3)`
+`type Vector3 = Array<number, number, number>`
+
+This method publishes an event to set the corresponding actors's rotation.
+
+### `positionTo(v:Vector3, q:Quaternion)`
+```TypeScript```
+type Vector3 = Array<number, number, number>
+type Quaternion = Array<number, number, number, number>
+```
+
+This method publishes an event to set the corresponding actors's translation and rotation. It guarantees that two values are sent in one message, thus causes both to be updated at the same time.
 
 ### `nop()`
 
