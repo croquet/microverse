@@ -521,6 +521,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         super(actor);
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
+        this.lastPortalTime = 0;
         this.lastTranslation = this.actor.translation;
         this.opacity = 1;
 
@@ -592,6 +593,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     if (isPrimary !== this.isPrimary) {
                         this.frameTypeChanged(isPrimary, spec);
                         this.isPrimary = isPrimary;
+                        this.lastPortalTime = Date.now();
                     }
                     // tell shell that we received this command (TODO: should only send this once)
                     sendToShell("started");
@@ -810,7 +812,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // and our own anchor
     get portalLook() {
         // apply portal transform to external camera
-        const anchor = this.actor._anchor || { translation: [0,0,0], rotation: [0,0,0,1] };
+        const anchor = this.anchor || this.actor._anchor || { translation: [0,0,0], rotation: [0,0,0,1] };
         const mtra = m4_translation(anchor.translation);
         const mrot = m4_rotationQ(anchor.rotation);
         const mrot_inv = m4_multiply(mrot, M4_ROTATIONY_180); // flip by 180 degrees
@@ -875,6 +877,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 const m = m4_multiply(m_avatar, m_anchor);
                 translation = m4_getTranslation(m);
                 rotation = m4_getRotation(m);
+                actorSpec.anchor = anchor; // actor or {translation, rotation}
+                this.anchor = anchor;
             }
             // move actor to the right place
             actorSpec.translation = translation;
@@ -1066,6 +1070,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
         if (!portalLayer) return false;
 
+        // prevent re-entering the portal
+        if (this.lastPortalTime > Date.now() - 500) return false;
+
         let dir = v3_sub(this.vq.v, this.lastPortalTranslation);
         this.lastPortalTranslation = this.vq.v;
         let len = Math.max(v3_magnitude(dir), PORTAL_DISTANCE);
@@ -1080,6 +1087,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (intersections.length > 0) {
             let portal = this.pawnFrom3D(intersections[0].object);
             if (portal) {
+                this.lastPortalTime = Date.now();
+                this.anchor = portal.actor;
                 portal.enterPortal();
                 return true;
             }
