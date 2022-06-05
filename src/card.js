@@ -415,13 +415,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.constructCard();
     }
 
-    sayDeck(message, vars){
-        if(this.actor._parent !== undefined)this.publish(this.actor._parent.id, message, vars);
+    sayDeck(message, vars) {
+        if (this.actor._parent !== undefined) this.publish(this.actor._parent.id, message, vars);
         else this.publish(this.actor.id, message, vars);
     }
 
-    listenDeck(message, method){
-        if(this.actor._parent !== undefined)this.subscribe(this.actor._parent.id, message, method);
+    listenDeck(message, method) {
+        if (this.actor._parent !== undefined) this.subscribe(this.actor._parent.id, message, method);
         else this.subscribe(this.actor.id, message, method);
     }
 
@@ -1071,7 +1071,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     rotatePlane(rayCaster, p3e){
         if(!this._plane) {
             // first
-            let normal = p3e.lookNormal;
+            let normal = [...p3e.lookNormal];
             normal[1] = 0;
             // let nsq = v3_sqrMag(normal);
             normal = v3_normalize(normal);
@@ -1112,7 +1112,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
     unselectEdit() {
         this.say('unselectEdit')
-        this._plane = undefined;
+        delete this._plane;
     }
 
     doSelectEdit() {
@@ -1177,7 +1177,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 mat.forEach(m=>{
                     if(m._oldColor) {
                         m.color = m._oldColor;
-                        m._oldColor = undefined;
+                        delete m._oldColor;
                     }
                 });
             }
