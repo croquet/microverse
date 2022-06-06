@@ -206,6 +206,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             }
             this.follow = playerId;
             this.fall = false;
+            this._anchor = leader._anchor;
         }
     }
 
