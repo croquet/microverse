@@ -18,6 +18,17 @@ body {
     height: 100%;
 }
 
+body.tilt {
+    perspective: 2000px;
+    perspective-origin: 50% 50%;
+    background: repeating-conic-gradient(#eee 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+}
+
+body.tilt>iframe {
+    --tilt-z: 0px;
+    transform: rotateX(80deg) translate3d(0px, -400px, var(--tilt-z));
+}
+
 #hud {
     display: none;
 }

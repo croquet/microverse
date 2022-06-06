@@ -84,6 +84,11 @@ class Shell {
             e.stopPropagation();
             e.preventDefault();
 
+            if (e.shiftKey) {
+                document.body.classList.toggle("tilt");
+                return;
+            }
+
             if (!document.fullscreenElement) {
                 // If the document is not in full screen mode
                 // make the document full screen
@@ -145,6 +150,7 @@ class Shell {
         frame.style.height = "100%";
         frame.style.border = "none";
         frame.style.zIndex = -this.frames.size; // put new frame behind all other frames
+        frame.style.setProperty('--tilt-z', `${this.frames.size * -200}px`);
         frame.portalId = portalId;
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
@@ -164,7 +170,9 @@ class Shell {
             return 0;
         });
         for (let i = 0; i < sorted.length; i++) {
-            sorted[i].style.zIndex = -i;
+            const { style } = sorted[i];
+            style.zIndex = -i;
+            style.setProperty('--tilt-z', `${i * -200}px`);
         }
     }
 
