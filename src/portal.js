@@ -39,7 +39,7 @@ export class PortalPawn extends CardPawn {
         this.addEventListener("pointerDown", this.onPointerDown);
         this.addEventListener("keyDown", e => { switch (e.key) {
             case " ": this.enterPortal(); break;
-            case "G": case "g": this.say("_set", { ghostWorld: !this.actor._ghostWorld }); break;
+            case "G": case "g": this.say("_set", { ghostWorld: this.actor._ghostWorld === null ? 20 : null}); break;
         }});
 
         this.shellListener = (command, data) => this.receiveFromShell(command, data);
@@ -300,12 +300,17 @@ export class PortalPawn extends CardPawn {
     }
 
     setGhostWorld({v}) {
-        const canvas = document.getElementById("ThreeCanvas");
-        if (v && isPrimaryFrame) {
+        let canvas = document.getElementById("ThreeCanvas");
+        let slider = document.getElementById("ghostSlider");
+        if (typeof v === "number" && isPrimaryFrame) {
             // make our own world translucent, blurry, and desaturated so
             // the portal world becames visible
-            canvas.style.filter = "opacity(80%) saturate(30%) contrast(80%) blur(4px)";
+            slider.style.display = "block";
+            slider.oninput = () => this.say("_set", { ghostWorld: +slider.value });
+            canvas.style.filter = `opacity(${100 - v}%) saturate(${100-v}%) contrast(${80 + v * 0.2}%) blur(4px)`;
+            slider.value = v;
         } else {
+            slider.style.display = "none";
             canvas.style.filter = "";
         }
     }

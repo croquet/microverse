@@ -161,6 +161,16 @@ body {
     background-color: #d3d3d380;
 }
 
+#ghostSlider {
+    z-index: 200;
+    position: fixed;
+    width: 100px;
+    margin-left: -50px;
+    left: 50%;
+    top: 20px;
+    display: none;
+}
+
 .no-pointer-events {
     pointer-events: none;
 }
