@@ -21,7 +21,11 @@ body {
 body.tilt {
     perspective: 2000px;
     perspective-origin: 50% 50%;
-    background: repeating-conic-gradient(#eee 0% 25%, transparent 0% 50%) 50% / 20px 20px;
+    background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+}
+
+iframe {
+    transition: transform 0.5s ease-in-out;
 }
 
 body.tilt>iframe {
