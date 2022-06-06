@@ -1004,30 +1004,36 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // uses:
         // https://github.com/gkjohnson/three-mesh-bvh
 
-        let triPoint = new THREE.Vector3();
         let capsulePoint = new THREE.Vector3();
+        let triPoint = new THREE.Vector3();
 
-        const radius = this.moveRadius;
+        const radius = 0.8;
 
         let head = EYE_HEIGHT / 6;
-        let v = [...this.vq.v];
 
         let positionChanged = false;
-        let newPosition = new THREE.Vector3(...v);
+        let newPosition = new THREE.Vector3(...this.vq.v);
         collideList.forEach(c => {
             let iMat = new THREE.Matrix4();
             iMat.copy(c.matrixWorld).invert();
 
-            v = newPosition;
+            let v = newPosition;
             v.applyMatrix4(iMat); // shift this into the BVH frame
 
             let segment = new THREE.Line3(v.clone(), v.clone());
 
-            segment.start.y += (head - radius);
-            segment.end.y -= (EYE_HEIGHT - radius);
+            segment.start.y -= head;
+            segment.end.y -= EYE_HEIGHT;
             let cBox = new THREE.Box3();
-            cBox.min.set(v.x - radius, v.y - EYE_HEIGHT, v.z - radius);
-            cBox.max.set(v.x + radius, v.y + EYE_HEIGHT / 6, v.z + radius);
+            cBox.makeEmpty();
+
+            cBox.expandByPoint( segment.start );
+            cBox.expandByPoint( segment.end );
+            cBox.min.addScaledVector(new THREE.Vector3(-1.5, 1, -1.5), radius);
+            cBox.max.addScaledVector((new THREE.Vector3(1.5, 1, 1.5), radius));
+
+            // cBox.min.set(v.x - radius, v.y - EYE_HEIGHT, v.z - radius);
+            // cBox.max.set(v.x + radius, v.y + EYE_HEIGHT / 6, v.z + radius);
 
             // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
@@ -1044,15 +1050,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     }
                 }
             });
-            newPosition = segment.start;
+            newPosition = segment.start.clone();
             newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
-            newPosition.y -= (head - radius);
-        })
+            newPosition.y += head;
+        });
 
-        if(positionChanged){
+        if (positionChanged) {
             this.vq.v = newPosition.toArray();
             return true;
-        }else {
+        } else {
             this.isFalling = true;
             return false;
         }
