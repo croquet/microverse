@@ -1167,10 +1167,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         let collideList = walkLayer.filter(obj=> !obj.collider);
-        // then check for other floor objects
-        if(walkLayer.length >= 0) {
-            this.walkcaster.ray.origin.set(...v);
-            const intersections = this.walkcaster.intersectObjects(walkLayer, true);
+        if(collideList.length >= 0) {
+            this.walkcaster.ray.origin.set(...this.vq.v);
+            const intersections = this.walkcaster.intersectObjects(collideList, true);
 
             if (intersections.length > 0) {
                 let delta = intersections[0].distance - EYE_HEIGHT;
