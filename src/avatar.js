@@ -828,6 +828,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalClip.applyMatrix4(mclip);
         const pos = new THREE.Vector3(...anchor.translation);
         this.portalClip.constant = -this.portalClip.distanceToPoint(pos);
+        // if portal is facing away from us, flip the clip plane
+        // const facingAway = ???;
+        // if (facingAway) {
+        //     this.portalClip.normal.multiplyScalar(-1);
+        //     this.portalClip.constant = -this.portalClip.constant;
+        // }
         return mcam;
     }
 
@@ -1073,6 +1079,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         // prevent re-entering the portal
         if (this.lastPortalTime > Date.now() - 500) return false;
+
+        if (v3_isZero(this.lastPortalTranslation)) {
+            this.lastPortalTranslation = this.vq.v;
+            return;
+        }
 
         let dir = v3_sub(this.vq.v, this.lastPortalTranslation);
         this.lastPortalTranslation = this.vq.v;
