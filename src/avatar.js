@@ -6,7 +6,8 @@ import {
     THREE, Data, App, View, mix, GetPawn, AM_Player, PM_Player, PM_ThreeCamera, PM_ThreeVisible,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
-    m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation} from "@croquet/worldcore";
+    m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation,
+} from "@croquet/worldcore";
 
 import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
@@ -17,7 +18,7 @@ import {setupWorldMenuButton} from "./worldMenu.js";
 const EYE_HEIGHT = 1.676;
 // const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
-const MAX_FALL = -20;
+const MAX_FALL = -15;
 const MAX_V = 0.015;
 const KEY_V = MAX_V / 2;
 const MAX_SPIN = 0.0004;
@@ -524,10 +525,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastCollideTime = 0;
         this.lastPortalTime = 0;
         this.lastTranslation = this.actor.translation;
+        this.lastCollideTranslation = this.lastTranslation;
         this.opacity = 1;
 
         this.spin = q_identity();
         this.velocity = v3_zero();
+        this.accel = 0;
 
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
@@ -551,7 +554,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.future(100).fadeNearby();
         this.lastTranslation = this.translation;
-        this.lastPortalTranslation = this.translation;
 
         // clip halfspace behind portalCamera
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
@@ -922,15 +924,23 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     update(time, delta) {
         if (!this.actor.follow) {
             if (this.actor.inWorld) {
-                let moving = this.updatePose(delta);
+                this.accel += 0.25;
+                this.accel = Math.min(1.0, this.accel);
+                let vq = this.updatePose(delta);
+                if (!this.checkFloor(vq)) {
+                    vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+                    this.accel = 0;
+                } else {
+                    this.lastCollideTranslation = vq.v;
+                }
                 if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
                     if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                         this.lastCollideTime = time;
-                        this.collide();
+                        vq = this.collide(vq);
                     }
                     this.lastUpdateTime = time;
-                    this.lastTranslation = this.vq.v;
-                    this.positionTo(this.vq.v, this.vq.q);
+                    this.lastTranslation = vq.v;
+                    this.positionTo(vq.v, vq.q);
                 }
                 this.refreshCameraTransform();
             }
@@ -943,28 +953,23 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // compute motion from spin and velocity
     updatePose(delta) {
         let q, v;
-        let moving = false;
         let tug = this.tug;
         if (delta) tug = Math.min(1, tug * delta / 15);
 
         if (!q_isZero(this.spin)) {
             q = q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
-            moving = true;
         } else {
             q = this.rotation;
         }
         if (!v3_isZero(this.velocity)) {
             const relative = v3_scale(this.velocity, delta);
             const move = v3_transform(relative, m4_rotationQ(this.rotation));
-            // set the moveRadius (used for collision detection) to scale with velocity
-            this.moveRadius = Math.min(0.8, this.actor.collisionRadius + 50 * v3_sqrMag(move));
             v = v3_add(this.translation, move);
-            moving = true;
         } else {
             v = this.translation;
         }
-        this.vq = {v, q};
-        return moving;
+
+        return {v, q};
     }
 
     // update the camera transform and clipping planes if we are rendering a portal
@@ -1000,7 +1005,28 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
     }
 
-    collideBVH(collideList) {
+    checkFloor(vq) {
+        let walkLayer = this.service("ThreeRenderManager").threeLayer("walk");
+        let collideList = walkLayer.filter(obj => obj.collider);
+
+        let someFloor = false;
+
+        for (let j = 0; j < collideList.length; j++) {
+            let c = collideList[j];
+            let iMat = new THREE.Matrix4();
+            iMat.copy(c.matrixWorld).invert();
+
+            let down = new THREE.Vector3(0, -1, 0);
+            let ray = new THREE.Ray(new THREE.Vector3(...vq.v), down);
+            ray.applyMatrix4(iMat);
+            let hit = c.children[0].geometry.boundsTree.raycastFirst(ray);
+            someFloor = someFloor || hit;
+        }
+
+        return someFloor;
+    }
+
+    collideBVH(collideList, vq) {
         // uses:
         // https://github.com/gkjohnson/three-mesh-bvh
 
@@ -1012,12 +1038,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let head = EYE_HEIGHT / 6;
 
         let positionChanged = false;
-        let newPosition = new THREE.Vector3(...this.vq.v);
-        collideList.forEach(c => {
+
+        let velocity = v3_sub(vq.v, this.translation);
+
+        let times = Math.ceil(v3_magnitude(velocity) / 0.1);
+
+        if (times === 0) {return vq;};
+
+        let currentPosition = this.translation;
+
+        let newPosition = vq.v; // v3_add(currentPosition, stepVelocity);
+        let wallCollision = false;
+
+        for (let j = 0; j < collideList.length; j++) {
+            let c = collideList[j];
             let iMat = new THREE.Matrix4();
             iMat.copy(c.matrixWorld).invert();
 
-            let v = newPosition;
+            let v = new THREE.Vector3(...newPosition);
             v.applyMatrix4(iMat); // shift this into the BVH frame
 
             let segment = new THREE.Line3(v.clone(), v.clone());
@@ -1026,14 +1064,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             segment.end.y -= EYE_HEIGHT;
             let cBox = new THREE.Box3();
             cBox.makeEmpty();
-
-            cBox.expandByPoint( segment.start );
-            cBox.expandByPoint( segment.end );
+            cBox.expandByPoint(segment.start);
+            cBox.expandByPoint(segment.end);
             cBox.min.addScaledVector(new THREE.Vector3(-1.5, 1, -1.5), radius);
-            cBox.max.addScaledVector((new THREE.Vector3(1.5, 1, 1.5), radius));
-
-            // cBox.min.set(v.x - radius, v.y - EYE_HEIGHT, v.z - radius);
-            // cBox.max.set(v.x + radius, v.y + EYE_HEIGHT / 6, v.z + radius);
+            cBox.max.addScaledVector(new THREE.Vector3(1.5, 1, 1.5), radius);
 
             // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
@@ -1050,17 +1084,30 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     }
                 }
             });
-            newPosition = segment.start.clone();
-            newPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
-            newPosition.y += head;
-        });
+            let outPosition = segment.start.clone();
+            outPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
+            console.log(outPosition.y, outPosition.y + head);
+            outPosition.y += head;
+
+            // check how much the collider was moved
+            const deltaVector = v3_sub(outPosition.toArray(), currentPosition);
+            currentPosition = outPosition.toArray();
+            wallCollision = wallCollision || (positionChanged && Math.abs(deltaVector[1]) < 0.0001);
+        }
+
+        if (!this.checkFloor({v: currentPosition, q: vq.q})) {
+            console.log("accel =  0");
+            this.accel = 0;
+            let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+            return {v: newv, q: vq.q};
+        }
 
         if (positionChanged) {
-            this.vq.v = newPosition.toArray();
-            return true;
+            this.isFalling = true;
+            return {v: currentPosition, q: vq.q};
         } else {
             this.isFalling = true;
-            return false;
+            return vq;
         }
     }
 
@@ -1073,15 +1120,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return undefined;
     }
 
-    collidePortal() {
+    collidePortal(vq) {
         let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
         if (!portalLayer) return false;
 
         // prevent re-entering the portal
         if (this.lastPortalTime > Date.now() - 500) return false;
 
-        let dir = v3_sub(this.vq.v, this.lastPortalTranslation);
-        this.lastPortalTranslation = this.vq.v;
+        let dir = v3_sub(vq.v, this.translation);
         let len = Math.max(v3_magnitude(dir), PORTAL_DISTANCE);
         // not moving then return false
         if (v3_isZero(dir)) return false;
@@ -1089,7 +1135,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         dir = v3_normalize(dir);
         this.portalcaster.far = len;
         this.portalcaster.ray.direction.set(...dir);
-        this.portalcaster.ray.origin.set(...this.lastPortalTranslation);
+        this.portalcaster.ray.origin.set(...this.translation);
         const intersections = this.portalcaster.intersectObjects(portalLayer, true);
         if (intersections.length > 0) {
             let portal = this.pawnFrom3D(intersections[0].object);
@@ -1103,56 +1149,65 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return false;
     }
 
-    collide() {
-        if (this.collidePortal()) return true;
+    collide(vq) {
+        if (this.collidePortal(vq)) return vq;
 
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
-        if (!walkLayer) return false;
+        if (!walkLayer) return vq;
+
+        let v = vq.v;
 
         if (this.isFalling) {
-            let v = this.vq.v;
-            this.vq.v = [v[0], v[1] - this.actor.fallDistance, v[2]];
+            v = [v[0], v[1] - this.actor.fallDistance, v[2]];
             this.isFalling = false;
-            if(this.vq.v[1] < this.actor.maxFall){
+            if (v[1] < this.actor.maxFall) {
                 this.goHome();
-                return;
+                return {v: v3_zero(), q: q_identity()};
             }
         }
 
-        // then check for other floor objects
         let collideList = walkLayer.filter(obj=> !obj.collider);
+        // then check for other floor objects
         if(walkLayer.length >= 0) {
-            this.walkcaster.ray.origin.set(...this.vq.v);
+            this.walkcaster.ray.origin.set(...v);
             const intersections = this.walkcaster.intersectObjects(walkLayer, true);
 
             if (intersections.length > 0) {
                 let delta = intersections[0].distance - EYE_HEIGHT;
                 if (delta < 0) { // can only move up - we have already fallen
-                    let v = this.vq.v;
-                    this.vq.v = [v[0], v[1] - delta, v[2]];
+                    return {v: [v[0], v[1] - delta, v[2]], q: vq.q};
                 }
             }
         }
         // check for BVH colliders
         collideList = walkLayer.filter(obj => obj.collider);
-        if (collideList.length > 0) {this.collideBVH(collideList); }
+        if (collideList.length > 0) {
+            let result = this.collideBVH(collideList, {v, q: vq.q});
+            //console.log(v, result.v);
+            return result;
+        }
+        return vq;
     }
 
     startMMotion() {
         this.spin = q_identity();
         this.velocity = v3_zero();
         this.say("startMMotion");
+        this.accel = 0;
     }
 
     endMMotion() {
         this.activeMMotion = false;
         this.spin = q_identity();
         this.velocity = v3_zero();
+        this.accel = 0;
     }
 
     updateMMotion(dx, dy) {
         // move the avatar
-        let v = dy * JOYSTICK_V;
+
+        let v = dy * this.accel * JOYSTICK_V;
+
         v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
         const yaw = dx * (isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
