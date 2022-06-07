@@ -922,6 +922,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     update(time, delta) {
+        // console.log("position", this.translation);
         if (!this.actor.follow) {
             if (this.actor.inWorld) {
                 this.accel += 0.25;
@@ -940,6 +941,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     }
                     this.lastUpdateTime = time;
                     this.lastTranslation = vq.v;
+                    // console.log("position", vq.v);
                     this.positionTo(vq.v, vq.q);
                 }
                 this.refreshCameraTransform();
@@ -1033,47 +1035,48 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let capsulePoint = new THREE.Vector3();
         let triPoint = new THREE.Vector3();
 
-        const radius = 0.8;
-
-        let head = EYE_HEIGHT / 6;
+        const radius = 0.9;
+        const centerLen = EYE_HEIGHT * 0.1; // all fudge factors at this moment
 
         let positionChanged = false;
-
+        
         let velocity = v3_sub(vq.v, this.translation);
 
-        let times = Math.ceil(v3_magnitude(velocity) / 0.1);
-
-        if (times === 0) {return vq;};
-
         let currentPosition = this.translation;
-
         let newPosition = vq.v; // v3_add(currentPosition, stepVelocity);
         let wallCollision = false;
+        let onGround = false;
 
         for (let j = 0; j < collideList.length; j++) {
             let c = collideList[j];
             let iMat = new THREE.Matrix4();
             iMat.copy(c.matrixWorld).invert();
 
-            let v = new THREE.Vector3(...newPosition);
-            v.applyMatrix4(iMat); // shift this into the BVH frame
+            let segment = new THREE.Line3(
+                new THREE.Vector3(newPosition[0], newPosition[1] + centerLen, newPosition[2]),
+                new THREE.Vector3(newPosition[0], newPosition[1] - centerLen * 6, newPosition[2])
+            );
 
-            let segment = new THREE.Line3(v.clone(), v.clone());
-
-            segment.start.y -= head;
-            segment.end.y -= EYE_HEIGHT;
             let cBox = new THREE.Box3();
             cBox.makeEmpty();
             cBox.expandByPoint(segment.start);
             cBox.expandByPoint(segment.end);
-            cBox.min.addScaledVector(new THREE.Vector3(-1.5, 1, -1.5), radius);
-            cBox.max.addScaledVector(new THREE.Vector3(1.5, 1, 1.5), radius);
+            cBox.min.addScaledVector(new THREE.Vector3(-1, -1, -1), radius);
+            cBox.max.addScaledVector(new THREE.Vector3(1, 1, 1), radius);
+
+            segment.applyMatrix4(iMat);
+            cBox.applyMatrix4(iMat);
+
+            let totalCount = 0;
+            let hitCount = 0;
 
             // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
                     const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
+                    totalCount++;
+                    hitCount++;
                     if (distance < radius) {
                         const depth = radius - distance;
                         const direction = capsulePoint.sub(triPoint).normalize();
@@ -1085,25 +1088,31 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
             });
             let outPosition = segment.start.clone();
+            outPosition.y -= centerLen;
             outPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
-            console.log(outPosition.y, outPosition.y + head);
-            outPosition.y += head;
 
             // check how much the collider was moved
             const deltaVector = v3_sub(outPosition.toArray(), currentPosition);
             currentPosition = outPosition.toArray();
+            // console.log(deltaVector);
             wallCollision = wallCollision || (positionChanged && Math.abs(deltaVector[1]) < 0.0001);
+            onGround = positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
 
         if (!this.checkFloor({v: currentPosition, q: vq.q})) {
-            console.log("accel =  0");
             this.accel = 0;
             let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
             return {v: newv, q: vq.q};
         }
 
+        if (onGround) {
+            this.isFalling = false;
+            return {v: this.translation, q: vq.q};
+        }
+
         if (positionChanged) {
             this.isFalling = true;
+            // console.log("pos:", currentPosition);
             return {v: currentPosition, q: vq.q};
         } else {
             this.isFalling = true;
@@ -1166,9 +1175,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
 
+        /*
         let collideList = walkLayer.filter(obj=> !obj.collider);
         if(collideList.length >= 0) {
-            this.walkcaster.ray.origin.set(...this.vq.v);
+            this.walkcaster.ray.origin.set(vq.v);
             const intersections = this.walkcaster.intersectObjects(collideList, true);
 
             if (intersections.length > 0) {
@@ -1178,12 +1188,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
             }
         }
+        */
         // check for BVH colliders
-        collideList = walkLayer.filter(obj => obj.collider);
+        let collideList = walkLayer.filter(obj => obj.collider);
         if (collideList.length > 0) {
-            let result = this.collideBVH(collideList, {v, q: vq.q});
-            //console.log(v, result.v);
-            return result;
+            let a = this.collideBVH(collideList, {v, q: vq.q});
+            window.abc = a;
+            return a;
         }
         return vq;
     }
