@@ -143,12 +143,6 @@ class Shell {
         do { portalId = Math.random().toString(36).substring(2, 15); } while (this.frames.has(portalId));
         const frame = document.createElement("iframe");
         frame.src = portalToFrameURL(portalURL, portalId);
-        frame.style.position = "absolute";
-        frame.style.top = "0";
-        frame.style.left = "0";
-        frame.style.width = "100%";
-        frame.style.height = "100%";
-        frame.style.border = "none";
         frame.style.zIndex = -this.frames.size; // put new frame behind all other frames
         frame.style.setProperty('--tilt-z', `${this.frames.size * -200}px`);
         frame.portalId = portalId;
