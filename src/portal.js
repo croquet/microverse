@@ -47,6 +47,7 @@ export class PortalPawn extends CardPawn {
     }
 
     destroy() {
+        sendToShell("portal-unload", { portalId: this.portalId });
         removeShellListener(this.shellListener);
         super.destroy();
     }
