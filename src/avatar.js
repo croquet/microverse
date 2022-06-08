@@ -490,7 +490,6 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
-        this.lastTranslation = this.actor.translation;
         this.opacity = 1;
 
         this.spin = q_identity();
@@ -524,8 +523,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
         this.lastPortalTime = 0;
-        this.lastTranslation = this.actor.translation;
-        this.lastCollideTranslation = this.lastTranslation;
+        this.lastCollideTranslation = this.actor.translation;
         this.opacity = 1;
 
         this.spin = q_identity();
@@ -552,7 +550,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
         this.future(100).fadeNearby();
-        this.lastTranslation = this.translation;
 
         // clip halfspace behind portalCamera
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
@@ -829,6 +826,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalClip.applyMatrix4(mclip);
         const pos = new THREE.Vector3(...anchor.translation);
         this.portalClip.constant = -this.portalClip.distanceToPoint(pos);
+        // if portal is facing away from us, flip the clip plane
+        // const facingAway = ???;
+        // if (facingAway) {
+        //     this.portalClip.normal.multiplyScalar(-1);
+        //     this.portalClip.constant = -this.portalClip.constant;
+        // }
         return mcam;
     }
 
@@ -940,7 +943,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         vq = this.collide(vq);
                     }
                     this.lastUpdateTime = time;
-                    this.lastTranslation = vq.v;
                     // console.log("position", vq.v);
                     this.positionTo(vq.v, vq.q);
                 }

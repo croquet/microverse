@@ -161,7 +161,7 @@ class Shell {
             if (b === mainFrame) return 1;
             if (a === portalFrame) return -1;
             if (b === portalFrame) return 1;
-            return 0;
+            return a.zIndex - b.zIndex;
         });
         for (let i = 0; i < sorted.length; i++) {
             const { style } = sorted[i];
@@ -192,6 +192,12 @@ class Shell {
                 targetFrame = this.findFrame(data.portalURL);
                 if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
                 this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId});
+                return;
+            case "croquet:microverse:portal-unload":
+                const frame = this.frames.get(data.portalId);
+                frame.remove();
+                this.frames.delete(data.portalId);
+                this.sortFrames(this.currentFrame); // reassign z-indexes
                 return;
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
