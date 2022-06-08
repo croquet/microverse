@@ -1041,7 +1041,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const centerLen = EYE_HEIGHT * 0.1; // all fudge factors at this moment
 
         let positionChanged = false;
-        
+
         let velocity = v3_sub(vq.v, this.translation);
 
         let currentPosition = this.translation;
@@ -1069,8 +1069,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             segment.applyMatrix4(iMat);
             cBox.applyMatrix4(iMat);
 
-            let totalCount = 0;
-            let hitCount = 0;
+            // let totalCount = 0;
+            // let hitCount = 0;
 
             // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
