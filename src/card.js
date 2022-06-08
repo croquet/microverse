@@ -19,7 +19,7 @@ import { WorldSaver } from './worldSaver.js';
 
 // import { forEach } from 'jszip';
 
-const { MeshBVH, MeshBVHVisualizer } = THREE_MESH_BVH;
+const { MeshBVH, /*MeshBVHVisualizer*/ } = THREE_MESH_BVH;
 
 export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "behaviorModules", "multiuser", "name", "noSave"];
 
@@ -73,6 +73,28 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.set({...cardOptions});
         this.set({cardData: cardData});
         this.say("updateShape", options);
+    }
+
+    addBehaviorModule(moduleName) {
+        let behaviorModules;
+        if (!this._behaviorModules) {
+            behaviorModules = [moduleName];
+        } else if (this._behaviorModules.includes(moduleName)) {
+            return;
+        } else {
+            behaviorModules = [...this._behaviorModules, moduleName];
+        }
+        this.updateBehaviors({behaviorModules});
+    }
+
+    removeBehaviorModule(moduleName) {
+        let behaviorModules;
+        if (!this._behaviorModules) {return;}
+        let index = this._behaviorModules.indexOf(moduleName);
+        if (index < 0) {return;}
+        behaviorModules = [...this._behaviorModules];
+        behaviorModules.splice(index, 1);
+        this.updateBehaviors({behaviorModules});
     }
 
     updateBehaviors(options) {
