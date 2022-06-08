@@ -13,7 +13,7 @@ class SpinActor {
 
     doSpin() {
         if(this.isSpinning) {
-            this.setRotation(Worldcore.q_multiply(this._rotation, this.qSpin));
+            this.rotateTo(Worldcore.q_multiply(this._rotation, this.qSpin));
             this.future(50).doSpin();
         }
     }
@@ -63,7 +63,7 @@ class SpinPawn {
         let newAngle = ((next - this.base) + Math.PI * 2) % (Math.PI * 2);
         let qAngle = Worldcore.q_euler(0, newAngle, 0);
 
-        this.say("setRotation", Worldcore.q_multiply(this.baseRotation, qAngle));
+        this.rotateTo(Worldcore.q_multiply(this.baseRotation, qAngle));
         // this.setRotation(Worldcore.q_multiply(this.baseRotation, qAngle));
         newAngle = newAngle < Math.PI ? newAngle : newAngle - Math.PI * 2;
         this.say("newAngle", newAngle);
