@@ -1033,20 +1033,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     collideBVH(collideList, vq) {
         // uses:
         // https://github.com/gkjohnson/three-mesh-bvh
+        // in particular, the characterMovement.js example
 
         let capsulePoint = new THREE.Vector3();
         let triPoint = new THREE.Vector3();
 
         const radius = this.actor.collisionRadius;
-        const centerLen = EYE_HEIGHT * 0.1; // all fudge factors at this moment
+        const leg = EYE_HEIGHT / 2; // all fudge factors at this moment
 
         let positionChanged = false;
 
         let velocity = v3_sub(vq.v, this.translation);
-
-        let currentPosition = this.translation;
+        // let currentPosition = this.translation;
         let newPosition = vq.v; // v3_add(currentPosition, stepVelocity);
-        let wallCollision = false;
         let onGround = false;
 
         for (let j = 0; j < collideList.length; j++) {
@@ -1055,8 +1054,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             iMat.invert();
 
             let segment = new THREE.Line3(
-                new THREE.Vector3(newPosition[0], newPosition[1] + centerLen, newPosition[2]),
-                new THREE.Vector3(newPosition[0], newPosition[1] - centerLen * 5, newPosition[2])
+                new THREE.Vector3(newPosition[0], newPosition[1], newPosition[2]),
+                new THREE.Vector3(newPosition[0], newPosition[1] - leg, newPosition[2])
             );
 
             let cBox = new THREE.Box3();
@@ -1085,14 +1084,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             });
             let outPosition = segment.start.clone();
             outPosition.applyMatrix4(c.children[0].matrixWorld); // convert back to world coordinates
-            outPosition.y -= centerLen;
+            // outPosition.y -= centerLen;
 
             newPosition = outPosition.toArray();
             // console.log(deltaVector);
             onGround = onGround || positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
 
-        if (!this.checkFloor({v: currentPosition, q: vq.q})) {
+        if (!this.checkFloor({v: newPosition, q: vq.q})) {
             this.accel = 0;
             let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
             return {v: newv, q: vq.q};
@@ -1105,7 +1104,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         if (positionChanged) {
             this.isFalling = true;
-            // console.log("pos:", currentPosition);
             return {v: newPosition, q: vq.q};
         } else {
             this.isFalling = true;
