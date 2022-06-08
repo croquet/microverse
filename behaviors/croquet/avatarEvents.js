@@ -16,17 +16,17 @@ class AvatarPawn {
         this.addLastResponder("pointerUp", {ctrlKey: true}, this);
         this.addEventListener("pointerUp", this.pointerUp);
 
-        this.addLastResponder("pointerWheel", {}, this);
+        this.addLastResponder("pointerWheel", {ctrlKey: true}, this);
         this.addEventListener("pointerWheel", this.pointerWheel);
 
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
         this.addEventListener("pointerDoubleDown", this.addSticky);
 
-        this.addLastResponder("keyDown", {}, this);
+        this.addLastResponder("keyDown", {ctrlKey: true}, this);
         this.addEventListener("keyDown", this.keyDown);
 
-        this.addLastResponder("keyUp", {}, this);
+        this.addLastResponder("keyUp", {ctrlKey: true}, this);
         this.addEventListener("keyUp", this.keyUp);
     }
 
@@ -47,17 +47,17 @@ class AvatarPawn {
         this.removeLastResponder("pointerUp", {ctrlKey: true}, this);
         this.removeEventListener("pointerUp", this.pointerUp);
 
-        this.removeLastResponder("pointerWheel", {}, this);
+        this.removeLastResponder("pointerWheel", {ctrlKey: true}, this);
         this.removeEventListener("pointerWheel", this.pointerWheel);
 
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.removeFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
         this.removeEventListener("pointerDoubleDown", this.addSticky);
 
-        this.removeLastResponder("keyDown", {}, this);
+        this.removeLastResponder("keyDown", {ctrlKey: true}, this);
         this.removeEventListener("keyDown", this.keyDown);
 
-        this.removeLastResponder("keyUp", {}, this);
+        this.removeLastResponder("keyUp", {ctrlKey: true}, this);
         this.removeEventListener("keyUp", this.keyUp);
     }
 }

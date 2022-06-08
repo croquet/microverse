@@ -1265,6 +1265,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                                 console.profile("profile");
                             }
                             break;
+                        case 'r':
+                            let renderer = this.service("ThreeRenderManager").renderer;
+                            console.log("Scene polycount:", renderer.info.render.triangles)
+                            console.log("Active Drawcalls:", renderer.info.render.calls)
+                            console.log("Textures in Memory", renderer.info.memory.textures)
+                            console.log("Geometries in Memory", renderer.info.memory.geometries)
+                            break;
                     }
                 }
             /* console.log(e) */
