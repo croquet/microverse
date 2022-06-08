@@ -1051,8 +1051,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         for (let j = 0; j < collideList.length; j++) {
             let c = collideList[j];
-            let iMat = new THREE.Matrix4();
-            iMat.copy(c.matrixWorld).invert();
+            let iMat = c.children[0].matrixWorld.clone();
+            iMat.invert();
 
             let segment = new THREE.Line3(
                 new THREE.Vector3(newPosition[0], newPosition[1] + centerLen, newPosition[2]),
@@ -1069,16 +1069,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             segment.applyMatrix4(iMat);
             cBox.applyMatrix4(iMat);
 
-            // let totalCount = 0;
-            // let hitCount = 0;
-
-            // let minDistance = 1000000;
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
                     const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
-                    totalCount++;
-                    hitCount++;
                     if (distance < radius) {
                         const depth = radius - distance;
                         const direction = capsulePoint.sub(triPoint).normalize();
@@ -1090,15 +1084,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
             });
             let outPosition = segment.start.clone();
+            outPosition.applyMatrix4(c.children[0].matrixWorld); // convert back to world coordinates
             outPosition.y -= centerLen;
-            outPosition.applyMatrix4(c.matrixWorld); // convert back to world coordinates
 
-            // check how much the collider was moved
-            const deltaVector = v3_sub(outPosition.toArray(), currentPosition);
-            currentPosition = outPosition.toArray();
+            newPosition = outPosition.toArray();
             // console.log(deltaVector);
-            wallCollision = wallCollision || (positionChanged && Math.abs(deltaVector[1]) < 0.0001);
-            onGround = positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
+            onGround = onGround || positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
 
         if (!this.checkFloor({v: currentPosition, q: vq.q})) {
@@ -1115,7 +1106,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (positionChanged) {
             this.isFalling = true;
             // console.log("pos:", currentPosition);
-            return {v: currentPosition, q: vq.q};
+            return {v: newPosition, q: vq.q};
         } else {
             this.isFalling = true;
             return vq;
