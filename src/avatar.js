@@ -25,8 +25,8 @@ const MAX_SPIN = 0.0004;
 const JOYSTICK_V = 0.000030;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
-const PORTAL_DISTANCE = 0.2;
-const COLLISION_RADIUS = EYE_HEIGHT / 5;
+const PORTAL_DISTANCE = 0.3;
+const COLLISION_RADIUS = 0.8;
 const isMobile = !!("ontouchstart" in window);
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
 const Q_ROTATION_180 = q_euler(0, Math.PI, 0);
@@ -68,7 +68,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     get pawn() { return AvatarPawnFactory; }
     get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._collisionRadius || COLLISION_RADIUS; } // minimum collison radius for avatar
+    get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; } // minimum collison radius for avatar
     get maxFall(){ return this._maxFall || MAX_FALL; } // max fall before we goHome()
     get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
@@ -538,7 +538,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = q_euler(0, this.lookYaw, 0);
         this.portalLookExternal = initialPortalLookExternal;
 
-        this.moveRadius = this.actor.collisionRadius;
         this.isFalling = false;
 
         let renderMgr = this.service("ThreeRenderManager");
@@ -928,6 +927,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.accel += 0.25;
                 this.accel = Math.min(1.0, this.accel);
                 let vq = this.updatePose(delta);
+                if (this.collidePortal(vq)) {return;}
                 if (!this.checkFloor(vq)) {
                     vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
                     this.accel = 0;
@@ -1035,7 +1035,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let capsulePoint = new THREE.Vector3();
         let triPoint = new THREE.Vector3();
 
-        const radius = 0.9;
+        const radius = this.actor.collisionRadius;
         const centerLen = EYE_HEIGHT * 0.1; // all fudge factors at this moment
 
         let positionChanged = false;
@@ -1054,7 +1054,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             let segment = new THREE.Line3(
                 new THREE.Vector3(newPosition[0], newPosition[1] + centerLen, newPosition[2]),
-                new THREE.Vector3(newPosition[0], newPosition[1] - centerLen * 6, newPosition[2])
+                new THREE.Vector3(newPosition[0], newPosition[1] - centerLen * 5, newPosition[2])
             );
 
             let cBox = new THREE.Box3();
@@ -1159,8 +1159,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     collide(vq) {
-        if (this.collidePortal(vq)) return vq;
-
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return vq;
 
@@ -1175,21 +1173,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
 
-        /*
-        let collideList = walkLayer.filter(obj=> !obj.collider);
-        if(collideList.length >= 0) {
-            this.walkcaster.ray.origin.set(vq.v);
-            const intersections = this.walkcaster.intersectObjects(collideList, true);
-
-            if (intersections.length > 0) {
-                let delta = intersections[0].distance - EYE_HEIGHT;
-                if (delta < 0) { // can only move up - we have already fallen
-                    return {v: [v[0], v[1] - delta, v[2]], q: vq.q};
-                }
-            }
-        }
-        */
-        // check for BVH colliders
         let collideList = walkLayer.filter(obj => obj.collider);
         if (collideList.length > 0) {
             let a = this.collideBVH(collideList, {v, q: vq.q});
