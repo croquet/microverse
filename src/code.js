@@ -602,6 +602,12 @@ export class BehaviorModelManager extends ModelService {
         let current = this.moduleDefs.get(name);
         if (!current) {return name;}
 
+        for (let [n, o] of this.moduleDefs) {
+            if (o.location === location && o.name === name) {
+                return n;
+            }
+        }
+
         if (current.location === location) {
             return name;
         }
@@ -696,7 +702,6 @@ export class BehaviorModelManager extends ModelService {
                 }
 
                 name = this.createAvailableName(internalName, location); // it may be the same name
-
                 nameMap.set(internalName, name);
 
                 this.externalNames.set(`${location}$${moduleDef.name}`, name);
@@ -1011,7 +1016,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
 export class CodeLibrary {
     constructor() {
         this.modules = new Map(); // for behaviors
-        // {name /*Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, location:string?}
+        // {name /*test/lights$Bar*/, {actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>}, systemModule: boolean>, location:string?}
 
         this.functions = new Map();
         this.classes = new Map();
@@ -1033,11 +1038,12 @@ export class CodeLibrary {
                         pawns.set(cls.name, cls.toString());
                     });
                 }
-                let already = this.modules.get(name);
+                let pathName = `${location}$${name}`;
+                let already = this.modules.get(pathName);
                 if (already) {
                     console.log(`a module ${name} is defined in ${location} and ${already.location}`);
                 }
-                this.modules.set(name, {
+                this.modules.set(pathName, {
                     name,
                     location,
                     actorBehaviors: actors,

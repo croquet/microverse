@@ -22,6 +22,7 @@ class PendulumActor {
                     name,
                     parent: this,
                     pendulumProto: true,
+                    pendulumHandlesEvent: true,
                     behaviorModules: ["Rapier", "PendulumLink"],
                     noSave: true,
                 });
@@ -116,7 +117,9 @@ class PendulumPawn {
 
 class PendulumLinkActor {
     setup() {
-        this.addEventListener("pointerTap", "jolt");
+        if (this._cardData.pendulumHandlesEvent) {
+            this.addEventListener("pointerTap", "jolt");
+        }
     }
 
     jolt(p3d) {
@@ -127,6 +130,10 @@ class PendulumLinkActor {
 
         let jolt = Worldcore.v3_scale(p3d.normal, -40);
         r.applyForce({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
+    }
+
+    teardown() {
+        this.removeEventListener("pointerTap", "jolt");
     }
 }
 
