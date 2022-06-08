@@ -179,7 +179,7 @@ export class PortalPawn extends CardPawn {
 
     // double-click should move avatar to the front of the portal
     get hitNormal() {
-        return [0, 0, 1];
+        return [0, 0, -1];
     }
 
     update(t) {
