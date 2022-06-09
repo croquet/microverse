@@ -178,13 +178,13 @@ class Shell {
                 clearInterval(fromFrame.interval);
                 fromFrame.interval = null;
                 return;
-            case "croquet:microverse:portal-load":
+            case "croquet:microverse:portal-open":
                 let targetFrame;
                 if (data.portalId) {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
                     if (portalToFrameURL(targetFrame.src, data.portalId) !== url) {
-                        console.warn("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
+                        console.warn("portal-open", data.portalId, "replacing", targetFrame.src, "with", url);
                         targetFrame.src = url;
                     }
                     return;
@@ -193,7 +193,7 @@ class Shell {
                 if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
                 this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId});
                 return;
-            case "croquet:microverse:portal-unload":
+            case "croquet:microverse:portal-close":
                 const frame = this.frames.get(data.portalId);
                 frame.remove();
                 this.frames.delete(data.portalId);

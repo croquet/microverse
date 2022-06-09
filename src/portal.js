@@ -31,7 +31,7 @@ export class PortalPawn extends CardPawn {
         this.portalId = undefined;
         this.targetMatrix = new THREE.Matrix4();
         this.targetMatrixBefore = new THREE.Matrix4();
-        this.loadTargetWorld();
+        this.openPortal();
 
         this.setGhostWorld({ v: this.actor._ghostWorld });
         this.listen("ghostWorldSet", this.setGhostWorld);
@@ -47,7 +47,7 @@ export class PortalPawn extends CardPawn {
     }
 
     destroy() {
-        sendToShell("portal-unload", { portalId: this.portalId });
+        this.closePortal();
         removeShellListener(this.shellListener);
         super.destroy();
     }
@@ -228,7 +228,7 @@ export class PortalPawn extends CardPawn {
 
     cardDataUpdated(data) {
         super.cardDataUpdated(data);
-        if (this.didPropertyChange(data, "portalURL")) this.loadTargetWorld();
+        if (this.didPropertyChange(data, "portalURL")) this.openPortal();
         if (this.didPropertyChange(data, "sparkle")) this.updateParticles();
     }
 
@@ -243,12 +243,18 @@ export class PortalPawn extends CardPawn {
         this.say("_set", { portalTime: this.now() - 1500 });
     }
 
-    loadTargetWorld() {
+    openPortal() {
         const portalURL = this.resolvePortalURL();
-        sendToShell("portal-load", {
+        sendToShell("portal-open", {
             portalURL,
             portalId: this.portalId, // initially undefined
         });
+    }
+
+    closePortal() {
+        sendToShell("portal-close", { portalId: this.portalId });
+        this.portalId = null;
+        this.targetMatrixBefore.identity();
     }
 
     resolvePortalURL() {
