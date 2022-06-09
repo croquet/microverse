@@ -210,7 +210,7 @@ console.log(this);
                 const geo = pageMesh.geometry = new THREE.PlaneGeometry(cardWidth, pageHeight);
                 this.shape.add(pageMesh);
                 const pageY = cardHeight / 2 - shownHeight - topGap - pageHeight / 2;
-                pageMesh.position.set(0, pageY, depth / 2 + 0.001);
+                pageMesh.position.set(0, pageY, depth / 2 + 0.003);
                 const uv = geo.attributes.uv;
                 uv.setXY(0, 0, 1 - imageTop);
                 uv.setXY(1, 1, 1 - imageTop);
