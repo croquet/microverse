@@ -39,6 +39,8 @@ class Shell {
         shellHud.classList.toggle("is-shell", true);
         // TODO: create HUD only when needed?
 
+        this.usingSyncedRendering = false;
+
         window.addEventListener("message", e => {
             if (e.data?.message?.startsWith?.("croquet:microverse:")) {
                 for (const [portalId, frame] of this.frames) {
@@ -178,13 +180,13 @@ class Shell {
                 clearInterval(fromFrame.interval);
                 fromFrame.interval = null;
                 return;
-            case "croquet:microverse:portal-load":
+            case "croquet:microverse:portal-open":
                 let targetFrame;
                 if (data.portalId) {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
                     if (portalToFrameURL(targetFrame.src, data.portalId) !== url) {
-                        console.warn("portal-load", data.portalId, "replacing", targetFrame.src, "with", url);
+                        console.warn("portal-open", data.portalId, "replacing", targetFrame.src, "with", url);
                         targetFrame.src = url;
                     }
                     return;
@@ -193,18 +195,54 @@ class Shell {
                 if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
                 this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId});
                 return;
-            case "croquet:microverse:portal-unload":
+            case "croquet:microverse:portal-close":
                 const frame = this.frames.get(data.portalId);
-                frame.remove();
-                this.frames.delete(data.portalId);
-                this.sortFrames(this.currentFrame); // reassign z-indexes
+                if (frame !== this.currentFrame) {
+                    frame.remove();
+                    this.frames.delete(data.portalId);
+                    this.sortFrames(this.currentFrame); // reassign z-indexes
+                }
                 return;
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
                 if (+fromFrame.style.zIndex <= +toFrame.style.zIndex) return; // don't let inner world modify outer world
-                this.sendToPortal(data.portalId, data);
+
+                if (this.endMovementTimeout) clearTimeout(this.endMovementTimeout);
+                if (data.cameraMatrix === null) {
+                    this.endSyncedRendering(data.portalId);
+                    return;
+                }
+
+                this.endMovementTimeout = setTimeout(() => this.endSyncedRendering(data.portalId), 300);
+
+                if (!this.usingSyncedRendering) this.startSyncedRendering(data.portalId);
+
+                // in case the through-portal world's rendering is slow, only request
+                // a new render if the previous one has completed or timed out
+                if (!this.portalRenderTimeout) {
+                    this.lastPortalUpdateTime = data.updateTime;
+                    const now = Date.now();
+                    data.forwardTime = now;
+                    this.renderRequestTime = now;
+                    // don't let the through-portal world delay the outer world's rendering
+                    // indefinitely
+                    this.portalRenderTimeout = setTimeout(() => {
+                        console.log("portal render timed out");
+                        delete this.portalRenderTimeout;
+                        this.manuallyRenderCurrentFrame();
+                    }, 200);
+                    this.sendToPortal(data.portalId, data);
+                }
                 // remember portalData so we can send them to the portal when it is opened
                 this.portalData.set(data.portalId, data);
+                return;
+            case "croquet:microverse:portal-world-rendered":
+                if (this.portalRenderTimeout && data.forwardTime === this.renderRequestTime) {
+                    clearTimeout(this.portalRenderTimeout);
+                    delete this.portalRenderTimeout;
+                    // console.log(`upd ${data.forwardTime - data.updateTime} fwd ${data.renderedTime - data.forwardTime} ar ${Date.now() - data.renderedTime} req`);
+                    this.manuallyRenderCurrentFrame();
+                }
                 return;
             case "croquet:microverse:portal-enter":
                 if (fromFrame === this.currentFrame) {
@@ -228,6 +266,36 @@ class Shell {
             default:
                 console.warn(`shell received unhandled message from portal-${fromPortalId}`, data);
         }
+    }
+
+    startSyncedRendering(portalId) {
+        console.log("starting sync render");
+        this.sendToPortal(this.currentFrame.portalId, {
+            message: "croquet:microverse:start-sync-rendering"
+        });
+        this.sendToPortal(portalId, {
+            message: "croquet:microverse:start-sync-rendering"
+        });
+        this.usingSyncedRendering = true;
+    }
+
+    endSyncedRendering(portalId) {
+        if (!this.usingSyncedRendering) return; // already off
+
+        console.log("ending sync render");
+        this.sendToPortal(this.currentFrame.portalId, {
+            message: "croquet:microverse:stop-sync-rendering"
+        });
+        this.sendToPortal(portalId, {
+            message: "croquet:microverse:stop-sync-rendering"
+        });
+        this.usingSyncedRendering = false;
+        delete this.portalRenderTimeout;
+    }
+
+    manuallyRenderCurrentFrame() {
+        this.sendToPortal(this.currentFrame.portalId, { message: "croquet:microverse:sync-render-now", updateTime: this.lastPortalUpdateTime
+        });
     }
 
     findFrame(portalURL) {

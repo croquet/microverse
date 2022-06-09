@@ -3,6 +3,23 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-06-03
+### Fixed
+- Performance issues in the PDF viewer.
+- Continuing improvements in walk and portal hit detection.
+- Continuing improvements in portals.
+- Property Sheet colors adjusted.
+
+### Changed
+- The effects on portal.
+- The pendulum has scale for convenience.
+- The default world is now the art gallery, with a portal into the refinery world.
+- 2D cards use toneMapping flag.
+
+### Added
+- The start of two way Portals.
+- SingleUser behavior added.
+
 ## 2022-05-27
 ### Added
 - Paste an image, a text or url text to create an appropriate object.

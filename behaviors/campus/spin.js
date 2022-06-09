@@ -18,7 +18,7 @@ class SingleUserSpinActor {
 
     doSpin() {
         if(this.isSpinning) {
-            this.setRotation(Worldcore.q_multiply(this._rotation, this.qSpin));
+            this.rotateTo(Worldcore.q_multiply(this._rotation, this.qSpin));
             this.future(50).doSpin();
         }
     }
