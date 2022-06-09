@@ -195,9 +195,11 @@ class Shell {
                 return;
             case "croquet:microverse:portal-close":
                 const frame = this.frames.get(data.portalId);
-                frame.remove();
-                this.frames.delete(data.portalId);
-                this.sortFrames(this.currentFrame); // reassign z-indexes
+                if (frame !== this.currentFrame) {
+                    frame.remove();
+                    this.frames.delete(data.portalId);
+                    this.sortFrames(this.currentFrame); // reassign z-indexes
+                }
                 return;
             case "croquet:microverse:portal-update":
                 const toFrame = this.frames.get(data.portalId);
