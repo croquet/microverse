@@ -190,13 +190,32 @@ export class PortalPawn extends CardPawn {
     }
 
     updatePortalCamera() {
+        // if the portal's position with respect to the camera has changed, tell the
+        // embedded world to re-render itself from the suitably adjusted camera angle.
+        // while these changes continue, the shell will take over the scheduling of
+        // the worlds' rendering with the goal of ensuring that the embedded world has
+        // always finished its rendering by the time the outer world (and the portal)
+        // is rendered.
         if (!this.portalId) return;
         const { targetMatrix, targetMatrixBefore, portalId } = this;
+        const renderMgr = this.service("ThreeRenderManager");
+        const { camera } = renderMgr;
+        camera.updateMatrixWorld(true); // evidently not guaranteed to have been handled since last time, perhaps because the "synced" rendering is decoupled from render-objects' update() invocations
+        this.renderObject.updateMatrixWorld(true); // ditto
+        const frustum = new THREE.Frustum()
+        const matrix = new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+        frustum.setFromProjectionMatrix(matrix);
+        // if the portal isn't on view, tell the shell there's no need to do synchronised
+        // rendering right now (even though the portal is moving)
+        if (!frustum.intersectsObject(this.renderObject.children[0])) {
+            sendToShell("portal-update", { portalId, cameraMatrix: null });
+            return;
+        }
         targetMatrix.copy(this.renderObject.matrixWorld);
         targetMatrix.invert();
-        targetMatrix.multiply(this.service("ThreeRenderManager").camera.matrixWorld);
+        targetMatrix.multiply(camera.matrixWorld);
         if (!targetMatrixBefore.equals(targetMatrix)) {
-            sendToShell("portal-update", { portalId, cameraMatrix: targetMatrix.elements });
+            sendToShell("portal-update", { portalId, cameraMatrix: targetMatrix.elements, updateTime: Date.now() });
             targetMatrixBefore.copy(targetMatrix);
         }
     }

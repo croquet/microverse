@@ -585,7 +585,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         // keep track of being in the primary frame or not
         this.isPrimary = isPrimaryFrame;
-        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy}) => {
+        // this.say("_set", { inWorld: this.isPrimary });
+        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, updateTime, forwardTime }) => {
             switch (command) {
                 case "frame-type":
                     const isPrimary = frameType === "primary";
@@ -597,11 +598,26 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     // tell shell that we received this command (TODO: should only send this once)
                     sendToShell("started");
                     break;
+                case "start-sync-rendering":
+                    renderMgr.setRender(false);
+                    break;
+                case "stop-sync-rendering":
+                    renderMgr.setRender(true);
+                    break;
+                case "sync-render-now":
+                    // console.log(Date.now() - updateTime);
+                    renderMgr.composer.render();
+                    break;
                 case "portal-update":
                     if (cameraMatrix) {
                         this.portalLookExternal = cameraMatrix;
                         initialPortalLookExternal = cameraMatrix;
-                        if (!this.isPrimary) this.refreshCameraTransform();
+                        if (!this.isPrimary) {
+                            this.refreshCameraTransform();
+                            renderMgr.composer.render();
+                            const renderedTime = Date.now();
+                            sendToShell("portal-world-rendered", { updateTime, forwardTime, renderedTime });
+                        }
                     }
                     break;
                 case "motion-start":
