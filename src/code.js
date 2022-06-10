@@ -960,7 +960,7 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
             }
         });
 
-        Promise.all(promises).then((allData) => {
+        Promise.all(promises).then(async (allData) => {
             dataURLs.forEach((url) => URL.revokeObjectURL(url));
             scripts.forEach((s) => s.remove());
             allData = allData.filter((o) => o);
@@ -1000,11 +1000,17 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                 let ind = 0;
 
                 this.publish(this.model.id, "loadStart", key);
+                let throttle = array.length > 80000;
 
                 while (ind < array.length) {
                     let buf = array.slice(ind, ind + 2880);
                     this.publish(this.model.id, "loadOne", {key, buf});
                     ind += 2880;
+                    if (throttle) {
+                        await new Promise((resolve) => {
+                            setTimeout(resolve, 5);
+                        });
+                    }
                 }
 
                 this.publish(this.model.id, "loadDone", key);
