@@ -182,8 +182,9 @@ class CascadePawn {
           Uncomment the cyclinder case to add the cylinder shape.
 
         */
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+
+        // this.shape.children.forEach((c) => this.shape.remove(c));
+        // this.shape.children = [];
 
         window.Worldcore = Worldcore;
         
