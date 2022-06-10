@@ -6,7 +6,9 @@ import * as WorldcoreExports from "@croquet/worldcore-kernel";
 const {ViewService, ModelService, GetPawn, Model} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "@croquet/worldcore-three";
-import * as WorldcoreRapierExports from "@croquet/worldcore-rapier";
+import * as WorldcoreRapierExports from "./physics.js";
+
+//console.log(WorldcoreRapierExports);
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, module, behavior) {

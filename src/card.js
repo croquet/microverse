@@ -407,11 +407,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         return this.call("Rapier$RapierActor", "getRigidBody");
     }
 
-    contactEvent(rb1, rb2, started) {
-        return this.call(this.contactEventHandlerBehavior, this.contactEventHandlerMethod, rb1, rb2, started);
-    }
-    intersectionEvent(rb1, rb2, intersecting) {
-        return this.call(this.intersectionEventHandlerBehavior, this.intersectionEventHandlerMethod, rb1, rb2, intersecting);
+    collisionEvent(rb1, rb2, started) {
+        return this.call(this.collisionEventHandlerBehavior, this.collisionEventHandlerMethod, rb1, rb2, started);
     }
 }
 CardActor.register('CardActor');
