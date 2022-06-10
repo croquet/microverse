@@ -5,7 +5,7 @@
 // DynamicTexture is used to define and interact with an offscreen canvas that updates a texture object. In particular,
 // it is used as the text editing object.
 // Despite its name, it isn't a TObject.
-import { THREE } from '@croquet/worldcore';
+import { THREE } from '@croquet/worldcore-three';
 
 export class DynamicTexture{
   //'initialize',{

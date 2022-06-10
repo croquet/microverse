@@ -4,7 +4,7 @@
 
 import {AssetManager as BasicAssetManager} from "./assetManager.js";
 
-import {ViewService} from "@croquet/worldcore";
+import {ViewService} from "@croquet/worldcore-kernel";
 
 export class AssetManager extends ViewService {
     constructor(name) {

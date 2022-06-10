@@ -8,7 +8,7 @@
 // loading time: in general, the parent needs to be created before a child
 
 import {intrinsicProperties} from "./card.js";
-import {Constants} from "@croquet/worldcore";
+import {Constants} from "@croquet/worldcore-kernel";
 
 export class WorldSaver {
     constructor(defaultClass) {

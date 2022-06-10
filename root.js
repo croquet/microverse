@@ -3,8 +3,10 @@
 // info@croquet.io
 
 import {
-    Constants, App, THREE, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, ThreeRenderManager, RapierPhysicsManager, q_euler} from "@croquet/worldcore";
+    Constants, App, ModelRoot, ViewRoot, StartWorldcore,
+    InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
+import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
+import { RapierPhysicsManager, RAPIER } from "@croquet/worldcore-rapier";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from './src/text/text.js';

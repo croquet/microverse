@@ -22,7 +22,9 @@
   ],
   "comment": "file:../worldcore/packages/full",
   "dependencies": {
-    "@croquet/worldcore": "file:../worldcore/packages/full",
+    "@croquet/worldcore-kernel": "file:../worldcore/packages/kernel",
+    "@croquet/worldcore-three": "file:../worldcore/packages/three",
+    "@croquet/worldcore-rapier": "file:../worldcore/packages/rapier",
     "fflate": "^0.7.3",
     "@croquet/hybrid-msdf-text": "^1.0.1",
     "jszip": "^3.7.1",
