@@ -20,8 +20,10 @@ export function init(Constants) {
     const frameColor = 0x888888;
     Constants.UseRapier = true;
 
-    let cr = [Math.PI * 0.1, 0.8451817296564145, 0];
-    const baseSize = [5, 1, 5];
+    let cr = [0.47123889803846897, -0.7456756856460655, 0];
+    let cr2 = [0.35123889803846897, -0.7456756856460655, 0];
+
+    let baseSize = [5, 0.3, 5];
 
     Constants.DefaultCards = [
         {
@@ -150,7 +152,7 @@ export function init(Constants) {
                 type: "object",
                 layers: ["pointer", "walk"],
                 rotation: cr,
-                translation:  [77.83908827853423, 1.523436317021273, -67.16363207333615],
+                translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
                 behaviorModules: ["Rapier", "Cascade"],
                 rapierSize: baseSize,
                 color: 0x997777,
@@ -164,10 +166,10 @@ export function init(Constants) {
                 name:"base 2",
                 type: "object",
                 layers: ["pointer", "walk"],
-                translation:  [81.38722637582482, -0.03815352847331932, -63.97897941142968],
-                rotation: cr,
+                translation: [115.35451465818427, 3.882873772607836, -130.96636944601707],
+                rotation: cr2,
                 behaviorModules: ["Rapier", "Cascade"],
-                rapierSize: baseSize,
+                rapierSize: [5, 0.3, 2],
                 color: 0x997777,
                 rapierShape: "cuboid",
                 rapierType: "positionBased",
@@ -180,8 +182,8 @@ export function init(Constants) {
                 name:"spray",
                 type: "object",
                 layers: ["pointer"],
-                translation: [77.6308976036493, 4.8, -67.65566404372674],
-                behaviorModules: ["Spray", "Rapier", "Cascade"],
+                translation: [117.51152685835386, 7.399264662960818, -133.3030737470486],
+                behaviorModules: ["Spray"],
                 rapierSize: [0.2, 0.2, 0.2],
                 rapierShape: "cuboid",
                 rapierType: "positionBased",

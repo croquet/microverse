@@ -182,8 +182,10 @@ class CascadePawn {
           Uncomment the cyclinder case to add the cylinder shape.
 
         */
-        // this.shape.children.forEach((c) => this.shape.remove(c));
-        // this.shape.children = [];
+        this.shape.children.forEach((c) => this.shape.remove(c));
+        this.shape.children = [];
+
+        window.Worldcore = Worldcore;
         
         if (this.shape.children.length === 0) {
             let rapierShape = this.actor._cardData.rapierShape;
@@ -276,8 +278,9 @@ class SprayActor {
 
         const bt = [t[0], t[1] - 0.2, t[2]]; // bt for base translation
 
-        let x = Math.random() * 1 - 0.5;
-        let z = Math.random() * -0.5;
+        let r = Math.random() * Math.PI * 2;
+        let x = Math.cos(r) * 0.2;
+        let z = Math.sin(r) * 0.2;
         let shape;
         let size;
         let density;
@@ -306,7 +309,7 @@ class SprayActor {
 
         let color = this.randomColor();
 
-        if (dice < 0.1) {
+        if (dice < 0.4) {
             shape = "cuboid";
             size = [0.2, 0.2, 0.2];
             density: 0.5;
@@ -347,6 +350,24 @@ class SprayActor {
     }
 }
 
+class SprayPawn {
+    setup() {
+        this.shape.children.forEach((c) => this.shape.remove(c));
+        this.shape.children = [];
+
+        if (this.shape.children.length === 0) {
+            let s = 0.2;
+            let geometry = new Worldcore.THREE.BoxGeometry(s, s, s);
+            let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
+            this.obj = new Worldcore.THREE.Mesh(geometry, material);
+            this.obj.castShadow = this.actor._cardData.shadow;
+            this.obj.receiveShadow = this.actor._cardData.shadow;
+            this.shape.add(this.obj);
+            
+        }
+    }
+}
+
 /*
   Two behavior modules are exported from this file.  See worlds/default.js for their use.
 */
@@ -360,6 +381,7 @@ export default {
         {
             name: "Spray",
             actorBehaviors: [SprayActor],
+            pawnBehaviors: [SprayPawn],
         }
     ]
 }
