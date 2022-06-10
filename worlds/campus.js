@@ -14,11 +14,14 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/campus";
     Constants.UserBehaviorModules = [
-        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js", "pendulum.js", "openPortal.js"
+        "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js", "pendulum.js", "openPortal.js", "cascade.js"
     ];
 
     const frameColor = 0x888888;
     Constants.UseRapier = true;
+
+    let cr = [Math.PI * 0.1, 0.8451817296564145, 0];
+    const baseSize = [5, 1, 5];
 
     Constants.DefaultCards = [
         {
@@ -140,7 +143,51 @@ export function init(Constants) {
                 type: "object",
             }
         },
-        
-        
+
+        {
+            card: {
+                name:"base",
+                type: "object",
+                layers: ["pointer", "walk"],
+                rotation: cr,
+                translation:  [77.83908827853423, 1.523436317021273, -67.16363207333615],
+                behaviorModules: ["Rapier", "Cascade"],
+                rapierSize: baseSize,
+                color: 0x997777,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 2",
+                type: "object",
+                layers: ["pointer", "walk"],
+                translation:  [81.38722637582482, -0.03815352847331932, -63.97897941142968],
+                rotation: cr,
+                behaviorModules: ["Rapier", "Cascade"],
+                rapierSize: baseSize,
+                color: 0x997777,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+
+        {
+            card: {
+                name:"spray",
+                type: "object",
+                layers: ["pointer"],
+                translation: [77.6308976036493, 4.8, -67.65566404372674],
+                behaviorModules: ["Spray", "Rapier", "Cascade"],
+                rapierSize: [0.2, 0.2, 0.2],
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                color: 0xcccccc,
+                shadow: true,
+            }
+        },
     ];
 }
