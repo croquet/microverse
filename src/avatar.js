@@ -942,6 +942,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     update(time, delta) {
         // console.log("position", this.translation);
         if (!this.actor.follow) {
+            this.tug = 0.2;
+            const manager = this.actor.service("PlayerManager");
+            this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
             if (this.actor.inWorld) {
                 let vq = this.updatePose(delta);
                 if (this.collidePortal(vq)) {return;}
@@ -961,6 +964,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.refreshCameraTransform();
             }
         } else {
+            this.tug = 0.06;
             super.update(time, delta);
         }
         this.updatePortalRender();
