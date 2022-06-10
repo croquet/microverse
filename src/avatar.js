@@ -418,7 +418,7 @@ class AvatarPawnFactory extends View {
 const PM_SmoothedDriver = superclass => class extends superclass {
     constructor(options) {
         super(options);
-        this.throttle = 30 // 125; //ms
+        this.throttle = 125; //ms
         this.ignore("scaleSet");
         this.ignore("rotationSet");
         this.ignore("translationSet");
@@ -499,7 +499,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
 
-        // this.tug = 0.06; // instead of default 0.2, to work with spaced updates
+        this.tug = 0.06; // instead of default 0.2, to work with spaced updates
     }
 
     setOpacity(opacity) {
@@ -942,9 +942,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     update(time, delta) {
         // console.log("position", this.translation);
         if (!this.actor.follow) {
-            // this.tug = 0.2;
-            // const manager = this.actor.service("PlayerManager");
-            // this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
+            this.tug = 0.2;
+            const manager = this.actor.service("PlayerManager");
+            this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
             if (this.actor.inWorld) {
                 let vq = this.updatePose(delta);
                 if (this.collidePortal(vq)) {return;}
@@ -964,7 +964,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.refreshCameraTransform();
             }
         } else {
-            // this.tug = 0.06;
+            this.tug = 0.06;
             super.update(time, delta);
         }
         this.updatePortalRender();
