@@ -182,8 +182,8 @@ class CascadePawn {
           Uncomment the cyclinder case to add the cylinder shape.
 
         */
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        // this.shape.children.forEach((c) => this.shape.remove(c));
+        // this.shape.children = [];
         
         if (this.shape.children.length === 0) {
             let rapierShape = this.actor._cardData.rapierShape;
@@ -283,6 +283,26 @@ class SprayActor {
         let density;
 
         let dice = Math.random();
+
+        if (dice < 0.01) {
+            /*
+              The FlightTracker behavior is used, but without the "Elected" behavior, it does not start fetching the live data. It is used solely to create the Earth appearance.
+            */
+            this.createCard({
+                name:"earth",
+                type: "object",
+                translation: bt,
+                layers: ["pointer"],
+                scale: [0.1, 0.1, 0.1],
+                behaviorModules: ["Rapier", "Earth", "Cascade"],
+                rapierSize: 0.8,
+                rapierShape: "ball",
+                rapierForce: {x, y: 0, z},
+                density: 2,
+                shadow: true,
+            });
+            return;
+        }
 
         let color = this.randomColor();
 
