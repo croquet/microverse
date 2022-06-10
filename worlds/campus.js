@@ -166,7 +166,7 @@ export function init(Constants) {
                 name:"base 2",
                 type: "object",
                 layers: ["pointer", "walk"],
-                translation: [115.35451465818427, 3.882873772607836, -130.96636944601707],
+                translation: [115.10571744346545, 3.6706208296689598, -130.67510326608854],
                 rotation: cr2,
                 behaviorModules: ["Rapier", "Cascade"],
                 rapierSize: [5, 0.3, 2],
