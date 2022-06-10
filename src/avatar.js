@@ -60,7 +60,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
         this.listen("textPasted", this.textPasted);
-        this.listen("resetHeight", this.resetHeight);
+        this.listen("resetStartPosition", this.resetStartPosition);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
@@ -98,9 +98,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.fall = true;
     }
 
-    resetHeight() {
-        let t = this.translation;
-        this.goTo([t[0], 0, t[2]], this.rotation, false);
+    resetStartPosition() {
+        this.goTo(this.translation, this.rotation, false);
     }
 
     onLookTo(data) {
@@ -425,16 +424,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
         this.ignore("positionSet");
     }
 
-    // If our global changes, so do the globals of our children
-    globalChanged() {
-        if (!this._global) {
-            this.say("viewGlobalChanged");
-            if (this.children)  {
-                this.children.forEach(child => child.onGlobalChanged());
-            }
-        }
-    }
-
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
@@ -448,7 +437,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isRotating = false;
         }
         super.positionTo(v, q, throttle);
-        this.globalChanged();
     }
 
     scaleTo(v, throttle) {
@@ -459,7 +447,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isScaling = false;
         }
         super.scaleTo(v, throttle);
-        this.globalChanged();
     }
 
     rotateTo(q, throttle) {
@@ -470,7 +457,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isRotating = false;
         }
         super.rotateTo(q, throttle);
-        this.globalChanged();
     }
 
     translateTo(v, throttle)  {
@@ -481,7 +467,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.onLocalChanged();
         }
         super.translateTo(v, throttle);
-        this.globalChanged();
     }
 }
 
@@ -642,8 +627,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             actorSpec.rotation = anchor.rotation;
         }
         this.say("_set", actorSpec);
+        this.say("resetStartPosition");
 
-        this.say("resetHeight");
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
         this.listen("setLookAngles", this.setLookAngles);
         this.listen("leaveToWorld", this.leaveToWorld);
@@ -667,7 +652,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = this.actor.rotation;
         this._translation = this.actor.translation;
         this.onLocalChanged();
-        this.globalChanged();
     }
 
     setLookAngles(data) {
