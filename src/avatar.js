@@ -437,10 +437,9 @@ const PM_SmoothedDriver = superclass => class extends superclass {
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
-            // and we special case here for avatar movement
-            if (v3_equals(this._translation, v, .0001) && (q_equals(this._rotation, q, 0.00001))) {
-                return;
-            }
+            // we have special case here for avatar movement
+            if (v3_equals(this.actor.translation, v, 0) && q_equals(this.actor.rotation, q, 0)) {return;}
+
             this._translation = v;
             this._rotation = q;
             this.onLocalChanged();
@@ -478,7 +477,6 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             throttle = throttle || this.throttle;
             this._translation = v;
             this.isTranslating = false;
-            this.localDriver = true,
             this.onLocalChanged();
         }
         super.translateTo(v, throttle);
@@ -528,7 +526,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.spin = q_identity();
         this.velocity = v3_zero();
-        this.accel = 0;
 
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
@@ -943,13 +940,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // console.log("position", this.translation);
         if (!this.actor.follow) {
             if (this.actor.inWorld) {
-                this.accel += 0.25;
-                this.accel = Math.min(1.0, this.accel);
                 let vq = this.updatePose(delta);
                 if (this.collidePortal(vq)) {return;}
                 if (!this.checkFloor(vq)) {
                     vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
-                    this.accel = 0;
                 } else {
                     this.lastCollideTranslation = vq.v;
                 }
@@ -959,7 +953,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         vq = this.collide(vq);
                     }
                     this.lastUpdateTime = time;
-                    // console.log("position", vq.v);
                     this.positionTo(vq.v, vq.q);
                 }
                 this.refreshCameraTransform();
@@ -1084,13 +1077,23 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             segment.applyMatrix4(iMat);
             cBox.applyMatrix4(iMat);
 
+            // let total = 0;
+            // let collide = 0;
+            // let directions = [];
+
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
                     const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
+                    // total++;
                     if (distance < radius) {
+                        // collide++;
+                        // if (collide === 2) {
+                        //     console.log(2, this.translation);
+                        // }
                         const depth = radius - distance;
                         const direction = capsulePoint.sub(triPoint).normalize();
+                        // directions.push([depth, direction.toArray()]);
 
                         segment.start.addScaledVector(direction, depth);
                         segment.end.addScaledVector(direction, depth);
@@ -1098,6 +1101,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     }
                 }
             });
+            // console.log("col", total, collide);
             let outPosition = segment.start.clone();
             outPosition.applyMatrix4(c.children[0].matrixWorld); // convert back to world coordinates
             // outPosition.y -= centerLen;
@@ -1108,7 +1112,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (!this.checkFloor({v: newPosition, q: vq.q})) {
-            this.accel = 0;
             let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
             return {v: newv, q: vq.q};
         }
@@ -1193,20 +1196,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.spin = q_identity();
         this.velocity = v3_zero();
         this.say("startMMotion");
-        this.accel = 0;
     }
 
     endMMotion() {
         this.activeMMotion = false;
         this.spin = q_identity();
         this.velocity = v3_zero();
-        this.accel = 0;
     }
 
     updateMMotion(dx, dy) {
         // move the avatar
 
-        let v = dy * this.accel * JOYSTICK_V;
+        let v = dy * JOYSTICK_V;
 
         v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
