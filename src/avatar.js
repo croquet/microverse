@@ -417,7 +417,7 @@ class AvatarPawnFactory extends View {
 const PM_SmoothedDriver = superclass => class extends superclass {
     constructor(options) {
         super(options);
-        this.throttle = 15; //ms
+        this.throttle = 125; //ms
         this.ignore("scaleSet");
         this.ignore("rotationSet");
         this.ignore("translationSet");
@@ -497,6 +497,8 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         this.lookYaw = this.actor.lookYaw;
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
         this._rotation = q_euler(0, this.lookYaw, 0);
+
+        this.tug = 0.06; // instead of default 0.2, to work with spaced updates
     }
 
     setOpacity(opacity) {
