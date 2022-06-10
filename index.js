@@ -1,4 +1,4 @@
-import { Model, Constants } from "@croquet/worldcore";
+import { Model, Constants } from "@croquet/worldcore-kernel";
 import { startShell, isShellFrame } from "./shell.js";
 import { startWorld, basenames } from "./root.js";
 import { WorldSaver } from "./src/worldSaver.js";

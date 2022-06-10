@@ -6,10 +6,10 @@
 
 import {
     Data, Constants, // re-exported from @croquet/croquet
-    THREE, THREE_MESH_BVH, // re-exported from @croquet/worldcore-three
-    Actor, Pawn, ModelService, ViewService, mix, PM_ThreeVisible, AM_Smoothed, PM_Smoothed,
+    Actor, Pawn, ModelService, ViewService, mix, AM_Smoothed, PM_Smoothed,
     v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag, q_euler, q_multiply,
-} from '@croquet/worldcore';
+} from '@croquet/worldcore-kernel';
+import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from '@croquet/worldcore-three';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';

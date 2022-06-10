@@ -1,4 +1,4 @@
-import { App } from "@croquet/worldcore";
+import { App } from "@croquet/worldcore-kernel";
 
 let shell;
 

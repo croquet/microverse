@@ -1,4 +1,5 @@
-import {THREE, ModelService, ViewService} from "@croquet/worldcore";
+import {ModelService, ViewService} from "@croquet/worldcore-kernel";
+import {THREE} from "@croquet/worldcore-three";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "@croquet/hybrid-msdf-text";
 import { CardActor, CardPawn } from "../card.js";
 import loadFont from "load-bmfont";
