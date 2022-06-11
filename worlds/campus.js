@@ -80,7 +80,9 @@ export function init(Constants) {
                 width: 1.5,
                 height: 3.0,
                 depth: 0.05,
+                backgroundColor: 0xdddddd,
                 frameColor: frameColor,
+                fullBright: true,
             },
         },
         {
@@ -96,7 +98,9 @@ export function init(Constants) {
                 width: 1.5,
                 height: 1.7,
                 depth: 0.05,
+                backgroundColor: 0xdddddd,
                 frameColor: frameColor,
+                fullBright: true,
             },
         },
         {

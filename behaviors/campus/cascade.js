@@ -20,7 +20,6 @@ class CascadeActor {
           packages. It is prefixed with Worldcore, which is the only
           global variable visible to behavior code.
         */
-        window.Worldcore = Worldcore;
         let kinematic;
         let rapierType = this._cardData.rapierType;
         let rapierShape = this._cardData.rapierShape;
@@ -38,6 +37,9 @@ class CascadeActor {
         /*
           variable cd (collider description) is initialized based on rapierShape and rapierSize,
           and it is used for a call to createCollider.
+
+          The ColliderDesc of Rapier tends to take the half-size;
+          ex. [0.5, 0.5, 0.5] makes a [1, 1, 1] cube.
         */
 
         let cd;
@@ -50,18 +52,15 @@ class CascadeActor {
             s = [s[0] / 2, s[1] / 2, s[2] / 2];
             cd = Worldcore.RAPIER.ColliderDesc.cuboid(...s);
         }
-
-        /*
-          Uncomment the shape === "cylinder" section to add cylinder type.
-          the ColliderDesc of Rapier tends to take the half-size; so [0.5, 0.5, 0.5] makes a [1, 1, 1]
-          cube.
-        */
-
         /*else if (rapierShape === "cylinder") {
             let s = this._cardData.rapierSize || [1, 1];
             s = [s[1] / 2, s[0]];
             cd = Worldcore.RAPIER.ColliderDesc.cylinder(...s);
         }*/
+
+        /*
+          Uncomment above shape === "cylinder" section to add cylinder type.
+        */
 
         cd.setRestitution(this._cardData.rapierRestitution || 0.4);
         cd.setFriction(this._cardData.rapierFriction || 0.8);
@@ -186,8 +185,6 @@ class CascadePawn {
         // this.shape.children.forEach((c) => this.shape.remove(c));
         // this.shape.children = [];
 
-        window.Worldcore = Worldcore;
-        
         if (this.shape.children.length === 0) {
             let rapierShape = this.actor._cardData.rapierShape;
             if (rapierShape === "ball") {
@@ -314,14 +311,14 @@ class SprayActor {
             shape = "cuboid";
             size = [0.2, 0.2, 0.2];
             density: 0.5;
-        } else {
             /*
               uncomment to add cylinder to the simulation.
             */
-            /*else if (dice < 0.8) {
+            /* } else if (dice < 0.7) {
             shape = "cylinder";
-            size = [1, 1];
-            }*/
+            size = [0.2, 0.2];
+            */
+        } else {
             shape = "ball";
             size = 0.4;
             density = 1.5;
@@ -364,7 +361,6 @@ class SprayPawn {
             this.obj.castShadow = this.actor._cardData.shadow;
             this.obj.receiveShadow = this.actor._cardData.shadow;
             this.shape.add(this.obj);
-            
         }
     }
 }
