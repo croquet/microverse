@@ -26,7 +26,18 @@ import {AssetManager} from "./src/wcAssetManager.js";
 // import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
 import {loadThreeLibs} from "./three/threeLibsLoader.js";
 
-let isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
+// turn off antialiasing for mobile and safari
+// Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
+// Firefox seems to be dissolving in front of our eyes as well. It is also much slower. 
+// mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
+let AA = true;
+const isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
+if(isSafari)AA=false;
+const isFirefox = navigator.userAgent.includes('Firefox');
+if(isFirefox)AA=false;
+const isMobile = !!("ontouchstart" in window);
+if(isMobile)AA=false;
+console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox?'Firefox':isSafari?'Safari':'Other Browser' );
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
@@ -437,7 +448,7 @@ class MyViewRoot extends ViewRoot {
     static viewServices() {
         return [
             InputManager,
-            {service: ThreeRenderManager, options:{useBVH: true, antialias:!isSafari}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias:AA}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
