@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js"
+        "lights.js", "crane.js"
     ];
 
     Constants.UseRapier = true;
@@ -47,6 +47,32 @@ export function init(Constants) {
                 behaviorModules: ["Light"],
                 dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                 dataType: "jpg",
+            }
+        },
+        {
+            card: {
+                name: "crane",
+                type: "object",
+                translation: [-1.4447057496318962, 8.899611090090481, 20],
+                behaviorModules: ["Crane"],
+            }
+        },
+        {
+            card: {
+                name: "crane button 1",
+                type: "object",
+                translation: [7.740442246960653, 1.7740892281749288, 13.950883253194933],
+                craneSpeed: -0.01,
+                behaviorModules: ["CraneButton"],
+            }
+        },
+        {
+            card: {
+                name: "crane button 2",
+                type: "object",
+                translation: [7.740442246960653, 1.7740892281749288, 13.450883253194933],
+                craneSpeed: 0.01,
+                behaviorModules: ["CraneButton"],
             }
         },
         {
