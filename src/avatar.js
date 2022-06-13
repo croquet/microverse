@@ -1100,9 +1100,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     let depth = radius - distance;
                     const direction = capsulePoint.sub(triPoint).normalize();
 
-                    if (direction.y < 0) {
-                        depth = -depth;
-                    }
+                    // there is an issue when you double click a too low point, but it is
+                    // a better problem than simply go up the wall
+                    //if (direction.y < 0) {
+                    //depth = -depth;
+                    //}
 
                     segment.start.addScaledVector(direction, depth);
                     segment.end.addScaledVector(direction, depth);
