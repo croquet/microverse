@@ -1068,31 +1068,50 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             segment.applyMatrix4(iMat);
             cBox.applyMatrix4(iMat);
 
-            // let total = 0;
-            // let collide = 0;
-            // let directions = [];
+            let directions = [];
+            // let start = Date.now();
+
+            let maybeUp;
 
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
                     const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
-                    // total++;
                     if (distance < radius) {
-                        // collide++;
-                        // if (collide === 2) {
-                        //     console.log(2, this.translation);
-                        // }
                         const depth = radius - distance;
                         const direction = capsulePoint.sub(triPoint).normalize();
-                        // directions.push([depth, direction.toArray()]);
 
-                        segment.start.addScaledVector(direction, depth);
-                        segment.end.addScaledVector(direction, depth);
-                        positionChanged = true;
+                        let h = Math.sqrt(direction.x ** 2 + direction.z ** 2);
+                        let v = direction.y;
+
+                        if (h < 0.1 && v > 0.9 && (!maybeUp || depth > maybeUp.depth)) {
+                            maybeUp = tri.clone();
+                            directions.unshift(maybeUp);
+                        } else {
+                            directions.push(tri.clone());
+                        }
                     }
                 }
             });
-            // console.log("col", total, collide);
+
+            directions.forEach((tri) => {
+                const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
+                if (distance < radius) {
+                    let depth = radius - distance;
+                    const direction = capsulePoint.sub(triPoint).normalize();
+
+                    if (direction.y < 0) {
+                        depth = -depth;
+                    }
+
+                    segment.start.addScaledVector(direction, depth);
+                    segment.end.addScaledVector(direction, depth);
+                    positionChanged = true;
+                }
+            });
+
+            // console.log(Date.now() - start);
+
             let outPosition = segment.start.clone();
             outPosition.applyMatrix4(c.children[0].matrixWorld); // convert back to world coordinates
             // outPosition.y -= centerLen;
