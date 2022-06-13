@@ -110,12 +110,17 @@ class Shell {
         this.trackingknob = document.getElementById("trackingknob");
 
         this.knobStyle = window.getComputedStyle(this.knob);
+        window.onresize = () => this.adjustJoystickKnob();
 
-        window.setTimeout(() => {
-            let radius = (parseFloat(this.knobStyle.width) / 2) || 30;
-            this.trackingknob.style.transform = "translate(0px, 0px)";
-            this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
-        }, 1000);
+        if (!document.head.querySelector("#joystick-css")) {
+            let css = document.createElement("link");
+            css.rel = "stylesheet";
+            css.type = "text/css";
+            css.id = "joystick-css";
+            css.onload = () => this.adjustJoystickKnob();
+            css.href = "./assets/css/joystick.css";
+            document.head.appendChild(css);
+        }
 
         this.releaseHandler = (e) => {
             for (let k in this.capturedPointers) {
@@ -137,7 +142,12 @@ class Shell {
         this.trackingknob.onpointerup = (e) => this.releaseHandler(e);
         this.trackingknob.onpointercancel = (e) => this.releaseHandler(e);
         this.trackingknob.onlostpointercapture = (e) => this.releaseHandler(e);
+    }
 
+    adjustJoystickKnob() {
+        let radius = (parseFloat(this.knobStyle.width) / 2) || 30;
+        this.trackingknob.style.transform = "translate(0px, 0px)";
+        this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
     }
 
     addFrame(portalURL) {
