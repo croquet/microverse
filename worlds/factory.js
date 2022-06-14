@@ -86,9 +86,13 @@ export function init(Constants) {
         {
             card: {
                 name: "garage 1",
-                type: "object",
-                translation:  [-9.767605849866365, 2.1239570899863605, 10.6340848061585],
+                type: "3d",
+                translation: [7.799494248347024, -0.3110201562611392, 10.508325734249267],
+                dataScale: [1.2, 1.2, 1.2],
                 rotation: [0, Math.PI / 2, 0],
+                dataLocation: "3YN8uWqjAyPsTcUXkWmcJtbn_ypFvp_WKzKCiZx-5-PwMS0tKSpjdnY_MDU8KncsKnc6KzYoLDwtdzA2dix2Hj0POyA1ECoYMgg6GwE9ah4hOC8gLgwSDgAAa3YwNnc6KzYoLDwtdzQwOis2LzwrKjx2DRpqGzw8aSEqbR5vahw3Nw8wFzIbAW0DbzsrMQoBYSkgHj8XFSlsIQ1pGHY9OC04dg5pNmoxAAA6MA4edD0WFztpEwMrPC0wMysKOh8eaW4DKyELFxE9Fm4GPzI",
+                modelType: "glb",
+                layers: ["pointer", "walk"],
                 behaviorModules: ["Garage"],
             }
         },
