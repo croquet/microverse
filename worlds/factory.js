@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js"
     ];
 
     Constants.UseRapier = true;
@@ -81,6 +81,21 @@ export function init(Constants) {
                 translation:  [-9.767605849866365, 2.1239570899863605, 10.6340848061585],
                 rotation: [0, Math.PI / 2, 0],
                 behaviorModules: ["Garage"],
+            }
+        },
+        {
+            card: {
+                name: "forklift 1",
+                dataTranslation: [0, -1.6, 0],
+                translation: [37.64344906612852, 0, -20.223492416172753],
+                dataScale: [1.2, 1.2, 1.2],
+                behaviorModules: ["ForkLift"],
+                layers: ["pointer"],
+                dataLocation: "3UkowQroW_SGvJ0N4hXnZO_pwIEEVlVQNTvj8CJ0CG78PSEhJSZvenozPDkwJnsgJns2JzokIDAhezw6eiB6EjEDNyw5HCYUPgQ2Fw0xZhItNCMsIgAeAgwMZ3o8Ons2JzokIDAhezg8Nic6IzAnJjB6YBAAGSIZES8PHCcNBAVhIhlkbScSITQYHhliDR8SNy0DFz8gFAo7PAcTPnoxNCE0enhkF3gzEjxsDQYaIhwTYDsfGjkHMz84OCMTCjcjPzIfF3gkNzYgEyUtGzI",
+                modelType: "glb",
+                shadow: true,
+                singleSided: true,
+                type: "3d",
             }
         },
         {
