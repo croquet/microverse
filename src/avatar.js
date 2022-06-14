@@ -424,6 +424,16 @@ const PM_SmoothedDriver = superclass => class extends superclass {
         this.ignore("positionSet");
     }
 
+    // If our global changes, so do the globals of our children
+    globalChanged() {
+        if (!this._global && this.renderObject && !this.renderObject.matrixWorldNeedsUpdate) {
+            this.refreshDrawTransform();
+            if (this.children)  {
+                this.children.forEach(child => child.onGlobalChanged());
+            }
+        }
+    }
+
     positionTo(v, q, throttle) {
         if (!this.actor.follow) {
             throttle = throttle || this.throttle;
@@ -437,6 +447,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isRotating = false;
         }
         super.positionTo(v, q, throttle);
+        this.globalChanged();
     }
 
     scaleTo(v, throttle) {
@@ -447,6 +458,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isScaling = false;
         }
         super.scaleTo(v, throttle);
+        this.globalChanged();
     }
 
     rotateTo(q, throttle) {
@@ -457,6 +469,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.isRotating = false;
         }
         super.rotateTo(q, throttle);
+        this.globalChanged();
     }
 
     translateTo(v, throttle)  {
@@ -467,6 +480,7 @@ const PM_SmoothedDriver = superclass => class extends superclass {
             this.onLocalChanged();
         }
         super.translateTo(v, throttle);
+        this.globalChanged();
     }
 }
 
@@ -702,8 +716,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const anchorString = searchParams.get("anchor");
         if (!anchorString) {
             // if we are coming via a portal but with no anchor, assume the first portal
-            if (viaPortal) for (const actor of actors.values()) {
-                if (actor.isPortal) return actor;
+            if (viaPortal) {
+                for (const actor of actors.values()) {
+                    if (actor.isPortal) return actor;
+                }
             }
             // otherwise use the default anchor
             for (const actor of actors.values()) {
