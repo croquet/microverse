@@ -8,9 +8,9 @@ then
     exit 1;
 fi
 
-SECRETS=(assets/SVG/Verizon.svg assets/SVG/5G.svg worlds/verizon.js)
+SECRETS=(worlds/factory.js behaviors/factory)
 
 for i in ${SECRETS[@]}
 do
-    rm -f ${DIST}/$i
+    rm -rf ${DIST}/$i
 done
