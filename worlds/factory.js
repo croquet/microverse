@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js"
+        "lights.js", "crane.js", "garage.js"
     ];
 
     Constants.UseRapier = true;
@@ -25,7 +25,6 @@ export function init(Constants) {
                 name:"world model",
                 layers: ["walk"],
                 translation: [-0, -5.234552517024578, -0],
-                name: "/Factory.glb",
                 dataLocation: "3WHcQZWbH34-Qfg-_FPELSN49AAo5jF_eLzeTwKhTARgPyMjJyRteHgxPjsyJHkiJHk0JTgmIjIjeT44eCJ4EDMBNS47HiQWPAY0FQ8zZBAvNiEuIAIcAA4OZXg-OHk0JTgmIjIjeTo-NCU4ITIlJDJ4PQQDFj46FjgzZDUbZDwDDy0vGAACOw0_Jw8Ob2YcBQVkJBwiZDoiEQAdGngzNiM2eBs0OSE0IyV6GSQGYmE-PTNmIgQxMjQQJx0_O2FhLS0aIzYBJQAtBW8DegI",
                 dataScale: [1.2, 1.2, 1.2],
                 fileName: "/Factory.glb",
@@ -73,6 +72,15 @@ export function init(Constants) {
                 translation: [7.740442246960653, 1.7740892281749288, 13.450883253194933],
                 craneSpeed: 0.01,
                 behaviorModules: ["CraneButton"],
+            }
+        },
+        {
+            card: {
+                name: "garage 1",
+                type: "object",
+                translation:  [-9.767605849866365, 2.1239570899863605, 10.6340848061585],
+                rotation: [0, Math.PI / 2, 0],
+                behaviorModules: ["Garage"],
             }
         },
         {
