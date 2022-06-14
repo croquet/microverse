@@ -25,7 +25,7 @@ export function init(Constants) {
                 name:"world model",
                 layers: ["walk"],
                 translation: [-0, -5.234552517024578, -0],
-                dataLocation: "3WHcQZWbH34-Qfg-_FPELSN49AAo5jF_eLzeTwKhTARgPyMjJyRteHgxPjsyJHkiJHk0JTgmIjIjeT44eCJ4EDMBNS47HiQWPAY0FQ8zZBAvNiEuIAIcAA4OZXg-OHk0JTgmIjIjeTo-NCU4ITIlJDJ4PQQDFj46FjgzZDUbZDwDDy0vGAACOw0_Jw8Ob2YcBQVkJBwiZDoiEQAdGngzNiM2eBs0OSE0IyV6GSQGYmE-PTNmIgQxMjQQJx0_O2FhLS0aIzYBJQAtBW8DegI",
+                dataLocation: "39Lv5cJwpT6XmTkLLdtqrctMAKNK9iin6K9MB0vfYUoYUU1NSUoDFhZfUFVcShdMShdaS1ZITFxNF1BWFkwWfl1vW0BVcEp4Umhae2FdCn5BWE9ATmxybmBgCxZQVhdaS1ZITFxNF1RQWktWT1xLSlwWbg94VAx3TU9eVWNOaUoAW0haSQhSX3hbU2MBDglvXnJBU1hOW1cMf2xbARZdWE1YFmYMYA9uc0phbWkNCFF_cnsJfnVteAxzb1Fxd3gMD3ddVn9jSXx3aHRSXXg",
                 dataScale: [1.2, 1.2, 1.2],
                 fileName: "/Factory.glb",
                 modelType: "glb",
