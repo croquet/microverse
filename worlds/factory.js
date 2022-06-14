@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js",
     ];
 
     Constants.UseRapier = true;
@@ -109,6 +109,38 @@ export function init(Constants) {
                 shadow: true,
                 singleSided: true,
                 type: "3d",
+            }
+        },
+        {
+            card: {
+                name: "drone 1",
+                layers: ["pointer"],
+                translation: [28.30055025496248, 1.9416405302346669, 18.673839690273365],
+                dataLocation: "3FwXqoY7FkhqcGJaH7ejknByVX61fB61Kt8WfixVvCLMLjIyNjV8aWkgLyojNWgzNWglNCk3MyMyaC8paTNpASIQJD8qDzUHLRclBB4idQE-JzA_MRMNER8fdGkvKWglNCk3MyMyaCsvJTQpMCM0NSNpEmsnNiR2JDwVFQ4ZBBweLXMHHBULciU-HxUgNQl-LRcpGQ0KKQwZJxV_F2kiJzInaTI-DBQsIS8xAyUtJDIeHAQ3HnAZBxZ0LAcgMAwXECgxGTYwEQtxFjcWBA8",
+                dataScale: [1.2, 1.2, 1.2],
+                behaviorModules: ["Circle"],
+                modelType: "glb",
+                shadow: true,
+                singleSided: true,
+                type: "3d",
+            }
+        },
+        {
+            card: {
+                name:"code editor",
+                translation: [28.30055025496248, 1.9416405302346669, 13.673839690273365],
+                rotation: [0, -Math.PI / 2, 0],
+                layers: ["pointer"],
+                type: "code",
+                behaviorModule: "Circle.CircleActor",
+                margins: {left: 32, top: 32, right: 32, bottom: 32},
+                // margins: {left: 16, top: 16, right: 16, bottom: 16},
+                textScale: 0.001,
+                width: 1.5,
+                height: 2,
+                depth: 0.05,
+                fullBright: true,
+                frameColor: 0x888888,
             }
         },
         {
