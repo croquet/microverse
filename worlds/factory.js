@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js",
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js"
     ];
 
     Constants.UseRapier = true;
@@ -161,6 +161,51 @@ export function init(Constants) {
                 depth: 0.05,
                 fullBright: true,
                 frameColor: 0x888888,
+            }
+        },
+        {
+            card: {
+                name:"base",
+                type: "object",
+                layers: ["pointer"],
+                translation: [13.096899862946268, 1.971934214047139, 17.421859492871423],
+                rotation: [0.47123889803846897, Math.PI / 2, 0],
+                behaviorModules: ["Rapier", "Cascade"],
+                rapierSize: [5, 0.3, 5],
+                color: 0x997777,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name:"base 2",
+                type: "object",
+                layers: ["pointer"],
+                translation:  [16.762074207944522, 0.10577659184032862, 17.421859492871423],
+                rotation: [0.35123889803846897, Math.PI / 2, 0],
+                behaviorModules: ["Rapier", "Cascade"],
+                rapierSize: [5, 0.3, 2],
+                color: 0x997777,
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                shadow: true,
+            }
+        },
+
+        {
+            card: {
+                name:"spray",
+                type: "object",
+                layers: ["pointer"],
+                translation: [11.342398091737556, 4.306399511061578, 17.421859492871423],
+                behaviorModules: ["Spray"],
+                rapierSize: [0.2, 0.2, 0.2],
+                rapierShape: "cuboid",
+                rapierType: "positionBased",
+                color: 0xcccccc,
+                shadow: true,
             }
         },
         {
