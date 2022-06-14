@@ -218,6 +218,7 @@ class PropertySheetActor {
         let spec = {};
 
         let something = false;
+        let errored = false;
 
         array.forEach((line) => {
             let match = simpleRE.exec(line);
@@ -232,6 +233,7 @@ class PropertySheetActor {
                     value = JSON.parse(value);
                 } catch(e) {
                     console.log(e);
+                    errored = true;
                 }
                 if (key === "rotation" || key === "dataRotation") {
                     if (Array.isArray(value) && value.length === 3) {
@@ -243,6 +245,7 @@ class PropertySheetActor {
         });
 
         if (!something) {return;}
+        if (errored) {return;}
         if (!this.target.doomed) {
             this.target.updateOptions(spec);
         }
