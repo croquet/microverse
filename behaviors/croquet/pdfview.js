@@ -26,23 +26,27 @@ console.log(this);
         // might be sent by multiple clients
         this.numPages = data.numPages;
         this.pageGapPercent = data.pageGapPercent;
+        this.maxScrollPosition = data.maxScrollPosition;
         if (this.scrollPosition === null) this.scrollPosition = { page: 1, percent: 0 };
         this.say("drawAtScrollPosition");
     }
 
     changePage(increment) {
+        // increment is only ever +/- 1
         let { page, percent } = this.scrollPosition;
+        const { page: maxScrollPage, percent: maxScrollPercent } = this.maxScrollPosition;
 
-        // if at (or above) top of page, or moving forward, adjust page number.
-        // if going backwards from somewhere down a page, go to top of current page.
-        if (increment > 0 || percent <= 0) page = page + increment;
+        if (increment === 1) { // going forwards
+            // when paging forward from the maximum scroll position, jump to the start
+            // of the document.  also do so if we're already on the last page.
+            if (page === this.numPages || page === maxScrollPage && percent === maxScrollPercent) page = 1;
+            else page++;
+        } else { // going backwards
+            if (percent <= 0) page--; // (whereas if going backwards from somewhere down a page, we just go to top of that page)
+            if (page === 0) page = this.numPages; // subject to reduction by normalizeScroll
+        }
 
-        if (page === 0) page = this.numPages;
-        else if (page > this.numPages) page = 1;
-
-        percent = 0;
-
-        this.scrollPosition = { page, percent };
+        this.scrollPosition = this.normalizeScroll(page, 0);
         this.say("drawAtScrollPosition");
     }
 
@@ -59,19 +63,27 @@ console.log(this);
     }
 
     normalizeScroll(page, percent) {
+        // note that scroll is advanced at a constant rate based on percent of the
+        // viewer height, which is set from the first page.  a uniquely tall page
+        // in the document will therefore scroll proportionally faster, and a short
+        // page slower.  in most documents this effect shouldn't be too noticeable.
         const gapPercent = this.pageGapPercent;
+        const { page: lastPage, percent: lastPercent } = this.maxScrollPosition;
 
         while (percent < -gapPercent && page > 1) {
             page--;
             percent += 100 + gapPercent;
         }
-        while (percent > 100 && page < this.numPages) {
+        while (percent > 100 && page < lastPage) {
             page++;
             percent -= 100 + gapPercent;
         }
 
         if (page === 1 && percent < 0) percent = 0;
-        else if (page === this.numPages && percent > 90) percent = 90;
+        else if (page > lastPage || (page === lastPage && percent > lastPercent)) {
+            page = lastPage;
+            percent = lastPercent;
+        }
 
         return { page, percent };
     }
@@ -143,10 +155,51 @@ class PDFPawn {
 console.log(this);
 
         const loaded = this.pdf ? Promise.resolve() : this.loadDocument(this.actor._cardData.pdfLocation);
-        loaded.then(() => {
-            this.numPages = this.pdf.numPages;
-            this.ensurePageEntry(1);
-        });
+        loaded.then(() => this.measureDocument());
+    }
+
+    async measureDocument() {
+        const numPages = this.numPages = this.pdf.numPages;
+
+        const firstPage = this.ensurePageEntry(1);
+        await firstPage.pageReadyP;
+        const { width: firstWidth, height: firstHeight } = firstPage;
+        this.adjustCardSize(firstWidth, firstHeight); // includes setting pageGap
+
+        // the model needs to know the number of pages, the page gap percent (although moot if only one page), and the maximum scroll position (page and percent)
+        if (!this.actor.numPages) {
+            const gapPercent = this.pageGapPercent;
+            let lastScroll;
+            if (numPages === 1) {
+                lastScroll = { page: 1, percent: 0 };
+            } else {
+                let lastPage = numPages;
+                let percentToFill = 100; // percent of card to fill with the bottom of the document
+                let lastPercent;
+                while (percentToFill > gapPercent) {
+                    const lastPageEntry = this.ensurePageEntry(lastPage);
+                    await lastPageEntry.pageReadyP;
+                    const { width, height } = lastPageEntry;
+                    // how tall is this page relative to the first page, when rendered at the same width?
+                    const pageHeightRatio = height / width * firstWidth / firstHeight;
+                    percentToFill -= pageHeightRatio * 100;
+                    if (percentToFill < 0) {
+                        // can't show all of this page.  we've reached the end.
+                        lastPercent = -percentToFill / pageHeightRatio;
+                    } else if (percentToFill <= gapPercent) {
+                        // can show all of the page, plus some amount of gap
+                        lastPercent = -percentToFill;
+                    } else {
+                        // we're showing the whole page, plus its preceding gap
+                        percentToFill -= gapPercent;
+                        lastPage --;
+                    }
+                    if (lastPercent === -0) lastPercent = 0; // would otherwise mess up tests in the model
+                }
+                lastScroll = { page: lastPage, percent: lastPercent };
+            }
+            this.say("docLoaded", { pageGapPercent: gapPercent, numPages: numPages, maxScrollPosition: lastScroll });
+        }
     }
 
     async loadDocument(pdfLocation) {
@@ -420,15 +473,10 @@ console.log(this);
         obj.geometry.dispose();
         obj.geometry = this.squareCornerGeometry(cardWidth, cardHeight, depth);
 
-        // the model needs to know a page gap (although moot if only one page).
         // gap is arbitrarily set as 2% of page height for landscape,
         // 1% for portrait, 1.5% for square.
-        const gapPercent = width > height ? 2 : width === height ? 1.5 : 1;
+        const gapPercent = this.pageGapPercent = width > height ? 2 : width === height ? 1.5 : 1;
         this.pageGap = cardHeight * gapPercent / 100; // three.js units between displayed pages
-
-        if (!this.actor.numPages) {
-            this.say("docLoaded", { pageGapPercent: gapPercent, numPages: this.numPages });
-        }
     }
 
     squareCornerGeometry(width, height, depth) {
@@ -463,18 +511,20 @@ console.log(this);
             renderTask: null
         };
         this.pages[pageNumber] = entry;
-        this.pdf.getPage(pageNumber).then(proxy => {
-            entry.page = proxy;
-            const { width, height } = proxy.getViewport({ scale: 1 });
-            entry.width = width;
-            entry.height = height;
+        entry.pageReadyP = new Promise(resolve => {
+            this.pdf.getPage(pageNumber).then(proxy => {
+                entry.page = proxy;
+                const { width, height } = proxy.getViewport({ scale: 1 });
+                entry.width = width;
+                entry.height = height;
 
-            const maxDim = Math.max(width, height);
-            const renderScale = this.TEXTURE_SIZE / maxDim * 0.999;
-            entry.renderScale = renderScale;
-            entry.aspectRatio = width / height;
+                const maxDim = Math.max(width, height);
+                const renderScale = this.TEXTURE_SIZE / maxDim * 0.999;
+                entry.renderScale = renderScale;
+                entry.aspectRatio = width / height;
 
-            if (pageNumber === 1) this.adjustCardSize(width, height);
+                resolve();
+            });
         });
         return entry;
     }
