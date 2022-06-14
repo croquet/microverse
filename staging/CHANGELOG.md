@@ -3,10 +3,27 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-06-10
+### Added
+- A way to display iframes for connected worlds in the tiled view.
+
+### Fixed
+- Continuing improvements in walk and hit detection.
+- Continuing improvements in portals.
+- Properly handle modules with the same name at different file paths.
+
+### Removed
+- the multiuser flag was removed (in favor of the SingleUser behavior moduele).
+- `setTranslation()` and `setRotation()` for Card was removed (in favor of `translateTo()` and `rotateTo()).
+
 ## 2022-06-03
+### Added
+- The start of two way Portals.
+- SingleUser behavior added.
+
 ### Fixed
 - Performance issues in the PDF viewer.
-- Continuing improvements in walk and portal hit detection.
+- Continuing improvements in walk and portal hit detection. adding another walkable card is again possible.
 - Continuing improvements in portals.
 - Property Sheet colors adjusted.
 
@@ -15,10 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The pendulum has scale for convenience.
 - The default world is now the art gallery, with a portal into the refinery world.
 - 2D cards use toneMapping flag.
-
-### Added
-- The start of two way Portals.
-- SingleUser behavior added.
 
 ## 2022-05-27
 ### Added
@@ -40,17 +53,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A feature to caputure the pointer with the first responder mechanism.
 - Immediate local avatar movement before updating peers.
 
-## Fixed
-### Portals clipping issues.
-### Collision with walls and floor works smoother.
-### Watch server works on Windows by handling backslash path properly.
+### Fixed
+- Portals clipping issues.
+- Collision with walls and floor works smoother.
+- Watch server works on Windows by handling backslash path properly.
 
-Changed
-### Extruded Shape has z=0 at center.
-### the default index.html now has <DOCTYPE !html>
+###Changed
+- Extruded Shape has z=0 at center.
+- the default index.html now has <DOCTYPE !html>
 
-## 2022-05-13
-### Added
+- 2022-05-13
+- Added
 - Full screen mode work with portals
 
 ### Changed
