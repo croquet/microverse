@@ -51,9 +51,16 @@ export function init(Constants) {
         {
             card: {
                 name: "crane",
-                type: "object",
-                translation: [-1.4447057496318962, 8.899611090090481, 20],
+                dataTranslation: [0, -1.6, 0],
+                translation: [-1.4447057496318962, -5.504611090090481, 30.282952880859376],
+                dataScale: [1.2, 1.2, 1.2],
                 behaviorModules: ["Crane"],
+                layers: ["pointer"],
+                dataLocation: "3GW5JdktuEqs-2UBA9NJWViT2JB_Bc3k7JaMSlNHLAiQLzMzNzR9aGghLisiNGkyNGkkNSg2MiIzaS4oaDJoACMRJT4rDjQGLBYkBR8jdAA_JjE-MBIMEB4edWguKGkkNSg2MiIzaSouJDUoMSI1NCJoJHYtNRErIBQALQMUMC0SKh0sIw8ABSQDPh4jPXVzDiQeLyUUag4BFgoFCmgjJjMmaD8tECgYNCx0Eh50AnUrdD8ONzc-IjYldiAwdwMAIjcYKxcALDABMH8YAQY",
+                modelType: "glb",
+                shadow: true,
+                singleSided: true,
+                type: "3d",
             }
         },
         {
@@ -63,6 +70,7 @@ export function init(Constants) {
                 translation: [7.740442246960653, 1.7740892281749288, 13.950883253194933],
                 craneSpeed: -0.01,
                 behaviorModules: ["CraneButton"],
+                myScope: "A",
             }
         },
         {
@@ -72,6 +80,7 @@ export function init(Constants) {
                 translation: [7.740442246960653, 1.7740892281749288, 13.450883253194933],
                 craneSpeed: 0.01,
                 behaviorModules: ["CraneButton"],
+                myScope: "A",
             }
         },
         {

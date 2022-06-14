@@ -1,7 +1,7 @@
 class CraneActor {
     setup() {
-        this.pointA = [-1.4447057496318962, 8.899611090090481, 30.282952880859376];
-        this.pointB = [-1.4447057496318962, 8.899611090090481, -7.6106291023593755];
+        this.pointA = [-1.4447057496318962, -5.504611090090481, 29.225081241195];
+        this.pointB = [-1.4447057496318962, -5.504611090090481, -6.8406291023593755];
 
         this.subscribe("crane", "updatePositionBy", "updatePositionBy");
 
@@ -16,45 +16,28 @@ class CraneActor {
     }
 }
 
-class CranePawn {
-    setup() {
-        // this.shape.children.forEach((c) => this.shape.remove(c));
-        // this.shape.children = [];
-
-        let s = 1;
-        let geometry = new Worldcore.THREE.SphereGeometry(s / 2, 32, 16);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
-        this.obj = new Worldcore.THREE.Mesh(geometry, material);
-        this.obj.castShadow = this.actor._cardData.shadow;
-        this.obj.receiveShadow = this.actor._cardData.shadow;
-        this.shape.add(this.obj);
-    }
-}
-
 class CraneButtonActor {
     setup() {
-        this.addEventListener("pointerDown", "start");
-        this.addEventListener("pointerUp", "stop");
-        // we will use SingleUser module
-        this.timer = null;
+        this.occupier = undefined;
+        this.listen("publishFocus", "publishFocus");
+        this.listen("publishMove", "publishMove");
+        this.subscribe(this._cardData.myScope, "focus", "focus");
     }
 
-    start() {
-        if (!this.timer) {
-            this.timer = true;
-            this.publishMove();
-        }
-    }
-
+    // Publish Translation
     publishMove() {
-        if (this.timer) {
-            this.future(100).publishMove();
-        }
+        if (this.occupier !== undefined) { this.future(100).publishMove(); }
         this.publish("crane", "updatePositionBy", this._cardData.craneSpeed);
     }
 
-    stop() {
-        this.timer = null;
+    // Publish New Focus
+    publishFocus(viewId) {
+        this.publish(this._cardData.myScope, "focus", viewId);
+    }  
+
+    // Focus Controlling Player
+    focus(viewId) {
+        this.occupier = viewId;
     }
 }
 
@@ -72,6 +55,22 @@ class CraneButtonPawn {
             this.obj.receiveShadow = this.actor._cardData.shadow;
             this.shape.add(this.obj);
         }
+
+        this.addEventListener("pointerDown", "start");
+        this.addEventListener("pointerUp", "stop");
+    }
+
+    start() {
+        if (this.actor.occupier === undefined) {
+            this.say("publishFocus", this.viewId);
+            this.say("publishMove");
+        }
+    }
+
+    stop() {
+        if (this.actor.occupier === this.viewId) {
+            this.say("publishFocus", undefined);
+        }
     }
 }
 
@@ -83,7 +82,6 @@ export default {
         {
             name: "Crane",
             actorBehaviors: [CraneActor],
-            pawnBehaviors: [CranePawn]
         },
         {
             name: "CraneButton",
