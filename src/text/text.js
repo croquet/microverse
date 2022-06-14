@@ -447,6 +447,19 @@ export class TextFieldActor extends CardActor {
         return this.doc.styleAt(index);
     }
 
+    updateOptions(options) {
+        super.updateOptions(options);
+        let textWidth = options.width / options.textScale;
+        let textHeight = options.height / options.textScale;
+        this.setExtent({width: textWidth, height: textHeight});
+        if (this.dismissButton) {
+            this.dismissButton.destroy();
+        }
+        if (!options.noDismissButton) {
+            this.setupDismissButton();
+        }
+    }
+
     get value() {
         return this.doc.plainText();
     }
