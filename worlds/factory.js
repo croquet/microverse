@@ -67,7 +67,7 @@ export function init(Constants) {
             card: {
                 name: "crane button 1",
                 type: "object",
-                translation: [7.740442246960653, 1.7740892281749288, 13.950883253194933],
+                translation: [3.816793504629362, 4.136223779145266, 30.394897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
                 craneSpeed: -0.01,
                 behaviorModules: ["CraneButton"],
                 myScope: "A",
@@ -77,10 +77,30 @@ export function init(Constants) {
             card: {
                 name: "crane button 2",
                 type: "object",
-                translation: [7.740442246960653, 1.7740892281749288, 13.450883253194933],
+                translation: [3.816793504629362, 4.636223779145266, 30.394897079467775],
                 craneSpeed: 0.01,
                 behaviorModules: ["CraneButton"],
                 myScope: "A",
+            }
+        },
+        {
+            card: {
+                name:"crane explanation",
+                className: "TextFieldActor",
+                translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
+                rotation: [0, 0, 0],
+                depth: 0.10,
+                type: "text",
+                runs: [{text: "Crane Controls:\nTop Button Moves Crane Forward\nBottom Button Moves Crane Backward"}],
+                margins: {left: 30, top: 30, right: 30, bottom: 30},
+                backgroundColor: 0x707070,
+                color: 0xffffff,
+                frameColor: 0x222222,
+                width: 3.4,
+                height: 1,
+                textScale: 0.004,
+                shadow: true,
+                fullbright: true,
             }
         },
         {
