@@ -152,7 +152,7 @@ export function init(Constants) {
                 name: "drone 1",
                 layers: ["pointer"],
                 translation: [28.30055025496248, 4.7, 18.673839690273365],
-                dataLocation: "3FwXqoY7FkhqcGJaH7ejknByVX61fB61Kt8WfixVvCLMLjIyNjV8aWkgLyojNWgzNWglNCk3MyMyaC8paTNpASIQJD8qDzUHLRclBB4idQE-JzA_MRMNER8fdGkvKWglNCk3MyMyaCsvJTQpMCM0NSNpEmsnNiR2JDwVFQ4ZBBweLXMHHBULciU-HxUgNQl-LRcpGQ0KKQwZJxV_F2kiJzInaTI-DBQsIS8xAyUtJDIeHAQ3HnAZBxZ0LAcgMAwXECgxGTYwEQtxFjcWBA8",
+                dataLocation: "3c6tYer0EslC-sOFH5y-cF29-6EwCU1p5meYK1no8ymICxcXExBZTEwFCg8GEE0WEE0AEQwSFgYXTQoMTBZMJAc1ARoPKhAiCDIAITsHUCQbAhUaFDYoNDo6UUwKDE0AEQwSFgYXTQ4KABEMFQYREAZMNSZQMlEXLSlXGTUlVRA6OhICDCoCDVopOhA8JztbBARTARQtUwQlDFRWW0wHAhcCTAE0KSpaNzckLCZOEAg5FwURAVokAhpTNVUVLTEKJjIBVQwROjIrWhJWKzI",
                 dataScale: [1.2, 1.2, 1.2],
                 behaviorModules: ["Circle"],
                 modelType: "glb",
@@ -160,6 +160,7 @@ export function init(Constants) {
                 singleSided: true,
                 type: "3d",
             }
+
         },
         {
             card: {

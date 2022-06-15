@@ -23,6 +23,7 @@ class GridFloorPawn {
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
         this.floor.receiveShadow = true;
         this.shape.add(this.floor);
+        this.constructCollider(this.floor);
     }
 }
 
