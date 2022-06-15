@@ -26,7 +26,7 @@ class OpenRefineryPortalActor {
             cornerRadius: 0.05,
             depth: 0.05,
             frameColor: 8947848,
-            portalURL: "?world=refinery",
+            portalURL: "?world=factory",
             type: "2d",
             width: 1.8,
             height: 2.4,

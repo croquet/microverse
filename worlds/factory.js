@@ -136,7 +136,7 @@ export function init(Constants) {
             card: {
                 name: "drone 1",
                 layers: ["pointer"],
-                translation: [28.30055025496248, 1.9416405302346669, 18.673839690273365],
+                translation: [28.30055025496248, 4.7, 18.673839690273365],
                 dataLocation: "3FwXqoY7FkhqcGJaH7ejknByVX61fB61Kt8WfixVvCLMLjIyNjV8aWkgLyojNWgzNWglNCk3MyMyaC8paTNpASIQJD8qDzUHLRclBB4idQE-JzA_MRMNER8fdGkvKWglNCk3MyMyaCsvJTQpMCM0NSNpEmsnNiR2JDwVFQ4ZBBweLXMHHBULciU-HxUgNQl-LRcpGQ0KKQwZJxV_F2kiJzInaTI-DBQsIS8xAyUtJDIeHAQ3HnAZBxZ0LAcgMAwXECgxGTYwEQtxFjcWBA8",
                 dataScale: [1.2, 1.2, 1.2],
                 behaviorModules: ["Circle"],
