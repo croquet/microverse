@@ -33,7 +33,7 @@ export function init(Constants) {
                 singleSided: true,
                 type: "3d",
                 placeholder: true,
-                placeholderSize: [400, 0.1, 400],
+                placeholderSize: [400, 14, 400],
                 placeholderColor: 0x808080,
                 placeholderOffset: [0, 0, 0],
             }
