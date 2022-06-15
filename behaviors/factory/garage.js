@@ -1,15 +1,15 @@
 class GarageActor {
     setup() {
         this.pointA = [7.799494248347024, -0.3110201562611392, 10.508325734249267],
-
         this.pointB = [7.799494248347024, -0.3110201562611392 + 4.5, 10.508325734249267],
 
         this.subscribe(this.id, "updatePositionBy", "updatePositionBy");
 
         if (this._cardData.ratio === undefined) this._cardData.ratio = 0;
-        this.updatePositionBy(0);
         if (this.nextDirection === undefined) this.nextDirection = "up";
         if (this.moving === undefined) this.moving = false;
+
+        this.updatePositionBy(0);
         this.addEventListener("pointerDown", "trigger");
         this.addEventListener("pointerDoubleDown", "nop");
     }
@@ -61,7 +61,6 @@ class GaragePawn {
     }
 
     initializeClipping() {
-        let THREE = Worldcore.THREE;
         if (this.initialized) {return;}
         if (this.obj) {
             this.obj.onBeforeRender = null;
@@ -69,6 +68,7 @@ class GaragePawn {
 
         this.obj = this.shape.children[0];
 
+        let THREE = Worldcore.THREE;
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
             new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
@@ -100,7 +100,7 @@ class GaragePawn {
 
     updatePosition() {
         this.initializeClipping();
-        this.publish(this.actor.id, "updatePositionBy", 0.1);
+        this.publish(this.actor.id, "updatePositionBy", 0.0625);
     }
 
     computeClippingPlanes(ary) {
