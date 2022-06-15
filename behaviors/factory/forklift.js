@@ -90,9 +90,19 @@ class ForkLiftActor {
             this.running = true;
             this.step();
         }
+
+        this.addEventListener("pointerDown", "toggle");
+    }
+
+    toggle() {
+        this.running = !this.running;
+        if (this.running && !this.futureScheduled) {
+            this.step();
+        }
     }
 
     step() {
+        this.futureScheduled = false;
         this.ratio += 0.0625;
         if (this.ratio >= 1) {
             this.ratio = 0;
@@ -113,6 +123,7 @@ class ForkLiftActor {
             this.ratio
         ));
         if (this.running) {
+            this.futureScheduled = true;
             this.future(100).step();
         }
     }
