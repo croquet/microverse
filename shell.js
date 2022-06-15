@@ -26,10 +26,10 @@ class Shell {
         // ensure that we have a session and password
         App.autoSession();
         App.autoPassword();
-        this.currentFrame = this.addFrame(null, App.sessionURL);
-        const portalURL = frameToPortalURL(this.currentFrame.src, this.currentFrame.portalId);
+        this.primaryFrame = this.addFrame(null, App.sessionURL);
+        const portalURL = frameToPortalURL(this.primaryFrame.src, this.primaryFrame.portalId);
         window.history.replaceState({
-            portalId: this.currentFrame.portalId,
+            portalId: this.primaryFrame.portalId,
         }, null, portalURL);
         setTitle(portalURL);
         // remove HUD from DOM in shell
@@ -103,7 +103,7 @@ class Shell {
             }
         }
 
-        // joystick sends events into current frame
+        // joystick sends events into primary frame
         this.capturedPointers = {};
         this.joystick = document.getElementById("joystick");
         this.knob = document.getElementById("knob");
@@ -177,18 +177,18 @@ class Shell {
             owningFrame.ownedFrames.delete(portalId);
             frame.owningFrame = null;   // indicates frame should be removed
         }
-        if (frame !== this.currentFrame) {
+        if (frame !== this.primaryFrame) {
             console.log(`shell: removing frame ${portalId}`);
             frame.remove();
             this.frames.delete(portalId);
             for (const f of frame.ownedFrames.values()) {
                 this.removeFrame(f);
             }
-            this.sortFrames(this.currentFrame); // reassign z-indexes
+            this.sortFrames(this.primaryFrame); // reassign z-indexes
         } else {
-            // current frame is no longer owned,
+            // primary frame is no longer owned,
             // so it will be removed when switching to another frame
-            console.log(`shell: current frame ${portalId} is no longer owned, delaying removal`);
+            console.log(`shell: primary frame ${portalId} is no longer owned, delaying removal`);
         }
     }
 
@@ -238,8 +238,8 @@ class Shell {
                     fromFrame.ownedFrames.set(targetFrame.portalId, targetFrame);
                 }
                 this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId});
-                if (fromFrame === this.currentFrame) {
-                    this.sortFrames(this.currentFrame, targetFrame);
+                if (fromFrame === this.primaryFrame) {
+                    this.sortFrames(this.primaryFrame, targetFrame);
                 }
                 return;
             case "croquet:microverse:portal-close":
@@ -274,7 +274,7 @@ class Shell {
                     this.portalRenderTimeout = setTimeout(() => {
                         console.log("portal render timed out");
                         delete this.portalRenderTimeout;
-                        this.manuallyRenderCurrentFrame();
+                        this.manuallyRenderPrimaryFrame();
                     }, 200);
                     this.sendToPortal(data.portalId, data);
                 }
@@ -286,18 +286,18 @@ class Shell {
                     clearTimeout(this.portalRenderTimeout);
                     delete this.portalRenderTimeout;
                     // console.log(`upd ${data.forwardTime - data.updateTime} fwd ${data.renderedTime - data.forwardTime} ar ${Date.now() - data.renderedTime} req`);
-                    this.manuallyRenderCurrentFrame();
+                    this.manuallyRenderPrimaryFrame();
                 }
                 return;
             case "croquet:microverse:portal-enter":
-                if (fromFrame === this.currentFrame) {
+                if (fromFrame === this.primaryFrame) {
                     this.activateFrame(data.portalId, true, data.avatarSpec);
                 } else {
-                    console.warn("portal-enter from non-current portal-" + fromPortalId);
+                    console.warn("portal-enter from non-primary portal-" + fromPortalId);
                 }
                 return;
             case "croquet:microverse:enter-world":
-                if (fromFrame === this.currentFrame) {
+                if (fromFrame === this.primaryFrame) {
                     let targetFrame = this.findFrame(data.portalURL);
                     if (!targetFrame) { // might happen after back/forward navigation
                         console.log("enter-world: no frame for", data.portalURL);
@@ -305,7 +305,7 @@ class Shell {
                     }
                     this.activateFrame(targetFrame.portalId, true);
                 } else {
-                    console.warn("enter-world from non-current portal-" + fromPortalId);
+                    console.warn("enter-world from non-primary portal-" + fromPortalId);
                 }
                 return;
             default:
@@ -315,7 +315,7 @@ class Shell {
 
     startSyncedRendering(portalId) {
         console.log("starting sync render");
-        this.sendToPortal(this.currentFrame.portalId, {
+        this.sendToPortal(this.primaryFrame.portalId, {
             message: "croquet:microverse:start-sync-rendering"
         });
         this.sendToPortal(portalId, {
@@ -328,7 +328,7 @@ class Shell {
         if (!this.usingSyncedRendering) return; // already off
 
         console.log("ending sync render");
-        this.sendToPortal(this.currentFrame.portalId, {
+        this.sendToPortal(this.primaryFrame.portalId, {
             message: "croquet:microverse:stop-sync-rendering"
         });
         this.sendToPortal(portalId, {
@@ -338,8 +338,8 @@ class Shell {
         delete this.portalRenderTimeout;
     }
 
-    manuallyRenderCurrentFrame() {
-        this.sendToPortal(this.currentFrame.portalId, { message: "croquet:microverse:sync-render-now", updateTime: this.lastPortalUpdateTime
+    manuallyRenderPrimaryFrame() {
+        this.sendToPortal(this.primaryFrame.portalId, { message: "croquet:microverse:sync-render-now", updateTime: this.lastPortalUpdateTime
         });
     }
 
@@ -402,7 +402,7 @@ class Shell {
             // the avatar only gets constructed after joining the session
             // so we keep sending this message until the avatar is constructed
             // then it will send "croquet:microverse:started" which clears this interval (below)
-            const frameType = !this.currentFrame || this.currentFrame === frame ? "primary" : "secondary";
+            const frameType = !this.primaryFrame || this.primaryFrame === frame ? "primary" : "secondary";
             this.sendToPortal(frame.portalId, {message: "croquet:microverse:frame-type", frameType, spec});
             // send camera to portal
             if (frameType === "secondary") {
@@ -414,7 +414,7 @@ class Shell {
     }
 
     activateFrame(toPortalId, pushState=true, avatarSpec=null) {
-        const fromFrame = this.currentFrame;
+        const fromFrame = this.primaryFrame;
         const toFrame = this.frames.get(toPortalId);
         const portalURL = frameToPortalURL(toFrame.src, toPortalId);
         this.sortFrames(toFrame, fromFrame);
@@ -435,8 +435,8 @@ class Shell {
             }, null, portalToShellURL(portalURL));
         }
         setTitle(portalURL);
-        this.currentFrame = toFrame;
-        this.currentFrame.focus();
+        this.primaryFrame = toFrame;
+        this.primaryFrame.focus();
         console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, avatarSpec);
         this.sendFrameType(toFrame, avatarSpec);
         if (!fromFrame.owningFrame) {
@@ -448,7 +448,7 @@ class Shell {
         }
         if (this.activeMMotion) {
             const { dx, dy } = this.activeMMotion;
-            this.sendToPortal(this.currentFrame.portalId, { message: "croquet:microverse:motion-start", dx, dy });
+            this.sendToPortal(this.primaryFrame.portalId, { message: "croquet:microverse:motion-start", dx, dy });
         }
     }
 
@@ -460,7 +460,7 @@ class Shell {
         this.knobX = e.clientX;
         this.knobY = e.clientY;
         this.activeMMotion = { dx: 0, dy: 0 };
-        this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-start"});
+        this.sendToPortal(this.primaryFrame.portalId, {message: "croquet:microverse:motion-start"});
     }
 
     endMMotion(e) {
@@ -470,7 +470,7 @@ class Shell {
         let radius = parseFloat(this.knobStyle.width) / 2;
         this.trackingknob.style.transform = "translate(0px, 0px)";
         this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
-        this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-end"});
+        this.sendToPortal(this.primaryFrame.portalId, {message: "croquet:microverse:motion-end"});
     }
 
     updateMMotion(e) {
@@ -484,7 +484,7 @@ class Shell {
             let radius = parseFloat(this.knobStyle.width) / 2;
             let left = parseFloat(this.knobStyle.left) / 2;
 
-            this.sendToPortal(this.currentFrame.portalId, {message: "croquet:microverse:motion-update", dx, dy});
+            this.sendToPortal(this.primaryFrame.portalId, {message: "croquet:microverse:motion-update", dx, dy});
             this.activeMMotion.dx = dx;
             this.activeMMotion.dy = dy;
 
@@ -552,7 +552,7 @@ function frameToPortalURL(frameURL) {
 // we need canonical URLs for navigating between different origins
 // the iframe.src can be cross-origin, but the address bar can't
 // instead, we add a `?canonical=<base>` parameter to the address bar
-// which has the actual current world base URL without any parameters
+// which has the actual primary world base URL without any parameters
 
 function portalToShellURL(portalURL) {
     const url = new URL(portalURL, location.href);
