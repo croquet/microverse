@@ -21,7 +21,7 @@ class GarageActor {
             return;
         }
         this.moving = true;
-        if (this._cardData.ratio === 0) {
+        if (this.nextDirection === "up") {
             this.up();
         } else {
             this.down();
