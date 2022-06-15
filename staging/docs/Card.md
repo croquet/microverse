@@ -311,6 +311,24 @@ type Quaternion = Array<number, number, number, number>
 
 This method publishes an event to set the corresponding actors's translation and rotation. It guarantees that two values are sent in one message, thus causes both to be updated at the same time.
 
+### `constructCollider(obj:Object3D)`
+
+In order for the avatar to walk on a three-dimensional model, the 3D model needs to have the bounded volume hierarchy structure attached. This method has to be called to make a 3D object that is created in the pawn-side behavior.
+
+### `cleanupColliderObject()`
+
+If the card has an associated collider object, it will be removed. If there is no collider object, this method does not take any effects.
+
+A typical use case of `constructCollider()` and `cleanupColliderObject()` in a pawn-side behavior is as follows in its `setup()` method:
+
+```JavaScript
+	this.cleanupColliderObject()
+        if (this.actor.layers && this.actor.layers.includes("walk")) {
+            this.constructCollider(this.floor);
+            // where this.floor is a Three.js Mesh with geometry.
+        }
+```
+
 ### `nop()`
 
 This method is empty. It is used to have a way to get the tap to focus keyboard events but you don't need to take any particular action on tap.
