@@ -8,11 +8,13 @@ import { addShellListener, removeShellListener, sendToShell, frameId, isPrimaryF
 export class PortalActor extends CardActor {
     init(options) {
         super.init(options);
+        this._isOpen = true;
         this._portalTime = this.now();
     }
 
     get isPortal() { return true; }
 
+    get isOpen() { return this._isOpen; }
     get portalTime() { return this._portalTime; }
 
     get portalURL() { return this._cardData.portalURL; }
@@ -36,6 +38,7 @@ export class PortalPawn extends CardPawn {
 
         this.setGhostWorld({ v: this.actor._ghostWorld });
         this.listen("ghostWorldSet", this.setGhostWorld);
+        this.listen("isOpenSet", this.setIsOpen);
 
         this.addEventListener("pointerDown", this.onPointerDown);
         this.addEventListener("keyDown", e => { switch (e.key) {
@@ -91,16 +94,16 @@ export class PortalPawn extends CardPawn {
                     float r = length(vUv.xy);
                     float angle = atan(vUv.y, vUv.x);
                     float v = sin(time * 30.0 - r * 1.0 + 5.0 * angle) + r - time * 2.0 + 2.0;
-                    float alpha = clamp(1.0 - v, 0.0, 1.0);
+                    float alpha = clamp(v, 0.0, 1.0);
                     gl_FragColor = vec4(0, 0, 0, alpha); // we only care about alpha
                 }
             `,
             clipping: true,
-            transparent: true,
-            blending: THREE.CustomBlending,
-            blendEquation: THREE.AddEquation,
-            blendSrc: THREE.ZeroFactor,
-            blendDst: THREE.OneMinusSrcAlphaFactor,
+            // transparent: true,
+            // blending: THREE.CustomBlending,
+            // blendEquation: THREE.AddEquation,
+            // blendSrc: THREE.ZeroFactor,
+            // blendDst: THREE.OneMinusSrcAlphaFactor,
         });
     }
 
@@ -109,10 +112,13 @@ export class PortalPawn extends CardPawn {
         if (!obj.material) obj = obj.children[0];
         if (!obj) return;
 
+        const { isOpen } = this.actor;
         if (Array.isArray(obj.material)) {
-            obj.material[0] = this.portalMaterial;
+            if (obj.material[0] !== this.portalMaterial) this.originalMaterial = obj.material[0];
+            obj.material[0] = isOpen ? this.portalMaterial : this.originalMaterial;
         } else {
-            obj.material = this.portalMaterial;
+            if (obj.material !== this.portalMaterial) this.originalMaterial = obj.material;
+            obj.material = isOpen ? this.portalMaterial : this.originalMaterial;
         }
     }
 
@@ -260,7 +266,10 @@ export class PortalPawn extends CardPawn {
     onPointerDown() {
         // replay opening animation to remind user that this is a portal
         // and they can't interact with the inner world yet
-        this.say("_set", { portalTime: this.now() - 1500 });
+        this.say("_set", {
+            isOpen: !this.actor.isOpen,
+            portalTime: this.now(),
+        });
     }
 
     openPortal() {
@@ -324,6 +333,12 @@ export class PortalPawn extends CardPawn {
         avatarSpec.url = this.resolvePortalURL();
         sendToShell("portal-enter", { portalId: this.portalId, avatarSpec });
         // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
+    }
+
+    setIsOpen({v}) {
+        this.applyPortalMaterial();
+        if (v) this.openPortal();
+        else this.closePortal();
     }
 
     setGhostWorld({v}) {
