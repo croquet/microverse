@@ -114,8 +114,10 @@ function loadInitialBehaviors(paths, directory) {
                 return [`${rest}/${path}`, module];
             })
         } else {
-            return import(`./behaviors/${directory.split("/")[1]}/${path}`).then((module) => {
-                return [`${directory.split("/")[1]}/${path}`, module];
+            let modulePath =  `${directory.split("/")[1]}/${path}`;
+            let code = `import('${basedir}behaviors/${modulePath}')`;
+            return eval(code).then((module) => {
+                return [modulePath, module];
             })
         }
     });
