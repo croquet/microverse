@@ -26,7 +26,7 @@ class Shell {
         // ensure that we have a session and password
         App.autoSession();
         App.autoPassword();
-        this.currentFrame = this.addFrame(App.sessionURL);
+        this.currentFrame = this.addFrame(null, App.sessionURL);
         const portalURL = frameToPortalURL(this.currentFrame.src, this.currentFrame.portalId);
         window.history.replaceState({
             portalId: this.currentFrame.portalId,
@@ -150,19 +150,46 @@ class Shell {
         this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
     }
 
-    addFrame(portalURL) {
+    addFrame(owningFrame, portalURL) {
+        if (this.frames.size >= 4) throw Error("shell: refusing to create more than 4 frames (this indicates a portal bug)");
         let portalId;
         do { portalId = Math.random().toString(36).substring(2, 15); } while (this.frames.has(portalId));
         const frame = document.createElement("iframe");
         frame.src = portalToFrameURL(portalURL, portalId);
         frame.style.zIndex = -this.frames.size; // put new frame behind all other frames
         frame.style.setProperty('--tilt-z', `${this.frames.size * -200}px`);
+        // non-DOM properties
         frame.portalId = portalId;
+        frame.owningFrame = owningFrame;
+        frame.ownedFrames = new Map();
+        owningFrame?.ownedFrames.set(portalId, frame);
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
         this.sendFrameType(frame);
         // console.log("add frame", portalId, portalURL);
         return frame;
+    }
+
+    removeFrame(frame) {
+        const portalId = frame.portalId;
+        const owningFrame = frame.owningFrame;
+        if (owningFrame) {
+            owningFrame.ownedFrames.delete(portalId);
+            frame.owningFrame = null;   // indicates frame should be removed
+        }
+        if (frame !== this.currentFrame) {
+            console.log(`shell: removing frame ${portalId}`);
+            frame.remove();
+            this.frames.delete(portalId);
+            for (const f of frame.ownedFrames.values()) {
+                this.removeFrame(f);
+            }
+            this.sortFrames(this.currentFrame); // reassign z-indexes
+        } else {
+            // current frame is no longer owned,
+            // so it will be removed when switching to another frame
+            console.log(`shell: current frame ${portalId} is no longer owned, delaying removal`);
+        }
     }
 
     sortFrames(mainFrame, portalFrame) {
@@ -192,6 +219,7 @@ class Shell {
                 return;
             case "croquet:microverse:portal-open":
                 let targetFrame;
+                // if there already is a portalId then replace its url
                 if (data.portalId) {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
@@ -201,16 +229,23 @@ class Shell {
                     }
                     return;
                 }
-                targetFrame = this.findFrame(data.portalURL);
-                if (!targetFrame) targetFrame = this.addFrame(data.portalURL);
+                // otherwise find an unowned frame for the URL, or create a new one
+                targetFrame = this.findFrame(data.portalURL, f => !f.owningFrame);
+                if (!targetFrame) targetFrame = this.addFrame(fromFrame, data.portalURL);
+                else {
+                    if (!targetFrame.portalId) debugger
+                    targetFrame.owningFrame = fromFrame;
+                    fromFrame.ownedFrames.set(targetFrame.portalId, targetFrame);
+                }
                 this.sendToPortal(fromPortalId, {message: "croquet:microverse:portal-opened", portalId: targetFrame.portalId});
+                if (fromFrame === this.currentFrame) {
+                    this.sortFrames(this.currentFrame, targetFrame);
+                }
                 return;
             case "croquet:microverse:portal-close":
                 const frame = this.frames.get(data.portalId);
-                if (frame !== this.currentFrame) {
-                    frame.remove();
-                    this.frames.delete(data.portalId);
-                    this.sortFrames(this.currentFrame); // reassign z-indexes
+                if (frame) {
+                    this.removeFrame(frame);
                 }
                 return;
             case "croquet:microverse:portal-update":
@@ -264,9 +299,9 @@ class Shell {
             case "croquet:microverse:enter-world":
                 if (fromFrame === this.currentFrame) {
                     let targetFrame = this.findFrame(data.portalURL);
-                    if (!targetFrame) {
+                    if (!targetFrame) { // might happen after back/forward navigation
                         console.log("enter-world: no frame for", data.portalURL);
-                        targetFrame = this.addFrame(data.portalURL);
+                        targetFrame = this.addFrame(fromFrame, data.portalURL);
                     }
                     this.activateFrame(targetFrame.portalId, true);
                 } else {
@@ -308,11 +343,12 @@ class Shell {
         });
     }
 
-    findFrame(portalURL) {
+    findFrame(portalURL, filterFn=null) {
         portalURL = portalToFrameURL(portalURL, "");
         // find an existing frame for this portalURL, which may be partial,
         // in particular something loaded from a default spec (e.g. ?world=portal1)
         outer: for (const frame of this.frames.values()) {
+            if (filterFn && !filterFn(frame)) continue;
             // could be the exact url
             if (frame.src === portalURL) return frame;
             // or just needs to be expanded
@@ -403,8 +439,13 @@ class Shell {
         this.currentFrame.focus();
         console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, avatarSpec);
         this.sendFrameType(toFrame, avatarSpec);
-        console.log(`shell: sending frame-type "secondary" to portal-${fromFrame.portalId}`, {portalURL});
-        this.sendFrameType(fromFrame, {portalURL});
+        if (!fromFrame.owningFrame) {
+            console.log(`shell: removing unowned secondary frame ${fromFrame.portalId}`);
+            this.removeFrame(fromFrame);
+        } else {
+            console.log(`shell: sending frame-type "secondary" to portal-${fromFrame.portalId}`, {portalURL});
+            this.sendFrameType(fromFrame, {portalURL});
+        }
         if (this.activeMMotion) {
             const { dx, dy } = this.activeMMotion;
             this.sendToPortal(this.currentFrame.portalId, { message: "croquet:microverse:motion-start", dx, dy });
