@@ -29,16 +29,23 @@ class LightPawn {
             [25.25, 9.7, -32.02],
         ];
         points.forEach((p) => {
-            let point = new Worldcore.THREE.PointLight(0xffffff, 0.8);
+            let point = new Worldcore.THREE.PointLight(0xffffff, 0.5);
             point.position.set(...p);
             this.lights.push(point);
             group.add(point);
         });
+
+        let directional = new Worldcore.THREE.DirectionalLight(0xffffff, 0.8);
+        directional.position.set(2, 20, 30);
+        directional.castShadow = true;
+        this.lights.push(directional);
+        group.add(directional);
     }
 
     removeLights() {
         if (this.lights) {
             this.lights.forEach((light) => {
+                light.dispose();
                 this.shape.remove(light);
             });
         }

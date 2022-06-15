@@ -134,6 +134,22 @@ export function init(Constants) {
         },
         {
             card: {
+                name: "forklift 2",
+                dataTranslation: [0, -0.2, 0],
+                translation: [-6.864045029864473, 0, -6.132494653566097],
+                dataScale: [1.2, 1.2, 1.2],
+                behaviorModules: ["ForkLift"],
+                layers: ["pointer"],
+                dataLocation: "3UkowQroW_SGvJ0N4hXnZO_pwIEEVlVQNTvj8CJ0CG78PSEhJSZvenozPDkwJnsgJns2JzokIDAhezw6eiB6EjEDNyw5HCYUPgQ2Fw0xZhItNCMsIgAeAgwMZ3o8Ons2JzokIDAhezg8Nic6IzAnJjB6YBAAGSIZES8PHCcNBAVhIhlkbScSITQYHhliDR8SNy0DFz8gFAo7PAcTPnoxNCE0enhkF3gzEjxsDQYaIhwTYDsfGjkHMz84OCMTCjcjPzIfF3gkNzYgEyUtGzI",
+                pathIndex: 1,
+                modelType: "glb",
+                shadow: true,
+                singleSided: true,
+                type: "3d",
+            }
+        },
+        {
+            card: {
                 name: "drone 1",
                 layers: ["pointer"],
                 translation: [28.30055025496248, 4.7, 18.673839690273365],
