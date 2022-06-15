@@ -26,7 +26,6 @@ export function init(Constants) {
                 layers: ["walk"],
                 translation: [-0, -5.234552517024578, -0],
                 dataLocation: "3LYn_S_GRNEPUqRtUPgMC4hhd_IwyziHCagqt7jO-gRoJDg4PD92Y2MqJSApP2I5P2IvPiM9OSk4YiUjYzljCygaLjUgBT8NJx0vDhQofws0LTo1OxkHGxUVfmMlI2IvPiM9OSk4YiElLz4jOik-PyljInoJPiQVLyk1HDwNdX19Gy8qOih_AxotBgkhJ3s_Ij0mFiE6GRMaDTs_L2MoLTgtYw41CCd5BRl0LhwEI34ENS0WNgI1eX4cCz17eQoLFBQqOnQDGwEuPiMmexU",
-    dataScale: [0.04948092927183515, 0.04948092927183515, 0.04948092927183515],                
                 dataScale: [1.2, 1.2, 1.2],
                 fileName: "/Factory.glb",
                 modelType: "glb",
@@ -223,6 +222,24 @@ export function init(Constants) {
                 rapierType: "positionBased",
                 color: 0xcccccc,
                 shadow: true,
+            }
+        },
+        {
+            card: {
+                translation: [51.91000213623047, 5.175040227971613, -28.295106048051267],
+                scale: [3.3, 3.3, 3.3],
+                rotation: [0, -Math.PI / 2, 0],
+                layers: ["pointer"],
+                behaviorModules: ["PDFView"],
+                color: 8947848,
+                depth: 0.05,
+                frameColor: 16777215,
+                fullBright: true,
+                modelType: "pdf",
+                pdfLocation: "3i2bjIBqONmUqz8XGj0oguUVu-wJleyHEiMp8RBLCX2sAR0dGRpTRkYPAAUMGkccGkcKGwYYHAwdRwAGRhxGLg0_CxAFIBooAjgKKzENWi4RCB8QHjwiPjAwW0YABkcKGwYYHAwdRwQAChsGHwwbGgxGWjFcGQxRBQY8IA4-UBkaLwMTHBsEIA1cEVsCGTY2LCgKIBlROw8tNg8-XUYNCB0IRhAeHRoqCw8EBjguAxMiBQQxBDw7Xl8AKiddMVkdIB02Nh4zIRskGyomXgI",
+                shadow: true,
+                singleSided: true,
+                type: "2d",
             }
         },
         {
