@@ -24,20 +24,24 @@ class LightPawn {
         let group = this.shape;
 
         let points = [
-            [28.74, 9.7, 12.3],
-            [1.8, 9.7, 14],
-            [25.25, 9.7, -32.02],
+            {v: [28.74, 20, 12], s: true},
+            {v: [1.8, 9.7, 14], s: false},
+            {v: [25.25, 9.7, -32.02], s: false},
         ];
-        points.forEach((p) => {
+        points.forEach((pair) => {
+            let v = pair.v
             let point = new Worldcore.THREE.PointLight(0xffffff, 0.5);
-            point.position.set(...p);
+            point.position.set(...v);
+            if (pair.s) {
+                point.castShadow = true;
+            }
             this.lights.push(point);
             group.add(point);
         });
 
         let directional = new Worldcore.THREE.DirectionalLight(0xffffff, 0.8);
         directional.position.set(2, 20, 30);
-        directional.castShadow = true;
+        // directional.castShadow = true;
         this.lights.push(directional);
         group.add(directional);
     }

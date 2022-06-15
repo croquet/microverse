@@ -15,7 +15,11 @@ class GarageActor {
     }
 
     trigger() {
-        if (this.moving) {this.moving = false; return;}
+        if (this.moving) {
+            this.moving = false;
+            this.nextDirection = this.nextDirection === "up" ? "down" : "up";
+            return;
+        }
         this.moving = true;
         if (this._cardData.ratio === 0) {
             this.up();
@@ -25,16 +29,16 @@ class GarageActor {
     }
 
     up() {
-        this.updatePositionBy(0.0625);
+        this.updatePositionBy(0.03125);
         if (this.moving) {
-            this.future(100).up();
+            this.future(50).up();
         }
     }
 
     down() {
-        this.updatePositionBy(-0.0625);
+        this.updatePositionBy(-0.03125);
         if (this.moving) {
-            this.future(100).down();
+            this.future(50).down();
         }
     }
 
@@ -100,7 +104,7 @@ class GaragePawn {
 
     updatePosition() {
         this.initializeClipping();
-        this.publish(this.actor.id, "updatePositionBy", 0.0625);
+        this.publish(this.actor.id, "updatePositionBy", 0.03125);
     }
 
     computeClippingPlanes(ary) {

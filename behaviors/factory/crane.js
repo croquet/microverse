@@ -25,7 +25,7 @@ class CraneButtonActor {
 
     // Publish Translation
     publishMove() {
-        if (this.occupier !== undefined) { this.future(100).publishMove(); }
+        if (this.occupier !== undefined) { this.future(60).publishMove(); }
         this.publish("crane", "updatePositionBy", this._cardData.craneSpeed);
     }
 
