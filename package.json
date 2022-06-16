@@ -12,8 +12,9 @@
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
     "build-public": "webpack --mode production; npm run create-version",
-    "create-version": "./commit.sh",
-    "copy-to-git": "rm -rf ../microverse-builder/*; rsync -r ./dist/ ../microverse-builder/; ./fix-index-html.sh ../microverse-builder"
+    "create-version": "./scripts/commit.sh",
+    "copy-to-git": "rm -rf ../microverse-builder/*; rsync -r ./dist/ ../microverse-builder/; ./scripts/fix-index-html.sh ../microverse-builder",
+    "three-lib": "./scripts/getThreeLibs.sh"
   },
   "author": "Croquet Corporation",
   "license": "Apache-2.0",
