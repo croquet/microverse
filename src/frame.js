@@ -43,7 +43,7 @@ addShellListener((command, data) => {
             console.log(frameId, "frame-type", data.frameType);
             isPrimaryFrame = primary;
             document.body.style.background = "transparent";
-            document.getElementById("hud").classList.toggle("current-world", isPrimaryFrame);
+            document.getElementById("hud").classList.toggle("primary-frame", isPrimaryFrame);
             if (isPrimaryFrame) window.focus();
         }
     }
