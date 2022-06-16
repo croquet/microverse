@@ -185,6 +185,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         const manager = this.service("PlayerManager");
         if (manager.presentationMode === this.playerId) {
             for (const playerId of manager.followers) {
+                if (playerId === this.playerId) continue;
                 const follower = manager.player(playerId);
                 follower.leaveToWorld(portalURL);
             }
@@ -871,6 +872,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             lookOffset: this.lookOffset,
             presenting: this.presenting,    // keep presenting
             cardData: this.actor._cardData, // keep avatar appearance
+            url: portal.resolvePortalURL(),
         };
     }
 
@@ -916,12 +918,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
         if (leavingWorld) this.endMMotion();
-        // if we were presenting, tell followers to come with us
-        if (leavingWorld && this.presenting) {
-            this.say("followMeToWorld", spec.portalURL);
-            // calls leaveToWorld() in followers
-            // which will result in frameTypeChanged() on follower's clients
-        }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
         this.say("_set", actorSpec);
@@ -936,8 +932,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     leaveToWorld(portalURL) {
-        console.log(`${frameName()} sending enter-world to ${portalURL}`);
-        sendToShell("enter-world", { portalURL });
+        if (this.isPrimary) {
+            console.log(`${frameName()} sending enter-world to ${portalURL}`);
+            sendToShell("enter-world", { portalURL });
+        } else {
+            console.log(`${frameName()} not sending enter-world to ${portalURL}`);
+        }
     }
 
     update(time, delta) {
@@ -1188,9 +1188,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (intersections.length > 0) {
             let portal = this.pawnFrom3D(intersections[0].object);
             if (portal) {
+                // don't allow re-entering the portal
                 this.lastPortalTime = Date.now();
+                // remember which portal we left the world from
                 this.anchor = portal.actor;
-                portal.enterPortal();
+                // NOTE THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
+                // we also jump between worlds using the browser's "forward/back" buttons
+                console.log(frameName(), "player", this.viewId, "enter portal", portal.portalId);
+                // spec for this avatar in new world
+                const avatarSpec = this.specForPortal(portal);
+                // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
+                // but it also may delete this frame if is unowned
+                sendToShell("portal-enter", { portalId: portal.portalId, avatarSpec });
+                // if we were presenting, tell followers to come with us
+                if (this.presenting) {
+                    this.say("followMeToWorld", avatarSpec.url);
+                    // calls leaveToWorld() in followers
+                    // which will result in frameTypeChanged() on follower's clients
+                }
                 return true;
             }
         }

@@ -49,8 +49,7 @@ class Shell {
                         return;
                     }
                 }
-                console.warn("shell: received message not in portal list", e.data);
-                debugger
+                console.warn("shell: ignoring message from removed frame", e.data);
             }
         });
 

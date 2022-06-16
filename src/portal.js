@@ -323,18 +323,6 @@ export class PortalPawn extends CardPawn {
         return portalTempUrl.toString();
     }
 
-    enterPortal() {
-        // NOTE THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
-        // we also jump between worlds using the browser's "forward/back" buttons
-        console.log(frameName(), "player", this.viewId, "enter portal", this.portalId);
-        const avatarActor = this.actor.service("PlayerManager").player(this.viewId);
-        const avatarPawn = GetPawn(avatarActor.id);
-        const avatarSpec = avatarPawn.specForPortal(this);
-        avatarSpec.url = this.resolvePortalURL();
-        sendToShell("portal-enter", { portalId: this.portalId, avatarSpec });
-        // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
-    }
-
     setIsOpen({v}) {
         this.applyPortalMaterial();
         if (v) this.openPortal();
