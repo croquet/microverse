@@ -1,6 +1,6 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
@@ -13,14 +13,13 @@
     "build-dev": "webpack --mode development",
     "build-public": "webpack --mode production; npm run create-version",
     "create-version": "./commit.sh",
-    "copy-to-git": "rm -rf ../microverse-builder/*; rsync -r ./dist/ ../microverse-builder/; ./fix-index-html.sh ../microverse-builder; ./remove-contents-from-builder.sh ../microverse-builder"
+    "copy-to-git": "rm -rf ../microverse-builder/*; rsync -r ./dist/ ../microverse-builder/; ./fix-index-html.sh ../microverse-builder"
   },
   "author": "",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "browserslist": [
     "> 5%"
   ],
-  "comment": "file:../worldcore/packages/full",
   "dependencies": {
     "@croquet/worldcore-kernel": "file:../worldcore/packages/kernel",
     "@croquet/worldcore-three": "file:../worldcore/packages/three",
