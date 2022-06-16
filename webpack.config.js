@@ -87,9 +87,7 @@ module.exports = (env, argv) => {
                             /* your `uglify-js` package options */
                             keep_fnames: true
                         };
-
                         console.log("minify", Object.keys(file));
-
                         return require("uglify-js").minify(file, uglifyJsOptions)
                     },
                 })
