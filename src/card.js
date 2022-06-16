@@ -591,7 +591,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.shape.add(this.placeholder);
         }
 
-        let name = options.name;
+        let name = this.actor.name;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
         if (!model3d) {return;}
@@ -857,7 +857,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             obj.position.set(...options.dataTranslation);
         }
         if (options.dataRotation) {
-            obj.quaternion.set(...options.dataRotation);
+            let d = (options.dataRotation.length === 3) ? q_euler(...options.dataRotation) : options.dataRotation;
+            obj.quaternion.set(...d);
         }
     }
 

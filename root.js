@@ -147,29 +147,41 @@ class MyPlayerManager extends PlayerManager {
         this.subscribe("playerManager", "leave", this.playerLeftWorld);
     }
 
-    createPlayer(options) {
+    createPlayer(playerOptions) {
+        // when we have a better user management,
+        // options will be compatible with a card spec
+        // until then, we check the AvatarNames variable, and if it is a short name
+        // (as it is) it'd fall back to use the short string as a stem of the model file name.
+        // if it is an object, we use it as the card spec.
+
         let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
+        let avatarSpec = Constants.AvatarNames[index];
         console.log("MyPlayerManager", this.avatarCount);
+        let options = {...playerOptions};
         options.noSave = true;
         options.type = "3d";
-        options.name = Constants.AvatarNames[index];
         options.singleSided = true;
-        options.dataScale = [0.3, 0.3, 0.3];
-        options.dataRotation = q_euler(0, Math.PI, 0);
-        options.dataTranslation = [0, -0.4, 0];
-        let dataLocation = options.name;
 
-        // compatibility when we wrote AvatarNames with shorter names.
-        if (!name.endsWith(".zip") && name.length < 40) {
-            dataLocation = `./assets/avatars/${options.name}.zip`;
+        if (typeof avatarSpec === "string") {
+            options.name = avatarSpec;
+            options.dataScale = [0.3, 0.3, 0.3];
+            options.dataRotation = q_euler(0, Math.PI, 0);
+            options.dataTranslation = [0, -0.4, 0];
+            options.dataLocation = `./assets/avatars/${options.name}.zip`;
+        } else {
+            options = {...options, ...avatarSpec};
         }
-        options.dataLocation = dataLocation;
 
         let behaviorManager = this.service("BehaviorModelManager");
 
         if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
-            options.behaviorModules = ["AvatarEventHandler"];
+            let modules;
+            if (!options.behaviorModules) {
+                options.behaviorModules = ["AvatarEventHandler"];
+            } else {
+                options.behaviorModules = [...options.behaviorModules, "AvatarEventHandler"];
+            }
         }
 
         return AvatarActor.create(options);

@@ -40,8 +40,15 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         delete options.playerId;
         super.init(options);
         this._playerId = playerId;
-        this._layers = ["avatar"];
 
+        let layers = options.layers;
+        if (!layers) {
+            layers = ["avatar"];
+        } else if (!layers.includes("avatar")) {
+            layers = [...layers, "avatar"];
+        }
+
+        this._layers = layers;
         this.lookPitch = 0;
         this.lookYaw = 0;
         this.lookOffset = v3_zero();
