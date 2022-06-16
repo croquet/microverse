@@ -2,7 +2,7 @@ import { GetPawn } from "@croquet/worldcore-kernel";
 import { THREE } from "@croquet/worldcore-three";
 
 import { CardActor, CardPawn } from "./card.js";
-import { addShellListener, removeShellListener, sendToShell, frameId, isPrimaryFrame } from "./frame.js";
+import { addShellListener, removeShellListener, sendToShell, frameName, isPrimaryFrame } from "./frame.js";
 
 
 export class PortalActor extends CardActor {
@@ -326,7 +326,7 @@ export class PortalPawn extends CardPawn {
     enterPortal() {
         // NOTE THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
         // we also jump between worlds using the browser's "forward/back" buttons
-        console.log(frameId, "player", this.viewId, "enter portal", this.portalId);
+        console.log(frameName(), "player", this.viewId, "enter portal", this.portalId);
         const avatarActor = this.actor.service("PlayerManager").player(this.viewId);
         const avatarPawn = GetPawn(avatarActor.id);
         const avatarSpec = avatarPawn.specForPortal(this);

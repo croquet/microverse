@@ -1,5 +1,16 @@
+// if this frame is the primary frame, then this is the current world
+export let isPrimaryFrame;
+
 // this is the portalId of the current frame
 export const frameId = new URL(window.location.href).searchParams.get("portal");
+
+// this is the world of the current frame
+export const worldName = new URL(window.location.href).searchParams.get("world") || "default";
+
+// a name for the frame
+export function frameName() {
+    return `frame["${worldName}",${frameId}${isPrimaryFrame ? ",primary" : ""}]`;
+}
 
 // shared prefix for shell messages
 const PREFIX = "croquet:microverse:";
@@ -32,15 +43,12 @@ window.addEventListener("message", e => {
     }
 });
 
-// if this frame is the primary frame, then this is the current world
-export let isPrimaryFrame;
-
 addShellListener((command, data) => {
     // console.log(`${frameId} received: ${JSON.stringify(data)}`);
     if (command === "frame-type") {
         const primary = data.frameType === "primary";
         if (isPrimaryFrame !== primary) {
-            console.log(frameId, "frame-type", data.frameType);
+            console.log(frameName(), "frame-type", data.frameType);
             isPrimaryFrame = primary;
             document.body.style.background = "transparent";
             document.getElementById("hud").classList.toggle("primary-frame", isPrimaryFrame);

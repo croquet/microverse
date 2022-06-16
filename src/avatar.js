@@ -10,7 +10,7 @@ import {
 } from "@croquet/worldcore-kernel";
 import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "@croquet/worldcore-three";
 
-import { frameId, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
+import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
 
@@ -923,7 +923,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // which will result in frameTypeChanged() on follower's clients
         }
         // now actually leave or enter the world (stops presenting in old world)
-        console.log(`portal-${frameId} frame now ${isPrimary ? "primary" : "secondary"}, setting actor`, actorSpec);
+        console.log(`${frameName()} setting actor`, actorSpec);
         this.say("_set", actorSpec);
         // start presenting in new space too
         if (enteringWorld && spec?.presenting) {
@@ -936,6 +936,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     leaveToWorld(portalURL) {
+        console.log(`${frameName()} sending enter-world to ${portalURL}`);
         sendToShell("enter-world", { portalURL });
     }
 
