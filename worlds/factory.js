@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js", "spin.js", "flightTracker.js"
     ];
 
     Constants.UseRapier = true;
@@ -343,6 +343,17 @@ export function init(Constants) {
                 shadow: true,
                 singleSided: true,
                 type: "2d",
+            }
+        },
+        {
+            card: {
+                name:"flightTracker",
+                translation: [-2.9612415315138225, 5.5325562744871135, -33.24926529495514],
+                type: "object",
+                scale: [0.3, 0.3, 0.3],
+                behaviorModules: ["Elected", "FlightTracker", "Spin"],
+                layers: ["pointer"],
+                color: 0xaaaaaa,
             }
         },
         {
