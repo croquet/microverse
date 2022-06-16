@@ -15,7 +15,7 @@
     "create-version": "./commit.sh",
     "copy-to-git": "rm -rf ../microverse-builder/*; rsync -r ./dist/ ../microverse-builder/; ./fix-index-html.sh ../microverse-builder"
   },
-  "author": "",
+  "author": "Croquet Corporation",
   "license": "Apache-2.0",
   "browserslist": [
     "> 5%"
