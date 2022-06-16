@@ -17,10 +17,10 @@ class Shell {
     constructor() {
         const canonicalUrl = shellToCanonicalURL(location.href);
         if (canonicalUrl !== location.href) {
-            console.log("redirecting to canonical URL", canonicalUrl);
+            console.log("shell: redirecting to canonical URL", canonicalUrl);
             location.href = canonicalUrl; // causes reload
         }
-        console.log("starting shell");
+        console.log("shell: starting");
         this.frames = new Map(); // portalId => frame
         this.portalData = new Map(); // portalId => portalData
         // ensure that we have a session and password
@@ -49,7 +49,7 @@ class Shell {
                         return;
                     }
                 }
-                console.warn("shell received message not in portal list", e.data);
+                console.warn("shell: received message not in portal list", e.data);
                 debugger
             }
         });
@@ -78,7 +78,7 @@ class Shell {
                 this.activateFrame(portalId, false);
                 setTitle(portalURL);
             } else {
-                console.warn(`popstate: location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
+                console.warn(`shell: popstate location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
         });
 
@@ -136,7 +136,7 @@ class Shell {
             }
             this.startMMotion(e); // use the knob to start
         };
-        //this.trackingknob.onpointerenter = (e) => console.log("pointerEnter")
+        //this.trackingknob.onpointerenter = (e) => console.log("shell: pointerEnter")
         // this.trackingknob.onpointerleave = (e) => this.releaseHandler(e);
         this.trackingknob.onpointermove = (e) => this.updateMMotion(e);
         this.trackingknob.onpointerup = (e) => this.releaseHandler(e);
@@ -166,7 +166,7 @@ class Shell {
         this.frames.set(portalId, frame);
         document.body.appendChild(frame);
         this.sendFrameType(frame);
-        // console.log("add frame", portalId, portalURL);
+        // console.log("shell: added frame", portalId, portalURL);
         return frame;
     }
 
@@ -210,7 +210,7 @@ class Shell {
     }
 
     receiveFromPortal(fromPortalId, fromFrame, data) {
-        // console.log(`shell received from ${fromPortalId}: ${JSON.stringify(data)}`);
+        // console.log(`shell: received from ${fromPortalId}: ${JSON.stringify(data)}`);
         switch (data.message) {
             case "croquet:microverse:started":
                 // the session was started and player's inWorld flag has been set
@@ -224,7 +224,7 @@ class Shell {
                     const url = portalToFrameURL(data.portalURL, data.portalId);
                     targetFrame = this.frames.get(data.portalId);
                     if (portalToFrameURL(targetFrame.src, data.portalId) !== url) {
-                        console.warn("portal-open", data.portalId, "replacing", targetFrame.src, "with", url);
+                        console.warn("shell: portal-open", data.portalId, "replacing", targetFrame.src, "with", url);
                         targetFrame.src = url;
                     }
                     return;
@@ -272,7 +272,7 @@ class Shell {
                     // don't let the through-portal world delay the outer world's rendering
                     // indefinitely
                     this.portalRenderTimeout = setTimeout(() => {
-                        console.log("portal render timed out");
+                        console.log("shell: portal render timed out");
                         delete this.portalRenderTimeout;
                         this.manuallyRenderPrimaryFrame();
                     }, 200);
@@ -285,7 +285,7 @@ class Shell {
                 if (this.portalRenderTimeout && data.forwardTime === this.renderRequestTime) {
                     clearTimeout(this.portalRenderTimeout);
                     delete this.portalRenderTimeout;
-                    // console.log(`upd ${data.forwardTime - data.updateTime} fwd ${data.renderedTime - data.forwardTime} ar ${Date.now() - data.renderedTime} req`);
+                    // console.log(`shell: upd ${data.forwardTime - data.updateTime} fwd ${data.renderedTime - data.forwardTime} ar ${Date.now() - data.renderedTime} req`);
                     this.manuallyRenderPrimaryFrame();
                 }
                 return;
@@ -293,28 +293,28 @@ class Shell {
                 if (fromFrame === this.primaryFrame) {
                     this.activateFrame(data.portalId, true, data.avatarSpec);
                 } else {
-                    console.warn("portal-enter from non-primary portal-" + fromPortalId);
+                    console.warn("shell: ignoring portal-enter from non-primary portal-" + fromPortalId);
                 }
                 return;
             case "croquet:microverse:enter-world":
                 if (fromFrame === this.primaryFrame) {
                     let targetFrame = this.findFrame(data.portalURL);
                     if (!targetFrame) { // might happen after back/forward navigation
-                        console.log("enter-world: no frame for", data.portalURL);
+                        console.log("shell: enter-world creating frame for", data.portalURL);
                         targetFrame = this.addFrame(fromFrame, data.portalURL);
                     }
                     this.activateFrame(targetFrame.portalId, true);
                 } else {
-                    console.warn("enter-world from non-primary portal-" + fromPortalId);
+                    console.warn("shell: ignoring enter-world from non-primary portal-" + fromPortalId);
                 }
                 return;
             default:
-                console.warn(`shell received unhandled message from portal-${fromPortalId}`, data);
+                console.warn(`shell: received unhandled message from portal-${fromPortalId}`, data);
         }
     }
 
     startSyncedRendering(portalId) {
-        console.log("starting sync render");
+        console.log("shell: starting sync render");
         this.sendToPortal(this.primaryFrame.portalId, {
             message: "croquet:microverse:start-sync-rendering"
         });
@@ -327,7 +327,7 @@ class Shell {
     endSyncedRendering(portalId) {
         if (!this.usingSyncedRendering) return; // already off
 
-        console.log("ending sync render");
+        console.log("shell: ending sync render");
         this.sendToPortal(this.primaryFrame.portalId, {
             message: "croquet:microverse:stop-sync-rendering"
         });
@@ -386,10 +386,10 @@ class Shell {
     sendToPortal(toPortalId, data) {
         const frame = this.frames.get(toPortalId);
         if (frame) {
-            // console.log(`to portal-${toPortalId}: ${JSON.stringify(data)}`);
+            // console.log(`shell: to portal-${toPortalId}: ${JSON.stringify(data)}`);
             frame.contentWindow?.postMessage(data, "*");
         } else {
-            console.warn(`portal-${toPortalId} not found`);
+            console.warn(`shell: portal-${toPortalId} not found`);
         }
     }
 
@@ -409,7 +409,7 @@ class Shell {
                 const data = this.portalData.get(frame.portalId);
                 if (data) this.sendToPortal(frame.portalId, data);
             }
-            // console.log(`send frame type to portal-${frame.portalId}: ${frameType}`);
+            // console.log(`shell: send frame type "${frameType}" to portal-${frame.portalId}`);
         }, 200);
     }
 
