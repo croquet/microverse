@@ -1,11 +1,12 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
   "scripts": {
-    "start": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
+    "start": "npm-run-all --parallel dev-server watch-server",
+    "dev-server": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
     "non-scripting": "webpack serve --mode development --devtool source-map",
     "file-server": "npx file-server",
     "watch-server": "npx watch-server",
@@ -37,6 +38,7 @@
     "html-webpack-plugin": "^5.5.0",
     "@croquet/microverse-watch-server": "^1.0.5",
     "@croquet/microverse-file-server": "^1.0.2",
+    "npm-run-all": "^4.1.5",
     "source-map-loader": "^3.0.1",
     "terser-webpack-plugin": "^5.3.1",
     "uglify-js": "^3.15.3",
