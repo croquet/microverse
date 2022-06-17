@@ -312,7 +312,7 @@ class Shell {
                 }
                 return;
             default:
-                console.warn(`shell: received unhandled message from portal-${fromPortalId}`, data);
+                console.warn(`shell: received unknown command "${cmd}" from portal-${fromPortalId}`, data);
         }
     }
 
@@ -384,7 +384,7 @@ class Shell {
             // console.log(`shell: to portal-${toPortalId}: ${JSON.stringify(data)}`);
             frame.contentWindow?.postMessage(data, "*");
         } else {
-            console.warn(`shell: portal-${toPortalId} not found`);
+            console.warn(`shell: sending "${cmd}" to portal-${toPortalId} failed: portal not found`);
         }
     }
 
