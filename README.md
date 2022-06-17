@@ -74,7 +74,7 @@ Run `npm start` in the directory. This will start a webpack dev server and the w
 If you want to run the watch server on a different directory, you can run the dev-server by running `npm run dev-server` and then specify the watch-server's target directory by `npm run watch-server -- aDirectory`.
 
 ## 7. Press the Connect button in the world menu
-After launching Microverse by visiting http://localhost:9009 in a browser, bring up the world menu from top right, and press "Connect". This will establish the connection to the watch-server started in step 5.
+After launching Microverse by visiting http://localhost:9684 in a browser, bring up the world menu from top right, and press "Connect". This will establish the connection to the watch-server started in step 5.
 
 ## 7. Edit or add a new behavior file
 You can simply add a new behavior file in the watched directory (by default under `behaviors`), and if the file follows the structure of other files, it will become automatically available.
