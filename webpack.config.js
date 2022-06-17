@@ -51,21 +51,15 @@ const config = {
         new CopyPlugin({
             patterns: [
                 { from: 'assets/3D/*'},
-                { from: 'assets/SVG/{full-circle,BitcoinSign,CroquetSymbol_CMYK_NoShadow,edit,Verizon,5G}.svg'},
+                { from: 'assets/SVG/*'},
                 { from: 'assets/avatars/*'},
-                { from: 'assets/css/**/*'},
+                { from: 'assets/css/*'},
                 { from: 'assets/fonts/**/*'},
-                { from: 'assets/images/**/*',
-                  globOptions: {ignore: ["/**/Kay.jpg",
-                                         "/**/Kay2.jpg"]}
-                },
-                { from: 'assets/sky/**/*'},
+                { from: 'assets/images/*'},
+                { from: 'assets/sky/*'},
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
-                { from: 'behaviors/**/*',
-                  globOptions: {ignore: ["**/test/**/*.js", "**/test/**/*.js~"]}
-                },
-                { from: path.resolve(__dirname, "staging")}
+                { from: 'behaviors/**/*'}
             ]
         }),
     ],

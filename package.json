@@ -7,14 +7,11 @@
   "scripts": {
     "start": "npm-run-all --parallel dev-server watch-server",
     "dev-server": "webpack serve --no-live-reload --no-hot --mode development --devtool source-map",
-    "non-scripting": "webpack serve --mode development --devtool source-map",
     "file-server": "npx file-server",
     "watch-server": "npx watch-server",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
-    "build-public": "webpack --mode production; npm run create-version",
     "create-version": "./scripts/commit.sh",
-    "copy-to-git": "rm -rf ../microverse-builder/*; rsync -r ./dist/ ../microverse-builder/; ./scripts/fix-index-html.sh ../microverse-builder",
     "three-lib": "./scripts/getThreeLibs.sh"
   },
   "author": "Croquet Corporation",
