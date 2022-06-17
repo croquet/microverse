@@ -37,7 +37,8 @@ export function init(Constants) {
                 rotation: [0, Math.PI, 0],
                 layers: ["walk"],
                 type: "3d",
-                dataLocation: "./assets/3D/oilrefinery_042122.glb.zip",
+                dataLocation: "3rx2j5qhM3G8o4AN9CCW-cil8u0xaKSLWH8OOz2ZtO28GgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddNRYkEAseOwEzGSMRMCoWQTUKEwQLBSc5JSsrQF0bHVwRAB0DBxcGXB8bEQAdBBcAARddQD8aOzYoJRcYGxEVJkMDRRY9CEQ2BxkgKhs_MENfGxg5MTZAPCsWHzkQO10WEwYTXSsxEzYwIQABBABGHx4xMyQWNgMkFCU0NScFJB8mAB9ALRYTHDMYHCIEIgE",
+                fileName: "/oilrefinery_042122.glb.zip",
                 singleSided: true,
                 shadow: true,
 
@@ -54,7 +55,8 @@ export function init(Constants) {
                 layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
-                dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
+                dataLocation: "3OF2-s4U1ZOJduGATmLEIXo1iTkQHd5ZBknKgL5SvqpQJzs7Pzx1YGApJiMqPGE6PGEsPSA-Oio7YSYgYDpgCCsZLTYjBjwOJB4sDRcrfAg3Ljk2OBoEGBYWfWAmIGEsPSA-Oio7YSImLD0gOSo9PCpgPwB9AAIIISx8YiYneScqKyQaIisNLHkaGT8YKg56JQwQfHstPiNiGQ49e2ArLjsuYCMBPgMiCQt3OQskGhcleSp9HQIIfXseHgo7EAo9CB48FRwpegsCLH4OIwY",
+                fileName: "./abandoned_parking_4k.jpg",
                 dataType: "jpg",
             }
         },
@@ -63,7 +65,9 @@ export function init(Constants) {
                 name:"simple 3D model",
                 translation: [-4, cardHeight, -18],
                 type: "3d",
-                dataLocation: "./assets/3D/Gears.glb.zip",
+                fileName: "./Gears.glb.zip",
+                dataLocation: "38ertF-f8M4ASQWFF4fagk-_SHL8meMigLoBFFgpWLXIUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlVRW0pXTl1KS10XCnVQcXxib11SUVtfbAlJD1x3Qg58TVNqYFF1egkVUVJze3wKdmFcVXNacRdcWUxZF05vfFNWYGhxUktaUGFMfgFdfn5BTkt0Z1wLc2EOC04LckJXV1lZWQBQe2E",
+                modelType: "glb",
                 dataRotation: [Math.PI / 2, Math.PI / 2, 0],
                 shadow: true,
                 singleSided: true,
@@ -139,7 +143,9 @@ export function init(Constants) {
                 dataTranslation: [0, 3, 0],
                 translation: [0, 0, -8],
                 type: "3d",
-                dataLocation: "./assets/3D/Flamingo.glb.zip",
+                fileName: "/Flamingo.glb.zip",
+                dataLocation: "32EmG-BV6plHy8gXm9UVfS8S7ViQHha17NI3dr8C15V4WkZGQkEIHR1UW15XQRxHQRxRQF1DR1dGHFtdHUcddVZkUEtee0FzWWNRcGpWAXVKU0RLRWd5ZWtrAB1bXRxRQF1DR1dGHF9bUUBdRFdAQVcdAH9ae3ZoZVdYW1FVZgNDBVZ9SAR2R1lgalt_cAMfW1h5cXYAfGtWX3lQex1WU0ZTHVloR1ZEVVpDVQUEYFdoVFl0RApqX398WAVqaGF9U3dGX1t6Zn5ralZjbXs",
+                modelType: "glb",
                 behaviorModules: ["Circle"]
             }
         },

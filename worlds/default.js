@@ -36,7 +36,8 @@ export function init(Constants) {
             card: {
                 name:"world model",
                 type: "3d",
-                dataLocation: "./assets/3D/artgallery_042122.glb.zip",
+                fileName: "/artgallery_042122.glb.zip",
+                dataLocation: "3gkoR_36xHp5-TB2swDY0iqUyhSXz2JwqpQnlM7mfYVgDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIIAMxBR4LLhQmDDYEJT8DVCAfBhEeEDIsMD4-VUgOCEkEFQgWEgITSQoOBBUIEQIVFAJIVSoPLiM9MAINDgQAM1YWUAMoHVEjEgw1Pw4qJVZKDg0sJCNVKT4DCiwFLkgDBhMGSCQGVl8xNCQqSkoKUi8vIQkOPy4WXx0NKi8DChUvJjEVVlUyLAAdEVItMFc",
                 singleSided: true,
                 shadow: true,
                 layers: ["walk"],
@@ -55,7 +56,8 @@ export function init(Constants) {
                 layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
-                dataLocation: "./assets/sky/shanghai_riverside_2k.exr",
+                fileName: "/shanghai_riverside_2k.exr",
+                dataLocation: "32nxXNZxuyT3h-bh0OX-2uMdBRJ0WmDduuTJwwewEE60WkZGQkEIHR1UW15XQRxHQRxRQF1DR1dGHFtdHUcddVZkUEtee0FzWWNRcGpWAXVKU0RLRWd5ZWtrAB1bXRxRQF1DR1dGHF9bUUBdRFdAQVcdAH9ae3ZoZVdYW1FVZgNDBVZ9SAR2R1lgalt_cAMfW1h5cXYAfGtWX3lQex1WU0ZTHXVreUhtUEFeU218aAYDRVxqAHB_Rn5YZmFFZWsAZERtWHF_WkIGZEtRdnM",
                 dataType: "exr",
             }
         },
@@ -141,7 +143,8 @@ export function init(Constants) {
                 scale: [0.25, 0.25, 0.25],
                 parent: "main",
                 type: "2d",
-                dataLocation: "./assets/SVG/BitcoinSign.svg",
+                fileName: "BitcoinSign.svg",
+                dataLocation: "3N4qGVniVE2vDgL1m_b7BLvYMZP0LHvOv8wTRxL1nv1wJjo6Pj10YWEoJyIrPWA7PWAtPCE_Oys6YCchYTthCSoYLDciBz0PJR8tDBYqfQk2Lzg3ORsFGRcXfGEnIWAtPCE_Oys6YCMnLTwhOCs8PSthLT9jIn4je3speQcKKQQLCgoNfgwnKTY3Y30oAyUJG3oGO3k-CX4ZdyUKF2EqLzovYTx3AAgWARoHHQsUHiU9An0NenstIB0FNwc6Axl-PgJ-JHo9fTgpHSsIABs",
                 depth: 0.05,
                 color: 0xffffff,
                 frameColor: frameColor,
@@ -273,6 +276,5 @@ width: 1.8,
                 color: 0xaa6666,
             }
         },
-        
     ];
 }

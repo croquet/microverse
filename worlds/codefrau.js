@@ -44,10 +44,10 @@ export function init(Constants) {
                 layers: ["light"],
                 type: "lighting",
                 behaviorModules: ["Light"],
-                // dataLocation: "./assets/sky/abandoned_parking_4k.jpg",
                 // dataType: "jpg",
-                dataLocation: "./assets/sky/syferfontein_1d_clear_1k.exr",
+                dataLocation: "3_wahIkaYt2Ia1fBw15YElIVBh53D-167gvt2nB8HRLsR1tbX1wVAABJRkNKXAFaXAFMXUBeWkpbAUZAAFoAaEt5TVZDZlxuRH5MbXdLHGhXTllWWHpkeHZ2HQBGQAFMXUBeWkpbAUJGTF1AWUpdXEoAHWJHZmt1eEpFRkxIex5eGEtgVRlrWkR9d0ZibR4CRkVkbGsdYXZLQmRNZgBLTltOAGNMGWcaQ2Z2GnpoSl8CeH11TlkaHkRqHH1jShtXAkJDWEtmHHtBbUlcbnY",
                 dataType: "exr",
+                fileName: "/syferfontein_1d_clear_1k.exr"
             }
         },
         {
