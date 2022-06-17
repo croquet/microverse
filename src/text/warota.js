@@ -1,3 +1,7 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import {Wrap, Measurer, isNewline, equalStyle, eof, fontRegistry} from "./wrap.js";
 import {canonicalizeKeyboardEvent} from "./text-commands.js";
 

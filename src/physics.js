@@ -1,3 +1,7 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import { RegisterMixin, ModelService, q_identity, v3_multiply, v3_zero } from "@croquet/worldcore-kernel";
 
 export let RAPIER;

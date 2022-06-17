@@ -1,3 +1,7 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 import {ModelService, ViewService} from "@croquet/worldcore-kernel";
 import {THREE} from "@croquet/worldcore-three";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "@croquet/hybrid-msdf-text";

@@ -1,3 +1,7 @@
+// Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
+// https://croquet.io
+// info@croquet.io
+
 // if this frame is the primary frame, then this is the current world
 export let isPrimaryFrame;
 
