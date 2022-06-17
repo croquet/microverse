@@ -14,6 +14,10 @@ Croquet Microverse is a framework to build multiplayer immersive 3D virtual worl
 
 By combining all together, Croquet Microverse helps developers to create a metaverse world interactively and quickly. And, the deployed web app requires zero-installation to run on users computers.
 
+## License
+
+The source code and assets in this repository are licensed under Apache License 2.0.
+
 ## Documentation
 
 The documentation for the Microverse Builder is located in the [docs](./docs) directory.
