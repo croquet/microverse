@@ -25,9 +25,9 @@ export function init(Constants) {
                 name:"world model",
                 layers: ["walk"],
                 translation: [-0, -5.234552517024578, -0],
-                dataLocation: "34mlYnF8Yz2LiAu7ut9XWzOHWMrxM8wPmqOJlkqrOt2sXEBAREcOGxtSXVhRRxpBRxpXRltFQVFAGl1bG0Ebc1BiVk1YfUd1X2VXdmxQB3NMVUJNQ2F_Y21tBhtdWxpXRltFQVFAGlldV0ZbQlFGR1EbUgRcQXJkXV1tVldNU0dzWGZwZlddeldOGUYHZ3h9f21hUHVdZAFEfAVaDBtQVUBVG3FEZn9rWl9XdkYCf1lBXnNfGXtccgdcdloFcGxmXwx9XmxHeFBwVnx1QUM",
+                dataLocation: "3bpjjfU7kOj_F7-pMz4BqVYh8VrF5I17G9UG_idTWlf8ChYWEhFYTU0ECw4HEUwXEUwBEA0TFwcWTAsNTRdNJQY0ABsOKxEjCTMBIDoGUSUaAxQbFTcpNTs7UE0LDUwBEA0TFwcWTA8LARANFAcQEQdNCxoMFQQyU1AoLgEHVxQUKgYJET0UEhImDTIIBlcQBQUEMjUJV1AhKFJRAU0GAxYDTRsaWjMpJCgwDFJUIDVRUCUmCjsLC1JUMhs1ASotUiE3B1YLUCsWGAAQLhU",
                 dataScale: [1.2, 1.2, 1.2],
-                fileName: "/Factory.glb",
+                fileName: "/Factory3.glb",
                 modelType: "glb",
                 shadow: true,
                 singleSided: true,
@@ -108,13 +108,44 @@ export function init(Constants) {
             card: {
                 name: "garage 1",
                 type: "3d",
-                translation: [7.799494248347024, -0.3110201562611392, 10.508325734249267],
+                translation: [16.016934687664644, -1.7187205841929383, -40.90],
                 dataScale: [1.2, 1.2, 1.2],
                 rotation: [0, Math.PI / 2, 0],
                 dataLocation: "3YN8uWqjAyPsTcUXkWmcJtbn_ypFvp_WKzKCiZx-5-PwMS0tKSpjdnY_MDU8KncsKnc6KzYoLDwtdzA2dix2Hj0POyA1ECoYMgg6GwE9ah4hOC8gLgwSDgAAa3YwNnc6KzYoLDwtdzQwOis2LzwrKjx2DRpqGzw8aSEqbR5vahw3Nw8wFzIbAW0DbzsrMQoBYSkgHj8XFSlsIQ1pGHY9OC04dg5pNmoxAAA6MA4edD0WFztpEwMrPC0wMysKOh8eaW4DKyELFxE9Fm4GPzI",
                 modelType: "glb",
                 layers: ["pointer", "walk"],
                 behaviorModules: ["Garage"],
+                garageIndex: 0
+            }
+        },
+        {
+            card: {
+                name: "garage 2",
+                type: "3d",
+                translation: [16.243548646303033, 0.49103160849422123, -40.999424772327416],
+                dataScale: [1.2, 1.2, 1.2],
+                rotation: [0, 0, 0],
+                dataLocation: "3YN8uWqjAyPsTcUXkWmcJtbn_ypFvp_WKzKCiZx-5-PwMS0tKSpjdnY_MDU8KncsKnc6KzYoLDwtdzA2dix2Hj0POyA1ECoYMgg6GwE9ah4hOC8gLgwSDgAAa3YwNnc6KzYoLDwtdzQwOis2LzwrKjx2DRpqGzw8aSEqbR5vahw3Nw8wFzIbAW0DbzsrMQoBYSkgHj8XFSlsIQ1pGHY9OC04dg5pNmoxAAA6MA4edD0WFztpEwMrPC0wMysKOh8eaW4DKyELFxE9Fm4GPzI",
+                modelType: "glb",
+                layers: ["pointer", "walk"],
+                behaviorModules: ["Garage"],
+                shadow: true,
+                garageIndex: 1
+            }
+        },
+        {
+            card: {
+                name: "garage 3",
+                type: "3d",
+                translation: [32.58497101769043, -1.7187205841929383, -22.2463885085511],
+                dataScale: [1.2, 1.2, 1.2],
+                rotation: [0, Math.PI, 0],
+                dataLocation: "3YN8uWqjAyPsTcUXkWmcJtbn_ypFvp_WKzKCiZx-5-PwMS0tKSpjdnY_MDU8KncsKnc6KzYoLDwtdzA2dix2Hj0POyA1ECoYMgg6GwE9ah4hOC8gLgwSDgAAa3YwNnc6KzYoLDwtdzQwOis2LzwrKjx2DRpqGzw8aSEqbR5vahw3Nw8wFzIbAW0DbzsrMQoBYSkgHj8XFSlsIQ1pGHY9OC04dg5pNmoxAAA6MA4edD0WFztpEwMrPC0wMysKOh8eaW4DKyELFxE9Fm4GPzI",
+                modelType: "glb",
+                layers: ["pointer", "walk"],
+                behaviorModules: ["Garage"],
+                shadow: true,
+                garageIndex: 2
             }
         },
         {
