@@ -4,20 +4,18 @@
 
 export function init(Constants) {
     Constants.AvatarNames = [
-        "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
+        "newwhite"
     ];
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "avatarEvents.js"
+        "menu.js", "propertySheet.js", "avatarEvents.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
         "lights.js"
     ];
-
-    // const frameColor = 0x888888;
 
     Constants.DefaultCards = [
         {
