@@ -7,7 +7,7 @@ DIST=${DIST:=dist}
 
 find ${DIST}/assets/avatars -type f ! \( -name 'newwhite.zip' \) -exec rm -f {} +
 find ${DIST}/assets/SVG -type f ! \( -name 'edit.svg' \) -exec rm -f {} +
-find ${DIST}/assets/images -type f ! \( -name 'spark.png' -o -name 'grid.png' \) -exec rm -f {} +
+find ${DIST}/assets/images -type f ! \( -name 'grid.png' \) -exec rm -f {} +
 rm -rf ${DIST}/assets/sky
 rm -rf ${DIST}/assets/3D
 
