@@ -6,7 +6,7 @@ DIST=${1}
 DIST=${DIST:=dist}
 
 find ${DIST}/assets/SVG -type f ! \( -name 'edit.svg' \) -exec rm -f {} +
-find ${DIST}/assets/images -type f ! \( -name 'spark.png' \) -exec rm -f {} +
+find ${DIST}/assets/images -type f ! \( -name 'spark.png' -o -name 'grid.png' \) -exec rm -f {} +
 rm -rf ${DIST}/assets/sky
 rm -rf ${DIST}/assets/3D
 
@@ -17,8 +17,9 @@ rm -rf ${DIST}/apiKey.js
 cp apiKey.js-example ${DIST}/apiKey.js-example
 
 rm -rf ${DIST}/behaviors
-mkdir -p ${DIST}/behaviors
+mkdir -p ${DIST}/behaviors/default
 cp -rp behaviors/croquet ${DIST}/behaviors
+cp -p behaviors/default/lights.js ${DIST}/behaviors/default/lights.js
 
 rm -rf ${DIST}/worlds
 mkdir -p ${DIST}/worlds
