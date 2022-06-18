@@ -7,8 +7,6 @@ LIBS=(postprocessing/Pass.js shaders/CopyShader.js csm/CSMFrustum.js csm/CSMShad
     loaders/DRACOLoader.js loaders/SVGLoader.js loaders/EXRLoader.js \
     utils/BufferGeometryUtils.js csm/CSM.js)
 
-echo `dirname "$0"`/..
-
 cd `dirname "$0"`/..
 
 for lib in ${LIBS[@]}
