@@ -13,9 +13,9 @@ It looks like this:
 
 ![Demoworld1](./assets/demoWorld1.png)
 
-As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse-builder/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world.
+As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world.
 
-The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse-builder/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
+The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
 **Avatars are still under construction and will evolve rapidly as we move toward the Microverse Beta release.**
 
@@ -111,7 +111,7 @@ A full list of card properties will be available at the end of this document.
 ---
 Now let's take a look at the simple behavior we use to define the floor we are walking around on. This is the "GridFloor" behavior and is defined in the file:
 
-"microverse-builder/behaviors/demoWorld/gridFloor.js".
+"microverse/behaviors/tutorial/gridFloor.js".
 
 This is the code:
 
@@ -128,18 +128,23 @@ class GridFloorActor {
 
 class GridFloorPawn {
     setup() {
+        console.log("AM I GETTING HERE?")
         const THREE = Worldcore.THREE;
         const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(100, 100);
+        texture.repeat.set( 100, 100 );
 
         this.floor = new THREE.Mesh(
-            new THREE.BoxGeometry(100, 1, 100, 1, 1, 1),
+            new THREE.BoxGeometry( 100, 0.1, 100, 1, 1, 1 ),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
         this.floor.receiveShadow = true;
         this.shape.add(this.floor);
+        this.cleanupColliderObject()
+        if (this.actor.layers && this.actor.layers.includes("walk")) {
+            this.constructCollider(this.floor);
+        }
     }
 }
 

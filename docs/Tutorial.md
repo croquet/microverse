@@ -26,11 +26,11 @@ The Croquet Microverse is a browser-based 3D shared experience platform and OS. 
 This guide will enable you to quickly set up Croquet Microverse Builder and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding.
 
 ## TLDR
-1. Clone the GitHub repository <https://github.com/croquet/microverse-builder>
-    <br>(`git clone https://github.com/croquet/microverse-builder`)
+1. Clone the GitHub repository <https://github.com/croquet/microverse>
+    <br>(`git clone https://github.com/croquet/microverse`)
 2. Obtain your Croquet API Key <https://croquet.io/keys/>
 3. Open a terminal and set the path to your new Microverse-Builder folder.
-   <br>`cd microverse-builder`
+   <br>`cd microverse`
 4. Create the apiKey.js file from apiKey.js-example and the API Key above.
    <br>`cp apiKey.js-example apiKey.js # and edit apiKey.js`
 
@@ -78,7 +78,7 @@ The best resource for help in developing Croquet Microverse worlds is on our Dis
 ### 1. Clone the GitHub Repository
 
 You can find the most up to date Croquet Microverse library as well as this document in the Microverse-Builder GitHub repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
-<https://github.com/croquet/microverse-builder>
+<https://github.com/croquet/microverse>
 
 ---
 ### 2. Obtain your API Key
@@ -115,7 +115,7 @@ export default {apiKey, appId};
 
 ### 4. Start Croquet Microverse
 
-The next steps are simple. Open a terminal on your computer and change the working directory to the new microverse-builder folder. (`cd microverse-builder')
+The next steps are simple. Open a terminal on your computer and change the working directory to the new microverse folder. (`cd microverse')
 
 First run `npm install` in the directory.
 

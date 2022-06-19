@@ -18,9 +18,9 @@ The users of your worlds do not need these tools. Microverse worlds are deployed
 
 ### Clone or Fork the GitHub Repository
 
-You can find the latest Croquet Microverse Builder along with documentation in the [`croquet/microverse-builder`](https://github.com/croquet/microverse-builder) repository on GitHub. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
+You can find the latest Croquet Microverse Builder along with documentation in the [`croquet/microverse`](https://github.com/croquet/microverse) repository on GitHub. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
 
-`git clone https://github.com/croquet/microverse-builder.git`
+`git clone https://github.com/croquet/microverse.git`
 
 Alternatively, fork the repository to your account and clone your repository.
 
@@ -55,8 +55,8 @@ export default {apiKey, appId};
 
 ### Install Packages and start Microverse
 
-Set up the local servers. In a terminal window, change to the microverse-builder folder then run the `npm install` command to install packages:
-* `cd microverse-builder` (or the directory where the microverse-builder repo was downloaded.)
+Set up the local servers. In a terminal window, change to the microverse folder then run the `npm install` command to install packages:
+* `cd microverse` (or the directory where the microverse repo was downloaded.)
 * `npm install`
 
 Start the local servers.  In the same terminal window, run `npm start` to start the servers.
