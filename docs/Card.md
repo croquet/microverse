@@ -41,7 +41,7 @@ The property `_translation` is updated and then an event with the property name 
 ### `_translation`
 `Array<number, number, number>`
 
-The [x, y, z] translation of the card
+The [x, y, z] translation of the card.
 
 ### `_rotation`
 `Array<number, number, number, number>`
@@ -56,7 +56,7 @@ The scale of the card in three axes.
 ### `_layers`
 `Array<string>`
 
-Layers specifies how the card is treated when a special action is taken. Typical value are as follows:
+The layers property specifies how the card is treated when a special action is taken. Typical value are as follows:
 
 * "walk": The avatar stays on the geometry of the card.
 * "pointer": The pointer action is enabled.
@@ -72,7 +72,7 @@ The list of behavior modules installed to the card.
 ### `_name`
 `string`
 
-an informative string for the card.
+An informative string for the card.
 
 ### `_cardData`
 
@@ -128,7 +128,7 @@ This method updates some elements in the `_cardData` object. The current value a
 
 This method adds a "listener" to be invoked when an event occurs on the card.  When `listener` is a function, it has to have a form of `this.mthName` where `mthName` is an existing method name of CardActor or the behavior itself. When listener is a string, it has to be the name of a method at CardActor or the behavior itself. The listener added by this Actor-side `addEventListener()` is invoked when any user in the world causes the corresponding user pointer or key event.
 
-The pointerTap event is generated when a pointerUp event occurs close in time (< 300ms) and space (< 1 0pixels) to the corresponding pointerDown event. Then first the pointerTap event is sent before the pointerUp.
+The pointerTap event is generated when a pointerUp event occurs close in time (< 300ms) and space (< 10 pixels) to the corresponding pointerDown event. Then first the pointerTap event is sent before the pointerUp.
 
 Calling this method with the same arguments removes the previous listener before adding the new one. This semantics ensures that dynamically-modified method will be used.
 
@@ -141,9 +141,17 @@ This method removes the event listener that was added. You can call it when ther
 
 This method adds a Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding the new one. This semantics ensures that it is safe to call this from the `setup()` of a behavior.
 
+### `publish(scope:string, eventName:string, data:any)`
+
+This method publishes a Croquet event.
+
 ### `listen(eventName:string, listener:function|string)`
 
 This method add a Croquet event subscription by calling the `subscribe()` method with `this.id` as the `scope`.
+
+### `say(eventName:string, data:any)`
+
+This method publishes a Croquet event with `this.id` as its `scope`.
 
 ### `sayDeck(message:string, data:any)`
 
@@ -166,12 +174,12 @@ This method removes an element from the `layers` array. If `layerName` is not in
 
 This method moves the translation of the card to the specified `[x, y, z]` coordinates.
 
-### `rotateTo(v:Quotanion)`
+### `rotateTo(q:Quotanion)`
 `type Quotanion = Array<number, number, number, number>`
 
 This method sets the translation of the card to the specified by a quaternion (`[x, y, z, w]`).
 
-### `scaleTo(v:Vector3)`
+### `scaleTo(s:Vector3)`
 `type Vector3 = Array<number, number, number, number>`
 
 This method sets the scale of the card to the specified by scale factors in [x, y, z] axis.
@@ -263,9 +271,17 @@ The `listener` can be either a function or a string in the form of:
 * `"*BehaviorName*.*methodName*"`
 * `"*methodName*"`
 
+### `publish(scope:string, eventName:string, data:any)`
+
+This method publishes a Croquet event.
+
 ### `listen(eventName:string, listener:function|string)`
 
 This method add a Croquet event subscription by calling the `subscribe()` method with `this.actor.id` as the `scope`.
+
+### `say(eventName:string, data:any)`
+
+This method publishes a Croquet event with `this.actor.id` as its `scope`.
 
 ### `sayDeck(message:string, data:any)`
 
@@ -278,7 +294,7 @@ This method subscribes a Croquet event in the scope of `this.actor._parent.id` i
 
 ### `addUpdateRequest(array:Array<behaviorName, methodName>)`
 
-A pawn behavior can request a method callback when CardPawn's `update()` method is invoked. behaviorName and methodName will be "registered in the pawn, and for each `update()` call, the behavior method is invoked.
+A pawn behavior may request a method callback when CardPawn's `update()` method is invoked. behaviorName and methodName will be "registered in the pawn, and for each `update()` call, the behavior method is invoked.
 
 ### `roundedCornerGeometry(width:number, height:number, depth:number, cornerRadius:number):Geometry`
 
@@ -298,7 +314,7 @@ This method publishes an event to set the corresponding actor's translation.
 
 This method publishes an event to set the corresponding actors's rotation.
 
-### `scaleTo(v:Vector3)`
+### `scaleTo(s:Vector3)`
 `type Vector3 = Array<number, number, number>`
 
 This method publishes an event to set the corresponding actors's rotation.
