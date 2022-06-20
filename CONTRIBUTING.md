@@ -6,7 +6,7 @@ Note that the source code and assets in this repository are licensed under Apach
 
 ## Issues
 
-A good description of an issue helps us to address it quickly and accurately. Please provide information on browser and OS versions, hardware types in the issue, even if you think those are not relevant. A screenshotthat or short video that captures the issue often helps. Also note that Microverse is a multiuser environment and some bugs and issues may not be as easily reproducible for others. Please consider including your network configuration and other information in your description if you think it is relevant.
+A good description of an issue helps us to address it quickly and accurately. Please provide information on browser and OS versions, hardware types in the issue, even if you think those are not relevant. A screenshot or short video that captures the issue often helps. Also note that Microverse is a multiuser environment and some bugs and issues may not be as easily reproducible for others. Please consider including your network configuration and other information in your description if you think it is relevant.
 
 ## Pull Requests
 
