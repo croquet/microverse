@@ -45,9 +45,14 @@ async function startMicroverse() {
     try {
         // eval to hide import from webpack
         apiKeysModule = await eval(`import('${basedir}apiKey.js')`);
+        const { apiKey, appId } = apiKeysModule.default;
+        if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
+        if (typeof appId !== "string") throw Error("apiKey.js: appId must be a string");
+        if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`invalid apiKey: "${apiKey}"`);
+        if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`invalid appId: "${appId}"`);
     } catch (error) {
         console.log(error);
-        throw Error("Please make sure that you have created a valid apiKey.js");
+        throw Error("Please make sure that you have created a valid apiKey.js (see croquet.io/keys)");
     };
     // Default parameters are filled in the body of startWorld. You can override them.
     startWorld(apiKeysModule.default, `${basedir}/${basename}`);
