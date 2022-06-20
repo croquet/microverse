@@ -7,7 +7,7 @@ Microverse Alpha
 
 A number of demo worlds are included with the Microverse repository. We will use these to demonstrate how to create worlds, cards and behaviors. The first world we will visit is tutorial1.js. You can try this world out immediately once you have installed the repository and run npm start. The launch URL is:
 
-<http://localhost:9684/?world=tutorial1>
+[http://localhost:9684/?world=tutorial1](http://localhost:9684/?world=tutorial1)
 
 It looks like this:
 

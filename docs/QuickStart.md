@@ -100,7 +100,7 @@ Keep it in mind that occasionally we push a commit that updates the file server 
 ---
 
 ### Croquet.io
-<https://croquet.io/> is the best place to get started with what the Croquet Microverse is and what it can do.
+[https://croquet.io/](https://croquet.io/) is the best place to get started with what the Croquet Microverse is and what it can do.
 
 The Croquet Microverse uses the [Croquet Library](https://croquet.io/docs/croquet) and the [Worldcore framework](https://croquet.io/docs/worldcore). Additionaly it depends on [Three.js](https://threejs.org/) for 3D rendering. To develop your own behaviors with new visual appearances, you will need to be familiar with those libraries.
 

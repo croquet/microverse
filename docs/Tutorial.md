@@ -5,9 +5,7 @@ Microverse Alpha
 
 **Copyright (c) 2022 Croquet Corporation**
 
-<https://croquet.io>
-
-<info@croquet.io>
+[https://croquet.io](https://croquet.io)
 
 ## TO BE DONE
 1. Discuss Actor/Pawn development model
@@ -26,9 +24,9 @@ The Croquet Microverse is a browser-based 3D shared experience platform and OS. 
 This guide will enable you to quickly set up Croquet Microverse Builder and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding.
 
 ## TLDR
-1. Clone the GitHub repository <https://github.com/croquet/microverse>
+1. Clone the GitHub repository https://github.com/croquet/microverse
     <br>(`git clone https://github.com/croquet/microverse`)
-2. Obtain your Croquet API Key <https://croquet.io/keys/>
+2. Obtain your Croquet API Key https://croquet.io/keys/
 3. Open a terminal and set the path to your new Microverse-Builder folder.
    <br>`cd microverse`
 4. Create the apiKey.js file from apiKey.js-example and the API Key above.
@@ -66,7 +64,7 @@ The Croquet OS is a software system for creating and deploying multiuser experie
 ---
 
 ### Croquet.io
-<https://croquet.io/> is the best place to get started with what Croquet Microverse is and what it can do.
+[https://croquet.io/](https://croquet.io) is the best place to get started with what Croquet Microverse is and what it can do.
 
 ### Discord
 
@@ -78,13 +76,13 @@ The best resource for help in developing Croquet Microverse worlds is on our Dis
 ### 1. Clone the GitHub Repository
 
 You can find the most up to date Croquet Microverse library as well as this document in the Microverse-Builder GitHub repository. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
-<https://github.com/croquet/microverse>
+[https://github.com/croquet/microverse](https://github.com/croquet/microverse)
 
 ---
 ### 2. Obtain your API Key
 
 Developing any Croquet application requires an API key that you can obtain from Croquet. It requires you to sign up as a developer to access this. You can sign up as a Croquet developer here:
-<https://croquet.io/developers/index.html>
+[https://croquet.io/keys](https://croquet.io/keys)
 
 Select the [Create one here](https://croquet.io/keys/) link in the top left to create a Croquet account to get started. Once you have done that, your first key is immediately generated and you will soon be ready to go.
 
@@ -160,7 +158,9 @@ A Croquet World is deployed as a simple website. It is made up of a collection o
 
 ### Cards
 
-Every visible object in a Microverse is a kind of card. Some cards are flat like normal cards, and some are 3D models. We call them cards because the majority of the applications and interface objects will be flat. Also, we were inspired by Bill Atkinson's Hypercard, which demonstrated a new way of creating powerful applications. All cards are composable in that the developer can create decks made up of multiple cards that can interoperate with each other. The cards in this deck can communicate with each other using a simple publish/subscribe model call "sayDeck" and "listenDeck".
+Every visible object in a Microverse is a kind of card. Some cards are flat like normal cards, and some are 3D models. We call them cards because the majority of the applications and interface objects will be flat. Also, we were inspired by Bill Atkinson's Hypercard, which demonstrated a new way of creating powerful applications.
+
+<!--- All cards are composable in that the developer can create decks made up of multiple cards that can interoperate with each other. The cards in this deck can communicate with each other using a simple publish/subscribe model call "sayDeck" and "listenDeck". -->
 
 Cards can have virtually any shape. As a simple example, you can define a card using a regular SVG shape. The resulting card may be flat or can be extruded - depending on the depth property.
 
@@ -170,7 +170,7 @@ Cards can manage events - users can interact with them or their leaves. For exam
 
 2D cards can have canvases. A canvas on a 2D card can itself be implemented as a full application. The canvas is texture mapped onto the card. When a user interacts with a canvas, it is via a card which forwards the event to the canvas.
 
-A collection of cards and surfaces with a common root card define a Deck. Cards and surfaces within a deck can communicate with each other via sayDeck/listenDeck messages.
+<!--- A collection of cards and surfaces with a common root card define a Deck. Cards and surfaces within a deck can communicate with each other via sayDeck/listenDeck messages. -->
 
 ### Layers
 

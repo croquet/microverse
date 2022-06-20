@@ -15,7 +15,7 @@ Therefore, creating a Croquet Microverse world means to arrange your 3D objects 
 ## Start a demo world
 You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.vrse`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .vrse, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like GitHub Gist.
 
-One of the demo worlds in the repository is called `tutorial1`, and can be entered by opening <http://localhost:9684/?world=tutorial1>
+One of the demo worlds in the repository is called `tutorial1`, and can be entered by opening [http://localhost:9684/?world=tutorial1]([http://localhost:9684/?world=tutorial1])
 
 ![tutorial1](./assets/demoWorld1.png)
 
@@ -104,12 +104,6 @@ From our tutorial1, let us look at the behaviors in the GridFloor module.
 
 class GridFloorPawn {
     setup() {
-        this.shape.children.forEach((c) => {
-            c.material.dispose();
-            this.shape.remove(c);
-	});
-	this.shape.children = [];
-
         const THREE = Worldcore.THREE;
         const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
@@ -117,11 +111,15 @@ class GridFloorPawn {
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 100, 100 );
 
-	let floor = new THREE.Mesh(
-            new THREE.BoxGeometry( 100, 1, 100, 1, 1, 1 ),
+        this.floor = new THREE.Mesh(
+            new THREE.BoxGeometry( 100, 0.1, 100, 1, 1, 1 ),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
-        floor.receiveShadow = true;
-        this.shape.add(floor);
+        this.floor.receiveShadow = true;
+        this.shape.add(this.floor);
+        this.cleanupColliderObject()
+        if (this.actor.layers && this.actor.layers.includes("walk")) {
+            this.constructCollider(this.floor);
+        }
     }
 }
 
@@ -129,7 +127,6 @@ export default {
     modules: [
         {
             name: "GridFloor",
-            actorBehaviors: [],
             pawnBehaviors: [GridFloorPawn],
         }
     ]
