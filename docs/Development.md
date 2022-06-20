@@ -309,4 +309,8 @@ The system internally records "persistent data" at 60 second intervals when ther
 
 Also note that the start file, either in `.js` or `.vrse`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
+### Developing the Innerworkings of the System
+
+As describe above, you can create a new world, populate the world with objects, and add interactive actions to those objects by just writing world files and behavior files. If you want to deep dive into the code base, you can find the implementation of the Croquet Microverse in the `src` directory and the top-level directory. The main files that describes are `card.js`, `code.js`, `Pointer.js`, and `avatar.js`. The startup sequence and root Croquet objects are described in 'index.js`, `root.js`, and `shell.js`. , The portal feature is implemented in `portal.js` and `frame.js`, with help from the top-level `shell.js`. Other files, such as `DynamicTexture.js`, `assetManager.js`, 'physics.js`, and `worldMenu.js` implement support features. the files in `src/text` implement the collaborative text editor.
+
 **Copyright (c) 2022 Croquet Corporation**
