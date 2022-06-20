@@ -2,11 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { Model, Constants } from "@croquet/worldcore-kernel";
 import { startShell, isShellFrame } from "./shell.js";
-import { startWorld, basenames } from "./root.js";
-import { WorldSaver } from "./src/worldSaver.js";
-import { CodeLibrary } from "./src/code.js";
 
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
@@ -18,6 +14,18 @@ const defaultSystemBehaviorModules = [
 ];
 
 async function startMicroverse() {
+    // start imports in parallel
+    const modules = {
+        worldcore:  import("@croquet/worldcore-kernel"),
+        root:       import("./root.js"),
+        worldSaver: import("./src/worldSaver.js"),
+        code:       import("./src/code.js"),
+    };
+    const { Model, Constants } = await modules.worldcore;
+    const { startWorld, basenames } = await modules.root;
+    const { WorldSaver } = await modules.worldSaver;
+    const { CodeLibrary } = await modules.code;
+
     let {basedir, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
