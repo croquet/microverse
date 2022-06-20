@@ -1,11 +1,29 @@
 {
-  "name": "@croquet/microverse-library",
-  "version": "0.1.0",
-  "description": "An npm package version of Microverse",
-  "main": "lib/index.js",
-  "author": "Croquet Corporation",
-  "license": "Apache-2.0",
-  "publishConfig": {
-    "access": "public"
-  }
+    "name": "@croquet/microverse-library",
+    "version": "0.1.1",
+    "description": "An npm package version of Microverse",
+    "main": "lib/index.js",
+    "author": "Croquet Corporation",
+    "license": "Apache-2.0",
+    "homepage": "https://croquet.io/docs/microverse/",
+    "repository": {
+        "type": "git",
+        "url": "github:croquet/microverse"
+    },
+    "bugs": "https://github.com/croquet/microverse/issues",
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "croquet",
+        "worldcore",
+        "microverse",
+        "realtime",
+        "metaverse",
+        "3d",
+        "multiplayer",
+        "virtual-reality",
+        "augmented-reality",
+        "online"
+    ],
 }
