@@ -54,12 +54,14 @@ and then
 
 
 ## 2. Make `apiKey.js`
-Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js` and then edit the two properties called `apiKey` and `appId` in the file.  The following is our canonical one.
+Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js` and then edit the two properties called `apiKey` and `appId` in the file.
 
 ```
-const apiKey = "1ivna6yP50E8pCxsddl57BtKLA6vidlrIBc7zcmmj";
-const appId = "io.croquet.microverse";
+const apiKey = "paste your apiKey from croquet.io/keys";
+const appId = "type your own appId such as com.example.david.mymicroverse";
 export default {apiKey, appId};
+
+// you may export other Croquet session parameters to override default values.
 ```
 
 ## 3. Run `npm install`
