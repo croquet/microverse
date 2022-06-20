@@ -1,4 +1,6 @@
-# The View Election Mechanism in Croquet Microverse Builder
+# The View Election Mechanism in Croquet Microverse
+
+[https://croquet.io](https://croquet.io)
 
 ## Introduction
 
@@ -19,8 +21,6 @@ The pawn-side of the client behavior needs to handle `handleEleted` and `handleU
 The `handleElected` event does not have an argument when it was sent in response to `electionStatusRequested`. In other cases, when the former leader drops out and now the view becomes the leader, the event is sent with an object argument with `from` and `to` field.
 
 The implementation of the handler for `handleElected` is expected to start its action when argument is `undefined` or its `to` field is the viewId of the peer.
-
-
 
 **Copyright (c) 2022 Croquet Corporation**
 

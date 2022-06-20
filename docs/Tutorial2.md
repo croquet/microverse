@@ -1,15 +1,14 @@
-# Croquet Microverse Builder
-# Tutorial 2
+# Croquet Microverse Tutorial 2
 
-Microverse Alpha
+[https://croquet.io](https://croquet.io)
 
-**Copyright (c) 2022 Croquet Corporation**
+## Introduction
 
 In this next tutorial, we will load a 3D model of a gallery where we will place a number of objects. We will also define a number of new behaviors that will add a simple interaction to the objects in that world.
 
 You can try it out right now. The launch URL is:
 
-http://localhost:9684/?world=tutorial2
+[http://localhost:9684/?world=tutorial2](http://localhost:9684/?world=tutorial2)
 
 Here is an image of the world we will be constructing:
 
@@ -247,3 +246,6 @@ The last thing we want to do is enable you to remove the SimpleSpin behavior. Th
         this.removeEventListener("pointerDown", "toggle");
         this.spinning = undefined;
 ```
+
+**Copyright (c) 2022 Croquet Corporation**
+

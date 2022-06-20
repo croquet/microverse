@@ -20,7 +20,7 @@ The source code and assets in this repository are licensed under Apache License 
 
 ## Documentation
 
-The documentation for the Microverse Builder is located in the [docs](./docs) directory.
+The documentation for the Croquet Microverse is located in the [docs](./docs) directory.
 
 * [docs/QuickStart.md](./docs/QuickStart.md) - Quick Start guide to Microverse IDE
 * [docs/Development.md](./docs/Development.md) - Development Guide on building Microverses

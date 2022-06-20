@@ -1,9 +1,6 @@
-# Croquet Microverse Builder
-# Tutorial 1
+# Croquet Microverse Tutorial 1
 
-Microverse Alpha
-
-**Copyright (c) 2022 Croquet Corporation**
+[https://croquet.io](https://croquet.io)
 
 A number of demo worlds are included with the Microverse repository. We will use these to demonstrate how to create worlds, cards and behaviors. The first world we will visit is tutorial1.js. You can try this world out immediately once you have installed the repository and run npm start. The launch URL is:
 
@@ -168,3 +165,6 @@ The second part is what we call the "pawn". As might be clear from its name, it 
 The last part of the behavior code is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
 
 * [Tutorial2.md](./Tutorial2.md)
+
+**Copyright (c) 2022 Croquet Corporation**
+

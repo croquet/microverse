@@ -1,8 +1,10 @@
-# Croquet Microverse Builder Quick Start Guide
+# Croquet Microverse Quick Start Guide
+
+[https://croquet.io](https://croquet.io)
 
 ## Introduction
 
-This guide will enable you to quickly set up the Croquet Microverse Builder. Refer to tutorials in the docs directory for its key concepts and features that let you build shared worlds.
+This guide will enable you to quickly set up the Croquet Microverse. Refer to tutorials in the docs directory for its key concepts and features that let you build shared worlds.
 
 ## Prerequisites
 
@@ -10,7 +12,7 @@ This guide will enable you to quickly set up the Croquet Microverse Builder. Ref
 2. [Git](https://git-scm.com)
 3. Web browser (we recommend [Chrome](https://chrome.google.com/) at this time)
 
-Our tools are written in JavaScript and need Node.js to run. In particular the `npm` command provided by Node is used to install JS packages. Microverse Builder is hosted on GitHub and the instructions assume you use the command line `git` client to access it.
+Our tools are written in JavaScript and need Node.js to run. In particular the `npm` command provided by Node is used to install JS packages. Microverse is hosted on GitHub and the instructions assume you use the command line `git` client to access it.
 
 The users of your worlds do not need these tools. Microverse worlds are deployed as static web pages so only a web browser is needed to visit them.
 
@@ -18,7 +20,7 @@ The users of your worlds do not need these tools. Microverse worlds are deployed
 
 ### Clone or Fork the GitHub Repository
 
-You can find the latest Croquet Microverse Builder along with documentation in the [`croquet/microverse`](https://github.com/croquet/microverse) repository on GitHub. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
+You can find the latest Croquet Microverse  along with documentation in the [Microverse repository](https://github.com/croquet/microverse) on GitHub. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
 
 `git clone https://github.com/croquet/microverse.git`
 

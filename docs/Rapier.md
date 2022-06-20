@@ -1,8 +1,10 @@
-# The Rapier Physics Engine in Croquet Microverse Builder
+# The Rapier Physics Engine in Croquet Microverse
+
+[https://croquet.io](https://croquet.io)
 
 ## Introduction
 
-The Croquet Microverse Builder can use the [Rapier Physics Engine](https://rapier.rs/docs/user_guides/javascript/getting_started_js) to build a world with cards that obey the simulated law of physics.
+The Croquet Microverse can use the [Rapier Physics Engine](https://rapier.rs/docs/user_guides/javascript/getting_started_js) to build a world with cards that obey the simulated law of physics.
 
 We use the Rapier bindings provided by [Worldcore](https://github.com/croquet/worldcore/blob/main/packages/rapier/src/RapierPhysics.js). Rapier simulates the motion of the objects bit-identically on the model side. In other words, the simulation is decoupled from the visual appearances. The Microverse provides a behavior module called "Rapier" (`behaviors/croquet/rapier.js`) that replaces `AM_RapierPhysics` from Worldcore. The rest is all done in the "user land"; you can see an example behavior module called "Cascade" in `behaviors/default/cascade.js` and the default world where it is used.
 
@@ -81,4 +83,3 @@ So this is it!  Note again that the property names, such as `rapierType`, `rapie
 Also note that adding and removing a behavior can be done dynamically. You can start with a card that does not participate in the simulation but later you can add the card to the simulation by attaching "Rapier" behavior. This gives you more flexibility in creating your own worlds.
 
 **Copyright (c) 2022 Croquet Corporation**
-

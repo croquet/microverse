@@ -1,5 +1,7 @@
 # The Public Interface of AvatarActor and AvatarPawn
 
+[https://croquet.io](https://croquet.io)
+
 ## Introduction
 
 The "avatar" of Croquet Microverse handles user interaction such as mouse and keyboard and manages the "camera" of the 3D scene.  The avatar is implemented as a special kind of [card](./Card.md). The default listeners for user interaction, such as the WASD key and pointer navigation, Ctrl-Click editting etc. are specified in a behavior module so that you can implement a new set and turn on and off certain actions. You can also attach some other behaviors to add world-specific features.
@@ -95,3 +97,5 @@ This method sets the opacity of the 3D model by assigning a different opacity va
 ### `goHome()`
 
 This call initiates tells the actor to move back to [0, 0, 0], and resets rotation.
+
+**Copyright (c) 2022 Croquet Corporation**

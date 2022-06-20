@@ -1,8 +1,8 @@
-# Croquet Microverse Builder Development Guide
+# Croquet Microverse Development Guide
 
 ## Introduction
 
-Croquet Microverse Builder allows you to create a multiuser virtual 3D world. You can add new 3D objects, change their properties, and write their "behaviors" dynamically, all while you and other users are in the same world.
+Croquet Microverse allows you to create a multiuser virtual 3D world. You can add new 3D objects, change their properties, and write their "behaviors" dynamically, all while you and other users are in the same world.
 
 Every object you create in the world is called a "card". A card can be in any shape and size. Some cards are flat, some hold 3D models, some cards' visual representation are generated programmatically by a behavior. Even the terrain model on which the avatars walk is a card with a 3D model. You can typically drag and drop a 3D model file or an image into a running world to create a card. You can also write a simple specification file to start a new world.
 

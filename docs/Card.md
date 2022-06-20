@@ -1,5 +1,7 @@
 # The Public Interface of CardActor and CardPawn
 
+[https://croquet.io](https://croquet.io)
+
 ## Introduction
 
 A card in Croquet Microverse is represented with a class called CardActor on the Croquet's Model side, and CardPawn on the Croquet's View side.
@@ -349,3 +351,4 @@ A typical use case of `constructCollider()` and `cleanupColliderObject()` in a p
 
 This method is empty. It is used to have a way to get the tap to focus keyboard events but you don't need to take any particular action on tap.
 
+**Copyright (c) 2022 Croquet Corporation**
