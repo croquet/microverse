@@ -3,6 +3,21 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### 2022-06-17
+
+### Added
+- A factory world, with many interactive objects, is added.
+
+### Changed
+- Turn off anti-aliasing on mobile and Safari.
+- The AvatarNames constantcs can take an object to have a different avatar model.
+
+### Fixed
+- Spawn point specification honors the y coordinates.
+- Walking up stairs is now robust.
+- PDF view sets last page scroll position properly.
+- Further improvements in going through a portal with followers.
+
 ## 2022-06-10
 ### Added
 - A way to display iframes for connected worlds in the tiled view.
