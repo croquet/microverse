@@ -112,6 +112,6 @@ The Croquet Microverse uses the [Croquet Library](https://croquet.io/docs/croque
 
 ### Discord
 
-The best resource for help in developing Croquet Microverse worlds is on our Discord server. The Croquet Discord server is where you can ask questions, view examples, and see the Metaverse being constructed while you watch. Join the [Croquet Discord server](https://discord.gg/9U9MKSbJXS).
+The best resource for help in developing Croquet Microverse worlds is on our Discord server. The Croquet Discord server is where you can ask questions, view examples, and see the Metaverse being constructed while you watch. Join the [Croquet Discord server](https://croquet.io/discord).
 
 **Copyright (c) 2022 Croquet Corporation**

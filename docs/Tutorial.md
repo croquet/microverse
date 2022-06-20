@@ -65,7 +65,7 @@ The Croquet OS is a software system for creating and deploying multiuser experie
 
 ### Discord
 
-The best resource for help in developing Croquet Microverse worlds is on our Discord server where you can ask questions, view examples, and see the Metaverse being constructed while you watch. Check it out on the [Croquet Discord server](https://discord.gg/9U9MKSbJXS).
+The best resource for help in developing Croquet Microverse worlds is on our Discord server where you can ask questions, view examples, and see the Metaverse being constructed while you watch. Check it out on the [Croquet Discord server](https://croquet.io/discord).
 
 ## Steps Towards Creating Your Microverse
 ---

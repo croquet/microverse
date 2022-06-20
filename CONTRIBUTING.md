@@ -1,6 +1,6 @@
 # Contributing to Microverse Repository
 
-The github issues are for bugs and feature requests for the Croquet Microverse system itself. If you have a general question in using Microverse, please use the [Croquet Community Discord](https://discord.gg/9U9MKSbJXS).
+The github issues are for bugs and feature requests for the Croquet Microverse system itself. If you have a general question in using Microverse, please use the [Croquet Community Discord](https://croquet.io/discord).
 
 Note that the source code and assets in this repository are licensed under Apache License 2.0. Your contribution is automatically assumed to be licensed to the community under the same license, as [GitHub Term of Service](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#6-contributions-under-repository-license) states.
 
