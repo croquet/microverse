@@ -28,6 +28,18 @@ this.foo = 42;
 
 Note that multiple behaviors installed to the same CardActor (or CardPawn) share the same property.
 
+Microverse uses the vector types defined in the Worldcore library. Those vectors are actually simple JavaScript Array. In the description below, the representation of `Vector3` and `Quatanion` are:
+
+`type Vector3 = [<number>, <number, <number>]`
+
+`type Quaternion = [<number>, <number, <number>, <number>]`
+
+Also, the Card can handle certain kinds of pointer events. The EventName type is defined as:
+
+`type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
+
+The `pointerTap` event, only one synthesized event type, is generated when a `pointerUp` event occurs close in time (< 300ms) and space (< 10 pixels) to the corresponding `pointerDown` event. Then first the `pointerTap` event is sent before the `pointerUp`.
+
 ## CardActor Properties
 
 Due to the naming scheme of Worldcore, the properties tend to be prefixed with an underscore "_". For example, the intrinsic property to denote the translation of the card is stored in `_translation`. A behavior can read out the value by `this._translation`. However, setting an intrinsic property directly `this._translation = [1, 2, 3]` itself typically does not have desired effects, as the view needs to be notified. Typically a setter method such as `translateTo()` is used.
@@ -126,16 +138,12 @@ this.future(20).call("Module$Behavior", "mth");
 This method updates some elements in the `_cardData` object. The current value and the new values are merged to create the new `_cardData` object. As a side effect, it publishes `cardDataSet` Croquet event that can be handled by the pawn or any other subscribers.
 
 ### `addEventListener(eventName:EventName, listener:function|string)`
-`type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
 
 This method adds a "listener" to be invoked when an event occurs on the card.  When `listener` is a function, it has to have a form of `this.mthName` where `mthName` is an existing method name of CardActor or the behavior itself. When listener is a string, it has to be the name of a method at CardActor or the behavior itself. The listener added by this Actor-side `addEventListener()` is invoked when any user in the world causes the corresponding user pointer or key event.
-
-The pointerTap event is generated when a pointerUp event occurs close in time (< 300ms) and space (< 10 pixels) to the corresponding pointerDown event. Then first the pointerTap event is sent before the pointerUp.
 
 Calling this method with the same arguments removes the previous listener before adding the new one. This semantics ensures that dynamically-modified method will be used.
 
 ### `removeEventListener(eventName:EventName, listener:function|string)`
-`type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
 
 This method removes the event listener that was added. You can call it when there is no matching event listener.
 
@@ -172,25 +180,18 @@ This method adds a new element to the `layers` array. If `newLayerName` is alrea
 This method removes an element from the `layers` array. If `layerName` is not in the `layers` array, the call does not have any effects.
 
 ### `translateTo(v:Vector3)`
-`type Vector3 = Array<number, number, number>`
 
 This method moves the translation of the card to the specified `[x, y, z]` coordinates.
 
 ### `rotateTo(q:Quotanion)`
-`type Quotanion = Array<number, number, number, number>`
 
 This method sets the translation of the card to the specified by a quaternion (`[x, y, z, w]`).
 
 ### `scaleTo(s:Vector3)`
-`type Vector3 = Array<number, number, number, number>`
 
 This method sets the scale of the card to the specified by scale factors in [x, y, z] axis.
 
 ### `positionTo(v:Vector3, q:Quaternion)`
-```TypeScript```
-type Vector3 = Array<number, number, number, number>
-type Quotanion = Array<number, number, number, number>
-```
 
 This method sets the translation and rotation of the card, making sure that those two values are used in the same logical time and used for the rendering.
 
@@ -252,14 +253,12 @@ this.future(20).call("Module$Behavior", "mth");
 ```
 
 ### `addEventListener(eventName:EventName, listener:function|string)`
-`type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
 
 This method adds a "listener" to be invoked when an event occurs on the pawn of a card. When `listener` is a string, it has to have the name of an existing method of CardPawn or the behavior itself. (Internally the function object is stored in the event listener data structure.)
 
 Calling this with the same arguments (thus the string form) removes the previous listener and then add the new one. This semantics ensures that dynamically-modified method will be used.
 
 ### `removeEventListener(eventName:EventName, listener:function|string)`
-`type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
 
 This method removes the event listener that was added. You can call it even when there is no matching event listener.
 
@@ -307,25 +306,18 @@ This method creates a flat card like Three.JS geometry in specified in `width`, 
 This method creates a Three.JS material that can be used with the geometry created by `roundedCornerGeometry()`. When the depth is non-zero, thus it is expected that the geometry from `roundedCornerGeometry()` has "sides", this method returns an array of materials with `color` and `frameColor`. Otherwise, it return a material with `color`.
 
 ### `translateTo(v:Vector3)`
-`type Vector3 = Array<number, number, number`
 
 This method publishes an event to set the corresponding actor's translation.
 
 ### `rotateTo(q:Quaternion)`
-`type Quaternion = Array<number, number, number, number>`
 
 This method publishes an event to set the corresponding actors's rotation.
 
 ### `scaleTo(s:Vector3)`
-`type Vector3 = Array<number, number, number>`
 
 This method publishes an event to set the corresponding actors's rotation.
 
 ### `positionTo(v:Vector3, q:Quaternion)`
-```TypeScript```
-type Vector3 = Array<number, number, number>
-type Quaternion = Array<number, number, number, number>
-```
 
 This method publishes an event to set the corresponding actors's translation and rotation. It guarantees that two values are sent in one message, thus causes both to be updated at the same time.
 

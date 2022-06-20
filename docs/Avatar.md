@@ -10,6 +10,12 @@ The base actor class of the avatar is called AvatarActor, and the base pawn clas
 
 Other participants' avatars shown in the session are also cards. However, typically the card for an avatar is not on the "pointer" layer so usually you cannot drag it around or get the property sheet.
 
+Microverse uses the vector types defined in the Worldcore library. Those vectors are actually simple JavaScript Array. In the description below, the representation of `Vector3` and `Quatanion` are:
+
+`type Vector3 = [<number>, <number, <number>]`
+
+`type Quaternion = [<number>, <number, <number>, <number>]`
+
 ## AvatarActor Properties
 
 ### `lookPitch:number`
@@ -45,15 +51,12 @@ this.set({lookPitch: m, lookYaw: n});
 ```
 
 ### `lookOffset:Vector3
-`type Vector3 = Array<number, number, number>`
 
 The offset in 3D coordinates between avatar's position and the camera's position. A typical third person view behind the avatar has [0, p, p], where p is a positive number.
 
 ## AvatarActor Methods
 
 ### `goTo(v:Vector3, q:Quaternion, fall:boolean)`
-`type Vector3 = Array<number, number, number>`
-`type Quaternion = Array<number, number, number, number>`
 
 Glide to the specified position and rotation in the global coordinate. The fall flag specifies whether the avatar should start falling to the ground or not.
 
@@ -78,15 +81,12 @@ as well as to notify the pawn by:
 ```			  
 
 ### `dropPose(distance:Vector3, optOffset?:Vector3):{translation:Vector3, rotation:Quaternion}`
-`type Vector3 = Array<number, number, number>`
-`type Quaternion = Array<number, number, number, number>`
 
 This method computes the position and rotation in front of the avatar at specified distance. The optional `optOffset` is added to the result in the reference frame of the avatar.
 
 ## AvatarPawn Methods
 
 ### `lookTo(pitch:number, yaw:number, lookOffset:Vector3)`
-`type Vector3 = Array<number, number, number>`
 
 Sets the coressponding actor's look configurations by publishing an event to the actor.
 
