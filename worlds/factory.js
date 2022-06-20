@@ -14,7 +14,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js", "spin.js", "flightTracker.js", "openPortal.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
     ];
 
     Constants.UseRapier = true;
@@ -380,7 +380,9 @@ export function init(Constants) {
         {
             card: {
                 name:"flightTracker",
-                translation: [-2.9612415315138225, 5.5325562744871135, -33.24926529495514],
+                translation: [44.507687864213246, 1.1111986276254342, 23.881976998735546],
+                // translation: [-2.9612415315138225, 5.5325562744871135, -33.24926529495514],
+                rotation: [0, -0.9837726947014075, 0, 0.1794192998535309],
                 type: "object",
                 scale: [0.3, 0.3, 0.3],
                 behaviorModules: ["Elected", "FlightTracker", "Spin"],
@@ -398,6 +400,14 @@ export function init(Constants) {
                 dataScale: [1.2, 1.2, 1.2],
                 behaviorModules: ["OpenArtGalleryPortalButton"],
                 type: "3d",
+            }
+        },
+        {
+            card: {
+                name: "rearrange",
+                type: "object",
+                translation: [7.490278792379745, 3.0868207143861564, 41.84439119032765],
+                behaviorModules: ["RearrangeButton"]
             }
         },
         {
