@@ -2,6 +2,8 @@
 
 ![Microverse Screenshot](https://croquet.io/images/microversess.png)
 
+[https://croquet.io](https://croquet.io)
+
 ## Description
 
 Croquet Microverse is a framework to build multiplayer immersive 3D virtual worlds on the web. It is built on the Croquet OS and the Worldcore framework.
@@ -86,3 +88,5 @@ You can simply add a new behavior file in the watched directory (by default unde
 - `npm run create-version` creates a one line file that contains the commit hash.
 - `npm run build-lib` creates a minimum set of files needed to run a test installation in the directory called `dist`. This directory can be published as an npm package, and in turn, used to create a simple application by runniing `npm init croquet-microverse` in an empty directory.
 - `npm run three-lib` creates a concatenated js file called `/three/bundledThreeLibs.js`. This generated file is included in this repository to help developers get started easily. If you decide to use a newer version of Three.js, or add more libraries, it is recommended to edit `scripts/getThreeLibs.sh` and run it to create a new `bundledThreeLibs.js`.
+
+**Copyright (c) 2022 Croquet Corporation**
