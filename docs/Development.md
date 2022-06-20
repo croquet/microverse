@@ -302,7 +302,7 @@ Note however that the content is not evaluated as a JavaScript expression; rathe
 
 ## Saving the World to a File
 
-With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the bottom-left menu to create a VRSE file. If you specify the location of the VRSE file to the `?world=` URL parameter, the content will be used to start the world.
+With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the top-right menu to create a VRSE file. If you specify the location of the VRSE file to the `?world=` URL parameter, the content will be used to start the world.
 
 ## Persistence
 The system internally records "persistent data" at 60 second intervals when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
