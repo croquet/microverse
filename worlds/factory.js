@@ -289,6 +289,7 @@ export function init(Constants) {
                 dataLocation: "34pr_19cAfzFXB4LkrXhn89DI5lfytFu969JGoTaI-2UXEBAREcOGxtSXVhRRxpBRxpXRltFQVFAGl1bG0Ebc1BiVk1YfUd1X2VXdmxQB3NMVUJNQ2F_Y21tBhtdWxpXRltFQVFAGlldV0ZbQlFGR1EbfmJ2RUNsZXh_e1puRARtRlV5cnFFWQBRWE1rXG13RlpuAAx9AFJsQQd8RxtQVUBVG0B4BlFNRnUERXBjREVARVtGQWxzUnxkR3hnd31cBQZNUEdMX3ZTQlFZAAQ",
                 fileName: "/Drone2.glb",
                 dataScale: [1.2, 1.2, 1.2],
+                dataRotation: [0, Math.PI / 2, 0],
                 behaviorModules: ["Circle"],
                 modelType: "glb",
                 shadow: true,
