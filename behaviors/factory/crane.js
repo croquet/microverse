@@ -1,20 +1,225 @@
+/*
+
+    Important Note: When changing the height or width of the links and joints,
+    you must account for many things. This includes the collider, the translations
+    of the links, the impulse joint creation, and the actual size of the material. 
+    Some of these need to be doubled and others need to be halved or even fourthed,
+    so look into the documentation to help figure it out. I've provided some comments
+    below to help assist you in changing these values. Also, the code is somewhat
+    modified for two connections, so see previous commits for the one connection code.
+    
+    (cd = Worldcore.RAPIER.ColliderDesc.ball(0.85))
+    (let translation = [0, 34.135389925172704 - i * 2, 0])
+    (card.call("Rapier$RapierActor", "createImpulseJoint", "ball" ...))
+    (let s = [0.1, 2.3])
+
+*/
+
 class CraneActor {
-    setup() {
+    setup() { // Start With Logic, Continue With Physics Implementation
         this.pointA = [-1.4447057496318962, -5.504611090090481, 29.225081241195];
         this.pointB = [-1.4447057496318962, -5.504611090090481, -6.8406291023593755];
         this.subscribe("crane", "updatePositionBy", "updatePositionBy");
         if (this.ratio === undefined) this.ratio = 0.2;
         this.updatePositionBy(0);
+        
+        this.createCard({ // Create Base
+            name: "craneBase",
+            translation: [0, -4.6239610018586506, 0.25],
+            scale: [0.9, 0.9, 0.9],
+            parent: this,
+            modelType: "glb",
+            dataLocation: "35H7xJVLhQNFxNMt5HZigey3PXGNeREIgL3fy_PNJaOsXUFBRUYPGhpTXFlQRhtARhtWR1pEQFBBG1xaGkAadm19f1NxelhAfFNccGxaWntsQmVjTHpXXgVTBxpWWlgbUE1UWEVZUBtBR1BDWkcbWExYXFZHWkNQR0ZQGmABZQcHckV0cnJDXlRReGB3B3JMam0DeUwEGGENWgNhZAxaB1NgWUB0B2waUVRBVBpDQGJqeEV7ZmNQc2JZAWIHAndQVEZ8fURQY0NlBmp_UAd-DH9FZXRXUkRC",
+            behaviorModules: ["Rapier", "CraneLink"],
+            craneHandlesEvent: true,
+            noSave: true,
+            type: "3d",
+        });
+
+        let d = 9; // Amount of Links (+1) -> Four Links, Four Links, One End Piece (Hook)
+        this.removeObjects(); // Reset
+
+        this.links = [...Array(d).keys()].map((i) => {
+
+            let bodyDesc;
+            if (i === 0 || i === 4) { bodyDesc = Worldcore.RAPIER.RigidBodyDesc.newKinematicPositionBased(); } // Top Link, Stays in Place
+            else { bodyDesc = Worldcore.RAPIER.RigidBodyDesc.newDynamic(); }
+
+            let card;
+            let translation1 = [0, 34.035389925172704 - i * 2, 0.8]; // Take into Account the * 2, Change for Differing Values
+            let translation2 = [0, 42.035389925172704 - i * 2, 0]; // Second Connection
+            let name = `link${i}`;
+            let cd;
+
+            if (i === d - 1) { // For the Final Link, do Something Different (Not Necessary)
+                card = this.createCard({
+                    name: "craneHook",
+                    translation: [0, 26.035389925172704, 0], // Take Second Connection into Account
+                    dataTranslation: [0, -45, 0],
+                    scale: [0.8, 0.8, 0.8],
+                    parent: this,
+                    type: "3d",
+                    modelType: "glb",
+                    dataLocation: "3DXL69tRPG3TIGu1pGwQ8THC_ykY41jJOqMYGH8DInacLDAwNDd-a2siLSghN2oxN2onNis1MSEwai0razFrBxwMDiIACykxDSItAR0rKwodMxQSPQsmL3QidmsnKylqITwlKTQoIWowNiEyKzZqKT0pLSc2KzIhNjchayJ3HnYwcQcnCgp0cCAcJQtpFC0lAHEVHAI-MBEdLSUWciYrDRN2aRMhFR1rICUwJWssaSMcDXI1DgcdITMuHH0cLi0WdxRzKwk8KXB1MgkdKyEgLBR3cjUsdDcd",
+                    behaviorModules: ["Rapier", "CraneLink"],
+                    craneHandlesEvent: true, // To Add Movement Physics
+                    craneProto: true, // Since GLB Exists
+                    noSave: true,
+                });
+                card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
+                cd = Worldcore.RAPIER.ColliderDesc.ball(0.85); // Radius
+            } 
+
+            else if (i >= 4) { // Second Link
+                card = this.createCard({
+                    name, // Link4, Link5 ...
+                    translation: translation2,
+                    type: "object",
+                    parent: this,
+                    behaviorModules: ["Rapier", "CraneLink"],
+                    craneHandlesEvent: true,
+                    noSave: true,
+                });
+                card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
+                cd = Worldcore.RAPIER.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
+            }
+
+            else { // Standard Link
+                card = this.createCard({
+                    name, // Link0, Link1 ...
+                    translation: translation1,
+                    type: "object",
+                    parent: this,
+                    behaviorModules: ["Rapier", "CraneLink"],
+                    craneHandlesEvent: true,
+                    noSave: true,
+                });
+                card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
+                cd = Worldcore.RAPIER.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
+            }
+
+            cd.setRestitution(0.5);
+            cd.setFriction(1);
+
+            if (i === d - 1) { cd.setDensity(6.0); } 
+            else { cd.setDensity(1.5); }
+
+            card.call("Rapier$RapierActor", "createCollider", cd);
+            return card;
+
+        });
+
+        this.joints = [...Array(d - 1).keys()].map((i) => {
+
+            let card = this.createCard({
+                name: `joint${i}`,
+                type: "object",
+                parent: this,
+                behaviorModules: ["Rapier"],
+                noSave: true,
+            });
+
+            if (i !== 3) { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 0}); } // Half Y
+            else { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[3], this.links[8], {x: 0, y: -1, z: -0.8}, {x: 0, y: 1, z: 0}); } // Specific Connection (First Joint, Second Joint)
+            return card;
+
+        });
+
+        let name = `link${d}`;
+
+        this.jointProto = this.createCard({
+            name, // Link10, Link9 ... Link0
+            type: "object",
+            craneProto: true,
+            parent: this,
+            behaviorModules: ["CraneLink"],
+        });
+
     }
 
-    updatePositionBy(ratio) {
+    removeObjects() {
+        if (this.links) {
+            this.links.forEach(l => l.destroy());
+            this.links = null; 
+        }  
+        if (this.joints) {
+            this.joints.forEach(j => j.destroy());
+            this.joints = null; 
+        }
+    }
+
+    updatePositionBy(ratio) { // Where The Movement Occurs
         this.ratio += ratio;
         this.ratio = Math.min(1, Math.max(0, this.ratio));
         this.set({translation: Worldcore.v3_lerp(this.pointA, this.pointB, this.ratio)});
+        this.publish("craneLink", "handlePhysics", ratio); // Physics
     }
 }
 
-class CraneButtonActor {
+class CranePawn {
+    setup() {
+        if (this.obj) {
+            this.shape.children.forEach((o) => this.shape.remove(o));
+            this.shape.children = [];
+            this.obj.dispose();
+            this.obj = null;
+        }
+
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.addEventListener("pointerDoubleDown", "nop");
+    }
+}
+
+class CraneLinkActor {
+    setup() { 
+        if (this._cardData.craneHandlesEvent) {
+            this.subscribe("craneLink", "handlePhysics", "handlePhysics");
+        }
+    }
+
+    handlePhysics(ratio) { // Complete Checks, Apply Physics
+        if (ratio === 0) { return; }
+        let r = this.rigidBody;
+        if (!r) { return; }
+        let movement = Worldcore.v3_scale([0, 0, ratio * 60], 30);
+        r.applyForce({x: movement[0], y: movement[1], z: movement[2]}, true);
+    }
+}
+
+class CraneLinkPawn {
+    setup() {
+
+        /*
+
+          Creates a Three.JS mesh based on the specified rapierShape and rapierSize.
+          
+          For a demo purpose, it does not override an existing shape
+          (by checking this.shape.children.length) so that the earth
+          shape created by FlightTracker behavior is preserved.
+          
+          Uncomment the cyclinder case to add the cylinder shape.
+        
+        */
+
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.addEventListener("pointerDoubleDown", "nop");
+
+        if (this.actor._cardData.craneProto) { return; }
+        this.shape.children.forEach((c) => this.shape.remove(c));
+        this.shape.children = [];
+
+        let s = [0.1, 2.3]; // Radius, Height (Half Height Here)
+        let geometry = new Worldcore.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
+        let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xffffff, metalness: 0.6});
+        this.obj = new Worldcore.THREE.Mesh(geometry, material);
+        this.obj.castShadow = this.actor._cardData.shadow;
+        this.obj.receiveShadow = this.actor._cardData.shadow;
+
+        this.shape.add(this.obj);
+    }
+}
+
+class CraneButtonActor { // Buttons Move Crane
     setup() {
         this.occupier = undefined;
         this.listen("publishMove", "publishMove");
@@ -88,7 +293,7 @@ class CraneButtonPawn {
 }
 
 /*
-  Two behavior modules are exported from this file.  See worlds/default.js for their use.
+  Three behavior modules are exported from this file.
 */
 
 export default {
@@ -96,6 +301,12 @@ export default {
         {
             name: "Crane",
             actorBehaviors: [CraneActor],
+            pawnBehaviors: [CranePawn]
+        },
+        {
+            name: "CraneLink",
+            actorBehaviors: [CraneLinkActor],
+            pawnBehaviors: [CraneLinkPawn]
         },
         {
             name: "CraneButton",
