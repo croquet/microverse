@@ -92,9 +92,11 @@ A Microverse world can load asset files from the web with URL, and also from the
 
 ### Deployment
 
-You can copy all files in `behaviors`, `assets`, `lib`, `meta`, and `worlds` along with `index.html` and `apiKey.js` to your publicly accessible HTTP server to have your own deployment. You can also use a hosting services such as Netlify and Vercel, which let you connect your GitHub repository to automate deployment. Note that the auto generated default apiKey for your Croquet account allows anybody to use it from any site.  In order to protect your API key from unauthorized use, you should create a new apiKey with URL restriction limited to your site.
+You can run `npm run build` to create the deployable file tree in the directory called  `dist`. Optionally, you can run `npm run create-version` to record the commit hash to a file called `meta/version.txt`. You add a proper `apiKey.js` to the directory, and then simply copy the entire contents of the directory to a web server.
 
-Many of files in the `assets` directory are used for the default demo worlds and may not be necessary for your own world.  You can safely remove them from your deployment if you are not using them.
+You can also use a hosting services such as Netlify and Vercel, which let you connect your GitHub repository to automate deployment. To do so, add a script to copy the entire `dist` directory to your git repository and simply push it.
+
+There is a `npm init` package called `create-croquet-microverse`. If you create an empty directory and run `npm init croquet-microverse`, the package sets up a working installation with smaller number of files. You can add an `apiKey.js` to the directory to start developing your Microverse world. While you can copy the entire files including `node_modules/@croquet/microverse-library/lib` to deploy the project created by `create-croquet-microverse`, we recommend to copy the directory `node_modules/@croquet/microverse-library/lib` to your top level directory, and edit index.html to refert to it.
 
 ### Updates
 
