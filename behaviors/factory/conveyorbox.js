@@ -32,7 +32,6 @@ class ConveyorBoxActor {
     } else if (this.count < 500) { // Forward
       this.forwardBy(0.1);
     } else if (this.count < 580) { // Turn After Exit
-      destroy(this);
       this.forwardBy(0.1);
       this.rotateBy([0, -0.04, 0]);
     } else if (this.count < 581) { // Align After Turn
