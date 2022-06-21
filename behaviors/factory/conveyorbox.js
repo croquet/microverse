@@ -43,7 +43,7 @@ class ConveyorBoxActor {
       this.translateTo(this.startPoint);
       this.count = 0; 
     } if (this.running) { // Continue Run
-      this.future(25).step();
+      this.future(50).step(); // Number Controls Speed
       this.count++; 
     }
   }

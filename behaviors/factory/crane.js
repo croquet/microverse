@@ -33,6 +33,7 @@ class CraneActor {
             behaviorModules: ["Rapier", "CraneLink"],
             craneHandlesEvent: true,
             noSave: true,
+            shadow: true,
             type: "3d",
         });
 
@@ -55,7 +56,7 @@ class CraneActor {
                 card = this.createCard({
                     name: "craneHook",
                     translation: [0, 26.035389925172704, 0], // Take Second Connection into Account
-                    dataTranslation: [0, -45, 0],
+                    dataTranslation: [0, -45, 0], // Offset
                     scale: [0.8, 0.8, 0.8],
                     parent: this,
                     type: "3d",
@@ -65,6 +66,7 @@ class CraneActor {
                     craneHandlesEvent: true, // To Add Movement Physics
                     craneProto: true, // Since GLB Exists
                     noSave: true,
+                    shadow: true,
                 });
                 card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
                 cd = Worldcore.RAPIER.ColliderDesc.ball(0.85); // Radius
@@ -79,6 +81,7 @@ class CraneActor {
                     behaviorModules: ["Rapier", "CraneLink"],
                     craneHandlesEvent: true,
                     noSave: true,
+                    shadow: true,
                 });
                 card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
                 cd = Worldcore.RAPIER.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
@@ -93,6 +96,7 @@ class CraneActor {
                     behaviorModules: ["Rapier", "CraneLink"],
                     craneHandlesEvent: true,
                     noSave: true,
+                    shadow: true,
                 });
                 card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
                 cd = Worldcore.RAPIER.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
@@ -258,23 +262,38 @@ class CraneButtonPawn {
         this.shape.children = [];
 
         if (this.shape.children.length === 0) {
-            let s = 0.2;
-            let geometry = new Worldcore.THREE.BoxGeometry(s, s, s);
+
+            let geometryB = new Worldcore.THREE.BoxGeometry(0.2, 0.25, 0.2);
+            let geometryT = new Worldcore.THREE.BoxGeometry(0.2, 0.2, 0.2);
             let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xD86508});
-            this.obj = new Worldcore.THREE.Mesh(geometry, material);
-            this.obj.castShadow = this.actor._cardData.shadow;
-            this.obj.receiveShadow = this.actor._cardData.shadow;
-            this.shape.add(this.obj);
+
+            this.objB = new Worldcore.THREE.Mesh(geometryB, material);
+            this.objT = new Worldcore.THREE.Mesh(geometryT, material);
+
+            if (this.actor._cardData.craneSpeed > 0) { this.objT.translateY(0.1); }
+            else { this.objT.translateY(-0.1); } 
+            this.objT.rotation.z = Math.PI / 4;
+
+            this.objB.castShadow = this.actor._cardData.shadow;
+            this.objB.receiveShadow = this.actor._cardData.shadow;
+            this.shape.add(this.objB);
+
+            this.objT.castShadow = this.actor._cardData.shadow;
+            this.objT.receiveShadow = this.actor._cardData.shadow;
+            this.shape.add(this.objT);
         }
 
         this.addEventListener("pointerDown", "start");
         this.addEventListener("pointerUp", "stop");
         this.listen("updateColor", "updateColor");
+
+        this.upTranslation = this.actor._translation; // Storing Current and Pressed Translations (Avoids Errors)
+        this.downTranslation = [this.actor._translation[0], this.actor._translation[1], this.actor._translation[2] - 0.1];
     }
 
     start() {
         if (this.actor.occupier === undefined) {
-            this.say("pressButton", {translation: [this.actor._translation[0], this.actor._translation[1], this.actor._translation[2] - 0.1], color: 0x313333});
+            this.say("pressButton", {translation: this.downTranslation, color: 0x313333});
             this.say("publishFocus", this.viewId);
             this.say("publishMove");
         }
@@ -282,19 +301,18 @@ class CraneButtonPawn {
 
     stop() {
         if (this.actor.occupier === this.viewId) {
-            this.say("pressButton", {translation: [this.actor._translation[0], this.actor._translation[1], this.actor._translation[2] + 0.1], color: 0xD86508});
+            this.say("pressButton", {translation: this.upTranslation, color: 0xD86508});
             this.say("publishFocus", undefined);
         }
     }
 
     updateColor(color) {
-        this.obj.material.color.set(color);
+        this.objB.material.color.set(color);
+        this.objT.material.color.set(color);
     }
 }
 
-/*
-  Three behavior modules are exported from this file.
-*/
+/* Three behavior modules are exported from this file. */
 
 export default {
     modules: [
