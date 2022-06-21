@@ -66,7 +66,7 @@ Start the local servers.  In the same terminal window, run `npm start` to start 
 
 This will start two servers. The first is the file server on localhost:9684. The second is the watch-server that enables you to inject code changes into a running session.
 
-We use the port 9684 for the file server and the port 9011 for the watch server. Make sure that your local fire wall (Windows Defender on Windows or Firewall system preferences on Mac) allows connections to those ports.
+We use the port 9684 for the file server and the port 9011 for the watch server. Make sure that your local firewall (Windows Defender on Windows or Firewall system preferences on Mac) allows connections to those ports.
 
 The servers can be run independently as well.
 * `npm run file-server` starts the file server.
