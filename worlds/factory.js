@@ -56,6 +56,7 @@ export function init(Constants) {
                 translation: [-1.4447057496318962, -5.504611090090481, 30.282952880859376],
                 behaviorModules: ["Rapier", "Crane"],
                 layers: ["pointer"],
+                shadow: true,
                 scale: [0.4, 0.4, 0.4],
             }
         },
@@ -66,6 +67,7 @@ export function init(Constants) {
                 translation: [3.816793504629362, 4.136223779145266, 30.394897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
                 craneSpeed: -0.003,
                 behaviorModules: ["CraneButton"],
+                shadow: true,
                 myScope: "A",
             }
         },
@@ -76,6 +78,7 @@ export function init(Constants) {
                 translation: [3.816793504629362, 4.636223779145266, 30.394897079467775],
                 craneSpeed: 0.003,
                 behaviorModules: ["CraneButton"],
+                shadow: true,
                 myScope: "A",
             }
         },
