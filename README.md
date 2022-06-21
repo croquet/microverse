@@ -1,4 +1,4 @@
-# The Croquet Microverse Repository
+# Croquet Microverse (Beta)
 
 ![Microverse Screenshot](https://croquet.io/images/microversess.png)
 
@@ -28,7 +28,7 @@ The documentation for the Croquet Microverse is located in the [docs](./docs) di
 * [docs/Development.md](./docs/Development.md) - Development Guide on building Microverses
 * [docs/Card.md](./docs/Card.md) - The methods and properties of the Card classes.
 * [docs/Avatar.md](./docs/Avatar.md) - The methods and properties of the Avatar classes.
-* [docs/CardSpec.md](./docs/CardSpec.md) - Specification for Microverse Cards 
+* [docs/CardSpec.md](./docs/CardSpec.md) - Specification for Microverse Cards
 * [docs/Elected.md](./docs/Elected.md) - The Election mechanism to choose a peer.
 * [docs/Rapier.md](./docs/Rapier.md) - Using the Rapier Physics Engine in Microverses
 * [docs/Tutorial.md](./docs/Tutorial.md) - The introduction to tutorials
@@ -41,7 +41,7 @@ Please refer to the [docs/QuickStart.md](./docs/QuickStart.md) to get started.
 If you just want to try it out quickly, follow these steps:
 
 1. Clone or fork the Github repository from <https://github.com/croquet/microverse>.
-   <br>`git clone https://github.com/croquet/microverse.git` 
+   <br>`git clone https://github.com/croquet/microverse.git`
 2. Obtain your Croquet API Key from <https://croquet.io/keys/>.
 3. Open a terminal and change the working directory to your new microverse folder.
    <br>`cd microverse`
@@ -74,14 +74,19 @@ Run `npm install` in the `servers` directory.
 ## 5. Run `npm start`
 Run `npm start` in the directory. This will start a webpack dev server and the watch server. A modification to source code triggers recompilation of the dev build but automatic relaoding upon file change is disabled. This is because the common workflow is to modify behavior files. In addition to it, typically you need to create a new session by removing the session name parameters in the URL.
 
-## 6. Run `npm run watch-server`
-If you want to run the watch server on a different directory, you can run the dev-server by running `npm run dev-server` and then specify the watch-server's target directory by `npm run watch-server -- aDirectory`.
+**Note:** If you want to run the watch server in a different directory, you can run the webpack dev server by running `npm run dev-server` and then specify the watch-server's target directory by `npm run watch-server -- aDirectory`.
 
-## 7. Press the Connect button in the world menu
+## 6. Launch Microverse, and Connect to Watch Server
 After launching Microverse by visiting http://localhost:9684 in a browser, bring up the world menu from top right, and press "Connect". This will establish the connection to the watch-server started in step 5.
 
+**Note:** Instead of `localhost` you may want to visit the local network URL listed in the server output which will enable you to scan the QR code to join the session from a phone on the same Wi-Fi:
+
+    [webpack-dev-server] Project is running at:
+    [webpack-dev-server] Loopback: http://localhost:9684/
+    [webpack-dev-server] On Your Network (IPv4): http://192.168.1.137:9684/
+
 ## 7. Edit or add a new behavior file
-You can simply add a new behavior file in the watched directory (by default under `behaviors`), and if the file follows the structure of other files, it will become automatically available.
+You can add a new behavior file in the watched directory (by default under `behaviors`), and if the file follows the structure of other files, it will become automatically available.
 
 ## 8. Other npm scripts.
 - `npm run build` build a production build in the directory called `dist`.
