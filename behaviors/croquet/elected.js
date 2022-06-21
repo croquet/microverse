@@ -32,6 +32,12 @@ class ElectedActor {
         if (!this.views) {
             this.views = new Set();
         }
+        let manager = this.service("PlayerManager");
+        let alreadyIds = [...manager.players].map(pair => pair[0]);
+        alreadyIds.forEach((id) => {
+            this.views.add(id);
+        });
+
         this.subscribe(this.sessionId, "view-join", "viewJoined");
         this.subscribe(this.sessionId, "view-exit", "viewExited");
     }
