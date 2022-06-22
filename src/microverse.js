@@ -6,25 +6,25 @@ import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
-import { RapierPhysicsManager } from "./src/physics.js";
+import { RapierPhysicsManager } from "./physics.js";
 import {
     KeyFocusManager, SyncedStateManager,
-    FontModelManager, FontViewManager } from './src/text/text.js';
-import { CardActor, VideoManager, MicroverseAppManager } from './src/card.js';
-import { AvatarActor, } from './src/avatar.js';
+    FontModelManager, FontViewManager } from "./text/text.js";
+import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
+import { AvatarActor, } from "./avatar.js";
 
-import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./src/code.js";
-import { TextFieldActor } from './src/text/text.js';
-import { PortalActor } from './src/portal.js';
-import { WorldSaver } from './src/worldSaver.js';
+import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./code.js";
+import { TextFieldActor } from "./text/text.js";
+import { PortalActor } from "./portal.js";
+import { WorldSaver } from "./worldSaver.js";
 // apps -------------------------------------------
-import { MultiBlaster } from './apps/multiblaster.js';
+import { MultiBlaster } from '../apps/multiblaster.js';
 
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
-import {AssetManager} from "./src/wcAssetManager.js";
-// import {loadThreeJSLib} from "./src/ThreeJSLibLoader.js";
-import {loadThreeLibs} from "./three/threeLibsLoader.js";
+import {AssetManager} from "./wcAssetManager.js";
+// import {loadThreeJSLib} from "./ThreeJSLibLoader.js";
+import {loadThreeLibs} from "../three/threeLibsLoader.js";
 
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"

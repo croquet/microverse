@@ -7,7 +7,7 @@ import { startShell, isShellFrame } from "./shell.js";
 async function start() {
     if (isShellFrame()) startShell();
     else {
-        const { startMicroverse } = await import("./root.js");
+        const { startMicroverse } = await import("./src/microverse.js");
         startMicroverse();
     }
 }
