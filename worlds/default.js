@@ -174,7 +174,7 @@ export function init(Constants) {
                 runs: [{text: "\nWelcome to the Croquet Gallery!\n"}],
                 margins: {left: 20, top: 20, right: 20, bottom: 20},
                 backgroundColor: 0xf4e056,
-                color: 0x00ffff,
+                color: 0x000000,
                 //color: 0xf4e056,
                 frameColor: frameColor,
                 width: 2,

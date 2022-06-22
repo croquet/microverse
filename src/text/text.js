@@ -604,10 +604,10 @@ export class TextFieldPawn extends CardPawn {
         });
     }
 
-    setupTextMesh(name, font) {
+    setupTextMesh(name, font, color) {
         if (!this.textGeometry) {
             let TextGeometry = getTextGeometry(THREE);
-            this.textGeometry = new TextGeometry({});
+            this.textGeometry = new TextGeometry({defaultColor: new THREE.Color(color)});
 
             this.textMesh = this.changeMaterial(name, true);
             this.plane.add(this.textMesh);
@@ -724,7 +724,7 @@ export class TextFieldPawn extends CardPawn {
 
     fontAsked(fontName) {
         return this.fonts.askFont(fontName).then((font) => {
-            return this.setupTextMesh(fontName, font.font);
+            return this.setupTextMesh(fontName, font.font, this.actor._cardData.color || 0x000000);
         }).then(() => {
             this.warota.resetMeasurer();
             return this.screenUpdate(this.warota.timezone);
