@@ -79,7 +79,7 @@ class MenuActor {
                     parent: this,
                     type: "2d",
                     behaviorModules: ["PropertySheetEdit"],
-                    dataLocation: "./assets/SVG/edit.svg",
+                    dataLocation: null,//"./assets/SVG/edit.svg",
                     width: 0.1,
                     height: 0.1,
                     scale: [0.04, 0.04, 0.04],
@@ -134,7 +134,7 @@ class MenuActor {
         this.setCardData({
             width: this.maxWidth + 0.2,
             height: this.maxHeight,
-            depth: 0.05,
+            depth: 0,
             color: 0xFFFFFF,
             frameColor: 0xcccccc,
             fullBright: true,
@@ -187,6 +187,7 @@ class MenuActor {
 class MenuPawn {
     setup() {
         this.listen("cardDataSet", "cardDataUpdated");
+        this.initializeClipping();
 
         if (this.actor.items && this.actor.items.length > 0 && this.actor.maxWidth > 0 && this.actor.maxHeight > 0) {
             this.cardDataUpdated();
@@ -196,6 +197,29 @@ class MenuPawn {
     cardDataUpdated() {
         let obj = this.shape.children.find((o) => o.name === "2d");
         obj.position.set(0, 0, -0.1);
+    }
+
+    initializeClipping() {
+        let THREE = Worldcore.THREE;
+        this.clippingPlanes = [
+            new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
+            new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
+            new THREE.Plane(new THREE.Vector3(-1, 0, 0), 0),
+            new THREE.Plane(new THREE.Vector3(1, 0, 0), 0)
+        ];
+    }
+
+    computeClippingPlanes(ary) {
+        //let [top, bottom, right, left] = ary; this is the order
+        let planes = [];
+        if (Number.isNaN(this.shape.matrixWorld.elements[0])) return [];
+        for (let i = 0; i < 4; i++) {
+            planes[i] = new Worldcore.THREE.Plane();
+            planes[i].copy(this.clippingPlanes[i]);
+            planes[i].constant = ary[i];
+            planes[i].applyMatrix4(this.shape.matrixWorld);
+        }
+        return planes;
     }
 }
 

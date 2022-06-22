@@ -1119,6 +1119,10 @@ export class TextFieldPawn extends CardPawn {
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
+    setTextRenderingBounds(bounds) {
+        this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    }
+
     ensureSelection(id) {
         let sel = this.selections[id];
         let modelSel = this.actor.content.selections[id];
