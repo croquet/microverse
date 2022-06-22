@@ -80,9 +80,6 @@ class GaragePawn {
 
     initializeClipping() {
         if (this.initialized) {return;}
-        if (this.obj) {
-            this.obj.onBeforeRender = null;
-        }
 
         this.obj = this.shape.children[0];
 

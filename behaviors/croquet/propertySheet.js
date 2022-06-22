@@ -75,25 +75,9 @@ class PropertySheetActor {
     setObject(target) {
         console.log("setObject");
         this.target = target;
-        this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.9, y: 0.4});
-        this.behaviorMenu = this.createCard({
-            name: 'behavior menu',
-            behaviorModules: ["BehaviorMenu"],
-            translation: [0, 0, 0.08],
-            color: 0xcccccc,
-            backgroundColor: 0xcccccc,
-            width: this.menuWindow._cardData.width,
-            height: this.menuWindow._cardData.height,
-            type: "object",
-            fullBright: true,
-            parent: this.menuWindow,
-            noSave: true,
-            target: target.id});
+        // this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.9, y: 0.4});
 
-        this.subscribe(this.behaviorMenu.id, "extentChanged", "menuExtentChanged")
-        this.behaviorMenu.call("BehaviorMenu$BehaviorMenuActor", "show");
-
-        this.cardSpecWindow = this.newWindow({x: 1.7, y: 2.8}, {x:  -0.4, y: 0});
+        this.cardSpecWindow = this.newWindow({x: 1.7, y: 2.8}, {x: -0.5, y: 0});
 
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
@@ -134,6 +118,38 @@ class PropertySheetActor {
             fullBright: true,
             target: target.id});
 
+        this.behaviorMenuPane = this.createCard({
+            name: "behaivor scroll menu",
+            behaviorModules: ["ScrollArea"],
+            type: "object",
+            translation: [0.85, 0.4, 0.08],
+            width: 1.0 - 0.04,
+            height: 2.0 - 0.04,
+            depth: 0.002,
+            color: 0xcccccc,
+            backgroundColor: 0xcccccc,
+            fullBright: true,
+            parent: this,
+        });
+
+        this.behaviorMenu = this.createCard({
+            name: 'behavior menu',
+            behaviorModules: ["BehaviorMenu"],
+            translation: [0, 0, 0.08],
+            color: 0xcccccc,
+            backgroundColor: 0xcccccc,
+            width: 0.85,
+            height: 2.0,
+            type: "object",
+            fullBright: true,
+            parent: this.behaviorMenuPane,
+            noSave: true,
+            target: target.id});
+
+        this.subscribe(this.behaviorMenu.id, "extentChanged", "menuExtentChanged")
+        this.behaviorMenu.call("BehaviorMenu$BehaviorMenuActor", "show");
+
+        this.behaviorMenuPane.call("ScrollArea$ScrollAreaActor", "setTarget", this.behaviorMenu);
         this.subscribe(this.actionMenu.id, "extentChanged", "actionMenuExtentChanged")
         this.subscribe(this.actionMenu.id, "doAction", "doAction")
         this.actionMenu.call("ActionMenu$ActionMenuActor", "show");
@@ -141,8 +157,12 @@ class PropertySheetActor {
     }
 
     menuExtentChanged(data) {
-        if (this.menuWindow) {
-            this.menuWindow.setCardData({width: data.x + 0.05, height: data.y + 0.05});
+        console.log("menuExtentChanged", data);
+        if (this.behaviorMenu) {
+            this.behaviorMenu.setCardData({
+                width: data.x,
+                height: data.y,
+            });
         }
     }
 
