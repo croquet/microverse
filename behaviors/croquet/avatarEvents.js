@@ -1,7 +1,7 @@
 class AvatarPawn {
     setup() {
         if (!this.isMyPlayerPawn) {return;}
-        
+
         this.addFirstResponder("pointerTap", {ctrlKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
 
@@ -28,6 +28,33 @@ class AvatarPawn {
 
         this.addLastResponder("keyUp", {ctrlKey: true}, this);
         this.addEventListener("keyUp", this.keyUp);
+    }
+
+    startMotion(dx, dy) {
+        this.spin = Worldcore.q_identity();
+        this.velocity = Worldcore.v3_zero();
+        this.say("startFalling");
+        if (dx || dy) this.updateMotion(dx, dy);
+    }
+
+    endMotion(_dx, _dy) {
+        this.activeMMotion = false;
+        this.spin = Worldcore.q_identity();
+        this.velocity = Worldcore.v3_zero();
+    }
+
+    updateMotion(dx, dy) {
+        const JOYSTICK_V = 0.000030;
+        const MAX_V = 0.015;
+        const MAX_SPIN = 0.0004;
+
+        let v = dy * JOYSTICK_V;
+        v = Math.min(Math.max(v, -MAX_V), MAX_V);
+
+        const yaw = dx * (this.isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
+        this.spin = Worldcore.q_euler(0, yaw ,0);
+        this.velocity = [0, 0, v];
+        this.maybeLeavePresentation();
     }
 
     teardown() {
@@ -70,3 +97,5 @@ export default {
         }
     ]
 }
+
+/* globals Worldcore */
