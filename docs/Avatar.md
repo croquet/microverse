@@ -84,6 +84,22 @@ as well as to notify the pawn by:
 
 This method computes the position and rotation in front of the avatar at specified distance. The optional `optOffset` is added to the result in the reference frame of the avatar.
 
+### `translateTo(v:Vector3)`
+
+This method moves the translation of the avatar to the specified `[x, y, z]` coordinates.
+
+### `rotateTo(q:Quotanion)`
+
+This method sets the translation of the avatar to the specified by a quaternion (`[x, y, z, w]`).
+
+### `scaleTo(s:Vector3)`
+
+This method sets the scale of the avatar to the specified by scale factors in [x, y, z] axis.
+
+### `positionTo(v:Vector3, q:Quaternion)`
+
+This method sets the translation and rotation of the avatar, making sure that those two values are used in the same logical time and used for the rendering.
+
 ## AvatarPawn Methods
 
 ### `lookTo(pitch:number, yaw:number, lookOffset:Vector3)`
@@ -97,5 +113,43 @@ This method sets the opacity of the 3D model by assigning a different opacity va
 ### `goHome()`
 
 This call initiates tells the actor to move back to [0, 0, 0], and resets rotation.
+
+### `translateTo(v:Vector3)`
+
+This method updates the local avatar pawn translation directly to the given value to have immediate screen update and publishes an event to set the corresponding actor's translation.
+
+### `rotateTo(q:Quaternion)`
+
+This method updates the local avatar pawn translation directly to the given value to have immediate screen update and publishes an event to set the corresponding actors's rotation.
+
+### `scaleTo(s:Vector3)`
+
+This method updates the local avatar pawn translation directly to the given value to have immediate screen update and publishes an event to set the corresponding actors's rotation.
+
+### `positionTo(v:Vector3, q:Quaternion)`
+
+This method publishes an event to set the corresponding actors's translation and rotation. It guarantees that two values are sent in one message, thus causes both to be updated at the same time.
+
+## AvatarEventHandler Behavior Module
+
+The Microverse system automatically attaches a behavior module named `AvatarEventHandler` to the Avatar. Its default implementation is stored in `behaviors/croquet/avatarEvents.js`, and you can override the default behavior by supplying a behavior module with the same name. Currently, you need to explicitly override the system modules list with a list without default `avatarEvents.js`
+
+```JavaScript
+Constants.SystemBehaviorDirectory = "behaviors/croquet";
+Constants.SystemBehaviorModules = [
+    "elected.js", ... /* exclude "avatarEvents.js" */
+];
+```
+
+and then add your own behavior module file that exports a module named `AvatarEventHandler`:
+
+```JavaScript
+Constants.UserBehaviorDirectory = "behaviors/myWorld";
+Constants.UserBehaviorModules = [
+    "avatar.js", ...
+];
+```
+
+Currently the default implementation of the basic actions are still implemented at the `AvatarActor` and `AvatarPawn` in `src/avatar.js`. This mechanism give you flexibility to override some methods to customize the avatar's behavior.
 
 **Copyright (c) 2022 Croquet Corporation**
