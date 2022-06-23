@@ -79,7 +79,8 @@ export function init(Constants) {
             card: {
                 name:"Imported Box",
                 type: "3d",
-                dataLocation: "./assets/3D/testcube_1m.glb.zip",
+                dataLocation: "3huoVKegegBeYdI78lg1H2JMKp5sGwGU8aEoR1uckNZcABwcGBtSR0cOAQQNG0YdG0YLGgcZHQ0cRgEHRx1HLww-ChEEIRspAzkLKjAMWy8QCR4RHz0jPzExWkcBB0YLGgcZHQ0cRgUBCxoHHg0aGw1HWiUAISwyPw0CAQsPPFkZXwwnEl4sHQM6MAElKllFAQIjKyxaJjEMBSMKIUcMCRwJRwYYP1ARGwwtPj0lUDELLAsbJQBbAAE9CQc-IB4qDFxdCxhQCxgbERIBPxs",
+                fileName: "/testcube_1m.glb.zip",
                 layers: ["pointer"],
                 translation:[4, 0.4, -10],
                 dataScale:[1,1,1],
