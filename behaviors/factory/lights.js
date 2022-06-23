@@ -24,9 +24,9 @@ class LightPawn {
         let group = this.shape;
 
         let points = [
-            {v: [18, 31, 2], s: true},
+            {v: [18, 30, 10], s: true},
             {v: [1.8, 30, 14], s: false},
-            {v: [25.25, 30, -32.02], s: true},
+            {v: [25.25, 10, -32.02], s: false},
         ];
         points.forEach((pair) => {
             let v = pair.v
