@@ -7,6 +7,11 @@ export function init(Constants) {
         "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 
+    Constants.SystemBehaviorDirectory = "behaviors/croquet";
+    Constants.SystemBehaviorModules = [
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "pdfview.js", "singleUser.js"
+    ];
+
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
         "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
@@ -59,7 +64,8 @@ export function init(Constants) {
             card: {
                 name: "crane button 1",
                 type: "object",
-                translation: [3.816793504629362, 4.136223779145266, 30.394897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
+                translation: [3.816793504629362, 4.336223779145266, 30.294897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
+                rotation: [0, 0, Math.PI],
                 craneSpeed: -0.003,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
@@ -70,33 +76,34 @@ export function init(Constants) {
             card: {
                 name: "crane button 2",
                 type: "object",
-                translation: [3.816793504629362, 4.636223779145266, 30.394897079467775],
+                translation: [3.816793504629362, 4.436223779145266, 30.294897079467775],
+                rotation: [0, 0, 0],
                 craneSpeed: 0.003,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
                 myScope: "A",
             }
         },
-        {
-            card: {
-                name:"crane explanation",
-                className: "TextFieldActor",
-                translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
-                rotation: [0, 0, 0],
-                depth: 0.10,
-                type: "text",
-                runs: [{text: "Crane Controls:\nTop Button Moves Crane Forward\nBottom Button Moves Crane Backward"}],
-                margins: {left: 30, top: 30, right: 30, bottom: 30},
-                backgroundColor: 0x707070,
-                color: 0xffffff,
-                frameColor: 0x222222,
-                width: 3.4,
-                height: 1,
-                textScale: 0.004,
-                shadow: true,
-                fullbright: true,
-            }
-        },
+        // {
+        //     card: {
+        //         name:"crane explanation",
+        //         className: "TextFieldActor",
+        //         translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
+        //         rotation: [0, 0, 0],
+        //         depth: 0.10,
+        //         type: "text",
+        //         runs: [{text: "Lateral Crane Controller"}],
+        //         margins: {left: 20, top: 10, right: 20, bottom: 20},
+        //         backgroundColor: 0x707070,
+        //         color: 0xffffff,
+        //         frameColor: 0x222222,
+        //         width: 3.4,
+        //         height: 1,
+        //         textScale: 0.01,
+        //         shadow: true,
+        //         fullbright: true,
+        //     }
+        // },
         {
             card: {
                 name: "garage 1",
