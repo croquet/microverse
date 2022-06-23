@@ -32,9 +32,8 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "pdfview.js", "avatarEvents.js", "singleUser.js"
+    "avatarEvents.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
 ];
-
 
 // turn off antialiasing for mobile and safari
 // Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
@@ -556,6 +555,10 @@ export async function startMicroverse() {
         const worldModule = await eval(`import("${basedir}worlds/${basename}.js")`);
         // use bit-identical math for constant initialization
         ModelRoot.evaluate(() => worldModule.init(Constants));
+        if (!Constants.SystemBehaviorModules) {
+            Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
+            Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+        }
     } else {
         const response = await fetch(basename);
         if (!response.ok) throw Error(`world not found: ${basename}`);
@@ -574,7 +577,7 @@ export async function startMicroverse() {
     }
     let apiKeysModule;
     try {
-        // eval to hide import from webpack
+        // use eval to hide import from webpack
         apiKeysModule = await eval(`import('${basedir}apiKey.js')`);
         const { apiKey, appId } = apiKeysModule.default;
         if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
