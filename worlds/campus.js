@@ -7,11 +7,6 @@ export function init(Constants) {
         "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 
-    Constants.SystemBehaviorDirectory = "behaviors/croquet";
-    Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "singleUser.js", "pdfview.js", "scrollableArea.js"
-    ];
-
     Constants.UserBehaviorDirectory = "behaviors/campus";
     Constants.UserBehaviorModules = [
         "lights.js", "livemap.js", "drive.js", "earth.js", "spin.js", "pendulum.js", "openPortal.js", "cascade.js"
