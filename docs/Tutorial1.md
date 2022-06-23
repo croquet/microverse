@@ -26,16 +26,9 @@ export function init(Constants) {
         "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 ```
-The next section defines the various behaviors we will be applying to our cards. The first set are system behaviors. We won't be using these until we have more sophisticated applications.
-
-The next group are the user behaviors. These are created by the creator of the world and are applied to the cards defined later in the file.
+The next section defines the various behaviors we will be attaching to our cards. Typically you create a directory for your behavior modules for the world you are creating, and list them in this section.
 
 ```Javascript
-    Constants.SystemBehaviorDirectory = "behaviors/croquet";
-    Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "avatarEvents.js"
-    ];
-
     Constants.UserBehaviorDirectory = "behaviors/tutorial";
     Constants.UserBehaviorModules = [
         "lights.js", "gridFloor.js"

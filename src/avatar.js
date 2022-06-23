@@ -22,13 +22,12 @@ const FALL_DISTANCE = EYE_HEIGHT / 12;
 const MAX_FALL = -15;
 const MAX_V = 0.015;
 const KEY_V = MAX_V / 2;
-const MAX_SPIN = 0.0004;
-const JOYSTICK_V = 0.000030;
+// const MAX_SPIN = 0.0004;
+// const JOYSTICK_V = 0.000030;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.3;
 const COLLISION_RADIUS = 0.8;
-const isMobile = !!("ontouchstart" in window);
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
 const Q_ROTATION_180 = q_euler(0, Math.PI, 0);
 let initialPortalLookExternal;
@@ -58,7 +57,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.set({tickStep: 30});
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
-        this.listen("startMMotion", this.startFalling);
+        this.listen("startFalling", this.startFalling);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
         this.listen("followMeToWorld", this.followMeToWorld);
@@ -543,6 +542,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this._rotation = q_euler(0, this.lookYaw, 0);
         this.portalLookExternal = initialPortalLookExternal;
 
+        this.isMobile = !!("ontouchstart" in window);
+
+
         this.isFalling = false;
 
         let renderMgr = this.service("ThreeRenderManager");
@@ -567,7 +569,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         document.getElementById("homeBttn").onclick = () => this.goHome();
         document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
-        document.getElementById("editModeBttn").setAttribute("mobile", isMobile);
+        document.getElementById("editModeBttn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBttn").setAttribute("pressed", false);
 
         let editButton = document.getElementById("editModeBttn");
@@ -628,14 +630,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     }
                     break;
                 case "motion-start":
-                    this.startMMotion();
-                    if (dx || dy) this.updateMMotion(dx, dy);
+                    this.call("AvatarEventHandler$AvatarPawn", "startMotion", dx, dy);
                     break;
                 case "motion-end":
-                    this.endMMotion();
+                    this.call("AvatarEventHandler$AvatarPawn", "endMotion", dx, dy);
                     break;
                 case "motion-update":
-                    this.updateMMotion(dx, dy);
+                    this.call("AvatarEventHandler$AvatarPawn", "updateMotion", dx, dy);
                     break;
             }
         }
@@ -656,7 +657,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.listen("leaveToWorld", this.leaveToWorld);
         this.showNumbers();
 
-        //this.listenOnce("forceScaleSet", this.onScale);
         this.listen("forceOnPosition", this.onPosition);
 
         this.listen("goThere", this.stopFalling);
@@ -1241,31 +1241,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             return a;
         }
         return vq;
-    }
-
-    startMMotion() {
-        this.spin = q_identity();
-        this.velocity = v3_zero();
-        this.say("startMMotion");
-    }
-
-    endMMotion() {
-        this.activeMMotion = false;
-        this.spin = q_identity();
-        this.velocity = v3_zero();
-    }
-
-    updateMMotion(dx, dy) {
-        // move the avatar
-
-        let v = dy * JOYSTICK_V;
-
-        v = Math.min(Math.max(v, -MAX_V), MAX_V);
-
-        const yaw = dx * (isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
-        this.spin = q_euler(0, yaw ,0);
-        this.velocity = [0,0,v];
-        this.maybeLeavePresentation();
     }
 
     keyDown(e) {
