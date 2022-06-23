@@ -79,26 +79,26 @@ export function init(Constants) {
                 myScope: "A",
             }
         },
-        // {
-        //     card: {
-        //         name:"crane explanation",
-        //         className: "TextFieldActor",
-        //         translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
-        //         rotation: [0, 0, 0],
-        //         depth: 0.10,
-        //         type: "text",
-        //         runs: [{text: "Lateral Crane Controller"}],
-        //         margins: {left: 20, top: 10, right: 20, bottom: 20},
-        //         backgroundColor: 0x707070,
-        //         color: 0xffffff,
-        //         frameColor: 0x222222,
-        //         width: 3.4,
-        //         height: 1,
-        //         textScale: 0.01,
-        //         shadow: true,
-        //         fullbright: true,
-        //     }
-        // },
+        {
+            card: {
+                name:"crane explanation",
+                className: "TextFieldActor",
+                translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
+                rotation: [0, 0, 0],
+                depth: 0.10,
+                type: "text",
+                runs: [{text: "Lateral Crane Controller"}],
+                margins: {left: 15, top: 48, right: 10, bottom: 0},
+                backgroundColor: 0x707070,
+                color: 0xB0841B,
+                frameColor: 0x222222,
+                width: 3.4,
+                height: 1,
+                textScale: 0.007,
+                shadow: true,
+                fullbright: true,
+            }
+        },
         {
             card: {
                 name: "garage 1",
