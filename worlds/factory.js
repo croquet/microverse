@@ -7,14 +7,9 @@ export function init(Constants) {
         "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 
-    Constants.SystemBehaviorDirectory = "behaviors/croquet";
-    Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "pdfview.js", "singleUser.js"
-    ];
-
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "box.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
     ];
 
     Constants.UseRapier = true;
@@ -84,26 +79,26 @@ export function init(Constants) {
                 myScope: "A",
             }
         },
-        // {
-        //     card: {
-        //         name:"crane explanation",
-        //         className: "TextFieldActor",
-        //         translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
-        //         rotation: [0, 0, 0],
-        //         depth: 0.10,
-        //         type: "text",
-        //         runs: [{text: "Lateral Crane Controller"}],
-        //         margins: {left: 20, top: 10, right: 20, bottom: 20},
-        //         backgroundColor: 0x707070,
-        //         color: 0xffffff,
-        //         frameColor: 0x222222,
-        //         width: 3.4,
-        //         height: 1,
-        //         textScale: 0.01,
-        //         shadow: true,
-        //         fullbright: true,
-        //     }
-        // },
+        {
+            card: {
+                name:"crane explanation",
+                className: "TextFieldActor",
+                translation: [5.875421017365224, 4.38622377915, 30.394897079467775],
+                rotation: [0, 0, 0],
+                depth: 0.10,
+                type: "text",
+                runs: [{text: "Lateral Crane Controller"}],
+                margins: {left: 15, top: 48, right: 10, bottom: 0},
+                backgroundColor: 0x707070,
+                color: 0xB0841B,
+                frameColor: 0x222222,
+                width: 3.4,
+                height: 1,
+                textScale: 0.007,
+                shadow: true,
+                fullbright: true,
+            }
+        },
         {
             card: {
                 name: "garage 1",
@@ -181,104 +176,34 @@ export function init(Constants) {
         },
         {
             card: {
-                name: "converyor box 1",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 1",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: 0,
+                type: "object",
             }
         },
         {
             card: {
-                name: "converyor box 2",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 2",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: -150,
+                type: "object",
             }
         },
         {
             card: {
-                name: "converyor box 3",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 3",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: -300,
+                type: "object",
             }
         },
         {
             card: {
-                name: "converyor box 4",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 4",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: -450,
-            }
-        },
-        {
-            card: {
-                name: "converyor box 5",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-                startCount: -600,
-            }
-        },
-        {
-            card: {
-                name: "converyor box 6",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-                startCount: -750,
+                type: "object",
             }
         },
         {
