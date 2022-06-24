@@ -47,15 +47,15 @@ class CraneActor {
             else { bodyDesc = Worldcore.RAPIER.RigidBodyDesc.newDynamic(); }
 
             let card;
-            let translation1 = [0, 34.035389925172704 - i * 2, 0.8]; // Take into Account the * 2, Change for Differing Values
-            let translation2 = [0, 42.035389925172704 - i * 2, 0]; // Second Connection
+            let translation1 = [0, 35.135389925172704 - i * 2, 0.8]; // Take into Account the * 2, Change for Differing Values
+            let translation2 = [0, 43.135389925172704 - i * 2, 0]; // Second Connection
             let name = `link${i}`;
             let cd;
 
             if (i === d - 1) { // For the Final Link, do Something Different (Not Necessary)
                 card = this.createCard({
                     name: "craneHook",
-                    translation: [0, 26.035389925172704, 0], // Take Second Connection into Account
+                    translation: [0, 27.135389925172704, 0], // Take Second Connection into Account
                     dataTranslation: [0, -45, 0], // Offset
                     scale: [0.8, 0.8, 0.8],
                     parent: this,
@@ -178,6 +178,7 @@ class CraneLinkActor {
     setup() { 
         if (this._cardData.craneHandlesEvent) {
             this.subscribe("craneLink", "handlePhysics", "handlePhysics");
+            this.addEventListener("pointerTap", "jolt");
         }
     }
 
@@ -187,6 +188,18 @@ class CraneLinkActor {
         if (!r) { return; }
         let movement = Worldcore.v3_scale([0, 0, ratio * 60], 30);
         r.applyForce({x: movement[0], y: movement[1], z: movement[2]}, true);
+    }
+
+    jolt(p3d) { // Jolt From Pendulum
+        if (!p3d.normal) { return; }
+        let r = this.rigidBody;
+        if (!r) { return; }
+        let jolt = Worldcore.v3_scale(p3d.normal, 250);
+        r.applyForce({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
+    }
+
+    teardown() {
+        this.removeEventListener("pointerTap", "jolt");
     }
 }
 
@@ -263,24 +276,59 @@ class CraneButtonPawn {
 
         if (this.shape.children.length === 0) {
 
-            let geometryB = new Worldcore.THREE.BoxGeometry(0.2, 0.25, 0.2);
-            let geometryT = new Worldcore.THREE.BoxGeometry(0.2, 0.2, 0.2);
+            let shape = new Worldcore.THREE.Shape();
+            shape.moveTo(0, 0);
+            shape.lineTo(-0.08, 0); // Start of First Curve
+            shape.quadraticCurveTo(-0.1, 0, -0.1, 0.025); // End of First Curve
+            shape.lineTo(-0.1, 0.2);
+            shape.quadraticCurveTo(-0.1, 0.25, -0.125, 0.25);
+            shape.lineTo(-0.15, 0.25);
+            shape.quadraticCurveTo(-0.25, 0.25, -0.15, 0.35);
+            shape.lineTo(-0.05, 0.45);
+            shape.quadraticCurveTo(0, 0.5, 0.05, 0.45);
+            shape.lineTo(0.15, 0.35);
+            shape.quadraticCurveTo(0.25, 0.25, 0.15, 0.25);
+            shape.lineTo(0.125, 0.25);
+            shape.quadraticCurveTo(0.1, 0.25, 0.1, 0.2);
+            shape.lineTo(0.1, 0.025);
+            shape.quadraticCurveTo(0.1, 0, 0.08, 0); 
+            shape.lineTo(0, 0);
+
+            let extrudeSettings = {
+                bevelEnabled: true,
+                bevelThickness: 0,
+                bevelSize: 0,
+                bevelOffset: 0,
+                bevelSegments: 0,
+                depth: 0.15,
+                steps: 5,
+            }
+
+            let geometry = new Worldcore.THREE.ExtrudeGeometry(shape, extrudeSettings);
             let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xD86508});
+            this.obj = new Worldcore.THREE.Mesh(geometry, material);
+            this.obj.castShadow = this.actor._cardData.shadow;
+            this.obj.receiveShadow = this.actor._cardData.shadow;
+            this.shape.add(this.obj);
 
-            this.objB = new Worldcore.THREE.Mesh(geometryB, material);
-            this.objT = new Worldcore.THREE.Mesh(geometryT, material);
+            // let geometryB = new Worldcore.THREE.BoxGeometry(0.2, 0.25, 0.2);
+            // let geometryT = new Worldcore.THREE.BoxGeometry(0.2, 0.2, 0.2);
+            // let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xD86508});
 
-            if (this.actor._cardData.craneSpeed > 0) { this.objT.translateY(0.1); }
-            else { this.objT.translateY(-0.1); } 
-            this.objT.rotation.z = Math.PI / 4;
+            // this.objB = new Worldcore.THREE.Mesh(geometryB, material);
+            // this.objT = new Worldcore.THREE.Mesh(geometryT, material);
 
-            this.objB.castShadow = this.actor._cardData.shadow;
-            this.objB.receiveShadow = this.actor._cardData.shadow;
-            this.shape.add(this.objB);
+            // if (this.actor._cardData.craneSpeed > 0) { this.objT.translateY(0.1); }
+            // else { this.objT.translateY(-0.1); } 
+            // this.objT.rotation.z = Math.PI / 4;
 
-            this.objT.castShadow = this.actor._cardData.shadow;
-            this.objT.receiveShadow = this.actor._cardData.shadow;
-            this.shape.add(this.objT);
+            // this.objB.castShadow = this.actor._cardData.shadow;
+            // this.objB.receiveShadow = this.actor._cardData.shadow;
+            // this.shape.add(this.objB);
+
+            // this.objT.castShadow = this.actor._cardData.shadow;
+            // this.objT.receiveShadow = this.actor._cardData.shadow;
+            // this.shape.add(this.objT);
         }
 
         this.addEventListener("pointerDown", "start");
@@ -307,8 +355,7 @@ class CraneButtonPawn {
     }
 
     updateColor(color) {
-        this.objB.material.color.set(color);
-        this.objT.material.color.set(color);
+        this.obj.material.color.set(color);
     }
 }
 

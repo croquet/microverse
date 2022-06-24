@@ -7,9 +7,14 @@ export function init(Constants) {
         "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 
+    Constants.SystemBehaviorDirectory = "behaviors/croquet";
+    Constants.SystemBehaviorModules = [
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "pdfview.js", "singleUser.js", "scrollableArea.js"
+    ];
+
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "conveyorbox.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "box.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
     ];
 
     Constants.UseRapier = true;
@@ -59,7 +64,8 @@ export function init(Constants) {
             card: {
                 name: "crane button 1",
                 type: "object",
-                translation: [3.816793504629362, 4.136223779145266, 30.394897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
+                translation: [3.816793504629362, 4.336223779145266, 30.294897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
+                rotation: [0, 0, Math.PI],
                 craneSpeed: -0.003,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
@@ -70,7 +76,8 @@ export function init(Constants) {
             card: {
                 name: "crane button 2",
                 type: "object",
-                translation: [3.816793504629362, 4.636223779145266, 30.394897079467775],
+                translation: [3.816793504629362, 4.436223779145266, 30.294897079467775],
+                rotation: [0, 0, 0],
                 craneSpeed: 0.003,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
@@ -85,14 +92,14 @@ export function init(Constants) {
                 rotation: [0, 0, 0],
                 depth: 0.10,
                 type: "text",
-                runs: [{text: "Crane Controls:\nTop Button Moves Crane Forward\nBottom Button Moves Crane Backward"}],
-                margins: {left: 30, top: 30, right: 30, bottom: 30},
+                runs: [{text: "Lateral Crane Controller"}],
+                margins: {left: 15, top: 48, right: 10, bottom: 0},
                 backgroundColor: 0x707070,
-                color: 0xffffff,
+                color: 0xB0841B,
                 frameColor: 0x222222,
                 width: 3.4,
                 height: 1,
-                textScale: 0.004,
+                textScale: 0.007,
                 shadow: true,
                 fullbright: true,
             }
@@ -174,104 +181,34 @@ export function init(Constants) {
         },
         {
             card: {
-                name: "converyor box 1",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 1",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: 0,
+                type: "object",
             }
         },
         {
             card: {
-                name: "converyor box 2",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 2",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: -150,
+                type: "object",
             }
         },
         {
             card: {
-                name: "converyor box 3",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 3",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: -300,
+                type: "object",
             }
         },
         {
             card: {
-                name: "converyor box 4",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
+                name: "box 4",
+                behaviorModules: ["C1BoxHandler"],
                 startCount: -450,
-            }
-        },
-        {
-            card: {
-                name: "converyor box 5",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-                startCount: -600,
-            }
-        },
-        {
-            card: {
-                name: "converyor box 6",
-                dataTranslation: [0, 0.7508889919233228, 0],
-                translation: [22.96199715067616, 0, 30.90992622375488],
-                rotation: [0, Math.PI / 2, 0],
-                dataScale: [1.2, 1.2, 1.2],
-                behaviorModules: ["ConveyorBox"],
-                layers: ["pointer"],
-                dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-                modelType: "glb",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-                startCount: -750,
+                type: "object",
             }
         },
         {
