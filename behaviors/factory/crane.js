@@ -25,7 +25,7 @@ class CraneActor {
         
         this.createCard({ // Create Base
             name: "craneBase",
-            translation: [0, -4.6239610018586506, 0.25],
+            translation: [0, -4.6239610018586506, 0.35],
             scale: [0.9, 0.9, 0.9],
             parent: this,
             modelType: "glb",
@@ -47,7 +47,7 @@ class CraneActor {
             else { bodyDesc = Worldcore.RAPIER.RigidBodyDesc.newDynamic(); }
 
             let card;
-            let translation1 = [0, 35.135389925172704 - i * 2, 0.8]; // Take into Account the * 2, Change for Differing Values
+            let translation1 = [0, 35.135389925172704 - i * 2, 1]; // Take into Account the * 2, Change for Differing Values
             let translation2 = [0, 43.135389925172704 - i * 2, 0]; // Second Connection
             let name = `link${i}`;
             let cd;
@@ -57,7 +57,7 @@ class CraneActor {
                     name: "craneHook",
                     translation: [0, 27.135389925172704, 0], // Take Second Connection into Account
                     dataTranslation: [0, -45, 0], // Offset
-                    scale: [0.8, 0.8, 0.8],
+                    scale: [1.1, 1.1, 1.1],
                     parent: this,
                     type: "3d",
                     modelType: "glb",
@@ -105,8 +105,8 @@ class CraneActor {
             cd.setRestitution(0.5);
             cd.setFriction(1);
 
-            if (i === d - 1) { cd.setDensity(6.0); } 
-            else { cd.setDensity(1.5); }
+            if (i >= 4) { cd.setDensity(6.0); }
+            else { cd.setDensity(15.0); }
 
             card.call("Rapier$RapierActor", "createCollider", cd);
             return card;
@@ -124,7 +124,7 @@ class CraneActor {
             });
 
             if (i !== 3) { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 0}); } // Half Y
-            else { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[3], this.links[8], {x: 0, y: -1, z: -0.8}, {x: 0, y: 1, z: 0}); } // Specific Connection (First Joint, Second Joint)
+            else { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[3], this.links[8], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 1}); } // Specific Connection (First Joint, Second Joint)
             return card;
 
         });

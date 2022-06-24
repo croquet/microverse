@@ -1,14 +1,52 @@
-/*
+class ConveyorBoxActor {
+  setup() {
+    this.startPoint = [22.96199715067616, 0, 30.90992622375488];
+    if (this.running === undefined) {
+      this.running = true;
+      this.count = this._cardData.startCount;
+      this.step();
+    }
+  }
 
-    Important Note: Each Box moves with the same controls. It is up to
-    the handler to change those controls in any way necessary. Other
-    methods can be added to the movement actor but must be called from
-    the handler in order to allow the box to be changed such that it can
-    still be recreated at will. All boxes can use the same movement actor.
-
-*/
-
-class BoxMovementActor {
+  step() {
+    if (this.count < 0) { // Fix Translation Error 
+      this.translateTo(this.startPoint);
+    } else if (this.count < 33) { // Offset
+      this.forwardBy(0.1);
+    } else if (this.count < 34) { // Offset
+      this.forwardBy(0.04);
+    } else if (this.count < 49) { // First Turn
+      this.forwardBy(0.1);
+      this.rotateBy([0, -0.1, 0]);
+    } else if (this.count < 50) { // Align After Turn
+      this.forwardBy(0.1);
+      this.rotateTo([0, 0, 0, 1]);
+    } else if (this.count < 270) { // Forward
+      this.forwardBy(0.1);
+    } else if (this.count < 285) { // Second Turn
+      this.forwardBy(0.1);
+      this.rotateBy([0, 0.1, 0]);
+    } else if (this.count < 286) { // Align After Turn
+      this.forwardBy(0.1);
+      this.rotateTo([0, 0.70710678118, 0, 0.70710678118]);
+    } else if (this.count < 500) { // Forward
+      this.forwardBy(0.1);
+    } else if (this.count < 580) { // Turn After Exit
+      this.forwardBy(0.1);
+      this.rotateBy([0, -0.04, 0]);
+    } else if (this.count < 581) { // Align After Turn
+      this.forwardBy(0.1);
+      this.rotateTo([0, 0.70710678118, 0, 0.70710678118]);
+    } else if (this.count < 900) {// Move Back To Beginning
+      this.forwardBy(-0.1);
+    } else { // Reset Structure
+      this.translateTo(this.startPoint);
+      this.count = 0; 
+    } if (this.running) { // Continue Run
+      this.future(50).step(); // Number Controls Speed
+      this.count++; 
+    }
+  }
 
   forwardBy(moveAmnt) { // Forward Movement
     let forward = Worldcore.v3_rotate([moveAmnt, 0, 0], this.rotation);
@@ -23,88 +61,13 @@ class BoxMovementActor {
     q = Worldcore.q_multiply(this.rotation, q);
     this.rotateTo(q);
   }
-
-}
-
-class C1BoxHandlerActor { // Handles Box Creation, Deletion, Movement (Conveyor 1 - Lower)
-
-  setup() {
-    if (this.running === undefined) {
-      this.running = true;
-      this.count = this._cardData.startCount;
-      this.step();
-    }
-  }
-
-  step() { // Handles Box Actions (Movement)
-
-    if (this.count < 0) { } // Do Nothing
-
-    else if (this.count === 0) { // Create Basic Box Model
-      this.box = this.createCard({ 
-        name: "converyorBox",
-        dataTranslation: [0, 0.7508889919233228, 0],
-        translation: [22.96199715067616, 0, 30.90992622375488],
-        startPoint: [22.96199715067616, 0, 30.90992622375488],
-        rotation: [0, Math.PI / 2, 0],
-        dataScale: [1.2, 1.2, 1.2],
-        behaviorModules: ["BoxMovement"],
-        layers: ["pointer"],
-        dataLocation: "3gnL5YhR7iiXlN_3akKO1X_IZO-h3cMyjiA79HWPAlBQDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIJD8vLQEjKAoSLgEOIj4ICCk-EDcxHigFDFcBVUgECApJAh8GChcLAkkTFQIRCBVJCh4KDgQVCBECFRQCSAURXysuMzACDVAsXjEJUh0CBTAdNgEjFD4SPwpRNxY0CyskLxMhUwBWKT5IAwYTBkhQHSkWBBUmETEBHgI4MzcRLjMDMR0kLjJTJDgJNTQXHz0CLSYpDgssBgoM",
-        modelType: "glb",
-        shadow: true,
-        singleSided: true,
-        type: "3d",
-      }); 
-      
-      // Set Translation To Beginning (Avoid Translation Error)
-      this.box.translateTo(this.box._cardData.startPoint);
-
-    }
-    
-    else if (this.count < 34) { this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1); } // Forward 
-    
-    else if (this.count < 49) { // First Turn
-      this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1);
-      this.box.call("BoxMovement$BoxMovementActor", "rotateBy", [0, -0.1, 0]); } 
-    
-    else if (this.count < 50) { // Align After Turn
-      this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1);
-      this.box.rotateTo([0, 0, 0, 1]); } 
-    
-    else if (this.count < 270) { this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1); } // Forward
-    
-    else if (this.count < 285) { // Second Turn
-      this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1);
-      this.box.call("BoxMovement$BoxMovementActor", "rotateBy", [0, 0.1, 0]); }
-     
-    else if (this.count < 286) { // Align After Turn
-      this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1);
-      this.box.rotateTo([0, 0.70710678118, 0, 0.70710678118]); } 
-    
-    else if (this.count < 500) { this.box.call("BoxMovement$BoxMovementActor", "forwardBy", 0.1); } // Forward 
-    
-    else if (this.count < 580) { this.box.destroy(); } // Destroy Box After Exit
-    
-    else if (this.count === 600) { this.count = -1; } // Restart Count (-1 So === 0 Calls)
-    
-    if (this.running) { // Run Step - Continue Running (Controls Speed, Increment Count)
-      this.future(50).step(); 
-      this.count++; }
-
-  }
-
 }
 
 export default {
   modules: [
     {
-      name: "BoxMovement",
-      actorBehaviors: [BoxMovementActor],
-    },
-    {
-      name: "C1BoxHandler",
-      actorBehaviors: [C1BoxHandlerActor],
+      name: "ConveyorBox",
+      actorBehaviors: [ConveyorBoxActor],
     },
   ]
 }
