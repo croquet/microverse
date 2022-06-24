@@ -924,7 +924,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (spec.lookYaw) this.lookYaw = spec.lookYaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
-        if (leavingWorld) this.endMMotion();
+        if (leavingWorld) {
+            this.call("AvatarEventHandler$AvatarPawn", "endMotion");
+        }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
         this.say("_set", actorSpec);
