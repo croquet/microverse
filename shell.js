@@ -6,6 +6,7 @@ import { App } from "@croquet/worldcore-kernel";
 
 // shared prefix for shell messages
 const PREFIX = "croquet:microverse:";
+const SERVICE_PREFIX = "croquet:service:";
 
 let shell;
 
@@ -30,6 +31,7 @@ class Shell {
         console.log("shell: starting");
         this.frames = new Map(); // portalId => frame
         this.portalData = new Map(); // portalId => portalData
+        this.serviceIFrames = new Map(); // serviceName => spec
         // ensure that we have a session and password
         App.autoSession();
         App.autoPassword();
@@ -58,6 +60,15 @@ class Shell {
                     }
                 }
                 console.warn(`shell: ignoring ${cmd} from removed frame`);
+            } else if (e.data?.message?.startsWith?.(SERVICE_PREFIX)) {
+                const cmd = e.data.message.substring(SERVICE_PREFIX.length);
+                for (const [serviceName, spec] of this.serviceIFrames) {
+                    if (e.source === spec.frame.contentWindow) {
+                        this.receiveFromService(serviceName, spec.frame, cmd, e.data);
+                        return;
+                    }
+                }
+                console.warn(`shell: ignoring ${cmd} from removed service`);
             }
         });
 
@@ -315,8 +326,34 @@ class Shell {
                     console.warn("shell: ignoring enter-world from non-primary portal-" + fromPortalId);
                 }
                 return;
+            case "ensure-service":
+                if (!this.serviceIFrames.get(data.serviceName)) {
+                    this.addServiceIFrame(data.serviceName);
+                }
+                return;
+            case "send-to-service": {
+                if (this.serviceIFrames.get(data.serviceName)) {
+                    this.sendToServiceIFrame(data.serviceName, data.command, data.data);
+                } else {
+                    console.warn(`shell: ignoring send-to-service for unknown ${data.serviceName}`);
+                }
+                return;
+            }
             default:
                 console.warn(`shell: received unknown command "${cmd}" from portal-${fromPortalId}`, data);
+        }
+    }
+
+    receiveFromService(serviceName, _fromFrame, cmd, data) {
+        console.log(`shell: received from ${serviceName}: ${cmd} ${JSON.stringify(data)}`);
+        const frameSpec = this.serviceIFrames.get(serviceName);
+        switch (cmd) {
+            case "service-ready":
+                if (frameSpec) frameSpec.resolveReadyPromise();
+                else console.warn(`shell: ignoring unexpected service-ready from ${data.serviceName}`);
+                return;
+            default:
+                console.warn(`shell: received unknown command "${cmd}" from service "${serviceName}"`, data);
         }
     }
 
@@ -449,6 +486,40 @@ class Shell {
             const { dx, dy } = this.activeMMotion;
             this.sendToPortal(this.primaryFrame.portalId, "motion-start", { dx, dy });
         }
+    }
+
+    addServiceIFrame(serviceName) {
+        const serviceInitializers = {
+            AgoraChat: frame => {
+                // const chatURL = `https://croquet.io/dev/video-chatv4/?q=${sessionName}&c=${sessionName}&mic=on&video=unavailable#pw=${pw}`;
+                const chatURL = `https://qael.ngrok.io/video-chat/audioOnly.html?q=dummy&c=dummy&shelldriven&mic=on`;
+                frame.src = chatURL;
+                frame.style.cssText = "position: absolute; width: 400px; height: 200px; z-index: 100;"
+            }
+        };
+        const init = serviceInitializers[serviceName];
+        if (init) {
+            console.log(`shell: adding service iframe for ${serviceName}`);
+            const frame = document.createElement("iframe");
+            document.body.appendChild(frame);
+            const spec = { frame };
+            spec.readyPromise = new Promise(resolve => spec.resolveReadyPromise = resolve);
+            this.serviceIFrames.set(serviceName, spec);
+            init(frame);
+        }
+    }
+
+    sendToServiceIFrame(serviceName, command, data) {
+// console.log(`sendToServiceIFrame`, serviceName, command, data);
+        const serviceSpec = this.serviceIFrames.get(serviceName);
+        serviceSpec.readyPromise.then(() => {
+            const msg = {
+                message: `${SERVICE_PREFIX}${command}`,
+                data: data || {}
+            };
+            console.log(`shell: to service ${serviceName}: ${JSON.stringify(msg)}`);
+            serviceSpec.frame.contentWindow?.postMessage(msg, "*");
+        });
     }
 
     // mouse motion via joystick element

@@ -656,6 +656,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.listen("leaveToWorld", this.leaveToWorld);
         this.showNumbers();
 
+        this.subscribe("shellServices", "ensure-service", this.ensureShellService);
+        this.subscribe("shellServices", "send-to-service", this.sendToShellService);
+
         //this.listenOnce("forceScaleSet", this.onScale);
         this.listen("forceOnPosition", this.onPosition);
 
@@ -664,6 +667,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
+    }
+
+    ensureShellService(serviceName) {
+        console.log(`requesting shell service ${serviceName}`);
+        sendToShell("ensure-service", { serviceName });
+    }
+
+    sendToShellService({ serviceName, command, data }) {
+        console.log(`sending to shell service ${serviceName}`, command, data);
+        sendToShell("send-to-service", { serviceName, command, data });
     }
 
     get presenting() {

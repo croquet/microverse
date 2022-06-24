@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.SystemBehaviorDirectory = "behaviors/croquet";
     Constants.SystemBehaviorModules = [
-        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "pdfview.js"
+        "menu.js", "elected.js", "propertySheet.js", "stickyNote.js", "rapier.js", "avatarEvents.js", "pdfview.js", "agoraChatRequester.js"
     ];
 
     Constants.UserBehaviorDirectory = "behaviors/default";
@@ -241,6 +241,20 @@ width: 1.8,
                 pdfLocation: "3i2bjIBqONmUqz8XGj0oguUVu-wJleyHEiMp8RBLCX2sAR0dGRpTRkYPAAUMGkccGkcKGwYYHAwdRwAGRhxGLg0_CxAFIBooAjgKKzENWi4RCB8QHjwiPjAwW0YABkcKGwYYHAwdRwQAChsGHwwbGgxGWjFcGQxRBQY8IA4-UBkaLwMTHBsEIA1cEVsCGTY2LCgKIBlROw8tNg8-XUYNCB0IRhAeHRoqCw8EBjguAxMiBQQxBDw7Xl8AKiddMVkdIB02Nh4zIRskGyomXgI",
                 shadow: true,
                 singleSided: true,
+                type: "2d",
+            }
+        },
+
+        {
+            card: {
+                translation: [8, 0.4, 0.25],
+                scale: [4, 4, 4],
+                rotation: [0, -Math.PI / 2, 0],
+                behaviorModules: ["AgoraChatRequester"],
+                color: 8947848,
+                depth: 0.05,
+                frameColor: 16777215,
+                fullBright: true,
                 type: "2d",
             }
         },
