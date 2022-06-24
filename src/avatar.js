@@ -40,14 +40,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         super.init(options);
         this._playerId = playerId;
 
-        let layers = options.layers;
-        if (!layers) {
-            layers = ["avatar"];
-        } else if (!layers.includes("avatar")) {
-            layers = [...layers, "avatar"];
-        }
+        this._layers = options.layers;
+        // make sure layers has avatar the user defined layers are given in Avatarnames
+        this.addLayer("avatar");
 
-        this._layers = layers;
         this.lookPitch = 0;
         this.lookYaw = 0;
         this.lookOffset = v3_zero();
@@ -74,12 +70,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     get pawn() { return AvatarPawnFactory; }
-    get lookNormal() { return v3_rotate([0,0,-1], this.rotation); }
-    get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; } // minimum collison radius for avatar
-    get maxFall(){ return this._maxFall || MAX_FALL; } // max fall before we goHome()
+    get lookNormal() { return v3_rotate([0, 0, -1], this.rotation); }
+
+    // used by the BVH based walking logic. customizable when the avatar is not a human size.
+    get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
     get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
+    // The user leaves the "guided tour".
     leavePresentation() {
         if (!this.follow) {return;}
         let manager = this.service("PlayerManager");
@@ -232,6 +230,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (t < 1) this.future(50).goToStep(delta, t + delta);
     }
 
+    // A following avatar updates its pose based on leader's pose, and updates its pawn
     tick(_delta) {
         if (this.follow) {
             let followMe = this.service("PlayerManager").players.get(this.follow);
@@ -248,10 +247,9 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!this.doomed) this.future(this._tickStep).tick(this._tickStep);
     }
 
+    // compute the position in front of the avatar
+    // optOffset is perpendicular (on the same xz plane) to the lookNormal
     dropPose(distance, optOffset) {
-        // compute the position in front of the avatar
-        // optOffset is perpendicular (on the same xz plane) to the lookNormal
-
         let n = this.lookNormal;
         let t = this.translation;
         let r = this.rotation;
@@ -267,10 +265,9 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         return {translation:p, rotation:r};
     }
 
+    // invoked in response to a file drop.
     fileUploaded(data) {
         let {dataId, fileName, type, translation, rotation} = data;
-        let appManager = this.service("MicroverseAppManager");
-        let CA = appManager.get("CardActor");
 
         let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" || type === "pdf" ? "2d" : "3d");
 
@@ -312,7 +309,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         }
 
         if (type !== "exr") {
-            CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+            this.createCard(options);
         } else {
             let light = [...this.service("ActorManager").actors.values()].find(o => o._cardData.type === "lighting");
             if (light) {
@@ -350,9 +347,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     createStickyNote(translation, rotation, text) {
-        let appManager = this.service("MicroverseAppManager");
-        let CA = appManager.get("CardActor");
-
         let runs = [];
         if (!text) {
             text = "";
@@ -375,14 +369,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             textScale: 0.002
         };
 
-        CA.load([{card: options}], this.wellKnownModel("ModelRoot"), "1")[0];
+        this.createCard(options);
         this.publish(this.sessionId, "triggerPersist");
     }
 
     createPortal(translation, rotation, portalURL) {
-        let appManager = this.service("MicroverseAppManager");
-        let CA = appManager.get("CardActor");
-
         // sigh - all portals are "backwards"
         // or maybe *all* models are backwards and we need to fix dropPose and avatar models?
         rotation = q_multiply(Q_ROTATION_180, rotation); // flip by 180 degrees
@@ -404,7 +395,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             sparkle: false,
         };
 
-        CA.load([{card}], this.wellKnownModel("ModelRoot"), "1");
+        this.createCard(card);
         this.publish(this.sessionId, "triggerPersist");
     }
 }
@@ -816,13 +807,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (this.lookOffset) {
             // This test above is relevant only at the start up.
             // This is called from ThreeCamera's constructor but
-            // the look* values are not intialized yet.
+            // all look* properties are not intialized yet.
             if (!this.isPrimary && this.portalLookExternal) return this.portalLook;
             else return this.walkLook;
         } else return this.global;
     }
 
-    // the camera when walking: based on avatar but also 3rd person offset
+    // the camera when walking: based on avatar with 3rd person lookOffset
     get walkLook() {
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
         const m0 = m4_translation(this.lookOffset);
@@ -950,15 +941,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     update(time, delta) {
-        // console.log("position", this.translation);
         if (!this.actor.follow) {
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
             this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
             if (this.actor.inWorld) {
+                // get the potential new pose from velocity and spin.
+                // the v and q variable is passed around to compute a new position.
+                // unless positionTo() is called the avatar state (should) stays the same.
                 let vq = this.updatePose(delta);
                 if (this.collidePortal(vq)) {return;}
                 if (!this.checkFloor(vq)) {
+                    // if the new position leads to a position where there is no walkable floor below
+                    // it tries to move the avatar the opposite side of the previous good position.
                     vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
                 } else {
                     this.lastCollideTranslation = vq.v;
@@ -974,6 +969,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.refreshCameraTransform();
             }
         } else {
+            // if it is following the view is remote controlled
+            // so just call the PM_Smoothed version of update()
             this.tug = 0.06;
             super.update(time, delta);
         }
@@ -1036,6 +1033,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     checkFloor(vq) {
+        // cast a ray to negative y direction and see if there is a walk layer object
         let walkLayer = this.service("ThreeRenderManager").threeLayer("walk");
         let collideList = walkLayer.filter(obj => obj.collider);
 
@@ -1061,11 +1059,47 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // https://github.com/gkjohnson/three-mesh-bvh
         // in particular, the characterMovement.js example
 
+        // The segment is a short vertical line at the center of the avatar body.
+        // From each end, a semi-sphere is added and make the cBox emcompasses the "capsule" shape.
+        // It makes sure tha the bottom of the bottom semi-sphere "touches" the floor.
+
+        // segment and cBox are transformed into the colliders frame (there may be a bug)
+        // the shapecast method first enumerates the triangles that intersects cBox.
+
+        // among those triangles, we compute the distance to the segment and checks if the distance
+        // is less than radius. That is there is no explicit capsule like geometry, but the distance
+        // check gives you that if a triangle interesects with the capsule.
+
+        // We collect all intersecting triangles. The basic idea is that we move the segment away
+        // from intersecting triangles so that end result has no intersection with the gometry.
+        // IOW, we nudge the segment a bit by bit based on the list of triangles.
+
+        // Some of those triangles would be in the direction of
+        // the xz-plane from the bottom end point of the segment and some of those triangles are
+        // in the direction of negative y direction. A problem is that we need to order nudges.
+        // If the new position is on a part of stair-like geometry, if we first nudge the segment
+        // away from a trinangle on the xz-plane, the avatar loses the toe-hold onto the triangle
+        // that was under it. So we sort the triangles so that the bottom ones are tested first,
+        // make sure that stairs pushes up the avatar first and then checks if it still intersects
+        // with the triangle more closer to the horizontal plane.
+
+        // The above is done to save a triangle in the maybeUp variable and unshift it into directions.
+
+        // When all nudging is done, there should not be an intersecting triangle.
+
+        // if there is no walkable geometry in the negative y direction (checkFloor()),
+        // it however reverts back to the opposite side of the last safe position.
+
+        // If it determined that the position change is mostly only horizontal,
+        // it deems that the avatar is on a solid floor and keep it from trying to fall all the time.
+
+        // This method returns a new pose (v for position and q for rotation) of the avatar.
+
         let capsulePoint = new THREE.Vector3();
         let triPoint = new THREE.Vector3();
 
         const radius = this.actor.collisionRadius;
-        const leg = EYE_HEIGHT / 2; // all fudge factors at this moment
+        const leg = EYE_HEIGHT / 2; // all are fudge factors at this moment
 
         let positionChanged = false;
 
@@ -1230,7 +1264,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (this.isFalling) {
             v = [v[0], v[1] - this.actor.fallDistance, v[2]];
             this.isFalling = false;
-            if (v[1] < this.actor.maxFall) {
+            if (v[1] < MAX_FALL) {
                 this.goHome();
                 return {v: v3_zero(), q: q_identity()};
             }
@@ -1246,6 +1280,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     keyDown(e) {
+        // This is currently invoked as the "last responder", namely only if no card handled it.
+        // by writing a new avatarEvents.js that exports a different AvatarEventHandler behavior module
+        // you can override the avatars behavior.
         let w = this.wasdVelocity;
         let nw;
         switch(e.key) {
@@ -1313,6 +1350,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     keyUp(e) {
+        // This is currently invoked as the "last responder", namely only if no card handled it.
+        // by writing a new avatarEvents.js that exports a different AvatarEventHandler behavior module
+        // you can override the avatars behavior.
         switch(e.key) {
             case 'w': case 'W': // forward
             case 'a': case 'A': // left strafe
@@ -1578,11 +1618,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             ind += 2880;
         }
 
-        let pose;
-
-        if (inFront) {
-            pose = this.dropPose(6);
-        }
+        let pose = inFront ? this.dropPose(6) : null;
         this.publish(model.id, "loadDone", {asScene, key, pose});
     }
 }

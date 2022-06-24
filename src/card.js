@@ -169,8 +169,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     addLayer(newLayerName) {
-        if (this._layers.includes(newLayerName)) {return;}
-        this.set({layers: [...this._layers, newLayerName]});
+        if (this._layers && this._layers.includes(newLayerName)) {return;}
+        this.set({layers: [...(this._layers || []), newLayerName]});
     }
 
     removeLayer(layerName) {
