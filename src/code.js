@@ -97,7 +97,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 
     futureWithBehavior(time, moduleName, behaviorName) {
-        let superFuture = (sel, args) => super.future(time, sel, args);
+        let superFuture = (sel, args) => super.future(time, sel, ...args);
         let behaviorManager = this.behaviorManager;
         let basicCall = this.call;
 

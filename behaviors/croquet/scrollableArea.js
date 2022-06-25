@@ -1,7 +1,7 @@
 class ScrollAreaActor {
     setup() {
         this.noSave = true;
-        if (this.scrollTop === undefined) this.scrollTop = 0; // [0..1]
+        console.log("setup.scrollTop", this.scrollTop);
         this.subscribe(this.id, "scrollTop", "setScrollTop");
     }
 
@@ -23,7 +23,8 @@ class ScrollAreaActor {
         }
         this.target = card;
         this.say("targetSet");
-        this.future(1).setScrollTop(this.scrollTop);
+        if (this.scrollTop === undefined) this.scrollTop = 0; // [0..1]
+        this.future(1).setScrollTop(this.scrollTop, 1, 2, 3);
     }
 
     setScrollTop(scrollTop) {
