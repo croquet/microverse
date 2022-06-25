@@ -58,7 +58,7 @@ export function init(Constants) {
         {
             card: {
                 name: "image card",
-                translation: [12, 0.6, -10],
+                translation: [12, 0.6, 10.77],
                 rotation: [0, -Math.PI / 2, 0],
                 scale: [4, 4, 4],
                 type: "2d",
@@ -124,7 +124,7 @@ export function init(Constants) {
         {
             card: {
                 name:"bouncinglogo",
-                translation: [12, 0.6, 11],
+                translation: [12, 0.70, -10.24],
                 rotation: [0, -Math.PI / 2, 0],
                 behaviorModules: ["BouncingBall"],
                 scale: [3, 3, 3],
