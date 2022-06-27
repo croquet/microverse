@@ -421,10 +421,10 @@ export class Loader {
         }).then((object) => {
             if (object.animations.length > 0) {
                 const mixer = new THREE.AnimationMixer(object);
-                mixer.clipAction(object.animations[0]).play();
                 object._croquetAnimation = {
                     lastTime: 0,
-                    mixer
+                    mixer,
+                    animations: object.animations
                 };
             }
             return object;
@@ -463,10 +463,10 @@ export class Loader {
                 let {scene, animations} = loaded;
                 if (animations.length > 0) {
                     const mixer = new THREE.AnimationMixer(scene);
-                    mixer.clipAction(animations[0]).play();
                     scene._croquetAnimation = {
                         lastTime: 0,
-                        mixer
+                        mixer,
+                        animations
                     };
                 }
                 return scene;

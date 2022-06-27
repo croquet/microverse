@@ -51,6 +51,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.listen("setCardData", this.setCardData);
 
         this.listen("dataScaleComputed", this.dataScaleComputed);
+        this.listen("setAnimationIndex", this.setAnimationIndex);
     }
 
     separateOptions(options) {
@@ -188,7 +189,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         if (type === "text") {
             this.subscribe(this.id, "changed", "textChanged");
         } else if (type === "3d") {
-            this.creationTime = this.now();
         } else if (type === "2d" || type === "2D" ) {
         } else if (type === "lighting") {
         } else if (type === "object") {
@@ -304,6 +304,13 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             }
         });
         this.updateBehaviors({behaviorModules});
+    }
+
+    setAnimationIndex(animationIndex) {
+        if (this._cardData.animationClipIndex !== undefined) {return;}
+        this._cardData.animationClipIndex = animationIndex;
+        if (this._cardData.animationStartTime === undefined) this._cardData.animationStartTime = this.now();
+        this.say("animationStateChanged");
     }
 
     intrinsicProperties() {return intrinsicProperties;}
@@ -431,6 +438,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.listen("layersSet", this.updateLayers);
 
         this.listen("saveCard", this.saveCard);
+        this.listen("animationStateChanged", this.tryStartAnimation);
+        this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
         this.constructCard();
     }
 
@@ -602,13 +611,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         }).then((obj) => {
             addShadows(obj, shadow, singleSided, THREE);
             this.setupObj(obj, options);
+            // if it is loading an old session, the animation field may not be there.
+            this.setupAnimation(obj);
             obj.updateMatrixWorld(true);
-            if (obj._croquetAnimation) {
-                const spec = obj._croquetAnimation;
-                spec.startTime = this.actor.creationTime;
-                this.animationSpec = spec;
-                this.future(500).runAnimation();
-            }
 
             if (options.placeholder) {
                 console.log("delete collider for placeholder");
@@ -624,14 +629,12 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             // or collider incorporates shape transform
             this.shape.add(obj);
 
-            if (name) {
-                obj.name = name;
-            }
+            if (name) {obj.name = name;}
 
             if (Array.isArray(obj.material)) {
                 obj.material.dispose = arrayDispose;
             }
-
+            this.publish(this.id, "3dModelLoaded");
         });
     }
 
@@ -809,38 +812,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         */
     }
 
-    /*
-    constructLighting(options) {
-        console.log( "constructLighting", options.dataLocation );
-        let assetManager = this.service("AssetManager").assetManager;
-        if (options.dataLocation) {
-            let dataType = options.dataLocation.split('.').pop().toLowerCase();
-            options.dataType = dataType;
-            return this.getBuffer(options.dataLocation).then((buffer) => {
-                return assetManager.load(buffer, dataType, THREE, options).then((texture) => {
-                    let TRM = this.service("ThreeRenderManager");
-                    let renderer = TRM.renderer;
-                    let scene = TRM.scene;
-                    let pmremGenerator = new THREE.PMREMGenerator(renderer);
-                    pmremGenerator.compileEquirectangularShader();
-
-                    let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
-                    let exrBackground = exrCubeRenderTarget.texture;
-
-
-                    let bg = scene.background;
-                    let e = scene.environment;
-                    scene.background = exrBackground;
-                    scene.environment = exrBackground;
-                    if(e !== bg) if(bg) bg.dispose();
-                    if(e) e.dispose();
-                    texture.dispose();
-                });
-            });
-        }
-    }
-    */
-
     setupObj(obj, options) {
         if (options.dataScale) {
             obj.scale.set(...options.dataScale);
@@ -862,8 +833,17 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         }
     }
 
-    objectCreated() {
+    setupAnimation(obj) {
+        if (!obj._croquetAnimation) {return;}
+
+        let spec = obj._croquetAnimation;
+        this.animationSpec = spec;
+        if (!this.actor.animationSpec && spec.animations.length > 0) {
+            this.say("setAnimationIndex", 0); // use the first animation clip as default
+        }
     }
+
+    objectCreated() {}
 
     roundedCornerGeometry(width, height, depth, cornerRadius) {
         let x = height / 2;
@@ -900,7 +880,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 else if (w > h) wScale = w / h;
                 for (let i = 0; i < uvArray.length; i += 2) {
                     uvArray[i  ] = uvArray[i  ] * wScale + 0.5;
-                    uvArray[i+1] = uvArray[i+1] * hScale + 0.5;
+                    uvArray[i+1] = uvArray[i+1] * hScale + 0.5; // eslint-disable-line
                 }
             }
         };
@@ -1113,17 +1093,50 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.set({rotation: q_multiply(this.baseRotation, qAngle)});
     }
 
-    runAnimation() {
-        const spec = this.animationSpec;
-        if (!spec) return;
+    tryStartAnimation() {
+        if (this.actor._cardData.animationClipIndex !== undefined && !this.animationRunning) {
+            this.animationRunning = true;
+            this.runAnimation();
+        }
+    }
 
-        const { mixer, startTime, lastTime } = spec;
-        const now = this.now();
-        const newTime = (now - startTime) / 1000, delta = newTime - lastTime;
+    runAnimation() {
+        if (!this.animationRunning) {return;}
+        let spec = this.animationSpec;
+        if (!spec) return;
+        this.future(50).runAnimation();
+
+        let animationClipIndex = this.actor._cardData.animationClipIndex;
+        if (animationClipIndex === undefined) {return;}
+        if (animationClipIndex < 0) {return;}
+
+        // if the animationClipIndex has been changed,
+        // the new clip is started and the time is adjusted according to the model side
+        // animation startTime.
+
+        // logicalStartTime is on the logical time.
+        // if it is the same as current this.actor._cardData.animationStartTime,
+        // the ordinally flow of time is not disturbed so it goes business as usual.
+        // if it is different from animationStartTime, the animation will use it as
+        // the new "startTime" basis.
+
+        let now = this.now();
+        let modelStartTime = this.actor._cardData.animationStartTime;
+        let { mixer, lastTime, lastAnimationClipIndex } = spec;
+
+        if (animationClipIndex !== lastAnimationClipIndex) {
+            mixer.stopAllAction();
+            let clip = spec.animations[animationClipIndex];
+            if (!clip) {return;}
+            mixer.clipAction(clip).play();
+            spec.lastAnimationClipIndex = animationClipIndex;
+        }
+        let newTime = (now - modelStartTime) / 1000;
+        let delta = newTime - lastTime;
+
         mixer.update(delta);
         spec.lastTime = newTime;
 
-        this.future(1000 / 20).runAnimation();
     }
 
     selectEdit() {
