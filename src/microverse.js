@@ -454,8 +454,10 @@ class MyModelRoot extends ModelRoot {
                 let result = this.load({array: json.cards, nameMap: asScene ? null : nameMap}, version);
                 if (pose) {
                     result.forEach((card) => {
-                        card._translation = pose.translation;
-                        card._rotation = pose.rotation;
+                        if (!card.parent) {
+                            card._translation = pose.translation;
+                            card._rotation = pose.rotation;
+                        }
                     });
                 }
             }
