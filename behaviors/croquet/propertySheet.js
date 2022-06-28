@@ -130,6 +130,7 @@ class PropertySheetActor {
             backgroundColor: 0xcccccc,
             fullBright: true,
             parent: this,
+            noSave: true,
         });
 
         this.behaviorMenu = this.createCard({
