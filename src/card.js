@@ -29,15 +29,12 @@ export const intrinsicProperties = ["translation", "scale", "rotation", "layers"
 //------------------------------------------------------------------------------------------
 
 export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM_Code) {
-    // this should be in AM_SPATIAL but that would require changing Worldcore mixins
     static okayToIgnore() { return [ "$local", "$global", "$rigidBody" ]; }
 
     init(options) {
         let {cardOptions, cardData} = this.separateOptions(options);
 
-        if (!cardOptions.layers) {
-            cardOptions.layers = ["pointer"];
-        }
+        if (!cardOptions.layers) {cardOptions.layers = ["pointer"];}
 
         // coming from different mixins, but still used by listen.
         this.scriptListeners = new Map();
@@ -55,6 +52,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     separateOptions(options) {
+        // options are either intrinsic or non-intrinsic. We store non-intrinsic values in _cardData.
         let cardOptions = {};
         let cardData = {};
 
@@ -69,6 +67,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     updateOptions(options) {
+        // fully override the _cardData with given variable (keys that are not in options will be deleted.
         let {cardOptions, cardData} = this.separateOptions(options);
         this.updateBehaviors(options);
         this.set({...cardOptions});
@@ -99,6 +98,11 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     updateBehaviors(options) {
+        // we need to call teardown and setup for behaviors removed or added;
+        // so we need to keep track of changes from the previous state.
+        // also, some modules depends on the system module, we need to keep the order, even when
+        // a system module is added later.
+
         if (!options.behaviorModules) {return;}
         let behaviorManager = this.behaviorManager;
 
@@ -182,20 +186,23 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     setCardData(options) {
         let newOptions = {...this._cardData, ...options};
         this.set({cardData: newOptions});
+
+        // this line below should be good, except that right now it fails some objects.
+        // this.say("updateShape", options);
     }
 
     createShape(options) {
         let type = options.type;
         if (type === "text") {
             this.subscribe(this.id, "changed", "textChanged");
-        } else if (type === "3d") {
-        } else if (type === "2d" || type === "2D" ) {
-        } else if (type === "lighting") {
-        } else if (type === "object") {
         } else if (type === "code") {
             this.subscribe(this.id, "changed", "textChanged");
             // this is a weird inter mixins dependency but not sure how to write it
             this.subscribe(this.id, "text", "codeAccepted");
+        } else if (type === "3d" || type === "3D") {
+        } else if (type === "2d" || type === "2D" ) {
+        } else if (type === "lighting") {
+        } else if (type === "object") {
         } else {
             console.log("unknown type for a card: ", options.type);
         }
@@ -212,6 +219,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     dataScaleComputed(s) {
+        // when a 3D model is loaded, it automatically computes dataScale on the view side.
+        // the value is transmitted to the model. (potentially multiple times).
         if (s === undefined) {
             delete this._cardData.dataScale;
         } else {
@@ -266,6 +275,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     showControls(toWhom) {
+        // it creates a property sheet, when a module called "PropertySheet" is loaded.
         let avatar = this.service("ActorManager").actors.get(toWhom.avatar);
         let distance = (toWhom.distance || 6);
         distance = Math.min(distance * 0.7, 4);
@@ -293,6 +303,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     setBehaviors(selection) {
+        // this is called when behavior list in the property sheet is changed.
+        // perhaps moving this to propertySheet.js is the right thing to do.
         let behaviorModules = [];
 
         selection.forEach((obj) => {
@@ -307,6 +319,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     setAnimationIndex(animationIndex) {
+        // called when a view loads a 3D model and detects that it has animation clips.
         if (this._cardData.animationClipIndex !== undefined) {return;}
         this._cardData.animationClipIndex = animationIndex;
         if (this._cardData.animationStartTime === undefined) this._cardData.animationStartTime = this.now();
