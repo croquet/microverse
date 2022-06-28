@@ -779,23 +779,38 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let geometries = [];
         this.ensureColliderObject();
 
-        obj.traverse(c =>{
-            if(c.geometry){
-                let cloned = c.geometry.clone();
-                cloned.applyMatrix4( c.matrixWorld );
-                for( const key in cloned.attributes) {
-                    if (key !== "position") {
-                        cloned.deleteAttribute(key);
+        let mergedGeometry;
+
+        try {
+            obj.traverse(c =>{
+                if(c.geometry){
+                    let cloned = c.geometry.clone();
+                    cloned.applyMatrix4(c.matrixWorld);
+                    for( const key in cloned.attributes) {
+                        if (key !== "position") {
+                            cloned.deleteAttribute(key);
+                        }
+                    }
+                    if (cloned.index) {
+                        // this test may be dubious as some models can legitimately contain
+                        // non-indexed buffered geometry.
+                        geometries.push(cloned);
+                    } else {
+                        console.warn("skipping a geometry in the model that is not indexed");
                     }
                 }
-                geometries.push( cloned );
-            }
-        });
+            });
 
-        let BufferGeometryUtils = window.THREE.BufferGeometryUtils;
-        const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( geometries, false);
-        mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
-        let collider = new THREE.Mesh( mergedGeometry );
+            let BufferGeometryUtils = window.THREE.BufferGeometryUtils;
+            mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( geometries, false);
+            mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
+        } catch (err) {
+            console.error("failed to build the BVH collider for:", obj);
+            console.error(err);
+            return;
+        }
+
+        let collider = new THREE.Mesh(mergedGeometry);
         collider.material.wireframe = true;
         collider.material.opacity = 0.5;
         //collider.material.transparent = true;
