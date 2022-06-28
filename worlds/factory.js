@@ -20,8 +20,8 @@ export function init(Constants) {
                 name:"world model",
                 layers: ["walk"],
                 translation: [-0, -5.234552517024578, -0],
-                dataLocation: "3YZDDF6htWvgRaBg90chq-UXq_HZoZvYaqsil3KMJCH8MS0tKSpjdnY_MDU8KncsKnc6KzYoLDwtdzA2dix2Hj0POyA1ECoYMgg6GwE9ah4hOC8gLgwSDgAAa3YwNnc6KzYoLDwtdzQwOis2LzwrKjx2MjIUaT04ai8tIA8pAAgaHBZsMms2FTEBOC4YHGsVNWkbaG8BLGtvbzUJMnY9OC04dmBpEhdhDQo1CBE3HissGAwyECxrPG83Cy8AHhwQHzABKGEvAT4QDmE-KwA",
-                fileName: "/Factory4.glb",
+                dataLocation: "3aYc3x5t4SYnR8YZ1sJDJbZ3benvkwy8T_h3sZivNV_ACRUVERJbTk4HCA0EEk8UEk8CEw4QFAQVTwgOThROJgU3AxgNKBIgCjACIzkFUiYZABcYFjQqNjg4U04IDk8CEw4QFAQVTwwIAhMOFwQTEgRODiQxEgYtIjsRFhI7GyZTAhc0JSU0AA4pCiYiCQsDCTg7FiMnFzRYFkwCJE4FABUAThYsEQwPVgMrVCIuKkxYKS8DJVQnLRsvAABYJS1SWSVXOVkVBgNQCyU3LzQ",
+                fileName: "/Factory5.glb",
                 dataScale: [1.2, 1.2, 1.2],
                 modelType: "glb",
                 shadow: true,
@@ -403,7 +403,7 @@ export function init(Constants) {
             card: {
                 name: "rearrange",
                 type: "object",
-                translation: [7.490278792379745, 3.0868207143861564, 41.84439119032765],
+                translation: [7.245116172748017, 3.2067974079409365, 42.0089577998846],
                 behaviorModules: ["RearrangeButton"]
             }
         },
