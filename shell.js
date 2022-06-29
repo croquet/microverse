@@ -291,21 +291,21 @@ class Shell {
                 return;
             case "portal-enter":
                 if (fromFrame === this.primaryFrame) {
-                    this.activateFrame(data.portalId, true, data.avatarSpec);
+                    this.activateFrame(data.portalId, true, data.transferData);
                 } else {
                     console.warn("shell: ignoring portal-enter from non-primary portal-" + fromPortalId);
                 }
                 return;
-            case "enter-world":
+            case "world-enter":
                 if (fromFrame === this.primaryFrame) {
                     let targetFrame = this.findFrame(data.portalURL);
                     if (!targetFrame) { // might happen after back/forward navigation
-                        console.log("shell: enter-world creating frame for", data.portalURL);
+                        console.log("shell: world-enter creating frame for", data.portalURL);
                         targetFrame = this.addFrame(fromFrame, data.portalURL);
                     }
-                    this.activateFrame(targetFrame.portalId, true);
+                    this.activateFrame(targetFrame.portalId, true, data.transferData);
                 } else {
-                    console.warn("shell: ignoring enter-world from non-primary portal-" + fromPortalId);
+                    console.warn("shell: ignoring world-enter from non-primary portal-" + fromPortalId);
                 }
                 return;
             default:
@@ -405,7 +405,7 @@ class Shell {
         }, 200);
     }
 
-    activateFrame(toPortalId, pushState=true, avatarSpec=null) {
+    activateFrame(toPortalId, pushState=true, transferData=null) {
         const fromFrame = this.primaryFrame;
         const toFrame = this.frames.get(toPortalId);
         const portalURL = frameToPortalURL(toFrame.src, toPortalId);
@@ -429,8 +429,8 @@ class Shell {
         setTitle(portalURL);
         this.primaryFrame = toFrame;
         this.primaryFrame.focus();
-        console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, avatarSpec);
-        this.sendFrameType(toFrame, avatarSpec);
+        console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, transferData);
+        this.sendFrameType(toFrame, transferData);
         if (!fromFrame.owningFrame) {
             console.log(`shell: removing unowned secondary frame ${fromFrame.portalId}`);
             this.removeFrame(fromFrame);

@@ -156,6 +156,8 @@ class MyPlayerManager extends PlayerManager {
         this.subscribe("playerManager", "leave", this.playerLeftWorld);
     }
 
+    get presenter() { return this.players.get(this.presentationMode); }
+
     createPlayer(playerOptions) {
         // when we have a better user management,
         // options will be compatible with a card spec
@@ -213,22 +215,20 @@ class MyPlayerManager extends PlayerManager {
         return [...this.players.values()].filter((player) => player.inWorld);
     }
 
-    startPresentation(playerId, teleport) {
+    startPresentation(playerId, presenterToken=null) {
         if (this.presentationMode && this.presentationMode !== playerId) {
             return; // somebody is already presenting
         }
 
         this.presentationMode = playerId;
 
-        let { translation, rotation } = this.players.get(playerId);
-
-        this.playersInWorld().forEach((player) => {
+        // if we have a token, we came through a portal and teleport only previous followers to the presenter
+        // otherwise someone started a presentation, and grab everyone who is in the world currently
+        for (const player of this.playersInWorld()) {
+            if (presenterToken && player.presenterToken !== presenterToken) continue;
             this.followers.add(player.playerId);
-            if (teleport) {
-                player.set({ translation, rotation });
-                player.say("forceOnPosition");
-            }
-        });
+        }
+
         this.publish("playerManager", "presentationStarted", playerId);
         this.publish("playerManager", "playerCountChanged");
     }
@@ -246,12 +246,34 @@ class MyPlayerManager extends PlayerManager {
         this.publish("playerManager", "playerCountChanged");
     }
 
+    continuePresenting(presenter, presenterToken) {
+        // a presenter came into this world through a portal carrying a token
+        // we need to make them the presenter
+        // and make all others carrying the same token follow them
+        // it's a bit tricky because the presenter may enter before or after the others
+        console.log(this.sessionId, "continuePresenting", presenter.id, presenterToken);
+        presenter.presenterToken = presenterToken;
+        this.startPresentation(presenter.playerId, presenterToken);
+    }
+
+    continueFollowing(follower, presenterToken) {
+        // a follower came into this world through a portal carrying a token
+        // we need to make them follow the presenter with the same token
+        // it's a bit tricky because the follower may enter before or after the presenter
+        follower.presenterToken = presenterToken;
+        if (this.presentationMode && this.presenter.presenterToken === presenterToken) {
+            console.log(this.sessionId, "continueFollowing", this.presenter.id, presenterToken);
+            this.followers.add(follower.playerId);
+            follower.presentationStarted(this.presentationMode);
+            this.publish("playerManager", "playerCountChanged");
+        } else {
+            // the presenter is not here yet, so we'll wait for them to continuePresenting
+            console.log(this.sessionId, "continueFollowing but presenter not here yet", presenterToken);
+        }
+    }
+
     playerEnteredWorld(player) {
         console.log(this.sessionId, "playerEnteredWorld", player);
-        if (this.presentationMode) {
-            this.followers.add(player.playerId);
-            player.presentationStarted(this.presentationMode, true);
-        }
         this.publish("playerManager", "playerCountChanged");
     }
 
@@ -260,6 +282,7 @@ class MyPlayerManager extends PlayerManager {
         if (player.playerId === this.presentationMode) {
             this.stopPresentation();
         }
+        delete player.presenterToken;
         this.followers.delete(player.playerId);
         this.publish("playerManager", "playerCountChanged");
     }

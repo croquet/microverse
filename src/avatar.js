@@ -57,6 +57,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
         this.listen("followMeToWorld", this.followMeToWorld);
+        this.listen("continuePresenting", this.continuePresenting);
+        this.listen("continueFollowing", this.continueFollowing);
         this.listen("stopPresentation", this.stopPresentation);
         this.listen("inWorldSet", this.inWorldSet);
         this.listen("fileUploaded", "fileUploaded");
@@ -181,43 +183,56 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.goToStep(0.1);
     }
 
-    comeToMe(teleport) {
-        this.service("PlayerManager").startPresentation(this.playerId, teleport);
+    comeToMe() {
+        this.service("PlayerManager").startPresentation(this.playerId);
     }
 
     followMeToWorld(portalURL) {
         const manager = this.service("PlayerManager");
         if (manager.presentationMode === this.playerId) {
+            const presenterToken = Data.hash(this.playerId); // hash the player id to not leak it to next world
             for (const playerId of manager.followers) {
                 if (playerId === this.playerId) continue;
                 const follower = manager.player(playerId);
-                follower.leaveToWorld(portalURL);
+                follower.followToWorld(presenterToken, portalURL);
             }
         }
     }
 
-    leaveToWorld(portalURL) {
-        this.say("leaveToWorld", portalURL);
+    followToWorld(presenterToken, portalURL) {
+        this.say("followToWorld", { presenterToken, portalURL });
     }
 
-    presentationStarted(playerId, teleport) {
+    presentationStarted(playerId) {
         if (this.playerId !== playerId && this.inWorld) {
-            let leader = this.service("PlayerManager").player(playerId);
-            if (teleport) {
-                this._translation = [...leader.translation];
-                this._rotation = [...leader.rotation];
+            let { presenter, presenterToken } = this.service("PlayerManager");
+            if (presenterToken) {
+                if (this.presenterToken !== presenterToken) return;
+                delete this.presenterToken;
+                this._translation = [...presenter.translation];
+                this._rotation = [...presenter.rotation];
                 this.say("forceOnPosition");
             } else {
-                this.goTo(leader.translation, leader.rotation, false);
+                this.goTo(presenter.translation, presenter.rotation, false);
             }
             this.follow = playerId;
             this.fall = false;
-            this._anchor = leader._anchor;
+            this._anchor = presenter._anchor;
         }
     }
 
     presentationStopped() {
         this.follow = null;
+    }
+
+    continuePresenting(presenterToken) {
+        // we came into this world through a portal while presenting
+        this.service("PlayerManager").continuePresenting(this, presenterToken);
+    }
+
+    continueFollowing(presenterToken) {
+        // we came into this world through a portal while following
+        this.service("PlayerManager").continueFollowing(this, presenterToken);
     }
 
     goToStep(delta, t) {
@@ -645,7 +660,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
         this.listen("setLookAngles", this.setLookAngles);
-        this.listen("leaveToWorld", this.leaveToWorld);
+        this.listen("followToWorld", this.followToWorld);
         this.showNumbers();
 
         this.listen("forceOnPosition", this.onPosition);
@@ -862,16 +877,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // log("m", m);
         const translation = m4_getTranslation(m);
         const rotation = m4_getRotation(m);
-        return {
+        const spec = {
             translation,
             rotation,
             lookPitch: this.lookPitch,
             lookYaw: this.lookYaw,
             lookOffset: this.lookOffset,
-            presenting: this.presenting,    // keep presenting
             cardData: this.actor._cardData, // keep avatar appearance
             url: portal.resolvePortalURL(),
         };
+        // keep presenting
+        if (this.presenting) spec.presenting = Data.hash(this.viewId); // hash to not leak the viewId
+        return spec;
     }
 
     frameTypeChanged(isPrimary, spec) {
@@ -883,7 +900,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const actorSpec = {
             inWorld: enteringWorld,
         };
-        if (enteringWorld && spec) {
+        if (enteringWorld && spec?.translation) {
             let { translation, rotation } = spec;
             // transform spec relative to anchor
             const anchor = this.anchorFromURL(spec.url, true);
@@ -921,22 +938,26 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
         this.say("_set", actorSpec);
-        // start presenting in new space too
-        if (enteringWorld && spec?.presenting) {
-            let manager = this.actor.service("PlayerManager");
-            if (!manager.presentationMode) {
-                this.say("comeToMe", true);
+        // start presenting and following in new space too
+        if (enteringWorld) {
+            if (spec?.presenting) {
+                let manager = this.actor.service("PlayerManager");
+                if (!manager.presentationMode) {
+                    this.say("continuePresenting", spec.presenting);
+                }
+            } else if (spec?.following) {
+                this.say("continueFollowing", spec.following);
             }
         }
         this.updatePortalRender();
     }
 
-    leaveToWorld(portalURL) {
+    async followToWorld({ presenterToken: following, portalURL }) {
         if (this.isPrimary) {
-            console.log(`${frameName()} sending enter-world to ${portalURL}`);
-            sendToShell("enter-world", { portalURL });
+            console.log(`${frameName()} sending world-enter to ${portalURL} following: ${following}`);
+            sendToShell("world-enter", { portalURL, transferData: { following, url: portalURL }});
         } else {
-            console.log(`${frameName()} not sending enter-world to ${portalURL}`);
+            console.log(`${frameName()} not sending world-enter to ${portalURL}`);
         }
     }
 
@@ -1239,14 +1260,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 // we also jump between worlds using the browser's "forward/back" buttons
                 console.log(frameName(), "player", this.viewId, "enter portal", portal.portalId);
                 // spec for this avatar in new world
-                const avatarSpec = this.specForPortal(portal);
+                const transferData = this.specForPortal(portal);
                 // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
                 // but it also may delete this frame if is unowned
-                sendToShell("portal-enter", { portalId: portal.portalId, avatarSpec });
+                sendToShell("portal-enter", { portalId: portal.portalId, transferData });
                 // if we were presenting, tell followers to come with us
                 if (this.presenting) {
-                    this.say("followMeToWorld", avatarSpec.url);
-                    // calls leaveToWorld() in followers
+                    this.say("followMeToWorld", transferData.url);
+                    // calls followToWorld() in followers
                     // which will result in frameTypeChanged() on follower's clients
                 }
                 return true;
