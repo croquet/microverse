@@ -515,7 +515,7 @@ class ScriptingBehavior extends Model {
         let cls;
         try {
             const Worldcore = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports};
-            cls = new Function("Worldcore", code)(Worldcore);
+            cls = new Function("Worldcore", "Microverse", code)(Worldcore, Worldcore);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
             try {
