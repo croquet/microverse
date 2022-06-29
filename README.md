@@ -93,7 +93,14 @@ You can add a new behavior file in the watched directory (by default under `beha
 `npm run build-dev` simulated the dev server's output and allows you to see what is generated as files.
 - `npm run file-server` runs a vanilla file server. This is useful to test the files in `dist` directory.
 - `npm run create-version` creates a one line file that contains the commit hash.
-- `npm run build-lib` creates a minimum set of files needed to run a test installation in the directory called `dist`. This directory can be published as an npm package, and in turn, used to create a simple application by runniing `npm init croquet-microverse` in an empty directory.
 - `npm run three-lib` creates a concatenated js file called `/three/bundledThreeLibs.js`. This generated file is included in this repository to help developers get started easily. If you decide to use a newer version of Three.js, or add more libraries, it is recommended to edit `scripts/getThreeLibs.sh` and run it to create a new `bundledThreeLibs.js`.
+
+## 9. Publishing a new version of `@croquet/microverse-library`
+- Update `npm/package.json`, in particular the value for `version`.
+- Run `npm run build-lib`. This creates a minimum set of files needed to run a test installation in the directory called `dist`. This directory can be published as an npm package.
+- Run `npm publish` in the `dist` directory.
+- Edit the line 75 of `index.js` of the `create-croquet-microverse` git repository so that it refers to the intended version of `@croquet/microverse-library`. If other dependencies need new versions, update them as well.
+- Edit the version of `package.json` of `create-croquet-microverse` repository so that a new version can be published to npm.
+- Run `npm publish` in the croquet-create-microverse.
 
 **Copyright (c) 2022 Croquet Corporation**
