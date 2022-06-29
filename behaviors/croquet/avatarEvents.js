@@ -31,16 +31,16 @@ class AvatarPawn {
     }
 
     startMotion(dx, dy) {
-        this.spin = Worldcore.q_identity();
-        this.velocity = Worldcore.v3_zero();
+        this.spin = Microverse.q_identity();
+        this.velocity = Microverse.v3_zero();
         this.say("startFalling");
         if (dx || dy) this.updateMotion(dx, dy);
     }
 
     endMotion(_dx, _dy) {
         this.activeMMotion = false;
-        this.spin = Worldcore.q_identity();
-        this.velocity = Worldcore.v3_zero();
+        this.spin = Microverse.q_identity();
+        this.velocity = Microverse.v3_zero();
     }
 
     updateMotion(dx, dy) {
@@ -52,7 +52,7 @@ class AvatarPawn {
         v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
         const yaw = dx * (this.isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
-        this.spin = Worldcore.q_euler(0, yaw ,0);
+        this.spin = Microverse.q_euler(0, yaw ,0);
         this.velocity = [0, 0, v];
         this.maybeLeavePresentation();
     }
@@ -98,4 +98,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

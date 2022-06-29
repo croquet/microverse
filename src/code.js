@@ -543,8 +543,8 @@ class ScriptingBehavior extends Model {
         let code = `return (${source})`;
         let cls;
         try {
-            const Worldcore = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports};
-            cls = new Function("Worldcore", "Microverse", code)(Worldcore, Worldcore);
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports};
+            cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
             try {

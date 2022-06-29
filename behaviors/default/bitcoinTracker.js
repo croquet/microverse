@@ -255,7 +255,7 @@ class BarGraphPawn {
         this.bars = [];
         let len = this.actor._cardData.length;
         let size = 1 / len;
-        let THREE = Worldcore.THREE;
+        let THREE = Microverse.THREE;
         let color = this.actor._cardData.color;
         this.base = new THREE.Mesh(
             new THREE.BoxGeometry(1, size / 4, size, 2, 4, 2 ),
@@ -275,7 +275,7 @@ class BarGraphPawn {
     }
 
     setColor(color) {
-        let c = new Worldcore.THREE.Color(color);
+        let c = new Microverse.THREE.Color(color);
         this.base.material.color = c;
         this.base.material.emissive = c;
     }
@@ -317,4 +317,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

@@ -68,7 +68,7 @@ class GarageActor {
             this.moving = false;
             this.nextDirection = "up";
         }
-        this.set({translation: Worldcore.v3_lerp(this.pointA, this.pointB, this._cardData.ratio)});
+        this.set({translation: Microverse.v3_lerp(this.pointA, this.pointB, this._cardData.ratio)});
         this.say("updateDisplay");
     }
 }
@@ -83,7 +83,7 @@ class GaragePawn {
 
         this.obj = this.shape.children[0];
 
-        let THREE = Worldcore.THREE;
+        let THREE = Microverse.THREE;
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
             new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
@@ -123,7 +123,7 @@ class GaragePawn {
         let planes = [];
         if (Number.isNaN(this.shape.matrixWorld.elements[0])) return [];
         for (let i = 0; i < 4; i++) {
-            planes[i] = new Worldcore.THREE.Plane();
+            planes[i] = new Microverse.THREE.Plane();
             planes[i].copy(this.clippingPlanes[i]);
             planes[i].constant = ary[i];
             planes[i].applyMatrix4(this.shape.matrixWorld);
@@ -142,4 +142,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

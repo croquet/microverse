@@ -8,9 +8,9 @@ class LightPawn {
 
         this.removeLights();
 
-        this.setupCSM(scene, camera, Worldcore.THREE);
+        this.setupCSM(scene, camera, Microverse.THREE);
 
-        const ambient = new Worldcore.THREE.AmbientLight( 0xffffff, .7 );
+        const ambient = new Microverse.THREE.AmbientLight( 0xffffff, .7 );
         group.add(ambient);
         this.lights.push(ambient);
 
@@ -50,9 +50,9 @@ class LightPawn {
         let scene = TRM.scene;
         if (options.dataLocation)
             return this.getBuffer(options.dataLocation).then((buffer) => {
-                return assetManager.load(buffer, dataType, Worldcore.THREE, options).then((texture) => {
+                return assetManager.load(buffer, dataType, Microverse.THREE, options).then((texture) => {
 
-                    let pmremGenerator = new Worldcore.THREE.PMREMGenerator(renderer);
+                    let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
                     pmremGenerator.compileEquirectangularShader();
 
                     let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
@@ -108,4 +108,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

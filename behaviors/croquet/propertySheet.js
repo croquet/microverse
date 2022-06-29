@@ -258,7 +258,7 @@ class PropertySheetActor {
                 }
                 if (key === "rotation" || key === "dataRotation") {
                     if (Array.isArray(value) && value.length === 3) {
-                        value = Worldcore.q_euler(...value);
+                        value = Microverse.q_euler(...value);
                     }
                 }
                 spec[key] = value;
@@ -291,7 +291,7 @@ class PropertySheetPawn {
         let frameGeometry = this.roundedCornerGeometry(extent.x, extent.y, 0.04, 0.02);
         let frameMaterial = this.makePlaneMaterial(0.02, 0xcccccc, 0xcccccc, false);
 
-        this.frame = new Worldcore.THREE.Mesh(frameGeometry, frameMaterial);
+        this.frame = new Microverse.THREE.Mesh(frameGeometry, frameMaterial);
         this.shape.add(this.frame);
 
         let backGeometry = this.roundedCornerGeometry(extent.x - 0.02, extent.y - 0.02, 0.0001, 0.02);
@@ -299,7 +299,7 @@ class PropertySheetPawn {
         let frameColor = this.actor._cardData.frameColor || 0x525252;
         let backMaterial = this.makePlaneMaterial(0.02, color, frameColor, true);
 
-        this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
+        this.back = new Microverse.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.04);
         this.shape.add(this.back);
 
@@ -309,7 +309,7 @@ class PropertySheetPawn {
     pointerMove(evt) {
         if (!evt.xyz) {return;}
         if (!this.downInfo) {return;}
-        let vec = new Worldcore.THREE.Vector3(...evt.xyz);
+        let vec = new Microverse.THREE.Vector3(...evt.xyz);
         let pInv = this.renderObject.matrixWorld.clone().invert();
         vec = vec.applyMatrix4(pInv);
 
@@ -380,7 +380,7 @@ class PropertySheetWindowPawn {
 
         let frameGeometry = this.roundedCornerGeometry(extent.x, extent.y, 0.0001, 0.02);
         let frameMaterial = this.makePlaneMaterial(0.02, 0x000000, 0x000000, false);
-        this.frame = new Worldcore.THREE.Mesh(frameGeometry, frameMaterial);
+        this.frame = new Microverse.THREE.Mesh(frameGeometry, frameMaterial);
         this.frame.position.set(0, 0, 0.021);
         this.shape.add(this.frame);
 
@@ -388,7 +388,7 @@ class PropertySheetWindowPawn {
         let color = this.actor._cardData.color || 0xcccccc;
         let frameColor = this.actor._cardData.frameColor || 0xcccccc;
         let backMaterial = this.makePlaneMaterial(0.02, color, frameColor, true);
-        this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
+        this.back = new Microverse.THREE.Mesh(backGeometry, backMaterial);
         this.back.position.set(0, 0, 0.022);
         this.shape.add(this.back);
 
@@ -403,7 +403,7 @@ class PropertySheetWindowPawn {
 
     pointerDown(evt) {
         if (!evt.xyz) {return;}
-        let vec = new Worldcore.THREE.Vector3(...evt.xyz);
+        let vec = new Microverse.THREE.Vector3(...evt.xyz);
         let inv = this.renderObject.matrixWorld.clone().invert();
         vec = vec.applyMatrix4(inv);
 
@@ -418,7 +418,7 @@ class PropertySheetWindowPawn {
         if (!edge.x && !edge.y) {return;}
 
         let parent = this._parent;
-        let vec2 = new Worldcore.THREE.Vector3(...evt.xyz);
+        let vec2 = new Microverse.THREE.Vector3(...evt.xyz);
         let pInv = parent.renderObject.matrixWorld.clone().invert();
         vec2 = vec2.applyMatrix4(pInv);
 
@@ -473,21 +473,21 @@ class PropertySheetDismissPawn {
             ? this.actor._cardData.color
             : 0x222222;
 
-        let backGeometry = new Worldcore.THREE.BoxGeometry(0.08, 0.08, 0.00001);
-        let backMaterial = new Worldcore.THREE.MeshStandardMaterial({
+        let backGeometry = new Microverse.THREE.BoxGeometry(0.08, 0.08, 0.00001);
+        let backMaterial = new Microverse.THREE.MeshStandardMaterial({
             color: backgroundColor,
-            side: Worldcore.THREE.DoubleSide
+            side: Microverse.THREE.DoubleSide
         });
 
-        this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
+        this.back = new Microverse.THREE.Mesh(backGeometry, backMaterial);
 
-        let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.07, 0.02, 0.001);
-        let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
+        let dismissGeometry = new Microverse.THREE.BoxGeometry(0.07, 0.02, 0.001);
+        let dismissMaterial = new Microverse.THREE.MeshStandardMaterial({
             color: color,
-            side: Worldcore.THREE.DoubleSide
+            side: Microverse.THREE.DoubleSide
         });
 
-        let button = new Worldcore.THREE.Mesh(dismissGeometry, dismissMaterial);
+        let button = new Microverse.THREE.Mesh(dismissGeometry, dismissMaterial);
         button.position.set(0, 0, 0.00001);
 
         this.back.add(button)
@@ -553,7 +553,7 @@ class PropertySheetEditPawn {
             }
         }
 
-        let vec = new Worldcore.THREE.Vector3();
+        let vec = new Microverse.THREE.Vector3();
         vec.setFromMatrixPosition(this.shape.matrixWorld);
         let pose = avatar.dropPose(6);
         pose.translation = [vec.x, vec.y, vec.z];
@@ -580,21 +580,21 @@ class PropertySheetWindowBarPawn {
             this.shape.children = [];
         }
 
-        let backGeometry = new Worldcore.THREE.BoxGeometry(0.022, 0.022, 0.00001);
-        let backMaterial = new Worldcore.THREE.MeshStandardMaterial({
+        let backGeometry = new Microverse.THREE.BoxGeometry(0.022, 0.022, 0.00001);
+        let backMaterial = new Microverse.THREE.MeshStandardMaterial({
             color: 0x882222,
-            side: Worldcore.THREE.DoubleSide
+            side: Microverse.THREE.DoubleSide
         });
 
-        this.back = new Worldcore.THREE.Mesh(backGeometry, backMaterial);
+        this.back = new Microverse.THREE.Mesh(backGeometry, backMaterial);
 
-        let dismissGeometry = new Worldcore.THREE.BoxGeometry(0.02, 0.005, 0.001);
-        let dismissMaterial = new Worldcore.THREE.MeshStandardMaterial({
+        let dismissGeometry = new Microverse.THREE.BoxGeometry(0.02, 0.005, 0.001);
+        let dismissMaterial = new Microverse.THREE.MeshStandardMaterial({
             color: 0x000000,
-            side: Worldcore.THREE.DoubleSide
+            side: Microverse.THREE.DoubleSide
         });
 
-        let button = new Worldcore.THREE.Mesh(dismissGeometry, dismissMaterial);
+        let button = new Microverse.THREE.Mesh(dismissGeometry, dismissMaterial);
         button.position.set(0, 0, 0.00001);
 
         this.back.add(button)
@@ -744,4 +744,4 @@ export default {
         }
     ]
 }
-/*globals Worldcore */
+/*globals Microverse */

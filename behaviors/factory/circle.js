@@ -22,13 +22,13 @@ class CircleActor {
     }
 
     rotateBy(angles) {
-        let q = Worldcore.q_euler(...angles);
-        q = Worldcore.q_multiply(this.rotation, q);
+        let q = Microverse.q_euler(...angles);
+        q = Microverse.q_multiply(this.rotation, q);
         this.rotateTo(q);
     }
 
     forwardBy(dist) {
-        let v = Worldcore.v3_rotate([0, 0, dist], this.rotation)
+        let v = Microverse.v3_rotate([0, 0, dist], this.rotation)
         this.translateTo([
             this.translation[0] + v[0],
             this.translation[1] + v[1],
@@ -50,4 +50,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

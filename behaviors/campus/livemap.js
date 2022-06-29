@@ -1,10 +1,10 @@
 class CampusMapPawn {
     setup() {
-        let translation1 = new Worldcore.THREE.Matrix4();
-        let scale = new Worldcore.THREE.Matrix4();
-        let rotation1 = new Worldcore.THREE.Matrix4();
-        let rotation2 = new Worldcore.THREE.Matrix4();
-        let rotation3 = new Worldcore.THREE.Matrix4();
+        let translation1 = new Microverse.THREE.Matrix4();
+        let scale = new Microverse.THREE.Matrix4();
+        let rotation1 = new Microverse.THREE.Matrix4();
+        let rotation2 = new Microverse.THREE.Matrix4();
+        let rotation3 = new Microverse.THREE.Matrix4();
 
         // first rotate the avatar so that its Z direction is parpendicular to the map.
         rotation2.makeRotationY(0.59294134694891);
@@ -22,7 +22,7 @@ class CampusMapPawn {
         // translate the position to the map object
         translation1.makeTranslation(9.42, -0.66, -20.46);
 
-        this.mapMatrix = new Worldcore.THREE.Matrix4();
+        this.mapMatrix = new Microverse.THREE.Matrix4();
         this.mapMatrix.multiply(translation1);
         this.mapMatrix.multiply(rotation3);
         this.mapMatrix.multiply(scale);
@@ -30,7 +30,7 @@ class CampusMapPawn {
         this.mapMatrix.multiply(rotation2);
 
         // lazily create geometry and material to be shared with all dots.
-        let THREE = Worldcore.THREE;
+        let THREE = Microverse.THREE;
         if (this.balls) {
             this.balls.forEach((b) => {
                 this.shape.remove(b);
@@ -75,7 +75,7 @@ class CampusMapPawn {
         cards = cards.filter((c) => c._name !== "light");
 
         while (this.balls.length < cards.length) {
-            let mesh = new Worldcore.THREE.Mesh(this.geometry, this.cardMaterial);
+            let mesh = new Microverse.THREE.Mesh(this.geometry, this.cardMaterial);
             this.balls.push(mesh);
             this.shape.add(mesh);
         }
@@ -90,7 +90,7 @@ class CampusMapPawn {
         let myT = this._translation;
         cards.forEach((a, i) => {
             let t = a.translation;
-            let v = new Worldcore.THREE.Vector3(t[0], 0, t[2]);
+            let v = new Microverse.THREE.Vector3(t[0], 0, t[2]);
             v.applyMatrix4(this.mapMatrix);
             let m = (a.constructor.name === "AvatarActor") ? this.avatarMaterial : this.cardMaterial;
             this.balls[i].position.set(v.x - myT[0], v.y - myT[1], v.z - myT[2]);
@@ -108,4 +108,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

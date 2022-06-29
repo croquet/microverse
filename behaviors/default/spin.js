@@ -12,13 +12,13 @@ class SpinActor {
 
     startSpinning(spin) {
         this.isSpinning = true;
-        this.qSpin = Worldcore.q_euler(0, spin, 0);
+        this.qSpin = Microverse.q_euler(0, spin, 0);
         this.doSpin();
     }
 
     doSpin() {
         if(this.isSpinning) {
-            this.rotateTo(Worldcore.q_multiply(this._rotation, this.qSpin));
+            this.rotateTo(Microverse.q_multiply(this._rotation, this.qSpin));
             this.future(50).doSpin();
         }
     }
@@ -57,14 +57,14 @@ class SpinPawn {
         this.say("stopSpinning");
         this._startDrag = p3d.xy;
         this._baseRotation = this._rotation;
-        let avatar = Worldcore.GetPawn(p3d.avatarId);
+        let avatar = Microverse.GetPawn(p3d.avatarId);
         avatar.addFirstResponder("pointerMove", {}, this);
     }
 
     onPointerMove(p3d) {
         this.moveBuffer.push(p3d.xy);
         this.deltaAngle = (p3d.xy[0] - this._startDrag[0]) / 2 / 180 * Math.PI;
-        let newRot = Worldcore.q_multiply(this._baseRotation, Worldcore.q_euler(0, this.deltaAngle, 0));
+        let newRot = Microverse.q_multiply(this._baseRotation, Microverse.q_euler(0, this.deltaAngle, 0));
         this.rotateTo(newRot);
         this.say("newAngle", this.deltaAngle);
         if (this.moveBuffer.length >= 3) {
@@ -77,7 +77,7 @@ class SpinPawn {
     }
 
     onPointerUp(p3d) {
-        let avatar = Worldcore.GetPawn(p3d.avatarId);
+        let avatar = Microverse.GetPawn(p3d.avatarId);
         avatar.removeFirstResponder("pointerMove", {}, this);
         this.moveBuffer.push(p3d.xy);
 
@@ -120,4 +120,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

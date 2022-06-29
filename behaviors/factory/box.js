@@ -49,7 +49,7 @@ class ConveyorBoxActor {
   }
 
   forwardBy(moveAmnt) { // Forward Movement
-    let forward = Worldcore.v3_rotate([moveAmnt, 0, 0], this.rotation);
+    let forward = Microverse.v3_rotate([moveAmnt, 0, 0], this.rotation);
     this.translateTo([
       this.translation[0] + forward[0],
       this.translation[1] + forward[1],
@@ -57,8 +57,8 @@ class ConveyorBoxActor {
   }
 
   rotateBy(angles) { // Rotational Movement
-    let q = Worldcore.q_euler(...angles);
-    q = Worldcore.q_multiply(this.rotation, q);
+    let q = Microverse.q_euler(...angles);
+    q = Microverse.q_multiply(this.rotation, q);
     this.rotateTo(q);
   }
 }
@@ -72,4 +72,4 @@ export default {
   ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

@@ -11,7 +11,7 @@ class EarthPawn {
         const earthshadow = `./assets/images/earthshadow.jpg`;
         const ball = './assets/images/ball.png';
 
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
 
         this.shape.children.forEach((c) => {
             c.material.dispose();
@@ -51,4 +51,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

@@ -7,7 +7,7 @@
 class JoeTheBoxPawn {
     setup() {
         console.log("AM I GETTING HERE?")
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
         const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;

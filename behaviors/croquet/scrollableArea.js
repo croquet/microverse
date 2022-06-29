@@ -82,12 +82,12 @@ class ScrollAreaPawn {
 
         let material = this.makePlaneMaterial(this.actor._cardData.depth, this.actor._cardData.color, this.actor._cardData.frameColor || 0xaaaaaa, true);
 
-        let mesh = new Worldcore.THREE.Mesh(geometry, material);
+        let mesh = new Microverse.THREE.Mesh(geometry, material);
         this.shape.add(mesh);
     }
 
     initializeClipping() {
-        let THREE = Worldcore.THREE;
+        let THREE = Microverse.THREE;
         this.clippingPlanes = [
             new THREE.Plane(new THREE.Vector3(0, 1, 0),  0),
             new THREE.Plane(new THREE.Vector3(0, -1, 0), 0),
@@ -114,14 +114,14 @@ class ScrollAreaPawn {
 
         let topLeft = [-left, top, 0];
         let bottomRight = [right, -bottom, 0];
-        let globalTopLeft = Worldcore.v3_transform(topLeft, this.global);
-        let globalBottomRight = Worldcore.v3_transform(bottomRight, this.global);
+        let globalTopLeft = Microverse.v3_transform(topLeft, this.global);
+        let globalBottomRight = Microverse.v3_transform(bottomRight, this.global);
 
-        let pawn = Worldcore.GetPawn(this.actor.target.id);
+        let pawn = Microverse.GetPawn(this.actor.target.id);
 
-        // let pawnInv = Worldcore.m4_invert(pawn._global);
-        // let pawnTopLeft = Worldcore.v3_transform(globalTopLeft, pawnInv);
-        // let pawnBottomRight = Worldcore.v3_transform(globalBottomRight, pawnInv);
+        // let pawnInv = Microverse.m4_invert(pawn._global);
+        // let pawnTopLeft = Microverse.v3_transform(globalTopLeft, pawnInv);
+        // let pawnBottomRight = Microverse.v3_transform(globalBottomRight, pawnInv);
 
         let menu = [...pawn.children][0];
 
@@ -133,9 +133,9 @@ class ScrollAreaPawn {
             c.children.forEach((d) => {
                 if (d.setTextRenderingBounds) {
                     let th = d.actor._cardData.height;
-                    let textInv = Worldcore.m4_invert(d.global);
-                    let textTopLeft = Worldcore.v3_transform(globalTopLeft, textInv);
-                    let textBottomRight = Worldcore.v3_transform(globalBottomRight, textInv);
+                    let textInv = Microverse.m4_invert(d.global);
+                    let textTopLeft = Microverse.v3_transform(globalTopLeft, textInv);
+                    let textBottomRight = Microverse.v3_transform(globalBottomRight, textInv);
                     let bTop = -(textTopLeft[1] - (th / 2)) / d.textScale();
                     let bBottom = -(textBottomRight[1] + (th / 2)) / d.textScale();
 
@@ -150,7 +150,7 @@ class ScrollAreaPawn {
         let planes = [];
         if (Number.isNaN(this.shape.matrixWorld.elements[0])) return [];
         for (let i = 0; i < 4; i++) {
-            planes[i] = new Worldcore.THREE.Plane();
+            planes[i] = new Microverse.THREE.Plane();
             planes[i].copy(this.clippingPlanes[i]);
             planes[i].constant = ary[i];
             planes[i].applyMatrix4(this.shape.matrixWorld);
@@ -174,7 +174,7 @@ class ScrollBarPawn {
         if (!this._parent) {return;}
 
         let startScrollTop = this._parent.actor.scrollTop;
-        let vec = new Worldcore.THREE.Vector3(...evt.xyz);
+        let vec = new Microverse.THREE.Vector3(...evt.xyz);
         let inv = this.renderObject.matrixWorld.clone().invert();
         vec = vec.applyMatrix4(inv);
 
@@ -199,7 +199,7 @@ class ScrollBarPawn {
     pointerMove(evt) {
         if (!evt.xyz) {return;}
         if (!this.downInfo) {return;}
-        let vec = new Worldcore.THREE.Vector3(...evt.xyz);
+        let vec = new Microverse.THREE.Vector3(...evt.xyz);
         let pInv = this.renderObject.matrixWorld.clone().invert();
         vec = vec.applyMatrix4(pInv);
 
@@ -229,4 +229,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

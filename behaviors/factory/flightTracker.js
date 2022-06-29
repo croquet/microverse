@@ -43,7 +43,7 @@ class FlightTrackerPawn {
         const earthshadow = `./assets/images/earthshadow.jpg`;
         const ball = './assets/images/ball.png';
 
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
 
         this.shape.children.forEach((c) => {
             c.material.dispose();
@@ -107,7 +107,7 @@ class FlightTrackerPawn {
     }
 
     displayFlight() {
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
         const BASERADIUS = 4;      // size of the earth (land)
 
         const vertices = [];
@@ -182,4 +182,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

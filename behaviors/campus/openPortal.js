@@ -59,9 +59,9 @@ class OpenRefineryPortalPawn {
         this.shape.children.forEach((c) => this.shape.remove(c));
         this.shape.children = [];
 
-        let geometry = new Worldcore.THREE.SphereGeometry(0.15, 16, 16);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.8});
-        let button = new Worldcore.THREE.Mesh(geometry, material);
+        let geometry = new Microverse.THREE.SphereGeometry(0.15, 16, 16);
+        let material = new Microverse.THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.8});
+        let button = new Microverse.THREE.Mesh(geometry, material);
         this.shape.add(button);
         this.setColor();
     }
@@ -87,4 +87,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

@@ -24,7 +24,7 @@ class RearrangeButtonActor {
         if (base[0]) {
             base[0].set({
                 translation: [32.35043668195448, 0.5333311732970384, -18.116381872009743],
-                rotation: Worldcore.q_euler(0.47123889803846897, Math.PI, 0)
+                rotation: Microverse.q_euler(0.47123889803846897, Math.PI, 0)
             });
         }
 
@@ -32,7 +32,7 @@ class RearrangeButtonActor {
         if (base2[0]) {
             base2[0].set({
                 translation: [32.382446107309924, -1.3319528860066834, -20.746485651429282],
-                rotation: Worldcore.q_euler(0.35123889803846897, Math.PI, 0)
+                rotation: Microverse.q_euler(0.35123889803846897, Math.PI, 0)
             });
         }
         let spray = this.queryCards().filter((c) => c.name === "spray");
@@ -53,9 +53,9 @@ class RearrangeButtonPawn {
         this.shape.children.forEach((c) => this.shape.remove(c));
         this.shape.children = [];
 
-        let geometry = new Worldcore.THREE.SphereGeometry(0.15, 16, 16);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.8});
-        let button = new Worldcore.THREE.Mesh(geometry, material);
+        let geometry = new Microverse.THREE.SphereGeometry(0.15, 16, 16);
+        let material = new Microverse.THREE.MeshStandardMaterial({color: 0xcccccc, metalness: 0.8});
+        let button = new Microverse.THREE.Mesh(geometry, material);
         this.shape.add(button);
     }
 }
@@ -70,4 +70,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

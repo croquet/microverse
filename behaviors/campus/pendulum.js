@@ -5,9 +5,9 @@ class PendulumActor {
         this.links = [...Array(d).keys()].map((i) => {
             let kinematic;
             if (i === 0) {
-                kinematic = Worldcore.RAPIER.RigidBodyDesc.newKinematicPositionBased();
+                kinematic = Microverse.RAPIER.RigidBodyDesc.newKinematicPositionBased();
             } else {
-                kinematic = Worldcore.RAPIER.RigidBodyDesc.newDynamic();
+                kinematic = Microverse.RAPIER.RigidBodyDesc.newDynamic();
             }
 
             let card;
@@ -40,7 +40,7 @@ class PendulumActor {
 
             let s = [0.1, 1];
             s = [s[1] / 2, s[0]];
-            let cd = Worldcore.RAPIER.ColliderDesc.cylinder(...s);
+            let cd = Microverse.RAPIER.ColliderDesc.cylinder(...s);
 
             cd.setRestitution(0.5);
             cd.setFriction(1);
@@ -101,9 +101,9 @@ class PendulumPawn {
             this.obj = null;
         }
 
-        let geometry = new Worldcore.THREE.BoxGeometry(0.5, 0.5, 0.5);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xee8888});
-        this.obj = new Worldcore.THREE.Mesh(geometry, material);
+        let geometry = new Microverse.THREE.BoxGeometry(0.5, 0.5, 0.5);
+        let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xee8888});
+        this.obj = new Microverse.THREE.Mesh(geometry, material);
         this.obj.castShadow = this.actor._cardData.shadow;
         this.obj.receiveShadow = this.actor._cardData.shadow;
 
@@ -125,7 +125,7 @@ class PendulumLinkActor {
         let r = this.rigidBody;
         if (!r) {return;}
 
-        let jolt = Worldcore.v3_scale(p3d.normal, -40);
+        let jolt = Microverse.v3_scale(p3d.normal, -40);
         r.applyForce({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
     }
 }
@@ -150,9 +150,9 @@ class PendulumLinkPawn {
         this.shape.children = [];
 
         let s = [0.1, 2.3];
-        let geometry = new Worldcore.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
-        let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xcccccc, metalness: 0.6});
-        this.obj = new Worldcore.THREE.Mesh(geometry, material);
+        let geometry = new Microverse.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
+        let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xcccccc, metalness: 0.6});
+        this.obj = new Microverse.THREE.Mesh(geometry, material);
         this.obj.castShadow = this.actor._cardData.shadow;
         this.obj.receiveShadow = this.actor._cardData.shadow;
 
@@ -175,4 +175,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

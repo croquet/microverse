@@ -28,9 +28,8 @@ class RapierActor {
           contain this.$rigidBody. So it is lazily initialized when it
           is accessed.
 
-          The implementation of RapierPhysicsManager is in Worldcore:
+          The implementation of RapierPhysicsManager is in src/physics.js.
 
-          https://github.com/croquet/worldcore/blob/main/packages/rapier/src
         */
 
         if (!this.$rigidBody) {
@@ -43,8 +42,8 @@ class RapierActor {
 
     createRigidBody(rbd) {
         this.removeRigidBody();
-        rbd.translation = new Worldcore.RAPIER.Vector3(...this.translation);
-        rbd.rotation = new Worldcore.RAPIER.Quaternion(...this.rotation);
+        rbd.translation = new Microverse.RAPIER.Vector3(...this.translation);
+        rbd.rotation = new Microverse.RAPIER.Quaternion(...this.rotation);
         const physicsManager =  this.service('RapierPhysicsManager');
         this.$rigidBody = physicsManager.world.createRigidBody(rbd);
         this.rigidBodyHandle = this.$rigidBody.handle;
@@ -55,17 +54,17 @@ class RapierActor {
           was moved from the user program, the object's position and
           rotatino in the simulation are updated.
         */
-        if (this.getRigidBody().bodyType() === Worldcore.RAPIER.RigidBodyType.KinematicPositionBased) {
+        if (this.getRigidBody().bodyType() === Microverse.RAPIER.RigidBodyType.KinematicPositionBased) {
             this.listen("translationSet", "Rapier$RapierActor.setKinematicTranslation");
             this.listen("rotationSet", "Rapier$RapierActor.setKinematicRotation");
         }
     }
 
     setKinematicTranslation(data) {
-        this.getRigidBody().setNextKinematicTranslation(new Worldcore.RAPIER.Vector3(...data.v));
+        this.getRigidBody().setNextKinematicTranslation(new Microverse.RAPIER.Vector3(...data.v));
     }
     setKinematicRotation(data) {
-        this.getRigidBody().setNextKinematicRotation(new Worldcore.RAPIER.Quaternion(...data.v));
+        this.getRigidBody().setNextKinematicRotation(new Microverse.RAPIER.Quaternion(...data.v));
     }
 
     removeRigidBody() {
@@ -99,10 +98,10 @@ class RapierActor {
 
     createImpulseJoint(type, body1, body2, ...params) {
         const physicsManager = this.service('RapierPhysicsManager');
-        let func = Worldcore.RAPIER.JointParams[type];
+        let func = Microverse.RAPIER.JointParams[type];
 
         if (!func) {throw new Error("unkown joint types");}
-        let jointParams = func.call(Worldcore.RAPIER.JointParams, ...params);
+        let jointParams = func.call(Microverse.RAPIER.JointParams, ...params);
         let joint = physicsManager.world.createJoint(jointParams, body1.rigidBody, body2.rigidBody);
         this.jointHandle = joint.handle;
         return this.jointHandle;
@@ -129,5 +128,5 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */
 

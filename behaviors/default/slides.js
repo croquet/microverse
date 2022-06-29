@@ -29,7 +29,7 @@ class SlidesPawn {
             this.slideTexture.dispose();
             this.slideTexture = null;
         }
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
 
         if (this.shape.children.length === 0) {
             let geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -72,4 +72,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

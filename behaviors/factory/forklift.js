@@ -101,14 +101,14 @@ class ForkLiftActor {
             }
         }
 
-        this.translateTo(Worldcore.v3_lerp(
+        this.translateTo(Microverse.v3_lerp(
             this.checkPoints[this.checkPoint].v,
             this.checkPoints[this.checkPoint + 1].v,
             this.ratio
         ));
-        this.rotateTo(Worldcore.q_slerp(
-            Worldcore.q_euler(0, this.checkPoints[this.checkPoint].r, 0),
-            Worldcore.q_euler(0, this.checkPoints[this.checkPoint + 1].r, 0),
+        this.rotateTo(Microverse.q_slerp(
+            Microverse.q_euler(0, this.checkPoints[this.checkPoint].r, 0),
+            Microverse.q_euler(0, this.checkPoints[this.checkPoint + 1].r, 0),
             this.ratio
         ));
         if (this.running) {
@@ -127,4 +127,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

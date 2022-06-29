@@ -7,13 +7,13 @@ class SpinActor {
 
     startSpinning(spin) {
         this.isSpinning = true;
-        this.qSpin = Worldcore.q_euler(0, spin, 0);
+        this.qSpin = Microverse.q_euler(0, spin, 0);
         this.doSpin();
     }
 
     doSpin() {
         if(this.isSpinning) {
-            this.rotateTo(Worldcore.q_multiply(this._rotation, this.qSpin));
+            this.rotateTo(Microverse.q_multiply(this._rotation, this.qSpin));
             this.future(50).doSpin();
         }
     }
@@ -61,10 +61,10 @@ class SpinPawn {
         }
         let next = this.theta(p3d.xyz);
         let newAngle = ((next - this.base) + Math.PI * 2) % (Math.PI * 2);
-        let qAngle = Worldcore.q_euler(0, newAngle, 0);
+        let qAngle = Microverse.q_euler(0, newAngle, 0);
 
-        this.rotateTo(Worldcore.q_multiply(this.baseRotation, qAngle));
-        // this.setRotation(Worldcore.q_multiply(this.baseRotation, qAngle));
+        this.rotateTo(Microverse.q_multiply(this.baseRotation, qAngle));
+        // this.setRotation(Microverse.q_multiply(this.baseRotation, qAngle));
         newAngle = newAngle < Math.PI ? newAngle : newAngle - Math.PI * 2;
         this.say("newAngle", newAngle);
     }
@@ -101,4 +101,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */

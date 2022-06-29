@@ -45,7 +45,7 @@ class StickyNoteActor {
                     }
                     if (key === "rotation" || key === "dataRotation") {
                         if (Array.isArray(value) && value.length === 3) {
-                            value = Worldcore.q_euler(...value);
+                            value = Microverse.q_euler(...value);
                         }
                     }
                     spec[key] = value;
@@ -82,4 +82,4 @@ export default {
         },
     ]
 }
-/*globals Worldcore */
+/*globals Microverse */

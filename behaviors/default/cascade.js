@@ -17,7 +17,7 @@ class CascadeActor {
           which in turn calls Rapier's method of the same name.
 
           Variable RAPIER contains all exports from the rapier
-          packages. It is prefixed with Worldcore, which is the only
+          packages. It is prefixed with Microverse, which is the only
           global variable visible to behavior code.
         */
         let kinematic;
@@ -26,11 +26,11 @@ class CascadeActor {
         let rapierSensor = this._cardData.rapierSensor;
         let rapierForce = this._cardData.rapierForce;
         if (rapierType === "positionBased") {
-            kinematic = Worldcore.RAPIER.RigidBodyDesc.newKinematicPositionBased();
+            kinematic = Microverse.RAPIER.RigidBodyDesc.newKinematicPositionBased();
         } else if (rapierType === "static") {
-            kinematic = Worldcore.RAPIER.RigidBodyDesc.newStatic();
+            kinematic = Microverse.RAPIER.RigidBodyDesc.newStatic();
         } else {
-            kinematic = Worldcore.RAPIER.RigidBodyDesc.newDynamic();
+            kinematic = Microverse.RAPIER.RigidBodyDesc.newDynamic();
         }
         this.call("Rapier$RapierActor", "createRigidBody", kinematic);
 
@@ -43,11 +43,11 @@ class CascadeActor {
         if (rapierShape === "ball") {
             let s = this._cardData.rapierSize || 1;
             s = s / 2;
-            cd = Worldcore.RAPIER.ColliderDesc.ball(s);
+            cd = Microverse.RAPIER.ColliderDesc.ball(s);
         } else if (rapierShape === "cuboid") {
             let s = this._cardData.rapierSize || [1, 1, 1];
             s = [s[0] / 2, s[1] / 2, s[2] / 2];
-            cd = Worldcore.RAPIER.ColliderDesc.cuboid(...s);
+            cd = Microverse.RAPIER.ColliderDesc.cuboid(...s);
         }
 
         /*
@@ -59,7 +59,7 @@ class CascadeActor {
         /*else if (rapierShape === "cylinder") {
             let s = this._cardData.rapierSize || [1, 1];
             s = [s[1] / 2, s[0]];
-            cd = Worldcore.RAPIER.ColliderDesc.cylinder(...s);
+            cd = Microverse.RAPIER.ColliderDesc.cylinder(...s);
         }*/
 
         cd.setRestitution(this._cardData.rapierRestitution || 0.5);
@@ -76,8 +76,8 @@ class CascadeActor {
         if (rapierSensor) {
             this.registerIntersectionEventHandler("intersection");
             cd.setSensor(true);
-            cd.setActiveEvents(Worldcore.RAPIER.ActiveEvents.CONTACT_EVENTS |
-                               Worldcore.RAPIER.ActiveEvents.INTERSECTION_EVENTS);
+            cd.setActiveEvents(Microverse.RAPIER.ActiveEvents.CONTACT_EVENTS |
+                               Microverse.RAPIER.ActiveEvents.INTERSECTION_EVENTS);
         }
         this.collider = this.call("Rapier$RapierActor", "createCollider", cd);
 
@@ -185,24 +185,24 @@ class CascadePawn {
             let rapierShape = this.actor._cardData.rapierShape;
             if (rapierShape === "ball") {
                 let s = this.actor._cardData.rapierSize || 1;
-                let geometry = new Worldcore.THREE.SphereGeometry(s / 2, 32, 16);
-                let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
-                this.obj = new Worldcore.THREE.Mesh(geometry, material);
+                let geometry = new Microverse.THREE.SphereGeometry(s / 2, 32, 16);
+                let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
+                this.obj = new Microverse.THREE.Mesh(geometry, material);
                 this.obj.castShadow = this.actor._cardData.shadow;
                 this.obj.receiveShadow = this.actor._cardData.shadow;
             } else if (rapierShape === "cuboid") {
                 let s = this.actor._cardData.rapierSize || [1, 1, 1];
-                let geometry = new Worldcore.THREE.BoxGeometry(...s);
-                let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
-                this.obj = new Worldcore.THREE.Mesh(geometry, material);
+                let geometry = new Microverse.THREE.BoxGeometry(...s);
+                let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
+                this.obj = new Microverse.THREE.Mesh(geometry, material);
                 this.obj.castShadow = this.actor._cardData.shadow;
                 this.obj.receiveShadow = this.actor._cardData.shadow;
             }
             /*else if (rapierShape === "cylinder") {
                 let s = this.actor._cardData.rapierSize || [1, 1];
-                let geometry = new Worldcore.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
-                let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
-                this.obj = new Worldcore.THREE.Mesh(geometry, material);
+                let geometry = new Microverse.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
+                let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
+                this.obj = new Microverse.THREE.Mesh(geometry, material);
                 this.obj.castShadow = this.actor._cardData.shadow;
                 this.obj.receiveShadow = this.actor._cardData.shadow;
             }*/
@@ -384,5 +384,5 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */
 

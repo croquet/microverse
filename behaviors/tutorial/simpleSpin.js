@@ -16,7 +16,7 @@ class SpinningActor {
         if (!this.spinning) {return;}
         this.future(20).step();
         this.angle+=this.spinSpeed;
-        this.set({rotation: Worldcore.q_euler(0, this.angle, 0)});
+        this.set({rotation: Microverse.q_euler(0, this.angle, 0)});
     }
 
     toggle() {
