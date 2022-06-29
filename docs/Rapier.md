@@ -6,7 +6,7 @@
 
 The Croquet Microverse can use the [Rapier Physics Engine](https://rapier.rs/docs/user_guides/javascript/getting_started_js) to build a world with cards that obey the simulated law of physics.
 
-We use the Rapier bindings provided by [Worldcore](https://github.com/croquet/worldcore/blob/main/packages/rapier/src/RapierPhysics.js). Rapier simulates the motion of the objects bit-identically on the model side. In other words, the simulation is decoupled from the visual appearances. The Microverse provides a behavior module called "Rapier" (`behaviors/croquet/rapier.js`) that replaces `AM_RapierPhysics` from Worldcore. The rest is all done in the "user land"; you can see an example behavior module called "Cascade" in `behaviors/default/cascade.js` and the default world where it is used.
+Rapier simulates the motion of the objects bit-identically on the model side. In other words, the simulation is decoupled from the visual appearances. The Microverse provides a behavior module called "Rapier" (`behaviors/croquet/rapier.js`). The rest is all done in the "user land"; you can see an example behavior module called "Cascade" in `behaviors/default/cascade.js` and the default world where it is used.
 
 First let us look at `default.js`. You can see that several cards have `Rapier` and `Collider` as their behavior modules:
 
@@ -37,13 +37,13 @@ class CascadeActor {
         let rapierType = this._cardData.rapierType;
         let rapierShape = this._cardData.rapierShape;
         if (rapierType === "positionBased") {
-            kinematic = Worldcore.RAPIER.RigidBodyDesc.newKinematicPositionBased();
+            kinematic = Microverse.RAPIER.RigidBodyDesc.newKinematicPositionBased();
 	...
 
         if (rapierShape === "ball") {
             let s = this._cardData.rapierSize || 1;
             s = s / 2;
-            cd = Worldcore.RAPIER.ColliderDesc.ball(s);
+            cd = Microverse.RAPIER.ColliderDesc.ball(s);
 
 
 ```
@@ -66,9 +66,9 @@ class CascadePawn {
             let rapierShape = this.actor._cardData.rapierShape;
             if (rapierShape === "ball") {
                 let s = this.actor._cardData.rapierSize || 1;
-                let geometry = new Worldcore.THREE.SphereGeometry(s / 2, 32, 16);
-                let material = new Worldcore.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
-                this.obj = new Worldcore.THREE.Mesh(geometry, material);
+                let geometry = new Microverse.THREE.SphereGeometry(s / 2, 32, 16);
+                let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
+                this.obj = new Microverse.THREE.Mesh(geometry, material);
 ```
 
 To prevent a double tap action from triggering the "jump to" feature, we remove the default handler for `pointerDoubleDown` and install a "no operation" action.

@@ -141,7 +141,7 @@ This is first version of the "joeTheBox.js" behavior. We will introduce more adv
 class JoeTheBoxPawn {
     setup() {
         console.log("Building JoeTheBox");
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
         const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
@@ -170,7 +170,7 @@ export default {
 
 A behavior has a very simple class structure. The setup() function is guaranteed to be called whenever JoeTheBox is created or whenever it is changed. If you are modifying this behavior in your code editor, when you save the updated code, the setup() function will be called again.
 
-Notice that the THREE library object is accessed via the Worldcore shared object. Though Worldcore is not defined here, it is passed into the behavior automatically. The THREE library is added to the Worldcore object so it can then be easily accessed.
+Notice that the THREE library object is accessed via the Microverse shared object. Though Microverse is not defined here, it is passed into the behavior automatically. The THREE library is an example of an object that can be accessed.
 
 This code uses the Three.js libray to create a cube and add a grid texture to it. Once it is constructed, we add the new cube to this.shape, which is added to the three.js scene.
 
@@ -193,7 +193,7 @@ class SpinningActor {
         if (!this.spinning) return;
         this.future(20).step();
         this.angle+=this.spinSpeed;
-        this.set({rotation: Worldcore.q_euler(0, this.angle, 0)});
+        this.set({rotation: Microverse.q_euler(0, this.angle, 0)});
     }
 
     toggle() {
@@ -231,10 +231,10 @@ The next two lines are the actual update of the rotation of the target object.
 
 ```javascript
         this.angle += this.spinSpeed;
-        this.set({ rotation: Worldcore.q_euler(0, this.angle, 0) });
+        this.set({ rotation: Microverse.q_euler(0, this.angle, 0) });
 ```
 
-We add the spinSpeed to the current angle, then we inform the actor that the rotation has been updated using the ```this.set()``` function. The rotation field requires a quaternion, so we use the ```Worldcore.q_euler()``` function to generate a quaternion from this.angle around the y-axis. Worldcore does the work of informing the pawn that the rotation has been changed, so our target object - the cube, starts rotating.
+We add the spinSpeed to the current angle, then we inform the actor that the rotation has been updated using the ```this.set()``` function. The rotation field requires a quaternion, so we use the ```Microverse.q_euler()``` function to generate a quaternion from this.angle around the y-axis. Worldcore does the work of informing the pawn that the rotation has been changed, so our target object - the cube, starts rotating.
 
 The Microverse platform was built on Worldcore, so it would be useful for you to have some familiarity with it as well. The documentation for Worldcore is available here:
 

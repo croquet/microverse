@@ -99,12 +99,17 @@ From our tutorial1, let us look at the behaviors in the GridFloor module.
 
 class GridFloorPawn {
     setup() {
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
         const gridImage = './assets/images/grid.png';
         const texture = new THREE.TextureLoader().load(gridImage);
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 100, 100 );
+
+        if (this.floor) {
+            this.shape.remove(this.floor);
+            this.floor.dispose();
+        }
 
         this.floor = new THREE.Mesh(
             new THREE.BoxGeometry( 100, 0.1, 100, 1, 1, 1 ),
@@ -134,7 +139,7 @@ Because behaviors are dynamically modified and attached and detached, their "lif
 
 In the `GridFloorPawn` case, we simply remove all children that `this.shape` might have first, and then create the new floor Mesh.
 
-The `Worldcore` variable contains all of the exported functions and objects from the Worldcore package. Refer to the [Worldcore documentation](https://croquet.io/docs/worldcore) for what is available. The most commonly used one is `Worldcore.THREE`, which in turn contains all exports from Three.js.
+The `Microverse` variable contains all of the exported functions and objects from the Microverse system, including many features re-exported from the Worldcore framework. Refer to the [Worldcore documentation](https://croquet.io/docs/worldcore) for what is available. The most commonly used one is `Microverse.THREE`, which contains all exports from Three.js.
 
 Let us look at another module that adds an ability to pointer drag to add a spin to a card.
 
@@ -148,13 +153,13 @@ class SpinActor {
 
     startSpinning(spin) {
         this.isSpinning = true;
-        this.qSpin = Worldcore.q_euler(0, spin, 0);
+        this.qSpin = Microverse.q_euler(0, spin, 0);
         this.doSpin();
     }
 
     doSpin() {
         if(this.isSpinning) {
-            this.setRotation(Worldcore.q_multiply(this._rotation, this.qSpin));
+            this.setRotation(Microverse.q_multiply(this._rotation, this.qSpin));
             this.future(50).doSpin();
         }
     }
@@ -196,9 +201,9 @@ class SpinPawn {
         }
         let next = this.theta(p3d.xyz);
         let newAngle = ((next - this.base) + Math.PI * 2) % (Math.PI * 2);
-        let qAngle = Worldcore.q_euler(0, newAngle, 0);
+        let qAngle = Microverse.q_euler(0, newAngle, 0);
 
-        this.say("setRotation", Worldcore.q_multiply(this.baseRotation, qAngle));
+        this.say("setRotation", Microverse.q_multiply(this.baseRotation, qAngle));
     }
 
     onPointerUp(p3d) {
@@ -233,10 +238,10 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */
 ```
 
-The overall structure of this is that the pointer event handlers (for `pointerDown`, `pointerUp` and `pointerMove`) are added to the pawn, and each of which invokes methods called `onPointerDown`, `onPointerMove`, and `onPointerUp`, respectively. The computed `qAngle` in `onPointerMove` is used to send the Worldcore's setRotation event.  Upon `pointerUp`, it determines if the card should keep spinning (if it had three or more move events before pointer up), and send an event called `startSpinning`.
+The overall structure of this is that the pointer event handlers (for `pointerDown`, `pointerUp` and `pointerMove`) are added to the pawn, and each of which invokes methods called `onPointerDown`, `onPointerMove`, and `onPointerUp`, respectively. The computed `qAngle` in `onPointerMove` is used to send the setRotation event.  Upon `pointerUp`, it determines if the card should keep spinning (if it had three or more move events before pointer up), and send an event called `startSpinning`.
 
 On the actor side, the `startSpinning` and `stopSpinning`, which is sent when the next `pointerDown` occurs, are handled.
 
