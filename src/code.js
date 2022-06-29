@@ -32,9 +32,8 @@ function newProxy(object, handler, module, behavior) {
     });
 }
 
-// this is a bit problematic as the one that handles code (the code editor) and
-// the one that uses it both use this one.  But then, you can script a editor
-// so it is kind of okay
+/* AM_Code: A mixin to support Live programming */
+
 export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
@@ -96,6 +95,14 @@ export const AM_Code = superclass => class extends superclass {
         return this.futureWithBehavior(time, moduleName, behaviorName);
     }
 
+    // In order to enable a future call in the regular syntax:
+    //    this.future(100).aBehaviorMethod()
+    // the future call creates a proxy that remembers the calling behavior by name
+    // and "aBehaviorMethod is looked up from the behavior.
+
+    // A special case is needed when the method name is "call", therefore it expects
+    // explicit specification of behavior.
+
     futureWithBehavior(time, moduleName, behaviorName) {
         let superFuture = (sel, args) => super.future(time, sel, ...args);
         let behaviorManager = this.behaviorManager;
@@ -120,6 +127,8 @@ export const AM_Code = superclass => class extends superclass {
         });
     }
 
+    // call a behavior method. behaviorName is either ModuleName$BehaviorName or BehaviorName.
+    // If former, the current (calling) module's name is used.
     call(behaviorName, name, ...values) {
         let moduleName;
         let split = behaviorName.split("$");
@@ -147,6 +156,12 @@ export const AM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(scope, eventName, listener);
     }
 
+    // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
+    // in its life cycle because of live programming feature. This wrapper for subscribe records
+    // the current set of subscription.
+    //
+    // canonical value of listener is a string that represents the name of a method.
+    // So double registration is not a problem.
     scriptSubscribe(scope, eventName, listener) {
         // listener can be:
         // this.func
@@ -200,6 +215,8 @@ export const AM_Code = superclass => class extends superclass {
         let had = this.scriptListeners && this.scriptListeners.get(listenerKey, fullMethodName);
         if (had) {return;}
 
+        // this check is needed when subscribe is called from constructors of superclasses.
+        // That is, this.scriptListeners is only initialized after super constructor returns.
         if (this.scriptListeners) {
             this.scriptListeners.set(listenerKey, fullMethodName);
         }
@@ -285,6 +302,8 @@ export const AM_Code = superclass => class extends superclass {
     }
 }
 
+/* AM_Code: A mixin to support Live programming */
+
 export const PM_Code = superclass => class extends superclass {
     constructor(actor) {
         super(actor);
@@ -295,7 +314,7 @@ export const PM_Code = superclass => class extends superclass {
         this.subscribe(actor.id, "callTeardown", "callTeardown");
 
         if (actor._behaviorModules) {
-            actor._behaviorModules.forEach((moduleName) => { /* name: foo.Bar */
+            actor._behaviorModules.forEach((moduleName) => { /* name: Bar */
                 let module = behaviorManager.modules.get(moduleName);
                 let {pawnBehaviors} = module || {};
                 if (pawnBehaviors) {
@@ -303,6 +322,8 @@ export const PM_Code = superclass => class extends superclass {
                         if (behavior) {
                             behavior.ensureBehavior();
                         }
+                        // future(0) is used so that setup() is called after
+                        // all behaviors specified are installed.
                         if (behavior.$behavior.setup) {
                             this.future(0).callSetup(`${module.externalName}$${behavior.$behaviorName}`);
                         }
@@ -318,6 +339,8 @@ export const PM_Code = superclass => class extends superclass {
         return actor.call(`${moduleName}$${behaviorName}`, name, ...values);
     }
 
+    // call a behavior method. behaviorName is either ModuleName$BehaviorName or BehaviorName.
+    // If former, the current (calling) module's name is used.
     call(behaviorName, name, ...values) {
         let moduleName;
         let split = behaviorName.split("$");
@@ -339,6 +362,7 @@ export const PM_Code = superclass => class extends superclass {
     }
 
     destroy() {
+        // destroy in the super chain requires that the receiver is the original pawn, not a proxy.
         if (this[isProxy]) {
             return this._target.destroy();
         }
@@ -377,6 +401,12 @@ export const PM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(scope, subscription, listener);
     }
 
+    // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
+    // in its life cycle because of live programming feature. This wrapper for subscribe records
+    // the current set of subscription.
+    //
+    // canonical form of listner is a function.
+    // We try to remove and replace the existing subscription if the "same" handler is registered.
     scriptSubscribe(scope, subscription, listener) {
         // console.log("view", scope, subscription, listener);
         // listener can be:
@@ -479,6 +509,10 @@ export const PM_Code = superclass => class extends superclass {
     }
 }
 
+// The class that represents a behavior.
+// A behavior is like a class, and does not hold any state.
+// so there is one instance of ScriptBehavior for each defined behavior.
+
 class ScriptingBehavior extends Model {
     static okayToIgnore() { return [ "$behavior", "$behaviorName" ]; }
 
@@ -490,11 +524,6 @@ class ScriptingBehavior extends Model {
     }
 
     setCode(string) {
-        // this still is about per behavior.
-        // The upper level of code would replace 'export' with 'return',
-        // and then it can get the returned object.
-
-
         if (!string) {
             console.log("code is empty for ", this);
             return;
@@ -566,6 +595,9 @@ class ScriptingBehavior extends Model {
 }
 
 ScriptingBehavior.register("ScriptingBehavior");
+
+// The class that represents a behavior module.
+// init sets up those properties but actorBehaviors and pawnBehaviors will be added.
 
 class ScriptingModule extends Model {
     init(options) {
@@ -914,6 +946,12 @@ export class BehaviorViewManager extends ViewService {
         });
     }
 
+    // This method receives content of changed behavior files.
+    // first it creates a script DOM element with type="module", and sets its innerHTML to be the
+    // dataURL of a file. In this way, the browser handles "export" in the behavior file,
+    // and gives the exported object. We assign the export object into a global variable.
+    // The contents of the global variable is then stored into CodeLibrary and the entire result is sent
+    // to the corresponding BehaviorModelManager to update the model data.
     load(string) {
         let array;
         try {
