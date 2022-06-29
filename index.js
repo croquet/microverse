@@ -2,11 +2,18 @@
 // https://croquet.io
 // info@croquet.io
 
-import { startShell, isShellFrame } from "./shell.js";
+function isShellFrame() {
+    const isOuterFrame = window.self === window.parent;
+    if (isOuterFrame) return true;
+    const portalId = new URL(location.href).searchParams.get("portal");
+    return !portalId;
+}
 
 async function start() {
-    if (isShellFrame()) startShell();
-    else {
+    if (isShellFrame()) {
+        const { startShell } = await import("./shell.js");
+        startShell();
+    } else {
         const { startMicroverse } = await import("./src/microverse.js");
         startMicroverse();
     }

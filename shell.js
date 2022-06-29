@@ -13,13 +13,6 @@ export function startShell() {
     shell = new Shell();
 }
 
-export function isShellFrame() {
-    const isOuterFrame = window.self === window.parent;
-    if (isOuterFrame) return true;
-    const portalId = new URL(location.href).searchParams.get("portal");
-    return !portalId;
-}
-
 class Shell {
     constructor() {
         const canonicalUrl = shellToCanonicalURL(location.href);
