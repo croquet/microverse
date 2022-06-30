@@ -7,6 +7,7 @@ import {
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
 import { RapierPhysicsManager } from "./physics.js";
+import { AgoraChatManager } from "./agoraChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -503,6 +504,7 @@ class MyViewRoot extends ViewRoot {
             SyncedStateManager,
             VideoManager,
             BehaviorViewManager,
+            ...(Constants.UseAgoraChat ? [{ service: AgoraChatManager }] : [])
         ];
     }
     constructor(model) {

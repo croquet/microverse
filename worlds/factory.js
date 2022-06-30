@@ -13,6 +13,7 @@ export function init(Constants) {
     ];
 
     Constants.UseRapier = true;
+    Constants.UseAgoraChat = true;
 
     Constants.DefaultCards = [
         {
