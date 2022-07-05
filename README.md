@@ -72,7 +72,7 @@ Run `npm install` in the directory.
 Run `npm install` in the `servers` directory.
 
 ## 5. Run `npm start`
-Run `npm start` in the directory. This will start a webpack dev server and the watch server. A modification to source code triggers recompilation of the dev build but automatic reloading upon file change is disabled. This is because the common workflow is to modify behavior files. In addition to it, typically you need to create a new session by removing the session name parameters in the URL.
+Run `npm start` in the directory. This will start a webpack dev server and the watch server. A modification to source code triggers recompilation of the dev build but automatic relaoding upon file change is disabled. This is because the common workflow is to modify behavior files. In addition to it, typically you need to create a new session by removing the session name parameters in the URL.
 
 **Note:** If you want to run the watch server in a different directory, you can run the webpack dev server by running `npm run dev-server` and then specify the watch-server's target directory by `npm run watch-server -- aDirectory`.
 
