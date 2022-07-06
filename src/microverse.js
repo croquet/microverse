@@ -612,8 +612,19 @@ export async function startMicroverse() {
         if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`invalid apiKey: "${apiKey}"`);
         if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`invalid appId: "${appId}"`);
     } catch (error) {
-        console.log(error);
-        throw Error("Please make sure that you have created a valid apiKey.js (see croquet.io/keys)");
+        if (error.name === "TypeError") {
+            // apiKey.js not found, use local dev key
+            console.warn("apiKey.js not found, using default key for local development. Please create a valid apiKey.js (see croquet.io/keys)");
+            apiKeysModule = {
+                default: {
+                    apiKey: "1kBmNnh69v93i5tOpj7bqqaJxjD3HJEucxd7egi7H",
+                    appId: "io.croquet.microverse.localdevdefault",
+                }
+            };
+        } else {
+            console.log(error);
+            throw Error("Please make sure that you have created a valid apiKey.js (see croquet.io/keys)");
+        }
     };
     // Default parameters are filled in the body of startWorld. You can override them.
     startWorld(apiKeysModule.default, `${basedir}/${basename}`);
