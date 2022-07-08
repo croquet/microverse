@@ -11,8 +11,17 @@ export class AgoraChatManager extends ViewService {
         this.subscribe("playerManager", "leave", "playerLeave");
 
         this.startMessageListener();
-console.log("AgoraChatManager", this);
+
+        // if this view's player is already in the world, make sure the embedded
+        // chat app is running.
+        const player = this.localPlayer;
+        const alreadyHere = player && player.inWorld;
+        if (alreadyHere) this.ensureChatIFrame();
+
+console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"} here)`, this);
     }
+
+    get localPlayer() { return this.model.service("PlayerManager").players.get(this.viewId);  }
 
     computeSessionHandles() {
         // derive handles { persistent, ephemeral } from the
@@ -94,11 +103,12 @@ console.log("AgoraChatManager", this);
             return;
         }
 
+        const { innerWidth, innerHeight } = window;
         const frame = this.chatIFrame = document.createElement('iframe');
         frame.id = 'agoraChatIFrame';
-        frame.style.cssText = "position: absolute; width: 1px; height: 1px; z-index: 100;"
+        frame.style.cssText = "position: absolute; width: 1px; height: 1px; z-index: 100; transition: none;"
         document.body.appendChild(frame);
-        const chatURL = new URL('../video-chat/audioOnly.html?rejoinable&mic=off&video=unavailable', window.location.href).href;
+        const chatURL = new URL(`../video-chat/microverse.html?rejoinable&ih=${innerHeight}&iw=${innerWidth}&debug=session`, window.location.href).href;
         frame.src = chatURL;
         this.chatReadyP = new Promise(resolve => this.resolveChatReady = resolve);
     }
@@ -109,19 +119,24 @@ console.log("AgoraChatManager", this);
     }
 
     handleUserInfoRequest() {
-        let userInfo = { initials: this.viewId.slice(0, 2) }; // for the time being
+        const { _chatNickname: nick } = this.localPlayer;
+        const userInfo = { initials: this.viewId.slice(0, 2), nickname: nick || '' };
         this.sendMessageToChat('userInfo', userInfo);
     }
 
     handleVideoChatInitialStateRequest() {
         let info = {
-            mic: 'off',
+            mic: 'on',
             video: 'unavailable'
         };
         this.sendMessageToChat('videoChatInitialState', info);
     }
 
-    handleChatReady() {
+    handleChatReady(data) {
+        if (data) {
+            // must be a user-supplied nickname
+            this.publish("playerManager", "details", { playerId: this.viewId, details: { chatNickname: data.nickname } });
+        }
         this.resolveChatReady();
     }
 
@@ -132,7 +147,7 @@ console.log("AgoraChatManager", this);
     async playerEnter(p) {
         if (p.playerId !== this.viewId) return;
 
-console.log("OUR PLAYER ENTERED");
+        console.log("our player entered");
         this.ensureChatIFrame();
         // await this.chatReadyP;
         // this.sendMessageToChat('joinChat');
@@ -141,7 +156,7 @@ console.log("OUR PLAYER ENTERED");
     async playerLeave(p) { console.log("P_LEAVE", p);
         if (p.playerId !== this.viewId) return;
 
-console.log("OUR PLAYER LEFT");
+        console.log("our player left");
         if (!this.chatIFrame) return;
 
         this.sendMessageToChat('leaveChat');

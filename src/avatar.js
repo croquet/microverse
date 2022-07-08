@@ -886,6 +886,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             lookYaw: this.lookYaw,
             lookOffset: this.lookOffset,
             cardData: this.actor._cardData, // keep avatar appearance
+            chatNickname: this.actor._chatNickname, // if defined
             url: portal.resolvePortalURL(),
         };
         // keep presenting
@@ -925,6 +926,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             actorSpec.rotation = rotation;
             // keep avatar appearance
             actorSpec.cardData = spec.cardData;
+            // and chat-assigned nickname, if any
+            actorSpec.chatNickname = spec.chatNickname;
             // move pawn to the right place
             this._translation = translation;
             this._rotation = rotation;

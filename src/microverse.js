@@ -152,6 +152,7 @@ class MyPlayerManager extends PlayerManager {
         this.followers = new Set();
 
         this.subscribe("playerManager", "create", this.playerCreated);
+        this.subscribe("playerManager", "details", this.playerDetails);
         this.subscribe("playerManager", "destroy", this.playerDestroyed);
         this.subscribe("playerManager", "enter", this.playerEnteredWorld);
         this.subscribe("playerManager", "leave", this.playerLeftWorld);
@@ -197,6 +198,13 @@ class MyPlayerManager extends PlayerManager {
         }
 
         return AvatarActor.create(options);
+    }
+
+    playerDetails({ playerId, details }) {
+        const player = this.players.get(playerId);
+        if (!player) return;
+
+        player.set(details);
     }
 
     destroyPlayer(player) {
