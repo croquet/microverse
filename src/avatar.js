@@ -282,7 +282,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     // invoked in response to a file drop.
     fileUploaded(data) {
-        let {dataId, fileName, type, translation, rotation} = data;
+        let {dataId, fileName, type, translation, rotation, animationClipIndex, dataScale} = data;
 
         let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" || type === "pdf" ? "2d" : "3d");
 
@@ -296,6 +296,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             shadow: true,
             singleSided: true
         };
+
+        if (animationClipIndex !== undefined) {
+            options.animationClipIndex = animationClipIndex;
+        }
+
+        if (cardType === "3d" && dataScale) {
+            options.dataScale = dataScale;
+        }
 
         if (type === "img") {
             options = {
@@ -587,7 +595,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         setupWorldMenuButton(this, App, this.sessionId);
 
         this.assetManager = this.service("AssetManager");
-        window.assetManager = this.assetManager.assetManager;
+        // window.assetManager = this.assetManager.assetManager;
 
         // drop and paste
         this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
@@ -596,7 +604,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             } else if (type === "vrse") {
                 this.loadvrse(buffer);
             } else {
-                this.uploadFile(buffer, fileName, type);
+                this.analyzeAndUploadFile(new Uint8Array(buffer), fileName, type);
             }
         });
 
@@ -689,6 +697,48 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (pitch !== undefined) {this.lookPitch = pitch;}
         if (yaw !== undefined) {this.lookYaw = yaw;}
         if (lookOffset !== undefined) {this.lookOffset = lookOffset;}
+    }
+
+    async analyzeAndUploadFile(buffer, fileName, type) {
+        let handle = await Data.store(this.sessionId, buffer, true);
+        let dataId = Data.toId(handle);
+        let assetManager = this.service("AssetManager").assetManager;
+        let obj;
+        let animationClipIndex;
+        let dataScale;
+        try {
+            obj = await assetManager.load(buffer, type, THREE);
+        } catch (e) {
+            console.warn("dropped file could not be processed", e);
+            return;
+        }
+
+        function is3D(t) {
+            t = t.toLowerCase();
+            return ["glb", "obj", "fbx"].includes(t);
+        }
+
+        if (is3D(type)) {
+            assetManager.setCache(dataId, buffer, "0");
+            if (obj._croquetAnimation) {
+                animationClipIndex = 0;
+            }
+
+            let size = new THREE.Vector3(0, 0, 0);
+            new THREE.Box3().setFromObject(obj).getSize(size);
+            let max = Math.max(size.x, size.y, size.z);
+            let s = 4 / max;
+            dataScale = [s, s, s];
+        }
+
+        let pose = this.dropPose(6);
+        this.say("fileUploaded", {
+            dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
+            translation: pose.translation,
+            rotation: pose.rotation,
+            animationClipIndex,
+            dataScale
+        });
     }
 
     async uploadFile(buffer, fileName, type) {
