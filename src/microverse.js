@@ -514,7 +514,8 @@ class MyViewRoot extends ViewRoot {
         this.service("FontViewManager").setModel(model.service("FontModelManager"));
 
         renderer.toneMapping = THREE.ReinhardToneMapping;
-        renderer.toneMappingExposure = 2;
+        renderer.toneMappingExposure = 2.5;
+
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
     }
