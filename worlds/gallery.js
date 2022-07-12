@@ -84,7 +84,7 @@ export function init(Constants) {
                 textWeight: 'bold',
                 fullBright: true,
                 bevelEnabled: false,
-                translation: [-8, -1, -11],
+                translation: [-8, -1, -10],
                 rotation: [0, -Math.PI / 2, 0],
                 scale: [1, 1, 1],
                 behaviorModules: ["Text3D"],

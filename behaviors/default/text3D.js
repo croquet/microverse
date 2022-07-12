@@ -18,7 +18,15 @@
 
     class Text3DPawn {
         setup() {
-           this.generateText3D();
+            // this should be in teardown()
+            if(this.textMesh){
+                this.textMesh.removeFromParent();
+                this.textMesh.geometry.dispose();
+                this.textMesh.material[0].dispose();
+                this.textMesh.material[1].dispose();
+                delete this.textMesh;
+            }
+            this.generateText3D();
         }
 
         generateText3D() {
@@ -63,6 +71,7 @@
                 const centerOffset = - 0.5 * ( textGeo.boundingBox.max.x - textGeo.boundingBox.min.x );
             
                 this.textMesh = new THREE.Mesh( textGeo, materials );
+                this.textMesh.position.set(centerOffset,0,0);
             
                 this.shape.add( this.textMesh );
             } );
@@ -70,11 +79,15 @@
  
     
         teardown() {
-            this.textMesh.removeFromParent();
-            this.textMesh.geometry.dispose();
-            this.textMesh.material[0].dispose();
-            this.textMesh.material[1].dispose();
-            delete this.textMesh;
+            /* this should be here:
+            if(this.textMesh){
+                this.textMesh.removeFromParent();
+                this.textMesh.geometry.dispose();
+                this.textMesh.material[0].dispose();
+                this.textMesh.material[1].dispose();
+                delete this.textMesh;
+            }
+            */
            }
     }
     
