@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "box.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
+        "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "box.js", "drone.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
     ];
 
     Constants.UseRapier = true;
@@ -278,6 +278,22 @@ export function init(Constants) {
         },
         {
             card: {
+                name: "drone assembly 1",
+                layers: ["pointer"],
+                translation: [53.48163857202977, 7.270324118143472, 30.903151540772612], // translation: [50.709776263247214, 7.270324118143472, 25.427818377798733],
+                rotation: [0, -Math.PI / 2, 0],
+                dataScale: [1.6, 1.6, 1.6],
+                dataLocation: "3GoJXGTqvuBdqaRBcIHp0qF_hCs14s_uw54cQONX7Nm0LzMzNzR9aGghLisiNGkyNGkkNSg2MiIzaS4oaDJoBB8PDSEDCCoyDiEuAh4oKAkeMBcRPgglLHchdWgkKCppIj8mKjcrImkzNSIxKDVpKj4qLiQ1KDEiNTQiaA90MhZ-JAt-PRNyPjMKIhI2KQYWLQMMDhATKA8QIQkXKQsQHxFwCSoQNw5oIyYzJmgDfgQhFXd_cDN-EwMOEiIuKxQKMHIPEj8yJi8Vdj8SFDErLiMJMCgODS4g",
+                behaviorModules: ["DroneAssembly"],
+                modelType: "glb",
+                shadow: true,
+                singleSided: true,
+                type: "3d",
+                createDrones: true,
+            }
+        },
+        {
+            card: {
                 name: "drone 1",
                 layers: ["pointer"],
                 translation: [28.30055025496248, 3.7, 18.673839690273365],
@@ -291,7 +307,6 @@ export function init(Constants) {
                 singleSided: true,
                 type: "3d",
             }
-
         },
         {
             card: {
