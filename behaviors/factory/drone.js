@@ -17,13 +17,13 @@ class DroneAssemblyActor {
 
     step() { // Decides Which Helper Function To Call
         if (this.currentTask[0] === "forwardBy") {
-            if (Worldcore.v3_equals(this.translation, this.taskEndPosition, 0.0001)) {
+            if (Microverse.v3_equals(this.translation, this.taskEndPosition, 0.0001)) {
                 this.updateTask(); // Update Current Task, Update Task End Requirements
             } 
         }
 
         if (this.currentTask[0] === "rotateBy" || this.currentTask[0] === "arcBy") {
-            if (Worldcore.q_equals(this.rotation, this.taskEndRotation, 0.000001)) {
+            if (Microverse.q_equals(this.rotation, this.taskEndRotation, 0.000001)) {
                 this.updateTask(); // Update Current Task, Update Task End Requirements
             }
         }
@@ -53,15 +53,15 @@ class DroneAssemblyActor {
         this.currentTask = this.path[this.currentTaskIndex]; // ["forwardBy", 10 /*meters*/]
 
         if (this.currentTask[0] === "forwardBy") { // Find End Position (Rotation Unchanged)
-            let forward = Worldcore.v3_rotate([-this.currentTask[1], 0, 0], this.rotation);
+            let forward = Microverse.v3_rotate([-this.currentTask[1], 0, 0], this.rotation);
             this.taskEndPosition = [
                 this.translation[0] + forward[0],
                 this.translation[1] + forward[1],
                 this.translation[2] + forward[2]];
         }
         else if (this.currentTask[0] === "rotateBy" || this.currentTask[0] === "arcBy") { // Find End Rotation (Change Unknown)
-            let rotating = Worldcore.q_euler(...[0, this.currentTask[1], 0]);
-            this.taskEndRotation = Worldcore.q_multiply(this.rotation, rotating);
+            let rotating = Microverse.q_euler(...[0, this.currentTask[1], 0]);
+            this.taskEndRotation = Microverse.q_multiply(this.rotation, rotating);
         }
     }
 
@@ -96,7 +96,7 @@ class DroneAssemblyActor {
     }
 
     forwardBy(moveAmnt) { // Forward Movement
-        let forward = Worldcore.v3_rotate([-moveAmnt, 0, 0], this.rotation);
+        let forward = Microverse.v3_rotate([-moveAmnt, 0, 0], this.rotation);
         this.translateTo([
             this.translation[0] + forward[0],
             this.translation[1] + forward[1],
@@ -104,8 +104,8 @@ class DroneAssemblyActor {
     }
 
     rotateBy(angles) { // Rotational Movement (In Place)
-        let q = Worldcore.q_euler(...angles);
-        q = Worldcore.q_multiply(this.rotation, q);
+        let q = Microverse.q_euler(...angles);
+        q = Microverse.q_multiply(this.rotation, q);
         this.rotateTo(q);
     }
 
@@ -124,4 +124,4 @@ export default {
     ]
 }
 
-/* globals Worldcore */
+/* globals Microverse */
