@@ -82,6 +82,7 @@ export function init(Constants) {
                 textColor: 0xEF4A3E,
                 textColor2: 0x444444,
                 textWeight: 'bold',
+                textFont: "helvetiker",
                 fullBright: true,
                 bevelEnabled: false,
                 translation: [-8, -1, -10],
