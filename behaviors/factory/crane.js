@@ -27,6 +27,7 @@ class CraneActor {
             name: "craneBase",
             translation: [0, -4.6239610018586506, 0.35],
             scale: [0.9, 0.9, 0.9],
+            dataScale: [3.384158349075, 3.384158349075, 3.384158349075],
             parent: this,
             modelType: "glb",
             dataLocation: "35H7xJVLhQNFxNMt5HZigey3PXGNeREIgL3fy_PNJaOsXUFBRUYPGhpTXFlQRhtARhtWR1pEQFBBG1xaGkAadm19f1NxelhAfFNccGxaWntsQmVjTHpXXgVTBxpWWlgbUE1UWEVZUBtBR1BDWkcbWExYXFZHWkNQR0ZQGmABZQcHckV0cnJDXlRReGB3B3JMam0DeUwEGGENWgNhZAxaB1NgWUB0B2waUVRBVBpDQGJqeEV7ZmNQc2JZAWIHAndQVEZ8fURQY0NlBmp_UAd-DH9FZXRXUkRC",
@@ -57,6 +58,7 @@ class CraneActor {
                     name: "craneHook",
                     translation: [0, 27.135389925172704, 0], // Take Second Connection into Account
                     dataTranslation: [0, -45, 0], // Offset
+                    dataScale: [4.422980389669552, 4.422980389669552, 4.422980389669552],
                     scale: [1.1, 1.1, 1.1],
                     parent: this,
                     type: "3d",

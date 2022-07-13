@@ -47,8 +47,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.listen("showControls", this.showControls);
         this.listen("setCardData", this.setCardData);
 
-        this.listen("dataScaleComputed", this.dataScaleComputed);
-        this.listen("setAnimationIndex", this.setAnimationIndex);
+        // this.listen("dataScaleComputed", this.dataScaleComputed);
+        this.listen("setAnimationClipIndex", this.setAnimationClipIndex);
     }
 
     separateOptions(options) {
@@ -200,6 +200,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             // this is a weird inter mixins dependency but not sure how to write it
             this.subscribe(this.id, "text", "codeAccepted");
         } else if (type === "3d" || type === "3D") {
+            if (this._cardData.animationClipIndex !== undefined && this._cardData.animationStartTime === undefined) {
+                this._cardData.animationStartTime = this.now();
+            }
         } else if (type === "2d" || type === "2D" ) {
         } else if (type === "lighting") {
         } else if (type === "object") {
@@ -218,6 +221,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         return [this._cardData.textureWidth * uv[0], this._cardData.textureHeight * (1 - uv[1])];
     }
 
+    /*
     dataScaleComputed(s) {
         // when a 3D model is loaded, it automatically computes dataScale on the view side.
         // the value is transmitted to the model. (potentially multiple times).
@@ -227,6 +231,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             this._cardData.dataScale = s;
         }
     }
+    */
 
     textChanged() {
         this._cardData.runs = this.content.runs;
@@ -318,10 +323,10 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.updateBehaviors({behaviorModules});
     }
 
-    setAnimationIndex(animationIndex) {
+    setAnimationClipIndex(animationClipIndex) {
         // called when a view loads a 3D model and detects that it has animation clips.
         if (this._cardData.animationClipIndex !== undefined) {return;}
-        this._cardData.animationClipIndex = animationIndex;
+        this._cardData.animationClipIndex = animationClipIndex;
         if (this._cardData.animationStartTime === undefined) this._cardData.animationStartTime = this.now();
         this.say("animationStateChanged");
     }
@@ -487,6 +492,18 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         }
     }
 
+    destroy() {
+        let cardData = this.actor._cardData;
+        let assetManager = this.service("AssetManager").assetManager;
+        if (cardData.dataLocation) {
+            assetManager.revoke(cardData.dataLocation, this.id);
+        }
+        if (cardData.textureLocation) {
+            assetManager.revoke(cardData.textureLocation, this.id);
+        }
+        super.destroy();
+    }
+
     ensureColliderObject() {
         if (!this.colliderObject) {
             let collider = new THREE.Group();
@@ -620,6 +637,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let assetManager = this.service("AssetManager").assetManager;
 
         this.getBuffer(model3d).then((buffer) => {
+            assetManager.setCache(model3d, buffer, this.id);
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
             addShadows(obj, shadow, singleSided, THREE);
@@ -630,6 +648,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
             if (options.placeholder) {
                 console.log("delete collider for placeholder");
+                // assuming that a card with placeholder specified does not need to keep the cache.
+                // So we special case it to delete the cache entry.
+                assetManager.revoke(model3d, this.id);
                 this.cleanupColliderObject();
                 this.shape.remove(this.placeholder);
             }
@@ -701,8 +722,12 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 texture: this.texture
             });
         } else if (textureType === "image") {
-            texturePromise = this.getBuffer(textureLocation).then((buffer) => {
-                let objectURL = URL.createObjectURL(new Blob([buffer]));
+            texturePromise = this.getBuffer(textureLocation).then((bufferOrObj) => {
+                if (bufferOrObj.texture) {
+                    this.texture = bufferOrObj.texture;
+                    return Promise.resolve(bufferOrObj);
+                }
+                let objectURL = URL.createObjectURL(new Blob([bufferOrObj]));
                 this.objectURL = objectURL;
                 return new Promise((resolve, reject) => {
                     this.texture = new THREE.TextureLoader().load(
@@ -740,6 +765,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         if (dataLocation) {
             return this.getBuffer(dataLocation).then((buffer) => {
+                assetManager.setCache(dataLocation, buffer, this.id);
                 return assetManager.load(buffer, "svg", THREE, loadOptions);
             }).then((obj) => {
                 normalizeSVG(obj, depth, shadow, THREE);
@@ -767,7 +793,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     let scale = 1 / max;
                     width = textureWidth * scale;
                     height = textureHeight * scale;
-
+                    assetManager.setCache(textureLocation, textureObj, this.id);
                     this.properties2D = {...this.properties2D, width, height, textureWidth, textureHeight};
                 }
 
@@ -844,13 +870,17 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (options.dataScale) {
             obj.scale.set(...options.dataScale);
         } else {
+            /*
             let size = new THREE.Vector3(0, 0, 0);
             new THREE.Box3().setFromObject(obj).getSize(size);
             let max = Math.max(size.x, size.y, size.z);
             let s = 4 / max;
             obj.scale.set(s, s, s);
-            // this is sent by all views at this moment
-            this.say("dataScaleComputed", [s, s, s]);
+            // this part of code is executed by all views at this moment
+            if (!this.actor._cardData.dataScale) {
+                this.say("dataScaleComputed", [s, s, s]);
+            }
+            */
         }
         if (options.dataTranslation) {
             obj.position.set(...options.dataTranslation);
@@ -866,8 +896,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         let spec = obj._croquetAnimation;
         this.animationSpec = spec;
-        if (!this.actor.animationSpec && spec.animations.length > 0) {
-            this.say("setAnimationIndex", 0); // use the first animation clip as default
+        if (this.actor._cardData.animationClipIndex === undefined && spec.animations.length > 0) {
+            this.say("setAnimationClipIndex", 0); // use the first animation clip as default
         }
     }
 
@@ -959,6 +989,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 .then((resp) => resp.arrayBuffer())
                 .then((arrayBuffer) => new Uint8Array(arrayBuffer));
         } else {
+            let assetManager = this.service("AssetManager").assetManager;
+            let buffer = assetManager.getCache(name);
+            if (buffer) {return Promise.resolve(buffer);}
             let handle = Data.fromId(name);
             return Data.fetch(this.sessionId, handle);
         }

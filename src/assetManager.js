@@ -35,8 +35,7 @@ class ImportChecker {
 
 export class AssetManager {
     constructor() {
-        this.assetCache = {}; // {[dataId]: {buffer, dataURL, blob, userIds: [id]}}
-        this.objectURLs = {}; // {[viewId]: [dataIds]}
+        this.assetCache = {}; // {[dataId]: {data /*(of any kind)*/, ids: [viewObjectId|"0"]}}
         this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf", "vrse"]);
     }
 
@@ -201,38 +200,39 @@ export class AssetManager {
         };
     }
 
-    use(dataId, userId) {
-        let obj = this.assetCache[dataId];
-        if (!obj) {return null;}
-        let {buffer, objectURL, blob, userIds} = obj;
-        if (userIds.indexOf(userId) < 0) {
-            userIds.push(userId);
+    setCache(dataId, data, id) {
+        if (!this.assetCache[dataId]) {
+            this.assetCache[dataId] = {data, ids: new Set([id])};
+        } else {
+            if (this.assetCache[dataId]) {
+                this.assetCache[dataId].ids.delete("0");
+                this.assetCache[dataId].ids.add(id);
+            }
         }
-        if (!blob && buffer) {
-            obj.blob = new Blob([buffer], { type: 'application/octet-stream'});
-            obj.buffer = null;
-        }
-        if (!objectURL) {
-            obj.objectURL = URL.createObjectURL(blob);
-        }
-        return obj.objectURL;
     }
 
-    revoke(dataId, userId) {
+    getCache(dataId) {
         let obj = this.assetCache[dataId];
-        if (!obj) {return null;}
-        let {_buffer, objectURL, _blob, userIds} = obj;
-        let ind = userIds.indexOf(userId);
-        if (ind >= 0) {
-            userIds.splice(ind, 1);
-        }
+        if (obj) {return obj.data;}
+        return null;
+    }
 
-        if (userIds.length === 0 && objectURL) {
-            URL.revokeObjectURL(objectURL);
-            obj.objectURL = null;
-        }
+    fillCacheIfAbsent(dataId, func, id) {
+        let obj = this.assetCache[dataId];
+        if (obj) {return obj.data;}
 
-        delete this.assetCache[dataId];
+        obj = func();
+        this.setCache(dataId, obj, id);
+        return obj;
+    }
+
+    revoke(dataId, id) {
+        let obj = this.assetCache[dataId];
+        if (!obj) {return;}
+        obj.ids.delete(id);
+        if (obj.ids.size === 0) {
+            delete this.assetCache[dataId];
+        }
     }
 
     async load(buffer, type, THREE, options) {
@@ -248,7 +248,7 @@ export class AssetManager {
             "png": "importIMG",
             "jpg": "importIMG",
             "jpeg": "importIMG",
-            "gigf": "importIMG",
+            "gif": "importIMG",
             "exr": "importEXR"
         };
 

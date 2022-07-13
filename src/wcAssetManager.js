@@ -11,9 +11,5 @@ export class AssetManager extends ViewService {
         super(name || "AssetManager");
         this.assetManager = new BasicAssetManager();
     }
-
-    destroy() {
-        super.destroy();
-    }
 }
 
