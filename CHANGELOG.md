@@ -3,6 +3,31 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-07-08
+
+### Added
+- Experimental TextGeometry based 3D text is added.
+
+### Changed
+- Use a local only default key when the apiKey.js is not found.
+
+## 2022-07-01
+
+### Added
+- The default gallery world has the Auggie Award statue.
+- The crane and boxes improved in the factory world.
+
+### Fixed
+- Future call made from a behavior with arguments works properly.
+- Loading a VRSE with a nested structure translated property.
+- Typos and errors in Documentations are fixed.
+
+### Changed
+- Made Three.JS animation under the control of Microverse code.
+- Do not import the shell code into a Microverse frame.
+- Fix documentation.
+- The global variable visible from a behavior is called Microverse, instead of Worldcore.
+
 ## 2022-06-24
 
 ### Added
