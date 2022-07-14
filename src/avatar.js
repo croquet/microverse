@@ -594,11 +594,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         setupWorldMenuButton(this, App, this.sessionId);
 
-        this.assetManager = this.service("AssetManager");
-        // window.assetManager = this.assetManager.assetManager;
-
         // drop and paste
-        this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+        this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
             if (type === "pastedtext") {
                 this.pasteText(buffer);
             } else if (type === "vrse") {

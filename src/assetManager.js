@@ -5,6 +5,8 @@
 
 const MAX_IMPORT_MB = 100; // aggregate
 
+let THREE;
+
 function isZip(buffer) {
     return buffer[0] === 0x50 && buffer[1] === 0x4b &&
         buffer[2] === 0x03 && buffer[3] === 0x04;
@@ -202,10 +204,8 @@ export class AssetManager {
         if (!this.assetCache[dataId]) {
             this.assetCache[dataId] = {data, ids: new Set([id])};
         } else {
-            if (this.assetCache[dataId]) {
-                this.assetCache[dataId].ids.delete("0");
-                this.assetCache[dataId].ids.add(id);
-            }
+            this.assetCache[dataId].ids.delete("0");
+            this.assetCache[dataId].ids.add(id);
         }
     }
 
@@ -217,8 +217,10 @@ export class AssetManager {
 
     fillCacheIfAbsent(dataId, func, id) {
         let obj = this.assetCache[dataId];
-        if (obj) {return obj.data;}
-
+        if (obj) {
+            this.assetCache[dataId].ids.add(id);
+            return obj.data;
+        }
         obj = func();
         this.setCache(dataId, obj, id);
         return obj;
@@ -603,7 +605,8 @@ export function addShadows(obj3d, shadow, singleSide, THREE) {
     });
 }
 
-export function normalizeSVG(svgGroup, depth, shadow) {
+export function normalizeSVG(svgGroup, depth, shadow, three) {
+    THREE = three;
     let bb = boundingBox(svgGroup);
     let ext = extent3D(svgGroup, bb);
     let cen = center3D(svgGroup, bb);

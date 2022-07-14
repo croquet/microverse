@@ -768,7 +768,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 assetManager.setCache(dataLocation, buffer, this.id);
                 return assetManager.load(buffer, "svg", THREE, loadOptions);
             }).then((obj) => {
-                normalizeSVG(obj, depth, shadow);
+                normalizeSVG(obj, depth, shadow, THREE);
                 return obj;
             }).then((obj) => {
                 if (this.texture) {
