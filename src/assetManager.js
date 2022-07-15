@@ -204,10 +204,8 @@ export class AssetManager {
         if (!this.assetCache[dataId]) {
             this.assetCache[dataId] = {data, ids: new Set([id])};
         } else {
-            if (this.assetCache[dataId]) {
-                this.assetCache[dataId].ids.delete("0");
-                this.assetCache[dataId].ids.add(id);
-            }
+            this.assetCache[dataId].ids.delete("0");
+            this.assetCache[dataId].ids.add(id);
         }
     }
 
@@ -219,8 +217,10 @@ export class AssetManager {
 
     fillCacheIfAbsent(dataId, func, id) {
         let obj = this.assetCache[dataId];
-        if (obj) {return obj.data;}
-
+        if (obj) {
+            this.assetCache[dataId].ids.add(id);
+            return obj.data;
+        }
         obj = func();
         this.setCache(dataId, obj, id);
         return obj;
@@ -475,7 +475,6 @@ export class Loader {
     }
 
     async importSVG(buffer, options, THREE) {
-        this.THREE = THREE;
         const setupFiles = async () => {
             let c = {"svg": URL.createObjectURL(new Blob([buffer]))};
             return Promise.resolve(c);

@@ -594,11 +594,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         setupWorldMenuButton(this, App, this.sessionId);
 
-        this.assetManager = this.service("AssetManager");
-        // window.assetManager = this.assetManager.assetManager;
-
         // drop and paste
-        this.assetManager.assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+        this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
             if (type === "pastedtext") {
                 this.pasteText(buffer);
             } else if (type === "vrse") {
@@ -707,7 +704,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let animationClipIndex;
         let dataScale;
         try {
-            obj = await assetManager.load(buffer, type, THREE);
+            obj = await assetManager.load(buffer, type, THREE, {});
         } catch (e) {
             console.warn("dropped file could not be processed", e);
             return;
