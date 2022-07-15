@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "pendulum.js", "openPortal.js", "urlLink.js"
+        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js", "urlLink.js", "cradle.js"
     ];
 
     const frameColor = 0x888888;
@@ -296,13 +296,13 @@ width: 1.8,
         */
         {
             card: {
-                name:"pendulum",
+                name: "cradle",
                 type: "object",
-                translation: [-0.03701975732147922, 3.2368919013826734, 8.444841625884546],
-                behaviorModules: ["Rapier", "Pendulum"],
+                translation: [-9.67815341742099, 3.2368919013826734, 3.968801765942323],
+                behaviorModules: ["Rapier", "Cradle"],
                 layers: ["pointer"],
+                shadow: true,
                 scale: [0.2, 0.2, 0.2],
-                color: 0xaa6666,
             }
         },
     ];
