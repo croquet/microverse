@@ -63,7 +63,7 @@ class ScrollAreaPawn {
         if (this.actor.target) {
             this.targetSet();
         }
-        this.firstTime = true;
+        this.future(100).updateDisplay();
     }
 
     targetSet() {
@@ -99,11 +99,6 @@ class ScrollAreaPawn {
     updateDisplay() {
         let w = this.actor._cardData.width;
         let h = this.actor._cardData.height;
-
-        if (this.firstTime) {
-            this.firstTime = false;
-            this.future(10).updateDisplay();
-        }
 
         let left = w / 2;
         let right = w / 2;
