@@ -1011,7 +1011,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     update(time, delta) {
-        if (!this.actor.follow) {
+        if (this.actor.follow || this.actor.remoteControlled) {
+            // if it is following the view is remote controlled
+            // so just call the PM_Smoothed version of update()
+            this.tug = 0.06;
+            super.update(time, delta);
+        } else {
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
             this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
@@ -1038,11 +1043,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
                 this.refreshCameraTransform();
             }
-        } else {
-            // if it is following the view is remote controlled
-            // so just call the PM_Smoothed version of update()
-            this.tug = 0.06;
-            super.update(time, delta);
         }
         this.updatePortalRender();
     }
