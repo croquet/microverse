@@ -873,12 +873,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // This is called from ThreeCamera's constructor but
             // all look* properties are not intialized yet.
             if (!this.isPrimary && this.portalLookExternal) return this.portalLook;
-            else return this.walkLook;
+            else return this.walkLook();
         } else return this.global;
     }
 
     // the camera when walking: based on avatar with 3rd person lookOffset
-    get walkLook() {
+    walkLook() {
+        let behaviorManager = this.actor.behaviorManager;
+        let behavior = behaviorManager.lookup("AvatarEventHandler", "AvatarPawn");
+        if (behavior) {
+            if (behavior.$behavior.walkLook) {
+                return this.call("AvatarEventHandler$AvatarPawn", "walkLook");
+            }
+        }
+
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
         const m0 = m4_translation(this.lookOffset);
         const m1 = m4_rotationQ(pitchRotation);
