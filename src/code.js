@@ -408,11 +408,10 @@ export const PM_Code = superclass => class extends superclass {
     // canonical form of listner is a function.
     // We try to remove and replace the existing subscription if the "same" handler is registered.
     scriptSubscribe(scope, subscription, listener) {
-        // console.log("view", scope, subscription, listener);
         // listener can be:
-        // this.func
+        // this.func for a method in the calling behavior
         // name for a base object method
-        // name for an expander method
+        // name for a behavior method
         // string with "." for this module, a behavior and method name
         // // string with "$" and "." for external name of module, a behavior name, method name
 
@@ -431,6 +430,10 @@ export const PM_Code = superclass => class extends superclass {
 
         let behaviorName;
         let moduleName;
+
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
 
         let dollar = listener.indexOf("$");
 
