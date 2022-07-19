@@ -82,7 +82,8 @@ class Shell {
             }
         });
 
-        document.getElementById("fullscreenBttn").onclick = (e) => {
+        this.fullscreenBttn = document.getElementById("fullscreenBttn");
+        this.fullscreenBttn.onclick = (e) => {
             e.stopPropagation();
             e.preventDefault();
 
@@ -306,6 +307,24 @@ class Shell {
                     this.activateFrame(targetFrame.portalId, true, data.transferData);
                 } else {
                     console.warn("shell: ignoring world-enter from non-primary portal-" + fromPortalId);
+                }
+                return;
+            case "hud":
+                let joystickFlag = data.joystick;
+                let fullscreenFlag = data.fullscreen;
+                if (joystickFlag !== undefined && this.joystick) {
+                    if (joystickFlag) {
+                        this.joystick.style.removeProperty("display");
+                    } else {
+                        this.joystick.style.setProperty("display", "none");
+                    }
+                }
+                if (fullscreenFlag !== undefined && this.fullscreenBttn) {
+                    if (fullscreenFlag) {
+                        this.fullscreenBttn.style.removeProperty("display");
+                    } else {
+                        this.fullscreenBttn.style.setProperty("display", "none");
+                    }
                 }
                 return;
             default:
