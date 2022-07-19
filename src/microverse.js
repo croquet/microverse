@@ -119,11 +119,11 @@ function loadInitialBehaviors(paths, directory) {
         if (!isSystem) {
             let code = `import('${basedir}${directory}/${path}')`;
             return eval(code).then((module) => {
-                let rest = directory.slice("behaviors/".length);
-                return [`${rest}/${path}`, module];
+                let rest = directory.slice("behaviors".length);
+                return [`${rest === "" ? "" : rest + "/"}${path}`, module];
             })
         } else {
-            let modulePath =  `${directory.split("/")[1]}/${path}`;
+            let modulePath = `${directory.split("/")[1]}/${path}`;
             let code = `import('${basedir}behaviors/${modulePath}')`;
             return eval(code).then((module) => {
                 return [modulePath, module];
