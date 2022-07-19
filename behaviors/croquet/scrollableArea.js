@@ -63,7 +63,7 @@ class ScrollAreaPawn {
         if (this.actor.target) {
             this.targetSet();
         }
-        this.future(100).updateDisplay();
+        this.future(1000).updateDisplay();
     }
 
     targetSet() {
@@ -97,6 +97,7 @@ class ScrollAreaPawn {
     }
 
     updateDisplay() {
+        // console.log("updateDisplay");
         let w = this.actor._cardData.width;
         let h = this.actor._cardData.height;
 
