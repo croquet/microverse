@@ -128,9 +128,7 @@ The two new cards are different however. The first card is the "Joe the Box" car
 
 ## Behaviors
 
-There are two new behaviors for us to explore. The first is "joeTheBox", a very simple pawn construction behavior. This version of Joe has no simulation or shared interactions associated with it, thus there is no actor behavior. The second is "simpleSpin", a simple actor user interaction and simulation behavior. SimpleSpin is focused on user interaction and simulation, so this has no pawn behavior. The introductory tutorial has an overview of the actor and pawn system and their relationship.
-
-[Tutorial Intro: Actor Pawn Relationship](./Tutorial1.md#actor-pawn-relationship)
+There are two new behaviors for us to explore. The first is "joeTheBox", a very simple pawn construction behavior. This version of Joe has no simulation or shared interactions associated with it, thus there is no actor behavior. The second is "simpleSpin", a simple actor user interaction and simulation behavior. SimpleSpin is focused on user interaction and simulation, so this has no pawn behavior. The [introductory tutorial](./tutorial-Tutorial1.html) has an overview of the actor and pawn system and their relationship.
 
 ## Joe
 
