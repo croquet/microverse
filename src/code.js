@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import * as WorldcoreExports from "@croquet/worldcore-kernel";
-const {ViewService, ModelService, GetPawn, Model} = WorldcoreExports;
+const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "@croquet/worldcore-three";
 import * as WorldcoreRapierExports from "./physics.js";
@@ -729,8 +729,19 @@ export class BehaviorModelManager extends ModelService {
     loadLibraries(codeArray) {
         let changed = [];
         let nameMap = new Map();
+        let userDir = Constants.UserBehaviorDirectory.slice("behaviors/".length);
+        let systemDir = Constants.SystemBehaviorDirectory.slice("behaviors/".length);
+        
         codeArray.forEach((moduleDef) => {
             let {action, name, systemModule, location} = moduleDef;
+            if (location) {
+                let index = location.lastIndexOf("/");
+                let pathPart = location.slice(0, index);
+                if (!pathPart.startsWith(userDir) && !pathPart.startsWith(systemDir)) {
+                    return;
+                }
+            }
+            
             let internalName = name;
             if (!action || action === "add") {
                 let def = {...moduleDef};
