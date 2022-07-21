@@ -212,7 +212,7 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
-        let had = this.scriptListeners && this.scriptListeners.get(listenerKey, fullMethodName);
+        let had = this.scriptListeners && this.scriptListeners.get(listenerKey);
         if (had) {return;}
 
         // this check is needed when subscribe is called from constructors of superclasses.
@@ -731,7 +731,7 @@ export class BehaviorModelManager extends ModelService {
         let nameMap = new Map();
         let userDir = Constants.UserBehaviorDirectory.slice("behaviors/".length);
         let systemDir = Constants.SystemBehaviorDirectory.slice("behaviors/".length);
-        
+
         codeArray.forEach((moduleDef) => {
             let {action, name, systemModule, location} = moduleDef;
             if (location) {
@@ -741,7 +741,7 @@ export class BehaviorModelManager extends ModelService {
                     return;
                 }
             }
-            
+
             let internalName = name;
             if (!action || action === "add") {
                 let def = {...moduleDef};
