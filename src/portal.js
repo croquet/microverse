@@ -258,7 +258,7 @@ export class PortalPawn extends CardPawn {
 
     cardDataUpdated(data) {
         super.cardDataUpdated(data);
-        if (this.didPropertyChange(data, "portalURL")) this.openPortal();
+        // if (this.didPropertyChange(data, "portalURL")) this.openPortal();
         if (this.didPropertyChange(data, "sparkle")) this.updateParticles();
     }
 
