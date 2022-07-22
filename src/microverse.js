@@ -12,6 +12,7 @@ import {
     FontModelManager, FontViewManager } from "./text/text.js";
 import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
+import { frameName } from "./frame.js";
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
@@ -166,10 +167,16 @@ class MyPlayerManager extends PlayerManager {
         // (as it is) it'd fall back to use the short string as a stem of the model file name.
         // if it is an object, we use it as the card spec.
 
+        // when an avatar is created to hold the through-portal camera in a secondary
+        // world, it is initialised according to the next entry in the rota of default
+        // names/shapes (but remains invisible).  if the user comes through into this
+        // world, at that point the avatar is updated to the name and shape that the
+        // user had in the previous world (see AvatarPawn.frameTypeChanged).
+
         let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
         let avatarSpec = Constants.AvatarNames[index];
-        console.log("MyPlayerManager", this.avatarCount);
+        console.log(frameName(), "MyPlayerManager", this.avatarCount);
         let options = {...playerOptions};
         options.noSave = true;
         options.type = "3d";
@@ -188,7 +195,7 @@ class MyPlayerManager extends PlayerManager {
         let behaviorManager = this.service("BehaviorModelManager");
 
         if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
-            let modules;
+            // let modules;
             if (!options.behaviorModules) {
                 options.behaviorModules = ["AvatarEventHandler"];
             } else {
@@ -216,22 +223,35 @@ class MyPlayerManager extends PlayerManager {
         return [...this.players.values()].filter((player) => player.inWorld);
     }
 
-    startPresentation(playerId, presenterToken=null) {
-        if (this.presentationMode && this.presentationMode !== playerId) {
-            return; // somebody is already presenting
-        }
+    startPresentation(playerId, presenterToken = null) {
+        // sent by AvatarActor.comeToMe or this.continuePresenting (triggered by a
+        // presenter arriving from another world).  in either case it may turn out
+        // that some other presenter has beaten them to it. %%in this world someone else is already presenting.  in
+        // that case, the arriving presenter and their followers will be left to their
+        // own devices.
+        if (this.presentationMode && this.presentationMode !== playerId) return;
 
         this.presentationMode = playerId;
 
-        // if we have a token, we came through a portal and teleport only previous followers to the presenter
-        // otherwise someone started a presentation, and grab everyone who is in the world currently
+        // examining the current inWorld players, decide who will join this
+        // presentation.  if a token was provided, only those players carrying the same
+        // token are signed up (which will include the presenter, and any follower that
+        // showed up before the presenter started presenting).  only the presenter needs
+        // to keep that token, to catch potential late followers.
+        // if no token, grab everyone (and delete any token they might have, while we're
+        // about it).
         for (const player of this.playersInWorld()) {
             if (presenterToken && player.presenterToken !== presenterToken) continue;
+            if (!presenterToken || player.playerId !== playerId) delete player.presenterToken;
             this.followers.add(player.playerId);
         }
 
-        this.publish("playerManager", "presentationStarted", playerId);
+        this.publish("playerManager", "presentationStarted");
         this.publish("playerManager", "playerCountChanged");
+    }
+
+    addFollower(playerId) {
+        this.followers.add(playerId);
     }
 
     stopPresentation() {
@@ -248,38 +268,44 @@ class MyPlayerManager extends PlayerManager {
     }
 
     continuePresenting(presenter, presenterToken) {
-        // a presenter came into this world through a portal carrying a token
-        // we need to make them the presenter
-        // and make all others carrying the same token follow them
-        // it's a bit tricky because the presenter may enter before or after the others
-        console.log(this.sessionId, "continuePresenting", presenter.id, presenterToken);
-        presenter.presenterToken = presenterToken;
-        this.startPresentation(presenter.playerId, presenterToken);
+        // a presenter came into this world through a portal carrying a token.  if there
+        // is not already a presentation in progress we make them the presenter, and make
+        // all followers carrying the same token follow them.  note that followers may
+        // enter before or after the presenter.
+        if (!this.presentationMode) {
+            console.log(frameName(), "continuePresenting", presenter.id, presenterToken);
+            presenter.presenterToken = presenterToken; // we keep this for as long as we're presenting
+            this.startPresentation(presenter.playerId, presenterToken);
+        } else {
+            console.log(frameName(), "continuePresenting rejected due to presentation in progress");
+        }
     }
 
     continueFollowing(follower, presenterToken) {
-        // a follower came into this world through a portal carrying a token
-        // we need to make them follow the presenter with the same token
-        // it's a bit tricky because the follower may enter before or after the presenter
-        follower.presenterToken = presenterToken;
+        // a follower came into this world through a portal carrying a token, hoping
+        // to follow the presenter with the same token.  the follower may be entering
+        // before or after the presenter.  if the expected presenter isn't presenting,
+        // the follower will just wait; even if someone else is presenting now, it's
+        // conceivable - albeit unlikely - that the current presentation will end in
+        // time for the expected presenter to take over.
         if (this.presentationMode && this.presenter.presenterToken === presenterToken) {
-            console.log(this.sessionId, "continueFollowing", this.presenter.id, presenterToken);
+            console.log(frameName(), "continueFollowing", this.presenter.id, presenterToken);
             this.followers.add(follower.playerId);
-            follower.presentationStarted(this.presentationMode);
+            follower.presentationStarted();
             this.publish("playerManager", "playerCountChanged");
         } else {
-            // the presenter is not here yet, so we'll wait for them to continuePresenting
-            console.log(this.sessionId, "continueFollowing but presenter not here yet", presenterToken);
+            follower.presenterToken = presenterToken;
+            console.log(frameName(), "continueFollowing: expected presenter not presenting", presenterToken);
         }
     }
 
     playerEnteredWorld(player) {
-        console.log(this.sessionId, "playerEnteredWorld", player);
+        console.log(frameName(), "playerEnteredWorld", player);
         this.publish("playerManager", "playerCountChanged");
     }
 
     playerLeftWorld(player) {
-        console.log(this.sessionId, "playerLeftWorld", player);
+        console.log(frameName(), "playerLeftWorld", player);
         if (player.playerId === this.presentationMode) {
             this.stopPresentation();
         }

@@ -20,7 +20,7 @@ class OpenRefineryPortalActor {
         this.createCard({
             translation: [104.07644536824432, 5.026017508210918, -142.5899873815636],
             rotation: [0, 0.9275515022151297, 0, 0.37369534481774874],
-            layers: ["pointer", "portal"],
+            layers: ["pointer"],
             className: "PortalActor",
             color: 16737996,
             cornerRadius: 0.05,

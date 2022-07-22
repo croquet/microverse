@@ -426,7 +426,7 @@ export function init(Constants) {
             card: {
                 name: "start point",
                 type: "object",
-                translation: [0, 4.4, 34],
+                translation: [0, 4.4, 38],
                 spawn: "default"
             }
         }

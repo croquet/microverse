@@ -52,7 +52,6 @@ addShellListener((command, data) => {
     if (command === "frame-type") {
         const primary = data.frameType === "primary";
         if (isPrimaryFrame !== primary) {
-            console.log(frameName(), "frame-type", data.frameType);
             isPrimaryFrame = primary;
             document.body.style.background = "transparent";
             document.getElementById("hud").classList.toggle("primary-frame", isPrimaryFrame);

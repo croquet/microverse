@@ -20,7 +20,7 @@ class OpenArtGalleryPortalActor {
         this.createCard({
             translation: [0, 4.1, 39],
             rotation: [0, 0, 0],
-            layers: ["pointer", "portal"],
+            layers: ["pointer"],
             className: "PortalActor",
             color: 0xFF66CC,
             cornerRadius: 0.05,
