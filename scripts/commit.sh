@@ -1,6 +1,6 @@
 #!/bin/sh
 
-META=`git log --no-walk|grep -v '^Author' |head -2 |tr '\n' ' '`
+META=`git show -s --format='commit: %H Date: %cd'`
 COMMIT=`echo ${META} | awk '{print $2}'`
 
 DIST=${1}
