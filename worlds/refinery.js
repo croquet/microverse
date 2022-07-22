@@ -93,7 +93,7 @@ export function init(Constants) {
                 translation: [-4, -0.4, -29],
                 rotation: [0, -Math.PI / 2, 0],
                 type: "2d",
-                layers: ["pointer", "portal"],
+                layers: ["pointer"],
                 color: 0xFF66CC,
                 frameColor: frameColor,
                 width: 1.8,

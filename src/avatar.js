@@ -26,7 +26,7 @@ const KEY_V = MAX_V / 2;
 // const JOYSTICK_V = 0.000030;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
-const PORTAL_DISTANCE = 0.3;
+const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
 const COLLISION_RADIUS = 0.8;
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
 const Q_ROTATION_180 = q_euler(0, Math.PI, 0);
@@ -82,6 +82,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     // The user leaves the "guided tour".
     leavePresentation() {
         if (!this.follow) {return;}
+
         let manager = this.service("PlayerManager");
         let presentationMode = manager.presentationMode;
         if (!presentationMode) {return;}
@@ -187,38 +188,38 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.service("PlayerManager").startPresentation(this.playerId);
     }
 
-    followMeToWorld(portalURL) {
+    followMeToWorld(presenterTransferData) {
+        // presenterTransferData is the same as the spec this avatar will use to enter
+        // the new world, minus its cardData.
+        // first confirm that we are indeed still the presenter.
         const manager = this.service("PlayerManager");
         if (manager.presentationMode === this.playerId) {
-            const presenterToken = Data.hash(this.playerId); // hash the player id to not leak it to next world
+            const followerTransferData = { ...presenterTransferData };
+            followerTransferData.following = followerTransferData.presenting;
+            delete followerTransferData.presenting;
             for (const playerId of manager.followers) {
                 if (playerId === this.playerId) continue;
                 const follower = manager.player(playerId);
-                follower.followToWorld(presenterToken, portalURL);
+                follower.followToWorld(followerTransferData);
             }
         }
     }
 
-    followToWorld(presenterToken, portalURL) {
-        this.say("followToWorld", { presenterToken, portalURL });
+    followToWorld(followerTransferData) {
+        this.say("followToWorld", { followerTransferData });
     }
 
-    presentationStarted(playerId) {
-        if (this.playerId !== playerId && this.inWorld) {
-            let { presenter, presenterToken } = this.service("PlayerManager");
-            if (presenterToken) {
-                if (this.presenterToken !== presenterToken) return;
-                delete this.presenterToken;
-                this._translation = [...presenter.translation];
-                this._rotation = [...presenter.rotation];
-                this.say("forceOnPosition");
-            } else {
-                this.goTo(presenter.translation, presenter.rotation, false);
-            }
-            this.follow = playerId;
-            this.fall = false;
-            this._anchor = presenter._anchor;
-        }
+    presentationStarted() {
+        // the PlayerManager has already decided which players are in the presentation
+        const { presenter, followers } = this.service("PlayerManager");
+        if (presenter.playerId === this.playerId || !followers.has(this.playerId)) return;
+
+        this._translation = [...presenter.translation];
+        this._rotation = [...presenter.rotation];
+        this.say("forceOnPosition");
+        this.follow = presenter.playerId;
+        this.fall = false;
+        this._anchor = presenter._anchor;
     }
 
     presentationStopped() {
@@ -226,12 +227,18 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     continuePresenting(presenterToken) {
-        // we came into this world through a portal while presenting
+        // we came into this world through a portal while presenting.  if there is
+        // not already a presentation in progress, become the presenter and sign up
+        // every follower who enters (or has already entered) carrying the same token.
         this.service("PlayerManager").continuePresenting(this, presenterToken);
     }
 
     continueFollowing(presenterToken) {
-        // we came into this world through a portal while following
+        // we came into this world through a portal while following.  if the presenter
+        // has come through ahead and is already presenting, the PlayerManager will
+        // sign us up and invoke this.presentationStarted.  otherwise we just wait,
+        // holding onto the token (and knowing that the expected presenter may never
+        // turn up).
         this.service("PlayerManager").continueFollowing(this, presenterToken);
     }
 
@@ -407,7 +414,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             translation,
             rotation,
             type: "2d",
-            layers: ["pointer", "portal"],
+            layers: ["pointer"],
             color: 0xFF66CC,
             frameColor: 0x888888,
             width: 3,
@@ -541,9 +548,9 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
+
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
-        this.lastPortalTime = 0;
         this.lastCollideTranslation = this.actor.translation;
         this.opacity = 1;
 
@@ -558,12 +565,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.isMobile = !!("ontouchstart" in window);
 
-
         this.isFalling = false;
 
-        let renderMgr = this.service("ThreeRenderManager");
+        const renderMgr = this.service("ThreeRenderManager");
         this.camera = renderMgr.camera;
         this.scene = renderMgr.scene;
+
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
         this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
 
@@ -573,13 +580,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
         this.future(100).fadeNearby();
-
-        // clip halfspace behind portalCamera
-        this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
-
-        // 0.2 is to cover the gap of the portal thickness
-        // if there is no anchor, this is the default clip plane
-        // otherwise it will be updated below
 
         document.getElementById("homeBttn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBttn"));
@@ -605,42 +605,53 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         });
 
-        // keep track of being in the primary frame or not
+        // keep track of being in the primary frame or not.  because of the delay involved
+        // in creating the avatar, the frame itself (in frame.js) is bound to have already
+        // processed a "frame-type" message and set its exported isPrimaryFrame value.
         this.isPrimary = isPrimaryFrame;
-        // this.say("_set", { inWorld: this.isPrimary });
-        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, updateTime, forwardTime }) => {
+
+        // clip halfspace behind portalCamera.
+        // [old comment] 0.2 is to cover the gap of the portal thickness
+        // if there is no anchor, this is the default clip plane
+        // otherwise it will be updated below
+        this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
+        this.setPortalClipping();
+
+        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }) => {
             switch (command) {
                 case "frame-type":
                     const isPrimary = frameType === "primary";
-                    if (isPrimary !== this.isPrimary) {
-                        this.frameTypeChanged(isPrimary, spec);
-                        this.isPrimary = isPrimary;
-                        this.lastPortalTime = Date.now();
-                    }
-                    // tell shell that we received this command (TODO: should only send this once)
-                    sendToShell("started");
+                    // a frame generated by addFrame supplies no spec.  in all other cases
+                    // (portal-enter, world-enter) we need to start with the frame frozen.
+                    if (spec) this.setWorldSwitchFreeze(true);
+                    if (isPrimary !== this.isPrimary) this.frameTypeChanged(isPrimary, spec);
+                    // a secondary frame for which we already have camera information
+                    // will receive it as part of this message
+                    if (cameraMatrix) this.portalCameraUpdate(cameraMatrix);
+                    // acknowledge receipt so that shell knows this frame is ready
+                    sendToShell("frame-type-received", { frameType });
                     break;
-                case "start-sync-rendering":
-                    renderMgr.setRender(false);
-                    break;
-                case "stop-sync-rendering":
-                    renderMgr.setRender(true);
+                case "release-freeze":
+                    // sent to the primary as soon as all frames (this included) have
+                    // confirmed their switch to primary or secondary state.
+                    this.setWorldSwitchFreeze(false);
+                    this.refreshCameraTransform();
+                    this.updatePortalRender(true); // true => force portals to re-render
                     break;
                 case "sync-render-now":
-                    // console.log(Date.now() - updateTime);
-                    renderMgr.composer.render();
-                    break;
-                case "portal-update":
-                    if (cameraMatrix) {
-                        this.portalLookExternal = cameraMatrix;
-                        initialPortalLookExternal = cameraMatrix;
-                        if (!this.isPrimary) {
-                            this.refreshCameraTransform();
-                            renderMgr.composer.render();
-                            const renderedTime = Date.now();
-                            sendToShell("portal-world-rendered", { updateTime, forwardTime, renderedTime });
-                        }
+                    if (this.frozenForWorldSwitch) {
+                        console.log(frameName(), "ignoring sync-render while frozen");
+                        return;
                     }
+                    this.refreshCameraTransform();
+                    renderMgr.composer.render();
+                    if (acknowledgeReceipt) sendToShell("primary-rendered");
+                    break;
+                case "portal-camera-update":
+                    // sent to a through-portal world, to get it to render using
+                    // the camera position supplied by the corresponding portal
+                    this.setWorldSwitchFreeze(false);
+                    this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
                     this.call("AvatarEventHandler$AvatarPawn", "startMotion", dx, dy);
@@ -667,13 +678,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
         this.listen("setLookAngles", this.setLookAngles);
-        this.listen("followToWorld", this.followToWorld);
+        // respond to followToWorld immediately, to freeze our movements ASAP
+        this.listenImmediate("followToWorld", this.followToWorld);
         this.showNumbers();
 
         this.listen("forceOnPosition", this.onPosition);
 
         this.listen("goThere", this.stopFalling);
-        console.log("MyPlayerPawn created", this, "primary:", this.isPrimary);
+        console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
@@ -681,6 +693,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     get presenting() {
         return this.actor.service("PlayerManager").presentationMode === this.viewId;
+    }
+
+    setWorldSwitchFreeze(bool) {
+// if (!!this.frozenForWorldSwitch !== bool) console.warn(frameName(), `freeze: ${bool}`);
+        this.frozenForWorldSwitch = bool;
     }
 
     onPosition() {
@@ -820,7 +837,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 total = `${here}+${watching}`;
             }
             if (manager.presentationMode) {
-                let followers = manager.followers.size;
+                let followers = manager.followers.size; // includes the presenter
                 userCountReadout.textContent = `${followers}/${total}`;
                 tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
             } else {
@@ -922,16 +939,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return mcam;
     }
 
-    specForPortal(portal) {
+    specForPortal(portal, jumpVector, crossingBackwards) {
         // we are about to enter this portal. meaning we disappear from this world and appear in the target world
         // visually nothing should change, so we need this avatar's position relative to the portal, as well as
         // its look pitch and offset. This will be passed to frameTypeChanged() in the target world.
+        const jumpMatrix = m4_translation(jumpVector);
+        const ourJumpedMatrix = m4_multiply(this.global, jumpMatrix);
         const t = m4_invert(portal.global);
-        const m = m4_multiply(this.global, t);
+        const m = m4_multiply(ourJumpedMatrix, t);
         // const log = (c, m) => console.log(c+"\n"+m.map((v, i) => +v.toFixed(2) + (i % 4 == 3 ? "\n" : ",")).join(''));
         // log("portal", portal.global);
         // log("avatar", this.global);
         // log("m", m);
+
+        // the entered world will use the translation and rotation that we send from here
+        // relative to its own anchor point
         const translation = m4_getTranslation(m);
         const rotation = m4_getRotation(m);
         const spec = {
@@ -941,7 +963,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             lookYaw: this.lookYaw,
             lookOffset: this.lookOffset,
             cardData: this.actor._cardData, // keep avatar appearance
+            name: this.actor._name, // and name
             url: portal.resolvePortalURL(),
+            crossingBackwards
         };
         // keep presenting
         if (this.presenting) spec.presenting = Data.hash(this.viewId); // hash to not leak the viewId
@@ -952,11 +976,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // our avatar just came into or left this world, either through a portal
         // (in which case we have a view spec), or through a navigation event (browser's back/forward)
         // in all cases we set the actor's inWorld which will show/hide the avatar
+        this.isPrimary = isPrimary;
         const enteringWorld = isPrimary;
         const leavingWorld = !isPrimary;
         const actorSpec = {
             inWorld: enteringWorld,
         };
+        // a portal transition under our own steam specifies translation, rotation etc
         if (enteringWorld && spec?.translation) {
             let { translation, rotation } = spec;
             // transform spec relative to anchor
@@ -978,8 +1004,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // move actor to the right place
             actorSpec.translation = translation;
             actorSpec.rotation = rotation;
-            // keep avatar appearance
-            actorSpec.cardData = spec.cardData;
             // move pawn to the right place
             this._translation = translation;
             this._rotation = rotation;
@@ -989,6 +1013,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (spec.lookYaw) this.lookYaw = spec.lookYaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
+        // portal-enter and world-enter provide cardData so avatar can keep its
+        // appearance.
+        if (spec?.cardData) actorSpec.cardData = spec.cardData;
+        if (spec?.name) actorSpec.name = spec.name;
         if (leavingWorld) {
             this.call("AvatarEventHandler$AvatarPawn", "endMotion");
         }
@@ -1006,21 +1034,26 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.say("continueFollowing", spec.following);
             }
         }
-        this.updatePortalRender();
+        this.setPortalClipping();
     }
 
-    async followToWorld({ presenterToken: following, portalURL }) {
+    followToWorld({ followerTransferData }) {
+        const { url, following } = followerTransferData;
         if (this.isPrimary) {
-            console.log(`${frameName()} sending world-enter to ${portalURL} following: ${following}`);
-            sendToShell("world-enter", { portalURL, transferData: { following, url: portalURL }});
+            console.log(`${frameName()} sending world-enter to ${url} following: ${following}`);
+            this.setWorldSwitchFreeze(true);
+            followerTransferData.cardData = this.actor._cardData;
+            sendToShell("world-enter", { portalURL: url, transferData: followerTransferData });
         } else {
-            console.log(`${frameName()} not sending world-enter to ${portalURL}`);
+            console.log(`${frameName()} not sending world-enter to ${url}`);
         }
     }
 
     update(time, delta) {
+        if (this.frozenForWorldSwitch) return; // don't move
+
         if (this.actor.follow || this.actor.remoteControlled) {
-            // if it is following the view is remote controlled
+            // when following, the actor is remote controlled (see AvatarActor.tick)
             // so just call the PM_Smoothed version of update()
             this.tug = 0.06;
             super.update(time, delta);
@@ -1077,39 +1110,80 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return {v, q};
     }
 
-    // update the camera transform and clipping planes if we are rendering a portal
-    updatePortalRender() {
+    // update the camera transform and clipping planes depending on whether this avatar
+    // is non-primary - i.e., rendering for a portal.
+    setPortalClipping() {
         let { clippingPlanes } = this.service("ThreeRenderManager").renderer;
         if (this.isPrimary) {
             // we are the top world, so we turn off portal clipping
             const idx = clippingPlanes.indexOf(this.portalClip);
             if (idx >= 0) clippingPlanes.splice(idx, 1);
         } else {
-            // we are rendering a portal
-            // if we have an anchor, the anchor may have been moved
-            if (this.actor._anchor) {
-                this.refreshCameraTransform(); // updates portalClip too
-            }
-            // turn on portal clipping
+            // we are rendering for a portal in another world.  turn on portal clipping.
             if (!clippingPlanes.includes(this.portalClip)) {
                 clippingPlanes.push(this.portalClip);
             }
-            // check which half-space of the portal the camera is in,
-            // and flip the portal's clip plane to the other side if needed
-
-            // const cameraInFrontOfPortalPlane = this.lookGlobal[14] > 0;
-            // const clippingBehindPortalPlane = this.portalClip.normal.z < 0;
-            // if (clippingBehindPortalPlane !== cameraInFrontOfPortalPlane) {
-            //     this.portalClip.normal.negate();
-            // }
-
-            // this ensures we can look "through" the portal from behind
-            // and see the other half space
-            // TODO: we assume the portal is at the origin looking down the z axis
-            // when this is no longer true, we need to update this code
         }
     }
 
+    // this is sent on every update(), as long as we're not frozen.
+    // if this is the primary frame and it has portals,
+    // they are given the chance to figure out if their camera matrices have
+    // changed (due to motion of either the avatar or the portal).  if changed
+    // portals are found, we tell the shell so it can coordinate rendering.
+    updatePortalRender(force = false) {
+        if (this.isPrimary) {
+            const portalSpecs = [];
+            let secondaryRenders = false;
+            this.publish("avatar", "gatherPortalSpecs", {
+                callback: spec => {
+                    portalSpecs.push(spec);
+                    secondaryRenders |= !!spec.cameraMatrix;
+                },
+                force
+            });
+            const renderMgr = this.service("ThreeRenderManager");
+            if (portalSpecs.length) sendToShell("portal-update", { portalSpecs });
+            else renderMgr.setRender(true); // no portals, so use automatic rendering.
+
+            // if we are being woken after a world switch (in which case force=true),
+            // and it turns out that there are no portals whose rendering the shell
+            // will await, render immediately and send "primary-rendered" to the shell
+            // so it will reorder any frames.
+            if (force && !secondaryRenders) {
+                console.log(frameName(), "no portals in sight; rendering immediately");
+                renderMgr.composer.render();
+                sendToShell("primary-rendered");
+            }
+        } else {
+            // we are rendering for a portal in another world.
+            // if we have an anchor, the anchor may have been moved
+            if (this.actor._anchor) this.refreshCameraTransform();
+        }
+    }
+
+    portalCameraUpdate(cameraMatrix) {
+        this.lastCameraMatrix = cameraMatrix;
+        const renderMgr = this.service("ThreeRenderManager");
+        renderMgr.setRender(false); // we assume each update is likely part of a series; auto rendering will be switched back on if there is a pause in the updates
+        if (cameraMatrix) {
+            if (this.endMovementTimeout) clearTimeout(this.endMovementTimeout);
+            this.endMovementTimeout = setTimeout(() => {
+                const renderNow = !!this.lastCameraMatrix && !this.frozenForWorldSwitch;
+                // console.log(`movement ended; setRender(${renderNow})`);
+                renderMgr.setRender(renderNow);
+            }, 50);
+
+            this.portalLookExternal = cameraMatrix;
+            initialPortalLookExternal = cameraMatrix;
+            if (!this.isPrimary && !this.frozenForWorldSwitch) {
+                this.refreshCameraTransform();
+                renderMgr.composer.render();
+                sendToShell("portal-world-rendered");
+            }
+        }
+
+    }
     checkFloor(vq) {
         // cast a ray to negative y direction and see if there is a walk layer object
         let walkLayer = this.service("ThreeRenderManager").threeLayer("walk");
@@ -1290,45 +1364,77 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     collidePortal(vq) {
-        let portalLayer = this.service("ThreeRenderManager").threeLayer("portal");
+        if (this.frozenForWorldSwitch) return false;
+
+        const renderMgr = this.service("ThreeRenderManager");
+        const portalLayer = renderMgr.threeLayer("portal");
         if (!portalLayer) return false;
 
-        // prevent re-entering the portal
-        if (this.lastPortalTime > Date.now() - 500) return false;
-
         let dir = v3_sub(vq.v, this.translation);
-        let len = Math.max(v3_magnitude(dir), PORTAL_DISTANCE);
-        // not moving then return false
-        if (v3_isZero(dir)) return false;
+        const traveled = v3_magnitude(dir);
+        // if we're not moving, we're not crossing
+        if (traveled === 0) return false;
 
         dir = v3_normalize(dir);
-        this.portalcaster.far = len;
+        this.portalcaster.far = 5; // first just find a portal; later worry about if we're close enough to cross it
         this.portalcaster.ray.direction.set(...dir);
         this.portalcaster.ray.origin.set(...this.translation);
-        const intersections = this.portalcaster.intersectObjects(portalLayer, true);
-        if (intersections.length > 0) {
-            let portal = this.pawnFrom3D(intersections[0].object);
-            if (portal) {
-                // don't allow re-entering the portal
-                this.lastPortalTime = Date.now();
-                // remember which portal we left the world from
-                this.anchor = portal.actor;
-                // NOTE THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
-                // we also jump between worlds using the browser's "forward/back" buttons
-                console.log(frameName(), "player", this.viewId, "enter portal", portal.portalId);
-                // spec for this avatar in new world
-                const transferData = this.specForPortal(portal);
-                // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
-                // but it also may delete this frame if is unowned
-                sendToShell("portal-enter", { portalId: portal.portalId, transferData });
-                // if we were presenting, tell followers to come with us
-                if (this.presenting) {
-                    this.say("followMeToWorld", transferData.url);
-                    // calls followToWorld() in followers
-                    // which will result in frameTypeChanged() on follower's clients
-                }
-                return true;
+        const firstIntersection = this.portalcaster.intersectObjects(portalLayer, true)[0];
+        if (firstIntersection) {
+            let portal = this.pawnFrom3D(firstIntersection.object);
+            if (!portal) return false;
+
+            // the normal of the portal's globalPlane points into the portal world
+            const portalPlane = portal.globalPlane;
+            const movingTowards = portalPlane.normal.dot(new THREE.Vector3(...dir)) > 0;
+            if (!movingTowards) return false;
+
+            // simplest check is whether the distance to the intersect with the portal
+            // plane is less than the distance we moved in the last time unit.  if
+            // it is, assume we're going to cross within the next step.
+            let crosses = firstIntersection.distance <= traveled;
+
+            if (!crosses) {
+                // otherwise, find our signed perpendicular distance to the portal's plane.
+                // if within the designated portal-crossing distance, on the portal's
+                // front side, we're going to cross.
+                const perpendicular = portalPlane.distanceToPoint(new THREE.Vector3(...vq.v));
+                crosses = perpendicular >= -PORTAL_DISTANCE;
             }
+
+            if (!crosses) return false;
+
+            const { camera } = renderMgr;
+            const cameraDir = camera.getWorldDirection(new THREE.Vector3());
+            const crossingBackwards = portalPlane.normal.dot(cameraDir) < 0;
+
+            // remember which portal we left the world from
+            this.anchor = portal.actor;
+
+            // NOTE: THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
+            // we also jump between worlds using the browser's "forward/back" buttons
+            console.log(frameName(), "player", this.viewId, "enter portal", portal.portalId);
+
+            // make sure automatic rendering is off, and update-generated rendering
+            renderMgr.setRender(false);
+            this.setWorldSwitchFreeze(true);
+
+            // spec for this avatar in new world
+            let jumpVector = v3_scale(dir, firstIntersection.distance);
+            jumpVector = v3_add(jumpVector, v3_scale(portalPlane.normal.toArray(), PORTAL_DISTANCE));
+            const transferData = this.specForPortal(portal, jumpVector, crossingBackwards);
+
+            // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
+            // but it also may delete this frame if it is unowned
+            sendToShell("portal-enter", { portalId: portal.portalId, transferData });
+            // if we were presenting, tell followers to come with us
+            if (this.presenting) {
+                const { cardData: _cd, ...presenterTransferData } = transferData;
+                this.say("followMeToWorld", presenterTransferData);
+                // calls followToWorld() in followers
+                // which will result in frameTypeChanged() on follower's clients
+            }
+            return true;
         }
         return false;
     }

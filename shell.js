@@ -23,6 +23,8 @@ class Shell {
         console.log("shell: starting");
         this.frames = new Map(); // portalId => frame
         this.portalData = new Map(); // portalId => portalData
+        this.awaitedFrameTypes = {}; // for coordinating a jump between frames
+        this.awaitedRenders = {}; // for coordinating render of primary and secondaries
         // ensure that we have a session and password
         App.autoSession();
         App.autoPassword();
@@ -38,8 +40,6 @@ class Shell {
         const shellHud = document.getElementById("shell-hud");
         shellHud.classList.toggle("is-shell", true);
         // TODO: create HUD only when needed?
-
-        this.usingSyncedRendering = false;
 
         window.addEventListener("message", e => {
             if (e.data?.message?.startsWith?.(PREFIX)) {
@@ -172,6 +172,9 @@ class Shell {
     }
 
     removeFrame(frame) {
+        // sent to secondary frame on "portal-close" message, or in activateFrame
+        // if the secondary is not owned.  also sent recursively to frames owned
+        // by a frame that's being removed here.
         const portalId = frame.portalId;
         const owningFrame = frame.owningFrame;
         if (owningFrame) {
@@ -189,12 +192,12 @@ class Shell {
         } else {
             // primary frame is no longer owned,
             // so it will be removed when switching to another frame
-            console.log(`shell: primary frame ${portalId} is no longer owned, delaying removal`);
+            console.log(`shell: primary frame ${portalId} is no longer owned`);
         }
     }
 
     sortFrames(mainFrame, portalFrame) {
-        // we dont really support more than two frames yet,
+        // we don't really support more than two frames yet,
         // so for now we just make sure those two frames are on top
         const sorted = [...this.frames.values()].sort((a, b) => {
             if (a === mainFrame) return -1;
@@ -206,6 +209,7 @@ class Shell {
         for (let i = 0; i < sorted.length; i++) {
             const { style } = sorted[i];
             style.zIndex = -i;
+            style.display = '';
             style.setProperty('--tilt-z', `${i * -200}px`);
         }
     }
@@ -213,10 +217,29 @@ class Shell {
     receiveFromPortal(fromPortalId, fromFrame, cmd, data) {
         // console.log(`shell: received from ${fromPortalId}: ${JSON.stringify(data)}`);
         switch (cmd) {
-            case "started":
-                // the session was started and player's inWorld flag has been set
-                clearInterval(fromFrame.interval);
-                fromFrame.interval = null;
+            case "frame-type-received":
+                // the avatar has been created; player's inWorld flag has been set;
+                // the frame has frozen rendering.
+                // however, there is a chance that the primary/secondary status of the
+                // frame has changed since the frame-type message was dispatched.  if that
+                // has happened, we ignore this response; frame-type will be sent again.
+                const expectedFrameType = fromFrame === this.primaryFrame ? "primary" : "secondary";
+                if (data.frameType !== expectedFrameType) {
+                    console.log(`ignoring ${fromPortalId} frame-type-received (${data.frameType}) when expecting ${expectedFrameType}`);
+                    return;
+                }
+                clearInterval(fromFrame.frameTypeInterval);
+                fromFrame.frameTypeInterval = null;
+                // as part of activating a new primary, we wait until all frames are
+                // frozen (which sending this message also implies).
+                // once all are ready, we send release-freeze to the primary.
+                // it will then (re)start rendering.
+                if (this.awaitedFrameTypes[fromPortalId]) {
+                    delete this.awaitedFrameTypes[fromPortalId];
+                    if (Object.keys(this.awaitedFrameTypes).length === 0) {
+                        this.sendToPortal(this.primaryFrame.portalId, "release-freeze");
+                    }
+                }
                 return;
             case "portal-open":
                 let targetFrame;
@@ -234,7 +257,7 @@ class Shell {
                 targetFrame = this.findFrame(data.portalURL, f => !f.owningFrame);
                 if (!targetFrame) targetFrame = this.addFrame(fromFrame, data.portalURL);
                 else {
-                    if (!targetFrame.portalId) debugger
+                    if (!targetFrame.portalId) debugger;
                     targetFrame.owningFrame = fromFrame;
                     fromFrame.ownedFrames.set(targetFrame.portalId, targetFrame);
                 }
@@ -245,49 +268,65 @@ class Shell {
                 return;
             case "portal-close":
                 const frame = this.frames.get(data.portalId);
-                if (frame) {
-                    this.removeFrame(frame);
-                }
+                if (frame) this.removeFrame(frame);
                 return;
             case "portal-update":
-                const toFrame = this.frames.get(data.portalId);
-                if (+fromFrame.style.zIndex <= +toFrame.style.zIndex) return; // don't let inner world modify outer world
-
-                if (this.endMovementTimeout) clearTimeout(this.endMovementTimeout);
-                if (data.cameraMatrix === null) {
-                    this.endSyncedRendering(data.portalId);
+                // the avatar in the primary world is reporting the presence and movement
+                // of a portal (eventually, potentially many portals).
+                if (fromPortalId !== this.primaryFrame.portalId) {
+                    console.log(`ignoring ${fromPortalId} portal-update because it's no longer primary`);
                     return;
                 }
+                this.awaitedRenders = {};
+                data.portalSpecs.forEach(spec => {
+                    // spec is set in portal.updatePortalCamera; it only includes portalId and cameraMatrix
+                    const { portalId, cameraMatrix } = spec;
+                    this.sendToPortal(portalId, "portal-camera-update", { cameraMatrix });
 
-                this.endMovementTimeout = setTimeout(() => this.endSyncedRendering(data.portalId), 300);
+                    // if it's going to render (there's a camera matrix, and we're not
+                    // still waiting to hear from the avatar), set a flag to wait for it.
+                    const frame = this.frames.get(portalId);
+                    if (cameraMatrix !== null && !frame?.frameTypeInterval) this.awaitedRenders[portalId] = true;
 
-                if (!this.usingSyncedRendering) this.startSyncedRendering(data.portalId);
+                    // in case the secondary avatar isn't ready yet, remember cameraMatrix
+                    // so it can be attached to the "frame-type" message we'll be sending it
+                    // repeatedly until the avatar responds
+                    this.portalData.set(portalId, cameraMatrix);
+                });
 
                 // in case the through-portal world's rendering is slow, only request
                 // a new render if the previous one has completed or timed out
-                if (!this.portalRenderTimeout) {
-                    this.lastPortalUpdateTime = data.updateTime;
-                    const now = Date.now();
-                    data.forwardTime = now;
-                    this.renderRequestTime = now;
+                if (!this.portalRenderTimeout && Object.keys(this.awaitedRenders).length) {
                     // don't let the through-portal world delay the outer world's rendering
                     // indefinitely
                     this.portalRenderTimeout = setTimeout(() => {
                         console.log("shell: portal render timed out");
                         delete this.portalRenderTimeout;
+                        this.awaitedRenders = {};
                         this.manuallyRenderPrimaryFrame();
-                    }, 200);
-                    this.sendToPortal(data.portalId, "portal-update", data);
+                    }, 200); // intended to be long enough to show something's wrong, but still keep going
                 }
-                // remember portalData so we can send them to the portal when it is opened
-                this.portalData.set(data.portalId, data);
                 return;
             case "portal-world-rendered":
-                if (this.portalRenderTimeout && data.forwardTime === this.renderRequestTime) {
-                    clearTimeout(this.portalRenderTimeout);
-                    delete this.portalRenderTimeout;
-                    // console.log(`shell: upd ${data.forwardTime - data.updateTime} fwd ${data.renderedTime - data.forwardTime} ar ${Date.now() - data.renderedTime} req`);
-                    this.manuallyRenderPrimaryFrame();
+                if (this.portalRenderTimeout && this.awaitedRenders[fromPortalId]) {
+                    delete this.awaitedRenders[fromPortalId];
+                    if (Object.keys(this.awaitedRenders).length === 0) {
+                        clearTimeout(this.portalRenderTimeout);
+                        delete this.portalRenderTimeout;
+                        this.manuallyRenderPrimaryFrame();
+                    }
+                }
+                return;
+            case "primary-rendered":
+                if (fromFrame === this.primaryFrame) {
+                    if (this.pendingSortFrames) {
+                        if (this.pendingSortFrames) {
+                            this.sortFrames(...this.pendingSortFrames);
+                            delete this.pendingSortFrames;
+                        }
+                    }
+                } else {
+                    console.warn(`shell: ignoring primary-rendered from non-primary ${fromPortalId}`);
                 }
                 return;
             case "portal-enter":
@@ -298,6 +337,9 @@ class Shell {
                 }
                 return;
             case "world-enter":
+                // transferData has the same information as sent for portal-enter, plus
+                // the "following" property - a token that we use to find the leader.
+                // the url also appears as data.portalURL
                 if (fromFrame === this.primaryFrame) {
                     let targetFrame = this.findFrame(data.portalURL);
                     if (!targetFrame) { // might happen after back/forward navigation
@@ -332,25 +374,9 @@ class Shell {
         }
     }
 
-    startSyncedRendering(portalId) {
-        console.log("shell: starting sync render");
-        this.sendToPortal(this.primaryFrame.portalId, "start-sync-rendering");
-        this.sendToPortal(portalId, "start-sync-rendering");
-        this.usingSyncedRendering = true;
-    }
-
-    endSyncedRendering(portalId) {
-        if (!this.usingSyncedRendering) return; // already off
-
-        console.log("shell: ending sync render");
-        this.sendToPortal(this.primaryFrame.portalId, "stop-sync-rendering");
-        this.sendToPortal(portalId, "stop-sync-rendering");
-        this.usingSyncedRendering = false;
-        delete this.portalRenderTimeout;
-    }
-
     manuallyRenderPrimaryFrame() {
-        this.sendToPortal(this.primaryFrame.portalId, "sync-render-now", { updateTime: this.lastPortalUpdateTime });
+        const acknowledgeReceipt = !!this.pendingSortFrames;
+        this.sendToPortal(this.primaryFrame.portalId, "sync-render-now", { acknowledgeReceipt });
     }
 
     findFrame(portalURL, filterFn=null) {
@@ -404,31 +430,68 @@ class Shell {
         }
     }
 
-    sendFrameType(frame, spec) {
-        if (frame.interval) return;
-        frame.interval = setInterval(() => {
-            // there are two listeners to this message:
-            // 1. the frame itself in frame.js
-            // 2. the avatar in DAvatar.js
-            // the avatar only gets constructed after joining the session
-            // so we keep sending this message until the avatar is constructed
-            // then it will send "croquet:microverse:started" which clears this interval (below)
-            const frameType = !this.primaryFrame || this.primaryFrame === frame ? "primary" : "secondary";
-            this.sendToPortal(frame.portalId, "frame-type", { frameType, spec });
-            // send camera to portal
-            if (frameType === "secondary") {
-                const data = this.portalData.get(frame.portalId);
-                if (data) this.sendToPortal(frame.portalId, "portal-update", data);
+    sendFrameType(frame, spec = null) {
+        // this is sent by:
+        //   - addFrame for a new frame, with spec undefined.
+        //   - activateFrame to a primary that is becoming secondary, with spec
+        //     { portalURL } - though it's not clear that anyone's going to look at that.
+        //   - activateFrame to a secondary that is becoming primary, with spec
+        //     the transferData object prepared by avatar.specForPortal (with translation,
+        //     rotation, avatar cardData etc) for a "portal-enter" or "world-enter".
+        //     that spec is examined by avatar.frameTypeChanged.
+        const frameType = !this.primaryFrame || this.primaryFrame === frame ? "primary" : "secondary";
+        frame.frameTypeArgs = { frameType, spec };
+        if (frame.frameTypeInterval) return; // we're already polling.  latest args will be used.
+
+        frame.frameTypeInterval = setInterval(() => {
+            if (!this.frames.get(frame.portalId)) {
+                console.log(`shell: abandoning "frame-type" (${frameType}) send for removed portal-${frame.portalId}`);
+                clearInterval(frame.frameTypeInterval);
+                return;
             }
+            // there are three listeners to the frame-type message:
+            //   1. the frame itself (frame.js)
+            //   2. the avatar (avatar.js)
+            //   3. any portal that resides within the frame (portal.js)
+            // the avatar only gets constructed after joining the session,
+            // so we keep sending this message until the avatar is there,
+            // receives the next message send, then sends "frame-type-received"
+            // which clears this interval.
+            const frameArgs = frame.frameTypeArgs;
+            // if this is a secondary world, and we have a record of a through-portal
+            // camera location as supplied by the primary, send it to the world along
+            // with the frame type (normally it's sent in a portal-camera-update message,
+            // but we need to ensure that a frame that's just waking up doesn't hear
+            // portal-camera-update before it's heard frame-type).
+            if (frameArgs.frameType === "secondary") {
+                const cameraMatrix = this.portalData.get(frame.portalId);
+                if (cameraMatrix) frameArgs.cameraMatrix = cameraMatrix;
+            }
+            this.sendToPortal(frame.portalId, "frame-type", frameArgs);
             // console.log(`shell: send frame type "${frameType}" to portal-${frame.portalId}`);
         }, 200);
     }
 
-    activateFrame(toPortalId, pushState=true, transferData=null) {
+    activateFrame(toPortalId, pushState = true, transferData = null) {
+        // sent on receipt of messages "portal-enter" and "world-enter", and on window
+        // event "popstate"
         const fromFrame = this.primaryFrame;
         const toFrame = this.frames.get(toPortalId);
         const portalURL = frameToPortalURL(toFrame.src, toPortalId);
-        this.sortFrames(toFrame, fromFrame);
+
+        // TODO: a cleaner, more general way of doing this
+        this.pendingSortFrames = [ toFrame, fromFrame ];
+        if (this.pendingSortTimeout) clearTimeout(this.pendingSortTimeout);
+        this.pendingSortTimeout = setTimeout(() => {
+            if (this.pendingSortFrames) {
+                console.warn("sorting frames after timeout");
+                this.sortFrames(...this.pendingSortFrames);
+                delete this.pendingSortFrames;
+            }
+        }, 2000);
+
+        if (transferData && !transferData.crossingBackwards) fromFrame.style.display = 'none';
+
         if (pushState) try {
             window.history.pushState({
                 portalId: toPortalId,
@@ -447,16 +510,32 @@ class Shell {
         }
         setTitle(portalURL);
         this.primaryFrame = toFrame;
-        this.primaryFrame.focus();
-        console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, transferData);
-        this.sendFrameType(toFrame, transferData);
+        this.portalData.delete(toPortalId); // don't hang on to where the avatar entered
+        this.awaitedRenders = {}; // don't act on any secondary renders that are in the pipeline
+        this.awaitedFrameTypes = {};
+
         if (!fromFrame.owningFrame) {
             console.log(`shell: removing unowned secondary frame ${fromFrame.portalId}`);
             this.removeFrame(fromFrame);
         } else {
-            console.log(`shell: sending frame-type "secondary" to portal-${fromFrame.portalId}`, {portalURL});
-            this.sendFrameType(fromFrame, {portalURL});
+            console.log(`shell: sending frame-type "secondary" to portal-${fromFrame.portalId}`, { portalURL });
+            this.sendFrameType(fromFrame, { portalURL }); // portalURL seems redundant, but supplying some non-null spec is important (see avatar "frame-type" handling)
+            this.awaitedFrameTypes[fromFrame.portalId] = true;
         }
+        console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, transferData);
+        this.primaryFrame.focus();
+        this.sendFrameType(toFrame, transferData);
+        this.awaitedFrameTypes[toPortalId] = true;
+
+        if (this.awaitedFramesTimeout) clearTimeout(this.awaitedFramesTimeout);
+        this.awaitedFramesTimeout = setTimeout(() => {
+            if (Object.keys(this.awaitedFrameTypes).length) {
+                console.warn("releasing freeze after timeout");
+                this.awaitedFrameTypes = {};
+                this.sendToPortal(this.primaryFrame.portalId, "release-freeze");
+            }
+        }, 2000);
+
         if (this.activeMMotion) {
             const { dx, dy } = this.activeMMotion;
             this.sendToPortal(this.primaryFrame.portalId, "motion-start", { dx, dy });
