@@ -721,7 +721,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let animationClipIndex;
         let dataScale;
         try {
-            obj = await assetManager.load(buffer, type, THREE, {});
+            if (type !== "pdf") {
+                // it is special cased as the assetManager itself does not load pdf
+                // but still is supported by a behavior.
+                obj = await assetManager.load(buffer, type, THREE, {});
+            }
         } catch (e) {
             console.warn("dropped file could not be processed", e);
             return;
