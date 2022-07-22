@@ -984,14 +984,14 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     getBuffer(name) {
+        let assetManager = this.service("AssetManager").assetManager;
+        let buffer = assetManager.getCache(name);
+        if (buffer) { return Promise.resolve(buffer); }
         if (!this.isDataId(name)) {
             return fetch(name)
                 .then((resp) => resp.arrayBuffer())
                 .then((arrayBuffer) => new Uint8Array(arrayBuffer));
         } else {
-            let assetManager = this.service("AssetManager").assetManager;
-            let buffer = assetManager.getCache(name);
-            if (buffer) {return Promise.resolve(buffer);}
             let handle = Data.fromId(name);
             return Data.fetch(this.sessionId, handle);
         }
