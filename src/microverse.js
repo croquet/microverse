@@ -226,9 +226,8 @@ class MyPlayerManager extends PlayerManager {
     startPresentation(playerId, presenterToken = null) {
         // sent by AvatarActor.comeToMe or this.continuePresenting (triggered by a
         // presenter arriving from another world).  in either case it may turn out
-        // that some other presenter has beaten them to it. %%in this world someone else is already presenting.  in
-        // that case, the arriving presenter and their followers will be left to their
-        // own devices.
+        // that some other presenter has beaten them to it. if so, the arriving
+        // presenter and their followers will be left to their own devices.
         if (this.presentationMode && this.presentationMode !== playerId) return;
 
         this.presentationMode = playerId;
@@ -236,8 +235,8 @@ class MyPlayerManager extends PlayerManager {
         // examining the current inWorld players, decide who will join this
         // presentation.  if a token was provided, only those players carrying the same
         // token are signed up (which will include the presenter, and any follower that
-        // showed up before the presenter started presenting).  only the presenter needs
-        // to keep that token, to catch potential late followers.
+        // showed up here before the presenter).  only the presenter needs to keep
+        // that token, to catch potential late followers.
         // if no token, grab everyone (and delete any token they might have, while we're
         // about it).
         for (const player of this.playersInWorld()) {

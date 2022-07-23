@@ -629,7 +629,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     // will receive it as part of this message
                     if (cameraMatrix) this.portalCameraUpdate(cameraMatrix);
                     // acknowledge receipt so that shell knows this frame is ready
-                    sendToShell("frame-type-received", { frameType });
+                    sendToShell("avatar-ready", { frameType });
                     break;
                 case "release-freeze":
                     // sent to the primary as soon as all frames (this included) have
