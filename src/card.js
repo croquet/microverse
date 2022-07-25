@@ -793,7 +793,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     let scale = 1 / max;
                     width = textureWidth * scale;
                     height = textureHeight * scale;
-                    assetManager.setCache(textureLocation, textureObj, this.id);
+                    if (textureLocation) {
+                        assetManager.setCache(textureLocation, textureObj, this.id);
+                    }
                     this.properties2D = {...this.properties2D, width, height, textureWidth, textureHeight};
                 }
 

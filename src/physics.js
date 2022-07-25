@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { RegisterMixin, ModelService, q_identity, v3_multiply, v3_zero } from "@croquet/worldcore-kernel";
+import { ModelService } from "@croquet/worldcore-kernel";
 
 export let RAPIER;
 
@@ -38,8 +38,8 @@ export class RapierPhysicsManager extends ModelService {
             },
             "RAPIER.EventQueue": {
                 cls: RAPIER.EventQueue,
-                write: q => {},
-                read:  q => new RAPIER.EventQueue(true)
+                write: _q => {},
+                read:  _q => new RAPIER.EventQueue(true)
             },
         };
     }
@@ -93,14 +93,14 @@ export class RapierPhysicsManager extends ModelService {
             });
             if (this.queue) {
                 if (this.contactEventHandler) {
-                    queue.drainContactEvents((handle1, handle2, started) => {
+                    this.queue.drainContactEvents((handle1, handle2, started) => {
                         let rb1 = this.rigidBodies[handle1];
                         let rb2 = this.rigidBodies[handle2];
                         this.contactEventHandler.contactEvent(rb1, rb2, started);
                     });
                 }
                 if (this.intersectionEventHandler) {
-                    queue.drainIntersectionEvents((handle1, handle2, intersecting) => {
+                    this.queue.drainIntersectionEvents((handle1, handle2, intersecting) => {
                         let rb1 = this.rigidBodies[handle1];
                         let rb2 = this.rigidBodies[handle2];
                         this.intersectionEventHandler.intersectionEvent(rb1, rb2, intersecting);
