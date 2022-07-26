@@ -175,6 +175,10 @@ class BitcoinTrackerPawn {
         ctx.fillStyle = fill;
         ctx.fillRect( 0, 0, this.canvas.width, this.canvas.height );
     }
+
+    teardown() {
+        this.closeSocket();
+    }
 }
 
 class BitLogoPawn {
