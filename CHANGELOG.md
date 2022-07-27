@@ -3,6 +3,38 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-07-22
+
+### Fixed
+- Links in tutorial documentation are fixed.
+- The elements in the property sheet need to have sane z-coordinates.
+- Prevent redundant creation of portal frames.
+- Make Portal rendering somoother.
+
+### Changed
+- The set of behaviors loaded into a Microverse world when connected is narrowed down to the directory specified as UserModuleDirectory.
+
+### Added
+- A feature to hide the joystick and fullscreen button from shell upon a request from an iframe.
+
+
+## 2022-07-15
+
+### Added
+- A URLlink demo feature is added to the default world.
+- A 3D text demo is added.
+- A cache mechanism is added to the AssetManager (./docs/AssetManager.md).
+- A Newton's Cradle demo is added to the default world.
+
+### Changed
+- The dataScale for an object loaded from a world file gets [1, 1, 1] by default.
+
+### Removed
+- The pendulum demo is removed from the default world (still available in the campus world.)
+
+### Fixed
+- The clipping of a long menu works better.
+
 ## 2022-07-08
 
 ### Added
