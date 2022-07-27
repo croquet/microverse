@@ -19,13 +19,12 @@ export function RapierVersion() {
 export class RapierPhysicsManager extends ModelService {
 
     static async asyncStart() {
-        console.log("Starting Rapier physics!");
-
         if (window.RAPIERModule) {
             RAPIER = window.RAPIERModule;
         } else {
             RAPIER = await import("@dimforge/rapier3d");
         }
+        console.log("Starting Rapier physics " + RapierVersion());
     }
 
     static types() {
@@ -79,7 +78,8 @@ export class RapierPhysicsManager extends ModelService {
     tick() {
         if (!this.isPaused) {
             this.world.step(this.queue); // may be undefined
-            this.world.forEachActiveRigidBodyHandle(h => {
+            this.world.forEachActiveRigidBody(body => {
+                let h = body.handle;
                 const rb = this.rigidBodies[h];
                 const t = rb.rigidBody.translation();
                 const r = rb.rigidBody.rotation();
@@ -92,18 +92,11 @@ export class RapierPhysicsManager extends ModelService {
                 rb.rotateTo(q);
             });
             if (this.queue) {
-                if (this.contactEventHandler) {
-                    this.queue.drainContactEvents((handle1, handle2, started) => {
+                if (this.collisionEventHandler) {
+                    this.queue.drainCollisionEvents((handle1, handle2, started) => {
                         let rb1 = this.rigidBodies[handle1];
                         let rb2 = this.rigidBodies[handle2];
-                        this.contactEventHandler.contactEvent(rb1, rb2, started);
-                    });
-                }
-                if (this.intersectionEventHandler) {
-                    this.queue.drainIntersectionEvents((handle1, handle2, intersecting) => {
-                        let rb1 = this.rigidBodies[handle1];
-                        let rb2 = this.rigidBodies[handle2];
-                        this.intersectionEventHandler.intersectionEvent(rb1, rb2, intersecting);
+                        this.collisionEventHandler.collision(rb1, rb2, started);
                     });
                 }
             }
@@ -111,11 +104,8 @@ export class RapierPhysicsManager extends ModelService {
         this.future(this.timeStep).tick();
     }
 
-    registerContactEventHandler(handler) {
-        this.contactEventHandler = handler;
-    }
-    registerIntersectionEventHandler(handler) {
-        this.intersectionEventHandler = handler;
+    registerCollisionEventHandler(handler) {
+        this.collisionEventHandler = handler;
     }
 }
 RapierPhysicsManager.register("RapierPhysicsManager");

@@ -7,6 +7,7 @@ import {
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
 import { RapierPhysicsManager } from "./physics.js";
+import { PhysicsManager } from "./physics2.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -33,7 +34,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
+    "avatarEvents.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "physics.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
 ];
 
 // turn off antialiasing for mobile and safari
@@ -42,14 +43,14 @@ const defaultSystemBehaviorModules = [
 // mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 let AA = true;
 const isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-if(isSafari)AA=false;
+if(isSafari) AA = false;
 const isFirefox = navigator.userAgent.includes('Firefox');
-if(isFirefox)AA=false;
+if(isFirefox) AA = false;
 const isMobile = !!("ontouchstart" in window);
-if(isMobile)AA=false;
-console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox?'Firefox':isSafari?'Safari':'Other Browser' );
+if(isMobile) AA = false;
+console.log("antialias is: ", AA, 'mobile:', isMobile, "browser:", isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
 
-console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
+console.log("%cTHREE.REVISION:", "color: #f00", THREE.REVISION);
 
 /*
 function loadLoaders() {
@@ -331,6 +332,7 @@ class MyModelRoot extends ModelRoot {
             MicroverseAppManager,
             BehaviorModelManager,
             FontModelManager,
+            PhysicsManager,
             ...(Constants.UseRapier ? [{service: RapierPhysicsManager, options: {useCollisionEventQueue: true}}] : [])
         ];
     }

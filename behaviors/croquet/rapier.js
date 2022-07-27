@@ -98,11 +98,14 @@ class RapierActor {
 
     createImpulseJoint(type, body1, body2, ...params) {
         const physicsManager = this.service('RapierPhysicsManager');
-        let func = Microverse.RAPIER.JointParams[type];
+        // some compatibility with Rapier 0.7.3
+        if (type === "ball") {type = "spherical";}
+            
+        let func = Microverse.RAPIER.JointData[type];
 
         if (!func) {throw new Error("unkown joint types");}
-        let jointParams = func.call(Microverse.RAPIER.JointParams, ...params);
-        let joint = physicsManager.world.createJoint(jointParams, body1.rigidBody, body2.rigidBody);
+        let jointParams = func.call(Microverse.RAPIER.JointData, ...params);
+        let joint = physicsManager.world.createImpulseJoint(jointParams, body1.rigidBody, body2.rigidBody);
         this.jointHandle = joint.handle;
         return this.jointHandle;
     }

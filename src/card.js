@@ -432,6 +432,17 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         return this.call("Rapier$RapierActor", "getRigidBody");
     }
 
+    setPhysicsWorld(v) {
+        this._physicsWorld = v;
+        return v;
+    }
+
+    get physicsWorld() {
+        if (this._physicsWorld) {return this._physicsWorld;}
+        if (this._parent) {return this._parent._physicsWorld;}
+        return undefined;
+    }
+
     collisionEvent(rb1, rb2, started) {
         return this.call(this.collisionEventHandlerBehavior, this.collisionEventHandlerMethod, rb1, rb2, started);
     }
