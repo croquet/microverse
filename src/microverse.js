@@ -6,7 +6,6 @@ import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
-import { RapierPhysicsManager } from "./physics.js";
 import { PhysicsManager } from "./physics2.js";
 import {
     KeyFocusManager, SyncedStateManager,
@@ -333,12 +332,10 @@ class MyModelRoot extends ModelRoot {
             BehaviorModelManager,
             FontModelManager,
             PhysicsManager,
-            ...(Constants.UseRapier ? [{service: RapierPhysicsManager, options: {useCollisionEventQueue: true}}] : [])
         ];
     }
     init(options, persistentData) {
         super.init(options);
-
         let appManager = this.service("MicroverseAppManager");
         appManager.add(MultiBlaster);
         appManager.add(TextFieldActor);

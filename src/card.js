@@ -438,6 +438,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     get physicsWorld() {
+        let manager = this.service("PhysicsManager");
+        if (manager.globalWorld) {return manager.globalWorld;}
         if (this._physicsWorld) {return this._physicsWorld;}
         if (this._parent) {return this._parent._physicsWorld;}
         return undefined;

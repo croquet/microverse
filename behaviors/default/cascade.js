@@ -95,7 +95,7 @@ class CascadeActor {
         */
 
         if (rapierForce) {
-            this.rigidBody.applyForce(rapierForce);
+            this.rigidBody.addForce(rapierForce);
         }
 
         /*

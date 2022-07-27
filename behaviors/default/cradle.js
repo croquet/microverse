@@ -2,6 +2,7 @@ class CradleActor {
     setup() {
         if (!this.physics) {
             let physicsManager = this.service("PhysicsManager");
+            console.log("new physics world");
             this.setPhysicsWorld(physicsManager.createWorld({timeStep: 10}));
         }
 
@@ -15,17 +16,17 @@ class CradleActor {
 
                 let bodyDesc;
                 if (i === 0) { bodyDesc = Microverse.Physics.RigidBodyDesc.newKinematicPositionBased(); } // Top Link, Stays in Place
-                else { bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic().restrictRotations(true, false, false).setGravityScale(4.5); } // Limit Rotation, Set Gravity
+                else { bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic().setGravityScale(4.5); } // Limit Rotation, Set Gravity
 
                 let card;
-                let translation = [0, 0 - i * 2, t * 4];
+                let translation = [i * 0.1, 0 - i * 2, t * 4];
                 let name = `cradlelink${i}`;
                 let cd;
 
                 if (i === d - 1) { // For the Final Link, do Something Different (Not Necessary)
                     card = this.createCard({
                         name,
-                        translation: [0, -14, t * 4],
+                        translation: [0.2, -14, t * 4 + 0.1],
                         dataScale: [5.9, 5.9, 5.9],
                         parent: this,
                         type: "3d",
@@ -95,11 +96,11 @@ class CradleActor {
     removeObjects() {
         if (this.links) {
             this.links.forEach(l => l.destroy());
-            this.links = null; 
+            this.links = null;
         }
         if (this.joints) {
             this.joints.forEach(j => j.destroy());
-            this.joints = null; 
+            this.joints = null;
         }
     }
 }
@@ -119,7 +120,7 @@ class CradlePawn {
 }
 
 class CradleLinkActor {
-    setup() { 
+    setup() {
         if (this._cardData.cradleHandlesEvent) {
             this.addEventListener("pointerTap", "startMove");
         }
@@ -129,8 +130,8 @@ class CradleLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        if (p3d.normal[2] <= 0) { r.addForce({x: 100000, y: 0, z: -15000}, true); }
-        else { r.addForce({x: 10000, y: 0, z: 15000}, true); }
+        if (p3d.normal[2] <= 0) { r.addForce({x: 0, y: 0, z: -15000}, true); }
+        else { r.addForce({x: 0, y: 0, z: 15000}, true); }
     }
 
     teardown() {
