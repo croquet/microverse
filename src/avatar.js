@@ -696,7 +696,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     setWorldSwitchFreeze(bool) {
-// if (!!this.frozenForWorldSwitch !== bool) console.warn(frameName(), `freeze: ${bool}`);
+        // if (!!this.frozenForWorldSwitch !== bool) console.warn(frameName(), `freeze: ${bool}`);
         this.frozenForWorldSwitch = bool;
     }
 
@@ -1473,6 +1473,30 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // you can override the avatars behavior.
         let w = this.wasdVelocity;
         let nw;
+
+        if (e.ctrlKey || e.altKey) {
+            switch(e.key) {
+                case 'a':
+                    console.log("My avatar pawn", this);
+                    console.log("translation: ",this.actor.translation);
+                    console.log("rotation (euler):",
+                        q_pitch(this.actor.rotation),
+                        q_yaw(this.actor.rotation),
+                        q_roll(this.actor.rotation));
+                    console.log("scale:", this.actor.scale);
+                    break;
+                case 'r':
+                    let renderer = this.service("ThreeRenderManager").renderer;
+                    console.log("Renderer", renderer);
+                    console.log("Scene polycount:", renderer.info.render.triangles)
+                    console.log("Active Drawcalls:", renderer.info.render.calls)
+                    console.log("Textures in Memory", renderer.info.memory.textures)
+                    console.log("Geometries in Memory", renderer.info.memory.geometries)
+                    break;
+            }
+            return;
+        }
+
         switch(e.key) {
             case 'Tab':
                 this.jumpToNote(e); break;
@@ -1503,37 +1527,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.velocity = this.wasdVelocity;
                 this.maybeLeavePresentation();
                 break;
-            default:
-                if (e.ctrlKey) {
-                    switch(e.key) {
-                        case 'a':
-                            console.log("MyAvatar");
-                            console.log("translation: ",this.actor.translation);
-                            console.log("rotation:", q_pitch(this.actor.rotation),
-                                q_yaw(this.actor.rotation), q_roll(this.actor.rotation));
-                            console.log("scale:", this.actor.scale);
-                            break;
-                        case 'p':
-                            if (this.profiling) {
-                                console.log("end profiling");
-                                console.profileEnd("profile");
-                                this.profiling = false;
-                            } else {
-                                this.profiling = true;
-                                console.log("start profiling");
-                                console.profile("profile");
-                            }
-                            break;
-                        case 'r':
-                            let renderer = this.service("ThreeRenderManager").renderer;
-                            console.log("Scene polycount:", renderer.info.render.triangles)
-                            console.log("Active Drawcalls:", renderer.info.render.calls)
-                            console.log("Textures in Memory", renderer.info.memory.textures)
-                            console.log("Geometries in Memory", renderer.info.memory.geometries)
-                            break;
-                    }
-                }
-            /* console.log(e) */
         }
     }
 
@@ -1592,7 +1585,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     pointerDown(e) {
-        if (e.ctrlKey) { // should be the first responder case
+        if (e.ctrlKey || e.altKey) { // should be the first responder case
             const render = this.service("ThreeRenderManager");
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
             this.targetDistance = rc.distance;

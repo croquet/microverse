@@ -2,21 +2,21 @@ class AvatarPawn {
     setup() {
         if (!this.isMyPlayerPawn) {return;}
 
-        this.addFirstResponder("pointerTap", {ctrlKey: true}, this);
+        this.addFirstResponder("pointerTap", {ctrlKey: true, altKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
 
-        this.addFirstResponder("pointerDown", {ctrlKey: true}, this);
+        this.addFirstResponder("pointerDown", {ctrlKey: true, altKey: true}, this);
         this.addLastResponder("pointerDown", {}, this);
         this.addEventListener("pointerDown", this.pointerDown);
 
-        this.addFirstResponder("pointerMove", {ctrlKey: true}, this);
+        this.addFirstResponder("pointerMove", {ctrlKey: true, altKey: true}, this);
         this.addLastResponder("pointerMove", {}, this);
         this.addEventListener("pointerMove", this.pointerMove);
 
-        this.addLastResponder("pointerUp", {ctrlKey: true}, this);
+        this.addLastResponder("pointerUp", {ctrlKey: true, altKey: true}, this);
         this.addEventListener("pointerUp", this.pointerUp);
 
-        this.addLastResponder("pointerWheel", {ctrlKey: true}, this);
+        this.addLastResponder("pointerWheel", {ctrlKey: true, altKey: true}, this);
         this.addEventListener("pointerWheel", this.pointerWheel);
 
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
@@ -60,21 +60,21 @@ class AvatarPawn {
     teardown() {
         if (!this.isMyPlayerPawn) {return;}
         console.log("avatar event handler detached");
-        this.removeFirstResponder("pointerTap", {ctrlKey: true}, this);
+        this.removeFirstResponder("pointerTap", {ctrlKey: true, altKey: true}, this);
         this.removeEventListener("pointerTap", this.pointerTap);
 
-        this.removeFirstResponder("pointerDown", {ctrlKey: true}, this);
+        this.removeFirstResponder("pointerDown", {ctrlKey: true, altKey: true}, this);
         this.removeLastResponder("pointerDown", {}, this);
         this.removeEventListener("pointerDown", this.pointerDown);
 
-        this.removeFirstResponder("pointerMove", {ctrlKey: true}, this);
+        this.removeFirstResponder("pointerMove", {ctrlKey: true, altKey: true}, this);
         this.removeLastResponder("pointerMove", {}, this);
         this.removeEventListener("pointerMove", this.pointerMove);
 
-        this.removeLastResponder("pointerUp", {ctrlKey: true}, this);
+        this.removeLastResponder("pointerUp", {ctrlKey: true, altKey: true}, this);
         this.removeEventListener("pointerUp", this.pointerUp);
 
-        this.removeLastResponder("pointerWheel", {ctrlKey: true}, this);
+        this.removeLastResponder("pointerWheel", {ctrlKey: true, altKey: true}, this);
         this.removeEventListener("pointerWheel", this.pointerWheel);
 
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");

@@ -910,31 +910,31 @@ export class TextFieldPawn extends CardPawn {
         // through, and the kinds that the editor handles are different.
         // We need to separated them, and for the latter, the text commands list has
         // to be tested here.
-        if (cEvt.keyCombo === "Meta-S" || cEvt.keyCombo === "Ctrl-S") {
+        if (["Meta-S", "Ctrl-S", "Alt-S"].includes(cEvt.keyCombo)) {
             this.accept();
             evt.preventDefault();
             return true;
         }
 
-        if (cEvt.keyCombo === "Meta-Z" || cEvt.keyCombo === "Ctrl-Z") {
+        if (["Meta-Z", "Ctrl-Z", "Alt-Z"].includes(cEvt.keyCombo)) {
             this.undo();
             evt.preventDefault();
             return true;
         }
 
-        if (cEvt.keyCombo === "Meta-C" || cEvt.keyCombo === "Ctrl-C") {
+        if (["Meta-C", "Ctrl-C", "Alt-C"].includes(cEvt.keyCombo)) {
             this.copy();
             evt.preventDefault();
             return true;
         }
 
-        if (cEvt.keyCombo === "Meta-X" || cEvt.keyCombo === "Ctrl-X") {
+        if (["Meta-X", "Ctrl-X", "Alt-X"].includes(cEvt.keyCombo)) {
             this.cut();
             evt.preventDefault();
             return true;
         }
 
-        if (cEvt.keyCombo === "Meta-V" || cEvt.keyCombo === "Ctrl-V") {
+        if (["Meta-V", "Ctrl-V", "Alt-V"].includes(cEvt.keyCombo)) {
             this.paste();
             evt.preventDefault();
             return true;
