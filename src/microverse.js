@@ -349,6 +349,7 @@ class MyModelRoot extends ModelRoot {
         this.subscribe(this.id, "loadDone", "loadDone");
 
         if (persistentData) {
+            console.log("loading persistent data");
             this.loadPersistentData(persistentData);
             return;
         }

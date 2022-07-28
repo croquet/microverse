@@ -421,6 +421,12 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                 if (options.type === "code" && behavior) {
                     actor.subscribe(behavior.id, "setCode", "loadAndReset");
                 }
+
+                // this should not happen but so far we have not found the cause.
+                if (typeof actor._parent === "string") {
+                    console.log("encountered parent as string", actor._parent);
+                    delete actor._parent;
+                }
                 return actor;
             });
         }
