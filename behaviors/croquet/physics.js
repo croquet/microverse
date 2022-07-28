@@ -71,6 +71,7 @@ class PhysicsActor {
         let r = this.getRigidBody();
         if (!r) return;
         const physicsWorld = this.physicsWorld;
+        if (!physicsWorld) {return;}
         physicsWorld.world.removeRigidBody(r);
         delete physicsWorld.rigidBodies[this.rigidBodyHandle];
         delete this.rigidBodyHandle;
@@ -80,7 +81,7 @@ class PhysicsActor {
     createCollider(cd) {
         this.removeCollider();
         const physicsWorld = this.physicsWorld;
-        let collider = physicsWorld.world.createCollider(cd, this.rigidBodyHandle);
+        let collider = physicsWorld.world.createCollider(cd, this.getRigidBody());
         this.colliderHandle = collider.handle;
         return this.colliderHandle;
     }
@@ -88,6 +89,7 @@ class PhysicsActor {
     removeCollider() {
         if (this.colliderHandle === undefined) return;
         const physicsWorld = this.physicsWorld;
+        if (!physicsWorld) {return;}
         let world = physicsWorld.world;
         let collider = world.getCollider(this.colliderHandle);
         if (collider) {
@@ -98,6 +100,7 @@ class PhysicsActor {
 
     createImpulseJoint(type, body1, body2, ...params) {
         const physicsWorld = this.physicsWorld;
+        if (!physicsWorld) {return;}
         // some compatibility with Rapier 0.7.3
         if (type === "ball") {type = "spherical";}
         let func = Microverse.Physics.JointData[type];
@@ -111,6 +114,7 @@ class PhysicsActor {
     removeImpulseJoint() {
         if (this.jointHandle === undefined) return;
         const physicsWorld = this.physicsWorld;
+        if (!physicsWorld) {return;}
         let world = physicsWorld.world;
         let joint = world.getJoint(this.jointHandle);
         if (joint) {

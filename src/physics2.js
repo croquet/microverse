@@ -40,7 +40,7 @@ class PhysicsWorld extends Model {
 
     tick() {
         if (!this.isPaused) {
-            this.world.step(this.queue); // may be undefined
+            this.world.step(this.queue); // this.queue may be undefined
             this.world.forEachActiveRigidBody(body => {
                 let h = body.handle;
                 const rb = this.rigidBodies[h];

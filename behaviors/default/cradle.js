@@ -16,17 +16,17 @@ class CradleActor {
 
                 let bodyDesc;
                 if (i === 0) { bodyDesc = Microverse.Physics.RigidBodyDesc.newKinematicPositionBased(); } // Top Link, Stays in Place
-                else { bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic().setGravityScale(4.5); } // Limit Rotation, Set Gravity
+                else { bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic().restrictRotations(true, false, false).setGravityScale(4.5); } // Limit Rotation, Set Gravity
 
                 let card;
-                let translation = [i * 0.1, 0 - i * 2, t * 4];
+                let translation = [0, 0 - i * 2, t * 4];
                 let name = `cradlelink${i}`;
                 let cd;
 
                 if (i === d - 1) { // For the Final Link, do Something Different (Not Necessary)
                     card = this.createCard({
                         name,
-                        translation: [0.2, -14, t * 4 + 0.1],
+                        translation: [0, -14, t * 4 + 0.1],
                         dataScale: [5.9, 5.9, 5.9],
                         parent: this,
                         type: "3d",
@@ -130,8 +130,8 @@ class CradleLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        if (p3d.normal[2] <= 0) { r.addForce({x: 0, y: 0, z: -15000}, true); }
-        else { r.addForce({x: 0, y: 0, z: 15000}, true); }
+        if (p3d.normal[2] <= 0) { r.applyImpulse({x: 0, y: 0, z: -150}, true); }
+        else { r.applyImpulse({x: 0, y: 0, z: 150}, true); }
     }
 
     teardown() {

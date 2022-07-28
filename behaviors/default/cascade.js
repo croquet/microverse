@@ -95,7 +95,7 @@ class CascadeActor {
         */
 
         if (rapierForce) {
-            this.rigidBody.addForce(rapierForce);
+            this.rigidBody.applyImpulse(rapierForce);
         }
 
         /*
@@ -272,8 +272,8 @@ class SprayActor {
 
         const bt = [t[0], t[1] - 1.5, t[2] - 1]; // bt for base translation
 
-        let x = Math.random() * 200 - 100;
-        let z = Math.random() * -100;
+        let x = Math.random() * 1 - 0.5;
+        let z = Math.random() * -1;
         let shape;
         let size;
         let density;
@@ -293,7 +293,7 @@ class SprayActor {
                 behaviorModules: ["Rapier", "FlightTracker", "Cascade"],
                 rapierSize: 2,
                 rapierShape: "ball",
-                rapierForce: {x, y: 100, z},
+                rapierForce: {x, y: 0.1, z},
                 density: 10,
                 shadow: true,
             });
@@ -318,7 +318,7 @@ class SprayActor {
                 behaviorModules: ["Rapier", "Slides", "Cascade"],
                 rapierSize: [1, 1, 1],
                 rapierShape: "cuboid",
-                rapierForce: {x, y: 100, z},
+                rapierForce: {x, y: 0.1, z},
                 slides: ["3Ty3Bbs4szi78KqNTyGrH0FVMEqE023P_eSIBhC8knE4PCAgJCdue3syPTgxJ3ohJ3o3JjslITEgej07eyF7EzACNi04HScVPwU3FgwwZxMsNSItIwEfAw0NZns9O3o3JjslITEgejk9NyY7IjEmJzF7PTs9AQIbOwY-Ag1mI2YtMTdjAy44GGxhGBsmHQU-AT4cMCYSImAcGSBnZHswNSA1exIeHBALYiMgPBcAYxwtYh0CBAQ_G2EyYx8sEm0WFjsOFSNiDDItAGMhNxk", "3V_rhbXp8a1PLyayumtWeAAGGfyLTKjRrD4suceOjMuoPiIiJiVseXkwPzozJXgjJXg1JDknIzMieD85eSN5ETIANC86HyUXPQc1FA4yZREuNyAvIQMdAQ8PZHk_OXg1JDknIzMieDs_NSQ5IDMkJTN5Pzk_AwAZOQQ8AA9kIWQvMzVhASw6Gm5jGhkkHwc8AzweMiQQIGIeGyJlZnkyNyI3eT00JBoDOWACJxcHFC4OBQljGCM8GwEsPyAbHhwkBxsEbgEzARIkIBIFZxM"],
                 shadow: true,
             });
@@ -351,7 +351,7 @@ class SprayActor {
             translation: bt,
             behaviorModules: ["Rapier", "Cascade"],
             rapierSize: size,
-            rapierForce: {x, y: 100, z},
+            rapierForce: {x, y: 0.1, z},
             rapierShape: shape,
             rapierDensity: density,
             color: color,
@@ -385,4 +385,3 @@ export default {
 }
 
 /* globals Microverse */
-

@@ -13,12 +13,11 @@ export function init(Constants) {
     ];
 
     const frameColor = 0x888888;
-    Constants.UseRapier = true;
 
-    let cr = [0.47123889803846897, -0.7456756856460655, 0];
-    let cr2 = [0.35123889803846897, -0.7456756856460655, 0];
+    // let cr = [0.47123889803846897, -0.7456756856460655, 0];
+    // let cr2 = [0.35123889803846897, -0.7456756856460655, 0];
 
-    let baseSize = [5, 0.3, 5];
+    // let baseSize = [5, 0.3, 5];
 
     Constants.DefaultCards = [
         {
@@ -124,6 +123,7 @@ export function init(Constants) {
             }
         },
 
+        /*
         {
             card: {
                 name:"pendulum",
@@ -136,6 +136,7 @@ export function init(Constants) {
                 color: 0xaa6666,
             }
         },
+        */
 
         {
             card: {
@@ -148,48 +149,10 @@ export function init(Constants) {
 
         {
             card: {
-                name:"base",
-                type: "object",
-                layers: ["pointer", "walk"],
-                rotation: cr,
+                name: "cascade",
                 translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
-                behaviorModules: ["Rapier", "Cascade"],
-                rapierSize: baseSize,
-                color: 0x997777,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
+                behaviorModules: ["CascadeBox"],
             }
-        },
-        {
-            card: {
-                name:"base 2",
-                type: "object",
-                layers: ["pointer", "walk"],
-                translation: [115.10571744346545, 3.6706208296689598, -130.67510326608854],
-                rotation: cr2,
-                behaviorModules: ["Rapier", "Cascade"],
-                rapierSize: [5, 0.3, 2],
-                color: 0x997777,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
-            }
-        },
-
-        {
-            card: {
-                name:"spray",
-                type: "object",
-                layers: ["pointer"],
-                translation: [117.51152685835386, 7.399264662960818, -133.3030737470486],
-                behaviorModules: ["Spray"],
-                rapierSize: [0.2, 0.2, 0.2],
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                color: 0xcccccc,
-                shadow: true,
-            }
-        },
+        }
     ];
 }

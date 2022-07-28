@@ -594,7 +594,7 @@ class ScriptingBehavior extends Model {
             }
             result = f.apply(proxy, values);
         } catch (e) {
-            console.error("an error occured in", behaviorName, name, e);
+            console.error(`an error occured in ${behaviorName}.${name}() on`, receiver, e);
         }
         return result;
     }

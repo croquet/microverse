@@ -88,25 +88,6 @@ export function init(Constants) {
         },
         {
             card: {
-                name: "portal",
-                className: "PortalActor",
-                translation: [-4, -0.4, -29],
-                rotation: [0, -Math.PI / 2, 0],
-                type: "2d",
-                layers: ["pointer"],
-                color: 0xFF66CC,
-                frameColor: frameColor,
-                width: 1.8,
-                height: 2.4,
-                depth: 0.2,
-                cornerRadius: 0.05,
-                shadow: true,
-                portalURL: "?world=default",
-                sparkle: false,
-            }
-        },
-        {
-            card: {
                 name:"flightTracker",
                 translation: [-4, 2, -50],
                 type: "object",

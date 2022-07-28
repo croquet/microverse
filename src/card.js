@@ -430,6 +430,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     get rigidBody() {
         // return this.$rigidBody;
         return this.call("Rapier$RapierActor", "getRigidBody");
+        // return this.call("Physics$PhysicsActor", "getRigidBody");
     }
 
     setPhysicsWorld(v) {
