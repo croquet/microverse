@@ -437,6 +437,20 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     get rigidBody() {
         // return this.$rigidBody;
         return this.call("Rapier$RapierActor", "getRigidBody");
+        // return this.call("Physics$PhysicsActor", "getRigidBody");
+    }
+
+    setPhysicsWorld(v) {
+        this._physicsWorld = v;
+        return v;
+    }
+
+    get physicsWorld() {
+        let manager = this.service("PhysicsManager");
+        if (manager.globalWorld) {return manager.globalWorld;}
+        if (this._physicsWorld) {return this._physicsWorld;}
+        if (this._parent) {return this._parent._physicsWorld;}
+        return undefined;
     }
 
     collisionEvent(rb1, rb2, started) {
@@ -740,6 +754,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     this.texture = new THREE.TextureLoader().load(
                         objectURL,
                         (texture) => {
+                            URL.revokeObjectURL(objectURL);
                             resolve({width: texture.image.width, height: texture.image.height, texture})
                         }, null, reject);
                 });
