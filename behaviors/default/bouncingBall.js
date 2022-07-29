@@ -10,7 +10,10 @@ class BouncingLogoActor {
         this.ballVelocity = this.randomVelocity();
         this.radius = (512 - 64) * (512 - 64);
         this.listen("set", this.setPosition);
-        this.future(100).bounce();
+        if (!this.running) {
+            this.future(100).bounce();
+            this.running = true;
+        }
     }
 
     randomVelocity() {

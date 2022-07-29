@@ -9,12 +9,11 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js", "urlLink.js", "cradle.js"
+        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "pendulum.js", "openPortal.js", "urlLink.js", "text3D.js"
     ];
 
     const frameColor = 0x888888;
     Constants.UseRapier = true;
-    Constants.UseAgoraChat = true;
 
     Constants.DefaultCards = [
         {
@@ -32,11 +31,12 @@ export function init(Constants) {
                 name:"world model",
                 type: "3d",
                 fileName: "/artgallery_042122.glb.zip",
+                //dataLocation: "/artgallery_042122.glb.zip",
                 dataLocation: "3gkoR_36xHp5-TB2swDY0iqUyhSXz2JwqpQnlM7mfYVgDxMTFxRdSEgBDgsCFEkSFEkEFQgWEgITSQ4ISBJIIAMxBR4LLhQmDDYEJT8DVCAfBhEeEDIsMD4-VUgOCEkEFQgWEgITSQoOBBUIEQIVFAJIVSoPLiM9MAINDgQAM1YWUAMoHVEjEgw1Pw4qJVZKDg0sJCNVKT4DCiwFLkgDBhMGSCQGVl8xNCQqSkoKUi8vIQkOPy4WXx0NKi8DChUvJjEVVlUyLAAdEVItMFc",
                 singleSided: true,
                 shadow: true,
                 layers: ["walk"],
-                translation:[0, -1.7, 0],
+                translation:[0, -1.676, 0],
                 dataScale:[1,1,1],
 
                 placeholder: true,
@@ -66,13 +66,29 @@ export function init(Constants) {
                 textureType: "image",
                 textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
                 cardURL: "https://croquet.io",
-                cardHilite: 0xffffaa,
                 behaviorModules: ["URLLink"],
                 fullBright: true,
                 frameColor: 0xcccccc,
                 color: 0xbbbbbb,
                 cornerRadius: 0.05,
                 depth: 0.05,
+                shadow: true,
+            }
+        },
+        {
+            card: {
+                name: "Microverse is here",
+                text: "MICROVERSE",
+                textColor: 0xEF4A3E,
+                textColor2: 0x444444,
+                textWeight: 'bold',
+                textFont: "helvetiker",
+                fullBright: true,
+                bevelEnabled: false,
+                translation: [-8, -1, -10],
+                rotation: [0, -Math.PI / 2, 0],
+                scale: [1, 1, 1],
+                behaviorModules: ["Text3D"],
                 shadow: true,
             }
         },
@@ -108,12 +124,12 @@ export function init(Constants) {
                 type: "3d",
             }
         },
-       /*
+        /*
         {
             card: {
                 translation: [-12, -0.4, -10.2],
                 rotation: [0, -Math.PI / 2, 0],
-                layers: ["pointer"],
+                layers: ["pointer", "portal"],
                 className: "PortalActor",
                 color: 16737996,
                 cornerRadius: 0.05,
@@ -235,7 +251,7 @@ export function init(Constants) {
                 runs: [{text: `
 translation: [-12, -0.4, -10.2],
 rotation: [0, -1.5707963267948966, 0],
-layers: ["pointer"],
+layers: ["pointer", "portal"],
 className: "PortalActor",
 color: 16737996,
 cornerRadius: 0.05,
@@ -297,13 +313,13 @@ width: 1.8,
         */
         {
             card: {
-                name: "cradle",
+                name:"pendulum",
                 type: "object",
-                translation: [-9.67815341742099, 3.2368919013826734, 3.968801765942323],
-                behaviorModules: ["Rapier", "Cradle"],
+                translation: [-0.03701975732147922, 3.2368919013826734, 8.444841625884546],
+                behaviorModules: ["Rapier", "Pendulum"],
                 layers: ["pointer"],
-                shadow: true,
                 scale: [0.2, 0.2, 0.2],
+                color: 0xaa6666,
             }
         },
     ];

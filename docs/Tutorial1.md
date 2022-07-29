@@ -162,7 +162,7 @@ The second part is what we call the "pawn". As might be clear from its name, it 
 
 The last part of the behavior code is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
 
-* [Tutorial2.md](./Tutorial2.md)
+* [Tutorial2]{@tutorial Tutorial2}
 
 **Copyright (c) 2022 Croquet Corporation**
 

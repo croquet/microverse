@@ -62,6 +62,7 @@ export function init(Constants) {
                 type: "3d",
                 fileName: "./Gears.glb.zip",
                 dataLocation: "38ertF-f8M4ASQWFF4fagk-_SHL8meMigLoBFFgpWLXIUExMSEsCFxdeUVRdSxZNSxZbSldJTV1MFlFXF00Xf1xuWkFUcUt5U2lbemBcC39AWU5BT21zb2FhChdRVxZbSldJTV1MFlVRW0pXTl1KS10XCnVQcXxib11SUVtfbAlJD1x3Qg58TVNqYFF1egkVUVJze3wKdmFcVXNacRdcWUxZF05vfFNWYGhxUktaUGFMfgFdfn5BTkt0Z1wLc2EOC04LckJXV1lZWQBQe2E",
+                dataScale: [0.566177949493676, 0.566177949493676, 0.566177949493676],
                 modelType: "glb",
                 dataRotation: [Math.PI / 2, Math.PI / 2, 0],
                 shadow: true,
@@ -92,7 +93,7 @@ export function init(Constants) {
                 translation: [-4, -0.4, -29],
                 rotation: [0, -Math.PI / 2, 0],
                 type: "2d",
-                layers: ["pointer", "portal"],
+                layers: ["pointer"],
                 color: 0xFF66CC,
                 frameColor: frameColor,
                 width: 1.8,
@@ -141,6 +142,7 @@ export function init(Constants) {
                 type: "3d",
                 fileName: "/Flamingo.glb.zip",
                 dataLocation: "32EmG-BV6plHy8gXm9UVfS8S7ViQHha17NI3dr8C15V4WkZGQkEIHR1UW15XQRxHQRxRQF1DR1dGHFtdHUcddVZkUEtee0FzWWNRcGpWAXVKU0RLRWd5ZWtrAB1bXRxRQF1DR1dGHF9bUUBdRFdAQVcdAH9ae3ZoZVdYW1FVZgNDBVZ9SAR2R1lgalt_cAMfW1h5cXYAfGtWX3lQex1WU0ZTHVloR1ZEVVpDVQUEYFdoVFl0RApqX398WAVqaGF9U3dGX1t6Zn5ralZjbXs",
+                dataScale: [0.009613073749495703, 0.009613073749495703, 0.009613073749495703],
                 modelType: "glb",
                 behaviorModules: ["Circle"]
             }

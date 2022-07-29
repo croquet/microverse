@@ -122,7 +122,7 @@ class PropertySheetActor {
             name: "behaivor scroll menu",
             behaviorModules: ["ScrollArea"],
             type: "object",
-            translation: [0.85, 0.4, 0.08],
+            translation: [0.85, 0.4, 0.04],
             width: 1.0 - 0.04,
             height: 2.0 - 0.04,
             depth: 0.002,
@@ -136,7 +136,7 @@ class PropertySheetActor {
         this.behaviorMenu = this.createCard({
             name: 'behavior menu',
             behaviorModules: ["BehaviorMenu"],
-            translation: [0, 0, 0.08],
+            translation: [0, 0, 0.04],
             color: 0xcccccc,
             backgroundColor: 0xcccccc,
             width: 0.85,
@@ -304,6 +304,16 @@ class PropertySheetPawn {
         this.shape.add(this.back);
 
         this.addEventListener("pointerMove", "pointerMove");
+        this.listen("translationSet", "translated");
+        this.listen("rotationSet", "translated");
+
+        this.scrollAreaPawn = [...this.children].find((c) => {
+            return c.actor._behaviorModules && c.actor._behaviorModules.indexOf("ScrollArea") >= 0;
+        })
+    }
+
+    translated(data) {
+        this.scrollAreaPawn.say("updateDisplay");
     }
 
     pointerMove(evt) {

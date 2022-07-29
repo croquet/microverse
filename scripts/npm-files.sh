@@ -10,6 +10,10 @@ find ${DIST}/assets/SVG -type f ! \( -name 'edit.svg' \) -exec rm -f {} +
 find ${DIST}/assets/images -type f ! \( -name 'grid.png' \) -exec rm -f {} +
 rm -rf ${DIST}/assets/sky
 rm -rf ${DIST}/assets/3D
+rm -rf ${DIST}/assets/fonts
+mkdir -p ${DIST}/assets/fonts
+
+cp -rp assets/fonts/css assets/fonts/webfonts assets/fonts/Roboto* ${DIST}/assets/fonts
 
 rm -rf ${DIST}/apps
 rm -rf ${DIST}/docs

@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import * as WorldcoreExports from "@croquet/worldcore-kernel";
-const {ViewService, ModelService, GetPawn, Model} = WorldcoreExports;
+const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "@croquet/worldcore-three";
 import * as WorldcoreRapierExports from "./physics.js";
@@ -212,7 +212,7 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         let listenerKey = `${scope}:${eventName}${fullMethodName}`;
-        let had = this.scriptListeners && this.scriptListeners.get(listenerKey, fullMethodName);
+        let had = this.scriptListeners && this.scriptListeners.get(listenerKey);
         if (had) {return;}
 
         // this check is needed when subscribe is called from constructors of superclasses.
@@ -408,11 +408,10 @@ export const PM_Code = superclass => class extends superclass {
     // canonical form of listner is a function.
     // We try to remove and replace the existing subscription if the "same" handler is registered.
     scriptSubscribe(scope, subscription, listener) {
-        // console.log("view", scope, subscription, listener);
         // listener can be:
-        // this.func
+        // this.func for a method in the calling behavior
         // name for a base object method
-        // name for an expander method
+        // name for a behavior method
         // string with "." for this module, a behavior and method name
         // // string with "$" and "." for external name of module, a behavior name, method name
 
@@ -431,6 +430,10 @@ export const PM_Code = superclass => class extends superclass {
 
         let behaviorName;
         let moduleName;
+
+        if (typeof listener === "function") {
+            listener = listener.name;
+        }
 
         let dollar = listener.indexOf("$");
 
@@ -726,8 +729,19 @@ export class BehaviorModelManager extends ModelService {
     loadLibraries(codeArray) {
         let changed = [];
         let nameMap = new Map();
+        let userDir = Constants.UserBehaviorDirectory.slice("behaviors/".length);
+        let systemDir = Constants.SystemBehaviorDirectory.slice("behaviors/".length);
+
         codeArray.forEach((moduleDef) => {
             let {action, name, systemModule, location} = moduleDef;
+            if (location) {
+                let index = location.lastIndexOf("/");
+                let pathPart = location.slice(0, index);
+                if (!pathPart.startsWith(userDir) && !pathPart.startsWith(systemDir)) {
+                    return;
+                }
+            }
+
             let internalName = name;
             if (!action || action === "add") {
                 let def = {...moduleDef};

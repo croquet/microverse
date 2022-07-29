@@ -79,7 +79,7 @@ class MenuActor {
                     parent: this,
                     type: "2d",
                     behaviorModules: ["PropertySheetEdit"],
-                    dataLocation: null,//"./assets/SVG/edit.svg",
+                    dataLocation: "./assets/SVG/edit.svg",
                     width: 0.1,
                     height: 0.1,
                     scale: [0.04, 0.04, 0.04],

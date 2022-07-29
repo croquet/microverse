@@ -9,7 +9,6 @@ class EarthPawn {
         const BASERADIUS = 4;      // size of the earth (land)
         const earthbase = `./assets/images/earthbase.png`;
         const earthshadow = `./assets/images/earthshadow.jpg`;
-        const ball = './assets/images/ball.png';
 
         const THREE = Microverse.THREE;
 
@@ -19,13 +18,21 @@ class EarthPawn {
         });
         this.shape.children = []; // ??
 
-        const earthBaseTexture = new THREE.TextureLoader().load(earthbase);
-        earthBaseTexture.wrapS = earthBaseTexture.wrapT = THREE.RepeatWrapping;
-        earthBaseTexture.repeat.set(1,1);
+        let assetManager = this.service("AssetManager").assetManager;
 
-        const earthShadowTexture = new THREE.TextureLoader().load(earthshadow);
-        earthShadowTexture.wrapS = earthShadowTexture.wrapT = THREE.RepeatWrapping;
-        earthShadowTexture.repeat.set(1,1);
+        let earthBaseTexture = assetManager.fillCacheIfAbsent(earthbase, () => {
+            let tex = new THREE.TextureLoader().load(earthbase);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(1,1);
+            return tex;
+        }, this.id);
+
+        let earthShadowTexture = assetManager.fillCacheIfAbsent(earthshadow, () => {
+            let tex = new THREE.TextureLoader().load(earthshadow);
+            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(1,1);
+            return tex;
+        }, this.id);
 
         this.shadowSphere = new THREE.Mesh(
             new THREE.SphereGeometry(SHADOWRADIUS, 64, 64),
@@ -39,6 +46,15 @@ class EarthPawn {
         this.baseSphere.receiveShadow = true;
         this.baseSphere.castShadow = true;
         this.shape.add(this.baseSphere);
+    }
+
+    teardown() {
+        let assetManager = this.service("AssetManager").assetManager;
+
+        const earthbase = `./assets/images/earthbase.png`;
+        const earthshadow = `./assets/images/earthshadow.jpg`;
+        assetManager.revoke(earthbase, this.id);
+        assetManager.revoke(earthshadow, this.id);
     }
 }
 

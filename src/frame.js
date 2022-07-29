@@ -50,13 +50,14 @@ window.addEventListener("message", e => {
 addShellListener((command, data) => {
     // console.log(`${frameId} received: ${JSON.stringify(data)}`);
     if (command === "frame-type") {
-        const primary = data.frameType === "primary";
+        const { frameType } = data;
+        const primary = frameType === "primary";
         if (isPrimaryFrame !== primary) {
-            console.log(frameName(), "frame-type", data.frameType);
             isPrimaryFrame = primary;
             document.body.style.background = "transparent";
             document.getElementById("hud").classList.toggle("primary-frame", isPrimaryFrame);
             if (isPrimaryFrame) window.focus();
+            sendToShell("frame-ready", { frameType });
         }
     }
 });
