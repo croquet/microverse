@@ -413,6 +413,12 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     }
                 }
 
+                // this should not happen but so far we have not found the cause.
+                if (typeof options.parent === "string") {
+                    console.log("encountered parent as string", options.parent);
+                    delete options.parent;
+                }
+
                 let actor = Cls.create(options);
                 if (id) {
                     map.set(id, actor);
@@ -422,11 +428,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     actor.subscribe(behavior.id, "setCode", "loadAndReset");
                 }
 
-                // this should not happen but so far we have not found the cause.
-                if (typeof actor._parent === "string") {
-                    console.log("encountered parent as string", actor._parent);
-                    delete actor._parent;
-                }
                 return actor;
             });
         }
