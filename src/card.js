@@ -754,6 +754,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     this.texture = new THREE.TextureLoader().load(
                         objectURL,
                         (texture) => {
+                            URL.revokeObjectURL(objectURL);
                             resolve({width: texture.image.width, height: texture.image.height, texture})
                         }, null, reject);
                 });
