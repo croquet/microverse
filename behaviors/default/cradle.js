@@ -3,7 +3,7 @@ class CradleActor {
         if (!this.physics) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world");
-            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 10}));
+            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 10}, this.id));
         }
 
         let c = 5; // Amount of Balls

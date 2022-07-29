@@ -11,13 +11,15 @@
 
 class CascadeBoxActor {
     setup() {
-        this.teardown();
+        // this.teardown();
 
+        /*
         if (!this.physics) {
             let physicsManager = this.service("PhysicsManager");
-            console.log("new physics world");
-            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 50}));
+            console.log("new physics world for cascade");
+            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 62}, this.id));
         }
+        */
 
         let baseSize = [5, 0.3, 5];
 
@@ -191,6 +193,7 @@ class CascadeActor {
           behaviors. The Rapier behavior removes the rigidBody from the Rapier world.
         */
         if (this._translation[1] < -10) {
+            console.log(this._translation[1]);
             this.destroy();
         }
     }
@@ -356,7 +359,7 @@ class SprayActor {
                 rapierShape: "ball",
                 rapierForce: {x, y: 0, z},
                 density: 2,
-                parent: this.parent,
+                //parent: this.parent,
                 shadow: true,
             });
             return;
@@ -383,17 +386,20 @@ class SprayActor {
             z *= 5;
         }
 
+        let dx = Math.random() - 0.5;
+        let dz = Math.random() - 0.5;
+
         this.createCard({
             type: "object",
             layers: ["pointer"],
-            translation: bt,
+            translation: [bt[0] + dx, bt[1], bt[2] + dz],
             behaviorModules: ["Physics", "Cascade"],
             rapierSize: size,
             rapierForce: {x: 0, y: 0, z: 0},
             rapierShape: shape,
             rapierDensity: density,
             color: color,
-            parent: this.parent,
+            // parent: this.parent,
             shadow: true,
         });
     }

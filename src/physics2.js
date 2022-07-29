@@ -115,6 +115,7 @@ export class PhysicsManager extends ModelService {
     init() {
         super.init('PhysicsManager');
         this.worlds = new Map();
+        this.globalWorld = this.createWorld({}, this.id);
     }
 
     createWorld(options, id) {

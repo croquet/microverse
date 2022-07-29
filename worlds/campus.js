@@ -150,8 +150,10 @@ export function init(Constants) {
         {
             card: {
                 name: "cascade",
-                translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
+                // translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
+                translation: [3, 3, -10],
                 behaviorModules: ["CascadeBox"],
+                type: "object"
             }
         }
     ];

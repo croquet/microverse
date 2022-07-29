@@ -17,8 +17,13 @@ export function RapierVersion() {
 // Maintains a list of players connected to the session.
 
 export class RapierPhysicsManager extends ModelService {
+    constructor(...a) {
+        super(...a);
+        console.log("construct RapierPhysicsManager");
+    }
 
     static async asyncStart() {
+        if (RAPIER) {return;}
         if (window.RAPIERModule) {
             RAPIER = window.RAPIERModule;
         } else {
@@ -28,7 +33,7 @@ export class RapierPhysicsManager extends ModelService {
     }
 
     static types() {
-        if (!RAPIER) return {};
+        if (!RAPIER) {return;}
         return {
             "RAPIER.World": {
                 cls: RAPIER.World,
@@ -37,8 +42,11 @@ export class RapierPhysicsManager extends ModelService {
             },
             "RAPIER.EventQueue": {
                 cls: RAPIER.EventQueue,
-                write: _q => {},
-                read:  _q => new RAPIER.EventQueue(true)
+                write: _q => {
+                    console.log("foo");
+                    return [];
+                },
+                read:  () => new RAPIER.EventQueue(true)
             },
         };
     }
