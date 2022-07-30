@@ -11,15 +11,11 @@
 
 class CascadeBoxActor {
     setup() {
-        // this.teardown();
-
-        /*
         if (!this.physics) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world for cascade");
             this.setPhysicsWorld(physicsManager.createWorld({timeStep: 62}, this.id));
         }
-        */
 
         let baseSize = [5, 0.3, 5];
 
@@ -150,7 +146,7 @@ class CascadeActor {
                                Microverse.Physics.ActiveEvents.INTERSECTION_EVENTS);
         }
 
-        this.collider = this.call("Physics$PhysicsActor", "createCollider", cd);
+        this.call("Physics$PhysicsActor", "createCollider", cd);
 
         /*
           If this is a regular moving object, add an event handler for pointerTap to invoke
@@ -193,7 +189,6 @@ class CascadeActor {
           behaviors. The Rapier behavior removes the rigidBody from the Rapier world.
         */
         if (this._translation[1] < -10) {
-            console.log(this._translation[1]);
             this.destroy();
         }
     }
@@ -359,7 +354,7 @@ class SprayActor {
                 rapierShape: "ball",
                 rapierForce: {x, y: 0, z},
                 density: 2,
-                //parent: this.parent,
+                parent: this.parent,
                 shadow: true,
             });
             return;
@@ -399,7 +394,7 @@ class SprayActor {
             rapierShape: shape,
             rapierDensity: density,
             color: color,
-            // parent: this.parent,
+            parent: this.parent,
             shadow: true,
         });
     }
