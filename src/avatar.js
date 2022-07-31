@@ -731,12 +731,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             return;
         }
 
-        function is3D(t) {
-            t = t.toLowerCase();
-            return ["glb", "obj", "fbx"].includes(t);
-        }
-
-        if (is3D(type)) {
+        if (obj && obj.isObject3D) { // is3D
             assetManager.setCache(dataId, buffer, "0");
             if (obj._croquetAnimation) {
                 animationClipIndex = 0;
