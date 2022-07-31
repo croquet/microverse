@@ -6,10 +6,7 @@ import * as WorldcoreExports from "@croquet/worldcore-kernel";
 const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "@croquet/worldcore-three";
-import * as WorldcorePhysicsExports from "./physics2.js";
-import * as WorldcoreRapierExports from "./physics.js";
-
-
+import * as WorldcorePhysicsExports from "./physics.js";
 
 //console.log(WorldcoreRapierExports);
 
@@ -551,7 +548,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source})`;
         let cls;
         try {
-            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcorePhysicsExports, ...WorldcoreRapierExports};
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcorePhysicsExports};
             cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);

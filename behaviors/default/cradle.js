@@ -1,9 +1,18 @@
 class CradleActor {
     setup() {
-        if (!this.physics) {
+        if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world");
             this.setPhysicsWorld(physicsManager.createWorld({timeStep: 10}, this.id));
+        }
+
+        if (this.cradle) {
+            this.cradle.forEach((c) => {
+                let {links, joints} = c;
+                links.forEach(l => l.destroy());
+                joints.forEach(j => j.destroy());
+            });
+            this.cradle = null;
         }
 
         let c = 5; // Amount of Balls
@@ -12,11 +21,16 @@ class CradleActor {
             let d = 3; // Amount of Links (+1)
             // this.removeObjects(); // Reset
 
-            this.links = [...Array(d).keys()].map((i) => {
+            let links = [...Array(d).keys()].map((i) => {
 
                 let bodyDesc;
-                if (i === 0) { bodyDesc = Microverse.Physics.RigidBodyDesc.newKinematicPositionBased(); } // Top Link, Stays in Place
-                else { bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic().restrictRotations(true, false, false).setGravityScale(4.5); } // Limit Rotation, Set Gravity
+                if (i === 0) {
+                    // Top Link, Stays in Place
+                    bodyDesc = Microverse.Physics.RigidBodyDesc.newKinematicPositionBased();
+                } else {
+                    // Limit Rotation, Set Gravity
+                    bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic().restrictRotations(true, false, false).setGravityScale(4.5);
+                }
 
                 let card;
                 let translation = [0, 0 - i * 2, t * 4];
@@ -68,7 +82,7 @@ class CradleActor {
                 return card;
             });
 
-            this.joints = [...Array(d - 1).keys()].map((i) => {
+            let joints = [...Array(d - 1).keys()].map((i) => {
                 let card = this.createCard({
                     name: `cradlejoint${i}`,
                     type: "object",
@@ -77,31 +91,32 @@ class CradleActor {
                     noSave: true,
                 });
 
-                if (i === 0) { card.call("Physics$PhysicsActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1], {x: 0, y: -1, z: 0}, {x: 0, y: 6, z: 0}); }
-                else { card.call("Physics$PhysicsActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1], {x: 0, y: -6, z: 0}, {x: 0, y: 2, z: 0}); }
+                if (i === 0) {
+                    card.call("Physics$PhysicsActor", "createImpulseJoint", "ball", links[i], links[i + 1], {x: 0, y: -1, z: 0}, {x: 0, y: 6, z: 0});
+                } else {
+                    card.call("Physics$PhysicsActor", "createImpulseJoint", "ball", links[i], links[i + 1], {x: 0, y: -6, z: 0}, {x: 0, y: 2, z: 0});
+                }
                 return card;
             });
+            return {links, joints};
+        });
 
-            // let name = `cradlelink${d}`;
-            // this.jointProto = this.createCard({
-            //   name,
-            //   type: "object",
-            //   cradleProto: true,
-            //   parent: this,
-            //   behaviorModules: ["CradleLink"],
-            // });
+        this.jointProto = this.createCard({
+            name: "cradlelinkProto",
+            type: "object",
+            cradleProto: true,
+            parent: this,
+            behaviorModules: ["CradleLink"],
         });
     }
 
     removeObjects() {
-        if (this.links) {
-            this.links.forEach(l => l.destroy());
-            this.links = null;
-        }
-        if (this.joints) {
-            this.joints.forEach(j => j.destroy());
-            this.joints = null;
-        }
+        this.cradle.forEach((c) => {
+            let {links, joints} = c;
+            links.forEach(l => l.destroy());
+            joints.forEach(j => j.destroy());
+        });
+        this.cradle = null;
     }
 }
 
@@ -148,9 +163,7 @@ class CradleLinkPawn {
         this.shape.children.forEach((c) => this.shape.remove(c));
         this.shape.children = [];
 
-        let s;
-        if (this.actor._name === "cradlelink0") { s = [0.1, 2.3]; }
-        else { s = [0.1, 12.3]; }
+        let s = this.actor._name === "cradlelink0" ? [0.1, 2.3] : [0.1, 12.3];
 
         let geometry = new Microverse.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
         let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0x000000});

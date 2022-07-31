@@ -11,13 +11,15 @@
 
 class CascadeBoxActor {
     setup() {
-        if (!this.physics) {
+        if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world for cascade");
-            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 62}, this.id));
+            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 20}, this.id));
         }
 
         let baseSize = [5, 0.3, 5];
+
+        if (this.spray) {return;}
 
         this.base1 = this.createCard({
             name:"base",
@@ -33,13 +35,12 @@ class CascadeBoxActor {
             parent: this,
         });
 
-        /*
         this.base2 = this.createCard({
             name:"base 2",
             type: "object",
             layers: ["pointer"],
             behaviorModules: ["Physics", "Cascade"],
-            translation: [0, -0.5, 4],
+            translation: [0, -1.9, 5.6],
             rotation: [0.2, 0, 0],
             rapierSize: baseSize,
             color: 0x997777,
@@ -48,7 +49,6 @@ class CascadeBoxActor {
             shadow: true,
             parent: this,
         });
-        */
 
         this.spray = this.createCard({
             name:"spray",
@@ -62,16 +62,19 @@ class CascadeBoxActor {
         });
     }
 
+    removeObjects() {
+        this.children.forEach((c) => c.destroy());
+    }
+
+    removePhysics() {
+        if (this.physics) {
+            this.physics.destroy();
+        }
+    }
+
     teardown() {
-        if (this.base1) {
-            this.base1.destroy();
-        }
-        if (this.base2) {
-            this.base2.destroy();
-        }
-        if (this.spray) {
-            this.spray.destroy();
-        }
+        this.removeObjects();
+        this.removePhysics();
     }
 }
 
@@ -331,8 +334,8 @@ class SprayActor {
         const bt = [t[0], t[1] - 0.2, t[2]]; // bt for base translation
 
         let r = Math.random() * Math.PI * 2;
-        let x = Math.cos(r) * 0.2;
-        let z = Math.sin(r) * 0.2;
+        let x = Math.cos(r) * 0.02;
+        let z = Math.sin(r) * 0.02;
         let shape;
         let size;
         let density;
@@ -365,7 +368,7 @@ class SprayActor {
         if (dice < 0.4) {
             shape = "cuboid";
             size = [0.2, 0.2, 0.2];
-            density: 0.5;
+            density: 1.5;
             /*
               uncomment to add cylinder to the simulation.
             */
@@ -377,20 +380,15 @@ class SprayActor {
             shape = "ball";
             size = 0.4;
             density = 1.5;
-            x *= 5;
-            z *= 5;
         }
-
-        let dx = Math.random() - 0.5;
-        let dz = Math.random() - 0.5;
 
         this.createCard({
             type: "object",
             layers: ["pointer"],
-            translation: [bt[0] + dx, bt[1], bt[2] + dz],
+            translation: bt,
             behaviorModules: ["Physics", "Cascade"],
             rapierSize: size,
-            rapierForce: {x: 0, y: 0, z: 0},
+            rapierForce: {x, y: 0, z},
             rapierShape: shape,
             rapierDensity: density,
             color: color,
@@ -404,6 +402,10 @@ class SprayActor {
         if (this.running) {
             this.spray();
         }
+    }
+
+    teardown() {
+        this.running = false;
     }
 }
 

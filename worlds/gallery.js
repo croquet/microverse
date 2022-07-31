@@ -13,8 +13,7 @@ export function init(Constants) {
     ];
 
     const frameColor = 0x888888;
-    Constants.UseRapier = true;
-
+ra
     Constants.DefaultCards = [
         {
             card: {
@@ -316,7 +315,7 @@ width: 1.8,
                 name:"pendulum",
                 type: "object",
                 translation: [-0.03701975732147922, 3.2368919013826734, 8.444841625884546],
-                behaviorModules: ["Rapier", "Pendulum"],
+                behaviorModules: ["Physics", "Pendulum"],
                 layers: ["pointer"],
                 scale: [0.2, 0.2, 0.2],
                 color: 0xaa6666,

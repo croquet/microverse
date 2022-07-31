@@ -122,22 +122,18 @@ export function init(Constants) {
                 color: 0xaaaaaa,
             }
         },
-
-        /*
         {
             card: {
                 name:"pendulum",
                 type: "object",
                 translation: [71.17293618667556, 8.245323976153406, -106.57786383978849],
                 // translation: [68, 9.3, -102],
-                behaviorModules: ["Rapier", "Pendulum"],
+                behaviorModules: ["Physics", "Pendulum"],
                 layers: ["pointer"],
                 scale: [0.2, 0.2, 0.2],
                 color: 0xaa6666,
             }
         },
-        */
-
         {
             card: {
                 name: "portal button",
@@ -146,12 +142,12 @@ export function init(Constants) {
                 type: "object",
             }
         },
-
         {
             card: {
                 name: "cascade",
-                // translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
-                translation: [3, 3, -10],
+                translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
+                rotation: [0, -Math.PI * 0.24, 0],
+                // translation: [3, 3, -10],
                 behaviorModules: ["CascadeBox"],
                 type: "object"
             }

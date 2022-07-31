@@ -6,8 +6,8 @@ import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
-import { RapierPhysicsManager } from "./physics.js";
-import { PhysicsManager } from "./physics2.js";
+import { RapierPhysicsManager } from "./rapier.js";
+import { PhysicsManager } from "./physics.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -333,9 +333,9 @@ class MyModelRoot extends ModelRoot {
             BehaviorModelManager,
             FontModelManager,
             PhysicsManager,
-            ...(Constants.UseRapier ? [{service: RapierPhysicsManager, options: {useCollisionEventQueue: true}}] : [])
         ];
     }
+
     init(options, persistentData) {
         super.init(options);
         let appManager = this.service("MicroverseAppManager");
@@ -621,9 +621,6 @@ export async function startMicroverse() {
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
-        if (json.data.useRapier) {
-            Constants.UseRapier = json.data.useRapier;
-        }
         Constants.BehaviorModules = json.data.behaviormodules;
         Constants.DefaultCards = json.data.cards;
         Constants.Library = new CodeLibrary();

@@ -9,6 +9,75 @@
   Rapier provides bit-identical physical simulation so we use it on the Model/Actor side of Croquet.
 */
 
+class CascadeBoxActor {
+    setup() {
+        if (!this.physicsWorld) {
+            let physicsManager = this.service("PhysicsManager");
+            console.log("new physics world for cascade");
+            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 20}, this.id));
+        }
+
+        let baseSize = [5, 0.3, 5];
+
+        if (this.spray) {return;}
+
+        this.base1 = this.createCard({
+            name:"base",
+            type: "object",
+            layers: ["pointer"],
+            behaviorModules: ["Physics", "Cascade"],
+            rotation: [0.4, 0, 0],
+            rapierSize: baseSize,
+            color: 0x997777,
+            rapierShape: "cuboid",
+            rapierType: "positionBased",
+            shadow: true,
+            parent: this,
+        });
+
+        this.base2 = this.createCard({
+            name:"base 2",
+            type: "object",
+            layers: ["pointer"],
+            behaviorModules: ["Physics", "Cascade"],
+            translation: [0, -1.9, 5.6],
+            rotation: [0.2, 0, 0],
+            rapierSize: baseSize,
+            color: 0x997777,
+            rapierShape: "cuboid",
+            rapierType: "positionBased",
+            shadow: true,
+            parent: this,
+        });
+
+        this.spray = this.createCard({
+            name:"spray",
+            type: "object",
+            layers: ["pointer"],
+            translation: [0, 2, 0],
+            behaviorModules: ["Spray"],
+            color: 0xcccccc,
+            shadow: true,
+            parent: this,
+        });
+    }
+
+    removeObjects() {
+        this.children.forEach((c) => c.destroy());
+    }
+
+    removePhysics() {
+        if (this.physics) {
+            this.physics.destroy();
+        }
+    }
+
+    teardown() {
+        this.removeObjects();
+        this.removePhysics();
+    }
+}
+
 class CascadeActor {
     setup() {
         /*
@@ -16,7 +85,7 @@ class CascadeActor {
           calls another behavior (Rapier)'s createRigidBoy method,
           which in turn calls Rapier's method of the same name.
 
-          Variable RAPIER contains all exports from the rapier
+          Variable Physics contains all exports from the rapier
           packages. It is prefixed with Microverse, which is the only
           global variable visible to behavior code.
         */
@@ -26,44 +95,44 @@ class CascadeActor {
         let rapierSensor = this._cardData.rapierSensor;
         let rapierForce = this._cardData.rapierForce;
         if (rapierType === "positionBased") {
-            kinematic = Microverse.RAPIER.RigidBodyDesc.newKinematicPositionBased();
+            kinematic = Microverse.Physics.RigidBodyDesc.newKinematicPositionBased();
         } else if (rapierType === "static") {
-            kinematic = Microverse.RAPIER.RigidBodyDesc.newStatic();
+            kinematic = Microverse.Physics.RigidBodyDesc.newStatic();
         } else {
-            kinematic = Microverse.RAPIER.RigidBodyDesc.newDynamic();
+            kinematic = Microverse.Physics.RigidBodyDesc.newDynamic();
         }
-        this.call("Rapier$RapierActor", "createRigidBody", kinematic);
+        this.call("Physics$PhysicsActor", "createRigidBody", kinematic);
 
         /*
           variable cd (collider description) is initialized based on rapierShape and rapierSize,
           and it is used for a call to createCollider.
+
+          The ColliderDesc of Rapier tends to take the half-size;
+          ex. [0.5, 0.5, 0.5] makes a [1, 1, 1] cube.
         */
 
         let cd;
         if (rapierShape === "ball") {
             let s = this._cardData.rapierSize || 1;
             s = s / 2;
-            cd = Microverse.RAPIER.ColliderDesc.ball(s);
+            cd = Microverse.Physics.ColliderDesc.ball(s);
         } else if (rapierShape === "cuboid") {
             let s = this._cardData.rapierSize || [1, 1, 1];
             s = [s[0] / 2, s[1] / 2, s[2] / 2];
-            cd = Microverse.RAPIER.ColliderDesc.cuboid(...s);
+            cd = Microverse.Physics.ColliderDesc.cuboid(...s);
         }
-
-        /*
-          Uncomment the shape === "cylinder" section to add cylinder type.
-          the ColliderDesc of Rapier tends to take the half-size; so [0.5, 0.5, 0.5] makes a [1, 1, 1]
-          cube.
-        */
-
         /*else if (rapierShape === "cylinder") {
             let s = this._cardData.rapierSize || [1, 1];
             s = [s[1] / 2, s[0]];
-            cd = Microverse.RAPIER.ColliderDesc.cylinder(...s);
+            cd = Microverse.Physics.ColliderDesc.cylinder(...s);
         }*/
 
-        cd.setRestitution(this._cardData.rapierRestitution || 0.5);
-        cd.setFriction(this._cardData.rapierFriction || 1);
+        /*
+          Uncomment above shape === "cylinder" section to add cylinder type.
+        */
+
+        cd.setRestitution(this._cardData.rapierRestitution || 0.4);
+        cd.setFriction(this._cardData.rapierFriction || 0.8);
         cd.setDensity(this._cardData.rapierDensity || 1.5);
 
         /*
@@ -74,12 +143,13 @@ class CascadeActor {
         */
 
         if (rapierSensor) {
-            this.registerIntersectionEventHandler("intersection");
+            this.registerCollisionEventHandler("intersection");
             cd.setSensor(true);
-            cd.setActiveEvents(Microverse.RAPIER.ActiveEvents.CONTACT_EVENTS |
-                               Microverse.RAPIER.ActiveEvents.INTERSECTION_EVENTS);
+            cd.setActiveEvents(Microverse.Physics.ActiveEvents.CONTACT_EVENTS |
+                               Microverse.Physics.ActiveEvents.INTERSECTION_EVENTS);
         }
-        this.collider = this.call("Rapier$RapierActor", "createCollider", cd);
+
+        this.call("Physics$PhysicsActor", "createCollider", cd);
 
         /*
           If this is a regular moving object, add an event handler for pointerTap to invoke
@@ -110,8 +180,8 @@ class CascadeActor {
         // Apply an upward force and random spin.
         let r = this.rigidBody;
         if (r) {
-            r.applyForce({x: 0, y: 400, z: 0}, true);
-            r.applyTorque({x: Math.random() * 50, y: Math.random() * 20, z: Math.random() * 50}, true);
+            r.applyImpulse({x: 0, y: 1, z: 0}, true);
+            r.applyTorqueImpulse({x: Math.random() * 0.01, y: Math.random() * 0.2, z: Math.random() * 0.01}, true);
         }
     }
 
@@ -126,30 +196,17 @@ class CascadeActor {
         }
     }
 
-    registerIntersectionEventHandler(methodName) {
+    registerCollisionEventHandler(methodName) {
         /*
           The CardActor has a method that invokes a behavior's method based on
           `intersectionEventHandlerBehavior` and `intersectionEventHandlerMethod` values.
           In this example, this is called from the above 'rapierSensor' case.
         */
         let behavior = this._behavior;
-        let physicsManager = this.service("RapierPhysicsManager");
-        this.intersectionEventHandlerBehavior = `${behavior.module.name}$${behavior.$behaviorName}`;
-        this.intersectionEventHandlerMethod = methodName;
-        physicsManager.registerIntersectionEventHandler(this._target);
-    }
-
-    registerContactEventHandler(methodName) {
-        /*
-          The CardActor has a method that invokes a behavior's method based on
-          `contactEventHandlerBehavior` and `contactEventHandlerMethod` values.
-          this method is not used in this example but defined here for illustration purposes.
-        */
-        let behavior = this._behavior;
-        let physicsManager = this.service("RapierPhysicsManager");
-        this.contactEventHandlerBehavior = `${behavior.module.name}$${behavior.$behaviorName}`;
-        this.contactEventHandlerMethod = methodName;
-        physicsManager.registerContactEventHandler(this._target);
+        let physicsWorld = this.physicsWorld();
+        this.collisionEventHandlerBehavior = `${behavior.module.name}$${behavior.$behaviorName}`;
+        this.collisionEventHandlerMethod = methodName;
+        physicsWorld.registerCollisionEventHandler(this._target);
     }
 
     intersection(card1, card2, intersecting) {
@@ -181,6 +238,10 @@ class CascadePawn {
           Uncomment the cyclinder case to add the cylinder shape.
 
         */
+
+        // this.shape.children.forEach((c) => this.shape.remove(c));
+        // this.shape.children = [];
+
         if (this.shape.children.length === 0) {
             let rapierShape = this.actor._cardData.rapierShape;
             if (rapierShape === "ball") {
@@ -270,10 +331,11 @@ class SprayActor {
 
         let t = this.translation;
 
-        const bt = [t[0], t[1] - 1.5, t[2] - 1]; // bt for base translation
+        const bt = [t[0], t[1] - 0.2, t[2]]; // bt for base translation
 
-        let x = Math.random() * 1 - 0.5;
-        let z = Math.random() * -1;
+        let r = Math.random() * Math.PI * 2;
+        let x = Math.cos(r) * 0.02;
+        let z = Math.sin(r) * 0.02;
         let shape;
         let size;
         let density;
@@ -289,37 +351,13 @@ class SprayActor {
                 type: "object",
                 translation: bt,
                 layers: ["pointer"],
-                scale: [0.25, 0.25, 0.25],
-                behaviorModules: ["Rapier", "FlightTracker", "Cascade"],
-                rapierSize: 2,
+                scale: [0.1, 0.1, 0.1],
+                behaviorModules: ["Physics", "FlightTracker", "Cascade"],
+                rapierSize: 0.8,
                 rapierShape: "ball",
-                rapierForce: {x, y: 0.1, z},
-                density: 10,
-                shadow: true,
-            });
-            return;
-        }
-
-        if (dice < 0.02) {
-            /*
-              Any card that has different behaviors can participate in the
-              simulation by having the "Rapier" and in this case the "Cascade"
-              behaviors.
-
-              The Slides behavior flips the textures specified in the
-              slides property, which holds a list of Croquet Data Id.
-            */
-
-            this.createCard({
-                name:"wooden box",
-                type: "object",
-                translation: bt,
-                layers: ["pointer"],
-                behaviorModules: ["Rapier", "Slides", "Cascade"],
-                rapierSize: [1, 1, 1],
-                rapierShape: "cuboid",
-                rapierForce: {x, y: 0.1, z},
-                slides: ["3Ty3Bbs4szi78KqNTyGrH0FVMEqE023P_eSIBhC8knE4PCAgJCdue3syPTgxJ3ohJ3o3JjslITEgej07eyF7EzACNi04HScVPwU3FgwwZxMsNSItIwEfAw0NZns9O3o3JjslITEgejk9NyY7IjEmJzF7PTs9AQIbOwY-Ag1mI2YtMTdjAy44GGxhGBsmHQU-AT4cMCYSImAcGSBnZHswNSA1exIeHBALYiMgPBcAYxwtYh0CBAQ_G2EyYx8sEm0WFjsOFSNiDDItAGMhNxk", "3V_rhbXp8a1PLyayumtWeAAGGfyLTKjRrD4suceOjMuoPiIiJiVseXkwPzozJXgjJXg1JDknIzMieD85eSN5ETIANC86HyUXPQc1FA4yZREuNyAvIQMdAQ8PZHk_OXg1JDknIzMieDs_NSQ5IDMkJTN5Pzk_AwAZOQQ8AA9kIWQvMzVhASw6Gm5jGhkkHwc8AzweMiQQIGIeGyJlZnkyNyI3eT00JBoDOWACJxcHFC4OBQljGCM8GwEsPyAbHhwkBxsEbgEzARIkIBIFZxM"],
+                rapierForce: {x, y: 0, z},
+                density: 2,
+                parent: this.parent,
                 shadow: true,
             });
             return;
@@ -327,34 +365,34 @@ class SprayActor {
 
         let color = this.randomColor();
 
-        if (dice < 0.6) {
+        if (dice < 0.4) {
             shape = "cuboid";
-            size = [1, 1, 1];
+            size = [0.2, 0.2, 0.2];
             density: 1.5;
-        } else {
             /*
               uncomment to add cylinder to the simulation.
             */
-            /*else if (dice < 0.8) {
+            /* } else if (dice < 0.7) {
             shape = "cylinder";
-            size = [1, 1];
-            }*/
+            size = [0.2, 0.2];
+            */
+        } else {
             shape = "ball";
-            size = 2;
-            density = 0.4;
+            size = 0.4;
+            density = 1.5;
         }
-
 
         this.createCard({
             type: "object",
             layers: ["pointer"],
             translation: bt,
-            behaviorModules: ["Rapier", "Cascade"],
+            behaviorModules: ["Physics", "Cascade"],
             rapierSize: size,
-            rapierForce: {x, y: 0.1, z},
+            rapierForce: {x, y: 0, z},
             rapierShape: shape,
             rapierDensity: density,
             color: color,
+            parent: this.parent,
             shadow: true,
         });
     }
@@ -365,6 +403,27 @@ class SprayActor {
             this.spray();
         }
     }
+
+    teardown() {
+        this.running = false;
+    }
+}
+
+class SprayPawn {
+    setup() {
+        this.shape.children.forEach((c) => this.shape.remove(c));
+        this.shape.children = [];
+
+        if (this.shape.children.length === 0) {
+            let s = 0.2;
+            let geometry = new Microverse.THREE.BoxGeometry(s, s, s);
+            let material = new Microverse.THREE.MeshStandardMaterial({color: this.actor._cardData.color || 0xff0000});
+            this.obj = new Microverse.THREE.Mesh(geometry, material);
+            this.obj.castShadow = this.actor._cardData.shadow;
+            this.obj.receiveShadow = this.actor._cardData.shadow;
+            this.shape.add(this.obj);
+        }
+    }
 }
 
 /*
@@ -373,6 +432,10 @@ class SprayActor {
 export default {
     modules: [
         {
+            name: "CascadeBox",
+            actorBehaviors: [CascadeBoxActor],
+        },
+        {
             name: "Cascade",
             actorBehaviors: [CascadeActor],
             pawnBehaviors: [CascadePawn]
@@ -380,8 +443,10 @@ export default {
         {
             name: "Spray",
             actorBehaviors: [SprayActor],
+            pawnBehaviors: [SprayPawn],
         }
     ]
 }
 
 /* globals Microverse */
+

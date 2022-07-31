@@ -12,8 +12,6 @@ export function init(Constants) {
         "lights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "cascade.js", "earth.js", "box.js", "drone.js", "spin.js", "flightTracker.js", "openPortal.js", "rearrange.js"
     ];
 
-    Constants.UseRapier = true;
-
     Constants.DefaultCards = [
         {
             card: {
@@ -328,47 +326,11 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"base",
-                type: "object",
-                layers: ["pointer"],
-                translation: [13.096899862946268, 1.971934214047139, 17.421859492871423],
-                rotation: [0.47123889803846897, Math.PI / 2, 0],
-                behaviorModules: ["Rapier", "Cascade"],
-                rapierSize: [5, 0.3, 5],
-                color: 0x997777,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
-            }
-        },
-        {
-            card: {
-                name:"base 2",
-                type: "object",
-                layers: ["pointer"],
-                translation:  [16.762074207944522, 0.10577659184032862, 17.421859492871423],
-                rotation: [0.35123889803846897, Math.PI / 2, 0],
-                behaviorModules: ["Rapier", "Cascade"],
-                rapierSize: [5, 0.3, 2],
-                color: 0x997777,
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                shadow: true,
-            }
-        },
-
-        {
-            card: {
-                name:"spray",
-                type: "object",
-                layers: ["pointer"],
-                translation: [11.342398091737556, 4.306399511061578, 17.421859492871423],
-                behaviorModules: ["Spray"],
-                rapierSize: [0.2, 0.2, 0.2],
-                rapierShape: "cuboid",
-                rapierType: "positionBased",
-                color: 0xcccccc,
-                shadow: true,
+                name: "cascade",
+                translation: [13.096899862946268, 2.1, 17.421859492871423],
+                rotation: [0, Math.PI / 2, 0],
+                behaviorModules: ["CascadeBox"],
+                type: "object"
             }
         },
         {
