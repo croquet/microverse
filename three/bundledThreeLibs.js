@@ -1,4 +1,4 @@
-const { ThreeRenderManager, THREE_MESH_BVH } = require("@croquet/worldcore-three");
+const { ThreeRenderManager, THREE_MESH_BVH } = require("../src/ThreeRender.js");
 
 ( function () {
 

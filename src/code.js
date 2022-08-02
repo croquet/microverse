@@ -5,7 +5,7 @@
 import * as WorldcoreExports from "@croquet/worldcore-kernel";
 const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
-import * as WorldcoreThreeExports from "@croquet/worldcore-three";
+import * as WorldcoreThreeExports from "./ThreeRender.js";
 import * as WorldcoreRapierExports from "./physics.js";
 
 //console.log(WorldcoreRapierExports);

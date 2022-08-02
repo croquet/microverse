@@ -5,7 +5,7 @@
 import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
-import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
+import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { RapierPhysicsManager } from "./physics.js";
 import {
     KeyFocusManager, SyncedStateManager,
