@@ -1,7 +1,24 @@
-import * as THREE from 'three';
+import * as THREEModule from 'three';
 import * as THREE_MESH_BVH from 'three-mesh-bvh';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+
+import { Pass } from 'three/examples/jsm/postprocessing/Pass.js';
+import { CopyShader } from 'three/examples/jsm/shaders/CopyShader.js';
+import { CSMFrustum } from 'three/examples/jsm/csm/CSMFrustum.js';
+import { CSMShader } from 'three/examples/jsm/csm/CSMShader.js';
+import { CSM } from 'three/examples/jsm/csm/CSM.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
+import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+
 import { PM_Visible, PM_Camera, RenderManager } from "@croquet/worldcore-kernel";
 
 //------------------------------------------------------------------------------------------
@@ -234,4 +251,11 @@ class ThreeRenderManager extends RenderManager {
     }
 
 }
+
+const THREE = {
+    ...THREEModule, Pass, CopyShader, CSMFrustum, CSMShader, CSM,
+    OBJLoader, MTLLoader, GLTFLoader, FBXLoader, DRACOLoader, SVGLoader, EXRLoader, BufferGeometryUtils,
+    FontLoader, Font, TextGeometry
+};
+
 export {THREE, THREE_MESH_BVH, PM_ThreeVisible, PM_ThreeCamera, ThreeRenderManager};
