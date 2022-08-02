@@ -309,6 +309,11 @@ The system internally records "persistent data" at 60 second intervals when ther
 
 Also note that the start file, either in `.js` or `.vrse`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
+### Ading a new THREE.js library.
+Look at `src/ThreeRender.js`. It imports additional Three.js libraries at the top. At the bottom of the file, it creates an object called THREE (separate from the imported `Module`) with those additional libraries. And finally it exports THREE, along with other objects.
+
+It creates a new object called THREE. This is because as of version 143, it has legacy code for FontLoader and TextGeometry, which are frozen and cannot replace it. At the same time, a behavior needs to access those features through the global variable `Microverse.THREE`. So making a new object is a solution for this problem.
+
 ### Developing the Innerworkings of the System
 
 As describe above, you can create a new world, populate the world with objects, and add interactive actions to those objects by just writing world files and behavior files. If you want to deep dive into the code base, you can find the implementation of the Croquet Microverse in the `src` directory and the top-level directory. The main files that describes are `card.js`, `code.js`, `Pointer.js`, and `avatar.js`. The startup sequence and root Croquet objects are described in 'index.js`, `root.js`, and `shell.js`. , The portal feature is implemented in `portal.js` and `frame.js`, with help from the top-level `shell.js`. Other files, such as `DynamicTexture.js`, `assetManager.js`, 'physics.js`, and `worldMenu.js` implement support features. the files in `src/text` implement the collaborative text editor.
@@ -318,7 +323,6 @@ As describe above, you can create a new world, populate the world with objects, 
 `npm run build-dev` simulated the dev server's output and allows you to see what is generated as files.
 - `npm run file-server` runs a vanilla file server. This is useful to test the files in `dist` directory.
 - `npm run create-version` creates a one line file that contains the commit hash.
-- `npm run three-lib` creates a concatenated js file called `/three/bundledThreeLibs.js`. This generated file is included in this repository to help developers get started easily. If you decide to use a newer version of Three.js, or add more libraries, it is recommended to edit `scripts/getThreeLibs.sh` and run it to create a new `bundledThreeLibs.js`.
 
 ### Publishing a new version of `@croquet/microverse-library`
 - Update `npm/package.json`, in particular the value for `version`.
