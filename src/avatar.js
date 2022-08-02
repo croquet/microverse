@@ -871,9 +871,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     lookTo(pitch, yaw, lookOffset) {
         this.maybeLeavePresentation();
         this.setLookAngles({pitch, yaw, lookOffset});
-        this.say("avatarLookTo", [pitch, yaw, lookOffset]);
+        this.say("avatarLookTo", [pitch, yaw, lookOffset], 30);
         let q = q_euler(0, this.lookYaw, 0);
-        this.rotateTo(q);
+
+        this._rotation = q;
+        this.onLocalChanged();
+        this.isRotating = false;
     }
 
     destroy() {
