@@ -213,6 +213,7 @@ class MyPlayerManager extends PlayerManager {
         if (!player) return;
 
         player.set(details);
+        this.publish("playerManager", "detailsUpdated");
     }
 
     destroyPlayer(player) {
@@ -319,6 +320,7 @@ class MyPlayerManager extends PlayerManager {
         }
         delete player.presenterToken;
         this.followers.delete(player.playerId);
+        if (player._inChat) player.set({ inChat: false }); // @@ too service-specific for here?  if we left this value, we could tailor chat-joining behaviour if the player later re-enters (provided it has the same viewId).
         this.publish("playerManager", "playerCountChanged");
     }
 

@@ -2,13 +2,14 @@
 // https://croquet.io
 // info@croquet.io
 
-import { ViewService } from "@croquet/worldcore-kernel";
+import { Data, ViewService } from "@croquet/worldcore-kernel";
 
 export class AgoraChatManager extends ViewService {
     constructor(name) {
         super(name || "AgoraChatManager");
         this.subscribe("playerManager", "enter", "playerEnter");
         this.subscribe("playerManager", "leave", "playerLeave");
+        this.subscribe("playerManager", "detailsUpdated", "playerDetailsUpdated");
 
         this.startMessageListener();
 
@@ -26,30 +27,10 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
     computeSessionHandles() {
         // derive handles { persistent, ephemeral } from the
         // persistentId and sessionId respectively.
-        if (!this.sessionHandlesP) {
-            this.sessionHandlesP = new Promise((resolve, reject) => {
-                let subtle = window.crypto.subtle;
-                if (!subtle) {
-                    reject(new Error("crypto.subtle is not available"));
-                    return;
-                }
-                let encoder = new TextEncoder();
-                let persistent = this.session.persistentId;
-                let ephemeral = this.sessionId;
-                let promises = [persistent, ephemeral].map(id => {
-                    return subtle.digest("SHA-256", encoder.encode(id)).then((bits) => {
-                        let map = Array.prototype.map;
-                        let handle = map.call(
-                            new Uint8Array(bits),
-                            x => ("00" + x.toString(16)).slice(-2)).join("");
-                        return handle;
-                    });
-                });
-                Promise.all(promises).then(([pHandle, eHandle]) => resolve({ persistent: pHandle, ephemeral: eHandle }));
-            });
-        }
-
-        return this.sessionHandlesP;
+        const hasher = id => Data.hash(id).slice(0, 8); // chat app only uses 8 chars
+        const persistent = this.session.persistentId;
+        const ephemeral = this.sessionId;
+        return { persistent: hasher(persistent), ephemeral: hasher(ephemeral)};
     }
 
     startMessageListener() {
@@ -83,6 +64,12 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
             case 'chatReady':
                 this.handleChatReady(data);
                 break;
+            case 'chatJoined':
+                this.handleChatJoined(data);
+                break;
+            case 'chatLeft':
+                this.handleChatLeft(data);
+                break;
             case 'setFrameStyle':
                 this.handleSetFrameStyle(data);
                 break;
@@ -113,8 +100,8 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
         this.chatReadyP = new Promise(resolve => this.resolveChatReady = resolve);
     }
 
-    async handleSessionInfoRequest() {
-        const { persistent, ephemeral } = await this.computeSessionHandles();
+    handleSessionInfoRequest() {
+        const { persistent, ephemeral } = this.computeSessionHandles();
         this.sendMessageToChat('sessionInfo', { sessionHandle: persistent, ephemeralSessionHandle: ephemeral });
     }
 
@@ -137,14 +124,24 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
             // must be a user-supplied nickname
             this.publish("playerManager", "details", { playerId: this.viewId, details: { chatNickname: data.nickname } });
         }
+        this.updateActiveInChat();
         this.resolveChatReady();
+    }
+
+    handleChatJoined(_data) {
+        this.publish("playerManager", "details", { playerId: this.viewId, details: { inChat: true } });
+    }
+
+    handleChatLeft(_data) {
+        this.publish("playerManager", "details", { playerId: this.viewId, details: { inChat: false } });
     }
 
     handleSetFrameStyle(data, _source) {
         Object.assign(this.chatIFrame.style, data);
     }
 
-    async playerEnter(p) {
+    playerEnter(p) {
+        this.updateActiveInChat();
         if (p.playerId !== this.viewId) return;
 
         console.log("our player entered");
@@ -153,7 +150,8 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
         // this.sendMessageToChat('joinChat');
     }
 
-    async playerLeave(p) { console.log("P_LEAVE", p);
+    playerLeave(p) {
+        this.updateActiveInChat();
         if (p.playerId !== this.viewId) return;
 
         console.log("our player left");
@@ -162,9 +160,22 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
         this.sendMessageToChat('leaveChat');
     }
 
+    playerDetailsUpdated(_p) {
+        this.updateActiveInChat();
+    }
+
+    updateActiveInChat() {
+        // tell the chat iframe which users are currently in the chat, as updated in
+        // the player states in response to events from each user's AgoraChatManager
+        if (!this.chatIFrame) return;
+
+        const inChat = this.model.service("PlayerManager").playersInWorld().filter(p => p._inChat).map(p => p._chatNickname);
+        this.sendMessageToChat('activeInChat', { inChat });
+    }
+
     detach() {
         super.detach();
-        console.log("AgoraChatMgr: detach");
+        // console.log("AgoraChatMgr: detach");
         window.removeEventListener('message', this.messageListener);
         if (this.chatIFrame) this.chatIFrame.remove(); // will cause us to crash out of Agora chat, probably not cleanly
         this.chatIFrame = null;
