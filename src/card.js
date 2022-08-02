@@ -7,9 +7,11 @@
 import {
     Data, Constants, // re-exported from @croquet/croquet
     Actor, Pawn, ModelService, ViewService, mix, AM_Smoothed, PM_Smoothed,
-    v3_dot, v3_cross, v3_sub, v3_normalize, v3_magnitude, v3_sqrMag, q_euler, q_multiply,
+    v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform,
+    q_euler, q_multiply,
+    m4_invert, m4_identity
 } from '@croquet/worldcore-kernel';
-import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from '@croquet/worldcore-three';
+import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
@@ -413,6 +415,12 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     }
                 }
 
+                // this should not happen but so far we have not found the cause.
+                if (typeof options.parent === "string") {
+                    console.log("encountered parent as string", options.parent);
+                    delete options.parent;
+                }
+
                 let actor = Cls.create(options);
                 if (id) {
                     map.set(id, actor);
@@ -422,11 +430,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     actor.subscribe(behavior.id, "setCode", "loadAndReset");
                 }
 
-                // this should not happen but so far we have not found the cause.
-                if (typeof actor._parent === "string") {
-                    console.log("encountered parent as string", actor._parent);
-                    delete actor._parent;
-                }
                 return actor;
             });
         }
@@ -436,6 +439,20 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     get rigidBody() {
         // return this.$rigidBody;
         return this.call("Rapier$RapierActor", "getRigidBody");
+        // return this.call("Physics$PhysicsActor", "getRigidBody");
+    }
+
+    setPhysicsWorld(v) {
+        this._physicsWorld = v;
+        return v;
+    }
+
+    get physicsWorld() {
+        let manager = this.service("PhysicsManager");
+        if (manager.globalWorld) {return manager.globalWorld;}
+        if (this._physicsWorld) {return this._physicsWorld;}
+        if (this._parent) {return this._parent._physicsWorld;}
+        return undefined;
     }
 
     collisionEvent(rb1, rb2, started) {
@@ -739,6 +756,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     this.texture = new THREE.TextureLoader().load(
                         objectURL,
                         (texture) => {
+                            URL.revokeObjectURL(objectURL);
                             resolve({width: texture.image.width, height: texture.image.height, texture})
                         }, null, reject);
                 });
@@ -1127,14 +1145,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
             let offset = v3_dot(p3e.xyz, normal);
             this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
-            this.lastDrag = p3e.xyz;
+            this._parentInvert = this._parent ? m4_invert(this._parent.global) : m4_identity();
+            this.startDrag = v3_transform(p3e.xyz, this._parentInvert)
             this._startTranslation = this._translation;
         }
         let p = new THREE.Vector3();
         rayCaster.ray.intersectPlane(this._plane, p);
         let here = p.toArray();
-        let delta = v3_sub(this.lastDrag, here);
-        this.set({translation: v3_sub(this._startTranslation, delta)});
+        let localHere = v3_transform(here, this._parentInvert);
+        let delta = v3_sub(localHere, this.startDrag);
+        this.set({translation: v3_add(this._startTranslation, delta)});
     }
 
     rotatePlane(rayCaster, p3e){
@@ -1157,8 +1177,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         delta[1] = 0;
         let angle = v3_magnitude(delta);
         let sign = v3_cross(p3e.lookNormal, delta)[1];
-        if(sign < 0)angle = -angle;
-        let qAngle = q_euler(0,angle,0);
+        if (sign < 0) angle = -angle;
+        let qAngle = q_euler(0, angle, 0);
         this.set({rotation: q_multiply(this.baseRotation, qAngle)});
     }
 

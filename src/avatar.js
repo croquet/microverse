@@ -8,7 +8,7 @@ import {
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
     m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation,
 } from "@croquet/worldcore-kernel";
-import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "@croquet/worldcore-three";
+import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "./ThreeRender.js";
 
 import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
@@ -731,12 +731,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             return;
         }
 
-        function is3D(t) {
-            t = t.toLowerCase();
-            return ["glb", "obj", "fbx"].includes(t);
-        }
-
-        if (is3D(type)) {
+        if (obj && obj.isObject3D) { // is3D
             assetManager.setCache(dataId, buffer, "0");
             if (obj._croquetAnimation) {
                 animationClipIndex = 0;
