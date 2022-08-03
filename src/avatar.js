@@ -8,7 +8,7 @@ import {
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
     m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation,
 } from "@croquet/worldcore-kernel";
-import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "@croquet/worldcore-three";
+import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "./ThreeRender.js";
 
 import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
@@ -731,12 +731,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             return;
         }
 
-        function is3D(t) {
-            t = t.toLowerCase();
-            return ["glb", "obj", "fbx"].includes(t);
-        }
-
-        if (is3D(type)) {
+        if (obj && obj.isObject3D) { // is3D
             assetManager.setCache(dataId, buffer, "0");
             if (obj._croquetAnimation) {
                 animationClipIndex = 0;
@@ -876,9 +871,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     lookTo(pitch, yaw, lookOffset) {
         this.maybeLeavePresentation();
         this.setLookAngles({pitch, yaw, lookOffset});
-        this.say("avatarLookTo", [pitch, yaw, lookOffset]);
+        this.say("avatarLookTo", [pitch, yaw, lookOffset], 30);
         let q = q_euler(0, this.lookYaw, 0);
-        this.rotateTo(q);
+
+        this._rotation = q;
+        this.onLocalChanged();
+        this.isRotating = false;
     }
 
     destroy() {
@@ -1690,15 +1688,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     fadeNearby() {
         let manager = this.actor.service("PlayerManager");
         let presentationMode = manager.presentationMode;
+        let setOpacity = (pawn, opacity) => {
+            if (pawn.lastOpacity === opacity) {return;}
+            pawn.lastOpacity = opacity;
+            pawn.setOpacity(opacity);
+        };
+
         for (let [_viewId, a] of manager.players) {
             // a for actor, p for pawn
             let p = GetPawn(a.id);
             if (!this.actor.inWorld) {
-                p.setOpacity(1); // we are not even here so don't affect their opacity
+                setOpacity(p, 1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
-                p.setOpacity(0); // never render followers
+                setOpacity(p, 0); // never render followers
             } else if ((p === this || (a._playerId === presentationMode && this.actor.follow)) && v3_isZero(a.lookOffset)) {
-                p.setOpacity(0); // never render me or my leader in 1st person
+                setOpacity(p, 0); // never render me or my leader in 1st person
             } else { // fade based on their (or our own) distance between avatar and camera
                 let m = this.lookGlobal; // camera location
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
@@ -1706,7 +1710,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 let av = new THREE.Vector3(m[12], m[13], m[14]);
                 // fade between 0.5 and 3.3 meters (but we used squared distance)
                 let d = Math.min(Math.max((cv.distanceToSquared(av) - 0.7) / 10, 0), 1);
-                p.setOpacity(d);
+                setOpacity(p, d);
             }
         }
         this.future(100).fadeNearby();

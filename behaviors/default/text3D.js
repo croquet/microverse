@@ -1,18 +1,17 @@
 /* generate a 3D text object in your world
 // Properties:
     text = the actual text string of the object e.g.  'MICROVERSE';
-    textColor = a color value typically expressed in hex: 0xaaffaa;
-    textColor2 = if you want a different color for the extrusion.
-    textFont = the font used - currently one of these:  'helvetiker', 'optimer', 'gentilis', 'droid/droid_sans', 'droid/droid_serif'
+    color = a color value typically expressed in hex: 0xaaffaa;
+    frameColor = if you want a different color for the extrusion.
+    font = the font used - currently one of these:  'helvetiker', 'optimer', 'gentilis', 'droid/droid_sans', 'droid/droid_serif'
     weight = 'regular' or 'bold';
-	depth = depth of extrusion in meters. THREE.TextGeometry refers to this as height
-	height=	height of text in meters. THREE.TextGeometry refers to this a size
+    depth = depth of extrusion in meters. THREE.TextGeometry refers to this as height
+    height = height of text in meters. THREE.TextGeometry refers to this a size
     curveSegments = how much the curve of the font is sliced, typically 4 is good enough;
     bevelThickness = depth of the bevel in meters;
-	bevelSize = distance from the font edge in meters;
+    bevelSize = distance from the font edge in meters;
     bevelEnabled = needs to be set to true in properties if you want it
 // Copyright 2022 Croquet Corporation
-// DAS
 */
 
 
@@ -26,28 +25,28 @@ class Text3DPawn {
         if (this.textMesh) {this.teardown();}
         let THREE = Microverse.THREE;
         let text = this.actor._cardData.text || 'MICROVERSE';
-        let textColor = this.actor._cardData.textColor || 0xaaffaa;
-        let textColor2 = this.actor._cardData.textColor2 || textColor;
-        let textFont = this.actor._cardData.textFont || 'helvetiker'; // 'helvetiker', 'optimer', 'gentilis', 'droid/droid_sans', 'droid/droid_serif'
-        let weight = this.actor._cardData.textWeight || 'regular';
+        let color = this.actor._cardData.color || 0xaaffaa;
+        let frameColor = this.actor._cardData.frameColor || color;
+        let font = this.actor._cardData.fFont || 'helvetiker'; // 'helvetiker', 'optimer', 'gentilis', 'droid/droid_sans', 'droid/droid_serif'
+        let weight = this.actor._cardData.weight || 'regular';
         let depth = this.actor._cardData.depth || 0.05; // THREE.TextGeometry refers to this as height
         let height = this.actor._cardData.height || 0.25; // THREE.TextGeometry refers to this a size
         let curveSegments = this.actor._cardData.curveSegments || 4;
         let bevelThickness = this.actor._cardData.bevelThickness || 0.01;
         let bevelSize = this.actor._cardData.bevelSize || 0.01;
         let bevelEnabled = this.actor._cardData.bevelEnabled; // false unless set by user
-        let emissive = this.actor._cardData.fullBright ? textColor : 0x000000;
+        let emissive = this.actor._cardData.fullBright ? color : 0x000000;
 
-        const loader = new THREE._FontLoader();
-        loader.load( './assets/fonts/' + textFont + '_' + weight + '.typeface.json',  response => {
+        const loader = new THREE.FontLoader();
+        loader.load( './assets/fonts/' + font + '_' + weight + '.typeface.json',  response => {
 
             let font = response;
             let materials = [
-                new THREE.MeshPhongMaterial( { color: textColor, flatShading: true, emissive: emissive } ), // front
-                new THREE.MeshPhongMaterial( { color: textColor2 } ) // side
+                new THREE.MeshPhongMaterial( { color: color, flatShading: true, emissive: emissive } ), // front
+                new THREE.MeshPhongMaterial( { color: frameColor } ) // side
             ];
             if (emissive) {materials[0].emissive.setHex( emissive ).convertSRGBToLinear(); }
-            let textGeo = new THREE._TextGeometry( text, {
+            let textGeo = new THREE.TextGeometry( text, {
                 font: font,
 
                 size: height, // Croquet refers to this as height

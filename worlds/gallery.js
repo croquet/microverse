@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "pendulum.js", "openPortal.js", "urlLink.js", "text3D.js"
+        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js", "urlLink.js", "text3D.js"
     ];
 
     const frameColor = 0x888888;
@@ -78,10 +78,10 @@ ra
             card: {
                 name: "Microverse is here",
                 text: "MICROVERSE",
-                textColor: 0xEF4A3E,
-                textColor2: 0x444444,
-                textWeight: 'bold',
-                textFont: "helvetiker",
+                color: 0xEF4A3E,
+                frameColor: 0x444444,
+                weight: 'bold',
+                font: "helvetiker",
                 fullBright: true,
                 bevelEnabled: false,
                 translation: [-8, -1, -10],
@@ -310,16 +310,5 @@ width: 1.8,
             }
         }
         */
-        {
-            card: {
-                name:"pendulum",
-                type: "object",
-                translation: [-0.03701975732147922, 3.2368919013826734, 8.444841625884546],
-                behaviorModules: ["Physics", "Pendulum"],
-                layers: ["pointer"],
-                scale: [0.2, 0.2, 0.2],
-                color: 0xaa6666,
-            }
-        },
     ];
 }

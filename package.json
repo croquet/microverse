@@ -12,7 +12,6 @@
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
     "create-version": "./scripts/commit.sh",
-    "three-lib": "./scripts/getThreeLibs.sh",
     "build-lib": "npm run build-dev; npm run create-version; cp npm/package.json dist; ./scripts/npm-files.sh; ./scripts/fix-index-html.sh dist"
   },
   "author": "Croquet Corporation",
@@ -22,7 +21,8 @@
   ],
   "dependencies": {
     "@croquet/worldcore-kernel": "file:../worldcore/packages/kernel",
-    "@croquet/worldcore-three": "file:../worldcore/packages/three",
+    "three": "^0.143.0",
+    "three-mesh-bvh": "^0.5.15",
     "@dimforge/rapier3d": "0.9.0",
     "fflate": "^0.7.3",
     "@croquet/hybrid-msdf-text": "^1.0.1",
@@ -45,6 +45,5 @@
     "webpack-dev-server": "^4.9.3"
   },
   "comment": "Sometimes you would like to try running microverse with a local version of Worldcore. In that case, use:",
-  "comment1": "@croquet/worldcore-kernel: file:../worldcore/packages/kernel",
-  "comment2": "@croquet/worldcore-three: file:../worldcore/packages/three"
+  "comment": "@croquet/worldcore-kernel: file:../worldcore/packages/kernel"
 }

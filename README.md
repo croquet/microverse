@@ -45,7 +45,7 @@ The worlds on the Croquet server cannot be modified by you.  But if you are a de
    <br>`npm install`
 5. Start a Microverse code server.
    <br>`npm start`
-6. Point your browser to `localhost:9864`.  As in the publicly deployed example above, you will find yourself alone in a new world, at a URL that has automatically been extended with a session ID and password.
+6. Point your browser to `localhost:9684`.  As in the publicly deployed example above, you will find yourself alone in a new world, at a URL that has automatically been extended with a session ID and password.
 7. To join this world from other browsers on the same computer, copy and paste the extended URL.
 8. [bonus activity] To join the world from other devices that are on the same network, you'll need a URL in which `localhost:9684` is replaced with your computer's IP address.  If you don't know the address, one place to find it is in the output from the `npm start` that you ran in step 5.  Look for a line of the form
 

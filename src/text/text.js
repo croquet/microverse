@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import {ModelService, ViewService} from "@croquet/worldcore-kernel";
-import {THREE} from "@croquet/worldcore-three";
+import {THREE} from "../ThreeRender.js";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "@croquet/hybrid-msdf-text";
 import { CardActor, CardPawn } from "../card.js";
 import loadFont from "load-bmfont";
@@ -581,7 +581,7 @@ export class TextFieldPawn extends CardPawn {
         this.textMaterial = new THREE.RawShaderMaterial(HybridMSDFShader({
             map: texture,
             textureSize: texture.image.width,
-            side: THREE.DoubleSide,
+            side: THREE.BackSide,
             transparent: true,
         }, THREE));
 
@@ -669,8 +669,10 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupMesh() {
-        let depth = this.actor._cardData.depth || 0.01;
-        let cornerRadius = this.actor._cardData.cornerRadius || 0.05;
+        let depth = this.actor._cardData.depth;
+        if (depth === undefined) {depth = 0.01;}
+        let cornerRadius = this.actor._cardData.cornerRadius;
+        if (cornerRadius === undefined) {cornerRadius = 0.05;}
         let {backgroundColor, frameColor, fullBright} = this.actor._cardData;
 
         if (!backgroundColor) {
