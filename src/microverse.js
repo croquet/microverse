@@ -655,5 +655,5 @@ export async function startMicroverse() {
         }
     };
     // Default parameters are filled in the body of startWorld. You can override them.
-    startWorld(apiKeysModule.default, `${basedir}/${basename}`);
+    startWorld(apiKeysModule.default, basename);
 }
