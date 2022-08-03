@@ -5,13 +5,8 @@
 import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
-<<<<<<< HEAD
-import { THREE, ThreeRenderManager } from "@croquet/worldcore-three";
-import { PhysicsManager } from "./physics.js";
-=======
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
-import { RapierPhysicsManager } from "./physics.js";
->>>>>>> main
+import { PhysicsManager } from "./physics.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -47,21 +42,12 @@ const defaultSystemBehaviorModules = [
 // mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 let AA = true;
 const isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-<<<<<<< HEAD
-if(isSafari) AA = false;
-const isFirefox = navigator.userAgent.includes('Firefox');
-if(isFirefox) AA = false;
-const isMobile = !!("ontouchstart" in window);
-if(isMobile) AA = false;
-console.log("antialias is: ", AA, 'mobile:', isMobile, "browser:", isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
-=======
 if (isSafari) AA = false;
 const isFirefox = navigator.userAgent.includes('Firefox');
 if (isFirefox) AA = false;
 const isMobile = !!("ontouchstart" in window);
 if (isMobile) AA = false;
 console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
->>>>>>> main
 
 console.log("%cTHREE.REVISION:", "color: #f00", THREE.REVISION);
 
