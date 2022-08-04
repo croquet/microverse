@@ -30,7 +30,7 @@ class BillboardingPawn {
         const render = this.service("ThreeRenderManager");
 
         const cameraMatrix = render.camera.matrix;
-        let v = new THREE.Vector3().setFromMatrixPosition(cameraMatrix);
+        let v = new Microverse.THREE.Vector3().setFromMatrixPosition(cameraMatrix);
         const cameraXZ = [v.x, 0, v.z];
         const widgetXZ = m4_getTranslation(this.global);
         widgetXZ[1] = 0;
@@ -65,4 +65,4 @@ export default {
     ]
 }
 
-/* globals THREE,Microverse */
+/* globals Microverse */
