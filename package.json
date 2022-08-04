@@ -12,7 +12,6 @@
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
     "create-version": "./scripts/commit.sh",
-    "three-lib": "./scripts/getThreeLibs.sh",
     "build-lib": "npm run build-dev; npm run create-version; cp npm/package.json dist; ./scripts/npm-files.sh; ./scripts/fix-index-html.sh dist"
   },
   "author": "Croquet Corporation",

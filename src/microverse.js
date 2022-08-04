@@ -26,7 +26,7 @@ import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./wcAssetManager.js";
 // import {loadThreeJSLib} from "./ThreeJSLibLoader.js";
-import {loadThreeLibs} from "../three/threeLibsLoader.js";
+//import {loadThreeLibs} from "../three/threeLibsLoader.js";
 
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
@@ -43,12 +43,12 @@ const defaultSystemBehaviorModules = [
 // mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 let AA = true;
 const isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-if(isSafari)AA=false;
+if (isSafari) AA = false;
 const isFirefox = navigator.userAgent.includes('Firefox');
-if(isFirefox)AA=false;
+if (isFirefox) AA = false;
 const isMobile = !!("ontouchstart" in window);
-if(isMobile)AA=false;
-console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox?'Firefox':isSafari?'Safari':'Other Browser' );
+if (isMobile) AA = false;
+console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
@@ -84,7 +84,9 @@ function loadLoaders() {
 function loadLoaders() {
     window.JSZip = JSZip;
     window.fflate = fflate;
-    return loadThreeLibs(THREE);
+    window.THREE = THREE;
+    return Promise.resolve(THREE);
+    //return loadThreeLibs(THREE);
 }
 
 function basenames() {
@@ -665,5 +667,5 @@ export async function startMicroverse() {
         }
     };
     // Default parameters are filled in the body of startWorld. You can override them.
-    startWorld(apiKeysModule.default, `${basedir}/${basename}`);
+    startWorld(apiKeysModule.default, basename);
 }

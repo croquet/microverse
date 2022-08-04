@@ -490,10 +490,11 @@ class Shell {
                 clearInterval(frameEntry.frameTypeInterval);
                 return;
             }
-            // under normal circs the frame will respond within 100ms.  we wait a
-            // generous 2s before deciding this really isn't looking like a microverse
-            // frame.
-            if (Date.now() - pollingStart > 2000 && !frameEntry.isMicroverse) {
+            // under normal circs the frame will respond within 100ms.  we give it a
+            // super-generous 5s (because 2s turned out not to be enough, in some browser
+            // situations) before deciding that this really really isn't looking like a
+            // microverse frame.
+            if (Date.now() - pollingStart > 5000 && !frameEntry.isMicroverse) {
                 console.log(`shell: abandoning "frame-type" send for timed-out portal-${frameId}`);
                 clearInterval(frameEntry.frameTypeInterval);
                 return;

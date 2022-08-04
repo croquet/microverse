@@ -3,6 +3,22 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-07-29
+
+### Fixed
+- Regression on dropping PDF is fixed.
+- Property cache named assset data.
+- Prevent buildup of socket connections for bitcoin tracker.
+- Revoke objectURL sooner for an image texture.
+
+### Changed
+- The logic to extract values from git for version.txt is changed.
+- The on demand update request from a pawn behavior is called after the "super" version of update is called.
+
+### Added
+- Option key/Alt key as an alternative to Control to invoke control.
+
+
 ## 2022-07-22
 
 ### Fixed
