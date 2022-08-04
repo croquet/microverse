@@ -102,8 +102,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     updateBehaviors(options) {
         // we need to call teardown and setup for behaviors removed or added;
         // so we need to keep track of changes from the previous state.
-        // also, some modules depends on the system module, we need to keep the order, even when
-        // a system module is added later.
+        // also, since non-system modules can depend on system modules, we ensure that
+        // system modules appear first in the behavior order even if added later.
 
         if (!options.behaviorModules) {return;}
         let behaviorManager = this.behaviorManager;
@@ -138,7 +138,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                 if (oldModule.pawnBehaviors) {
                     allOldPawnBehaviors.push(...oldModule.pawnBehaviors.values());
                 }
-                if (oldModule.systemModule) {
+                // re-add system module provided it's still in the list
+                if (oldModule.systemModule && options.behaviorModules.includes(oldModule.externalName)) {
                     oldSystemModules.push(oldModule.externalName);
                     if (oldModule.actorBehaviors) {
                         allNewActorBehaviors.push(...oldModule.actorBehaviors.values());
