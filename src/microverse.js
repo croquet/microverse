@@ -34,7 +34,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
 ];
 
 // turn off antialiasing for mobile and safari
