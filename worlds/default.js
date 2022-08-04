@@ -78,9 +78,10 @@ export function init(Constants) {
         {
             card: {
                 name: "auggie stand",
-                translation: [7.77, -1.72, -14.7],
+                translation: [7.79, -1.72, -14.82],
                 // rotation: [0, 0, 0, 1],
                 layers: ["pointer"],
+                behaviorModules: ["Billboard"],
                 dataLocation: "3en5pHEDZi7EpsaJ-_yONogv4uVau9ZlIxyh1TH4AhAQDRERFRZfSkoDDAkAFksQFksGFwoUEAARSwwKShBKHzAREjUqHyMQKjZULgwCKD8MUFZcHSMhIl1VV0oMCksGFwoUEAARSwgMBhcKEwAXFgBLEwQLABYWBEoOPFcnN1A0MQFUNQJSCFArMhcyMj8hIx8RDCMBIB06LygUJgYULAEjFDBVSgEEEQRKUAoHFCdQMwYEESE1NCscPTckDggoDDUwDyIgFTFXVw5IDAhREDc6Jwc0MA",
                 dataScale: [1, 1, 1],
                 fileName: "/AuggieStand.glb",
@@ -96,6 +97,7 @@ export function init(Constants) {
                 translation: [7.79, -0.45, -14.82],
                 // rotation: [0, 0, 0, 1],
                 layers: ["pointer"],
+                behaviorModules: ["Billboard"],
                 dataLocation: "35hI1OQ1NaqWki0Or-uHXAVM9vipZGVZIc_emQwLfCAcXUFBRUYPGhpTXFlQRhtARhtWR1pEQFBBG1xaGkAaT2BBQmV6T3NAemYEflxSeG9cAAYMTXNxcg0FBxpcWhtWR1pEQFBBG1hcVkdaQ1BHRlAbQ1RbUEZGVBpebAd3ZwBkYVEEZVICWAB7YkdiYm9xc09BXHNRcE1qf3hEdlZEfFFzRGAFGlFUQVQabV1-bFdNZAdnBAxCfnAYXk9kamVaAUVbBnt3QUBaWwUEfnhPb1RWfhhqDQ",
                 dataScale: [1, 1, 1],
                 fileName: "/Auggie2.glb",
