@@ -524,7 +524,6 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         this.lookPitch = this.actor.lookPitch;
         this.lookYaw = this.actor.lookYaw;
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
-        this._rotation = q_euler(0, this.lookYaw, 0);
 
         this.tug = 0.06; // instead of default 0.2, to work with spaced updates
     }
