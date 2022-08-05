@@ -524,10 +524,12 @@ export class TextFieldPawn extends CardPawn {
         this.listen("screenUpdate", "screenUpdate");
 
         this.setupFonts();
-        this.addEventListener("pointerDown", "onPointerDown");
-        this.addEventListener("pointerMove", "onPointerMove");
-        this.addEventListener("pointerUp", "onPointerUp");
-        this.addEventListener("keyDown", "keyDown");
+        if (!this.actor._cardData.readOnly) {
+            this.addEventListener("pointerDown", "onPointerDown");
+            this.addEventListener("pointerMove", "onPointerMove");
+            this.addEventListener("pointerUp", "onPointerUp");
+            this.addEventListener("keyDown", "keyDown");
+        }
 
         this.listen("cardDataSet", "cardDataUpdated");
     }
