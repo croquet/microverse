@@ -692,6 +692,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             if (Array.isArray(obj.material)) {
                 obj.material.dispose = arrayDispose;
             }
+
+            this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
         });
     }

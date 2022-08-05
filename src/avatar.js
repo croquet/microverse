@@ -13,6 +13,7 @@ import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "./ThreeRender.js";
 import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
+import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 
@@ -68,6 +69,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
+        this.subscribe("playerManager", "detailsUpdated", "playerDetailsUpdated");
         this.future(0).tick();
     }
 
@@ -78,6 +80,46 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
     get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
+
+    playerDetailsUpdated() {
+        this.ensureNicknameCard();
+    }
+
+    ensureNicknameCard() {
+        if (this.nicknameCard || !this.inWorld || !this._chatNickname) return;
+
+        const nickname = this._chatNickname;
+        const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
+        const PADDING = 0.1; // horizontal and vertical
+        const measurement = TextFieldActor.defaultMeasurement(nickname); // aug 2022: new static method
+        const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
+        const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
+        const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
+        const marginLeft = (PADDING - MARGIN_FUDGE) / TEXT_SCALE;
+        const marginTop = PADDING * 1.1 / TEXT_SCALE;
+        const options = {
+            name: 'nickname',
+            className: "TextFieldActor",
+            behaviorModules: ["Billboard"],
+            translation: [0, 1, 0],
+            type: "text",
+            depth: 0.02,
+            margins: { left: marginLeft, top: marginTop },
+            backgroundColor: 0x300079,
+            frameColor: 0x400089,
+            fullBright: true,
+            opacity: 0.8,
+            runs: [{ text: nickname, style: { color: 'white' } }],
+            width: signWidth,
+            height: signHeight,
+            textScale: TEXT_SCALE,
+            readOnly: true,
+            noDismissButton: true,
+            noSave: true,
+            parent: this
+        };
+        this.nicknameCard = this.createCard(options);
+    }
 
     // The user leaves the "guided tour".
     leavePresentation() {
@@ -99,6 +141,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
+        if (v) this.ensureNicknameCard();
     }
 
     startFalling() {
@@ -528,18 +571,36 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         this.tug = 0.06; // instead of default 0.2, to work with spaced updates
     }
 
+    addChild(id) {
+        super.addChild(id);
+        delete this.lastOpacity;
+    }
+
+    removeChild(id) {
+        super.removeChild(id);
+        delete this.lastOpacity;
+    }
+
     setOpacity(opacity) {
         if (this.shape) {
             let transparent = opacity !== 1;
-            this.shape.visible = this.actor.inWorld && opacity !== 0;
+            let visible = this.actor.inWorld && opacity !== 0;
+            this.shape.visible = visible;
             this.shape.traverse(n => {
-                if (n.material) {
+                if (n.material && n.material.opacity !== opacity) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
                     n.material.side = THREE.DoubleSide;
                     n.material.needsUpdate = true;
                 }
             });
+            // don't mess with opacity levels of children, but make them
+            // visible or invisible appropriately
+            if (this._children) {
+                for (let c of this._children) {
+                    if (c.shape) c.shape.visible = visible;
+                }
+            }
         }
     }
 }
@@ -1693,9 +1754,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let manager = this.actor.service("PlayerManager");
         let presentationMode = manager.presentationMode;
         let setOpacity = (pawn, opacity) => {
-            // don't try to set (and record) opacity until the avatar has its shape
-            if (!pawn.shape.children.length || pawn.lastOpacity === opacity) {return;}
+            const inWorld = pawn.actor.inWorld;
+            // don't try to set (and record) opacity until the avatar has its model
+            if (!pawn.modelHasLoaded || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
             pawn.lastOpacity = opacity;
+            pawn.lastInWorld = inWorld;
             pawn.setOpacity(opacity);
         };
 
@@ -1721,10 +1784,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.future(100).fadeNearby();
     }
 
+    addChild(id) {
+        super.addChild(id);
+        delete this.lastOpacity;
+    }
+
+    removeChild(id) {
+        super.removeChild(id);
+        delete this.lastOpacity;
+    }
+
     setOpacity(opacity) {
         if (this.shape) {
             let transparent = opacity !== 1;
-            this.shape.visible = this.actor.inWorld && opacity !== 0;
+            let visible = this.actor.inWorld && opacity !== 0;
+            this.shape.visible = visible;
             this.shape.traverse(n => {
                 if (n.material && n.material.opacity !== opacity) {
                     n.material.opacity = opacity;
@@ -1733,6 +1807,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     n.material.needsUpdate = true;
                 }
             });
+            // don't mess with opacity levels of children, but make them
+            // visible or invisible appropriately
+            if (this._children) {
+                for (let c of this._children) {
+                    if (c.shape) c.shape.visible = visible;
+                }
+            }
         }
     }
 
