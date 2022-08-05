@@ -1689,7 +1689,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let manager = this.actor.service("PlayerManager");
         let presentationMode = manager.presentationMode;
         let setOpacity = (pawn, opacity) => {
-            if (pawn.lastOpacity === opacity) {return;}
+            // don't try to set (and record) opacity until the avatar has its shape
+            if (!pawn.shape.children.length || pawn.lastOpacity === opacity) {return;}
             pawn.lastOpacity = opacity;
             pawn.setOpacity(opacity);
         };
