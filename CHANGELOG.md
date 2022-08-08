@@ -3,6 +3,28 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-08-05
+
+### Added
+- A way to remove the view-side update request (removeUpdateRequest()) is added.
+- A Billboard behavior is added, and use it for the Auggie status.
+
+### Fixed
+- the view-side update request property handles multiple requests for the identical spec.
+- Editing properties of a nested card handles the string parent field properly.
+- Allow dropping a directory of .obj, .mtl and texture files work again.
+- Allow Control-drag of a nested object.
+- Typos in documentations.
+- Mitigate timeout issue handling of non-microverse iframe.
+
+### Changed
+- stop using the external worldcore-three package but use a local customized version of ThreeRender.js.
+- An optimization around setOpacity of avatars.
+- An optimization around avatar look.
+- Make text rendering one sided.
+- Use a short name for the world name options for persistent data lookup.
+- Not to add event listeners when text is read only.
+
 ## 2022-07-29
 
 ### Fixed
