@@ -7,7 +7,7 @@
 import {
     Data, Constants, // re-exported from @croquet/croquet
     Actor, Pawn, ModelService, ViewService, mix, AM_Smoothed, PM_Smoothed,
-    v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform,
+    v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform, v3_rotate,
     q_euler, q_multiply,
     m4_invert, m4_identity
 } from '@croquet/worldcore-kernel';
@@ -253,6 +253,43 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             return this.subscribe(this._parent.id, message, method);
         }
         this.subscribe(this.id, message, method);
+    }
+
+    rotateBy(angles) {
+        // angles are either a 3 value array or 4 value array
+        // if it is a 3-value array, it is interpreted as an euler angle
+        // if it is a 4-value array, it is interpreted as a quaternion
+        let q = angles.length === 3 ? q_euler(...angles) : angles;
+        let newQ = q_multiply(this.rotation, q);
+        this.rotateTo(newQ);
+    }
+
+    translateBy(dist) {
+        // dist is either a 3-value array or a scalar.
+        // if it is a 3-value array, it specify the offset.
+        // if it is a scalar, it is intepretered as [0, 0, dist].
+        let offset = Array.isArray(dist) ? dist : [0, 0, dist];
+        let t = this.translation;
+        this.translateTo([t[0] + offset[0], t[1] + offset[1], t[2] + offset[2]]);
+    }
+
+    forwardBy(dist) {
+        // dist is either a 3-value array or a scalar.
+        // if it is a 3-value array, it specify the offset, in the reference frame of the receiver.
+        // if it is a scalar, it is intepretered as [0, 0, dist].
+        let offset = Array.isArray(dist) ? dist : [0, 0, dist];
+        let vec = v3_rotate(offset, this.rotation)
+        let t = this.translation;
+        this.translateTo([t[0] + vec[0], t[1] + vec[1], t[2] + vec[2]]);
+    }
+
+    scaleBy(factor) {
+        // factor is either a 3-value array or a scalar.
+        // if it is a 3-value array, it specify the difference.
+        // if it is a scalar, it is intepretered as [factor, factor, factor].
+        let offset = Array.isArray(factor) ? factor : [factor, factor, factor];
+        let cur = this.scale;
+        this.scaleTo([cur[0] + offset[0], cur[1] + offset[1], cur[2] + offset[2]]);
     }
 
     nop() {}
