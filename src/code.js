@@ -156,6 +156,25 @@ export const AM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(scope, eventName, listener);
     }
 
+    has(behaviorName, name) {
+        let moduleName;
+        let split = behaviorName.split("$");
+        if (split.length > 1) {
+            moduleName = split[0];
+            behaviorName = split[1];
+        }
+
+        if (!moduleName && this[isProxy]) {
+            moduleName = this._behavior.module.externalName;
+        }
+
+        if (!this._behaviorModules) {return false;}
+        if (!this._behaviorModules.includes(moduleName)) {return false;}
+        let behavior = this.behaviorManager.lookup(moduleName, behaviorName);
+        if (!behavior) {return false;}
+        return !!behavior.$behavior[name];
+    }
+
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
     // in its life cycle because of live programming feature. This wrapper for subscribe records
     // the current set of subscription.
@@ -399,6 +418,25 @@ export const PM_Code = superclass => class extends superclass {
 
     subscribe(scope, subscription, listener) {
         return this.scriptSubscribe(scope, subscription, listener);
+    }
+
+    has(behaviorName, name) {
+        let moduleName;
+        let split = behaviorName.split("$");
+        if (split.length > 1) {
+            moduleName = split[0];
+            behaviorName = split[1];
+        }
+
+        if (!moduleName && this[isProxy]) {
+            moduleName = this.actor._behavior.module.externalName;
+        }
+
+        if (!this.actor._behaviorModules) {return false;}
+        if (!this.actor._behaviorModules.includes(moduleName)) {return false;}
+        let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
+        if (!behavior) {return false;}
+        return !!behavior.$behavior[name];
     }
 
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times

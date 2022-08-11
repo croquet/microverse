@@ -189,7 +189,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     setCardData(options) {
         let newOptions = {...this._cardData, ...options};
         this.set({cardData: newOptions});
-
+        this.updateBehaviors(options);
         // this line below should be good, except that right now it fails some objects.
         // this.say("updateShape", options);
     }

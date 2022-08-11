@@ -33,7 +33,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
 ];
 
 // turn off antialiasing for mobile and safari
@@ -194,14 +194,20 @@ class MyPlayerManager extends PlayerManager {
             options = {...options, ...avatarSpec};
         }
 
+        if (!options.avatarEventHandler) {
+            options.avatarEventHandler = "AvatarEventHandler";
+        }
+
+        let handlerModuleName = options.avatarEventHandler;
         let behaviorManager = this.service("BehaviorModelManager");
 
-        if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
-            // let modules;
+        if (behaviorManager && behaviorManager.modules.get(handlerModuleName)) {
             if (!options.behaviorModules) {
-                options.behaviorModules = ["AvatarEventHandler"];
+                options.behaviorModules = [handlerModuleName];
             } else {
-                options.behaviorModules = [...options.behaviorModules, "AvatarEventHandler"];
+                if (!options.behaviorModules.includes(handlerModuleName)) {
+                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
+                }
             }
         }
 
