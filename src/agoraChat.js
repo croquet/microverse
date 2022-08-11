@@ -9,7 +9,7 @@ export class AgoraChatManager extends ViewService {
         super(name || "AgoraChatManager");
         this.subscribe("playerManager", "enter", "playerEnter");
         this.subscribe("playerManager", "leave", "playerLeave");
-        this.subscribe("playerManager", "detailsUpdated", "playerDetailsUpdated");
+        this.subscribe("playerManager", { event: "detailsUpdated", handling: "oncePerFrame" }, "playerDetailsUpdated");
 
         this.startMessageListener();
 
@@ -86,9 +86,11 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
             // not sure there is any legitimate way this can happen
             console.warn("AgoraChatMgr: found existing iframe");
             this.chatIFrame = existing;
-            this.chatReadyP = Promise.resolve(); // assume it's ready
+            this.chatReady = true; // assume it's ready
             return;
         }
+
+        this.chatReady = false;
 
         const { innerWidth, innerHeight } = window;
         const frame = this.chatIFrame = document.createElement('iframe');
@@ -124,8 +126,8 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
             // must be a user-supplied nickname
             this.publish("playerManager", "details", { playerId: this.viewId, details: { chatNickname: data.nickname } });
         }
+        this.chatReady = true;
         this.updateActiveInChat();
-        this.resolveChatReady();
     }
 
     handleChatJoined(_data) {
@@ -141,17 +143,17 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
     }
 
     playerEnter(p) {
-        this.updateActiveInChat();
-        if (p.playerId !== this.viewId) return;
+        if (p.playerId !== this.viewId) {
+            this.updateActiveInChat();
+            return;
+        }
 
         console.log("our player entered");
         this.ensureChatIFrame();
-        // await this.chatReadyP;
-        // this.sendMessageToChat('joinChat');
     }
 
     playerLeave(p) {
-        this.updateActiveInChat();
+        this.updateActiveInChat(); // whichever player left, its actor.inWorld will already have been updated
         if (p.playerId !== this.viewId) return;
 
         console.log("our player left");
@@ -167,17 +169,21 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
     updateActiveInChat() {
         // tell the chat iframe which users are currently in the chat, as updated in
         // the player states in response to events from each user's AgoraChatManager
-        if (!this.chatIFrame) return;
+        if (!this.chatReady) return;
 
         const inChat = this.model.service("PlayerManager").playersInWorld().filter(p => p._inChat).map(p => p._chatNickname);
+        if (this.lastInChat?.length === inChat.length && !inChat.some((nick, i) => this.lastInChat[i] !== nick)) return;
+
+        this.lastInChat = inChat;
         this.sendMessageToChat('activeInChat', { inChat });
     }
 
     detach() {
         super.detach();
-        // console.log("AgoraChatMgr: detach");
+        console.log("AgoraChatMgr: detach");
         window.removeEventListener('message', this.messageListener);
         if (this.chatIFrame) this.chatIFrame.remove(); // will cause us to crash out of Agora chat, probably not cleanly
         this.chatIFrame = null;
+        this.chatReady = false;
     }
 }

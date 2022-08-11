@@ -69,8 +69,17 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
-        this.subscribe("playerManager", "detailsUpdated", "playerDetailsUpdated");
+        this.subscribe("playerManager", "detailsUpdated", this.playerDetailsUpdated);
         this.future(0).tick();
+    }
+
+    set(details) {
+        // aug 2022: we now publish an event when any configuration property (i.e.,
+        // not a positional property) of any player changes.  right now there aren't
+        // too many such changes - but as the system evolves, we should keep an eye
+        // to ensure we don't suddenly start bogging down here.
+        super.set(details);
+        this.publish("playerManager", "detailsUpdated");
     }
 
     get pawn() { return AvatarPawnFactory; }
@@ -82,6 +91,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     playerDetailsUpdated() {
+        // $$$ when nickname switches to coming from a shell-level dialog rather than the
+        // AgoraChatManager, we'll probably handle this differently
         this.ensureNicknameCard();
     }
 
@@ -101,7 +112,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             name: 'nickname',
             className: "TextFieldActor",
             behaviorModules: ["Billboard"],
-            translation: [0, 1, 0],
+            translation: [0, 1, -0.1], // above and slightly in front
             type: "text",
             depth: 0.02,
             margins: { left: marginLeft, top: marginTop },
@@ -605,6 +616,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     }
 }
 
+let dormantAvatarSpec = null;
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
@@ -725,13 +737,31 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
         addShellListener(this.shellListener);
-        //initialize actor
-        const actorSpec = { inWorld: this.isPrimary };
-        const anchor = this.anchorFromURL(window.location, !this.isPrimary);
-        if (anchor) {
-            actorSpec.anchor = anchor; // actor or {translation, rotation}
-            actorSpec.translation = anchor.translation;
-            actorSpec.rotation = anchor.rotation;
+        // initialize actor
+        // the fact that we're creating an AvatarPawn rather than a RemoteAvatarPawn
+        // means that this pawn is for the local user.  it will either be for the
+        // primary frame (in which case it sets the actor's inWorld to true) or
+        // non-primary (inWorld set to false - which forces the pawn's setOpacity
+        // method to set its own visibility to false, so it can sneak around
+        // as a disembodied through-portal camera).
+        // if there is a dormantAvatarSpec in the global context, and we're building
+        // the primary-frame avatar, we publish that spec to become the configuration for
+        // this actor - and hence for this pawn, and all RemoteAvatarPawns that other
+        // users have for it.
+        const inWorld = this.isPrimary;
+        let actorSpec;
+        if (inWorld && dormantAvatarSpec) {
+            actorSpec = dormantAvatarSpec;
+            actorSpec.inWorld = true;
+            dormantAvatarSpec = null;
+        } else {
+            actorSpec = { inWorld };
+            const anchor = this.anchorFromURL(window.location, !this.isPrimary);
+            if (anchor) {
+                actorSpec.anchor = anchor; // actor or {translation, rotation}
+                actorSpec.translation = anchor.translation;
+                actorSpec.rotation = anchor.rotation;
+            }
         }
         this.say("_set", actorSpec);
         this.say("resetStartPosition");
@@ -749,6 +779,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
+    }
+
+    detach() {
+        super.detach();
+        dormantAvatarSpec = this.specForRevival();
     }
 
     get presenting() {
@@ -999,6 +1034,22 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         //     this.portalClip.constant = -this.portalClip.constant;
         // }
         return mcam;
+    }
+
+    specForRevival() {
+        // on going dormant, generate the spec to be used if this tab is revived
+        const spec = {
+            translation: this._translation,
+            rotation: this._rotation,
+            lookPitch: this.lookPitch,
+            lookYaw: this.lookYaw,
+            lookOffset: this.lookOffset,
+            cardData: this.actor._cardData, // keep avatar appearance
+            chatNickname: this.actor._chatNickname, // if defined
+            name: this.actor._name, // and name
+            inChat: false // see comment in MyPlayerManager.playerInWorldChanged
+        };
+        return spec;
     }
 
     specForPortal(portal, jumpVector, crossingBackwards) {

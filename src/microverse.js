@@ -165,6 +165,8 @@ class MyPlayerManager extends PlayerManager {
     get presenter() { return this.players.get(this.presentationMode); }
 
     createPlayer(playerOptions) {
+        // invoked by PlayerManager.onJoin.
+
         // when we have a better user management,
         // options will be compatible with a card spec
         // until then, we check the AvatarNames variable, and if it is a short name
@@ -176,6 +178,10 @@ class MyPlayerManager extends PlayerManager {
         // names/shapes (but remains invisible).  if the user comes through into this
         // world, at that point the avatar is updated to the name and shape that the
         // user had in the previous world (see AvatarPawn.frameTypeChanged).
+
+        // this method does not need to call super.createPlayer, which has null
+        // behaviour.  once the player is created and returned, onJoin will publish
+        // "playerManager:create", which we handle here with playerCreated.
 
         let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
@@ -211,19 +217,80 @@ class MyPlayerManager extends PlayerManager {
     }
 
     playerDetails({ playerId, details }) {
+        // any object can publish a "playerManager:details" event specifying
+        // a player id and some new property values for that player.  for example,
+        // this is how the AgoraChatManager informs everyone when its local view
+        // has joined or left the chat.
         const player = this.players.get(playerId);
         if (!player) return;
 
-        player.set(details);
-        this.publish("playerManager", "detailsUpdated");
+        player.set(details); // will publish a "playerManager:detailsUpdated" event
     }
 
     destroyPlayer(player) {
-        if (player.inWorld) player.set({inWorld: false});
+        // although the player itself is about to be removed and doesn't care,
+        // setting its inWorld to false will trigger event subscribers that do -
+        // for example, this manager's own playerLeftWorld
+        if (player.inWorld) player.set({ inWorld: false });
         super.destroyPlayer(player);
     }
 
     playerInWorldChanged(player) {
+        // invoked directly from AvatarActor.inWorldSet when someone has toggled
+        // the inWorld property of an AvatarActor.  this can happen either directly
+        // in the model domain (such as from destroyPlayer above) or from the
+        // AvatarPawn, with a say("_set", <props>).
+        // this method then publishes a player enter or leave event, based on the
+        // value of inWorld.  one subscriber to those events is this MyPlayerManager
+        // itself: the playerEnteredWorld and playerLeftWorld methods below do
+        // appropriate housekeeping for the change of state.  any view that needs to
+        // note arrival and departure of avatars in the world is also free to subscribe.
+
+        // being in or out of world is a distinct layer from the
+        // view-join and view-exit events that signal connection and
+        // disconnection in a Croquet session.  the latter are subscribed to in
+        // the Worldcore PlayerManager - this manager's superclass - and handled
+        // by invoking createPlayer and destroyPlayer on the manager. the event
+        // "playerManager:create" is published after createPlayer has completed;
+        // "playerManager:destroy" is published as part of destroyPlayer, before
+        // invocation of player.destroy() - mainly handled in Actor - that does
+        // the cleanup.
+
+        // in summary:
+        //   to respond to players having been created or about to be destroyed,
+        //   subscribe to
+        //     playerManager:create
+        //     playerManager:destroy
+        //   to respond to players having entered or left this world, subscribe to
+        //     playerManager:enter
+        //     playerManager:leave
+
+        // NB: if a tab goes dormant and is then revived, the events that will be
+        // processed on that revival depend on the state of the session...
+        //   (a) if there are other users in the session:
+        //       the model will process the destruction of the tab's previous avatar
+        //       and creation of a new one.  the avatar pawn will find and apply the
+        //       dormantAvatarSpec it recorded on going dormant (see avatar.js),
+        //       which will restore all saved properties (position, nickname, 3d
+        //       model pointer etc) to the actor.
+        //   (b) if there are no other users in the session, but no snapshot has
+        //       been taken since the tab's avatar was created:
+        //       the model will process the re-creation of the old avatar as if
+        //       it has never been seen before.  the dormantAvatarSpec will restore
+        //       its properties, as above.
+        //   (c) if there are no other users, but the tab's avatar does appear in
+        //       the snapshot from which the session is restarted:
+        //       the model will silently restore all aspects of the avatar to
+        //       their pre-dormancy state - including flags such as inWorld and
+        //       inChat.  there will therefore be no "create" event, and application
+        //       of the dormantAvatarSpec will not trigger an "enter" event because
+        //       the model already shows that the avatar is in the world.
+        //
+        // for case (c) in particular, the handling of the dormantAvatarSpec
+        // is the only place where we can ensure that avatar properties that must
+        // *not* be preserved across dormancy - for now, this includes inChat - are
+        // explicitly reset.
+
         if (player.inWorld) {
             this.publish("playerManager", "enter", player);
         } else {
@@ -322,15 +389,17 @@ class MyPlayerManager extends PlayerManager {
         }
         delete player.presenterToken;
         this.followers.delete(player.playerId);
-        if (player._inChat) player.set({ inChat: false }); // @@ too service-specific for here?  if we left this value, we could tailor chat-joining behaviour if the player later re-enters (provided it has the same viewId).
+        if (player._inChat) player.set({ inChat: false });
         this.publish("playerManager", "playerCountChanged");
     }
 
-    playerCreated(_player) {
+    playerCreated(player) {
+        // console.log(frameName(), "playerCreated", player);
         this.publish("playerManager", "playerCountChanged");
     }
 
-    playerDestroyed(_player) {
+    playerDestroyed(player) {
+        // console.log(frameName(), "playerDestroyed", player);
         this.publish("playerManager", "playerCountChanged");
     }
 }
