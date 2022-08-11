@@ -134,6 +134,7 @@ class AvatarPawn {
     }
 
     avatarPosed(xyz) {
+        if (!this.bones) {return;}
         this.moveHead(xyz);
         this.moveRightHand(xyz);
     }
@@ -144,6 +145,7 @@ class AvatarPawn {
             q_lookAt, q_pitch, q_euler, q_yaw, q_roll, q_multiply, q_slerp, q_identity,
             v3_normalize
         } = Microverse;
+
         let head = this.bones.get("Head");
         let neck = this.bones.get("Neck");
         let global = neck.matrixWorld.clone();
