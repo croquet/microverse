@@ -17,7 +17,7 @@ class GizmoPawn {
             this.dragStart = [...event.xy];
             this.positionAtDragStart = [...this._translation];
             const avatar = Microverse.GetPawn(event.avatarId);
-            avatar.addFirstResponder("pointerMove", {}, this);
+            avatar.addFirstResponder("pointerMove", {shiftKey: true}, this);
         }
     }
 
@@ -41,7 +41,7 @@ class GizmoPawn {
         console.log("end", event);
         this.dragStart = undefined;
         const avatar = Microverse.GetPawn(event.avatarId);
-        avatar.removeFirstResponder("pointerMove", {}, this);
+        avatar.removeFirstResponder("pointerMove", {shiftKey: true}, this);
     }
 }
 
