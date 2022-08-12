@@ -224,14 +224,14 @@ class MyPlayerManager extends PlayerManager {
         const player = this.players.get(playerId);
         if (!player) return;
 
-        player.set(details); // will publish a "playerManager:detailsUpdated" event
+        player.setAndPublish(details); // will publish a "playerManager:detailsUpdated" event
     }
 
     destroyPlayer(player) {
         // although the player itself is about to be removed and doesn't care,
         // setting its inWorld to false will trigger event subscribers that do -
         // for example, this manager's own playerLeftWorld
-        if (player.inWorld) player.set({ inWorld: false });
+        if (player.inWorld) player.setAndPublish({ inWorld: false });
         super.destroyPlayer(player);
     }
 
@@ -265,31 +265,26 @@ class MyPlayerManager extends PlayerManager {
         //     playerManager:enter
         //     playerManager:leave
 
-        // NB: if a tab goes dormant and is then revived, the events that will be
-        // processed on that revival depend on the state of the session...
+        // NB: if a tab goes dormant and is then revived, the model state that will
+        // be constructed on that revival depends on the state of the session...
         //   (a) if there are other users in the session:
         //       the model will process the destruction of the tab's previous avatar
-        //       and creation of a new one.  the avatar pawn will find and apply the
-        //       dormantAvatarSpec it recorded on going dormant (see avatar.js),
-        //       which will restore all saved properties (position, nickname, 3d
-        //       model pointer etc) to the actor.
-        //   (b) if there are no other users in the session, but no snapshot has
-        //       been taken since the tab's avatar was created:
+        //       and creation of a new one, which means that the avatar pawn's
+        //       constructor will find that the actor does not yet have the inWorld
+        //       property.  the pawn will publish the dormantAvatarSpec it recorded on
+        //       going dormant (see avatar.js), which will transfer all saved properties
+        //       (position, nickname, 3d model pointer etc) to the new actor.
+        //   (b) if there are no other users in the session:
         //       the model will process the re-creation of the old avatar as if
-        //       it has never been seen before.  the dormantAvatarSpec will restore
-        //       its properties, as above.
-        //   (c) if there are no other users, but the tab's avatar does appear in
-        //       the snapshot from which the session is restarted:
-        //       the model will silently restore all aspects of the avatar to
-        //       their pre-dormancy state - including flags such as inWorld and
-        //       inChat.  there will therefore be no "create" event, and application
-        //       of the dormantAvatarSpec will not trigger an "enter" event because
-        //       the model already shows that the avatar is in the world.
+        //       it has never been seen before (or load it from snapshot, if one was
+        //       taken after the avatar's creation).  the avatar pawn's constructor
+        //       in the primary frame will find that the actor *does* already have the
+        //       inWorld flag.  it will use dormantAvatarSpec to impose the avatar's
+        //       saved properties, as above.
         //
-        // for case (c) in particular, the handling of the dormantAvatarSpec
-        // is the only place where we can ensure that avatar properties that must
-        // *not* be preserved across dormancy - for now, this includes inChat - are
-        // explicitly reset.
+        // the avatar pawn constructor is the place where we get to ensure that
+        // avatar properties that must *not* be preserved across dormancy - for now,
+        // this means inChat - are explicitly reset.
 
         if (player.inWorld) {
             this.publish("playerManager", "enter", player);
@@ -389,7 +384,7 @@ class MyPlayerManager extends PlayerManager {
         }
         delete player.presenterToken;
         this.followers.delete(player.playerId);
-        if (player._inChat) player.set({ inChat: false });
+        if (player._inChat) player.setAndPublish({ inChat: false });
         this.publish("playerManager", "playerCountChanged");
     }
 

@@ -9,7 +9,7 @@ export class AgoraChatManager extends ViewService {
         super(name || "AgoraChatManager");
         this.subscribe("playerManager", "enter", "playerEnter");
         this.subscribe("playerManager", "leave", "playerLeave");
-        this.subscribe("playerManager", { event: "detailsUpdated", handling: "oncePerFrame" }, "playerDetailsUpdated");
+        this.subscribe("playerManager", "detailsUpdated", "playerDetailsUpdated");
 
         this.startMessageListener();
 
@@ -124,6 +124,7 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
     handleChatReady(data) {
         if (data) {
             // must be a user-supplied nickname
+            // $$$ this will be going away when name is supplied to shell-level dialog
             this.publish("playerManager", "details", { playerId: this.viewId, details: { chatNickname: data.nickname } });
         }
         this.chatReady = true;

@@ -73,12 +73,12 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.future(0).tick();
     }
 
-    set(details) {
-        // aug 2022: we now publish an event when any configuration property (i.e.,
-        // not a positional property) of any player changes.  right now there aren't
-        // too many such changes - but as the system evolves, we should keep an eye
-        // to ensure we don't suddenly start bogging down here.
-        super.set(details);
+    setAndPublish(details) {
+        // aug 2022: a convenience function for updating a player's properties and
+        // publishing an event that anyone interested in the state of all players
+        // can subscribe to - for example the agoraChatManager, which wants to know
+        // which users are now in the chat.
+        this.set(details);
         this.publish("playerManager", "detailsUpdated");
     }
 
