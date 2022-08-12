@@ -659,11 +659,15 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
         if (!model3d) {return;}
         let assetManager = this.service("AssetManager").assetManager;
-
+        let key = this.modelLoadKey = Math.random();
         this.getBuffer(model3d).then((buffer) => {
             assetManager.setCache(model3d, buffer, this.id);
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
+            if (key !== this.modelLoadKey) {
+                console.log("model load has been superseded");
+                return;
+            }
             addShadows(obj, shadow, singleSided, THREE);
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
