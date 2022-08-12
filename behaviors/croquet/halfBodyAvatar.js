@@ -126,7 +126,7 @@ class AvatarPawn {
 
     move(type, xyz) {
         if (!xyz) {return;}
-        this.say("poseAvatarRequest", {type, coordinates: xyz});
+        this.say("poseAvatarRequest", {type, coordinates: xyz}, 30);
     }
 
     avatarPosed(data) {
