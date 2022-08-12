@@ -1712,7 +1712,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 setOpacity(p, 1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
                 setOpacity(p, 0); // never render followers
-            } else if ((p === this || (a._playerId === presentationMode && this.actor.follow)) && v3_isZero(a.lookOffset)) {
+            } else if (((p === this && v3_isZero(a.lookOffset)) || (a._playerId === presentationMode && this.actor.follow)) && v3_isZero(a.lookOffset)) {
                 setOpacity(p, 0); // never render me or my leader in 1st person
             } else { // fade based on their (or our own) distance between avatar and camera
                 let m = this.lookGlobal; // camera location
@@ -1747,6 +1747,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 return false;
             }
         }).then((readyPlayerMe) => {
+            this.animationRunning = false;
             let options = {
                 type: "3d",
                 modelType: "glb",
@@ -1756,15 +1757,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 shadow: true,
             };
             if (readyPlayerMe) {
-                options.avatarEventHandler = "HalfBodyAvatarEventHandler";
-                options.behaviorModules = ["HalfBodyAvatarEventHandler"];
-                options.dataScale = [1, 1, 1];
-                dataTranslation: [0, -0.5, 0];
+                options = {...options, ...{
+                    avatarEventHandler: "HalfBodyAvatarEventHandler",
+                    behaviorModules: ["HalfBodyAvatarEventHandler"],
+                    dataScale: [1, 1, 1],
+                    dataTranslation: [0, -0.5, 0]
+                }};
             } else {
-                options.dataScale = [0.3, 0.3, 0.3];
-                options.dataTranslation = [0, -0.4, 0];
+                options = {...options, ...{
+                    dataScale:  [0.3, 0.3, 0.3],
+                    dataTranslation:  [0, -0.4, 0]
+                }};
             }
-            this.say("setCardData", options);
+            setTimeout(() => {
+                this.say("setCardData", options);
+            }, 75); // a temporary hack to make sure that we don't have duplicated animation future loop.
         });
     }
 

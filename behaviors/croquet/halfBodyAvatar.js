@@ -5,8 +5,9 @@ class AvatarActor {
         this.listen("poseAvatarRequest", "poseAvatar");
     }
 
-    poseAvatar(xyz) {
-        this.say("avatarPosed", xyz);
+    poseAvatar(data) {
+        this.lastPose = data;
+        this.say("avatarPosed", data);
     }
 }
 
@@ -76,12 +77,12 @@ class AvatarPawn {
     }
 
     handlingEvent(type, target, event) {
-        if (type !== "pointerMove") {return;}
-        const render = this.service("ThreeRenderManager");
-        const rc = this.pointerRaycast(event.xy, render.threeLayerUnion('pointer', "walk"));
-        this.targetDistance = rc.distance;
-        let p3e = this.pointerEvent(rc, event);
-        this.move(p3e.xyz);
+        if (type.startsWith("pointer")) {
+            const render = this.service("ThreeRenderManager");
+            const rc = this.pointerRaycast(event.xy, render.threeLayerUnion('pointer', "walk"));
+            let p3e = this.pointerEvent(rc, event);
+            this.move(type, p3e.xyz);
+        }
     }
 
     modelLoaded() {
@@ -102,6 +103,12 @@ class AvatarPawn {
         if (found) {
             console.log("ready player me avatar found");
         }
+
+        this.moveRightHand([0, 1, -100]);
+
+        if (this.actor.lastPose) {
+            this.avatarPosed(this.actor.lastPose);
+        }
         /*
         [
             "Hips", "Spine", "Neck", "Head", "RightEye", "LeftEye",
@@ -117,26 +124,20 @@ class AvatarPawn {
         */
     }
 
-    /*
-    xy2yp(xy) {
-        let camera = this.service("ThreeRenderManager").camera;
-        let fov = camera.fov / 2;
-        let h = window.innerHeight / 2;
-        let w = window.innerWidth / 2;
-        let c = (fov * Math.PI / 180) / h;
-        return[c * (xy[0] - w), c * (h - xy[1])];
-    }
-    */
-
-    move(xyz) {
+    move(type, xyz) {
         if (!xyz) {return;}
-        this.say("poseAvatarRequest", xyz);
+        this.say("poseAvatarRequest", {type, coordinates: xyz});
     }
 
-    avatarPosed(xyz) {
+    avatarPosed(data) {
         if (!this.bones) {return;}
-        this.moveHead(xyz);
-        this.moveRightHand(xyz);
+        let {type, coordinates} = data;
+        if (type === "pointerMove") {
+            this.moveHead(coordinates);
+        }
+        if (type === "keyDown" || type === "pointerDown" || type === "pointerUp" || type === "pointerTap") {
+            this.moveRightHand(coordinates);
+        }
     }
 
     moveHead(xyz) {
@@ -217,7 +218,7 @@ class AvatarPawn {
 
         let tQ = q_euler(-q_pitch(allQ), q_roll(allQ), -q_yaw(allQ))
 
-        let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, 0, 0), tQ);
+        let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, 1.3, 0), tQ);
         hand.rotation.set(q_pitch(handQ), q_yaw(handQ), q_roll(handQ));
         hand.position.set(...v3_add(elbowPos, v3_rotate(handPos, tQ)));
 
