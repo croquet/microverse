@@ -66,7 +66,7 @@ export function init(Constants) {
                 behaviorModules: ["JoeTheBox", "HasGizmo"],
                 layers: ["pointer"],
                 type: "object",
-                translation:[-4, 0.4, -10],
+                translation:[-4, 0.4, -9],
                 shadow: true,
             }
         },
