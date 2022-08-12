@@ -529,18 +529,22 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     }
 
     setOpacity(opacity) {
-        if (this.shape) {
-            let transparent = opacity !== 1;
-            this.shape.visible = this.actor.inWorld && opacity !== 0;
-            this.shape.traverse(n => {
-                if (n.material) {
-                    n.material.opacity = opacity;
-                    n.material.transparent = transparent;
-                    n.material.side = THREE.DoubleSide;
-                    n.material.needsUpdate = true;
-                }
-            });
+        if (!this.shape) {return;}
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
         }
+
+        let transparent = opacity !== 1;
+        this.shape.visible = this.actor.inWorld && opacity !== 0;
+        this.shape.traverse(n => {
+            if (n.material) {
+                n.material.opacity = opacity;
+                n.material.transparent = transparent;
+                n.material.side = THREE.DoubleSide;
+                n.material.needsUpdate = true;
+            }
+        });
     }
 }
 
@@ -593,6 +597,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         setupWorldMenuButton(this, App, this.sessionId);
 
+        window.myAvatar = this;
+
         // drop and paste
         this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
             if (type === "pastedtext") {
@@ -615,6 +621,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // otherwise it will be updated below
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
         this.setPortalClipping();
+
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
 
         this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }) => {
             switch (command) {
@@ -653,13 +661,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    this.call("AvatarEventHandler$AvatarPawn", "startMotion", dx, dy);
+                    this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
                     break;
                 case "motion-end":
-                    this.call("AvatarEventHandler$AvatarPawn", "endMotion", dx, dy);
+                    this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
                     break;
                 case "motion-update":
-                    this.call("AvatarEventHandler$AvatarPawn", "updateMotion", dx, dy);
+                    this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
                     break;
             }
         }
@@ -898,11 +906,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // the camera when walking: based on avatar with 3rd person lookOffset
     walkLook() {
         let behaviorManager = this.actor.behaviorManager;
-        let behavior = behaviorManager.lookup("AvatarEventHandler", "AvatarPawn");
-        if (behavior) {
-            if (behavior.$behavior.walkLook) {
-                return this.call("AvatarEventHandler$AvatarPawn", "walkLook");
-            }
+
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        let behavior = behaviorManager.lookup(handlerModuleName, "AvatarPawn");
+        if (behavior && behavior.$behavior && behavior.$behavior.walkLook) {
+            return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
         }
 
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
@@ -1019,7 +1027,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (spec?.cardData) actorSpec.cardData = spec.cardData;
         if (spec?.name) actorSpec.name = spec.name;
         if (leavingWorld) {
-            this.call("AvatarEventHandler$AvatarPawn", "endMotion");
+            let handlerModuleName = this.actor._cardData.avatarEventHandler;
+            this.call(`${handlerModuleName}$AvatarPawn`, "endMotion");
         }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
@@ -1616,6 +1625,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.dragWorld = this.xy2yp(e.xy);
                 this.lookYaw = q_yaw(this._rotation);
             }
+            let handlerModuleName = this.actor._cardData.avatarEventHandler;
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
         }
     }
 
@@ -1716,19 +1727,64 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.future(100).fadeNearby();
     }
 
-    setOpacity(opacity) {
-        if (this.shape) {
-            let transparent = opacity !== 1;
-            this.shape.visible = this.actor.inWorld && opacity !== 0;
-            this.shape.traverse(n => {
-                if (n.material && n.material.opacity !== opacity) {
-                    n.material.opacity = opacity;
-                    n.material.transparent = transparent;
-                    n.material.side = THREE.DoubleSide;
-                    n.material.needsUpdate = true;
+    setAvatarModel(url) {
+        this.getBuffer(url).then((buffer) => {
+            let assetManager = this.service("AssetManager").assetManager;
+            return assetManager.load(buffer, "glb", THREE, {});
+        }).then((obj) => {
+            let found = false;
+            obj.traverse((mesh) => {
+                if (mesh.isBone) {
+                    if (mesh.name === "Spine") {
+                        found = true;
+                    }
                 }
             });
+            if (found) {
+                console.log("a model with a spine found");
+                return true;
+            } else {
+                return false;
+            }
+        }).then((readyPlayerMe) => {
+            let options = {
+                type: "3d",
+                modelType: "glb",
+                dataLocation: url,
+                name: "url",
+                dataRotation: [0, Math.PI, 0],
+                shadow: true,
+            };
+            if (readyPlayerMe) {
+                options.avatarEventHandler = "HalfBodyAvatarEventHandler";
+                options.behaviorModules = ["HalfBodyAvatarEventHandler"];
+                options.dataScale = [1, 1, 1];
+                dataTranslation: [0, -0.5, 0];
+            } else {
+                options.dataScale = [0.3, 0.3, 0.3];
+                options.dataTranslation = [0, -0.4, 0];
+            }
+            this.say("setCardData", options);
+        });
+    }
+
+    setOpacity(opacity) {
+        if (!this.shape) {return;}
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
         }
+
+        let transparent = opacity !== 1;
+        this.shape.visible = this.actor.inWorld && opacity !== 0;
+        this.shape.traverse(n => {
+            if (n.material) {
+                n.material.opacity = opacity;
+                n.material.transparent = transparent;
+                n.material.side = THREE.DoubleSide;
+                n.material.needsUpdate = true;
+            }
+        });
     }
 
     goHome() {
