@@ -1084,6 +1084,11 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                     let dot = obj.name.lastIndexOf(".");
                     let location = obj.name.slice(0, dot);
                     let isSystem = obj.name.startsWith("croquet");
+
+                    if (!obj || checkModule(obj.data)) {
+                        throw new Error("a behavior file does not export an array of modules");
+                    }
+
                     library.add(obj.data.default, location, isSystem);
                 });
 
@@ -1194,3 +1199,31 @@ export class CodeLibrary {
         this.modules.delete(path);
     }
 }
+
+export function checkModule(module) {
+    if (!module || !module.default || !module.default.modules) {
+        throw new Error("a behavior file does not export an array of modules");
+    }
+
+    let list = module.default.modules;
+    if (!Array.isArray(list)) {
+        throw new Error("a behavior file does not export an array of modules");
+    }
+    list.forEach((m) => {
+        let valid = true;
+        if (!m.name) {valid = false;}
+        if (m.actorBehaviors && !Array.isArray(m.actorBehaviors)) {valid = false;}
+        if (m.pawnBehaviors && !Array.isArray(m.pawnBehaviors)) {valid = false;}
+        let keys = {...m};
+        delete keys.name;
+        delete keys.actorBehaviors;
+        delete keys.pawnBehaviors;
+        if (Object.keys(keys).length > 0) {
+            valid = false;
+        }
+        if (!valid) {
+            throw new Error("a behavior file exports a malformed behavior module");
+        }
+    });
+}
+

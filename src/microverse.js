@@ -14,7 +14,7 @@ import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
 import { frameName } from "./frame.js";
 
-import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./code.js";
+import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
@@ -140,6 +140,8 @@ function loadInitialBehaviors(paths, directory) {
             let [path, module] = pair;
             let dot = path.lastIndexOf(".");
             let fileName = path.slice(0, dot);
+
+            checkModule(module); // may throw an error
             library.add(module.default, fileName, isSystem);
         });
         return true;
