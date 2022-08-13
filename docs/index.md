@@ -7,6 +7,7 @@
 * [Elected.md](./Elected.md) - Using the peer election mechanism in Microverses
 * [Card.md](./Card.md) - Public interface of the Card classes
 * [Avatar.md](./Avatar.md) - Public interface of the Avatar classes
+* [PropertySheet.md](./PropertySheet.md) - The Primer of the Property Sheet
 * [Tutorial.md](./Tutorial.md) - Tutorial on using the Microverse
 * [Tutorial1.md](./Tutorial1.md) - Tutorial on using the Microverse
 * [Tutorial2.md](./Tutorial2.md) - Tutorial on using the Microverse
