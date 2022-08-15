@@ -61,7 +61,7 @@ export function init(Constants) {
                 type: "object",
                 translation: [3.816793504629362, 4.336223779145266, 30.294897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
                 rotation: [0, 0, Math.PI],
-                craneSpeed: -0.003,
+                craneSpeed: -0.0010,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
                 myScope: "A",
@@ -73,7 +73,7 @@ export function init(Constants) {
                 type: "object",
                 translation: [3.816793504629362, 4.436223779145266, 30.294897079467775],
                 rotation: [0, 0, 0],
-                craneSpeed: 0.003,
+                craneSpeed: 0.0010,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
                 myScope: "A",
@@ -97,6 +97,7 @@ export function init(Constants) {
                 textScale: 0.007,
                 shadow: true,
                 fullbright: true,
+                noDismissButton: true,
             }
         },
         {

@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/factory";
     Constants.UserBehaviorModules = [
-        "smalllights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "spin.js"
+        "smalllights.js", "craneQR.js", "garage.js", "forklift.js", "circle.js", "spin.js" // Include craneQR For QR Crane
     ];
 
     Constants.UseRapier = true;
@@ -17,10 +17,10 @@ export function init(Constants) {
     Constants.DefaultCards = [
         {
             card: {
-                name:"world model",
+                name: "world model",
                 layers: ["walk"],
                 translation: [-0, -5.234552517024578, -0],
-                name: "/smallfactory.glb",
+                fileName: "/smallfactory.glb",
                 dataLocation: "3yCikF94D95p-qta7JPcMOO9APg1h0Xa5h6jp1c8NsSUEQ0NCQpDVlYfEBUcClcMClcaCxYIDBwNVxAWVgxWPh0vGwAVMAo4EigaOyEdSj4BGA8ADiwyLiAgS1YQFlcaCxYIDBwNVxQQGgsWDxwLChxWVDgBNBsXEwgNPD9IPD4vP0gUPiYRSihINzAeEUs0AQlLHkwNDyMeOg4mLFYdGA0YVhUtDhMIIzFLLikwKxYcNSMgKDs3TB0OSz8_QDgTVAEYGA1KMwEAShY1HSw",
                 dataScale: [1.2, 1.2, 1.2],
                 modelType: "glb",
@@ -61,7 +61,7 @@ export function init(Constants) {
                 type: "object",
                 translation: [3.816793504629362, 4.336223779145266, 30.294897079467775], // [7.770442246960653, 1.7540892281749288, 13.950883253194933],
                 rotation: [0, 0, Math.PI],
-                craneSpeed: -0.003,
+                craneSpeed: -0.0010,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
                 myScope: "A",
@@ -73,7 +73,7 @@ export function init(Constants) {
                 type: "object",
                 translation: [3.816793504629362, 4.436223779145266, 30.294897079467775],
                 rotation: [0, 0, 0],
-                craneSpeed: 0.003,
+                craneSpeed: 0.0010,
                 behaviorModules: ["CraneButton"],
                 shadow: true,
                 myScope: "A",
@@ -97,6 +97,7 @@ export function init(Constants) {
                 textScale: 0.007,
                 shadow: true,
                 fullbright: true,
+                noDismissButton: true,
             }
         },
         {
@@ -115,7 +116,7 @@ export function init(Constants) {
         },
         {
             card: {
-                name: "forklift 2",
+                name: "forklift 1", // 2 In Full Version
                 dataTranslation: [0, -0.2, 0],
                 translation: [-6.864045029864473, 0, -6.132494653566097],
                 dataScale: [1.2, 1.2, 1.2],
