@@ -189,7 +189,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     setCardData(options) {
         let newOptions = {...this._cardData, ...options};
         this.set({cardData: newOptions});
-
+        this.updateBehaviors(options);
         // this line below should be good, except that right now it fails some objects.
         // this.say("updateShape", options);
     }
@@ -956,12 +956,20 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     setupAnimation(obj) {
+        // There are a few ways to get here:
+        // -  the card is recently created, and animation loop has not been started.
+        // -  the card was here, and animation loop was on and showing different animations
+        //    and a new 3D model was just loaded.
+        // - a new model with an actor behavior that specifies animationClipIndex already.
+        // For the second case, animationRunning may be true.
         if (!obj._croquetAnimation) {return;}
 
         let spec = obj._croquetAnimation;
         this.animationSpec = spec;
         if (this.actor._cardData.animationClipIndex === undefined && spec.animations.length > 0) {
             this.say("setAnimationClipIndex", 0); // use the first animation clip as default
+        } else {
+            this.tryStartAnimation();
         }
     }
 
@@ -1221,7 +1229,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     tryStartAnimation() {
-        if (this.actor._cardData.animationClipIndex !== undefined && !this.animationRunning) {
+        if (this.actor._cardData.animationClipIndex !== undefined
+            && !this.animationRunning
+            && this.animationSpec) {
             this.animationRunning = true;
             this.runAnimation();
         }
@@ -1230,7 +1240,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     runAnimation() {
         if (!this.animationRunning) {return;}
         let spec = this.animationSpec;
-        if (!spec) return;
+        if (!spec) {
+            this.annimationRunning = false;
+            return;
+        }
         this.future(50).runAnimation();
 
         let animationClipIndex = this.actor._cardData.animationClipIndex;

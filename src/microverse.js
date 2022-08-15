@@ -14,7 +14,7 @@ import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
 import { frameName } from "./frame.js";
 
-import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./code.js";
+import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
@@ -33,7 +33,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
 ];
 
 // turn off antialiasing for mobile and safari
@@ -140,6 +140,8 @@ function loadInitialBehaviors(paths, directory) {
             let [path, module] = pair;
             let dot = path.lastIndexOf(".");
             let fileName = path.slice(0, dot);
+
+            checkModule(module); // may throw an error
             library.add(module.default, fileName, isSystem);
         });
         return true;
@@ -194,14 +196,20 @@ class MyPlayerManager extends PlayerManager {
             options = {...options, ...avatarSpec};
         }
 
+        if (!options.avatarEventHandler) {
+            options.avatarEventHandler = "AvatarEventHandler";
+        }
+
+        let handlerModuleName = options.avatarEventHandler;
         let behaviorManager = this.service("BehaviorModelManager");
 
-        if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
-            // let modules;
+        if (behaviorManager && behaviorManager.modules.get(handlerModuleName)) {
             if (!options.behaviorModules) {
-                options.behaviorModules = ["AvatarEventHandler"];
+                options.behaviorModules = [handlerModuleName];
             } else {
-                options.behaviorModules = [...options.behaviorModules, "AvatarEventHandler"];
+                if (!options.behaviorModules.includes(handlerModuleName)) {
+                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
+                }
             }
         }
 
