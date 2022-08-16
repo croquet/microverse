@@ -11,7 +11,13 @@ const config = {
     output: {
         path: path.join(__dirname, 'dist'),
         filename: 'lib/[name]-[contenthash:8].js',
-        chunkFilename: 'lib/chunk-[name]-[contenthash:8].js',
+        chunkFilename: (pathData) => {
+            let name = pathData.chunk.id.replace(/(src_|_js)/g, '');
+            if (name === 'vendors-node_modules_croquet_worldcore-kernel_Mixins') name = "croquet";
+            if (name === 'vendors-node_modules_dimforge_rapier3d_rapier') name = "rapier3d";
+            if (name.includes('node_modules')) name = "misc";
+            return `lib/${name}-[contenthash:8].js`;
+        },
         webassemblyModuleFilename: "lib/[modulehash].wasm",
         clean: true
     },
