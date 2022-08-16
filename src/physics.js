@@ -41,8 +41,8 @@ class PhysicsWorld extends Model {
     tick() {
         if (!this.isPaused) {
             this.world.step(this.queue); // this.queue may be undefined
-            this.world.forEachActiveRigidBody(body => {
-                let h = body.handle;
+            this.world.forEachActiveRigidBodyHandle(h => {
+                // let h = body.handle;
                 const rb = this.rigidBodies[h];
                 const t = rb.rigidBody.translation();
                 const r = rb.rigidBody.rotation();
@@ -54,6 +54,7 @@ class PhysicsWorld extends Model {
                 rb.say("translating", v);
                 rb.rotateTo(q);
             });
+            /*
             if (this.queue) {
                 if (this.collisionEventHandler) {
                     this.queue.drainCollisionEvents((handle1, handle2, started) => {
@@ -62,7 +63,7 @@ class PhysicsWorld extends Model {
                         this.collisionEventHandler.collision(rb1, rb2, started);
                     });
                 }
-            }
+            }*/
         }
         this.future(this.timeStep).tick();
     }

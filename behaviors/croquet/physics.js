@@ -81,7 +81,7 @@ class PhysicsActor {
     createCollider(cd) {
         this.removeCollider();
         const physicsWorld = this.physicsWorld;
-        let collider = physicsWorld.world.createCollider(cd, this.getRigidBody());
+        let collider = physicsWorld.world.createCollider(cd, this.rigidBodyHandle);
         this.colliderHandle = collider.handle;
         return this.colliderHandle;
     }
@@ -102,13 +102,24 @@ class PhysicsActor {
         const physicsWorld = this.physicsWorld;
         if (!physicsWorld) {return;}
         // some compatibility with Rapier 0.7.3
-        if (type === "ball") {type = "spherical";}
+        // if (type === "ball") {type = "spherical";}
+
+        let func = Microverse.Physics.JointParams[type];
+        if (!func) {throw new Error("unkown joint types");}
+        let jointParams = func.call(Microverse.Physics.JointParams, ...params);
+        let joint = physicsWorld.world.createJoint(jointParams, body1.rigidBody, body2.rigidBody);
+        this.jointHandle = joint.handle;
+        return this.jointHandle;
+
+        /*
+        
         let func = Microverse.Physics.JointData[type];
         if (!func) {throw new Error("unkown joint types");}
         let jointParams = func.call(Microverse.Physics.JointData, ...params);
         let joint = physicsWorld.world.createImpulseJoint(jointParams, body1.rigidBody, body2.rigidBody);
         this.jointHandle = joint.handle;
         return this.jointHandle;
+        */
     }
 
     removeImpulseJoint() {
