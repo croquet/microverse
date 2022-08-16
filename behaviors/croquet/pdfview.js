@@ -120,6 +120,7 @@ class PDFPawn {
         this.addEventListener("pointerWheel", "onPointerWheel");
 
         this.listen("drawAtScrollPosition", "drawAtScrollPosition");
+        this.listen("updateShape", "updateShape");
 
         let moduleName = this._behavior.module.externalName;
         this.addUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
@@ -156,6 +157,15 @@ console.log(this);
 
         const loaded = this.pdf ? Promise.resolve() : this.loadDocument(this.actor._cardData.pdfLocation);
         loaded.then(() => this.measureDocument());
+    }
+
+    updateShape() {
+        // the shape has been updated, which means that at some point - possibly not
+        // yet - any existing shape will be dismantled and rebuilt (by
+        // CardPawn.updateShape).
+        // we schedule a minimal wait to ensure that that has happened, then force a
+        // re-render.
+        setTimeout(() => this.drawAtScrollPosition(), 0);
     }
 
     async measureDocument() {
@@ -477,6 +487,7 @@ console.log(this);
         // 1% for portrait, 1.5% for square.
         const gapPercent = this.pageGapPercent = width > height ? 2 : width === height ? 1.5 : 1;
         this.pageGap = cardHeight * gapPercent / 100; // three.js units between displayed pages
+        this.say("setCardData", { height: cardHeight, width: cardWidth });
     }
 
     squareCornerGeometry(width, height, depth) {
@@ -605,6 +616,7 @@ console.log(this);
     }
 
     teardown() {
+        console.log("PDFPawn teardown");
         const obj = this.substrateObj;
         obj.geometry.dispose();
         this.material.dispose();
@@ -617,6 +629,9 @@ console.log(this);
         this.pages.forEach(pageEntry => {
             if (pageEntry.texture) pageEntry.texture.dispose();
         });
+
+        let moduleName = this._behavior.module.externalName;
+        this.removeUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
     }
 }
 

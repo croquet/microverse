@@ -256,6 +256,12 @@ class PropertySheetActor {
                     console.log(e);
                     errored = true;
                 }
+                if (key === "parent") {
+                    if (typeof value === "string") {
+                        let actor = this.getModel(value);
+                        value = actor;
+                    }
+                }
                 if (key === "rotation" || key === "dataRotation") {
                     if (Array.isArray(value) && value.length === 3) {
                         value = Microverse.q_euler(...value);

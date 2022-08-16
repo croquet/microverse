@@ -309,10 +309,12 @@ The system internally records "persistent data" at 60 second intervals when ther
 
 Also note that the start file, either in `.js` or `.vrse`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
-### Ading a new THREE.js library.
+### Adding a new THREE.js library.
 Look at `src/ThreeRender.js`. It imports additional Three.js libraries at the top. At the bottom of the file, it creates an object called THREE (separate from the imported `Module`) with those additional libraries. And finally it exports THREE, along with other objects.
 
-It creates a new object called THREE. This is because as of version 143, it has legacy code for FontLoader and TextGeometry, which are frozen and cannot replace it. At the same time, a behavior needs to access those features through the global variable `Microverse.THREE`. So making a new object is a solution for this problem.
+It creates a new object called `THREE`. This is because as of version 143, it has legacy code for FontLoader and TextGeometry, which are frozen and cannot replace it. At the same time, a behavior needs to access those features through the global variable `Microverse.THREE`. So making a new object is a solution for this problem.
+
+When you would like to add a new Three.js library, add a new import line similar to others at the top of ThreeRender.js, and then include the exported object at the bottom in `THREE`.
 
 ### Developing the Innerworkings of the System
 
