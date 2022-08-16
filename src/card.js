@@ -666,6 +666,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let model3d = options.dataLocation;
         let modelType = options.modelType;
 
+        if (this._model3Dloading) {return;}
+        this._model3Dloading = true;
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
@@ -730,6 +732,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 obj.material.dispose = arrayDispose;
             }
             this.publish(this.id, "3dModelLoaded");
+        }).finally(() => {
+            this._model3Dloading = false;
         });
     }
 

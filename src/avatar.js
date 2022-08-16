@@ -37,6 +37,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
         let playerId = options.playerId;
         delete options.playerId;
+        this.setupAvatarBehavior(options);
         super.init(options);
         this._playerId = playerId;
 
@@ -68,6 +69,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
+        this.listen("setAvatarData", "setAvatarData");
         this.future(0).tick();
     }
 
@@ -427,6 +429,31 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
         this.createCard(card);
         this.publish(this.sessionId, "triggerPersist");
+    }
+
+    setAvatarData(options) {
+        console.log("setAvatarData", options);
+        this.setupAvatarBehavior(options);
+        this.setCardData(options);
+    }
+
+    setupAvatarBehavior(options) {
+        if (!options.avatarEventHandler) {
+            options.avatarEventHandler = "AvatarEventHandler";
+        }
+
+        let handlerModuleName = options.avatarEventHandler;
+        let behaviorManager = this.service("BehaviorModelManager");
+
+        if (behaviorManager && behaviorManager.modules.get(handlerModuleName)) {
+            if (!options.behaviorModules) {
+                options.behaviorModules = [handlerModuleName];
+            } else {
+                if (!options.behaviorModules.includes(handlerModuleName)) {
+                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
+                }
+            }
+        }
     }
 }
 
@@ -1021,6 +1048,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (spec.lookPitch) this.lookPitch = spec.lookPitch;
             if (spec.lookYaw) this.lookYaw = spec.lookYaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
+            this.say("setAvatarData", spec.cardData || {});
         }
         // portal-enter and world-enter provide cardData so avatar can keep its
         // appearance.
@@ -1759,7 +1787,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (readyPlayerMe) {
                 options = {...options, ...{
                     avatarEventHandler: "HalfBodyAvatarEventHandler",
-                    behaviorModules: ["HalfBodyAvatarEventHandler"],
                     dataScale: [1, 1, 1],
                     dataTranslation: [0, -0.5, 0]
                 }};
@@ -1770,7 +1797,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }};
             }
             setTimeout(() => {
-                this.say("setCardData", options);
+                this.say("setAvatarData", options);
             }, 75); // a temporary hack to make sure that we don't have duplicated animation future loop.
         });
     }

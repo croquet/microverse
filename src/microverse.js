@@ -181,36 +181,18 @@ class MyPlayerManager extends PlayerManager {
         this.avatarCount++;
         let avatarSpec = Constants.AvatarNames[index];
         console.log(frameName(), "MyPlayerManager", this.avatarCount);
-        let options = {...playerOptions};
-        options.noSave = true;
-        options.type = "3d";
-        options.singleSided = true;
+        let options = {...playerOptions, ...{noSave: true, type: "3d", singleSided: true}};
 
         if (typeof avatarSpec === "string") {
-            options.name = avatarSpec;
-            options.dataScale = [0.3, 0.3, 0.3];
-            options.dataRotation = q_euler(0, Math.PI, 0);
-            options.dataTranslation = [0, -0.4, 0];
-            options.dataLocation = `./assets/avatars/${options.name}.zip`;
+            options = {...options, ...{
+                name: avatarSpec,
+                dataScale: [0.3, 0.3, 0.3],
+                dataRotation: q_euler(0, Math.PI, 0),
+                dataTranslation: [0, -0.4, 0],
+                dataLocation: `./assets/avatars/${avatarSpec}.zip`,
+            }};
         } else {
             options = {...options, ...avatarSpec};
-        }
-
-        if (!options.avatarEventHandler) {
-            options.avatarEventHandler = "AvatarEventHandler";
-        }
-
-        let handlerModuleName = options.avatarEventHandler;
-        let behaviorManager = this.service("BehaviorModelManager");
-
-        if (behaviorManager && behaviorManager.modules.get(handlerModuleName)) {
-            if (!options.behaviorModules) {
-                options.behaviorModules = [handlerModuleName];
-            } else {
-                if (!options.behaviorModules.includes(handlerModuleName)) {
-                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
-                }
-            }
         }
 
         return AvatarActor.create(options);
