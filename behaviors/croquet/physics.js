@@ -50,7 +50,7 @@ class PhysicsActor {
         this._myPhysicsWorld =  this.physicsWorld;
         this.$rigidBody = this._myPhysicsWorld.world.createRigidBody(rbd);
         this.rigidBodyHandle = this.$rigidBody.handle;
-        this._myPhysicsWorld.rigidBodies[this.rigidBodyHandle] = this._target;
+        this._myPhysicsWorld.rigidBodies.set(this.rigidBodyHandle, this._target);
 
         /*
           Those events are handled so that when a position-based object
@@ -76,7 +76,7 @@ class PhysicsActor {
         const physicsWorld = this._myPhysicsWorld;
         if (!physicsWorld) {return;}
         physicsWorld.world.removeRigidBody(r);
-        delete physicsWorld.rigidBodies[this.rigidBodyHandle];
+        physicsWorld.rigidBodies.delete(this.rigidBodyHandle)
         delete this.rigidBodyHandle;
         delete this.$rigidBody;
     }
@@ -108,23 +108,14 @@ class PhysicsActor {
         if (!physicsWorld) {return;}
         this._myPhysicsWorld = physicsWorld;
         // some compatibility with Rapier 0.7.3
-        // if (type === "ball") {type = "spherical";}
+        if (type === "ball") {type = "spherical";}
 
-        let func = Microverse.Physics.JointParams[type];
-        if (!func) {throw new Error("unkown joint types");}
-        let jointParams = func.call(Microverse.Physics.JointParams, ...params);
-        let joint = physicsWorld.world.createJoint(jointParams, body1.rigidBody, body2.rigidBody);
-        this.jointHandle = joint.handle;
-        return this.jointHandle;
-
-        /*
         let func = Microverse.Physics.JointData[type];
         if (!func) {throw new Error("unkown joint types");}
         let jointParams = func.call(Microverse.Physics.JointData, ...params);
         let joint = physicsWorld.world.createImpulseJoint(jointParams, body1.rigidBody, body2.rigidBody);
         this.jointHandle = joint.handle;
         return this.jointHandle;
-        */
     }
 
     removeImpulseJoint() {

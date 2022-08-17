@@ -14,12 +14,12 @@ class CascadeBoxActor {
         if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world for cascade");
-            this.setPhysicsWorld(physicsManager.createWorld({}, this.id));
+            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 15}, this.id));
         }
 
         let baseSize = [5, 0.3, 5];
 
-        if (this.spray) {return;}
+        this.removeObjects();
 
         this.base1 = this.createCard({
             name:"base",
@@ -40,9 +40,9 @@ class CascadeBoxActor {
             type: "object",
             layers: ["pointer"],
             behaviorModules: ["Physics", "Cascade"],
-            translation: [0, -1.9, 5.6],
-            rotation: [0.2, 0, 0],
-            rapierSize: baseSize,
+            translation: [0, -1.9, 5.0],
+            rotation: [0.28, 0, 0],
+            rapierSize: [5, 0.3, 4],
             color: 0x997777,
             rapierShape: "cuboid",
             rapierType: "positionBased",
@@ -63,7 +63,9 @@ class CascadeBoxActor {
     }
 
     removeObjects() {
-        this.children.forEach((c) => c.destroy());
+        if (this.children) {
+            this.children.forEach((c) => c.destroy());
+        }
     }
 
     removePhysics() {
@@ -334,8 +336,8 @@ class SprayActor {
         const bt = [t[0], t[1] - 0.2, t[2]]; // bt for base translation
 
         let r = Math.random() * Math.PI * 2;
-        let x = Math.cos(r) * 0.02;
-        let z = Math.sin(r) * 0.02;
+        let x = Math.cos(r) * 0.04;
+        let z = Math.sin(r) * 0.04;
         let shape;
         let size;
         let density;

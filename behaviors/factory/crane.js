@@ -19,7 +19,7 @@ class CraneActor {
     setup() { // Start With Logic, Continue With Physics Implementation
         if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
-            console.log("new physics world for cascade");
+            console.log("new physics world for crane");
             this.setPhysicsWorld(physicsManager.createWorld({timeStep: 50}, this.id));
         }
 
@@ -194,7 +194,7 @@ class CraneLinkActor {
         if (ratio === 0) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        let movement = Microverse.v3_scale([0, 0, ratio * 60], 6);
+        let movement = Microverse.v3_scale([0, 0, ratio * 600], 6);
         r.applyImpulse({x: movement[0], y: movement[1], z: movement[2]}, true);
     }
 
@@ -202,7 +202,7 @@ class CraneLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        let jolt = Microverse.v3_scale(p3d.normal, 4);
+        let jolt = Microverse.v3_scale(p3d.normal, 400);
         r.applyImpulse({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
     }
 
