@@ -3,6 +3,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-08-12
+### Added
+- A new smallfactory world is added (tentative).
+- Convenience methods rotateBy, forwardBy, translateBy and scaleBy are added to CardActor
+- Some work on Ready Player Me avatar support has been started.
+
+### Fixed
+- Some documentation updates.
+
+### Changed
+- Check the structure of import from a behavior file and warn the user if it is malformed.
+- Use Worldcore version 1.3.1.
+	
 ## 2022-08-05
 
 ### Added
