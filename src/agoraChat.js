@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { Data, ViewService } from "@croquet/worldcore-kernel";
+import { Data, ViewService, GetPawn } from "@croquet/worldcore-kernel";
 
 export class AgoraChatManager extends ViewService {
     constructor(name) {
@@ -51,6 +51,7 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
     }
 
     handleChatFrameEvent({ event, data }) {
+        console.log(event, data);
         switch (event) {
             case 'sessionInfoRequest':
                 this.handleSessionInfoRequest(data);
@@ -73,6 +74,9 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
             case 'setFrameStyle':
                 this.handleSetFrameStyle(data);
                 break;
+            case "setAvatarURL":
+                this.handleSetAvatarURL(data);
+                break;
             default:
                 console.warn(`unknown event ${event} from chat iframe`);
         }
@@ -91,13 +95,13 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
         }
 
         this.chatReady = false;
-
         const { innerWidth, innerHeight } = window;
         const frame = this.chatIFrame = document.createElement('iframe');
         frame.id = 'agoraChatIFrame';
         frame.style.cssText = "position: absolute; width: 1px; height: 1px; z-index: 100; transition: none;"
         document.body.appendChild(frame);
-        const chatURL = new URL(`../video-chat/microverse.html?rejoinable&ih=${innerHeight}&iw=${innerWidth}&debug=session`, window.location.href).href;
+        //const chatURL = new URL(`../video-chat/microverse.html?rejoinable&ih=${innerHeight}&iw=${innerWidth}&debug=session`, window.location.href).href;
+        const chatURL = new URL(`http://localhost:8000/video-chatv4/microverse.html?rejoinable&ih=${innerHeight}&iw=${innerWidth}&debug=session`).href;
         frame.src = chatURL;
         this.chatReadyP = new Promise(resolve => this.resolveChatReady = resolve);
     }
@@ -141,6 +145,14 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     handleSetFrameStyle(data, _source) {
         Object.assign(this.chatIFrame.style, data);
+    }
+
+    handleSetAvatarURL(data) {
+        let service = this.model.service("PlayerManager");
+        let myActor = service.players.get(this.viewId);
+        let myPawn = GetPawn(myActor.id)
+        myPawn.setAvatarModel(data);
+        console.log(data);
     }
 
     playerEnter(p) {
