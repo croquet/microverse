@@ -15,6 +15,9 @@ class PhysicsActor {
         this.removeImpulseJoint();
         this.removeCollider();
         this.removeRigidBody();
+        delete this._myPhysicsWorld;
+        // _myPhysicsWorld is there so that a destroyed card, which lost its parent
+        // property when this teardown is executed, still removes itself from the physics world.
     }
 
     getRigidBody() {
@@ -44,10 +47,10 @@ class PhysicsActor {
         this.removeRigidBody();
         rbd.translation = new Microverse.Physics.Vector3(...this.translation);
         rbd.rotation = new Microverse.Physics.Quaternion(...this.rotation);
-        const physicsWorld =  this.physicsWorld;
-        this.$rigidBody = physicsWorld.world.createRigidBody(rbd);
+        this._myPhysicsWorld =  this.physicsWorld;
+        this.$rigidBody = this._myPhysicsWorld.world.createRigidBody(rbd);
         this.rigidBodyHandle = this.$rigidBody.handle;
-        physicsWorld.rigidBodies[this.rigidBodyHandle] = this._target;
+        this._myPhysicsWorld.rigidBodies[this.rigidBodyHandle] = this._target;
 
         /*
           Those events are handled so that when a position-based object
@@ -70,7 +73,7 @@ class PhysicsActor {
     removeRigidBody() {
         let r = this.getRigidBody();
         if (!r) return;
-        const physicsWorld = this.physicsWorld;
+        const physicsWorld = this._myPhysicsWorld;
         if (!physicsWorld) {return;}
         physicsWorld.world.removeRigidBody(r);
         delete physicsWorld.rigidBodies[this.rigidBodyHandle];
@@ -81,6 +84,7 @@ class PhysicsActor {
     createCollider(cd) {
         this.removeCollider();
         const physicsWorld = this.physicsWorld;
+        this._myPhysicsWorld =  physicsWorld;
         let collider = physicsWorld.world.createCollider(cd, this.rigidBodyHandle);
         this.colliderHandle = collider.handle;
         return this.colliderHandle;
@@ -88,7 +92,7 @@ class PhysicsActor {
 
     removeCollider() {
         if (this.colliderHandle === undefined) return;
-        const physicsWorld = this.physicsWorld;
+        const physicsWorld = this._myPhysicsWorld;
         if (!physicsWorld) {return;}
         let world = physicsWorld.world;
         let collider = world.getCollider(this.colliderHandle);
@@ -99,8 +103,10 @@ class PhysicsActor {
     }
 
     createImpulseJoint(type, body1, body2, ...params) {
+        this.removeImpulseJoint();
         const physicsWorld = this.physicsWorld;
         if (!physicsWorld) {return;}
+        this._myPhysicsWorld = physicsWorld;
         // some compatibility with Rapier 0.7.3
         // if (type === "ball") {type = "spherical";}
 
@@ -112,7 +118,6 @@ class PhysicsActor {
         return this.jointHandle;
 
         /*
-        
         let func = Microverse.Physics.JointData[type];
         if (!func) {throw new Error("unkown joint types");}
         let jointParams = func.call(Microverse.Physics.JointData, ...params);
@@ -124,7 +129,7 @@ class PhysicsActor {
 
     removeImpulseJoint() {
         if (this.jointHandle === undefined) return;
-        const physicsWorld = this.physicsWorld;
+        const physicsWorld = this._myPhysicsWorld;
         if (!physicsWorld) {return;}
         let world = physicsWorld.world;
         let joint = world.getJoint(this.jointHandle);

@@ -17,7 +17,7 @@ class PhysicsWorld extends Model {
         }
 
         const gravity = options.gravity || [0.0, -9.8, 0.0];
-        const timeStep = options.timeStep || 15; // In ms
+        const timeStep = options.timeStep || 50; // In ms
 
         const g = new Physics.Vector3(...gravity);
         this.world = new Physics.World(g);

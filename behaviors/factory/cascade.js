@@ -14,7 +14,7 @@ class CascadeBoxActor {
         if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world for cascade");
-            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 20}, this.id));
+            this.setPhysicsWorld(physicsManager.createWorld({}, this.id));
         }
 
         let baseSize = [5, 0.3, 5];
