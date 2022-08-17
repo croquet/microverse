@@ -156,6 +156,25 @@ export const AM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(scope, eventName, listener);
     }
 
+    has(behaviorName, name) {
+        let moduleName;
+        let split = behaviorName.split("$");
+        if (split.length > 1) {
+            moduleName = split[0];
+            behaviorName = split[1];
+        }
+
+        if (!moduleName && this[isProxy]) {
+            moduleName = this._behavior.module.externalName;
+        }
+
+        if (!this._behaviorModules) {return false;}
+        if (!this._behaviorModules.includes(moduleName)) {return false;}
+        let behavior = this.behaviorManager.lookup(moduleName, behaviorName);
+        if (!behavior) {return false;}
+        return !!behavior.$behavior[name];
+    }
+
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
     // in its life cycle because of live programming feature. This wrapper for subscribe records
     // the current set of subscription.
@@ -399,6 +418,25 @@ export const PM_Code = superclass => class extends superclass {
 
     subscribe(scope, subscription, listener) {
         return this.scriptSubscribe(scope, subscription, listener);
+    }
+
+    has(behaviorName, name) {
+        let moduleName;
+        let split = behaviorName.split("$");
+        if (split.length > 1) {
+            moduleName = split[0];
+            behaviorName = split[1];
+        }
+
+        if (!moduleName && this[isProxy]) {
+            moduleName = this.actor._behavior.module.externalName;
+        }
+
+        if (!this.actor._behaviorModules) {return false;}
+        if (!this.actor._behaviorModules.includes(moduleName)) {return false;}
+        let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
+        if (!behavior) {return false;}
+        return !!behavior.$behavior[name];
     }
 
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
@@ -1046,6 +1084,11 @@ if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
                     let dot = obj.name.lastIndexOf(".");
                     let location = obj.name.slice(0, dot);
                     let isSystem = obj.name.startsWith("croquet");
+
+                    if (!obj || checkModule(obj.data)) {
+                        throw new Error("a behavior file does not export an array of modules");
+                    }
+
                     library.add(obj.data.default, location, isSystem);
                 });
 
@@ -1156,3 +1199,31 @@ export class CodeLibrary {
         this.modules.delete(path);
     }
 }
+
+export function checkModule(module) {
+    if (!module || !module.default || !module.default.modules) {
+        throw new Error("a behavior file does not export an array of modules");
+    }
+
+    let list = module.default.modules;
+    if (!Array.isArray(list)) {
+        throw new Error("a behavior file does not export an array of modules");
+    }
+    list.forEach((m) => {
+        let valid = true;
+        if (!m.name) {valid = false;}
+        if (m.actorBehaviors && !Array.isArray(m.actorBehaviors)) {valid = false;}
+        if (m.pawnBehaviors && !Array.isArray(m.pawnBehaviors)) {valid = false;}
+        let keys = {...m};
+        delete keys.name;
+        delete keys.actorBehaviors;
+        delete keys.pawnBehaviors;
+        if (Object.keys(keys).length > 0) {
+            valid = false;
+        }
+        if (!valid) {
+            throw new Error("a behavior file exports a malformed behavior module");
+        }
+    });
+}
+

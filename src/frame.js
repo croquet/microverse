@@ -37,6 +37,7 @@ export function removeShellListener(fn) {
 
 // we register one global event listener for all messages from the shell
 // that invokes all callbacks in the registry
+// This guaranteees the order in which they will be invoked
 window.addEventListener("message", e => {
     if (e.source === window.parent) {
         const { message }  = e.data;
@@ -47,7 +48,9 @@ window.addEventListener("message", e => {
     }
 });
 
-addShellListener((command, data) => {
+// the first registered listener manages the isPrimaryFrame global
+// and toggles CSS etc.
+const primaryListener = (command, data) => {
     // console.log(`${frameId} received: ${JSON.stringify(data)}`);
     if (command === "frame-type") {
         const { frameType } = data;
@@ -60,4 +63,6 @@ addShellListener((command, data) => {
             sendToShell("frame-ready", { frameType });
         }
     }
-});
+};
+
+addShellListener(primaryListener);

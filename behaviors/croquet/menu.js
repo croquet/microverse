@@ -56,6 +56,7 @@ class MenuActor {
                     behaviorModules: ["MenuItem"],
                     width: 1,
                     textScale: 0.0016,
+                    depth: 0,
                     height: 0.15,
                     noSave: true,
                     fullBright: true,

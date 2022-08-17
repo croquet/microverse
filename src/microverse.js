@@ -15,7 +15,7 @@ import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
 import { frameName } from "./frame.js";
 
-import { BehaviorModelManager, BehaviorViewManager, CodeLibrary } from "./code.js";
+import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
@@ -34,7 +34,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
 ];
 
 // turn off antialiasing for mobile and safari
@@ -90,30 +90,30 @@ function loadLoaders() {
 }
 
 function basenames() {
-    let pathname = window.location.pathname;
-    let match = /([^/]+)\.html$/.exec(pathname);
+    let url = window.location.origin + window.location.pathname;
+    let match = /([^/]+)\.html$/.exec(url);
     let basename = new URL(window.location).searchParams.get("world");
 
     if (!basename) {
         basename = (!match || match[1] === "index") ? "default" : match[1];
     }
 
-    let basedir;
+    let baseurl;
     if (match) {
-        basedir = pathname.slice(0, match.index);
+        baseurl = url.slice(0, match.index);
     } else {
-        let slash = pathname.lastIndexOf("/");
-        basedir = pathname.slice(0, slash + 1);
+        let slash = url.lastIndexOf("/");
+        baseurl = url.slice(0, slash + 1);
     }
 
-    return {basedir, basename};
+    return {baseurl, basename};
 }
 
 function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
     if (!paths || !directory) {return;}
-    let {basedir, _pathname} = basenames();
+    let {baseurl, _pathname} = basenames();
 
     if (!directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
@@ -121,7 +121,7 @@ function loadInitialBehaviors(paths, directory) {
     let isSystem = directory === Constants.SystemBehaviorDirectory;
     let promises = paths.map((path) => {
         if (!isSystem) {
-            let code = `import('${basedir}${directory}/${path}')`;
+            let code = `import('${baseurl}${directory}/${path}')`;
             return eval(code).then((module) => {
                 let rest = directory.slice("behaviors".length);
                 if (rest[0] === "/") {rest = rest.slice(1);}
@@ -129,7 +129,7 @@ function loadInitialBehaviors(paths, directory) {
             })
         } else {
             let modulePath = `${directory.split("/")[1]}/${path}`;
-            let code = `import('${basedir}behaviors/${modulePath}')`;
+            let code = `import('${baseurl}behaviors/${modulePath}')`;
             return eval(code).then((module) => {
                 return [modulePath, module];
             })
@@ -141,6 +141,8 @@ function loadInitialBehaviors(paths, directory) {
             let [path, module] = pair;
             let dot = path.lastIndexOf(".");
             let fileName = path.slice(0, dot);
+
+            checkModule(module); // may throw an error
             library.add(module.default, fileName, isSystem);
         });
         return true;
@@ -187,30 +189,18 @@ class MyPlayerManager extends PlayerManager {
         this.avatarCount++;
         let avatarSpec = Constants.AvatarNames[index];
         console.log(frameName(), "MyPlayerManager", this.avatarCount);
-        let options = {...playerOptions};
-        options.noSave = true;
-        options.type = "3d";
-        options.singleSided = true;
+        let options = {...playerOptions, ...{noSave: true, type: "3d", singleSided: true}};
 
         if (typeof avatarSpec === "string") {
-            options.name = avatarSpec;
-            options.dataScale = [0.3, 0.3, 0.3];
-            options.dataRotation = q_euler(0, Math.PI, 0);
-            options.dataTranslation = [0, -0.4, 0];
-            options.dataLocation = `./assets/avatars/${options.name}.zip`;
+            options = {...options, ...{
+                name: avatarSpec,
+                dataScale: [0.3, 0.3, 0.3],
+                dataRotation: q_euler(0, Math.PI, 0),
+                dataTranslation: [0, -0.4, 0],
+                dataLocation: `./assets/avatars/${avatarSpec}.zip`,
+            }};
         } else {
             options = {...options, ...avatarSpec};
-        }
-
-        let behaviorManager = this.service("BehaviorModelManager");
-
-        if (behaviorManager && behaviorManager.modules.get("AvatarEventHandler")) {
-            // let modules;
-            if (!options.behaviorModules) {
-                options.behaviorModules = ["AvatarEventHandler"];
-            } else {
-                options.behaviorModules = [...options.behaviorModules, "AvatarEventHandler"];
-            }
         }
 
         return AvatarActor.create(options);
@@ -663,8 +653,8 @@ function startWorld(appParameters, world) {
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then(() => {
-            let {basedir} = basenames();
-            return fetch(`${basedir}meta/version.txt`);
+            let {baseurl} = basenames();
+            return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {
                 return response.text();
@@ -679,11 +669,11 @@ https://croquet.io`.trim());
 }
 
 export async function startMicroverse() {
-    let {basedir, basename} = basenames();
+    let {baseurl, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
         // eval to hide import from webpack
-        const worldModule = await eval(`import("${basedir}worlds/${basename}.js")`);
+        const worldModule = await eval(`import("${baseurl}worlds/${basename}.js")`);
         // use bit-identical math for constant initialization
         ModelRoot.evaluate(() => worldModule.init(Constants));
         if (!Constants.SystemBehaviorModules) {
@@ -709,7 +699,7 @@ export async function startMicroverse() {
     let apiKeysModule;
     try {
         // use eval to hide import from webpack
-        apiKeysModule = await eval(`import('${basedir}apiKey.js')`);
+        apiKeysModule = await eval(`import('${baseurl}apiKey.js')`);
         const { apiKey, appId } = apiKeysModule.default;
         if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
         if (typeof appId !== "string") throw Error("apiKey.js: appId must be a string");

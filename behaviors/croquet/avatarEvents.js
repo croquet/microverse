@@ -57,6 +57,8 @@ class AvatarPawn {
         this.maybeLeavePresentation();
     }
 
+    handlingEvent(_type, _target, _event) {}
+
     teardown() {
         if (!this.isMyPlayerPawn) {return;}
         console.log("avatar event handler detached");

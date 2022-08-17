@@ -7,7 +7,7 @@
 import {
     Data, Constants, // re-exported from @croquet/croquet
     Actor, Pawn, ModelService, ViewService, mix, AM_Smoothed, PM_Smoothed,
-    v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform,
+    v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform, v3_rotate,
     q_euler, q_multiply,
     m4_invert, m4_identity
 } from '@croquet/worldcore-kernel';
@@ -189,7 +189,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     setCardData(options) {
         let newOptions = {...this._cardData, ...options};
         this.set({cardData: newOptions});
-
+        this.updateBehaviors(options);
         // this line below should be good, except that right now it fails some objects.
         // this.say("updateShape", options);
     }
@@ -253,6 +253,43 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             return this.subscribe(this._parent.id, message, method);
         }
         this.subscribe(this.id, message, method);
+    }
+
+    rotateBy(angles) {
+        // angles are either a 3 value array or 4 value array
+        // if it is a 3-value array, it is interpreted as an euler angle
+        // if it is a 4-value array, it is interpreted as a quaternion
+        let q = angles.length === 3 ? q_euler(...angles) : angles;
+        let newQ = q_multiply(this.rotation, q);
+        this.rotateTo(newQ);
+    }
+
+    translateBy(dist) {
+        // dist is either a 3-value array or a scalar.
+        // if it is a 3-value array, it specify the offset.
+        // if it is a scalar, it is intepretered as [0, 0, dist].
+        let offset = Array.isArray(dist) ? dist : [0, 0, dist];
+        let t = this.translation;
+        this.translateTo([t[0] + offset[0], t[1] + offset[1], t[2] + offset[2]]);
+    }
+
+    forwardBy(dist) {
+        // dist is either a 3-value array or a scalar.
+        // if it is a 3-value array, it specify the offset, in the reference frame of the receiver.
+        // if it is a scalar, it is intepretered as [0, 0, dist].
+        let offset = Array.isArray(dist) ? dist : [0, 0, dist];
+        let vec = v3_rotate(offset, this.rotation)
+        let t = this.translation;
+        this.translateTo([t[0] + vec[0], t[1] + vec[1], t[2] + vec[2]]);
+    }
+
+    scaleBy(factor) {
+        // factor is either a 3-value array or a scalar.
+        // if it is a 3-value array, it specify the difference.
+        // if it is a scalar, it is intepretered as [factor, factor, factor].
+        let offset = Array.isArray(factor) ? factor : [factor, factor, factor];
+        let cur = this.scale;
+        this.scaleTo([cur[0] + offset[0], cur[1] + offset[1], cur[2] + offset[2]]);
     }
 
     nop() {}
@@ -629,6 +666,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let model3d = options.dataLocation;
         let modelType = options.modelType;
 
+        if (this._model3Dloading) {return;}
+        this._model3Dloading = true;
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
@@ -699,6 +738,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
             this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
+        }).finally(() => {
+            this._model3Dloading = false;
         });
     }
 
@@ -925,12 +966,20 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     setupAnimation(obj) {
+        // There are a few ways to get here:
+        // -  the card is recently created, and animation loop has not been started.
+        // -  the card was here, and animation loop was on and showing different animations
+        //    and a new 3D model was just loaded.
+        // - a new model with an actor behavior that specifies animationClipIndex already.
+        // For the second case, animationRunning may be true.
         if (!obj._croquetAnimation) {return;}
 
         let spec = obj._croquetAnimation;
         this.animationSpec = spec;
         if (this.actor._cardData.animationClipIndex === undefined && spec.animations.length > 0) {
             this.say("setAnimationClipIndex", 0); // use the first animation clip as default
+        } else {
+            this.tryStartAnimation();
         }
     }
 
@@ -1190,7 +1239,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     tryStartAnimation() {
-        if (this.actor._cardData.animationClipIndex !== undefined && !this.animationRunning) {
+        if (this.actor._cardData.animationClipIndex !== undefined
+            && !this.animationRunning
+            && this.animationSpec) {
             this.animationRunning = true;
             this.runAnimation();
         }
@@ -1199,7 +1250,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     runAnimation() {
         if (!this.animationRunning) {return;}
         let spec = this.animationSpec;
-        if (!spec) return;
+        if (!spec) {
+            this.annimationRunning = false;
+            return;
+        }
         this.future(50).runAnimation();
 
         let animationClipIndex = this.actor._cardData.animationClipIndex;
