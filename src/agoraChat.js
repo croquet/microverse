@@ -94,16 +94,20 @@ console.log(`AgoraChatManager (local actor ${alreadyHere ? "already" : "not yet"
             return;
         }
 
+        // use chatReady flag to avoid sending important messages to the chat iframe
+        // until we've heard from it that it's ready to start.
+        // if we include the url option requestName, this won't happen until the chat
+        // has requested and received from the user a nickname.
         this.chatReady = false;
         const { innerWidth, innerHeight } = window;
         const frame = this.chatIFrame = document.createElement('iframe');
         frame.id = 'agoraChatIFrame';
         frame.style.cssText = "position: absolute; width: 1px; height: 1px; z-index: 100; transition: none;"
         document.body.appendChild(frame);
-        //const chatURL = new URL(`../video-chat/microverse.html?rejoinable&ih=${innerHeight}&iw=${innerWidth}&debug=session`, window.location.href).href;
-        const chatURL = new URL(`http://localhost:8000/video-chatv4/microverse.html?rejoinable&ih=${innerHeight}&iw=${innerWidth}&debug=session`).href;
+        // @@ requestName will be removed once microverse has the name-request dialog
+        // const chatURL = new URL(`../video-chat/microverse.html?requestName&ih=${innerHeight}&iw=${innerWidth}&debug=session`, window.location.href).href;
+        const chatURL = new URL(`http://localhost:8000/video-chatv4/microverse.html?requestName&ih=${innerHeight}&iw=${innerWidth}&debug=session`).href;
         frame.src = chatURL;
-        this.chatReadyP = new Promise(resolve => this.resolveChatReady = resolve);
     }
 
     handleSessionInfoRequest() {
