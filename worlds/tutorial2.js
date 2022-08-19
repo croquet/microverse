@@ -10,7 +10,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/tutorial";
     Constants.UserBehaviorModules = [
-        "lights.js", "joeTheBox.js", "simpleSpin.js", "gizmo.js"
+        "lights.js", "joeTheBox.js", "simpleSpin.js"
     ];
 
     // const frameColor = 0x888888;
@@ -63,7 +63,7 @@ export function init(Constants) {
         {
             card: {
                 name:"Joe the Box",
-                behaviorModules: ["JoeTheBox", "HasGizmo"],
+                behaviorModules: ["JoeTheBox"],
                 layers: ["pointer"],
                 type: "object",
                 translation:[-4, 0.4, -9],

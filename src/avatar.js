@@ -531,8 +531,8 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     setOpacity(opacity) {
         if (!this.shape) {return;}
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
-            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
+        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity")) {
+            opacity = this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity", opacity);
         }
 
         let transparent = opacity !== 1;
@@ -661,13 +661,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
+                    this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "startMotion", dx, dy);
                     break;
                 case "motion-end":
-                    this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
+                    this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion", dx, dy);
                     break;
                 case "motion-update":
-                    this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
+                    this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "updateMotion", dx, dy);
                     break;
             }
         }
@@ -910,7 +910,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behavior = behaviorManager.lookup(handlerModuleName, "AvatarPawn");
         if (behavior && behavior.$behavior && behavior.$behavior.walkLook) {
-            return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
+            return this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "walkLook");
         }
 
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
@@ -1028,7 +1028,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (spec?.name) actorSpec.name = spec.name;
         if (leavingWorld) {
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            this.call(`${handlerModuleName}$AvatarPawn`, "endMotion");
+            this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion");
         }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
@@ -1673,8 +1673,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     setOpacity(opacity) {
         if (!this.shape) {return;}
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
-            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
+        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity")) {
+            opacity = this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity", opacity);
         }
 
         let transparent = opacity !== 1;

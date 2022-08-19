@@ -1,21 +1,47 @@
 // import { GetPawn, q_yaw } from "@croquet/worldcore-kernel";
 
+class AvatarEventHandlerActor {
+    setup() {
+        this.listen("addOrCycleGizmo", this.addOrCycleGizmo);
+        this.listen("removeGizmo", this.removeGizmo);
+    }
+
+    addOrCycleGizmo(target) {
+        if (!this.gizmo) {
+            this.gizmo = this.createCard({
+                translation: [0, 0, 0],
+                name: 'gizmo',
+                behaviorModules: ["Gizmo"],
+                parent: target,
+                type: "object",
+                noSave: true,
+            });
+        } else {
+            this.publish(this.gizmo.id, "cycleModes")
+        }
+    }
+
+    removeGizmo() {
+        this.gizmo?.destroy();
+    }
+}
+
 class AvatarEventHandlerPawn {
     setup() {
         if (!this.isMyPlayerPawn) {return;}
 
-        this.addFirstResponder("pointerTap", {ctrlKey: true, altKey: true}, this);
+        this.addFirstResponder("pointerTap", {ctrlKey: true, altKey: true, shiftKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
 
-        this.addFirstResponder("pointerDown", {ctrlKey: true, altKey: true}, this);
+        this.addFirstResponder("pointerDown", {ctrlKey: true, altKey: true, shiftKey: true}, this);
         this.addLastResponder("pointerDown", {}, this);
         this.addEventListener("pointerDown", this.pointerDown);
 
-        this.addFirstResponder("pointerMove", {ctrlKey: true, altKey: true}, this);
+        this.addFirstResponder("pointerMove", {ctrlKey: true, altKey: true, shiftKey: true}, this);
         this.addLastResponder("pointerMove", {}, this);
         this.addEventListener("pointerMove", this.pointerMove);
 
-        this.addLastResponder("pointerUp", {ctrlKey: true, altKey: true}, this);
+        this.addLastResponder("pointerUp", {ctrlKey: true, altKey: true, shiftKey: true}, this);
         this.addEventListener("pointerUp", this.pointerUp);
 
         this.addLastResponder("pointerWheel", {ctrlKey: true, altKey: true}, this);
@@ -42,13 +68,20 @@ class AvatarEventHandlerPawn {
     }
 
     pointerDown(e) {
+        const render = this.service("ThreeRenderManager");
+        const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
+        this.targetDistance = rc.distance;
+        let p3e = this.pointerEvent(rc, e);
+        let pawn = this.actor.worldcoreKernel.GetPawn(p3e.targetId);
+
+        if (this.gizmoTargetPawn && pawn !== this.gizmoTargetPawn) {
+            this.gizmoTargetPawn.unselectEdit();
+            this.gizmoTargetPawn = null;
+            this.publish(this.actor.id, "removeGizmo");
+        }
+
         if (e.ctrlKey || e.altKey) { // should be the first responder case
-            const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
-            this.targetDistance = rc.distance;
-            let p3e = this.pointerEvent(rc, e);
             p3e.lookNormal = this.actor.lookNormal;
-            let pawn = this.actor.worldcoreKernel.GetPawn(p3e.targetId);
             pawn = pawn || null;
 
             if (this.editPawn !== pawn) {
@@ -70,6 +103,12 @@ class AvatarEventHandlerPawn {
             } else {
                 console.log("pointerDown in editMode");
             }
+        } else if (e.shiftKey) {
+            if (pawn) {
+                this.gizmoTargetPawn = pawn;
+                this.gizmoTargetPawn.selectEdit();
+                this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
+            }
         } else {
             if (!this.focusPawn) {
                 // because this case is called as the last responder, facusPawn should be always empty
@@ -77,7 +116,7 @@ class AvatarEventHandlerPawn {
                 this.lookYaw = this.actor.worldcoreKernel.q_yaw(this._rotation);
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
+            this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent", "pointerDown", this, e);
         }
     }
 
@@ -202,6 +241,7 @@ export default {
     modules: [
         {
             name: "AvatarEventHandler",
+            actorBehaviors: [AvatarEventHandlerActor],
             pawnBehaviors: [AvatarEventHandlerPawn],
         }
     ]
