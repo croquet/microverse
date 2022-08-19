@@ -1,4 +1,4 @@
-class AvatarPawn {
+class AvatarEventHandlerPawn {
     setup() {
         if (!this.isMyPlayerPawn) {return;}
 
@@ -95,7 +95,7 @@ export default {
     modules: [
         {
             name: "AvatarEventHandler",
-            pawnBehaviors: [AvatarPawn],
+            pawnBehaviors: [AvatarEventHandlerPawn],
         }
     ]
 }
