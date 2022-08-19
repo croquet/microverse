@@ -11,6 +11,7 @@ import {
     q_euler, q_multiply,
     m4_invert, m4_identity
 } from '@croquet/worldcore-kernel';
+import * as worldcoreKernel from '@croquet/worldcore-kernel';
 import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
@@ -1423,6 +1424,10 @@ export class MicroverseAppManager extends ModelService {
         // return this.$apps.delete(name);
     }
 }
+
+// Workaround until we can import from behaviors:
+// make worldcore-kernel available to behaviors
+CardActor.prototype.worldcoreKernel = worldcoreKernel;
 
 MicroverseAppManager.register("MicroverseAppManager");
 
