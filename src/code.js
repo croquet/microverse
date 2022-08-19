@@ -546,6 +546,7 @@ export const PM_Code = superclass => class extends superclass {
     }
 
     removeUpdateRequest(array) {
+        if (!this.updateRequests) {return;}
         let index = this.updateRequests.findIndex((o) => o[0] === array[0] && o[1] === array[1]);
         if (index < 0) {return;}
         this.updateRequests.splice(index, 1);
