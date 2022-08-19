@@ -90,11 +90,12 @@ class AxisGizmoActor {
 
 class AxisGizmoPawn {
     setup() {
+        this.originalColor = 0xff0000;
         this.shape.add(new Microverse.THREE.ArrowHelper(
             new Microverse.THREE.Vector3(1, 0, 0),
             new Microverse.THREE.Vector3(0, 0, 0),
             3,
-            0xff0000
+            this.originalColor
         ));
 
         this.dragStart = undefined;
@@ -103,6 +104,8 @@ class AxisGizmoPawn {
         this.addEventListener("pointerDown", "startDrag");
         this.addEventListener("pointerMove", "drag");
         this.addEventListener("pointerUp", "endDrag");
+        this.addEventListener("pointerEnter", "pointerEnter");
+        this.addEventListener("pointerLeave", "pointerLeave");
     }
 
     startDrag(event) {
@@ -111,7 +114,7 @@ class AxisGizmoPawn {
         avatar.addFirstResponder("pointerMove", {shiftKey: true}, this);
         avatar.addFirstResponder("pointerMove", {}, this);
         this.dragStart = [...event.xy];
-        this.positionAtDragStart = [...this._translation];
+        this.positionAtDragStart = [...this.actor.parent._translation];
     }
 
     drag(event) {
@@ -126,8 +129,8 @@ class AxisGizmoPawn {
                 this.positionAtDragStart[1],
                 this.positionAtDragStart[2]
             ];
-            // this.publish(this.actor.id, "translateParent", nextPosition)
-            this.set({translation: nextPosition})
+            this.publish(this.actor.id, "translateParent", nextPosition)
+            // this.set({translation: nextPosition})
         }
     }
 
@@ -137,6 +140,15 @@ class AxisGizmoPawn {
         const avatar = Microverse.GetPawn(event.avatarId);
         avatar.removeFirstResponder("pointerMove", {shiftKey: true}, this);
         avatar.removeFirstResponder("pointerMove", {}, this);
+    }
+
+    pointerEnter() {
+        console.log("hover");
+        this.shape.children[0].setColor(0xff5555);
+    }
+
+    pointerLeave() {
+        this.shape.children[0].setColor(this.originalColor);
     }
 }
 
@@ -149,7 +161,7 @@ export default {
         },
         {
             name: "AxisGizmo",
-            behaviorModules: [AxisGizmoActor],
+            actorBehaviors: [AxisGizmoActor],
             pawnBehaviors: [AxisGizmoPawn],
         }
     ]
