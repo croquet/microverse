@@ -268,6 +268,7 @@ class AvatarPawn {
     }
 
     mapOpacity(opacity) {
+        if (Microverse.v3_magnitude(this.lookOffset) < 0.8) {return 0;}
         if (opacity === 0 || opacity === 1) {return opacity;}
         return 1;
     }
