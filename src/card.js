@@ -666,8 +666,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let model3d = options.dataLocation;
         let modelType = options.modelType;
 
-        if (this._model3Dloading) {return;}
-        this._model3Dloading = true;
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
@@ -698,11 +696,15 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
         if (!model3d) {return;}
         let assetManager = this.service("AssetManager").assetManager;
-
+        let key = this.modelLoadKey = Math.random();
         this.getBuffer(model3d).then((buffer) => {
             assetManager.setCache(model3d, buffer, this.id);
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
+            if (key !== this.modelLoadKey) {
+                console.log("model load has been superseded");
+                return;
+            }
             addShadows(obj, shadow, singleSided, THREE);
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
@@ -731,6 +733,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             if (Array.isArray(obj.material)) {
                 obj.material.dispose = arrayDispose;
             }
+
+            this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
         }).finally(() => {
             this._model3Dloading = false;

@@ -8,6 +8,17 @@ import { App } from "@croquet/worldcore-kernel";
 const PREFIX = "croquet:microverse:";
 
 let shell;
+// no url option => no voice, no setttings and use alice avatars
+// voiceChat     => voice chat enabled, and show the initial settings
+// showSettings  => show the avatar selection but not start voice.
+// those parameters are tested with has(), so the value is not significant.
+
+const { searchParams } = new URL(window.location);
+const showSettings = searchParams.has('showSettings');
+const voice = searchParams.has('voiceChat'); // don't add voice chat
+let localConfiguration = loadLocalStorage() || {};
+localConfiguration.voice = voice;
+localConfiguration.showSettings = voice || showSettings;
 
 export function startShell() {
     shell = new Shell();
@@ -119,7 +130,13 @@ class Shell {
             css.rel = "stylesheet";
             css.type = "text/css";
             css.id = "joystick-css";
-            css.onload = () => this.adjustJoystickKnob();
+            css.onload = () => {
+                this.adjustJoystickKnob();
+                if (this._hudFlags) {
+                    this.setButtonsVisibility(this._hudFlags);
+                    delete this._hudFlags;
+                }
+            };
             css.href = "./assets/css/joystick.css";
             document.head.appendChild(css);
         }
@@ -389,25 +406,43 @@ class Shell {
                 }
                 return;
             case "hud":
-                let joystickFlag = data.joystick;
-                let fullscreenFlag = data.fullscreen;
-                if (joystickFlag !== undefined && this.joystick) {
-                    if (joystickFlag) {
-                        this.joystick.style.removeProperty("display");
-                    } else {
-                        this.joystick.style.setProperty("display", "none");
-                    }
-                }
-                if (fullscreenFlag !== undefined && this.fullscreenBttn) {
-                    if (fullscreenFlag) {
-                        this.fullscreenBttn.style.removeProperty("display");
-                    } else {
-                        this.fullscreenBttn.style.setProperty("display", "none");
-                    }
-                }
+                this.setButtonsVisibility(data);
+                return;
+            case "send-configuration":
+                console.log("sending config", localConfiguration);
+                this.sendToPortal(fromPortalId, "local-configuration", { localConfig: localConfiguration });
+                return;
+            case "update-configuration":
+                console.log("updated config", data.localConfig);
+                localConfiguration = data.localConfig;
+                localConfiguration.userHasSet = true;
+                saveLocalStorage(data.localConfig);
                 return;
             default:
                 console.warn(`shell: received unknown command "${cmd}" from portal-${fromPortalId}`, data);
+        }
+    }
+
+    setButtonsVisibility(data) {
+        let joystickFlag = data.joystick;
+        let fullscreenFlag = data.fullscreen;
+        if (!document.head.querySelector("#joystick-css")) {
+            this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
+            debugger;
+        }
+        if (joystickFlag !== undefined && this.joystick) {
+            if (joystickFlag) {
+                this.joystick.style.removeProperty("display");
+            } else {
+                this.joystick.style.setProperty("display", "none");
+            }
+        }
+        if (fullscreenFlag !== undefined && this.fullscreenBttn) {
+            if (fullscreenFlag) {
+                this.fullscreenBttn.style.removeProperty("display");
+            } else {
+                this.fullscreenBttn.style.setProperty("display", "none");
+            }
         }
     }
 
@@ -418,6 +453,9 @@ class Shell {
 
     findFrame(portalURL, filterFn = null) {
         portalURL = portalToFrameURL(portalURL, "");
+        // for some parameters it doesn't matter if the frame has a value or not,
+        // let alone whether the value matches the request
+        const ignorables = ["debug"];
         // find an existing frame for this portalURL, which may be partial,
         // in particular something loaded from a default spec (e.g. ?world=portal1)
         outer: for (const [portalId, frameEntry] of this.frames) {
@@ -433,14 +471,14 @@ class Shell {
             const frameUrl = new URL(frame.src);
             if (frameUrl.origin !== url.origin) continue;
             if (frameUrl.pathname !== url.pathname) continue;
+            ignorables.forEach(key => frameUrl.searchParams.delete(key))
             // some params must match
             for (const [key, value] of url.searchParams) {
+                if (ignorables.includes(key)) continue;
                 const frameValue = frameUrl.searchParams.get(key);
                 frameUrl.searchParams.delete(key);
                 // for "portal" and "anchor" params, empty values match
                 if ((key === "portal" || key === "anchor") && (!value || !frameValue)) continue;
-                // for "debug" param, any value matches
-                if (key === "debug") continue;
                 // for other params, exact match is required
                 if (frameValue !== value) continue outer;
             }
@@ -736,4 +774,28 @@ function setTitle(url) {
     if (url.startsWith(location.origin)) url = url.substr(location.origin.length + 1);
     else url = url.substr(url.indexOf("://") + 3);
     document.title = url;
+}
+
+function loadLocalStorage() {
+    if (!window.localStorage) { return null; }
+    try {
+        let localSettings = JSON.parse(window.localStorage.getItem('microverse-settings'));
+        if (!localSettings || localSettings.version !== "1") {
+            throw new Error("different version of data");
+        }
+        return localSettings;
+    } catch (e) { return null; }
+}
+
+function saveLocalStorage(configuration) {
+    if (!window.localStorage) { return; }
+    try {
+        let settings = {
+            version: "1",
+            nickname: configuration.nickname,
+            type: configuration.type,
+            avatarURL: configuration.avatarURL
+        };
+        window.localStorage.setItem('microverse-settings', JSON.stringify(settings));
+    } catch (e) { /* ignore */ }
 }
