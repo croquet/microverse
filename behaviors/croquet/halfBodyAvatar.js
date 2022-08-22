@@ -104,7 +104,17 @@ class AvatarPawn {
             console.log("ready player me avatar found");
         }
 
-        this.moveRightHand([0, 1, -100]);
+        this.addFoot();
+
+        this.handedness = this.actor._cardData.handedness === "Left" ? "Left" : "Right";
+        this.otherHandName = this.actor._cardData.handedness === "Left" ? "RightHand" : "LeftHand";
+
+        let otherHand = this.bones.get(this.otherHandName);
+        if (otherHand) {
+            otherHand.position.set(0, -10000, 0);
+        }
+
+        this.moveHand([0, 1, -100]);
 
         if (this.actor.lastPose) {
             this.avatarPosed(this.actor.lastPose);
@@ -124,6 +134,20 @@ class AvatarPawn {
         */
     }
 
+    addFoot() {
+        let foot = this.shape.children.find((c) => c.name === "ghostfoot");
+        if (foot) {foot.removeFromParent();}
+
+        let circle = new Microverse.THREE.CircleGeometry(0.3, 32);
+        circle.rotateX(-Math.PI / 2);
+        let material = new Microverse.THREE.MeshBasicMaterial({color: 0x666666});
+        foot = new Microverse.THREE.Mesh(circle, material);
+        foot.position.set(0, -1.6, 0);
+        foot.name = "ghostfoot";
+
+        this.shape.add(foot);
+    }
+
     move(type, xyz) {
         if (!xyz) {return;}
         this.say("poseAvatarRequest", {type, coordinates: xyz}, 30);
@@ -136,7 +160,7 @@ class AvatarPawn {
             this.moveHead(coordinates);
         }
         if (type === "keyDown" || type === "pointerDown" || type === "pointerUp" || type === "pointerTap") {
-            this.moveRightHand(coordinates);
+            this.moveHand(coordinates);
         }
     }
 
@@ -183,16 +207,17 @@ class AvatarPawn {
         rightEye.rotation.set(q_pitch(eyeQ), q_yaw(eyeQ), q_roll(eyeQ));
     }
 
-    moveRightHand(xyz) {
+    moveHand(xyz) {
         let {
             THREE,
             q_euler, q_pitch, q_yaw, q_roll, q_lookAt, q_multiply,// q_identity,
             v3_normalize, v3_rotate, v3_add} = Microverse;
-        let len = 0.6582642197608948 / 2;
-        let elbowPos = [-len, 0, 0.2];
-        let handPos = [0, 0, len * 0.6];
+        let len = 0.6582642197608948 * 0.4;
+        let hFactor = this.handedness === "Left" ? -1 : 1;
+        let elbowPos = [-len * hFactor, 0, 0.2];
+        let handPos = [0, 0, hFactor * len * 0.6];
 
-        let hand = this.bones.get("RightHand");
+        let hand = this.bones.get(`${this.handedness}Hand`);
         let spine = this.bones.get("Spine");
         let global = spine.matrixWorld.clone();
 
@@ -216,17 +241,12 @@ class AvatarPawn {
 
         // console.log("hand", q_pitch(allQ), q_yaw(allQ), q_roll(allQ));
 
-        let tQ = q_euler(-q_pitch(allQ), q_roll(allQ), -q_yaw(allQ))
+        let tQ = q_euler(-q_pitch(allQ), q_roll(allQ), -q_yaw(allQ));
 
-        let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, 1.3, 0), tQ);
+        let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, hFactor * 1.3, 0), tQ);
         hand.rotation.set(q_pitch(handQ), q_yaw(handQ), q_roll(handQ));
         hand.position.set(...v3_add(elbowPos, v3_rotate(handPos, tQ)));
 
-        let otherHand = this.bones.get("LeftHand");
-        let otherElbowPos = [len, 0, 0.2];
-        let otherQ = q_euler(Math.PI / 2, -0.4, 0.0);
-        otherHand.rotation.set(q_pitch(otherQ), q_yaw(otherQ), q_roll(otherQ));
-        otherHand.position.set(...otherElbowPos);
     }
 
     up(p3d) {
@@ -239,7 +259,7 @@ class AvatarPawn {
         let {m4_translation, q_axisAngle, m4_rotationQ, m4_multiply} = Microverse;
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
         const m0 = m4_translation(this.lookOffset);
-        const m1 = m4_translation([0, 0.4, 0]); // needs to be eye height;
+        const m1 = m4_translation([0, 0.2, 0]); // needs to be eye height;
         const tr = m4_multiply(m1, m0);
 
         const m2 = m4_rotationQ(pitchRotation);

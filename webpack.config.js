@@ -65,6 +65,7 @@ const config = {
                 { from: 'assets/css/*'},
                 { from: 'assets/fonts/**/*'},
                 { from: 'assets/images/*'},
+                { from: 'assets/avatar-images/*'},
                 { from: 'assets/sky/*'},
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
