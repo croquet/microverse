@@ -56,7 +56,7 @@ export function init(Constants) {
             card: {
                 name:"Hillside",
                 behaviorModules: ["Hillside"],
-                layers: ["pointer"],
+                //layers: ["pointer"],
                 type: "object",
                 translation:[0, 0, 0],
                 shadow: true,

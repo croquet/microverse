@@ -1,6 +1,11 @@
 class HillsideActor {
     setup() {
-        // nothing to do here yet
+        this.future(20).update();
+    }
+
+    update(){
+        this.say("updateWorld", this.now());
+        this.future(20).update();
     }
 }
 
@@ -19,6 +24,7 @@ class HillsidePawn {
         this.fogDist = this.grassPatchRadius * 20.0;
         this.grassFogDist = this.grassPatchRadius * 2.0;
         this.constructHillside();
+        this.listen("updateWorld", this.update)
     }
 
     async constructHillside() {
@@ -62,7 +68,8 @@ class HillsidePawn {
 
             this.group = new THREE.Group();
             this.shape.add(this.group);
-            this.group.position.y=-this.heightFieldHeight/2;
+            this.group.position.y=-0.25*this.heightFieldHeight/2;
+            this.group.scale.set(0.25,0.25,0.25);
             // Setup heightfield
             var hfCellSize = this.heightFieldSize / heightmap_I.width;
             var heightMapScale = new THREE.Vector3(1.0 / this.heightFieldSize, 1.0 / this.heightFieldSize, this.heightFieldHeight);
@@ -188,6 +195,14 @@ console.log(this.walkLook)
         return assetManager.fillCacheIfAbsent(URL, () => {
             return new Microverse.THREE.FileLoader().load(URL);
         }, this.id);
+    }
+
+    update(t){
+/*
+        this.grass.update(t, pdir, drawPos);
+        this.terrain.update(ppos.x, ppos.y);
+        this.water.update(ppos);
+        */
     }
 
     teardown() {
