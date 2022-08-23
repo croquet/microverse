@@ -10,7 +10,7 @@
 
 ## Introduction
 
-This guide will enable you to quickly set up your own Croquet Microverse project. Refer to tutorials in the [docs directory](.) for its key concepts and features that let you build shared worlds.
+This guide will enable you to quickly set up your own Croquet Microverse project. Refer to tutorials in the [docs directory](index.md) for its key concepts and features that let you build shared worlds.
 
 ### Prerequisites
 
@@ -100,20 +100,15 @@ In your project directory run
 
 This will update your `package.json` and the installed version of Microverse to the latest. Then copy the updated `node_modules/@croquet/microverse-library/lib` directory again as described above.
 
-## Resources
 ---
+## Resources
 
-### Documentation
+* Documentation:
+  - [Microverse](index.md) tutorials etc
+  - [CroquetOS](https://croquet.io/docs/croquet/) the underlying multiplayer OS
+  - [WorldCore](https://croquet.io/docs/worldcore) the underlying game engine
+* [Help](https://croquet.io/discord/)
 
-See the [docs directory](.).
-
-### Croquet.io
-[https://croquet.io/](https://croquet.io/) is the best place to get started with what the Croquet Microverse is and what it can do.
-
-The Croquet Microverse uses the [Croquet Library](https://croquet.io/docs/croquet) and the [Worldcore framework](https://croquet.io/docs/worldcore). Additionally it depends on [Three.js](https://threejs.org/) for 3D rendering. To develop your own behaviors with new visual appearances, you will need to be familiar with those libraries.
-
-### Discord
-
-The best resource for help in developing Croquet Microverse worlds is our Discord community. The Croquet Discord server is where you can chat with fellow developers, ask questions, and show off your own creations. Join the [Croquet Discord server](https://croquet.io/discord/).
+   The best resource for help in developing Croquet Microverse worlds is our Discord community. The Croquet Discord server is where you can chat with fellow developers, ask questions, and show off your own creations. Join the [Croquet Discord server](https://croquet.io/discord/).
 
 **Copyright (c) 2022 Croquet Corporation**
