@@ -33,7 +33,7 @@ const config = {
     module: {
         rules: [
             {
-                test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
+                test: /\.(jpe?g|png|gif|svg|zip|glb|glsl)$/i,
                 type: 'asset/resource',
             },
         ]
@@ -57,6 +57,8 @@ const config = {
                 { from: 'assets/fonts/**/*'},
                 { from: 'assets/images/*'},
                 { from: 'assets/sky/*'},
+                { from: 'assets/hillside/**/*'},
+                { from: 'assets/hillside/shader/*'},
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'behaviors/**/*'}
