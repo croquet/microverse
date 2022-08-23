@@ -45,7 +45,7 @@ function loadCSS() {
 
 function createSettingsMenu(useEnter) {
     let settings = `
-<div id="joinDialog">
+<div id="joinDialog" class="noselect">
   <div id='joinDialogBody' class='wide'>
     <div id='dialogTitle'>
         <div id='titleHolder' class='settingColumn'>
@@ -54,21 +54,21 @@ function createSettingsMenu(useEnter) {
     </div>
     <div id='joinSettings'>
         <div id='joinPrompt' class='settingColumn'>
-            <div id='joinPromptTitle' class='noselect'>Choose nickname and avatar</div>
-            <div id='joinPromptBlurb' class='noselect'>To enter this world you must specify a nickname, and choose an avatar either by selecting from those on display or pasting a valid Ready Player Me URL.</div>
+            <div id='joinPromptTitle'>Choose nickname and avatar</div>
+            <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either by selecting from those on display or pasting a valid Ready Player Me URL.</div>
         </div>
         <div id='nameInput' class='stringInputHolder settingColumn'>
-            <div id='namePrompt' class='namePrompt noselect'>Nickname<span>*</span></div>
-            <div id='nameField' class="nameField" contenteditable='true'></div>
-            <div id='nameExplanation' class='noselect'>Enter 1-12 characters (ASCII only).</div>
+            <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
+            <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
+            <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
             <div id='nameFilterWarning'><br/></div>
         </div>
         <div id='dialogAvatarSelections' class='settingColumn'>
-          <div id='avatarList' class='noselect'></div>
+          <div id='avatarList'></div>
         </div>
         <div id='avatarURL' class='stringInputHolder settingColumn'>
-          <div id='avatarURLPrompt' class='namePrompt noselect'>Avatar URL</div>
-          <div id='avatarURLField' class="nameField avatarNameField" contenteditable='true'></div>
+          <div id='avatarURLPrompt' class='namePrompt'>Avatar URL</div>
+          <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'></div>
         </div>
         <div id="handednessRow"class="settingsColumn">
           <div id="handednessLabel">Handedness:</div>
@@ -78,11 +78,11 @@ function createSettingsMenu(useEnter) {
           </select>
         </div>
         <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
-            <div id='enterButton' class='noselect'>Enter</div>
+            <div id='enterButton'>Enter</div>
         </div>
         <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
-            <div id='cancelButton' class='noselect'>Cancel</div>
-            <div id='acceptButton' class='noselect'>Accept</div>
+            <div id='cancelButton'>Cancel</div>
+            <div id='acceptButton'>Accept</div>
         </div>
     </div>
   </div>
