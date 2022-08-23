@@ -93,9 +93,11 @@ function createSettingsMenu(useEnter) {
     const nameField = settingsMenu.querySelector('#nameField');
     nameField.addEventListener('keydown', evt => nameFieldKeydown(evt));
     nameField.addEventListener('input', (evt) => nameFieldChanged(evt));
+    nameField.addEventListener('paste', (evt) => {evt.stopPropagation();});
 
     const avatarURLField = settingsMenu.querySelector('#avatarURLField');
     avatarURLField.addEventListener('input', (evt) => avatarURLFieldChanged(evt));
+    avatarURLField.addEventListener('paste', (evt) => {evt.stopPropagation();});
 
     const enterButton = settingsMenu.querySelector('#enterButton');
     enterButton.addEventListener('click', () => dialogCloseEnter());
@@ -174,10 +176,14 @@ function nameFieldKeydown(evt) {
     if (evt.keyCode === 13 || evt.keyCode === 9) evt.preventDefault();
 }
 
-function nameFieldChanged() {
+function nameFieldChanged(evt) {
     // first trim start and end whitespace and remove any line feeds that have
     // snuck in.  then replace any non-ascii characters and see if that reduces
     // the length.  if so, show the reduced string
+    if (evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+    }
     const nameField = document.getElementById('nameField');
     let value = nameField.textContent.trim().replace(/\r?\n|\r/g, '');
     const beforeFilter = value.length;
