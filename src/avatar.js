@@ -2014,6 +2014,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         promise.then(changed => {
             if (changed) {
                 const configuration = window.settingsMenuConfiguration;
+                sendToShell("update-configuration", { localConfig: configuration });
                 let cardSpec = this.makeCardSpecFrom(configuration);
                 this.say("avatarCardSpecChanged", cardSpec);
             }

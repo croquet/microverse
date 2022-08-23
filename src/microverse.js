@@ -689,12 +689,12 @@ export function startMicroverse() {
     setButtons("none");
 
     const configPromise = new Promise(resolve => resolveConfiguration = resolve)
-          .then(localConfig => {
-              window.settingsMenuConfiguration = { ...localConfig };
-              return !localConfig.showSettings || localConfig.userHasSet
-                  ? false // as if user has run dialog with no changes
-                  : new Promise(resolve => startSettingsMenu(true, resolve));
-          });
+        .then(localConfig => {
+            window.settingsMenuConfiguration = { ...localConfig };
+            return !localConfig.showSettings || localConfig.userHasSet
+                ? false // as if user has run dialog with no changes
+                : new Promise(resolve => startSettingsMenu(true, resolve));
+        });
     sendToShell("send-configuration");
 
     return configPromise.then(changed => {
