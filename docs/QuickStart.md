@@ -40,13 +40,13 @@ The users of your worlds do not need these tools. Microverse worlds are deployed
     You can pick your own `appId` or go with the default shown in the template.
 
 ---
+## Video Walkthrough
+Here's a video walkthrough of the steps: https://vimeo.com/739770287
 
-Here's a video walkthrough of the steps
-([watch on vimeo](https://vimeo.com/739770287)):
-<p align="center">
-<iframe src="https://player.vimeo.com/video/739770287?h=92aea7403d&color=761CFE&title=0&byline=0&portrait=0" width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-</p>
 
+[![Walkthrough](https://croquet.io/images/videos/thumbnails/howto-microverse.jpg)](https://vimeo.com/739770287)
+
+---
 ## Try your project locally
 
 In the directory you just created, run
