@@ -1877,7 +1877,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (!pawn.shape) {return;}
             let handlerModuleName = pawn.actor._cardData.avatarEventHandler;
             if (pawn.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
-                opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
+                opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", this, opacity);
             }
 
             let transparent = opacity !== 1;

@@ -292,8 +292,8 @@ class AvatarPawn {
         return m4_multiply(m3, this.global);
     }
 
-    mapOpacity(opacity) {
-        if (Microverse.v3_magnitude(this.lookOffset) < 0.8) {return 0;}
+    mapOpacity(avatar, opacity) {
+        if (this._target === avatar && Microverse.v3_magnitude(this.lookOffset) < 0.8) {return 0;}
         if (opacity === 0 || opacity === 1) {return opacity;}
         return 1;
     }
