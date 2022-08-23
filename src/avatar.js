@@ -1236,22 +1236,29 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 // get the potential new pose from velocity and spin.
                 // the v and q variable is passed around to compute a new position.
                 // unless positionTo() is called the avatar state (should) stays the same.
+
                 let vq = this.updatePose(delta);
-                if (this.collidePortal(vq)) {return;}
-                if (!this.checkFloor(vq)) {
-                    // if the new position leads to a position where there is no walkable floor below
-                    // it tries to move the avatar the opposite side of the previous good position.
-                    vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+
+                let handlerModuleName = this.actor._cardData.avatarEventHandler;
+                if (this.has(`${handlerModuleName}$AvatarPawn`, "walk")) {
+                    this.call(`${handlerModuleName}$AvatarPawn`, "walk", time, delta, vq);
                 } else {
-                    this.lastCollideTranslation = vq.v;
-                }
-                if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
-                    if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
-                        this.lastCollideTime = time;
-                        vq = this.collide(vq);
+                    if (this.collidePortal(vq)) {return;}
+                    if (!this.checkFloor(vq)) {
+                        // if the new position leads to a position where there is no walkable floor below
+                        // it tries to move the avatar the opposite side of the previous good position.
+                        vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+                    } else {
+                        this.lastCollideTranslation = vq.v;
                     }
-                    this.lastUpdateTime = time;
-                    this.positionTo(vq.v, vq.q);
+                    if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+                        if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
+                            this.lastCollideTime = time;
+                            vq = this.walkTerrain(vq);
+                        }
+                        this.lastUpdateTime = time;
+                        this.positionTo(vq.v, vq.q);
+                    }
                 }
                 this.refreshCameraTransform();
             }
@@ -1610,7 +1617,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return false;
     }
 
-    collide(vq) {
+    walkTerrain(vq) {
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return vq;
 
