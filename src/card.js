@@ -694,16 +694,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let name = this.actor.name;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
-        // bail out if we've already at least started loading this same model
-        if (!model3d || this._model3d === model3d) {return;}
+        // bail out if we're in the process of loading this same model
+        if (!model3d || this._model3dLoading === model3d) {return;}
 
-        this._model3d = model3d;
+        this._model3dLoading = model3d;
         let assetManager = this.service("AssetManager").assetManager;
         this.getBuffer(model3d).then((buffer) => {
             assetManager.setCache(model3d, buffer, this.id);
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
-            if (model3d !== this._model3d) {
+            if (model3d !== this._model3dLoading) {
                 console.log("model load has been superseded");
                 return;
             }
@@ -736,8 +736,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 obj.material.dispose = arrayDispose;
             }
 
+            delete this._model3dLoading;
             this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
+        }).catch(_err => { console.log("caught error");
+            delete this._model3dLoading;
         });
     }
 
