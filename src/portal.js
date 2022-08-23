@@ -313,8 +313,8 @@ export class PortalPawn extends CardPawn {
         const portalHashParams = new URLSearchParams(portalTempUrl.hash.slice(1));
         let sessionName = portalSearchParams.get("q");
         let password = portalHashParams.get("pw");
+        const worldUrl = new URL(location.href);
         if (!sessionName || !password) {
-            const worldUrl = new URL(location.href);
             if (!sessionName) {
                 sessionName = worldUrl.searchParams.get("q");
                 password = '';
@@ -327,6 +327,9 @@ export class PortalPawn extends CardPawn {
                 portalTempUrl.hash = portalHashParams.toString();
             }
         }
+        [ "showSettings", "voiceChat" ].forEach(setting => {
+            if (worldUrl.searchParams.has(setting)) portalSearchParams.set(setting, "true");
+        });
         // remove origin from portalURL if it is the same as the world URL
         // we could also construct an even shorter relative URL, but this is easier
         portalURL = portalTempUrl.toString();
