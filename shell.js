@@ -14,11 +14,12 @@ let shell;
 // those parameters are tested with has(), so the value is not significant.
 
 const { searchParams } = new URL(window.location);
-const showSettings = searchParams.has('showSettings');
+const settingsOption = searchParams.has('showSettings');
 const voice = searchParams.has('voiceChat'); // add voice chat
-let localConfiguration = loadLocalStorage() || {};
+const showSettings = voice || settingsOption;
+let localConfiguration = (showSettings ? loadLocalStorage() : null) || {};
 localConfiguration.voice = voice;
-localConfiguration.showSettings = voice || showSettings;
+localConfiguration.showSettings = showSettings;
 
 export function startShell() {
     shell = new Shell();

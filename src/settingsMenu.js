@@ -5,8 +5,8 @@
 let settingsMenu = null;
 let settingsMenuBody = null;
 
-let nicknameIsValid = false;
-let avatarIsValid = false;
+let nicknameIsValid;
+let avatarIsValid;
 
 let configuration = {};
 
@@ -19,7 +19,11 @@ let resolveDialog;
 // }
 
 export function startSettingsMenu(useEnter, r) {
+    // note that even if called when already in session with a default (Alice) avatar,
+    // the user must provide an avatar choice to be able to change the name
     resolveDialog = r;
+    nicknameIsValid = false;
+    avatarIsValid = false;
     loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
 }
 
