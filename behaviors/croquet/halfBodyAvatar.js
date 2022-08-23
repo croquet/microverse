@@ -237,10 +237,10 @@ class AvatarPawn {
             THREE,
             q_euler, q_pitch, q_yaw, q_roll, q_lookAt, q_multiply,// q_identity,
             v3_normalize, v3_rotate, v3_add} = Microverse;
-        let len = 0.6582642197608948 * 0.4;
+        let len = 0.6582642197608948 * 0.3;
         let hFactor = this.handedness === "Left" ? -1 : 1;
         let elbowPos = [-len * hFactor, 0, 0.2];
-        let handPos = [0, 0, hFactor * len * 0.6];
+        let handPos = [0, 0, hFactor * len * 0.3];
 
         let hand = this.bones.get(`${this.handedness}Hand`);
         let spine = this.bones.get("Spine");
