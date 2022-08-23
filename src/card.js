@@ -653,7 +653,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     }
                 }
             });
-            this.shape.children.forEach((m) => this.shape.remove(m));
+            [...this.shape.children].forEach((m) => this.shape.remove(m));
         }
     }
 
