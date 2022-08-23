@@ -2,7 +2,6 @@
 // https://croquet.io
 // info@croquet.io
 
-import { GetPawn } from "@croquet/worldcore-kernel";
 import { THREE } from "./ThreeRender.js";
 
 import { CardActor, CardPawn } from "./card.js";
