@@ -19,7 +19,7 @@ class DroneAssemblyActor {
         if (this.currentTask[0] === "forwardBy") {
             if (Microverse.v3_equals(this.translation, this.taskEndPosition, 0.0001)) {
                 this.updateTask(); // Update Current Task, Update Task End Requirements
-            } 
+            }
         }
 
         if (this.currentTask[0] === "rotateBy" || this.currentTask[0] === "arcBy") {
@@ -33,8 +33,8 @@ class DroneAssemblyActor {
         else if (this.currentTask[0] === "forwardBy" && this.currentTask[1] >= 0) { this.forwardBy(0.025); }
 
         else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] < 0) { this.rotateBy([0, -this.currentTask[2], 0]); } // Math.PI / 32 Standard Rotation Amount
-        else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] >= 0) { this.rotateBy([0, this.currentTask[2], 0]); } 
-        
+        else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] >= 0) { this.rotateBy([0, this.currentTask[2], 0]); }
+
         else if (this.currentTask[0] === "arcBy" && this.currentTask[1] < 0) { this.arcBy(0.025, [0, -this.currentTask[2], 0]); } // See Above Standard Movement
         else if (this.currentTask[0] === "arcBy" && this.currentTask[1] >= 0) { this.arcBy(0.025, [0, this.currentTask[2], 0]); }
 
@@ -92,7 +92,7 @@ class DroneAssemblyActor {
 
     updateCard() {
         this.setCardData({dataLocation: this.currentTask[1]});
-        this.say("updateShape");
+        // this.say("updateShape");  redundant
     }
 
     forwardBy(moveAmnt) { // Forward Movement

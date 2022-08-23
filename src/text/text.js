@@ -363,6 +363,8 @@ export class TextFieldActor extends CardActor {
 
     get pawn() {return TextFieldPawn;}
 
+    static defaultMeasurement(text) { return defaultModelMeasurer.measureText(text); }
+
     static types() {
         return {"Warota.Doc": Doc};
     }
@@ -612,6 +614,9 @@ export class TextFieldPawn extends CardPawn {
             this.textGeometry = new TextGeometry({defaultColor: new THREE.Color(color)});
 
             this.textMesh = this.changeMaterial(name, true);
+            // setting a non-zero renderOrder helps prevent clashing with other objects,
+            // which can lead to blurred text.  123 is arbitrary.
+            this.textMesh.renderOrder = 123;
             this.plane.add(this.textMesh);
         }
 
@@ -671,7 +676,7 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setupMesh() {
-        let depth = this.actor._cardData.depth;
+        let { depth, opacity } = this.actor._cardData;
         if (depth === undefined) {depth = 0.01;}
         let cornerRadius = this.actor._cardData.cornerRadius;
         if (cornerRadius === undefined) {cornerRadius = 0.05;}
@@ -693,6 +698,12 @@ export class TextFieldPawn extends CardPawn {
         }
 
         let material = this.makePlaneMaterial(depth, backgroundColor, frameColor, fullBright);
+        if (opacity !== undefined && opacity !== 1) {
+            (Array.isArray(material) ? material : [material]).forEach(m => {
+                m.transparent = true;
+                m.opacity = opacity;
+            });
+        }
         this.material = material;
         this.plane = new THREE.Mesh(this.geometry, this.material);
         this.plane.castShadow = true;

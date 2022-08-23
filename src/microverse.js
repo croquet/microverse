@@ -7,17 +7,19 @@ import {
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { RapierPhysicsManager } from "./physics.js";
+import { AgoraChatManager } from "./agoraChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
 import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
-import { frameName } from "./frame.js";
+import { frameName, sendToShell, addShellListener } from "./frame.js";
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
+import { startSettingsMenu } from "./settingsMenu.js";
 // apps -------------------------------------------
 import { MultiBlaster } from '../apps/multiblaster.js';
 
@@ -89,30 +91,30 @@ function loadLoaders() {
 }
 
 function basenames() {
-    let pathname = window.location.pathname;
-    let match = /([^/]+)\.html$/.exec(pathname);
+    let url = window.location.origin + window.location.pathname;
+    let match = /([^/]+)\.html$/.exec(url);
     let basename = new URL(window.location).searchParams.get("world");
 
     if (!basename) {
         basename = (!match || match[1] === "index") ? "default" : match[1];
     }
 
-    let basedir;
+    let baseurl;
     if (match) {
-        basedir = pathname.slice(0, match.index);
+        baseurl = url.slice(0, match.index);
     } else {
-        let slash = pathname.lastIndexOf("/");
-        basedir = pathname.slice(0, slash + 1);
+        let slash = url.lastIndexOf("/");
+        baseurl = url.slice(0, slash + 1);
     }
 
-    return {basedir, basename};
+    return {baseurl, basename};
 }
 
 function loadInitialBehaviors(paths, directory) {
     let library = Constants.Library || new CodeLibrary();
     Constants.Library = library;
     if (!paths || !directory) {return;}
-    let {basedir, _pathname} = basenames();
+    let {baseurl, _pathname} = basenames();
 
     if (!directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
@@ -120,7 +122,7 @@ function loadInitialBehaviors(paths, directory) {
     let isSystem = directory === Constants.SystemBehaviorDirectory;
     let promises = paths.map((path) => {
         if (!isSystem) {
-            let code = `import('${basedir}${directory}/${path}')`;
+            let code = `import('${baseurl}${directory}/${path}')`;
             return eval(code).then((module) => {
                 let rest = directory.slice("behaviors".length);
                 if (rest[0] === "/") {rest = rest.slice(1);}
@@ -128,7 +130,7 @@ function loadInitialBehaviors(paths, directory) {
             })
         } else {
             let modulePath = `${directory.split("/")[1]}/${path}`;
-            let code = `import('${basedir}behaviors/${modulePath}')`;
+            let code = `import('${baseurl}behaviors/${modulePath}')`;
             return eval(code).then((module) => {
                 return [modulePath, module];
             })
@@ -157,6 +159,7 @@ class MyPlayerManager extends PlayerManager {
         this.followers = new Set();
 
         this.subscribe("playerManager", "create", this.playerCreated);
+        this.subscribe("playerManager", "details", this.playerDetails);
         this.subscribe("playerManager", "destroy", this.playerDestroyed);
         this.subscribe("playerManager", "enter", this.playerEnteredWorld);
         this.subscribe("playerManager", "leave", this.playerLeftWorld);
@@ -165,6 +168,8 @@ class MyPlayerManager extends PlayerManager {
     get presenter() { return this.players.get(this.presentationMode); }
 
     createPlayer(playerOptions) {
+        // invoked by PlayerManager.onJoin.
+
         // when we have a better user management,
         // options will be compatible with a card spec
         // until then, we check the AvatarNames variable, and if it is a short name
@@ -177,51 +182,101 @@ class MyPlayerManager extends PlayerManager {
         // world, at that point the avatar is updated to the name and shape that the
         // user had in the previous world (see AvatarPawn.frameTypeChanged).
 
+        // this method does not need to call super.createPlayer, which has null
+        // behaviour.  once the player is created and returned, onJoin will publish
+        // "playerManager:create", which we handle here with playerCreated.
+
         let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
         let avatarSpec = Constants.AvatarNames[index];
         console.log(frameName(), "MyPlayerManager", this.avatarCount);
-        let options = {...playerOptions};
-        options.noSave = true;
-        options.type = "3d";
-        options.singleSided = true;
+        let options = {...playerOptions, ...{noSave: true, type: "3d", singleSided: true}};
 
         if (typeof avatarSpec === "string") {
-            options.name = avatarSpec;
-            options.dataScale = [0.3, 0.3, 0.3];
-            options.dataRotation = q_euler(0, Math.PI, 0);
-            options.dataTranslation = [0, -0.4, 0];
-            options.dataLocation = `./assets/avatars/${options.name}.zip`;
+            options = {...options, ...{
+                name: avatarSpec,
+                dataScale: [0.3, 0.3, 0.3],
+                dataRotation: q_euler(0, Math.PI, 0),
+                dataTranslation: [0, -0.4, 0],
+                dataLocation: `./assets/avatars/${avatarSpec}.zip`,
+                type: "object", // this is "object" here to not show the avatar that may be changed
+            }};
         } else {
             options = {...options, ...avatarSpec};
         }
-
-        if (!options.avatarEventHandler) {
-            options.avatarEventHandler = "AvatarEventHandler";
-        }
-
-        let handlerModuleName = options.avatarEventHandler;
-        let behaviorManager = this.service("BehaviorModelManager");
-
-        if (behaviorManager && behaviorManager.modules.get(handlerModuleName)) {
-            if (!options.behaviorModules) {
-                options.behaviorModules = [handlerModuleName];
-            } else {
-                if (!options.behaviorModules.includes(handlerModuleName)) {
-                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
-                }
-            }
-        }
-
         return AvatarActor.create(options);
     }
 
+    playerDetails({ playerId, details }) {
+        // any object can publish a "playerManager:details" event specifying
+        // a player id and some new property values for that player.  for example,
+        // this is how the AgoraChatManager informs everyone when its local view
+        // has joined or left the chat.
+        const player = this.players.get(playerId);
+        if (!player) return;
+
+        player.setAndPublish(details); // will publish a "playerManager:detailsUpdated" event
+    }
+
     destroyPlayer(player) {
-        if (player.inWorld) player.set({inWorld: false});
+        // although the player itself is about to be removed and doesn't care,
+        // setting its inWorld to false will trigger event subscribers that do -
+        // for example, this manager's own playerLeftWorld
+        if (player.inWorld) player.setAndPublish({ inWorld: false });
         super.destroyPlayer(player);
     }
 
     playerInWorldChanged(player) {
+        // invoked directly from AvatarActor.inWorldSet when someone has toggled
+        // the inWorld property of an AvatarActor.  this can happen either directly
+        // in the model domain (such as from destroyPlayer above) or from the
+        // AvatarPawn, with a say("_set", <props>).
+        // this method then publishes a player enter or leave event, based on the
+        // value of inWorld.  one subscriber to those events is this MyPlayerManager
+        // itself: the playerEnteredWorld and playerLeftWorld methods below do
+        // appropriate housekeeping for the change of state.  any view that needs to
+        // note arrival and departure of avatars in the world is also free to subscribe.
+
+        // being in or out of world is a distinct layer from the
+        // view-join and view-exit events that signal connection and
+        // disconnection in a Croquet session.  the latter are subscribed to in
+        // the Worldcore PlayerManager - this manager's superclass - and handled
+        // by invoking createPlayer and destroyPlayer on the manager. the event
+        // "playerManager:create" is published after createPlayer has completed;
+        // "playerManager:destroy" is published as part of destroyPlayer, before
+        // invocation of player.destroy() - mainly handled in Actor - that does
+        // the cleanup.
+
+        // in summary:
+        //   to respond to players having been created or about to be destroyed,
+        //   subscribe to
+        //     playerManager:create
+        //     playerManager:destroy
+        //   to respond to players having entered or left this world, subscribe to
+        //     playerManager:enter
+        //     playerManager:leave
+
+        // NB: if a tab goes dormant and is then revived, the model state that will
+        // be constructed on that revival depends on the state of the session...
+        //   (a) if there are other users in the session:
+        //       the model will process the destruction of the tab's previous avatar
+        //       and creation of a new one, which means that the avatar pawn's
+        //       constructor will find that the actor does not yet have the inWorld
+        //       property.  the pawn will publish the dormantAvatarSpec it recorded on
+        //       going dormant (see avatar.js), which will transfer all saved properties
+        //       (position, nickname, 3d model pointer etc) to the new actor.
+        //   (b) if there are no other users in the session:
+        //       the model will process the re-creation of the old avatar as if
+        //       it has never been seen before (or load it from snapshot, if one was
+        //       taken after the avatar's creation).  the avatar pawn's constructor
+        //       in the primary frame will find that the actor *does* already have the
+        //       inWorld flag.  it will use dormantAvatarSpec to impose the avatar's
+        //       saved properties, as above.
+        //
+        // the avatar pawn constructor is the place where we get to ensure that
+        // avatar properties that must *not* be preserved across dormancy - for now,
+        // this means inChat - are explicitly reset.
+
         if (player.inWorld) {
             this.publish("playerManager", "enter", player);
         } else {
@@ -320,14 +375,17 @@ class MyPlayerManager extends PlayerManager {
         }
         delete player.presenterToken;
         this.followers.delete(player.playerId);
+        if (player._inChat) player.setAndPublish({ inChat: false });
         this.publish("playerManager", "playerCountChanged");
     }
 
     playerCreated(_player) {
+        // console.log(frameName(), "playerCreated", player);
         this.publish("playerManager", "playerCountChanged");
     }
 
     playerDestroyed(_player) {
+        // console.log(frameName(), "playerDestroyed", player);
         this.publish("playerManager", "playerCountChanged");
     }
 }
@@ -531,7 +589,7 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [
+        const services = [
             InputManager,
             {service: ThreeRenderManager, options:{useBVH: true, antialias:AA}},
             AssetManager,
@@ -541,7 +599,10 @@ class MyViewRoot extends ViewRoot {
             VideoManager,
             BehaviorViewManager,
         ];
+        if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
+        return services;
     }
+
     constructor(model) {
         super(model);
         const threeRenderManager = this.service("ThreeRenderManager");
@@ -563,6 +624,8 @@ function deleteParameter(url, key) {
     urlObj.searchParams.delete(key);
     return urlObj.toString();
 }
+
+let resolveConfiguration = null;
 
 function startWorld(appParameters, world) {
     // appParameters are loaded from apiKey.js (see index.js)
@@ -595,8 +658,8 @@ function startWorld(appParameters, world) {
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then(() => {
-            let {basedir} = basenames();
-            return fetch(`${basedir}meta/version.txt`);
+            let {baseurl} = basenames();
+            return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {
                 return response.text();
@@ -610,12 +673,44 @@ https://croquet.io`.trim());
         });
 }
 
-export async function startMicroverse() {
-    let {basedir, basename} = basenames();
+export function startMicroverse() {
+    let searchParams = new URL(window.location.href).searchParams;
+
+    let setButtons = (display) => {
+        ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
+            let bttn = document.querySelector("#" + n);
+            if (bttn) {
+                bttn.style.display = display;
+            }
+        });
+    };
+
+    sendToShell("hud", {joystick: false, fullscreen: false});
+    setButtons("none");
+
+    const configPromise = new Promise(resolve => resolveConfiguration = resolve)
+        .then(localConfig => {
+            window.settingsMenuConfiguration = { ...localConfig };
+            return !localConfig.showSettings || localConfig.userHasSet
+                ? false // as if user has run dialog with no changes
+                : new Promise(resolve => startSettingsMenu(true, resolve));
+        });
+    sendToShell("send-configuration");
+
+    return configPromise.then(changed => {
+        if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
+        sendToShell("hud", {joystick: true, fullscreen: true});
+        setButtons("flex");
+        launchMicroverse();
+    });
+}
+
+async function launchMicroverse() {
+    let {baseurl, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
         // eval to hide import from webpack
-        const worldModule = await eval(`import("${basedir}worlds/${basename}.js")`);
+        const worldModule = await eval(`import("${baseurl}worlds/${basename}.js")`);
         // use bit-identical math for constant initialization
         ModelRoot.evaluate(() => worldModule.init(Constants));
         if (!Constants.SystemBehaviorModules) {
@@ -641,7 +736,7 @@ export async function startMicroverse() {
     let apiKeysModule;
     try {
         // use eval to hide import from webpack
-        apiKeysModule = await eval(`import('${basedir}apiKey.js')`);
+        apiKeysModule = await eval(`import('${baseurl}apiKey.js')`);
         const { apiKey, appId } = apiKeysModule.default;
         if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
         if (typeof appId !== "string") throw Error("apiKey.js: appId must be a string");
@@ -665,3 +760,16 @@ export async function startMicroverse() {
     // Default parameters are filled in the body of startWorld. You can override them.
     startWorld(apiKeysModule.default, basename);
 }
+
+const shellListener = (command, data) => {
+    // console.log(`${frameId} received: ${JSON.stringify(data)}`);
+    if (command === "local-configuration") {
+        const { localConfig } = data;
+        console.log("microverse received local-configuration", localConfig);
+        if (resolveConfiguration) {
+            resolveConfiguration(localConfig);
+            resolveConfiguration = null;
+        }
+    }
+};
+addShellListener(shellListener);

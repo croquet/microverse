@@ -18,6 +18,7 @@ import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 
 import { PM_Visible, PM_Camera, RenderManager } from "@croquet/worldcore-kernel";
 
@@ -253,7 +254,7 @@ class ThreeRenderManager extends RenderManager {
 }
 
 const THREE = {
-    ...THREEModule, Pass, CopyShader, CSMFrustum, CSMShader, CSM,
+    ...THREEModule, Pass, UnrealBloomPass, CopyShader, CSMFrustum, CSMShader, CSM,
     OBJLoader, MTLLoader, GLTFLoader, FBXLoader, DRACOLoader, SVGLoader, EXRLoader, BufferGeometryUtils,
     FontLoader, Font, TextGeometry
 };
