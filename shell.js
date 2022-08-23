@@ -8,14 +8,14 @@ import { App } from "@croquet/worldcore-kernel";
 const PREFIX = "croquet:microverse:";
 
 let shell;
-// no url option => no voice, no setttings and use alice avatars
+// no url option => no voice, no settings and use alice avatars
 // voiceChat     => voice chat enabled, and show the initial settings
 // showSettings  => show the avatar selection but not start voice.
 // those parameters are tested with has(), so the value is not significant.
 
 const { searchParams } = new URL(window.location);
 const showSettings = searchParams.has('showSettings');
-const voice = searchParams.has('voiceChat'); // don't add voice chat
+const voice = searchParams.has('voiceChat'); // add voice chat
 let localConfiguration = loadLocalStorage() || {};
 localConfiguration.voice = voice;
 localConfiguration.showSettings = voice || showSettings;
