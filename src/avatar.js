@@ -734,9 +734,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
         this.setPortalClipping();
 
-        let handlerModuleName = this.actor._cardData.avatarEventHandler;
-
         this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }) => {
+            let handlerModuleName = this.actor._cardData.avatarEventHandler;
             switch (command) {
                 case "frame-type":
                     const isPrimary = frameType === "primary";
@@ -773,13 +772,25 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
+                    } else {
+                        this.startMotion(dx, dy);
+                    }
                     break;
                 case "motion-end":
-                    this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
+                    } else {
+                        this.endMotion(dx, dy);
+                    }
                     break;
                 case "motion-update":
-                    this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
+                    } else {
+                        this.updateMotion(dx, dy);
+                    }
                     break;
             }
         }
@@ -838,6 +849,33 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     detach() {
         super.detach();
         dormantAvatarSpec = this.specForRevival();
+    }
+
+    startMotion(dx, dy) {
+        this.spin = q_identity();
+        this.velocity = v3_zero();
+        this.say("startFalling");
+        if (dx || dy) this.updateMotion(dx, dy);
+    }
+
+    endMotion(_dx, _dy) {
+        this.activeMMotion = false;
+        this.spin = q_identity();
+        this.velocity = v3_zero();
+    }
+
+    updateMotion(dx, dy) {
+        const JOYSTICK_V = 0.000030;
+        const MAX_V = 0.015;
+        const MAX_SPIN = 0.0004;
+
+        let v = dy * JOYSTICK_V;
+        v = Math.min(Math.max(v, -MAX_V), MAX_V);
+
+        const yaw = dx * (this.isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
+        this.spin = q_euler(0, yaw ,0);
+        this.velocity = [0, 0, v];
+        this.maybeLeavePresentation();
     }
 
     get presenting() {
@@ -1263,6 +1301,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     }
                 }
                 this.refreshCameraTransform();
+
+                // this part is copied from CardPawn.update()
+                // as we may not be calling super.update() all the time to avoid the smoothing logic from kicking in.
+                // We should think about cleaning up here.
+                if (this.updateRequests) {
+                    this.updateRequests.forEach((u) => {
+                        // [behaviorName, methodName]
+                        this.call(...u, time, delta);
+                    });
+                }
             }
         }
         this.updatePortalRender();
@@ -1796,7 +1844,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.lookYaw = q_yaw(this._rotation);
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
+            if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+                this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
+            }
         }
     }
 
