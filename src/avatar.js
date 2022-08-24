@@ -1085,11 +1085,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     // the camera when walking: based on avatar with 3rd person lookOffset
     walkLook() {
-        let behaviorManager = this.actor.behaviorManager;
-
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        let behavior = behaviorManager.lookup(handlerModuleName, "AvatarPawn");
-        if (behavior && behavior.$behavior && behavior.$behavior.walkLook) {
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "walkLook")) {
             return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
         }
 
