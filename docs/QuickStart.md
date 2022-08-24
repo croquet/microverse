@@ -89,8 +89,8 @@ A Croquet app like Microverse is deployed as a static web app. You do not need a
     One simple way is GitHub pages. Check your directory into git, publish to GitHub, and enable [pages](https://pages.github.com).
 
     Here's an example
-    * code: https://github.com/codefrau/microverse-neon
-    * live: https://codefrau.github.io/microverse-neon/
+    * code: [github.com/codefrau/microverse-neon](https://github.com/codefrau/microverse-neon)
+    * live: [codefrau.github.io/microverse-neon](https://codefrau.github.io/microverse-neon/)
 
     Note: you see I checked in my `apiKey.js`. Unlike server-side API keys, client-side API keys are not a secret. Anyone looking at the code on your website can see it. Instead, it is protected by the URL restriction, it will only work on your own website, not on anyone else's (if they were to copy it).
 
