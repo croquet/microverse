@@ -64,6 +64,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("continueFollowing", this.continueFollowing);
         this.listen("stopPresentation", this.stopPresentation);
         this.listen("inWorldSet", this.inWorldSet);
+        this.listen("nameSet", this.nameSet);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
         this.listen("textPasted", this.textPasted);
@@ -72,7 +73,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
         this.listen("setAvatarData", "setAvatarData");
-        this.listen("avatarCardSpecChanged", this.avatarCardSpecChanged);
         this.future(0).tick();
     }
 
@@ -160,6 +160,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
         if (v) this.ensureNicknameCard();
+    }
+
+    nameSet({o, v}) {
+        if (o !== v) this.ensureNicknameCard();
     }
 
     startFalling() {
@@ -251,7 +255,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     followMeToWorld(presenterTransferData) {
         // presenterTransferData is the same as the spec this avatar will use to enter
-        // the new world, minus its cardData.
+        // the new world, minus its cardData and name.
         // first confirm that we are indeed still the presenter.
         const manager = this.service("PlayerManager");
         if (manager.presentationMode === this.playerId) {
@@ -494,7 +498,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         console.log("setAvatarData", options);
         this.setupAvatarBehavior(options);
         this.updateOptions(options);
-        this.ensureNicknameCard();
+        // this.ensureNicknameCard(); handled separately
     }
 
     setupAvatarBehavior(options) {
@@ -514,10 +518,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 }
             }
         }
-    }
-
-    avatarCardSpecChanged(cardSpec) {
-        this.setAvatarData(cardSpec);
     }
 }
 
@@ -805,7 +805,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             avatarSpec = actorSpec.cardData;
         } else {
             actorSpec = { inWorld };
-            avatarSpec = {...actorSpec};
             const anchor = this.anchorFromURL(window.location, !this.isPrimary);
             if (anchor) {
                 actorSpec.anchor = anchor; // actor or {translation, rotation}
@@ -814,11 +813,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
             let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration);
             actorSpec = {...actorSpec, ...tempCardSpec};
-            avatarSpec = {...avatarSpec, ...tempCardSpec};
+            avatarSpec = {...tempCardSpec};
         }
 
         this.say("_set", actorSpec);
-        this.say("avatarCardSpecChanged", avatarSpec); // NB: after setting actor's name
+        this.say("setAvatarData", avatarSpec); // NB: after setting actor's name
         this.say("resetStartPosition");
 
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
@@ -1149,6 +1148,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const actorSpec = {
             inWorld: enteringWorld,
         };
+
+        // portal-enter and world-enter provide cardData so avatar can keep its
+        // appearance.
+        if (spec?.cardData) actorSpec.cardData = spec.cardData;
+        if (spec?.name) actorSpec.name = spec.name;
+
         // a portal transition under our own steam specifies translation, rotation etc
         if (enteringWorld && spec?.translation) {
             let { translation, rotation } = spec;
@@ -1171,8 +1176,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // move actor to the right place
             actorSpec.translation = translation;
             actorSpec.rotation = rotation;
-            // keep avatar appearance
-            actorSpec.cardData = spec.cardData;
             // move pawn to the right place
             this._translation = translation;
             this._rotation = rotation;
@@ -1181,21 +1184,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (spec.lookPitch) this.lookPitch = spec.lookPitch;
             if (spec.lookYaw) this.lookYaw = spec.lookYaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
-            this.say("setAvatarData", spec.cardData || {});
         }
-        // portal-enter and world-enter provide cardData so avatar can keep its
-        // appearance.
-        if (spec?.cardData) actorSpec.cardData = spec.cardData;
-        if (spec?.name) actorSpec.name = spec.name;
         if (leavingWorld) {
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
             this.call(`${handlerModuleName}$AvatarPawn`, "endMotion");
         }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
+        // the actor handling of _set (in Actor.set) applies the specified properties
+        // in alphabetical order, each property triggering a say(`${propname}Set`).
         this.say("_set", actorSpec);
-        // start presenting and following in new space too
         if (enteringWorld) {
+            this.say("setAvatarData", actorSpec.cardData || {}); // NB: after setting actor's name
+            // start presenting and following in new space too
             if (spec?.presenting) {
                 let manager = this.actor.service("PlayerManager");
                 if (!manager.presentationMode) {
@@ -1214,6 +1215,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             console.log(`${frameName()} sending world-enter to ${url} following: ${following}`);
             this.setWorldSwitchFreeze(true);
             followerTransferData.cardData = this.actor._cardData;
+            followerTransferData.name = this.actor._name;
             sendToShell("world-enter", { portalURL: url, transferData: followerTransferData });
         } else {
             console.log(`${frameName()} not sending world-enter to ${url}`);
@@ -1607,7 +1609,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             sendToShell("portal-enter", { portalId: portal.portalId, transferData });
             // if we were presenting, tell followers to come with us
             if (this.presenting) {
-                const { cardData: _cd, ...presenterTransferData } = transferData;
+                const { cardData: _cd, name: _n, ...presenterTransferData } = transferData;
                 this.say("followMeToWorld", presenterTransferData);
                 // calls followToWorld() in followers
                 // which will result in frameTypeChanged() on follower's clients
@@ -2000,12 +2002,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return options;
     }
 
-    // setSettings(configuration) {
-    //     console.log(configuration);
-    //     // let cardSpec = this.makeCardSpecFrom(configuration);
-    //     // this.publish("playerManager", "setAvatarCardSpec", {playerId: this.viewId, cardSpec: cardSpec});
-    // }
-
     showSettingsMenu() {
         if (document.body.querySelector("#joinDialog")) {return;}
         let promise = new Promise((resolve, _reject) => {
@@ -2016,7 +2012,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 const configuration = window.settingsMenuConfiguration;
                 sendToShell("update-configuration", { localConfig: configuration });
                 let cardSpec = this.makeCardSpecFrom(configuration);
-                this.say("avatarCardSpecChanged", cardSpec);
+                this.say("setAvatarData", cardSpec);
             }
         });
     }
