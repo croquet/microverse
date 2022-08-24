@@ -711,7 +711,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
             this.setupAnimation(obj);
-            obj.updateMatrixWorld(true);
+            obj.updateMatrixWorld(true); // @@ not sure whose benefit this is for, given that obj isn't yet in the scene graph
 
             if (options.placeholder) {
                 console.log("delete collider for placeholder");
@@ -729,6 +729,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             // place this after collider construction
             // or collider incorporates shape transform
             this.shape.add(obj);
+
+            obj.updateMatrixWorld(true); // now sort out where everything is, before announcing model load
 
             if (name) {obj.name = name;}
 

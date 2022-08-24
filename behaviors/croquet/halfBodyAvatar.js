@@ -3,17 +3,11 @@ class AvatarActor {
         this._cardData.animationClipIndex = 9;
         this.say("animationStateChanged");
         this.listen("poseAvatarRequest", "poseAvatar");
-        this.listen("inWorldSet", "inWorldSet");
     }
 
     poseAvatar(data) {
         this.lastPose = data;
         this.say("avatarPosed", data);
-    }
-
-    inWorldSet() {
-        // don't hold onto a pose across world entry/exit
-        delete this.lastPose;
     }
 }
 
