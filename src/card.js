@@ -739,7 +739,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             delete this._model3dLoading;
             this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
-        }).catch(_err => { console.log("caught error");
+        }).catch(_err => {
             delete this._model3dLoading;
         });
     }
