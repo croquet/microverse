@@ -628,35 +628,6 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         super.removeChild(id);
         delete this.lastOpacity;
     }
-
-    /*
-    setOpacity(opacity) {
-        if (!this.shape) {return;}
-        let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
-            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
-        }
-
-        let transparent = opacity !== 1;
-        let visible = this.actor.inWorld && opacity !== 0;
-        this.shape.visible = visible;
-        this.shape.traverse(n => {
-            if (n.material && n.material.opacity !== opacity) {
-                n.material.opacity = opacity;
-                n.material.transparent = transparent;
-                n.material.side = THREE.DoubleSide;
-                n.material.needsUpdate = true;
-            }
-        });
-        // don't mess with opacity levels of children, but make them
-        // visible or invisible appropriately
-        if (this._children) {
-            for (let c of this._children) {
-                if (c.shape) c.shape.visible = visible;
-            }
-        }
-    }
-    */
 }
 
 let dormantAvatarSpec = null;
@@ -1914,20 +1885,25 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             const inWorld = pawn.actor.inWorld;
             // don't try to set (and record) opacity until the avatar has its model
             if (!pawn.modelHasLoaded || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
+
             pawn.lastOpacity = opacity;
             pawn.lastInWorld = inWorld;
-            // pawn.setOpacity(opacity);
 
-            if (!pawn.shape) {return;}
+            let origOpacity = opacity;
+
             let handlerModuleName = pawn.actor._cardData.avatarEventHandler;
             if (pawn.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
                 opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", this, opacity);
             }
 
+            let model = pawn.shape.children[0];
+
+            if (!model) {return;}
+
             let transparent = opacity !== 1;
             let visible = pawn.actor.inWorld && opacity !== 0;
-            pawn.shape.visible = visible;
-            pawn.shape.traverse(n => {
+            model.visible = visible;
+            model.traverse(n => {
                 if (n.material && n.material.opacity !== opacity) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;
@@ -1941,6 +1917,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 for (let c of pawn._children) {
                     if (c.shape) c.shape.visible = visible;
                 }
+            }
+
+            let ghostfoot = this.shape.getObjectByName("ghostfoot");
+            if (ghostfoot) {
+                ghostfoot.visible = pawn.actor.inWorld && origOpacity !== 0;
             }
         };
 
@@ -1975,37 +1956,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         super.removeChild(id);
         delete this.lastOpacity;
     }
-
-    /*
-
-    setOpacity(opacity) {
-        if (!this.shape) {return;}
-        let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
-            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
-        }
-
-        let transparent = opacity !== 1;
-        let visible = this.actor.inWorld && opacity !== 0;
-        this.shape.visible = visible;
-        this.shape.traverse(n => {
-            if (n.material && n.material.opacity !== opacity) {
-                n.material.opacity = opacity;
-                n.material.transparent = transparent;
-                n.material.side = THREE.DoubleSide;
-                n.material.needsUpdate = true;
-            }
-        });
-        // don't mess with opacity levels of children, but make them
-        // visible or invisible appropriately
-        if (this._children) {
-            for (let c of this._children) {
-                if (c.shape) c.shape.visible = visible;
-            }
-        }
-    }
-
-    */
 
     makeCardSpecFrom(configuration) {
         if (!configuration.type) {

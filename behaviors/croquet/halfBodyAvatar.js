@@ -144,7 +144,7 @@ class AvatarPawn {
 
         let circle = new Microverse.THREE.CircleGeometry(0.3, 32);
         circle.rotateX(-Math.PI / 2);
-        let material = new Microverse.THREE.MeshBasicMaterial({color: 0x666666});
+        let material = new Microverse.THREE.MeshBasicMaterial({color: 0x666666, opacity: 0.3, transparent: true});
         foot = new Microverse.THREE.Mesh(circle, material);
         foot.position.set(0, -1.6, 0);
         foot.name = "ghostfoot";
@@ -243,7 +243,7 @@ class AvatarPawn {
         // console.log(this.actor._cardData.animationClipIndex);
         if (!pointing) {
             hand.rotation.set(Math.PI, hFactor * Math.PI / 2, 0);
-            hand.position.set(...v3_add(elbowPos, [0, -0.2, -0.2]));
+            hand.position.set(...v3_add(elbowPos, [0, -0.25, -0.3]));
             this.say("setAnimationClipIndex", 0);
         } else {
             this.say("setAnimationClipIndex", this.handedness === "Left" ? 12 : 9);
