@@ -8,13 +8,14 @@
 
     npm start
 
+---
 ## Introduction
 
 This guide will enable you to quickly set up your own Croquet Microverse project. Refer to tutorials in the [docs directory](index.md) for its key concepts and features that let you build shared worlds.
 
 ### Prerequisites
 
-1. [Node](https://nodejs.org/)
+1. [Node.js](https://nodejs.org/)
 2. Web browser (we recommend [Chrome](https://chrome.google.com/) at this time)
 
 Our tools are written in JavaScript and need Node.js to run. In particular the `npm` command provided by Node is used to install JS packages.
@@ -41,7 +42,7 @@ The users of your worlds do not need these tools. Microverse worlds are deployed
 
 ---
 ## Video Walkthrough
-Here's a video walkthrough of the steps: https://vimeo.com/739770287
+Here's a video walkthrough of the steps: [vimeo.com/739770287](https://vimeo.com/739770287)
 
 
 [![Walkthrough](https://croquet.io/images/videos/thumbnails/howto-microverse.jpg)](https://vimeo.com/739770287)
@@ -91,6 +92,8 @@ A Croquet app like Microverse is deployed as a static web app. You do not need a
     * code: https://github.com/codefrau/microverse-neon
     * live: https://codefrau.github.io/microverse-neon/
 
+    Note: you see I checked in my `apiKey.js`. Unlike server-side API keys, client-side API keys are not a secret. Anyone looking at the code on your website can see it. Instead, it is protected by the URL restriction, it will only work on your own website, not on anyone else's (if they were to copy it).
+
 ---
 ## Updating
 
@@ -103,11 +106,12 @@ This will update your `package.json` and the installed version of Microverse to 
 ---
 ## Resources
 
-* Documentation:
-  - [Microverse](index.md) tutorials etc
+### Documentation
+  - [Microverse](index.md) tutorials etc.
   - [CroquetOS](https://croquet.io/docs/croquet/) the underlying multiplayer OS
   - [WorldCore](https://croquet.io/docs/worldcore) the underlying game engine
-* [Help](https://croquet.io/discord/)
+
+### Help
 
    The best resource for help in developing Croquet Microverse worlds is our Discord community. The Croquet Discord server is where you can chat with fellow developers, ask questions, and show off your own creations. Join the [Croquet Discord server](https://croquet.io/discord/).
 
