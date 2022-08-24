@@ -1281,16 +1281,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.call(`${handlerModuleName}$AvatarPawn`, "walk", time, delta, vq);
                 } else {
                     if (this.collidePortal(vq)) {return;}
-                    if (!this.checkFloor(vq)) {
-                        // if the new position leads to a position where there is no walkable floor below
-                        // it tries to move the avatar the opposite side of the previous good position.
-                        vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
-                    } else {
-                        this.lastCollideTranslation = vq.v;
-                    }
                     if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
                         if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                             this.lastCollideTime = time;
+                            vq = this.checkFall(vq);
                             vq = this.walkTerrain(vq);
                         }
                         this.lastUpdateTime = time;
@@ -1429,6 +1423,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         return someFloor;
+    }
+
+    checkFall(vq) {
+        if (!this.isFalling) {return vq;}
+        let v = vq.v;
+        v = [v[0], v[1] - this.actor.fallDistance, v[2]];
+        this.isFalling = false;
+        if (v[1] < MAX_FALL) {
+            this.goHome();
+            return {v: v3_zero(), q: q_identity()};
+        }
+        return {v: v, q: vq.q};
     }
 
     collideBVH(collideList, vq) {
@@ -1670,20 +1676,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let v = vq.v;
 
-        if (this.isFalling) {
-            v = [v[0], v[1] - this.actor.fallDistance, v[2]];
-            this.isFalling = false;
-            if (v[1] < MAX_FALL) {
-                this.goHome();
-                return {v: v3_zero(), q: q_identity()};
-            }
-        }
-
         let collideList = walkLayer.filter(obj => obj.collider);
         if (collideList.length > 0) {
-            let a = this.collideBVH(collideList, {v, q: vq.q});
-            window.abc = a;
-            return a;
+            return this.collideBVH(collideList, {v, q: vq.q});
         }
         return vq;
     }
