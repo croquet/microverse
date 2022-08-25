@@ -41,15 +41,16 @@ class HillsidePawn {
         let grass_T = this.loadTextureAsset("./assets/hillside/images/grass.jpg");
         let terrain1_T = this.loadTextureAsset("./assets/hillside/images/terrain1.jpg");
         let terrain2_T = this.loadTextureAsset("./assets/hillside/images/terrain2.jpg");
-        let skydome_T = this.loadTextureAsset("./assets/hillside/images/skydome.jpg");
-        let skyenv_T = this.loadTextureAsset("./assets/hillside/images/skyenv.jpg");
+        let waterNormals = this.loadTextureAsset("./assets/hillside/images/waternormals.jpg");
+       // let skydome_T = this.loadTextureAsset("./assets/hillside/images/skydome.jpg");
+       // let skyenv_T = this.loadTextureAsset("./assets/hillside/images/skyenv.jpg");
         // shaders
         let grassVert = await fetch('./assets/hillside/shader/grass.vert.glsl').then((resp) => resp.text());
         let grassFrag = await fetch('./assets/hillside/shader/grass.frag.glsl').then((resp) => resp.text());
         let terrainVert = await fetch('./assets/hillside/shader/terrain.vert.glsl').then((resp) => resp.text());
         let terrainFrag = await fetch('./assets/hillside/shader/terrain.frag.glsl').then((resp) => resp.text());
-        let waterVert = await fetch('./assets/hillside/shader/water.vert.glsl').then((resp) => resp.text());
-        let waterFrag = await fetch('./assets/hillside/shader/water.frag.glsl').then((resp) => resp.text());
+ //       let waterVert = await fetch('./assets/hillside/shader/water.vert.glsl').then((resp) => resp.text());
+ //       let waterFrag = await fetch('./assets/hillside/shader/water.frag.glsl').then((resp) => resp.text());
 
         return Promise.all([
             import("/assets/hillside/src/skydome.js"),
@@ -57,8 +58,9 @@ class HillsidePawn {
             import("/assets/hillside/src/grass.js"),
             import("/assets/hillside/src/terrain.js"),
             import("/assets/hillside/src/terramap.js"),
-            import("/assets/hillside/src/water.js"),
-            import("/assets/hillside/src/simplex.js"),
+            // import("/assets/hillside/src/water.js"),
+            import("/assets/hillside/src/WaterReflector.js"),
+            import("/assets/hillside/src/simplex.js")
         ]).then(([skydome_S, heightfield_S, grass_S, terrain_S, terramap_S, water_S, simplex_S]) => {
 
             var BEACH_TRANSITION_LOW = 0.31;
@@ -72,6 +74,7 @@ class HillsidePawn {
             this.shape.children = []; // ??
 
             this.group = new THREE.Group();
+            this.group.rotation.x=-Math.PI/2;
             this.shape.add(this.group);
             this.group.position.y=-0.430*this.heightFieldHeight/2;
             this.group.scale.set(this.scaleHill,this.scaleHill,this.scaleHill);
@@ -134,8 +137,11 @@ console.log("tMap:", tMap);
 
             this.terrain.mesh.renderOrder = 20;
             this.group.add(this.terrain.mesh);
-            this.group.rotation.x=-Math.PI/2;
+
+
+            //console.log(water_S.Water);
             //scene.add(meshes.terrain);
+            /*
             this.water = new water_S.Water({
                 envMap: skyenv_T,
                 vertScript: waterVert,
@@ -149,31 +155,28 @@ console.log("tMap:", tMap);
             this.water.mesh.renderOrder = 40;
             this.water.mesh.position.z = this.waterLevel;
             this.group.add(this.water.mesh);
+            */
+            const waterGeometry = new THREE.PlaneGeometry( 1000, 1000 );
+            waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
+            let sunVector = new THREE.Vector3(1,1,0);
+            sunVector.normalize();
+            this.water = new water_S.Water(
+                waterGeometry,
+                {
+                    textureWidth: 512,
+                    textureHeight: 512,
+                    waterNormals: waterNormals,
+                    sunDirection: sunVector,
+                    sunColor: 0xffffff,
+                    waterColor: 0x001eff,
+                    distortionScale: 3.7,
+                    fog: scene.fog !== undefined
+                }
+            );
+        this.water.position.z = this.waterLevel;
+        this.group.add(this.water);
 console.log("GROUP:", this.shape, this.group)
 
-console.log(this.walkLook)
-            // Create the earth
-/*
-            const SHADOWRADIUS = 3.95; // size of the earth (water)
-            const BASERADIUS = 4;      // size of the earth (land)
-            const earthbase = `./assets/images/earthbase.png`;
-            const earthshadow = `./assets/images/earthshadow.jpg`;
-            let earthBaseTexture = this.loadTextureAsset(earthbase);
-            let earthShadowTexture = this.loadTextureAsset(earthshadow);
-
-            this.shadowSphere = new THREE.Mesh(
-                new THREE.SphereGeometry(SHADOWRADIUS, 64, 64),
-                new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: 0xaaaaaa, roughness: 0.7, opacity:0.9, transparent: true }));
-            this.shadowSphere.receiveShadow = true;
-            this.shape.add(this.shadowSphere);
-
-            this.baseSphere = new THREE.Mesh(
-                new THREE.SphereGeometry(BASERADIUS, 64, 64),
-                new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: 0x22ee22, roughness: 0.7, opacity:0.9, transparent: true }));
-            this.baseSphere.receiveShadow = true;
-            this.baseSphere.castShadow = true;
-            this.shape.add(this.baseSphere);
-            */
         });
     }
 
@@ -226,7 +229,10 @@ console.log(this.walkLook)
             cameraDir.set(cameraDir.x, cameraDir.z, cameraDir.y);
             this.grass.update(t*0.001, cameraDir, drawPos);
             this.terrain.update(avatarPos.x, avatarPos.y);
-            this.water.update(avatarPos);
+           // this.water.update(avatarPos);
+            this.water.position.x=drawPos.x;
+            this.water.position.y=drawPos.y;
+           this.water.material.uniforms[ 'time' ].value = t*0.0005;
         }
     /*
         this.terrain.update(ppos.x, ppos.y);
