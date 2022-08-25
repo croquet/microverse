@@ -17,12 +17,17 @@ class HillsidePawn {
         this.grassPatchRadius = 175.0;
         this.heightFieldSize = 3072.0;
         this.heightFieldHeight = 180.0;
+        this.scaleHill = 0.4;
         this.waterLevel = this.heightFieldHeight * 0.305556;
         this.fogColor = new THREE.Color(0.74, 0.77, 0.91);
         this.grassColor = new THREE.Color(0.45, 0.46, 0.19);
         this.waterColor = new THREE.Color(0.6, 0.7, 0.85);
-        this.fogDist = this.grassPatchRadius * 20.0;
-        this.grassFogDist = this.grassPatchRadius * 2.0;
+        this.fogDist = this.scaleHill*this.grassPatchRadius * 20.0;
+        this.grassFogDist = this.scaleHill*this.grassPatchRadius * 2.0;
+
+        const scene = this.service("ThreeRenderManager").scene;
+        scene.fog = new THREE.Fog(this.fogColor.getHex(), 0.1, this.fogDist);
+
         this.constructHillside();
         this.listen("updateWorld", this.update)
     }
@@ -68,8 +73,8 @@ class HillsidePawn {
 
             this.group = new THREE.Group();
             this.shape.add(this.group);
-            this.group.position.y=-0.25*this.heightFieldHeight/2;
-            this.group.scale.set(0.25,0.25,0.25);
+            this.group.position.y=-0.430*this.heightFieldHeight/2;
+            this.group.scale.set(this.scaleHill,this.scaleHill,this.scaleHill);
             // Setup heightfield
             var hfCellSize = this.heightFieldSize / heightmap_I.width;
             var heightMapScale = new THREE.Vector3(1.0 / this.heightFieldSize, 1.0 / this.heightFieldSize, this.heightFieldHeight);
@@ -198,8 +203,32 @@ console.log(this.walkLook)
     }
 
     update(t){
-/*
-        this.grass.update(t, pdir, drawPos);
+        let avatar = Microverse.GetPawn( this.actor.service("PlayerManager").players.get(this.viewId).id);
+        if(this.grass && avatar){
+            const camera = this.service("ThreeRenderManager").camera;
+
+            let cameraPos = camera.getWorldPosition(new THREE.Vector3())
+            let cameraDir = camera.getWorldDirection(new THREE.Vector3());
+            if(cameraDir.y!==1.0){
+                cameraDir.y = 0;
+                cameraDir.normalize();
+            }
+
+        //    var drawPos = new THREE.Vector2(cameraPos.x + cameraDir.x * this.grassPatchRadius, 
+        //        cameraPos.z + cameraDir.z * this.grassPatchRadius);
+
+//var drawPos = new THREE.Vector2(4*cameraPos.x, -4*cameraPos.z);
+//drawPos = new THREE.Vector2(4*cameraPos.x+cameraDir.x * this.grassPatchRadius,0);
+            let scaleLoc = 1/this.scaleHill;
+            var avatarPos = new THREE.Vector2(scaleLoc*avatar.translation[0],-scaleLoc*avatar.translation[2])
+            var drawPos = new THREE.Vector2(avatarPos.x+cameraDir.x*this.grassPatchRadius, 
+                avatarPos.y-cameraDir.z*this.grassPatchRadius);
+            cameraDir.set(cameraDir.x, cameraDir.z, cameraDir.y);
+            this.grass.update(t*0.001, cameraDir, drawPos);
+            this.terrain.update(avatarPos.x, avatarPos.y);
+            this.water.update(avatarPos);
+        }
+    /*
         this.terrain.update(ppos.x, ppos.y);
         this.water.update(ppos);
         */
@@ -208,10 +237,13 @@ console.log(this.walkLook)
     teardown() {
         let assetManager = this.service("AssetManager").assetManager;
 
-        const earthbase = `./assets/images/earthbase.png`;
-        const earthshadow = `./assets/images/earthshadow.jpg`;
-        assetManager.revoke(earthbase, this.id);
-        assetManager.revoke(earthshadow, this.id);
+        assetManager.revoke("./assets/hillside/images/heightmap.jpg", this.id);
+        assetManager.revoke("./assets/hillside/images/noise.jpg", this.id);
+        assetManager.revoke("./assets/hillside/images/grass.jpg", this.id);
+        assetManager.revoke("./assets/hillside/images/terrain1.jpg", this.id);
+        assetManager.revoke("./assets/hillside/images/terrain2.jpg", this.id);
+        assetManager.revoke("./assets/hillside/images/skydome.jpg", this.id);        
+        assetManager.revoke("./assets/hillside/images/skyenv.jpg", this.id);
     }
 }
 

@@ -1,4 +1,4 @@
-// tutorial1.js
+// hills.js
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
@@ -16,7 +16,7 @@ export function init(Constants) {
     const frameColor = 0x888888;
 
     Constants.DefaultCards = [
-       {
+/*       {
             card: {
                 name:"world model",
                 behaviorModules: ["GridFloor"],
@@ -25,13 +25,15 @@ export function init(Constants) {
                 translation:[0, -2, 0],
                 shadow: true,
             }
-        },   
+        },   */
         {
             card: {
                 name: "light",
                 layers: ["light"],
                 type: "lighting",
-                behaviorModules: ["Light"],
+                behaviorModules: ["Lights"],
+                dataType: "jpg",
+                dataLocation: "./assets/sky/aboveClouds.jpg",
                 clearColor: 0xaabbff,
             }
         },
