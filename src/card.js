@@ -365,7 +365,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     setAnimationClipIndex(animationClipIndex) {
         // called when a view loads a 3D model and detects that it has animation clips.
-        if (this._cardData.animationClipIndex !== undefined) {return;}
         this._cardData.animationClipIndex = animationClipIndex;
         if (this._cardData.animationStartTime === undefined) this._cardData.animationStartTime = this.now();
         this.say("animationStateChanged");
@@ -518,6 +517,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         this.listen("saveCard", this.saveCard);
         this.listen("animationStateChanged", this.tryStartAnimation);
+        this.animationInterval = null;
         this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
         this.constructCard();
     }
@@ -633,6 +633,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         delete this.name;
         delete this.properties2D;
         delete this.animationSpec;
+        if (this.animationInterval) {
+            clearInterval(this.animationInterval);
+            this.animationInterval = null;
+        }
 
         this.cleanupColliderObject();
 
@@ -711,7 +715,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
             this.setupAnimation(obj);
-            obj.updateMatrixWorld(true);
+            obj.updateMatrixWorld(true); // @@ not sure whose benefit this is for, given that obj isn't yet in the scene graph
 
             if (options.placeholder) {
                 console.log("delete collider for placeholder");
@@ -730,6 +734,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             // or collider incorporates shape transform
             this.shape.add(obj);
 
+            obj.updateMatrixWorld(true); // now sort out where everything is, before announcing model load
+
             if (name) {obj.name = name;}
 
             if (Array.isArray(obj.material)) {
@@ -739,7 +745,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             delete this._model3dLoading;
             this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
-        }).catch(_err => { console.log("caught error");
+        }).catch(_err => {
             delete this._model3dLoading;
         });
     }
@@ -976,10 +982,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (!obj._croquetAnimation) {return;}
 
         let spec = obj._croquetAnimation;
-        this.animationSpec = spec;
-        if (this.actor._cardData.animationClipIndex === undefined && spec.animations.length > 0) {
-            this.say("setAnimationClipIndex", 0); // use the first animation clip as default
-        } else {
+        if (spec) {
+            this.animationSpec = spec;
             this.tryStartAnimation();
         }
     }
@@ -1240,22 +1244,27 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     tryStartAnimation() {
-        if (this.actor._cardData.animationClipIndex !== undefined
-            && !this.animationRunning
-            && this.animationSpec) {
-            this.animationRunning = true;
-            this.runAnimation();
+        if (this.actor._cardData.animationClipIndex === undefined && this.animationSpec?.animations.length > 0) {
+            this.say("setAnimationClipIndex", 0);
+            // use the first animation clip as default. Some views may call this at the same time,
+            // but that should be okay
         }
+        this.runAnimation();
     }
 
     runAnimation() {
-        if (!this.animationRunning) {return;}
         let spec = this.animationSpec;
         if (!spec) {
-            this.annimationRunning = false;
+            if (this.animationInterval) {
+                clearInterval(this.animationInterval);
+                this.animationInterval = null;
+            }
             return;
         }
-        this.future(50).runAnimation();
+
+        if (!this.animationInterval) {
+            this.animationInterval = setInterval(() => this.runAnimation(), 50)
+        }
 
         let animationClipIndex = this.actor._cardData.animationClipIndex;
         if (animationClipIndex === undefined) {return;}

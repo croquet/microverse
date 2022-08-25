@@ -3,17 +3,11 @@ class AvatarActor {
         this._cardData.animationClipIndex = 9;
         this.say("animationStateChanged");
         this.listen("poseAvatarRequest", "poseAvatar");
-        this.listen("inWorldSet", "inWorldSet");
     }
 
     poseAvatar(data) {
         this.lastPose = data;
         this.say("avatarPosed", data);
-    }
-
-    inWorldSet() {
-        // don't hold onto a pose across world entry/exit
-        delete this.lastPose;
     }
 }
 
@@ -53,39 +47,18 @@ class AvatarPawn {
 
         this.addLastResponder("keyUp", {ctrlKey: true}, this);
         this.addEventListener("keyUp", this.keyUp);
-    }
-
-    startMotion(dx, dy) {
-        this.spin = Microverse.q_identity();
-        this.velocity = Microverse.v3_zero();
-        this.say("startFalling");
-        if (dx || dy) this.updateMotion(dx, dy);
-    }
-
-    endMotion(_dx, _dy) {
-        this.activeMMotion = false;
-        this.spin = Microverse.q_identity();
-        this.velocity = Microverse.v3_zero();
-    }
-
-    updateMotion(dx, dy) {
-        const JOYSTICK_V = 0.000030;
-        const MAX_V = 0.015;
-        const MAX_SPIN = 0.0004;
-
-        let v = dy * JOYSTICK_V;
-        v = Math.min(Math.max(v, -MAX_V), MAX_V);
-
-        const yaw = dx * (this.isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
-        this.spin = Microverse.q_euler(0, yaw ,0);
-        this.velocity = [0, 0, v];
-        this.maybeLeavePresentation();
+        this.addUpdateRequest(["HalfBodyAvatarEventHandler$AvatarPawn", "maybeMove"]);
     }
 
     handlingEvent(type, target, event) {
         if (type.startsWith("pointer")) {
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(event.xy, render.threeLayerUnion('pointer', "walk"));
+            let rc;
+            if (type === "pointerDown") {
+                rc = this.pointerRaycast(event.xy, render.threeLayerUnion('pointer', "walk"));
+            } else {
+                rc = this.pointerRaycast(event.xy, render.threeLayerUnion("walk"));
+            }
             let p3e = this.pointerEvent(rc, event);
             this.move(type, p3e.xyz);
         }
@@ -142,7 +115,7 @@ class AvatarPawn {
 
         let otherHand = this.bones.get(this.otherHandName);
         if (otherHand) {
-            otherHand.position.set(0, -10000, 0);
+            otherHand.position.set();
         }
 
         this.moveHand([0, 1, -100]);
@@ -171,7 +144,7 @@ class AvatarPawn {
 
         let circle = new Microverse.THREE.CircleGeometry(0.3, 32);
         circle.rotateX(-Math.PI / 2);
-        let material = new Microverse.THREE.MeshBasicMaterial({color: 0x666666});
+        let material = new Microverse.THREE.MeshBasicMaterial({color: 0x666666, opacity: 0.3, transparent: true});
         foot = new Microverse.THREE.Mesh(circle, material);
         foot.position.set(0, -1.6, 0);
         foot.name = "ghostfoot";
@@ -181,17 +154,21 @@ class AvatarPawn {
 
     move(type, xyz) {
         if (!xyz) {return;}
-        this.say("poseAvatarRequest", {type, coordinates: xyz}, 30);
+        this.say("poseAvatarRequest", {type, coordinates: xyz, pointing: true}, 30);
     }
 
     avatarPosed(data) {
         if (!this.bones) {return;}
-        let {type, coordinates} = data;
-        if (type === "pointerMove") {
+        let {type, coordinates, pointing} = data;
+        if (type === "pointerMove" || type === "move") {
             this.moveHead(coordinates);
         }
-        if (type === "keyDown" || type === "pointerDown" || type === "pointerUp" || type === "pointerTap") {
-            this.moveHand(coordinates);
+        let pointingChanged = this.isPointing !== pointing;
+        if (pointingChanged) {
+            this.isPointing = pointing;
+        }
+        if (type === "keyDown" || type === "pointerDown" || type === "pointerUp" || type === "pointerTap" || pointingChanged) {
+            this.moveHand(coordinates, pointing);
         }
     }
 
@@ -238,11 +215,12 @@ class AvatarPawn {
         rightEye.rotation.set(q_pitch(eyeQ), q_yaw(eyeQ), q_roll(eyeQ));
     }
 
-    moveHand(xyz) {
+    moveHand(xyz, pointing) {
         let {
             THREE,
             q_euler, q_pitch, q_yaw, q_roll, q_lookAt, q_multiply,// q_identity,
             v3_normalize, v3_rotate, v3_add} = Microverse;
+
         let len = 0.6582642197608948 * 0.3;
         let hFactor = this.handedness === "Left" ? -1 : 1;
         let elbowPos = [-len * hFactor, 0, 0.2];
@@ -260,24 +238,32 @@ class AvatarPawn {
 
         global.multiply(dataRotation);
         global.multiply(elbowOffset);
-
         global.invert();
 
-        let local = new Microverse.THREE.Vector3(...xyz);
-        local.applyMatrix4(global);
-        let normLocal = v3_normalize(local.toArray());
-        let normHere = [0, 0, -1];
+        // console.log(this.actor._cardData.animationClipIndex);
+        if (!pointing) {
+            hand.rotation.set(Math.PI, hFactor * Math.PI / 2, 0);
+            hand.position.set(...v3_add(elbowPos, [0, -0.25, -0.3]));
+            this.say("setAnimationClipIndex", 0);
+        } else {
+            this.say("setAnimationClipIndex", this.handedness === "Left" ? 12 : 9);
+            // the index into the left hand pointing finger animation is not determined yet. tryAnimation has an issue
+            // to reliably have at most one animation loop.
+            let local = new Microverse.THREE.Vector3(...xyz);
+            local.applyMatrix4(global);
+            let normLocal = v3_normalize(local.toArray());
+            let normHere = [0, 0, -1];
 
-        let allQ = q_lookAt(normHere, [0, 1, 0], normLocal);
+            let allQ = q_lookAt(normHere, [0, 1, 0], normLocal);
 
-        // console.log("hand", q_pitch(allQ), q_yaw(allQ), q_roll(allQ));
+            // console.log("hand", q_pitch(allQ), q_yaw(allQ), q_roll(allQ));
 
-        let tQ = q_euler(-q_pitch(allQ), q_roll(allQ), -q_yaw(allQ));
+            let tQ = q_euler(-q_pitch(allQ), q_roll(allQ), -q_yaw(allQ));
 
-        let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, hFactor * 1.3, 0), tQ);
-        hand.rotation.set(q_pitch(handQ), q_yaw(handQ), q_roll(handQ));
-        hand.position.set(...v3_add(elbowPos, v3_rotate(handPos, tQ)));
-
+            let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, hFactor * 1.3, 0), tQ);
+            hand.rotation.set(q_pitch(handQ), q_yaw(handQ), q_roll(handQ));
+            hand.position.set(...v3_add(elbowPos, v3_rotate(handPos, tQ)));
+        }
     }
 
     up(p3d) {
@@ -298,6 +284,19 @@ class AvatarPawn {
         return m4_multiply(m3, this.global);
     }
 
+    maybeMove() {
+        let velocity = Microverse.v3_magnitude(this.velocity);
+        let moving = velocity > 0.001;
+
+        let movingChanged = this.moving !== moving;
+
+        if (movingChanged) {
+            this.moving = moving;
+            let xyz = Microverse.v3_rotate([0, 0, -10], this.rotation);
+            this.say("poseAvatarRequest", {type: "move", coordinates: xyz, pointing: !this.moving}, 30);
+        }
+    }
+
     mapOpacity(avatar, opacity) {
         if (this._target === avatar && Microverse.v3_magnitude(this.lookOffset) < 0.8) {return 0;}
         if (opacity === 0 || opacity === 1) {return opacity;}
@@ -305,6 +304,7 @@ class AvatarPawn {
     }
 
     teardown() {
+        this.removeUpdateRequest(["HalfBodyAvatarEventHandler$AvatarPawn", "maybeMove"]);
         if (!this.isMyPlayerPawn) {return;}
         console.log("avatar event handler detached");
         this.removeFirstResponder("pointerTap", {ctrlKey: true, altKey: true}, this);

@@ -4,10 +4,14 @@ class LightPawn {
 
         this.removeLights();
 
-        const ambient = new Microverse.THREE.AmbientLight( 0xcc99ff, .5 );
+        const ambient = new Microverse.THREE.AmbientLight( 0xffffff, .5 );
         this.shape.add(ambient);
         this.lights.push(ambient);
 
+        const pointLight = new THREE.PointLight( 0xffffff, 0.2 );
+        pointLight.position.set( 0, 30, 0 );
+        this.shape.add(pointLight);
+        this.lights.push(pointLight);
     }
 
     removeLights() {

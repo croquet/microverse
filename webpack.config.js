@@ -12,7 +12,6 @@ const config = {
         path: path.join(__dirname, 'dist'),
         filename: 'lib/[name]-[contenthash:8].js',
         chunkFilename: (pathData) => {
-            console.error(pathData.chunk.id);
             let name = pathData.chunk.id;
             if (typeof name === "number") name = "chunk"; // production mode
             name = name.replace(/(src_|_js)/g, '');

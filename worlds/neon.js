@@ -16,8 +16,8 @@ export function init(Constants) {
             card: {
                 name: "entrance",
                 type: "object",
-                translation: [-10, 0, 0],
-                rotation: [0, -Math.PI / 2, 0],
+                translation: [0, 0, 12],
+                rotation: [0, 0, 0],
                 spawn: "default",
             }
         },
@@ -37,14 +37,12 @@ export function init(Constants) {
                 behaviorModules: ["BloomPass"],
                 singleSided: true,
                 shadow: false,
-                translation:[0, -1.7, 0],
+                translation: [0, -1.7, 0],
 
                 fileName: "scifi.glb",
                 modelType: "glb",
-                dataLocation: "3y8lwrMGNTMf6mP6dqIpwSSkXJWxlb-adEMdxlxaabswEQ0NCQpDVlYfEBUcClcMClcaCxYIDBwNVxAWVgxWAywNDik2Az8MNipIMhAeNCMQTEpAAT89PkFJS1YQFlcaCxYIDBwNVxQQGgsWDxwLChxXFRYaGBUdHA8dHB8YDBUNViEYT1QWTyBMASlPEzpLGEw6FwtAERgJPRU1Hx8dOhVMDjgWPi8IQDoKFCxWHRgNGFY1SCwAFDwYFC80JggqEj4pARsxP0gdHzoODUhOG0tBMQ01TCAUADAmLDoS",
-                license: "CC-BY-4.0",
-                attribution: "'Sci-fi neon model' (https://skfb.ly/6YvXI) by ni_and_ka is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).",
-
+                dataLocation: "3w2MWUEGDG7BdjeMe6E0SBr0f7P5vuX4OJz1K8aL8V8wHwMDBwRNWFgRHhsSBFkCBFkUBRgGAhIDWR4YWAJYMBMhFQ4bPgQ2HCYUNS8TRDAPFgEOACI8IC4uRVgeGFkUBRgGAhIDWRoeFAUYARIFBBJYEQImIUUoRDonRTFHAB4bGTUBD0cxPUdDIDQfTxg2LxQRPgYyMiU9RRkZNlgTFgMWWAZPGTw0LkZCOQ0tESQhMUYHMB8UWiJOOzggMDZDFRxOIk8_Tz1CKDIBERw",
+                dataScale: [2, 2, 2],
                 placeholder: true,
                 placeholderSize: [400, 0.1, 400],
                 placeholderColor: 0x000000,
