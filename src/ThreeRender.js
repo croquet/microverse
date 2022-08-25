@@ -115,7 +115,11 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         this.setRayCast(xy);
         const render = this.service("ThreeRenderManager");
         const h = this.raycaster.intersectObjects(targets || render.threeLayer("pointer"));
-        if (h.length === 0) return {};
+        if (h.length === 0) {
+            return {
+                ray: this.raycaster.ray.clone()
+            };
+        }
 
         let hit;
         let normal;
@@ -151,12 +155,14 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         } /*else {
             normal = new THREE.Vector3(0,1,0);
         }*/
+
         return {
             pawn: this.getPawn(hit.object),
             xyz: hit.point.toArray(),
             uv: hit.uv ? hit.uv.toArray() : undefined,
             normal: normal ? normal.toArray() : undefined,
-            distance: hit.distance
+            distance: hit.distance,
+            ray: this.raycaster.ray.clone()
         };
     }
 

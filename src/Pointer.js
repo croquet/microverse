@@ -621,6 +621,7 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.id = wcEvent.id;
         pe.button = wcEvent.button;
         pe.buttons = wcEvent.buttons;
+        pe.ray = rc.ray;
         if (wcEvent.deltaY !== undefined) {
             pe.deltaY = wcEvent.deltaY;
         }
