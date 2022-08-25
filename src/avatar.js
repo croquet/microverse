@@ -660,9 +660,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
         this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
 
+        /*
         this.walkCamera = new THREE.Object3D();
-
         this.walkcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0));
+        */
+
         this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
         this.future(100).fadeNearby();
@@ -811,6 +813,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.listen("forceOnPosition", this.onPosition);
 
         this.listen("goThere", this.stopFalling);
+
+        this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
+        
         console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
         this.wasdVelocity = [0, 0, 0];
@@ -1004,6 +1009,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         comeHere.setAttribute("presenting", this.presenting);
+    }
+
+    modelLoaded() {
+        delete this.lastOpacity;
+        delete this.lastInWorld;
+        this.modelHasLoaded = true;
     }
 
     setEditMode(evt) {
@@ -1202,6 +1213,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.say("_set", actorSpec);
         if (enteringWorld) {
             this.say("setAvatarData", actorSpec.cardData || {}); // NB: after setting actor's name
+            this.modelHasLoaded = false;
             // start presenting and following in new space too
             if (spec?.presenting) {
                 let manager = this.actor.service("PlayerManager");
@@ -2005,6 +2017,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 sendToShell("update-configuration", { localConfig: configuration });
                 let cardSpec = this.makeCardSpecFrom(configuration);
                 this.say("setAvatarData", cardSpec);
+                this.modelHasLoaded = false;
             }
         });
     }

@@ -633,6 +633,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         delete this.name;
         delete this.properties2D;
         delete this.animationSpec;
+
         if (this.animationInterval) {
             clearInterval(this.animationInterval);
             this.animationInterval = null;
@@ -743,7 +744,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
 
             delete this._model3dLoading;
-            this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
         }).catch(_err => {
             delete this._model3dLoading;
