@@ -116,14 +116,75 @@ class GizmoAxisActor {
 }
 
 class GizmoAxisPawn {
+    // TODO: this should live elsewhere, but then Microverse is not defined
+    // probably should be part of core
+    // from https://github.com/mrdoob/three.js/blob/342946c8392639028da439b6dc0597e58209c696/examples/js/misc/Gyroscope.js
+    static makeGyroscope() {
+        const THREE = Microverse.THREE;
+        const _translationObject = new THREE.Vector3();
+        const _quaternionObject = new THREE.Quaternion();
+        const _scaleObject = new THREE.Vector3();
+        const _translationWorld = new THREE.Vector3();
+        const _quaternionWorld = new THREE.Quaternion();
+        const _scaleWorld = new THREE.Vector3();
+        class Gyroscope extends THREE.Object3D {
+            constructor() {
+                super();
+            }
+
+            updateMatrixWorld(force) {
+                this.matrixAutoUpdate && this.updateMatrix(); // update matrixWorld
+                if (this.matrixWorldNeedsUpdate || force) {
+                    if (this.parent !== null) {
+                        this.matrixWorld.multiplyMatrices(
+                            this.parent.matrixWorld,
+                            this.matrix
+                        );
+                        this.matrixWorld.decompose(
+                            _translationWorld,
+                            _quaternionWorld,
+                            _scaleWorld
+                        );
+                        this.matrix.decompose(
+                            _translationObject,
+                            _quaternionObject,
+                            _scaleObject
+                        );
+                        this.matrixWorld.compose(
+                            _translationWorld,
+                            _quaternionObject,
+                            _scaleWorld
+                        );
+                    } else {
+                        this.matrixWorld.copy(this.matrix);
+                    }
+
+                    this.matrixWorldNeedsUpdate = false;
+                    force = true;
+                } // update children
+
+                for (let i = 0, l = this.children.length; i < l; i++) {
+                    this.children[i].updateMatrixWorld(force);
+                }
+            }
+        }
+
+        return new Gyroscope();
+    }
+
     setup() {
         this.originalColor = this.actor._cardData.color;
-        this.shape.add(new Microverse.THREE.ArrowHelper(
-            new Microverse.THREE.Vector3(...this.actor._cardData.axis),
-            new Microverse.THREE.Vector3(0, 0, 0),
-            3,
-            this.originalColor
-        ));
+
+        const gyro = GizmoAxisPawn.makeGyroscope();
+        this.shape.add(gyro);
+        gyro.add(
+            new Microverse.THREE.ArrowHelper(
+                new Microverse.THREE.Vector3(...this.actor._cardData.axis),
+                new Microverse.THREE.Vector3(0, 0, 0),
+                3,
+                this.originalColor
+            )
+        );
 
         this.dragStart = undefined;
         this.positionAtDragStart = undefined;
@@ -140,32 +201,68 @@ class GizmoAxisPawn {
         const avatar = Microverse.GetPawn(event.avatarId);
         // avatar.addFirstResponder("pointerMove", {shiftKey: true}, this);
         avatar.addFirstResponder("pointerMove", {}, this);
-        this.dragStart = [...event.xy];
+        this.dragStart = [...event.xyz];
         this.positionAtDragStart = [...this.actor.parent.parent._translation];
     }
 
     drag(event) {
         if (this.dragStart) {
             console.log("drag on axis", event);
-            const delta2D = [
-                (event.xy[0] - this.dragStart[0]),
-                (event.xy[1] - this.dragStart[1]),
-            ]
 
-            const nextPosition = this.actor._cardData.axis[0] == 1 ? [
-                0.01 * delta2D[0] + this.positionAtDragStart[0],
-                this.positionAtDragStart[1],
-                this.positionAtDragStart[2]
-            ] : this.actor._cardData.axis[1] == 1 ? [
-                this.positionAtDragStart[0],
-                -0.01 * delta2D[1] + this.positionAtDragStart[1],
-                this.positionAtDragStart[2]
-            ] : [
-                this.positionAtDragStart[0],
-                this.positionAtDragStart[1],
-                -0.01 * delta2D[0] + this.positionAtDragStart[2],
-            ];
-            this.publish(this.actor.id, "translateTarget", nextPosition)
+            // if we are dragging along the Y axis
+            let intersectionPlane = new Microverse.THREE.Plane();
+
+            if (
+                this.actor._cardData.axis[0] == 1 ||
+                this.actor._cardData.axis[1] == 1
+            ) {
+                // intersect with the XY axis
+                intersectionPlane.setFromNormalAndCoplanarPoint(
+                    new Microverse.THREE.Vector3(0, 0, 1),
+                    new Microverse.THREE.Vector3(...this.positionAtDragStart)
+                );
+            } else {
+                // intersect with the XZ axis
+                intersectionPlane.setFromNormalAndCoplanarPoint(
+                    new Microverse.THREE.Vector3(0, 1, 0),
+                    new Microverse.THREE.Vector3(...this.positionAtDragStart)
+                );
+            }
+
+            console.log(intersectionPlane);
+
+            let intersectionPoint = event.ray.intersectPlane(
+                intersectionPlane,
+                new Microverse.THREE.Vector3()
+            );
+
+            console.log("intersectionPoint", intersectionPoint);
+
+            const delta3D = intersectionPoint
+                .clone()
+                .sub(new Microverse.THREE.Vector3(...this.dragStart));
+
+            console.log("delta3D", delta3D);
+
+            const nextPosition =
+                this.actor._cardData.axis[0] == 1
+                    ? [
+                          delta3D.x + this.positionAtDragStart[0],
+                          this.positionAtDragStart[1],
+                          this.positionAtDragStart[2],
+                      ]
+                    : this.actor._cardData.axis[1] == 1
+                    ? [
+                          this.positionAtDragStart[0],
+                          delta3D.y + this.positionAtDragStart[1],
+                          this.positionAtDragStart[2],
+                      ]
+                    : [
+                          this.positionAtDragStart[0],
+                          this.positionAtDragStart[1],
+                          delta3D.z + this.positionAtDragStart[2],
+                      ];
+            this.publish(this.actor.id, "translateTarget", nextPosition);
             // this.set({translation: nextPosition})
         }
     }
