@@ -208,7 +208,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             }
         } else if (type === "2d" || type === "2D" ) {
         } else if (type === "lighting") {
-        } else if (type === "object") {
+        } else if (type === "object" || type === "initial") {
         } else {
             console.log("unknown type for a card: ", options.type);
         }

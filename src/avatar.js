@@ -95,6 +95,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     ensureNicknameCard() {
         if (!this.inWorld) return;
+        if (this._cardData.noNicknameCard) {return;}
 
         const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
         const PADDING = 0.1; // horizontal and vertical
@@ -137,6 +138,13 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
         this.nicknameCard.load([{text: nickname, style: {color: 'white'}}]);
         this.nicknameCard.setExtent({width: signWidth / TEXT_SCALE, height: signHeight / TEXT_SCALE});
+    }
+
+    removeNicknameCard() {
+        if (this.nicknameCard) {
+            this.nicknameCard.destroy();
+        }
+        this.nicknameCard = null;
     }
 
     // The user leaves the "guided tour".
@@ -795,7 +803,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 actorSpec.translation = anchor.translation;
                 actorSpec.rotation = anchor.rotation;
             }
-            let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration);
+            let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
             actorSpec = {...actorSpec, ...tempCardSpec};
             avatarSpec = {...tempCardSpec};
         }
@@ -815,7 +823,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.listen("goThere", this.stopFalling);
 
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
-        
+
         console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
         this.wasdVelocity = [0, 0, 0];
@@ -1117,7 +1125,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             lookOffset: this.lookOffset,
             cardData: this.actor._cardData, // keep avatar appearance
             name: this.actor._name, // and name
-            inChat: false // see comment in MyPlayerManager.playerInWorldChanged
+            inChat: false, // see comment in MyPlayerManager.playerInWorldChanged
+            behaviorModules: this.actor._cardData._behaviorModules,
         };
         return spec;
     }
@@ -1969,9 +1978,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         delete this.lastOpacity;
     }
 
-    makeCardSpecFrom(configuration) {
+    makeCardSpecFrom(configuration, actor) {
+        let oldCardData = {...actor._cardData};
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+
+        [
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation",
+            "modelType", "type", "name", "shadow"].forEach((n) => {delete oldCardData[n];});
+
         if (!configuration.type) {
-            return {
+            let options = {
                 name: this.actor._name,
                 dataScale: [0.3, 0.3, 0.3],
                 dataRotation: q_euler(0, Math.PI, 0),
@@ -1979,7 +1995,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 dataLocation: `./assets/avatars/${this.actor._name}.zip`,
                 modelType: "glb",
                 type: "3d",
+                behaviorModules: actor._behaviorModules,
+                ...oldCardData,
             };
+            if (options.type === "initial") {options.type = "3d";}
+            return options;
         }
 
         let options = {
@@ -1989,14 +2009,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             name: configuration.nickname,
             dataRotation: [0, Math.PI, 0],
             handedness: configuration.handedness,
-            shadow: true
+            shadow: true,
+            behaviorModules: actor._behaviorModules,
+            ...oldCardData,
         };
+        if (options.type === "initial") {options.type = "3d";}
         if (configuration.type === "ReadyPlayerMe") {
             options = {...options, ...{
                 avatarEventHandler: "HalfBodyAvatarEventHandler",
                 dataScale: [1.5, 1.5, 1.5],
-                dataTranslation: [0, -0.7, 0]
+                dataTranslation: [0, -0.7, 0],
+                behaviorModules: [...options.behaviorModules, "HalfBodyAvatarEventHandler"]
             }};
+            if (options.behaviorModules.indexOf(handlerModuleName) >= 0) {
+                options.behaviorModules = options.behaviorModules.filter((n) => n !== handlerModuleName);
+            }
         } else {
             options = {...options, ...{
                 dataScale:  [0.3, 0.3, 0.3],
@@ -2015,8 +2042,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (changed) {
                 const configuration = window.settingsMenuConfiguration;
                 sendToShell("update-configuration", { localConfig: configuration });
-                let cardSpec = this.makeCardSpecFrom(configuration);
-                this.say("setAvatarData", cardSpec);
+                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+                this.say("setAvatarData", tempCardSpec);
                 this.modelHasLoaded = false;
             }
         });
