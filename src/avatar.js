@@ -625,6 +625,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
 
         this.tug = 0.06; // instead of default 0.2, to work with spaced updates
+        this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
     }
 
     addChild(id) {
@@ -636,12 +637,21 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         super.removeChild(id);
         delete this.lastOpacity;
     }
+
+    modelLoaded() {
+        console.log("remote avatar model loaded");
+        delete this.lastOpacity;
+        delete this.lastInWorld;
+        this.modelHasLoaded = true;
+    }
 }
 
 let dormantAvatarSpec = null;
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
+
+        console.log("LocalAvatarPawn");
 
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
@@ -1020,6 +1030,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     modelLoaded() {
+        console.log("avatar model loaded");
         delete this.lastOpacity;
         delete this.lastInWorld;
         this.modelHasLoaded = true;
@@ -1126,7 +1137,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             cardData: this.actor._cardData, // keep avatar appearance
             name: this.actor._name, // and name
             inChat: false, // see comment in MyPlayerManager.playerInWorldChanged
-            behaviorModules: this.actor._cardData._behaviorModules,
+            behaviorModules: this.actor._behaviorModules,
         };
         return spec;
     }
@@ -1906,6 +1917,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             const inWorld = pawn.actor.inWorld;
             // don't try to set (and record) opacity until the avatar has its model
             if (!pawn.modelHasLoaded || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
+
+            if (pawn.lastOpacity === undefined) {
+                opacity = 0;
+            }
 
             pawn.lastOpacity = opacity;
             pawn.lastInWorld = inWorld;

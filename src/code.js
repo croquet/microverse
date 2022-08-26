@@ -716,8 +716,17 @@ export class BehaviorModelManager extends ModelService {
         if (!externalName) {return null;}
         let module = this.modules.get(externalName);
         if (!module) {return null;}
-        return module.actorBehaviors.get(behaviorName)
-            || module.pawnBehaviors.get(behaviorName);
+        let b = module.actorBehaviors.get(behaviorName);
+        if (b) {
+            b.ensureBehavior();
+            return b;
+        }
+        b = module.pawnBehaviors.get(behaviorName);
+        if (b) {
+            b.ensureBehavior();
+            return b;
+        }
+        return null;
     }
 
     loadStart(key) {
