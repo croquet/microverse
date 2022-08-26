@@ -60,6 +60,41 @@ class AvatarPawn {
         this.removeLastResponder("keyUp", {ctrlKey: true}, this);
         this.removeEventListener("keyUp", this.keyUp);
     }
+
+    walk(time, delta, vq) {
+        const COLLIDE_THROTTLE = 50;
+        const THROTTLE = 15; // 20
+        if (this.collidePortal(vq)) {return;}
+        // test for terrain 
+
+        if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+            if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
+                this.lastCollideTime = time;
+                vq = this.checkFall(vq);
+                vq = this.walkTerrain(vq); // calls collideBVH
+                vq = this.checkHillside(vq); // the hills are alive...
+            }
+            this.lastUpdateTime = time;
+            this.positionTo(vq.v, vq.q);
+        }
+    }
+
+    checkHillside(vq){
+
+        const EYE_HEIGHT = 3;
+        let terrainLayer = this.service("ThreeRenderManager").threeLayer("terrain");
+        terrainLayer.forEach(t=>{
+            if(t.wcPawn.heightField){ // heightField may not yet exist
+                let inv = t.wcPawn.invScaleHill; // invert my location to find height
+                let hfh = -t.wcPawn.heightField.heightAt(inv*vq.v[0], -inv*vq.v[2], true);
+                let pht = inv*t.wcPawn.height; // height of terrain mesh in scaled down size
+                let ht = t.wcPawn.scaleHill*(pht-hfh); //scale the height to world
+                let delta = vq.v[1]-ht; // how far above am I?
+                if(delta<EYE_HEIGHT)vq.v[1]=ht+EYE_HEIGHT; // NEVER go below the terrain
+            }
+        });
+        return vq;
+    }
 }
 
 export default {

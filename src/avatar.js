@@ -21,7 +21,7 @@ import { startSettingsMenu } from "./settingsMenu.js";
 const EYE_HEIGHT = 1.676;
 // const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
-const MAX_FALL = -15;
+const MAX_FALL = -100;
 const MAX_V = 0.015;
 const KEY_V = MAX_V / 2;
 // const MAX_SPIN = 0.0004;
@@ -1536,12 +1536,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // console.log(deltaVector);
             onGround = onGround || positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
-
+/*
         if (!this.checkFloor({v: newPosition, q: vq.q})) {
             let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
             return {v: newv, q: vq.q};
         }
-
+*/
         if (onGround) {
             this.isFalling = false;
             return {v: this.translation, q: vq.q};
@@ -1774,6 +1774,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     pointerDown(e) {
         if (e.ctrlKey || e.altKey) { // should be the first responder case
             const render = this.service("ThreeRenderManager");
+            console.log(render.threeLayerUnion('pointer'))
             const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
             this.targetDistance = rc.distance;
             let p3e = this.pointerEvent(rc, e);

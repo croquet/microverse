@@ -42,6 +42,7 @@ export function init(Constants) {
                 name: "image card",
                 translation: [0, 0.4, -10],
                 //rotation: [0, Math.PI / 2, 0],
+                layers: ["pointer"],
                 scale: [4, 4, 4],
                 type: "2d",
                 textureType: "image",
@@ -58,11 +59,26 @@ export function init(Constants) {
             card: {
                 name:"Hillside",
                 behaviorModules: ["Hillside"],
-                //layers: ["pointer"],
+                layers: ["terrain"],
                 type: "object",
                 translation:[0, 0, 0],
                 shadow: true,
             }
         },
+        {
+            card:{
+                translation: [14.323492647614785, -2.7804596526792222, -5.391810022345661],    
+                rotation: [0, -0.01904446484351159, 0, 0.9998186377332763],    
+                layers: ["walk"],    
+                name: "/treepack4_small.glb",    
+                dataLocation: "36bHrAibIhhNDw5QTWfleb-P1ufV9Gp4EKM28m0ss4iUXkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZYHp-UmwPBQdUcFVsckMHd19iAUJ4X3RCDlx8BBlfWRhVRFlHQ1NCGFJPWFdAU0RFUxlQZlFiYnJBQEIEAldxD1VnRUcHbHppUgN6blJjUXpvT3xVZ0J7bm5_ckZ_GVJXQlcZY29dBAJQYQFHfVdnWXxRUw4CbmZbZntpY0R9WHlPV1xaeX9RaUQBBhtUUQ",    
+                dataScale: [1.5, 1.5, 1.5],    
+                fileName: "/treepack4_small.glb",    
+                modelType: "glb",    
+                shadow: true,    
+                singleSided: true,    
+                type: "3d",
+            }
+        }
     ];
 }

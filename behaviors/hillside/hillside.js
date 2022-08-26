@@ -13,17 +13,21 @@ class HillsideActor {
 class HillsidePawn {
     setup() {
         console.log("Constructing hillside");
+
         this.numGrassBlades = 500000;
         this.grassPatchRadius = 175.0;
         this.heightFieldSize = 3072.0;
         this.heightFieldHeight = 180.0;
         this.scaleHill = 0.4;
+        this.invScaleHill = 1.0/this.scaleHill;
         this.waterLevel = this.heightFieldHeight * 0.305556;
         this.fogColor = new THREE.Color(0.74, 0.77, 0.91);
         this.grassColor = new THREE.Color(0.45, 0.46, 0.19);
         this.waterColor = new THREE.Color(0.6, 0.7, 0.85);
         this.fogDist = this.scaleHill*this.grassPatchRadius * 20.0;
         this.grassFogDist = this.scaleHill*this.grassPatchRadius * 2.0;
+
+        this.height = -0.430*this.heightFieldHeight/2; // where is the terrain?
 
         const scene = this.service("ThreeRenderManager").scene;
         scene.fog = new THREE.Fog(this.fogColor.getHex(), 0.1, this.fogDist);
@@ -53,7 +57,7 @@ class HillsidePawn {
  //       let waterFrag = await fetch('./assets/hillside/shader/water.frag.glsl').then((resp) => resp.text());
 
         return Promise.all([
-            import("/assets/hillside/src/skydome.js"),
+            //import("/assets/hillside/src/skydome.js"),
             import("/assets/hillside/src/heightfield.js"),
             import("/assets/hillside/src/grass.js"),
             import("/assets/hillside/src/terrain.js"),
@@ -61,7 +65,7 @@ class HillsidePawn {
             // import("/assets/hillside/src/water.js"),
             import("/assets/hillside/src/WaterReflector.js"),
             import("/assets/hillside/src/simplex.js")
-        ]).then(([skydome_S, heightfield_S, grass_S, terrain_S, terramap_S, water_S, simplex_S]) => {
+        ]).then(([heightfield_S, grass_S, terrain_S, terramap_S, water_S, simplex_S]) => {
 
             var BEACH_TRANSITION_LOW = 0.31;
             var BEACH_TRANSITION_HIGH = 0.36;
@@ -118,6 +122,7 @@ console.log("tMap:", tMap);
 
             // Set a specific render order - don't let three.js sort things for us.
             this.grass.mesh.renderOrder = 10;
+            this.grass.mesh.raycast = ()=>{};
             this.group.add(this.grass.mesh);
 
 
@@ -136,6 +141,7 @@ console.log("tMap:", tMap);
             });
 
             this.terrain.mesh.renderOrder = 20;
+            this.terrain.mesh.raycast = ()=>{};
             this.group.add(this.terrain.mesh);
 
 
@@ -226,7 +232,7 @@ console.log("GROUP:", this.shape, this.group)
             var avatarPos = new THREE.Vector2(scaleLoc*avatar.translation[0],-scaleLoc*avatar.translation[2])
             var drawPos = new THREE.Vector2(avatarPos.x+cameraDir.x*this.grassPatchRadius, 
                 avatarPos.y-cameraDir.z*this.grassPatchRadius);
-            cameraDir.set(cameraDir.x, cameraDir.z, cameraDir.y);
+            cameraDir.set(cameraDir.x, -cameraDir.z, cameraDir.y);
             this.grass.update(t*0.001, cameraDir, drawPos);
             this.terrain.update(avatarPos.x, avatarPos.y);
            // this.water.update(avatarPos);
