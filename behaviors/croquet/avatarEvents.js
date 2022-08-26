@@ -105,6 +105,7 @@ class AvatarEventHandlerPawn {
             }
         } else if (e.shiftKey) {
             if (pawn) {
+                console.log("on shift");
                 this.gizmoTargetPawn = pawn;
                 this.gizmoTargetPawn.selectEdit();
                 this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);

@@ -108,6 +108,7 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         const render = this.service("ThreeRenderManager");
         if (!this.raycaster) this.raycaster = new THREE.Raycaster();
         this.raycaster.setFromCamera({x: x, y: y}, render.camera);
+        console.log("setRayCast");
         return this.raycaster;
     }
 
