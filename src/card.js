@@ -70,6 +70,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     updateOptions(options) {
         // fully override the _cardData with given variable (keys that are not in options will be deleted.
+        console.log("updateOptions", options);
         let {cardOptions, cardData} = this.separateOptions(options);
         this.updateBehaviors(options);
         this.set({...cardOptions});
@@ -137,16 +138,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                 }
                 if (oldModule.pawnBehaviors) {
                     allOldPawnBehaviors.push(...oldModule.pawnBehaviors.values());
-                }
-                // re-add system module provided it's still in the list
-                if (oldModule.systemModule && options.behaviorModules.includes(oldModule.externalName)) {
-                    oldSystemModules.push(oldModule.externalName);
-                    if (oldModule.actorBehaviors) {
-                        allNewActorBehaviors.push(...oldModule.actorBehaviors.values());
-                    }
-                    if (oldModule.pawnBehaviors) {
-                        allNewPawnBehaviors.push(...oldModule.pawnBehaviors.values());
-                    }
                 }
             });
         }
@@ -345,22 +336,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             });
             menu.call("PropertySheet$PropertySheetActor", "setObject", this);
         }
-    }
-
-    setBehaviors(selection) {
-        // this is called when behavior list in the property sheet is changed.
-        // perhaps moving this to propertySheet.js is the right thing to do.
-        let behaviorModules = [];
-
-        selection.forEach((obj) => {
-            let {label, selected} = obj;
-            if (this.behaviorManager.modules.get(label)) {
-                if (selected) {
-                    behaviorModules.push(label);
-                }
-            }
-        });
-        this.updateBehaviors({behaviorModules});
     }
 
     setAnimationClipIndex(animationClipIndex) {

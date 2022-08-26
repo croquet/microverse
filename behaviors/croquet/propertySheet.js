@@ -653,14 +653,19 @@ class BehaviorMenuActor {
         let target = this.service("ActorManager").get(this._cardData.target);
         let items = [];
 
-        let behaviorModules = [...this.behaviorManager.modules].filter(([_key, value]) => {
-            return !value.systemModule;
-        });
+        this.targetSystemModules = [];
+        let behaviorModules = [...this.behaviorManager.modules];
 
-        behaviorModules.forEach(([k, _v]) => {
-            let selected = target._behaviorModules && target._behaviorModules.indexOf(k) >= 0;
-            let obj = {label: k, selected};
-            items.push(obj);
+        behaviorModules.forEach(([k, v]) => {
+            if (!v.systemModule) {
+                let selected = target._behaviorModules?.indexOf(k) >= 0;
+                let obj = {label: k, selected};
+                items.push(obj);
+            } else {
+                if (target._behaviorModules?.indexOf(k) >= 0) {
+                    this.targetSystemModules.push({label: k, selected: true});
+                }
+            }
         });
 
         items.push({label: "------------"});
@@ -671,7 +676,18 @@ class BehaviorMenuActor {
     setBehaviors(data) {
         console.log("setBehaviors");
         let target = this.service("ActorManager").get(this._cardData.target);
-        target.setBehaviors(data.selection);
+        let selection = [ ...this.targetSystemModules, ...data.selection];
+        let behaviorModules = [];
+
+        selection.forEach((obj) => {
+            let {label, selected} = obj;
+            if (target.behaviorManager.modules.get(label)) {
+                if (selected) {
+                    behaviorModules.push(label);
+                }
+            }
+        });
+        target.updateBehaviors({behaviorModules});
     }
 
     itemsUpdated() {
