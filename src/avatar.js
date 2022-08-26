@@ -1284,6 +1284,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.call(`${handlerModuleName}$AvatarPawn`, "walk", time, delta, vq);
                 } else {
                     if (this.collidePortal(vq)) {return;}
+                    if (!this.checkFloor(vq)) {
+                        // if the new position leads to a position where there is no walkable floor below
+                        // it tries to move the avatar the opposite side of the previous good position.
+                        vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+                    } else {
+                        this.lastCollideTranslation = vq.v;
+                    }
                     if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
                         if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                             this.lastCollideTime = time;
