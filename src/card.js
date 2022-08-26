@@ -208,7 +208,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
             }
         } else if (type === "2d" || type === "2D" ) {
         } else if (type === "lighting") {
-        } else if (type === "object") {
+        } else if (type === "object" || type === "initial") {
         } else {
             console.log("unknown type for a card: ", options.type);
         }
@@ -633,6 +633,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         delete this.name;
         delete this.properties2D;
         delete this.animationSpec;
+
         if (this.animationInterval) {
             clearInterval(this.animationInterval);
             this.animationInterval = null;
@@ -743,7 +744,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
 
             delete this._model3dLoading;
-            this.modelHasLoaded = true;
             this.publish(this.id, "3dModelLoaded");
         }).catch(_err => {
             delete this._model3dLoading;

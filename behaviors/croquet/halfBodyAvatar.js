@@ -116,6 +116,8 @@ class AvatarPawn {
         let otherHand = this.bones.get(this.otherHandName);
         if (otherHand) {
             otherHand.position.set();
+        } else {
+            return;
         }
 
         this.moveHand([0, 1, -100]);
@@ -304,6 +306,7 @@ class AvatarPawn {
     }
 
     teardown() {
+        delete this.bones;
         this.removeUpdateRequest(["HalfBodyAvatarEventHandler$AvatarPawn", "maybeMove"]);
         if (!this.isMyPlayerPawn) {return;}
         console.log("avatar event handler detached");
