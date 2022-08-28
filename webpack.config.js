@@ -41,7 +41,7 @@ const config = {
     module: {
         rules: [
             {
-                test: /\.(jpe?g|png|gif|svg|zip|glb|glsl)$/i,
+                test: /\.(jpe?g|png|gif|svg|zip|glb|glsl|aac)$/i,
                 type: 'asset/resource',
             },
         ]

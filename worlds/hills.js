@@ -10,22 +10,11 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/hillside";
     Constants.UserBehaviorModules = [
-        "lights.js", "hillside.js", "gridFloor.js"
+        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "fadeIn.js"
     ];
 
-    const frameColor = 0x888888;
 
     Constants.DefaultCards = [
-/*       {
-            card: {
-                name:"world model",
-                behaviorModules: ["GridFloor"],
-                layers: ["walk"],
-                type: "object",
-                translation:[0, -2, 0],
-                shadow: true,
-            }
-        },   */
         {
             card: {
                 name: "light",
@@ -35,6 +24,18 @@ export function init(Constants) {
                 dataType: "jpg",
                 dataLocation: "./assets/sky/aboveClouds.jpg",
                 clearColor: 0xaabbff,
+            }
+        },
+        {
+            card: {
+                name: "ambient sound",
+               // layers: ["light"],
+                type: "sound",
+                behaviorModules: ["AmbientSound"],
+                dataType: "acc",
+                dataLocation: "./assets/sound/AmbientMeadow.aac",
+                loop: true,
+                volume: 0.5,
             }
         },
         {
@@ -53,6 +54,14 @@ export function init(Constants) {
                 cornerRadius: 0.05,
                 depth: 0.05,
                 shadow: true,
+            }
+        },
+        {
+            card: {
+                name: "fadeIn card",
+                behaviorModules: ["FadeIn"],
+                layers: ["pointer"],
+                type: "object"
             }
         },
         {

@@ -10,8 +10,8 @@ var BLADE_SEGS = 4; // # of blade segments
 var BLADE_VERTS = (BLADE_SEGS + 1) * 2; // # of vertices per blade (1 side)
 var BLADE_INDICES = BLADE_SEGS * 12;
 var BLADE_WIDTH = 0.15;
-var BLADE_HEIGHT_MIN = 1.5;
-var BLADE_HEIGHT_MAX = 2.0;
+var BLADE_HEIGHT_MIN = 2.25;
+var BLADE_HEIGHT_MAX = 3.0;
 /**
  * Creates a patch of grass mesh.
  */

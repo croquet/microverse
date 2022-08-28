@@ -76,6 +76,7 @@ export class Terrain {
             fragmentShader: fragScript
         });
         var mesh = new THREE.Mesh(geo, mat);
+        mesh.receiveShadow = true;
         mesh.frustumCulled = false;
         return mesh;
     }
