@@ -33,7 +33,7 @@ export function init(Constants) {
                 type: "sound",
                 behaviorModules: ["AmbientSound"],
                 dataType: "acc",
-                dataLocation: "./assets/sound/AmbientMeadow.aac",
+                dataLocation: "./assets/sounds/WindAmbience.aac",
                 loop: true,
                 volume: 0.5,
             }

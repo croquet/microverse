@@ -11,34 +11,21 @@ class AmbientSoundActor {
 
 class AmbientSoundPawn {
     setup() {
-        this.subscribe(this.actor.service("PlayerManager").players.get(this.viewId).id, "trigger", "play");
+        this.subscribe(this.actor.service("PlayerManager").players.get(this.viewId).id, "trigger", "start");
 
         this.file = this.actor._cardData.dataLocation;
         this.loop = this.actor._cardData.loop || false;
         this.volume = this.actor._cardData.volume || 0.5;
-        console.log(this.file, this.loop, this.volume)
-        const listener = new THREE.AudioListener();
-        this.audio = new THREE.Audio( listener );
-        if ( /(iPad|iPhone|iPod)/g.test( navigator.userAgent )) {
 
-            const loader = new THREE.AudioLoader();
-            loader.load( this.file, function ( buffer ) {
-console.log("A", buffer)
-                this.audio.setBuffer( buffer );
-
-            } );
-
-        } else {
-            this.mediaElement = new Audio( this.file );
-           // this.mediaElement.play();
-           console.log("B", this.mediaElement)
-            this.audio.setMediaElementSource( this.mediaElement );
-        }
-        this.audio.setLoop(this.loop);
-        this.audio.setVolume(this.volume);
 
     }
 
+    start(){
+        this.audio = new Audio(this.file);
+        this.audio.loop = this.loop;
+        this.audio.volume = this.volume;
+        this.audio.play();
+    }
 
     play(){
         console.log("play!")

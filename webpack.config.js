@@ -64,6 +64,7 @@ const config = {
                 { from: 'assets/css/*'},
                 { from: 'assets/fonts/**/*'},
                 { from: 'assets/images/*'},
+                { from: 'assets/sounds/*'},
                 { from: 'assets/avatar-images/*'},
                 { from: 'assets/sky/*'},
                 { from: 'assets/hillside/**/*'},
