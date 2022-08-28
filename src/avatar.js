@@ -39,7 +39,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
         let playerId = options.playerId;
         delete options.playerId;
-        this.setupAvatarBehavior(options);
         super.init(options);
         this._playerId = playerId;
 
@@ -73,6 +72,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
         this.listen("setAvatarData", "setAvatarData");
+        this.listen("setWorldState", "setWorldState");
         this.future(0).tick();
     }
 
@@ -159,6 +159,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             this.say("setLookAngles", {lookOffset: [0, 0, 0]});
             manager.leavePresentation(this.playerId);
         }
+    }
+
+    setWorldState(data) {
+        // let {inWorld, translation, rotation, anchor} = data;
+        this.set(data);
     }
 
     stopPresentation() {
@@ -510,6 +515,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     setupAvatarBehavior(options) {
+        console.log("setupAvatarBehavior");
         if (!options.avatarEventHandler) {
             options.avatarEventHandler = "AvatarEventHandler";
         }
@@ -814,11 +820,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 actorSpec.rotation = anchor.rotation;
             }
             let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
-            actorSpec = {...actorSpec, ...tempCardSpec};
             avatarSpec = {...tempCardSpec};
         }
 
-        this.say("_set", actorSpec);
+        this.say("setWorldState", {
+            inWorld: actorSpec.inWorld,
+            translation: actorSpec.translation,
+            rotation: actorSpec.rotation,
+            anchor: actorSpec.anchor});
         this.say("setAvatarData", avatarSpec); // NB: after setting actor's name
         this.say("resetStartPosition");
 
@@ -1284,6 +1293,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.call(`${handlerModuleName}$AvatarPawn`, "walk", time, delta, vq);
                 } else {
                     if (this.collidePortal(vq)) {return;}
+                    if (!this.checkFloor(vq)) {
+                        // if the new position leads to a position where there is no walkable floor below
+                        // it tries to move the avatar the opposite side of the previous good position.
+                        vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+                    } else {
+                        this.lastCollideTranslation = vq.v;
+                    }
                     if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
                         if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                             this.lastCollideTime = time;
@@ -1997,6 +2013,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     makeCardSpecFrom(configuration, actor) {
         let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        let behaviorModules = actor._behaviorModules || [];
 
         [
             "dataLocation", "dataTranslation", "dataScale", "dataRotation",
@@ -2011,7 +2028,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 dataLocation: `./assets/avatars/${this.actor._name}.zip`,
                 modelType: "glb",
                 type: "3d",
-                behaviorModules: actor._behaviorModules,
+                behaviorModules: behaviorModules,
                 ...oldCardData,
             };
             if (options.type === "initial") {options.type = "3d";}
@@ -2026,7 +2043,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             dataRotation: [0, Math.PI, 0],
             handedness: configuration.handedness,
             shadow: true,
-            behaviorModules: actor._behaviorModules,
+            behaviorModules: behaviorModules,
             ...oldCardData,
         };
         if (options.type === "initial") {options.type = "3d";}
