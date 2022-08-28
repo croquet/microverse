@@ -144,24 +144,6 @@ console.log("tMap:", tMap);
             this.terrain.mesh.raycast = ()=>{};
             this.group.add(this.terrain.mesh);
 
-
-            //console.log(water_S.Water);
-            //scene.add(meshes.terrain);
-            /*
-            this.water = new water_S.Water({
-                envMap: skyenv_T,
-                vertScript: waterVert,
-                fragScript: waterFrag,
-                waterLevel: this.waterLevel,
-                waterColor: this.waterColor,
-                fogColor: this.fogColor,
-                fogNear: 1.0,
-                fogFar: this.fogDist
-            });
-            this.water.mesh.renderOrder = 40;
-            this.water.mesh.position.z = this.waterLevel;
-            this.group.add(this.water.mesh);
-            */
             const waterGeometry = new THREE.PlaneGeometry( 1000, 1000 );
             waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
             let sunVector = new THREE.Vector3(1,1,0);
@@ -176,13 +158,12 @@ console.log("tMap:", tMap);
                     sunColor: 0xffffff,
                     waterColor: 0x001eff,
                     distortionScale: 3.7,
+                    side:THREE.DoubleSide,
                     fog: scene.fog !== undefined
                 }
             );
         this.water.position.z = this.waterLevel;
         this.group.add(this.water);
-console.log("GROUP:", this.shape, this.group)
-
         });
     }
 
