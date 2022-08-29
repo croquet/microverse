@@ -21,9 +21,8 @@ import { startSettingsMenu } from "./settingsMenu.js";
 const EYE_HEIGHT = 1.676;
 // const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
-const MAX_FALL = -15;
-const MAX_V = 0.015;
-const KEY_V = MAX_V / 2;
+// const MAX_V = 0.015;
+// const KEY_V = MAX_V / 2;
 // const MAX_SPIN = 0.0004;
 // const JOYSTICK_V = 0.000030;
 const COLLIDE_THROTTLE = 50;
@@ -1445,6 +1444,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     checkFall(vq) {
+        const MAX_FALL = -15;
         if (!this.isFalling) {return vq;}
         let v = vq.v;
         v = [v[0], v[1] - this.actor.fallDistance, v[2]];
@@ -1585,11 +1585,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             onGround = onGround || positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
 
-        if (!this.checkFloor({v: newPosition, q: vq.q})) {
-            let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
-            return {v: newv, q: vq.q};
-        }
-
         if (onGround) {
             this.isFalling = false;
             return {v: this.translation, q: vq.q};
@@ -1708,6 +1703,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // you can override the avatars behavior.
         let w = this.wasdVelocity;
         let nw;
+
+        const MAX_V = 0.015;
+        const KEY_V = MAX_V / 2;
 
         if (e.ctrlKey || e.altKey) {
             switch(e.key) {
