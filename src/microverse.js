@@ -202,7 +202,7 @@ class MyPlayerManager extends PlayerManager {
                 type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options, ...avatarSpec};
+            options = {...options, ...avatarSpec, avatarType: "custom"};
         }
         return AvatarActor.create(options);
     }

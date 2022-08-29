@@ -2005,12 +2005,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behaviorModules = actor._behaviorModules || [];
+        let avatarType = oldCardData.avatarType;
 
         [
             "dataLocation", "dataTranslation", "dataScale", "dataRotation",
-            "modelType", "type", "name", "shadow"].forEach((n) => {delete oldCardData[n];});
+            "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
-        if (!configuration.type) {
+        if (!configuration.type && !avatarType) {
             let options = {
                 name: this.actor._name,
                 dataScale: [0.3, 0.3, 0.3],
