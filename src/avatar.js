@@ -19,18 +19,12 @@ import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
 
 const EYE_HEIGHT = 1.676;
-// const EYE_EPSILON = 0.01;
 const FALL_DISTANCE = EYE_HEIGHT / 12;
-// const MAX_V = 0.015;
-// const KEY_V = MAX_V / 2;
-// const MAX_SPIN = 0.0004;
-// const JOYSTICK_V = 0.000030;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
 const COLLISION_RADIUS = 0.8;
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
-const Q_ROTATION_180 = q_euler(0, Math.PI, 0);
 let initialPortalLookExternal;
 
 
@@ -483,7 +477,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     createPortal(translation, rotation, portalURL) {
         // sigh - all portals are "backwards"
         // or maybe *all* models are backwards and we need to fix dropPose and avatar models?
-        rotation = q_multiply(Q_ROTATION_180, rotation); // flip by 180 degrees
+        rotation = q_multiply(q_euler(0, Math.PI, 0), rotation); // flip by 180 degrees
 
         let card = {
             name: "portal",
