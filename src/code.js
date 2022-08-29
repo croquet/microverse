@@ -1041,7 +1041,7 @@ export class BehaviorViewManager extends ViewService {
         let promises = [];
         let scripts = [];
 
-        if (!window._alLResolvers) {
+        if (!window._allResolvers) {
             window._allResolvers = new Map();
         }
 
