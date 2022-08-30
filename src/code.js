@@ -790,7 +790,7 @@ export class BehaviorModelManager extends ModelService {
 
         codeArray.forEach((moduleDef) => {
             let {action, name, systemModule, location} = moduleDef;
-            if (location) {
+            if (location && !location.startsWith("(detached)")) {
                 let index = location.lastIndexOf("/");
                 let pathPart = location.slice(0, index);
                 if (userDir && !pathPart.startsWith(userDir) && !pathPart.startsWith(systemDir)) {
@@ -908,7 +908,7 @@ export class BehaviorModelManager extends ModelService {
                     function randomString() {
                         return Math.floor(Math.random() * 36 ** 10).toString(36);
                     }
-                    newM.location = `${randomString()}/${randomString()}`;
+                    newM.location = `(detached):${randomString()}/${randomString()}`;
                 }
                 return [key, newM];
             });
@@ -1041,7 +1041,7 @@ export class BehaviorViewManager extends ViewService {
         let promises = [];
         let scripts = [];
 
-        if (!window._alLResolvers) {
+        if (!window._allResolvers) {
             window._allResolvers = new Map();
         }
 
