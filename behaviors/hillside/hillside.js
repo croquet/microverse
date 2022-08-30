@@ -1,3 +1,16 @@
+// Croquet Microverse
+// Generates an infinite procedural hillside with blowing grass
+// To do:
+// birds
+// butterflies
+// music
+// fix walking/falling
+// interface to turn music/sound on/off (and other things)
+// temple
+// stones
+// big weenie
+// switch to PDF viewer w/ presentation describing the world.
+
 class HillsideActor {
     setup() {
         this.future(20).update();

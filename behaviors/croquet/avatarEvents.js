@@ -70,11 +70,11 @@ class AvatarPawn {
         if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
             if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                 this.lastCollideTime = time;
-                vq = this.checkFall(vq);
                 vq = this.walkTerrain(vq); // calls collideBVH
-                vq = this.checkHillside(vq); // the hills are alive...
             }
             this.lastUpdateTime = time;
+            vq = this.checkFall(vq);
+            vq = this.checkHillside(vq); // the hills are alive...
             this.positionTo(vq.v, vq.q);
         }
     }

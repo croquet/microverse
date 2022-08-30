@@ -10,7 +10,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/hillside";
     Constants.UserBehaviorModules = [
-        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "fadeIn.js"
+        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "fadeIn.js", "circle.js"
     ];
 
 
@@ -35,7 +35,7 @@ export function init(Constants) {
                 dataType: "acc",
                 dataLocation: "./assets/sounds/WindAmbience.aac",
                 loop: true,
-                volume: 0.5,
+                volume: 0.1,
             }
         },
         {
@@ -88,6 +88,32 @@ export function init(Constants) {
                 singleSided: true,    
                 type: "3d",
             }
+        },
+        {
+            card: {
+                dataLocation: "./assets/3D/temple_wmoss.glb",
+                dataScale: [1,1,1],
+                fileName: "/temple (1).glb",
+                layers: [
+                    "walk"
+                ],
+                modelType: "glb",
+                name: "/temple (1).glb",
+                rotation: [
+                    0,
+                    -0.8375393574138387,
+                    0,
+                    0.5463769987680797
+                ],
+                shadow: true,
+                singleSided: true,
+                translation: [
+                    137.04842673287243,
+                    -16.422857610412652,
+                    215.58989538473676
+                ],
+                type: "3d"
+            },
         }
     ];
 }
