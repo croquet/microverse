@@ -7,6 +7,7 @@
 // horses
 // music
 // interface to turn music/sound on/off (and other things)
+// start screen - use a plane in front of avatar?
 // stones
 // big weenie
 // switch to PDF viewer w/ presentation describing the world.
@@ -248,29 +249,25 @@ console.log("tMap:", tMap);
         if(this.grass && avatar){
             const camera = this.service("ThreeRenderManager").camera;
 
-            let cameraPos = camera.getWorldPosition(new THREE.Vector3())
             let cameraDir = camera.getWorldDirection(new THREE.Vector3());
             if(cameraDir.y!==1.0){
                 cameraDir.y = 0;
                 cameraDir.normalize();
             }
 
-        //    var drawPos = new THREE.Vector2(cameraPos.x + cameraDir.x * this.grassPatchRadius, 
-        //        cameraPos.z + cameraDir.z * this.grassPatchRadius);
-
-//var drawPos = new THREE.Vector2(4*cameraPos.x, -4*cameraPos.z);
-//drawPos = new THREE.Vector2(4*cameraPos.x+cameraDir.x * this.grassPatchRadius,0);
             let scaleLoc = 1/this.scaleHill;
             var avatarPos = new THREE.Vector2(scaleLoc*avatar.translation[0],-scaleLoc*avatar.translation[2])
             var drawPos = new THREE.Vector2(avatarPos.x+cameraDir.x*this.grassPatchRadius, 
                 avatarPos.y-cameraDir.z*this.grassPatchRadius);
             cameraDir.set(cameraDir.x, -cameraDir.z, cameraDir.y);
+
             this.grass.update(t*0.001, cameraDir, drawPos);
+
             this.terrain.update(avatarPos.x, avatarPos.y);
-           // this.water.update(avatarPos);
+
             this.water.position.x=drawPos.x;
             this.water.position.y=drawPos.y;
-           this.water.material.uniforms[ 'time' ].value = t*0.0005;
+            this.water.material.uniforms[ 'time' ].value = t*0.0005;
         }
     /*
         this.terrain.update(ppos.x, ppos.y);

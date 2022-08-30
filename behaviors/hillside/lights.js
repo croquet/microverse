@@ -10,9 +10,9 @@ class LightPawn {
 
         this.setupCSM(scene, camera, Microverse.THREE);
 
-        const ambient = new Microverse.THREE.AmbientLight( 0xffffff, .5 );
-        group.add(ambient);
-        this.lights.push(ambient);
+ //       const ambient = new Microverse.THREE.AmbientLight( 0xffffff, .25 );
+ //       group.add(ambient);
+ //       this.lights.push(ambient);
 
         this.constructBackground(this.actor._cardData);
 
