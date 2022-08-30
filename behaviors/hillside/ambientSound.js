@@ -28,8 +28,10 @@ class AmbientSoundPawn {
     }
 
     setWind(val){
-        let delta = val*(this.maxVolume-this.volume)
-        this.audio.volume = this.volume + delta;
+        if(this.audio){
+            let delta = val*(this.maxVolume-this.volume)
+            this.audio.volume = this.volume + delta;
+        }
     }
 
     play(){
