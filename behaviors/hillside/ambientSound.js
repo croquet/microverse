@@ -1,10 +1,6 @@
 class AmbientSoundActor {
     setup() {
-
-    }
-
-    update(){
-
+        // nothing yet
     }
 }
 
@@ -27,7 +23,7 @@ class AmbientSoundPawn {
         this.audio.play();
     }
 
-    setWind(val){
+    setWind(val){ // change volume on change in wind intensity
         if(this.audio){
             let delta = val*(this.maxVolume-this.volume)
             this.audio.volume = this.volume + delta;
@@ -35,12 +31,11 @@ class AmbientSoundPawn {
     }
 
     play(){
-        console.log("play!")
-        this.audio.play();
+        if(this.audio)this.audio.play();
     }
 
     stop(){
-        this.audio.stop();
+        if(this.audio)this.audio.stop();
     }
 
     update(t){
@@ -48,7 +43,7 @@ class AmbientSoundPawn {
     }
 
     teardown() {
-        this.audio.stop();
+        if(this.audio) this.stop();
 
     }
 }

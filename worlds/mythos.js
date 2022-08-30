@@ -39,6 +39,7 @@ export function init(Constants) {
                 maxVolume: 0.65
             }
         },
+        /*
         {
             card: {
                 name: "fireball",
@@ -49,6 +50,7 @@ export function init(Constants) {
                 translation: [90, -8, 200],
             },
         },
+        */
         {
             card: {
                 name: "ambient sound",
