@@ -3,6 +3,7 @@
 // To do:
 // birds
 // butterflies
+// horses
 // music
 // fix walking/falling
 // interface to turn music/sound on/off (and other things)
@@ -10,6 +11,7 @@
 // stones
 // big weenie
 // switch to PDF viewer w/ presentation describing the world.
+// set wind volume to height
 
 class HillsideActor {
     setup() {
