@@ -10,7 +10,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/hillside";
     Constants.UserBehaviorModules = [
-        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "fadeIn.js", "circle.js"
+        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "fadeIn.js", "circle.js", "fireball.js"
     ];
 
 
@@ -35,7 +35,31 @@ export function init(Constants) {
                 dataType: "acc",
                 dataLocation: "./assets/sounds/WindAmbience.aac",
                 loop: true,
-                volume: 0.1,
+                volume: 0.25,
+                maxVolume: 0.65
+            }
+        },
+        {
+            card: {
+                name: "fireball",
+               // layers: ["light"],
+                type: "object",
+                behaviorModules: ["Fireball"],
+                layers:["pointer"],
+                translation: [90, -8, 200],
+            },
+        },
+        {
+            card: {
+                name: "ambient sound",
+               // layers: ["light"],
+                type: "sound",
+                behaviorModules: ["AmbientSound"],
+                dataType: "acc",
+                dataLocation: "./assets/sounds/WindAmbience.aac",
+                loop: true,
+                volume: 0.25,
+                maxVolume: 0.65
             }
         },
         {

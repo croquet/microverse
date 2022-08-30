@@ -1,26 +1,46 @@
 // Croquet Microverse
 // Generates an infinite procedural hillside with blowing grass
+//
 // To do:
 // birds
 // butterflies
 // horses
 // music
-// fix walking/falling
 // interface to turn music/sound on/off (and other things)
-// temple
 // stones
 // big weenie
 // switch to PDF viewer w/ presentation describing the world.
 // set wind volume to height
+// the tree needs to sway in the wind
+// temple ball
+// move the water to be just in front of the avatar
+// burning ball
+//
+// X wind gusts affect sound and grass
+// X temple
+// X fix walking/falling
 
 class HillsideActor {
     setup() {
         this.future(20).update();
+        this.future(10000).highWind([0, 0.1]);
     }
 
     update(){
         this.say("updateWorld", this.now());
         this.future(20).update();
+    }
+
+    highWind(data){
+        // wind values go from 0-1 and 1-0
+        if(data[0]>=0&&data[0]<=1) { 
+            this.publish("global", "setWind", data[0]); // 
+            this.future(100).highWind([data[0]+data[1], data[1]]); // ramp up/down the wind
+        }
+        else { // start a new cycle
+            if(data[0]>1) this.future(5000+Math.random()*5000).highWind([1,-0.1]);
+            else this.future(15000+Math.random()*15000).highWind([0, 0.1]);
+        }
     }
 }
 
@@ -48,7 +68,8 @@ class HillsidePawn {
         scene.fog = new THREE.Fog(this.fogColor.getHex(), 0.1, this.fogDist);
 
         this.constructHillside();
-        this.listen("updateWorld", this.update)
+        this.listen("updateWorld", this.update);
+        this.subscribe("global", "setWind", this.setWind);
     }
 
     async constructHillside() {
@@ -84,7 +105,7 @@ class HillsidePawn {
 
             var BEACH_TRANSITION_LOW = 0.31;
             var BEACH_TRANSITION_HIGH = 0.36;
-            var WIND_DEFAULT = 1.5;
+            this.WIND_DEFAULT = 1.0;
 
             this.shape.children.forEach((c) => {
                 c.material.dispose();
@@ -110,7 +131,7 @@ console.log("heightField:", this.heightField)
             var LIGHT_DIR = new THREE.Vector3(0.0, 1.0, -1.0);
             LIGHT_DIR.normalize(LIGHT_DIR, LIGHT_DIR);
             var tMap = terramap_S.createTexture(this.heightField, LIGHT_DIR, noise_I);
-            this.windIntensity = WIND_DEFAULT;
+            this.windIntensity = this.WIND_DEFAULT;
 
 console.log("tMap:", tMap);       
 
@@ -182,6 +203,12 @@ console.log("tMap:", tMap);
         });
     }
 
+    setWind(val){
+        this.windIntensity = this.WIND_DEFAULT+val*2.5; 
+        var mat = this.grass.mesh.material;
+        mat.uniforms['windIntensity'].value = this.windIntensity;
+    }
+
     loadTextureAsset(URL){
         console.log("loadTextureAsset "+URL)
         let assetManager = this.service("AssetManager").assetManager;
@@ -205,6 +232,15 @@ console.log("tMap:", tMap);
         return assetManager.fillCacheIfAbsent(URL, () => {
             return new Microverse.THREE.FileLoader().load(URL);
         }, this.id);
+    }
+
+    getHeight(pos){ // given an x,y,z location compute the depth in the height field
+        let inv = this.invScaleHill; // invert my location to find height
+        let hfh = -this.heightField.heightAt(inv*pos[0], -inv*pos[2], true);
+        let pht = inv*this.height; // height of terrain mesh in scaled down size
+        let ht = this.scaleHill*(pht-hfh); //scale the height to world
+        let delta = pos[1]-ht; // how far above am I?
+        return (delta<EYE_HEIGHT) ? ht+EYE_HEIGHT : v[1]; // NEVER go below the terrain
     }
 
     update(t){

@@ -15,9 +15,9 @@ class AmbientSoundPawn {
 
         this.file = this.actor._cardData.dataLocation;
         this.loop = this.actor._cardData.loop || false;
-        this.volume = this.actor._cardData.volume || 0.5;
-
-
+        this.volume = this.actor._cardData.volume || 0.25;
+        this.maxVolume = this.actor._cardData.maxVolume || 0.5;
+        this.subscribe("global", "setWind", this.setWind);
     }
 
     start(){
@@ -25,6 +25,11 @@ class AmbientSoundPawn {
         this.audio.loop = this.loop;
         this.audio.volume = this.volume;
         this.audio.play();
+    }
+
+    setWind(val){
+        let delta = val*(this.maxVolume-this.volume)
+        this.audio.volume = this.volume + delta;
     }
 
     play(){
