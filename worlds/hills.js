@@ -86,6 +86,7 @@ export function init(Constants) {
                 modelType: "glb",    
                 shadow: true,    
                 singleSided: true,    
+                noFog: true,
                 type: "3d",
             }
         },
@@ -107,6 +108,7 @@ export function init(Constants) {
                 ],
                 shadow: true,
                 singleSided: true,
+                noFog: true,
                 translation: [
                     137.04842673287243,
                     -16.422857610412652,

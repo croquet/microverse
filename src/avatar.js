@@ -1438,7 +1438,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     checkFall(vq) {
-        const MAX_FALL = -15;
+        const MAX_FALL = -100;
         if (!this.isFalling) {return vq;}
         let v = vq.v;
         v = [v[0], v[1] - this.actor.fallDistance, v[2]];
@@ -1948,6 +1948,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let visible = pawn.actor.inWorld && opacity !== 0;
             model.visible = visible;
             model.traverse(n => {
+                n.renderOrder = 2000;
                 if (n.material && n.material.opacity !== opacity) {
                     n.material.opacity = opacity;
                     n.material.transparent = transparent;

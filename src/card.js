@@ -13,7 +13,7 @@ import {
 } from '@croquet/worldcore-kernel';
 import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
-import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
+import { addMeshProperties, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
@@ -674,6 +674,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let name = this.actor.name;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
+        let noFog = options.noFog !== undefined ? options.noFog : false;
+
         // bail out if we're in the process of loading this same model
         if (!model3d || this._model3dLoading === model3d) {return;}
 
@@ -687,7 +689,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 console.log("model load has been superseded");
                 return;
             }
-            addShadows(obj, shadow, singleSided, THREE);
+            addMeshProperties(obj, shadow, singleSided, noFog, THREE);
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
             this.setupAnimation(obj);
