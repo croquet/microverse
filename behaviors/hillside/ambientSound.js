@@ -18,6 +18,8 @@ class AmbientSoundPawn {
         this.subscribe("global", "setWind", this.setWind);
         this.addEventListener("pointerDown", "trigger");
         this.loadSplashScreen();
+        this.handler = () => this.start();
+        document.addEventListener("click", this.handler);
     }
 
     loadSplashScreen(){
@@ -44,6 +46,10 @@ class AmbientSoundPawn {
         this.audio.loop = this.loop;
         this.audio.volume = this.volume;
         this.audio.play();
+        if (this.handler) {
+            document.removeEventListener('click', this.handler);
+            delete this.handler;
+        }
     }
 
     setWind(val){ // change volume on change in wind intensity
@@ -66,7 +72,7 @@ class AmbientSoundPawn {
     }
 
     trigger(){
-        this.start();
+      //  this.start();
         this.fadeAway(1);
     }
 
