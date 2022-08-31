@@ -81,7 +81,7 @@ class AvatarPawn {
 
     checkHillside(vq){
 
-        const EYE_HEIGHT = 3;
+        const EYE_HEIGHT = 2.5;
         let terrainLayer = this.service("ThreeRenderManager").threeLayer("terrain");
         terrainLayer.forEach(t=>{
             if(t.wcPawn.heightField){ // heightField may not yet exist

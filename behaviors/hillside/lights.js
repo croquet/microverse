@@ -73,7 +73,7 @@ class LightPawn {
             this.csm = null;
         }
 
-        let dir = new THREE.Vector3(-2,-2,-0.5);
+        let dir = new THREE.Vector3(-2,-2,0.5);
         this.csm = new THREE.CSM({
             fade: true,
             far: camera.far,

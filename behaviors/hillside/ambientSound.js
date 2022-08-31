@@ -11,9 +11,32 @@ class AmbientSoundPawn {
 
         this.file = this.actor._cardData.dataLocation;
         this.loop = this.actor._cardData.loop || false;
+        console.log(this.actor._cardData);
         this.volume = this.actor._cardData.volume || 0.25;
         this.maxVolume = this.actor._cardData.maxVolume || 0.5;
+        console.log(this.volume, this.maxVolume)
         this.subscribe("global", "setWind", this.setWind);
+        this.addEventListener("pointerDown", "trigger");
+        this.loadSplashScreen();
+    }
+
+    loadSplashScreen(){
+        let size = 8.5;
+        const THREE = Microverse.THREE;
+        new Microverse.THREE.TextureLoader().load(
+            "./assets/hillside/images/mythos.png",
+            splashTexture =>{
+                let w = splashTexture.image.width;
+                let h = splashTexture.image.height;
+                this.fadeIn = new THREE.Mesh(new THREE.PlaneGeometry(size, size*h/w), 
+                    new THREE.MeshBasicMaterial({
+                        color: 0xFFFFFF, fog: false, transparent: true, opacity: 1.0, map:splashTexture,
+                        depthTest: false, depthWrite: false, side:THREE.DoubleSide, toneMapped: false
+                    }));
+                this.fadeIn.position.z = -2;
+                this.fadeIn.renderOrder = 1000;
+                this.shape.add(this.fadeIn);
+        });
     }
 
     start(){
@@ -42,8 +65,38 @@ class AmbientSoundPawn {
  
     }
 
+    trigger(){
+        this.start();
+        this.fadeAway(1);
+    }
+
+    fadeAway(alpha){
+
+        alpha -= 0.05;
+        if(alpha>0){
+            this.fadeIn.material.opacity = alpha;
+            this.future(50).fadeAway(alpha);
+            return;
+        }
+        this.disposeFadeIn();
+    }
+
+    disposeFadeIn(){
+        // dispose of the fade
+        if(this.fadeIn){
+            this.fadeIn.removeFromParent();
+            this.fadeIn.geometry.dispose();
+            this.fadeIn.material.dispose();
+            this.fadeIn = undefined;
+            const render = this.service("ThreeRenderManager");
+            if (render) render.dirtyAllLayers();
+        }
+        this.removeEventListener("pointerDown", "toggle");
+    }
+    
     teardown() {
         if(this.audio) this.stop();
+        this.disposeFadeIn();
 
     }
 }

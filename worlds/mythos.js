@@ -10,12 +10,28 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/hillside";
     Constants.UserBehaviorModules = [
-        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "fadeIn.js", "circle.js", "fireball.js"
+        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "circle.js", "fireball.js"
     ];
 
 
     Constants.DefaultCards = [
-        {
+        
+            {
+                card: {
+                    name: "ambient sound",
+                    translation: [0, 0, -2],
+                    layers: ["pointer"],
+                    type: "sound",
+                    behaviorModules: ["AmbientSound"],
+                    dataType: "acc",
+                    dataLocation: "./assets/sounds/WindAmbience.aac",
+                    loop: true,
+                    volume: 0.2,
+                    maxVolume: 0.3
+                },
+                id: "ambientSound"
+            },
+            {
             card: {
                 name: "light",
                 layers: ["light"],
@@ -23,22 +39,10 @@ export function init(Constants) {
                 behaviorModules: ["Lights"],
                 dataType: "jpg",
                 dataLocation: "./assets/sky/aboveClouds.jpg",
-                clearColor: 0xaabbff,
+                clearColor: 0xffffff,
             }
         },
-        {
-            card: {
-                name: "ambient sound",
-               // layers: ["light"],
-                type: "sound",
-                behaviorModules: ["AmbientSound"],
-                dataType: "acc",
-                dataLocation: "./assets/sounds/WindAmbience.aac",
-                loop: true,
-                volume: 0.25,
-                maxVolume: 0.65
-            }
-        },
+
         /*
         {
             card: {
@@ -53,21 +57,9 @@ export function init(Constants) {
         */
         {
             card: {
-                name: "ambient sound",
-               // layers: ["light"],
-                type: "sound",
-                behaviorModules: ["AmbientSound"],
-                dataType: "acc",
-                dataLocation: "./assets/sounds/WindAmbience.aac",
-                loop: true,
-                volume: 0.25,
-                maxVolume: 0.65
-            }
-        },
-        {
-            card: {
                 name: "image card",
-                translation: [0, 0.4, -10],
+                translation: [0, 2.536, -7.963],
+                //    translation: [4.440892098500626e-16, 2.5357677795120512, -7.9631457611584615],
                 //rotation: [0, Math.PI / 2, 0],
                 layers: ["pointer"],
                 scale: [4, 4, 4],
@@ -80,14 +72,6 @@ export function init(Constants) {
                 cornerRadius: 0.05,
                 depth: 0.05,
                 shadow: true,
-            }
-        },
-        {
-            card: {
-                name: "fadeIn card",
-                behaviorModules: ["FadeIn"],
-                layers: ["pointer"],
-                type: "object"
             }
         },
         {
@@ -118,7 +102,7 @@ export function init(Constants) {
         },
         {
             card: {
-                dataLocation: "./assets/3D/temple_wmoss.glb",
+                dataLocation: "./assets/3D/temple_2.glb",
                 dataScale: [1,1,1],
                 fileName: "/temple (1).glb",
                 layers: [
