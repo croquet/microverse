@@ -17,6 +17,11 @@ function newProxy(object, handler, module, behavior) {
     }
     return new Proxy(object, {
         get(target, property) {
+            // Note to developers:
+            // You may be seeing this in the developer tool of the browser.
+            // Don't worry! You can press the "Step into" button several times to get to the
+            // "apply" line a few lines below. If you step into it, you will see the behavior
+            // method you are trying to get to.
             if (property === isProxy) {return true;}
             if (property === "_target") {return object;}
             if (property === "_behavior") {return behavior;}

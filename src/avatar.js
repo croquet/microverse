@@ -610,11 +610,23 @@ const PM_SmoothedDriver = superclass => class extends superclass {
     }
 }
 
+function setModelOpacity(model, visible, opacity) {
+    let transparent = opacity !== 1;
+    model.visible = visible;
+    model.traverse(n => {
+        if (n.material && n.material.opacity !== opacity) {
+            n.material.opacity = opacity;
+            n.material.transparent = transparent;
+            n.material.side = THREE.DoubleSide;
+            n.material.needsUpdate = true;
+        }
+    });
+}
+
 class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
-        this.opacity = 1;
 
         this.spin = q_identity();
         this.velocity = [0, 0, 0];
@@ -641,7 +653,13 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         console.log("remote avatar model loaded");
         delete this.lastOpacity;
         delete this.lastInWorld;
-        this.modelHasLoaded = true;
+        this.modelLoadTime = Date.now();
+        setModelOpacity(this.shape.children[0], true, 0);
+    }
+
+    detach() {
+        delete this.modelLoadTime;
+        super.detach();
     }
 }
 
@@ -655,7 +673,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
         this.lastCollideTranslation = this.actor.translation;
-        this.opacity = 1;
 
         this.spin = q_identity();
         this.velocity = v3_zero();
@@ -684,7 +701,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
-        this.future(100).fadeNearby();
+        this.fadeNearby();
+        if (this.fadeNearbyInterval) {
+            clearInterval(this.fadeNearbyInterval);
+            this.fadeNearbyInterval = null;
+        }
+        this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
         document.getElementById("homeBttn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBttn"));
@@ -843,8 +865,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     detach() {
-        super.detach();
         dormantAvatarSpec = this.specForRevival();
+        if (this.fadeNearbyInterval) {
+            clearInterval(this.fadeNearbyInterval);
+            this.fadeNearbyInterval = null;
+        }
+        delete this.modelLoadTime;
+        super.detach();
     }
 
     startMotion(dx, dy) {
@@ -1035,7 +1062,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         console.log("avatar model loaded");
         delete this.lastOpacity;
         delete this.lastInWorld;
-        this.modelHasLoaded = true;
+        this.modelLoadTime = Date.now();
+        setModelOpacity(this.shape.children[0], true, 0);
     }
 
     setEditMode(evt) {
@@ -1234,8 +1262,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // in alphabetical order, each property triggering a say(`${propname}Set`).
         this.say("_set", actorSpec);
         if (enteringWorld) {
+            delete this.modelLoadTime;
             this.say("setAvatarData", actorSpec.cardData || {}); // NB: after setting actor's name
-            this.modelHasLoaded = false;
             // start presenting and following in new space too
             if (spec?.presenting) {
                 let manager = this.actor.service("PlayerManager");
@@ -1924,11 +1952,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let setOpacity = (pawn, opacity) => {
             const inWorld = pawn.actor.inWorld;
             // don't try to set (and record) opacity until the avatar has its model
-            if (!pawn.modelHasLoaded || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
-
-            if (pawn.lastOpacity === undefined) {
-                opacity = 0;
-            }
+            if (!pawn.modelLoadTime || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
 
             pawn.lastOpacity = opacity;
             pawn.lastInWorld = inWorld;
@@ -1941,21 +1965,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
 
             let model = pawn.shape.children[0];
-
             if (!model) {return;}
 
-            let transparent = opacity !== 1;
-            let visible = pawn.actor.inWorld && opacity !== 0;
-            model.visible = visible;
-            model.traverse(n => {
-                n.renderOrder = 2000;
-                if (n.material && n.material.opacity !== opacity) {
-                    n.material.opacity = opacity;
-                    n.material.transparent = transparent;
-                    n.material.side = THREE.DoubleSide;
-                    n.material.needsUpdate = true;
-                }
-            });
+            let visible = inWorld && opacity !== 0;
+            setModelOpacity(model, visible, opacity);
+
             // don't mess with opacity levels of children, but make them
             // visible or invisible appropriately
             if (pawn._children) {
@@ -1989,7 +2003,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 setOpacity(p, d);
             }
         }
-        this.future(100).fadeNearby();
     }
 
     addChild(id) {
@@ -2069,6 +2082,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 const configuration = window.settingsMenuConfiguration;
                 sendToShell("update-configuration", { localConfig: configuration });
                 let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+                delete this.modelLoadTime;
                 this.say("setAvatarData", tempCardSpec);
                 this.modelHasLoaded = false;
             }
