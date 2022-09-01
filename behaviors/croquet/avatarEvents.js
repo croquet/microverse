@@ -72,9 +72,11 @@ class AvatarEventHandlerPawn {
         const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
         this.targetDistance = rc.distance;
         let p3e = this.pointerEvent(rc, e);
-        let pawn = this.actor.worldcoreKernel.GetPawn(p3e.targetId);
+        let pawn = Microverse.GetPawn(p3e.targetId);
 
-        if (this.gizmoTargetPawn && pawn !== this.gizmoTargetPawn) {
+        let pawnIsGizmo = pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
+
+        if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
             this.gizmoTargetPawn.unselectEdit();
             this.gizmoTargetPawn = null;
             this.publish(this.actor.id, "removeGizmo");
@@ -106,15 +108,20 @@ class AvatarEventHandlerPawn {
         } else if (e.shiftKey) {
             if (pawn) {
                 console.log("on shift");
-                this.gizmoTargetPawn = pawn;
-                this.gizmoTargetPawn.selectEdit();
-                this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
+                if (pawnIsGizmo) {
+                    console.log("Tried to gizmo gizmo");
+                    this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
+                } else {
+                    this.gizmoTargetPawn = pawn;
+                    this.gizmoTargetPawn.selectEdit();
+                    this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
+                }
             }
         } else {
             if (!this.focusPawn) {
                 // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
-                this.lookYaw = this.actor.worldcoreKernel.q_yaw(this._rotation);
+                this.lookYaw = Microverse.q_yaw(this._rotation);
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
             this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent", "pointerDown", this, e);
@@ -174,7 +181,7 @@ class AvatarEventHandlerPawn {
         z = Math.min(100, Math.max(z,0));
         this.lookOffset = [this.lookOffset[0], z, z];
         let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
-        this.lookTo(pitch, this.actor.worldcoreKernel.q_yaw(this._rotation), this.lookOffset); //,
+        this.lookTo(pitch, Microverse.q_yaw(this._rotation), this.lookOffset); //,
     }
 
     startMotion(dx, dy) {
