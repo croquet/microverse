@@ -14,8 +14,11 @@ class AmbientSoundPawn {
         console.log(this.actor._cardData);
         this.volume = this.actor._cardData.volume || 0.25;
         this.maxVolume = this.actor._cardData.maxVolume || 0.5;
+        this.scaleWind = 1;
+
         console.log(this.volume, this.maxVolume)
         this.subscribe("global", "setWind", this.setWind);
+        this.subscribe("global", "scaleWind", this.setScaleWind);
         this.addEventListener("pointerDown", "trigger");
         this.loadSplashScreen();
         this.handler = () => this.start();
@@ -52,10 +55,16 @@ class AmbientSoundPawn {
         }
     }
 
+    setScaleWind(scale){
+        this.scaleWind = Math.min(1, Math.max(0, scale)); // must be between 0-1
+        this.audio.volume = this.currentVolume*this.scaleWind;
+    }
+
     setWind(val){ // change volume on change in wind intensity
         if(this.audio){
-            let delta = val*(this.maxVolume-this.volume)
-            this.audio.volume = this.volume + delta;
+            let delta = val*(this.maxVolume-this.volume);
+            this.currentVolume = this.volume + delta;
+            this.audio.volume = this.currentVolume*this.scaleWind;
         }
     }
 

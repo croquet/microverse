@@ -5,6 +5,7 @@
 // birds
 // butterflies
 // horses
+// stop sound when you are under water (perhaps underwater sound then?)
 // music
 // interface to turn music/sound on/off (and other things)
 // start screen - use a plane in front of avatar?
@@ -57,6 +58,8 @@ class TerrainPawn {
         this.scaleHill = 0.4;
         this.invScaleHill = 1.0/this.scaleHill;
         this.waterLevel = this.heightFieldHeight * 0.305556;
+        this.waterGlobal = -16.695;
+        this.inWater = false;
         this.fogColor = new THREE.Color(0.74, 0.77, 0.91);
         this.grassColor = new THREE.Color(0.45, 0.46, 0.19);
         this.waterColor = new THREE.Color(0.6, 0.7, 0.85);
@@ -119,6 +122,7 @@ class TerrainPawn {
             this.shape.add(this.group);
             this.group.position.y=-0.430*this.heightFieldHeight/2;
             this.group.scale.set(this.scaleHill,this.scaleHill,this.scaleHill);
+            this.waterWorld = (this.waterLevel-this.group.position.y)*this.scaleHill;
             // Setup heightfield
             var hfCellSize = this.heightFieldSize / heightmap_I.width;
             var heightMapScale = new THREE.Vector3(1.0 / this.heightFieldSize, 1.0 / this.heightFieldSize, this.heightFieldHeight);
@@ -199,7 +203,7 @@ console.log("tMap:", tMap);
                     fog: scene.fog !== undefined
                 }
             );
-        this.water.position.z = this.waterLevel;
+        this.water.position.z = this.waterLevel; // in terrain coordinates and rotation
         this.group.add(this.water);
         });
     }
@@ -236,12 +240,25 @@ console.log("tMap:", tMap);
     }
 
     getHeight(pos, eyeHeight){ // given an x,y,z location compute the depth in the height field
+        let z = pos[1];
         let inv = this.invScaleHill; // invert my location to find height
         let hfh = -this.heightField.heightAt(inv*pos[0], -inv*pos[2], true);
         let pht = inv*this.height; // height of terrain mesh in scaled down size
         let ht = this.scaleHill*(pht-hfh); //scale the height to world
-        let delta = pos[1]-ht; // how far above am I?
-        return (delta<eyeHeight) ? ht+eyeHeight : pos[1]; // NEVER go below the terrain
+        let delta = z-ht; // how far above am I?
+        let h = (delta<eyeHeight) ? ht+eyeHeight : z; // NEVER go below the terrain
+        if(h< this.waterGlobal && !this.inWater){
+            this.inWater = true;
+            this.publish("global", "scaleWind", 0);
+            console.log("into water")
+        }
+        if(h> this.waterGlobal && this.inWater){
+            this.inWater = false;
+            this.publish("global", "scaleWind", 1); 
+            console.log("out of water");
+        }
+       // console.log(h,h-eyeHeight, this.waterWorld)
+        return h;
     }
 
     update(t){

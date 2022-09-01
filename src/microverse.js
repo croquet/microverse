@@ -49,6 +49,8 @@ const isFirefox = navigator.userAgent.includes('Firefox');
 if (isFirefox) AA = false;
 const isMobile = !!("ontouchstart" in window);
 if (isMobile) AA = false;
+AA = true; // let's see...
+
 console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
