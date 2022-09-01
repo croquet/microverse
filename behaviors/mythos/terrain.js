@@ -21,7 +21,7 @@
 // X temple
 // X fix walking/falling
 
-class HillsideActor {
+class TerrainActor {
     setup() {
         this.future(20).update();
         this.future(10000).highWind([0, 0.1]);
@@ -46,7 +46,7 @@ class HillsideActor {
 }
 
 
-class HillsidePawn {
+class TerrainPawn {
     setup() {
         console.log("Constructing hillside");
 
@@ -76,32 +76,32 @@ class HillsidePawn {
     async constructHillside() {
         const THREE = Microverse.THREE;
         // images
-        let heightmap_I = this.loadImageAsset("./assets/hillside/images/heightmap.jpg");
-        let noise_I = this.loadImageAsset("./assets/hillside/images/noise.jpg");
+        let heightmap_I = this.loadImageAsset("./assets/images/heightmap.jpg");
+        let noise_I = this.loadImageAsset("./assets/images/noise.jpg");
         // textures
-        let grass_T = this.loadTextureAsset("./assets/hillside/images/grass.jpg");
-        let terrain1_T = this.loadTextureAsset("./assets/hillside/images/terrain1.jpg");
-        let terrain2_T = this.loadTextureAsset("./assets/hillside/images/terrain2.jpg");
-        let waterNormals = this.loadTextureAsset("./assets/hillside/images/waternormals.jpg");
-       // let skydome_T = this.loadTextureAsset("./assets/hillside/images/skydome.jpg");
-       // let skyenv_T = this.loadTextureAsset("./assets/hillside/images/skyenv.jpg");
+        let grass_T = this.loadTextureAsset("./assets/images/grass.jpg");
+        let terrain1_T = this.loadTextureAsset("./assets/images/terrain1.jpg");
+        let terrain2_T = this.loadTextureAsset("./assets/images/terrain2.jpg");
+        let waterNormals = this.loadTextureAsset("./assets/images/waternormals.jpg");
+       // let skydome_T = this.loadTextureAsset("./assets/images/skydome.jpg");
+       // let skyenv_T = this.loadTextureAsset("./assets/images/skyenv.jpg");
         // shaders
-        let grassVert = await fetch('./assets/hillside/shader/grass.vert.glsl').then((resp) => resp.text());
-        let grassFrag = await fetch('./assets/hillside/shader/grass.frag.glsl').then((resp) => resp.text());
-        let terrainVert = await fetch('./assets/hillside/shader/terrain.vert.glsl').then((resp) => resp.text());
-        let terrainFrag = await fetch('./assets/hillside/shader/terrain.frag.glsl').then((resp) => resp.text());
- //       let waterVert = await fetch('./assets/hillside/shader/water.vert.glsl').then((resp) => resp.text());
- //       let waterFrag = await fetch('./assets/hillside/shader/water.frag.glsl').then((resp) => resp.text());
+        let grassVert = await fetch('./assets/shaders/grass.vert.glsl').then((resp) => resp.text());
+        let grassFrag = await fetch('./assets/shaders/grass.frag.glsl').then((resp) => resp.text());
+        let terrainVert = await fetch('./assets/shaders/terrain.vert.glsl').then((resp) => resp.text());
+        let terrainFrag = await fetch('./assets/shaders/terrain.frag.glsl').then((resp) => resp.text());
+ //       let waterVert = await fetch('./assets/shaders/water.vert.glsl').then((resp) => resp.text());
+ //       let waterFrag = await fetch('./assets/shaders/water.frag.glsl').then((resp) => resp.text());
 
         return Promise.all([
-            //import("/assets/hillside/src/skydome.js"),
-            import("/assets/hillside/src/heightfield.js"),
-            import("/assets/hillside/src/grass.js"),
-            import("/assets/hillside/src/terrain.js"),
-            import("/assets/hillside/src/terramap.js"),
-            // import("/assets/hillside/src/water.js"),
-            import("/assets/hillside/src/WaterReflector.js"),
-            import("/assets/hillside/src/simplex.js")
+            //import("/assets/src/skydome.js"),
+            import("/assets/src/heightfield.js"),
+            import("/assets/src/grass.js"),
+            import("/assets/src/terrain.js"),
+            import("/assets/src/terramap.js"),
+            // import("/assets/src/water.js"),
+            import("/assets/src/WaterReflector.js"),
+            import("/assets/src/simplex.js")
         ]).then(([heightfield_S, grass_S, terrain_S, terramap_S, water_S, simplex_S]) => {
 
             var BEACH_TRANSITION_LOW = 0.31;
@@ -235,13 +235,13 @@ console.log("tMap:", tMap);
         }, this.id);
     }
 
-    getHeight(pos){ // given an x,y,z location compute the depth in the height field
+    getHeight(pos, eyeHeight){ // given an x,y,z location compute the depth in the height field
         let inv = this.invScaleHill; // invert my location to find height
         let hfh = -this.heightField.heightAt(inv*pos[0], -inv*pos[2], true);
         let pht = inv*this.height; // height of terrain mesh in scaled down size
         let ht = this.scaleHill*(pht-hfh); //scale the height to world
         let delta = pos[1]-ht; // how far above am I?
-        return (delta<EYE_HEIGHT) ? ht+EYE_HEIGHT : v[1]; // NEVER go below the terrain
+        return (delta<eyeHeight) ? ht+eyeHeight : pos[1]; // NEVER go below the terrain
     }
 
     update(t){
@@ -278,22 +278,22 @@ console.log("tMap:", tMap);
     teardown() {
         let assetManager = this.service("AssetManager").assetManager;
 
-        assetManager.revoke("./assets/hillside/images/heightmap.jpg", this.id);
-        assetManager.revoke("./assets/hillside/images/noise.jpg", this.id);
-        assetManager.revoke("./assets/hillside/images/grass.jpg", this.id);
-        assetManager.revoke("./assets/hillside/images/terrain1.jpg", this.id);
-        assetManager.revoke("./assets/hillside/images/terrain2.jpg", this.id);
-        assetManager.revoke("./assets/hillside/images/skydome.jpg", this.id);        
-        assetManager.revoke("./assets/hillside/images/skyenv.jpg", this.id);
+        assetManager.revoke("./assets/images/heightmap.jpg", this.id);
+        assetManager.revoke("./assets/images/noise.jpg", this.id);
+        assetManager.revoke("./assets/images/grass.jpg", this.id);
+        assetManager.revoke("./assets/images/terrain1.jpg", this.id);
+        assetManager.revoke("./assets/images/terrain2.jpg", this.id);
+        assetManager.revoke("./assets/images/skydome.jpg", this.id);        
+        assetManager.revoke("./assets/images/skyenv.jpg", this.id);
     }
 }
 
 export default {
     modules: [
         {
-            name: "Hillside",
-            actorBehaviors: [HillsideActor],
-            pawnBehaviors: [HillsidePawn]
+            name: "Terrain",
+            actorBehaviors: [TerrainActor],
+            pawnBehaviors: [TerrainPawn]
         }
     ]
 }

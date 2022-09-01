@@ -84,6 +84,11 @@ class AvatarPawn {
         const EYE_HEIGHT = 2.5;
         let terrainLayer = this.service("ThreeRenderManager").threeLayer("terrain");
         terrainLayer.forEach(t=>{
+            let handlerModuleName = 'Terrain';
+            let pawn = t.wcPawn;
+            if (pawn.has(`${handlerModuleName}$TerrainPawn`, "getHeight")) {
+                vq.v[1] = pawn.call(`${handlerModuleName}$TerrainPawn`, "getHeight", vq.v, EYE_HEIGHT);
+            /*
             if(t.wcPawn.heightField){ // heightField may not yet exist
                 let inv = t.wcPawn.invScaleHill; // invert my location to find height
                 let hfh = -t.wcPawn.heightField.heightAt(inv*vq.v[0], -inv*vq.v[2], true);
@@ -91,6 +96,8 @@ class AvatarPawn {
                 let ht = t.wcPawn.scaleHill*(pht-hfh); //scale the height to world
                 let delta = vq.v[1]-ht; // how far above am I?
                 if(delta<EYE_HEIGHT)vq.v[1]=ht+EYE_HEIGHT; // NEVER go below the terrain
+            }
+            */
             }
         });
         return vq;

@@ -67,8 +67,8 @@ const config = {
                 { from: 'assets/sounds/*'},
                 { from: 'assets/avatar-images/*'},
                 { from: 'assets/sky/*'},
-                { from: 'assets/hillside/**/*'},
-                { from: 'assets/hillside/shader/*'},
+                { from: 'assets/src/*'},            
+                { from: 'assets/shaders/*'},    
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'behaviors/**/*'}

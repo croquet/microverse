@@ -16,12 +16,12 @@ class FireballPawn {
     setup() {
         this.listen("updateFire",this.update);
         return Promise.all([
-            import("/assets/hillside/shader/fireball.frag.js"),
-            import("/assets/hillside/shader/fireball.vert.js"),
+            import("/assets/shader/fireball.frag.js"),
+            import("/assets/shader/fireball.vert.js"),
         ]).then(([fragmentShader, vertexShader]) => {
 
 console.log(vertexShader, fragmentShader)
-        let explosionTexture = new THREE.TextureLoader().load( "./assets/hillside/images/explosion.png" );
+        let explosionTexture = new THREE.TextureLoader().load( "./assets/images/explosion.png" );
         this.material = new THREE.ShaderMaterial( {
           uniforms: {
             tExplosion: {

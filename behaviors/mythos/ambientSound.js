@@ -26,7 +26,7 @@ class AmbientSoundPawn {
         let size = 8.5;
         const THREE = Microverse.THREE;
         new Microverse.THREE.TextureLoader().load(
-            "./assets/hillside/images/mythos.png",
+            this.actor._cardData.textureLocation,
             splashTexture =>{
                 let w = splashTexture.image.width;
                 let h = splashTexture.image.height;

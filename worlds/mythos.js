@@ -8,9 +8,9 @@ export function init(Constants) {
         "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 
-    Constants.UserBehaviorDirectory = "behaviors/hillside";
+    Constants.UserBehaviorDirectory = "behaviors/mythos";
     Constants.UserBehaviorModules = [
-        "lights.js", "hillside.js", "gridFloor.js", "ambientSound.js", "circle.js", "fireball.js"
+        "lights.js", "terrain.js", "gridFloor.js", "ambientSound.js", "circle.js", "fireball.js"
     ];
 
 
@@ -25,6 +25,7 @@ export function init(Constants) {
                     behaviorModules: ["AmbientSound"],
                     dataType: "acc",
                     dataLocation: "./assets/sounds/WindAmbience.aac",
+                    textureLocation: "./assets/images/mythos.png",
                     loop: true,
                     volume: 0.2,
                     maxVolume: 0.3
@@ -76,8 +77,8 @@ export function init(Constants) {
         },
         {
             card: {
-                name:"Hillside",
-                behaviorModules: ["Hillside"],
+                name:"Terrain",
+                behaviorModules: ["Terrain"],
                 layers: ["terrain"],
                 type: "object",
                 translation:[0, 0, 0],
