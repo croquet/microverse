@@ -10,7 +10,8 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/mythos";
     Constants.UserBehaviorModules = [
-        "lights.js", "terrain.js", "gridFloor.js", "ambientSound.js", "circle.js", "fireball.js"
+        "lights.js", "terrain.js", "gridFloor.js", "ambientSound.js", "circle.js", "fireball.js",
+        "blowing.js"
     ];
 
 
@@ -94,11 +95,13 @@ export function init(Constants) {
                 dataLocation: "36bHrAibIhhNDw5QTWfleb-P1ufV9Gp4EKM28m0ss4iUXkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZYHp-UmwPBQdUcFVsckMHd19iAUJ4X3RCDlx8BBlfWRhVRFlHQ1NCGFJPWFdAU0RFUxlQZlFiYnJBQEIEAldxD1VnRUcHbHppUgN6blJjUXpvT3xVZ0J7bm5_ckZ_GVJXQlcZY29dBAJQYQFHfVdnWXxRUw4CbmZbZntpY0R9WHlPV1xaeX9RaUQBBhtUUQ",    
                 dataScale: [1.5, 1.5, 1.5],    
                 fileName: "/treepack4_small.glb",    
+                behaviorModules: ["Blowing"],
                 modelType: "glb",    
                 shadow: true,    
                 singleSided: true,    
                 noFog: true,
                 type: "3d",
+                static: true
             }
         },
         {
@@ -125,7 +128,8 @@ export function init(Constants) {
                     -16.422857610412652,
                     215.58989538473676
                 ],
-                type: "3d"
+                type: "3d",
+                static: true
             },
         }
     ];

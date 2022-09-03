@@ -5,19 +5,19 @@
 // birds
 // butterflies
 // horses
-// stop sound when you are under water (perhaps underwater sound then?)
-// music
+// music - needs Aran's library
 // interface to turn music/sound on/off (and other things)
-// start screen - use a plane in front of avatar?
 // stones
 // big weenie
 // switch to PDF viewer w/ presentation describing the world.
 // set wind volume to height
 // the tree needs to sway in the wind
-// temple ball
-// move the water to be just in front of the avatar
-// burning ball
+// move the water plane to be just in front of the avatar - can be smaller and cover more area
+// 
+// - burning ball - created but unused
 //
+// X start screen - use a plane in front of avatar?
+// X stop sound when you are under water (perhaps underwater sound then?)
 // X wind gusts affect sound and grass
 // X temple
 // X fix walking/falling
@@ -49,8 +49,7 @@ class TerrainActor {
 
 class TerrainPawn {
     setup() {
-        console.log("Constructing hillside");
-
+//console.log("Constructing hillside");
         this.numGrassBlades = 500000;
         this.grassPatchRadius = 175.0;
         this.heightFieldSize = 3072.0;
@@ -78,6 +77,7 @@ class TerrainPawn {
 
     async constructHillside() {
         const THREE = Microverse.THREE;
+
         // images
         let heightmap_I = this.loadImageAsset("./assets/images/heightmap.jpg");
         let noise_I = this.loadImageAsset("./assets/images/noise.jpg");
@@ -132,13 +132,13 @@ class TerrainPawn {
                 maxHeight: heightMapScale.z,
                 image: heightmap_I
             });
-console.log("heightField:", this.heightField)
+//console.log("heightField:", this.heightField)
             var LIGHT_DIR = new THREE.Vector3(0.0, 1.0, -1.0);
             LIGHT_DIR.normalize(LIGHT_DIR, LIGHT_DIR);
             var tMap = terramap_S.createTexture(this.heightField, LIGHT_DIR, noise_I);
             this.windIntensity = this.WIND_DEFAULT;
 
-console.log("tMap:", tMap);       
+//console.log("tMap:", tMap);       
 
 
             // Create a large patch of grass to fill the foreground
@@ -215,7 +215,7 @@ console.log("tMap:", tMap);
     }
 
     loadTextureAsset(URL){
-        console.log("loadTextureAsset "+URL)
+//console.log("loadTextureAsset "+URL)
         let assetManager = this.service("AssetManager").assetManager;
         return assetManager.fillCacheIfAbsent(URL, () => {
             let tex = new Microverse.THREE.TextureLoader().load(URL);
@@ -257,7 +257,6 @@ console.log("tMap:", tMap);
             this.publish("global", "scaleWind", 1); 
             console.log("out of water");
         }
-       // console.log(h,h-eyeHeight, this.waterWorld)
         return h;
     }
 

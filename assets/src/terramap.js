@@ -7,14 +7,14 @@
  */
 
 export function createTexture(hf, lightDir, imgWind) {
-    console.log('xxxxxx', hf, hf.xCount)
+//console.log('xxxxxx', hf, hf.xCount)
     var canvas = document.createElement('canvas');
     var canvasWidth = hf.xCount + 1;
     var canvasHeight = hf.yCount + 1;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     var ctx = canvas.getContext('2d');
-    console.log(hf, hf.xCount, canvasWidth, canvasHeight)
+//console.log(hf, hf.xCount, canvasWidth, canvasHeight)
     var imgData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
     // Fill R (height) and G (light) values from heightfield data and computed light
     computeData(hf, lightDir, imgData.data);
@@ -56,7 +56,7 @@ function computeData(hf, lightDir, buf) {
         }
     }
     var dt = Date.now() - tStart;
-    console.log("computed terrain data texture (".concat(w, "x").concat(h, ") values in ").concat(dt, "ms"));
+//console.log("computed terrain data texture (".concat(w, "x").concat(h, ") values in ").concat(dt, "ms"));
     return buf;
 }
 

@@ -19,7 +19,7 @@ var BLADE_HEIGHT_MAX = 3.0;
 export class Grass {
     constructor(opts) {
         // Buffers to use for instances of blade mesh
-        console.log("grass.CreateMesh", opts)
+//console.log("grass.CreateMesh", opts)
         var buffers = {
             // Tells the shader which vertex of the blade its working on.
             // Rather than supplying positions, they are computed from this vindex.
@@ -74,7 +74,7 @@ export class Grass {
             fragmentShader: opts.fragScript,
             transparent: true
         });
-        console.log("GRASS", mat)
+//console.log("GRASS", mat)
         this.mesh = new THREE.Mesh(geo, mat);
         this.mesh.frustumCulled = false; // always draw, never cull
     }
