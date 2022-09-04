@@ -4,71 +4,82 @@
 
 class CrowdActor {
     setup() {
+        this.maxCrowdSize = 5000;
+        this.crowdSize = 1000;
         this.range = 1000;
         this.speed = 0.125; // don't move very fast yet
         this.height = 1.9; // height above the terrain
         let r2 = this.range/2;
-        
-        this.crowdSize = 5000;
+
         this.crowd = [];
         this.color1 = 0xaaaaaa;
         this.color2 = 0x6666ff;
         this.color3 = 0xff6666;
-        for(let i=0; i<this.crowdSize; i++){
+        for(let i=0; i<this.maxCrowdSize; i++){
             let p = [Math.random()*this.range-r2, 0, Math.random()*this.range-r2]; //current position
-            let n = [Math.random()*this.range-r2, 0, Math.random()*this.range-r2]; //next position
-            let d = [n[0]-p[0], 0, n[2]-p[2]]; //delta
-            let ds = Math.sqrt(d[0]*d[0]+d[2]*d[2]);
-            d = [d[0]/ds, 0, d[2]/ds];
-            let yaw = Math.atan2(d[0], d[2]);
             let color = i%10 !== 0? this.color1 : i%100 !==0? this.color2 : this.color3; // color
-           // if(ds<0.0001){n=[1,0], ds = 1}
-            d[0]*=this.speed; d[2]*=this.speed;
             this.crowd.push(
                 [p, // current position
-                n, // go to next position
-                d, // delta
-                yaw, // yaw value
+                [0,0,0], // go to next position
+                [0,0,0], // delta
+                0, // yaw value
                 Math.random()*Math.PI, // used as offset for sin computation
                 1+Math.random()/10, // scale time so crowd isn't so lock step
-                color,
-                this.now()+15000+Math.random()*10000
+                color, // bot color
+                0,// how long till it changes direction
+                0 // player counter
                 ]
             )
+            this.resetBot(i, this.speed);
         }
         this.updateCrowd();
     }
 
-    resetBot(index){
+    resetBot(index, speed, delta){
         let r2 = this.range/2;
         let c = this.crowd[index];
-        let p = c[0];
+        let p = c[0]; // current position, updated regularly
         let n = [Math.random()*this.range-r2, 0, Math.random()*this.range-r2]; //next position
-        let d = [n[0]-p[0], 0, n[2]-p[2]]; //delta
-        let ds = Math.sqrt(d[0]*d[0]+d[2]*d[2]);
-        d = [d[0]/ds, 0, d[2]/ds];
-        d[0]*=this.speed; d[2]*=this.speed;
-        let yaw = Math.atan2(d[0], d[2]);
+        if (typeof delta === 'undefined') delta = [n[0]-p[0], 0, n[2]-p[2]]; // delta - used to move
+        let ds = Math.sqrt(delta[0]*delta[0]+delta[2]*delta[2]);
+        delta = [delta[0]/ds, 0, delta[2]/ds];
+        delta[0]*=speed; delta[2]*=speed; 
+        let yaw = Math.atan2(delta[0], delta[2]);
         c[1] = n;
-        c[2] = d;
+        c[2] = delta;
         c[3] = yaw;
-        c[7] = this.now()+15000+Math.random()*10000;
+        c[7] = this.now()+15000+Math.random()*10000; // when is the next reset?
+        c[8] = 0; // player counter
+        c[9] = 0;
     }
 
     updateCrowd(){
-        //let players = this.service("PlayerManager").players;
-        //console.log("------------updateCrowd", players)
+        let collideDistance = 12;
+        let players = this.service("PlayerManager").players.values();
+        let avatarTranslation = [];
+        for(const value of players){
+            avatarTranslation.push(value.translation);
+        }
+        let aLen = avatarTranslation.length;
         let now = this.now();
         for(let i=0; i<this.crowdSize; i++){
-            //for(const value of players.values()){
-                //value.translation
-            //}
             let c = this.crowd[i];
-            if(c[7]<now)this.resetBot(i);
+            let p = c[0]; // current position
+            let aIndex = c[8];
+
+            if(c[8]>=aLen)aIndex=0;
+            c[8]=aIndex+1;
+            let t = avatarTranslation.length>0?avatarTranslation[aIndex]:[0,0,0];
+            let tp = [p[0]-t[0], 0, p[2]-t[2]];
+            if(c[9]>10 && Math.abs(tp[0])<collideDistance && Math.abs(tp[2])<collideDistance){
+                // run away from avatar
+                this.resetBot(i, this.speed*5, tp);
+            }else if(c[7]<now)this.resetBot(i, this.speed);
             else{
-                c[0][0] += c[2][0];
-                c[0][1] = this.height + 0.1* Math.sin(c[5]*(c[4]+0.004*this.now())); // bobbing
-                c[0][2] += c[2][2];
+                p[0] += c[2][0];
+                p[1] = this.height + 0.1* Math.sin(c[5]*(c[4]+0.004*this.now())); // bobbing
+                p[2] += c[2][2];
+                c[9]++;
             }
         }
 
@@ -95,13 +106,15 @@ class CrowdPawn {
         this.mask = mask.scene.children[0];
         this.mask.material.side = Microverse.THREE.DoubleSide;
         let crowdSize = this.actor.crowdSize;
+        let maxCrowdSize = this.actor.maxCrowdSize;
         let crowd = this.actor.crowd;
-        this.crowdMask = new Microverse.THREE.InstancedMesh(this.mask.geometry, this.mask.material, crowdSize);
+        this.crowdMask = new Microverse.THREE.InstancedMesh(this.mask.geometry, this.mask.material, maxCrowdSize);
         // set the colors because those don't change
-        for(let i=0; i<this.actor.crowdSize; i++){
+        for(let i=0; i<maxCrowdSize; i++){
             //console.log(crowd[i][6])
             this.crowdMask.setColorAt(i,new Microverse.THREE.Color(crowd[i][6]));
         }
+        this.crowdMask.count = crowdSize;
         this.shape.add(this.crowdMask);
         this.updateCrowd();
     }

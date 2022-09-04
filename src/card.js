@@ -689,7 +689,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 console.log("model load has been superseded");
                 return;
             }
-            addMeshProperties(obj, shadow, singleSided, noFog, THREE);
+
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
             this.setupAnimation(obj);
@@ -715,6 +715,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     obj = staticObj;
                 }
             }
+            addMeshProperties(obj, shadow, singleSided, noFog, THREE);
             if (this.actor.layers.indexOf('walk') >= 0) {
                 this.constructCollider(obj);
             }
