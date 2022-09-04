@@ -260,6 +260,18 @@ class TerrainPawn {
         return h;
     }
 
+    getHeightFast(pos){ // given an x,y,z location compute the depth in the height field
+        if(!this.heightField)return 0;
+        let inv = this.invScaleHill; // invert my location to find height
+       // console.log(inv*pos[0], -inv*pos[1])
+        let hfh = -this.heightField.heightAt(inv*pos[0], -inv*pos[2], true);
+       // console.log(hfh)
+        let pht = inv*this.height; // height of terrain mesh in scaled down size
+        let ht = this.scaleHill*(pht-hfh); //scale the height to world
+       // console.log(ht)
+        return ht;
+    }
+
     update(t){
         let avatar = Microverse.GetPawn( this.actor.service("PlayerManager").players.get(this.viewId).id);
         if(this.grass && avatar){
