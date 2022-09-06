@@ -166,7 +166,7 @@
 }
 
 #cancelButton {
-    width: 52%;
+    width: 20%;
     height: 45px;
     line-height: 45px;
     text-align: center;
@@ -711,9 +711,11 @@
 
 #handednessLabel {
     margin-right: 10px;
+    margin-top: 7px;
 }
 
 #handedness {
+    font-family: 'Poppins';
     color: #fff;
     background-color: #6c757d;
     border-color: #6c757d;
@@ -768,6 +770,10 @@
 .settings-container {
     width: 100%;
     background-color: rgba(0, 0, 0, 0.5);
+}
+
+#settings-title {
+    font-size: 25px;
 }
 
 .settings-padding {

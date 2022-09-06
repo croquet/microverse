@@ -66,6 +66,7 @@ function createSettingsMenu(useEnter) {
                     <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
                     <div id='nameFilterWarning'><br/></div>
                 </div>
+                <div class='namePrompt'>Select Avatar</div>
                 <div id='dialogAvatarSelections' class='settingColumn'>
                 <div id='avatarList'></div>
                 </div>
