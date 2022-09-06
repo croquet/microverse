@@ -116,12 +116,12 @@ body.tilt>iframe {
 
 #fullscreenBttn {
     top: 10px;
-    left: 10px;
+    right: 10px;
 }
 
 #worldMenuBttn {
     top: 10px;
-    right: 10px;
+    left: 10px;
 }
 
 #editModeBttn {
@@ -160,7 +160,7 @@ body.tilt>iframe {
 .worldMenu {
     position: absolute;
     top: 70px;
-    right: 10px;
+    left: 10px;
     z-index: 200;
     display: none;
 }

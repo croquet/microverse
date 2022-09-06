@@ -115,7 +115,7 @@ function initWorldMenu(badge) {
     <div class="menu-icon connect-icon"></div>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
-    <span class="menu-label-text">Settings...</span>
+    <span class="menu-label-text">Settings</span>
     <div class="menu-icon load-icon"></div>
 </div>
 `.trim();
