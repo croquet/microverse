@@ -108,7 +108,7 @@ function initWorldMenu(badge) {
 </div>
 <div id="worldMenu-save" class="menu-label menu-item">
     <div class="menu-icon save-icon"></div>
-    <span class="menu-label-text">Save</span>
+    <span class="menu-label-text">Export</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
     <div class="menu-icon connect-icon"></div>
@@ -129,8 +129,8 @@ function initWorldMenu(badge) {
     let settings = div.querySelector("#worldMenu-settings");
 
     html.appendChild(load);
-    html.appendChild(connect);
     html.appendChild(save);
+    html.appendChild(connect);
     html.appendChild(settings);
 
     worldMenu = html;

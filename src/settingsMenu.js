@@ -57,32 +57,38 @@ function createSettingsMenu(useEnter) {
             <div id='joinPromptTitle'>Choose nickname and avatar</div>
             <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either by selecting from those on display or pasting a valid Ready Player Me URL.</div>
         </div>
-        <div id='nameInput' class='stringInputHolder settingColumn'>
-            <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
-            <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
-            <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
-            <div id='nameFilterWarning'><br/></div>
+        <div id="settings-title">Settings</div>
+        <div class="settings-container">
+            <div class="settings-padding">
+                <div id='nameInput' class='stringInputHolder settingColumn'>
+                    <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
+                    <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
+                    <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
+                    <div id='nameFilterWarning'><br/></div>
+                </div>
+                <div id='dialogAvatarSelections' class='settingColumn'>
+                <div id='avatarList'></div>
+                </div>
+                <div id='avatarURL' class='stringInputHolder settingColumn'>
+                <div id='avatarURLPrompt' class='namePrompt'>Or, Enter an Avatar URL</div>
+                <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'></div>
+                </div>
+                <div id="handednessRow"class="settingsColumn">
+                <div id="handednessLabel">Handedness:</div>
+                <select id='handedness' class='handedness'>
+                    <option>Right</option>
+                    <option>Left</option>
+                </select>
+                </div>
+            </div>
         </div>
-        <div id='dialogAvatarSelections' class='settingColumn'>
-          <div id='avatarList'></div>
-        </div>
-        <div id='avatarURL' class='stringInputHolder settingColumn'>
-          <div id='avatarURLPrompt' class='namePrompt'>Avatar URL</div>
-          <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'></div>
-        </div>
-        <div id="handednessRow"class="settingsColumn">
-          <div id="handednessLabel">Handedness:</div>
-          <select id='handedness' class='handedness'>
-            <option>Right</option>
-            <option>Left</option>
-          </select>
-        </div>
+
         <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
             <div id='enterButton'>Enter</div>
         </div>
         <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
             <div id='cancelButton'>Cancel</div>
-            <div id='acceptButton'>Accept</div>
+            <div id='acceptButton'>Apply</div>
         </div>
     </div>
   </div>
@@ -97,11 +103,15 @@ function createSettingsMenu(useEnter) {
     const nameField = settingsMenu.querySelector('#nameField');
     nameField.addEventListener('keydown', evt => nameFieldKeydown(evt));
     nameField.addEventListener('input', (evt) => nameFieldChanged(evt));
-    nameField.addEventListener('paste', (evt) => {evt.stopPropagation();});
+    nameField.addEventListener('paste', (evt) => {
+        evt.stopPropagation();
+    });
 
     const avatarURLField = settingsMenu.querySelector('#avatarURLField');
     avatarURLField.addEventListener('input', (evt) => avatarURLFieldChanged(evt));
-    avatarURLField.addEventListener('paste', (evt) => {evt.stopPropagation();});
+    avatarURLField.addEventListener('paste', (evt) => {
+        evt.stopPropagation();
+    });
 
     const enterButton = settingsMenu.querySelector('#enterButton');
     enterButton.addEventListener('click', () => dialogCloseEnter());
@@ -140,7 +150,7 @@ function setSettingsSize() {
     const innerWidth = window.innerWidth;
     if (innerWidth && innerWidth < 630) {
         settingsMenuBody.classList.remove('wide');
-        width =  432;
+        width = 432;
     }
     settingsMenuBody.style.width = `${width}px`;
     settingsMenuBody.style.height = `${height}px`;
@@ -195,9 +205,9 @@ function nameFieldChanged(evt) {
     // const unusable = value.replace(/[\x20-\x7F]/g, '');
     value = value.replace(/[^\x20-\x7F]/g, '').trim().slice(0, 12).trim();
     const div = document.getElementById('nameFilterWarning');
-    div.innerHTML = value.length === beforeFilter
-        ? '<br/>'
-        : `Nickname filtered to "${value}"`;
+    div.innerHTML = value.length === beforeFilter ?
+        '<br/>' :
+        `Nickname filtered to "${value}"`;
 
     if (value.length >= 1 && value.length <= 12) {
         configuration.nickname = value;
@@ -215,7 +225,10 @@ function avatarURLFieldChanged(evt) {
     }
     const avatarURLField = settingsMenu.querySelector('#avatarURLField');
     let value = avatarURLField.textContent.trim(); // may be empty
-    avatarSelected({url: value, type: "ReadyPlayerMe"});
+    avatarSelected({
+        url: value,
+        type: "ReadyPlayerMe"
+    });
 }
 
 function updateButtonState() {
@@ -256,41 +269,51 @@ function cancel() {
 
 function updateLocalConfig() {
     const existing = window.settingsMenuConfiguration || {};
-    window.settingsMenuConfiguration = { ...existing, ...configuration };
+    window.settingsMenuConfiguration = {
+        ...existing,
+        ...configuration
+    };
 }
 
-let avatars = [
-    {png: "f1",
-     url: "https://d1a370nemizbjq.cloudfront.net/0725566e-bdc0-40fd-a22f-cc4c333bcb90.glb",
-     type: "ReadyPlayerMe",
+let avatars = [{
+        png: "f1",
+        url: "https://d1a370nemizbjq.cloudfront.net/0725566e-bdc0-40fd-a22f-cc4c333bcb90.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "f2",
-     url: "https://d1a370nemizbjq.cloudfront.net/50ef7f5f-b401-4b47-a8dc-1c4eda1ba8d2.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "f2",
+        url: "https://d1a370nemizbjq.cloudfront.net/50ef7f5f-b401-4b47-a8dc-1c4eda1ba8d2.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "f3",
-     url: "https://d1a370nemizbjq.cloudfront.net/b5c04bb2-a1df-4ca4-be2e-fb54799e9030.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "f3",
+        url: "https://d1a370nemizbjq.cloudfront.net/b5c04bb2-a1df-4ca4-be2e-fb54799e9030.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "f4",
-     url: "https://d1a370nemizbjq.cloudfront.net/b480f1d0-3a0f-4766-9860-c213e6c50f3d.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "f4",
+        url: "https://d1a370nemizbjq.cloudfront.net/b480f1d0-3a0f-4766-9860-c213e6c50f3d.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "m1",
-     url: "https://d1a370nemizbjq.cloudfront.net/05d16812-01de-48cc-8e06-c6514ba14a77.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "m1",
+        url: "https://d1a370nemizbjq.cloudfront.net/05d16812-01de-48cc-8e06-c6514ba14a77.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "m2",
-     url: "https://d1a370nemizbjq.cloudfront.net/2955d824-31a4-47e1-ba58-6c387c63b660.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "m2",
+        url: "https://d1a370nemizbjq.cloudfront.net/2955d824-31a4-47e1-ba58-6c387c63b660.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "m3",
-     url: "https://d1a370nemizbjq.cloudfront.net/579d4ec8-ade3-49ea-8b52-2ea5fe097f7d.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "m3",
+        url: "https://d1a370nemizbjq.cloudfront.net/579d4ec8-ade3-49ea-8b52-2ea5fe097f7d.glb",
+        type: "ReadyPlayerMe",
     },
-    {png: "m4",
-     url: "https://d1a370nemizbjq.cloudfront.net/535100f3-c58c-4fd8-9fb9-4ee090e844bf.glb",
-     type: "ReadyPlayerMe",
+    {
+        png: "m4",
+        url: "https://d1a370nemizbjq.cloudfront.net/535100f3-c58c-4fd8-9fb9-4ee090e844bf.glb",
+        type: "ReadyPlayerMe",
     }
 ];
 
@@ -300,7 +323,9 @@ function avatarSelected(entry) {
         configuration.type = entry.type;
     }
 
-    if (!settingsMenu) {return;}
+    if (!settingsMenu) {
+        return;
+    }
 
     avatarIsValid = false;
 
@@ -336,7 +361,9 @@ function findPredefined(url) {
 }
 
 function populateAvatarSelection() {
-    if (!settingsMenu) {return;}
+    if (!settingsMenu) {
+        return;
+    }
     let holder = settingsMenu.querySelector("#avatarList");
 
     avatars.forEach((entry) => {
