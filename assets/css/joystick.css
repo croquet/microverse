@@ -61,6 +61,20 @@
     }
 }
 
+@media (max-width:1899px) {
+    #directions {
+        position: fixed;
+        left: 19px;
+        top: 20px;
+        width: 85px;
+        height: 85px;
+        /* background-color: rgba(179, 16, 16, 0.5); */
+        pointer-events: none;
+        transform: rotate(45deg);
+        color: white;
+    }
+}
+
 @media (min-width:1900px) {
     #trackingknob {
         width: 135px;
@@ -73,25 +87,27 @@
         height: 140px;
     }
 
+    #directions {
+        position: fixed;
+        left: 27px;
+        top: 26px;
+        width: 85px;
+        height: 85px;
+        /* background-color: rgba(179, 16, 16, 0.5); */
+        pointer-events: none;
+        transform: rotate(45deg);
+        color: white;
+    }
+
     #knob {
-        width: 75px;
-        height: 75px;
-        left: -8px;
-        top: -8px;
+        width: 72px;
+        height: 69px;
+        left: -31px;
+        top: -31px;
     }
 }
 
-#directions {
-    position: fixed;
-    left: 19px;
-    top: 20px;
-    width: 85px;
-    height: 85px;
-    /* background-color: rgba(179, 16, 16, 0.5); */
-    pointer-events: none;
-    transform: rotate(45deg);
-    color: white;
-}
+
 
 .joystick-arrow {
     position: fixed;
