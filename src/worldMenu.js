@@ -102,21 +102,21 @@ function initWorldMenu(badge) {
     badge.classList.add("menu-qr", "menu-item");
 
     let buttons = `
-<div id="worldMenu-save" class="menu-label menu-item">
-    <span class="menu-label-text">Save</span>
-    <div class="menu-icon save-icon"></div>
-</div>
 <div id="worldMenu-load" class="menu-label menu-item">
-    <span class="menu-label-text">Load</span>
     <div class="menu-icon load-icon"></div>
+    <span class="menu-label-text">Import</span>
+</div>
+<div id="worldMenu-save" class="menu-label menu-item">
+    <div class="menu-icon save-icon"></div>
+    <span class="menu-label-text">Save</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
-    <span class="menu-label-text">Connect</span>
     <div class="menu-icon connect-icon"></div>
+    <span class="menu-label-text">Connect</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
+    <div class="menu-icon save-icon"></div>
     <span class="menu-label-text">Settings</span>
-    <div class="menu-icon load-icon"></div>
 </div>
 `.trim();
 
@@ -128,9 +128,9 @@ function initWorldMenu(badge) {
     let connect = div.querySelector("#worldMenu-connect");
     let settings = div.querySelector("#worldMenu-settings");
 
-    html.appendChild(save);
     html.appendChild(load);
     html.appendChild(connect);
+    html.appendChild(save);
     html.appendChild(settings);
 
     worldMenu = html;
