@@ -5,7 +5,7 @@
 class CrowdActor {
     setup() {
         this.maxCrowdSize = 5000;
-        this.crowdSize = 1000;
+        this.crowdSize = 0;
         this.range = 1000;
         this.speed = 0.125; // don't move very fast yet
         this.height = 1.9; // height above the terrain
@@ -33,11 +33,13 @@ class CrowdActor {
             this.resetBot(i, this.speed);
         }
         this.updateCrowd();
+        this.listen("setCrowdSize", this.setCrowdSize);
     }
 
-    resetBot(index, speed, delta){
+    resetBot(index, speed, delta, location){
         let r2 = this.range/2;
         let c = this.crowd[index];
+        if(location)c[0] = location;
         let p = c[0]; // current position, updated regularly
         let n = [Math.random()*this.range-r2, 0, Math.random()*this.range-r2]; //next position
         if (typeof delta === 'undefined') delta = [n[0]-p[0], 0, n[2]-p[2]]; // delta - used to move
@@ -57,7 +59,7 @@ class CrowdActor {
         let collideDistance = 12;
         let players = this.service("PlayerManager").players.values();
         let avatarTranslation = [];
-        for(const value of players){
+        for(const value of players){ // location of all avatars in the world
             avatarTranslation.push(value.translation);
         }
         let aLen = avatarTranslation.length;
@@ -86,6 +88,21 @@ class CrowdActor {
         this.future(100).updateCrowd();
         this.say("updateCrowd");
     }
+
+    setCrowdSize(changes){
+        console.log("Set Crowd Size:", changes);
+        let s = changes.size;
+        
+        for(let i=this.crowdSize; i< s; i++){
+            this.crowd[i][6] = changes.color;
+            let t = [...changes.location];
+            t[0] += 20*(1-2*Math.random());
+            t[1] += 20*(1-2*Math.random());
+            t[2] += 20*(1-2*Math.random());
+            this.resetBot(i, this.speed, undefined, t);
+        }
+        this.crowdSize = s;
+    }
 }
 
 class CrowdPawn {
@@ -94,24 +111,26 @@ class CrowdPawn {
         this.listen("updateCrowd", this.updateCrowd);
         // Mask by: https://www.thingiverse.com/kongorilla/designs
         const loader = new Microverse.THREE.GLTFLoader();
-        console.log(loader);
-        loader.load("./assets/3D/mask.glb",mask=>this.installMask(mask), ()=>{},
-        err=>{console.log("Error on load:",err)})
+        loader.load("./assets/3D/mask5.glb",mask=>this.installMask(mask), ()=>{},
+            err=>{console.log("Error on load:",err)});
+        this.avatar = Microverse.GetPawn( this.actor.service("PlayerManager").players.get(this.viewId).id);
+        this.addEventListener("keyDown", "handleKeyEvents");
+        this.color =  Math.floor((128+Math.random() * 127 )) << 16 ^ (128+Math.floor(Math.random() * 127)) << 8 ^ (128+Math.floor(Math.random() * 127) << 0);
+        console.log("COLOR:", this.color)
     }
 
     installMask(mask){
-
         // construct the instanced group
+        console.log("CROWDPAWN MASK", mask)
         this.crowdGroup = new Microverse.THREE.Group();
         this.mask = mask.scene.children[0];
-        this.mask.material.side = Microverse.THREE.DoubleSide;
+        this.mask.material.side = Microverse.THREE.FrontSide;
         let crowdSize = this.actor.crowdSize;
         let maxCrowdSize = this.actor.maxCrowdSize;
         let crowd = this.actor.crowd;
         this.crowdMask = new Microverse.THREE.InstancedMesh(this.mask.geometry, this.mask.material, maxCrowdSize);
         // set the colors because those don't change
         for(let i=0; i<maxCrowdSize; i++){
-            //console.log(crowd[i][6])
             this.crowdMask.setColorAt(i,new Microverse.THREE.Color(crowd[i][6]));
         }
         this.crowdMask.count = crowdSize;
@@ -121,13 +140,27 @@ class CrowdPawn {
 
     updateCrowd(){
         // get the terrain
+        this.avatar.pointerCapture(this._target); // this is needed
         let terrainLayer = this.service("ThreeRenderManager").threeLayer("terrain");
-        if(terrainLayer.length){ // should be at least 1
+        let crowd = this.actor.crowd; // array of the crowd
+
+        if(this.crowdMask && terrainLayer.length){ // should be at least 1
+            if(this.crowdMask.count < this.actor.crowdSize){
+                let color = new Microverse.THREE.Color();
+                for(let i=this.crowdMask.count; i<this.actor.crowdSize; i++){
+                    color.set(crowd[i][6]);
+                    this.crowdMask.setColorAt(i, color);
+                }
+                this.crowdMask.count = this.actor.crowdSize;
+                this.crowdMask.instanceColor.needsUpdate = true;
+            }
+            this.crowdMask.count = this.actor.crowdSize;
+
             let handlerModuleName = 'Terrain';
             let pawn = terrainLayer[0].wcPawn;
             if (pawn.has(`${handlerModuleName}$TerrainPawn`, "getHeightFast")) {
                 // initialize the positions
-                let crowd = this.actor.crowd; // array of the crowd
+
                 let crowdSize = this.actor.crowdSize;
                 let height = this.actor.height; // height above the terrain
                 let m4 = new THREE.Matrix4();
@@ -143,6 +176,42 @@ class CrowdPawn {
                 this.crowdMask.instanceMatrix.needsUpdate = true;
             }
         }
+    }
+
+    // key management should be in its own behavior w/ publish/subscribe
+    handleKeyEvents(event){
+        let cSize = this.actor.crowdSize;
+        switch(event.key){
+            case '/': // turn sound on and off
+                this.publish("global", "startStopWind");
+                break;
+            case '0':
+                this.setCrowdSize(0);
+                break;
+            case '1': 
+                this.setCrowdSize(cSize+10);
+                break;
+            case '2':
+                this.setCrowdSize(cSize+100);
+                break;
+            //case '3':
+            //    this.setCrowdSize(cSize+1000);
+            //    break;
+            case '4':
+                this.setCrowdSize(Math.max(0,cSize-100));
+                break;
+            case 'f':
+                this.publish("global","FireballToggle");
+                break;
+        };
+
+    }
+
+    setCrowdSize(size){
+        let avatar = Microverse.GetPawn( this.actor.service("PlayerManager").players.get(this.viewId).id);
+        this.say("setCrowdSize", {size:Math.min(size, this.actor.maxCrowdSize), 
+            color:this.color,
+            location: avatar.translation});
     }
 }
 

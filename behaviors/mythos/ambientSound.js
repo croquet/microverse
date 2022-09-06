@@ -7,7 +7,7 @@ class AmbientSoundActor {
 
 class AmbientSoundPawn {
     setup() {
-        this.subscribe(this.actor.service("PlayerManager").players.get(this.viewId).id, "trigger", "start");
+    //    this.subscribe(this.actor.service("PlayerManager").players.get(this.viewId).id, "trigger", "start");
 
         this.file = this.actor._cardData.dataLocation;
         this.loop = this.actor._cardData.loop || false;
@@ -19,6 +19,7 @@ class AmbientSoundPawn {
         console.log(this.volume, this.maxVolume)
         this.subscribe("global", "setWind", this.setWind);
         this.subscribe("global", "scaleWind", this.setScaleWind);
+        this.subscribe("global", "startStopWind", this.startStopWind);
         this.addEventListener("pointerDown", "trigger");
         this.loadSplashScreen();
         this.handler = () => this.start();
@@ -45,10 +46,15 @@ class AmbientSoundPawn {
     }
 
     start(){
+        if(/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+           return; // no audio for you
+        }
+          
+        console.log("AUDIO PLAY?", /(iPad|iPhone|iPod)/g.test( navigator.userAgent ))
         this.audio = new Audio(this.file);
         this.audio.loop = this.loop;
         this.audio.volume = this.volume;
-        this.audio.play();
+        this.play();
         if (this.handler) {
             document.removeEventListener('click', this.handler);
             delete this.handler;
@@ -68,12 +74,19 @@ class AmbientSoundPawn {
         }
     }
 
+    startStopWind(){
+        if(this.playing)this.stop();
+        else this.play();
+    }
+
     play(){
         if(this.audio)this.audio.play();
+        this.playing = true;
     }
 
     stop(){
-        if(this.audio)this.audio.stop();
+        if(this.audio)this.audio.pause();
+        this.playing = false;
     }
 
     update(t){

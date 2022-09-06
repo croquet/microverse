@@ -614,6 +614,7 @@ function setModelOpacity(model, visible, opacity) {
     let transparent = opacity !== 1;
     model.visible = visible;
     model.traverse(n => {
+        n.renderOrder = 10000; // render this only after everything else
         if (n.material && n.material.opacity !== opacity) {
             n.material.opacity = opacity;
             n.material.transparent = transparent;

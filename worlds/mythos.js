@@ -45,7 +45,7 @@ export function init(Constants) {
             }
         },
 
-        /*
+        
         {
             card: {
                 name: "fireball",
@@ -53,10 +53,14 @@ export function init(Constants) {
                 type: "object",
                 behaviorModules: ["Fireball"],
                 layers:["pointer"],
-                translation: [90, -8, 200],
+                translation: [
+                    137.04842673287243,
+                    -16.422857610412652,
+                    215.58989538473676
+                ],
             },
         },
-        */
+        
         {
             card: {
                 name: "image card",
@@ -118,12 +122,12 @@ export function init(Constants) {
             card: {
                 dataLocation: "./assets/3D/temple_2.glb",
                 dataScale: [1,1,1],
-                fileName: "/temple (1).glb",
+                fileName: "/temple 2.glb",
                 layers: [
                     "walk"
                 ],
                 modelType: "glb",
-                name: "/temple (1).glb",
+                name: "/temple 2.glb",
                 rotation: [
                     0,
                     -0.8375393574138387,

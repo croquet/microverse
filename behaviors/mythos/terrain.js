@@ -2,20 +2,22 @@
 // Generates an infinite procedural hillside with blowing grass
 //
 // To do:
-// birds
-// butterflies
+// turn off sound on phones - terrible w/o headphones
 // horses
-// music - needs Aran's library
+// the tree needs to sway in the wind
 // interface to turn music/sound on/off (and other things)
 // stones
-// big weenie
 // switch to PDF viewer w/ presentation describing the world.
+// birds
+// butterflies
+// music - needs Aran's library
+// event handler behavior
+// big weenie
 // set wind volume to height
-// the tree needs to sway in the wind
 // move the water plane to be just in front of the avatar - can be smaller and cover more area
 // 
-// - burning ball - created but unused
-//
+// X burning ball - press "f" to view
+// X Many, many bots - press 1 to increase by 10, 2 to increase by 100. Max is 5000.
 // X start screen - use a plane in front of avatar?
 // X stop sound when you are under water (perhaps underwater sound then?)
 // X wind gusts affect sound and grass
@@ -209,9 +211,11 @@ class TerrainPawn {
     }
 
     setWind(val){
-        this.windIntensity = this.WIND_DEFAULT+val*2.5; 
-        var mat = this.grass.mesh.material;
-        mat.uniforms['windIntensity'].value = this.windIntensity;
+        if(this.grass){ // grass may not yet exist
+            this.windIntensity = this.WIND_DEFAULT+val*2.5; 
+            var mat = this.grass.mesh.material;
+            mat.uniforms['windIntensity'].value = this.windIntensity;
+        }
     }
 
     loadTextureAsset(URL){
