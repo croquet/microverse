@@ -11,7 +11,7 @@ export function init(Constants) {
     Constants.UserBehaviorDirectory = "behaviors/mythos";
     Constants.UserBehaviorModules = [
         "lights.js", "terrain.js", "gridFloor.js", "ambientSound.js", "circle.js", "fireball.js",
-        "blowing.js", "crowd.js"
+        "blowing.js", "crowd.js", "horse.js"
     ];
 
 
@@ -60,7 +60,22 @@ export function init(Constants) {
                 ],
             },
         },
-        
+        {
+            card: {
+                name: "horse",
+                layers: ["pointer"],
+                type: "3d",
+                behaviorModules: ["Horse"],
+                modelType: "glb",
+                dataLocation: "./assets/3D/horse_stone_light.glb",
+                dataScale: [0.1, 0.1, 0.1],
+                translation: [
+                    0,
+                    0,
+                    0
+                ],
+            },
+        },
         {
             card: {
                 name: "image card",

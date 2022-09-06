@@ -34,6 +34,7 @@ class CrowdActor {
         }
         this.updateCrowd();
         this.listen("setCrowdSize", this.setCrowdSize);
+        this.subscribe("global", "horsePosition", this.updateHorse);
     }
 
     resetBot(index, speed, delta, location){
@@ -47,18 +48,24 @@ class CrowdActor {
         delta = [delta[0]/ds, 0, delta[2]/ds];
         delta[0]*=speed; delta[2]*=speed; 
         let yaw = Math.atan2(delta[0], delta[2]);
+        let t = this.now()+ ((speed>this.speed)?2500:15000+Math.random()*10000);
         c[1] = n;
         c[2] = delta;
         c[3] = yaw;
-        c[7] = this.now()+15000+Math.random()*10000; // when is the next reset?
+        c[7] = t; // when is the next reset?
         c[8] = 0; // player counter
         c[9] = 0;
+    }
+
+    updateHorse(p){
+        this.horsePosition = p;
     }
 
     updateCrowd(){
         let collideDistance = 12;
         let players = this.service("PlayerManager").players.values();
         let avatarTranslation = [];
+        if(this.horsePosition)avatarTranslation.push(this.horsePosition);
         for(const value of players){ // location of all avatars in the world
             avatarTranslation.push(value.translation);
         }
@@ -73,9 +80,10 @@ class CrowdActor {
             c[8]=aIndex+1;
             let t = avatarTranslation.length>0?avatarTranslation[aIndex]:[0,0,0];
             let tp = [p[0]-t[0], 0, p[2]-t[2]];
-            if(c[9]>10 && Math.abs(tp[0])<collideDistance && Math.abs(tp[2])<collideDistance){
+            let cd = i===0?collideDistance*2:collideDistance;
+            if(c[9]>10 && Math.abs(tp[0])<cd && Math.abs(tp[2])<cd){
                 // run away from avatar
-                this.resetBot(i, this.speed*5, tp);
+                this.resetBot(i, this.speed*8, tp);
             }else if(c[7]<now)this.resetBot(i, this.speed);
             else{
                 p[0] += c[2][0];
