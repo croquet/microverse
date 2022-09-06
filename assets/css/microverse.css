@@ -84,9 +84,10 @@ body.tilt>iframe {
 
 .bttn {
     position: fixed;
-    background-color: #d3d3d380;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid white;
     z-index: 200;
-    border-radius: 50%;
+    border-radius: 30%;
     color: white;
     width: 1.8em;
     height: 1.8em;
@@ -95,7 +96,6 @@ body.tilt>iframe {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .bttn:hover {
@@ -104,13 +104,13 @@ body.tilt>iframe {
 
 #homeBttn {
     bottom: 10px;
-    left: 10%;
+    left: 35%;
     transform: translate(0, -50%)
 }
 
 #usersComeHereBttn {
     bottom: 10px;
-    right: 10%;
+    right: 35%;
     transform: translate(0, -50%)
 }
 

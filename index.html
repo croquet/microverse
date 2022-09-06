@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>Microverse</title>
   <link id="microverse-css" rel="stylesheet" href="./assets/css/microverse.css" />
-  <link href="./assets/fonts/css/all.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/3e3b1fa3ac.js" crossorigin="anonymous"></script>
 </head>
 
 <body class="no-select">
@@ -14,7 +14,7 @@
     <div class="container">
       <div class="controllers" style="border:1px solid red">
         <div id="homeBttn" class="bttn">
-          <i class="fas fa-solid fa-house-user no-pointer-events"></i>
+          <i class="fa-light fa-house no-pointer-events"></i>
         </div>
         <div id="editModeBttn" mobile="false" class="bttn">
           <i class="fas fa-solid fa-angle-up no-pointer-events"></i>
@@ -26,7 +26,7 @@
           <div id="userCount">
             <div id="userCountReadout"></div>
           </div>
-          <i class="fas fa-solid fa-users no-pointer-events"></i>
+          <i class="fa-light fa-users no-pointer-events"></i>
         </div>
         <input id="ghostSlider" type="range" min="0" max="100">
       </div>
@@ -34,11 +34,25 @@
   </div>
   <div id="shell-hud">
     <div id="fullscreenBttn" class="bttn">
-      <i class="fas fa-solid fa-expand no-pointer-events"></i>
+      <i class="fas fa-angle-up"></i>
     </div>
     <div id="joystick">
-      <div id="knob"></div>
-      <div id="trackingknob"></div>
+      <div class="box">
+        <span class="wrap"><span class="touch"></span></span>
+        <span class="wrap"><span class="touch"></span></span>
+        <span class="wrap"><span class="touch"></span></span>
+        <span class="wrap"><span class="touch"></span></span>
+        <div id="directions">
+          <i class="fa-solid fa-triangle joystick-arrow top"></i>
+          <i class="fa-solid fa-triangle joystick-arrow right"></i>
+          <i class="fa-solid fa-triangle joystick-arrow bottom"></i>
+          <i class="fa-solid fa-triangle joystick-arrow left"></i>
+
+          <div id="knob"></div>
+        </div>
+        <div id="trackingknob"></div>
+      </div>
+
     </div>
   </div>
 </body>
