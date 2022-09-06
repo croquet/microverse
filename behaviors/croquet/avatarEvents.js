@@ -23,6 +23,7 @@ class AvatarEventHandlerActor {
 
     removeGizmo() {
         this.gizmo?.destroy();
+        this.gizmo = undefined;
     }
 }
 
@@ -122,6 +123,11 @@ class AvatarEventHandlerPawn {
                 // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
                 this.lookYaw = Microverse.q_yaw(this._rotation);
+            }
+            if (this.gizmoTargetPawn) {
+                this.gizmoTargetPawn.unselectEdit();
+                this.gizmoTargetPawn = null;
+                this.publish(this.actor.id, "removeGizmo");
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
             this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent", "pointerDown", this, e);

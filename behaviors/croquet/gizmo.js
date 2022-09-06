@@ -163,66 +163,10 @@ class GizmoAxisActor {
 }
 
 class GizmoAxisPawn {
-    // TODO: this should live elsewhere, but then Microverse is not defined
-    // probably should be part of core
-    // from https://github.com/mrdoob/three.js/blob/342946c8392639028da439b6dc0597e58209c696/examples/js/misc/Gyroscope.js
-    static makeGyroscope() {
-        const THREE = Microverse.THREE;
-        const _translationObject = new THREE.Vector3();
-        const _quaternionObject = new THREE.Quaternion();
-        const _scaleObject = new THREE.Vector3();
-        const _translationWorld = new THREE.Vector3();
-        const _quaternionWorld = new THREE.Quaternion();
-        const _scaleWorld = new THREE.Vector3();
-        class Gyroscope extends THREE.Object3D {
-            constructor() {
-                super();
-            }
-
-            updateMatrixWorld(force) {
-                this.matrixAutoUpdate && this.updateMatrix(); // update matrixWorld
-                if (this.matrixWorldNeedsUpdate || force) {
-                    if (this.parent !== null) {
-                        this.matrixWorld.multiplyMatrices(
-                            this.parent.matrixWorld,
-                            this.matrix
-                        );
-                        this.matrixWorld.decompose(
-                            _translationWorld,
-                            _quaternionWorld,
-                            _scaleWorld
-                        );
-                        this.matrix.decompose(
-                            _translationObject,
-                            _quaternionObject,
-                            _scaleObject
-                        );
-                        this.matrixWorld.compose(
-                            _translationWorld,
-                            _quaternionObject,
-                            _scaleWorld
-                        );
-                    } else {
-                        this.matrixWorld.copy(this.matrix);
-                    }
-
-                    this.matrixWorldNeedsUpdate = false;
-                    force = true;
-                } // update children
-
-                for (let i = 0, l = this.children.length; i < l; i++) {
-                    this.children[i].updateMatrixWorld(force);
-                }
-            }
-        }
-
-        return new Gyroscope();
-    }
-
     setup() {
         this.originalColor = this.actor._cardData.color;
 
-        const gyro = GizmoAxisPawn.makeGyroscope();
+        const gyro = new THREE.Gyroscope({rotationInvariant: true, scaleInvariant: true});
         this.shape.add(gyro);
         gyro.add(
             this.makeAxisHelper()
@@ -350,7 +294,9 @@ class GizmoRotorActor {
 class GizmoRotorPawn {
     setup() {
         this.originalColor = this.actor._cardData.color;
-        this.shape.add(this.createCircle(this.actor._cardData.color, this.actor._cardData.axis));
+        const gyro = new THREE.Gyroscope({scaleInvariant: true});
+        this.shape.add(gyro);
+        gyro.add(this.createCircle(this.actor._cardData.color, this.actor._cardData.axis));
 
         this.dragStart = undefined;
         this.rotationAtDragStart = undefined;
@@ -365,7 +311,7 @@ class GizmoRotorPawn {
     createCircle(color, axis) {
         const curve = new Microverse.THREE.EllipseCurve(
             0.0, 0.0,            // Center x, y
-            1.0, 1.0,          // x radius, y radius
+            2.0, 2.0,          // x radius, y radius
             0.0, 2.0 * Math.PI,  // Start angle, stop angle
         );
 
@@ -447,11 +393,11 @@ class GizmoRotorPawn {
 
     pointerEnter() {
         console.log("hover");
-        this.shape.children[0].material.color.set(this.actor._cardData.hoverColor);
+        this.shape.children[0].children[0].material.color.set(this.actor._cardData.hoverColor);
     }
 
     pointerLeave() {
-        this.shape.children[0].material.color.set(this.originalColor);
+        this.shape.children[0].children[0].material.color.set(this.originalColor);
     }
 }
 
@@ -468,66 +414,10 @@ class GizmoScalerActor {
 
 // TODO: lots of duplication here with GizmoAxisPawn until behaviour classes can reference/extend each other
 class GizmoScalerPawn {
-    // TODO: this should live elsewhere, but then Microverse is not defined
-    // probably should be part of core
-    // from https://github.com/mrdoob/three.js/blob/342946c8392639028da439b6dc0597e58209c696/examples/js/misc/Gyroscope.js
-    static makeGyroscope() {
-        const THREE = Microverse.THREE;
-        const _translationObject = new THREE.Vector3();
-        const _quaternionObject = new THREE.Quaternion();
-        const _scaleObject = new THREE.Vector3();
-        const _translationWorld = new THREE.Vector3();
-        const _quaternionWorld = new THREE.Quaternion();
-        const _scaleWorld = new THREE.Vector3();
-        class Gyroscope extends THREE.Object3D {
-            constructor() {
-                super();
-            }
-
-            updateMatrixWorld(force) {
-                this.matrixAutoUpdate && this.updateMatrix(); // update matrixWorld
-                if (this.matrixWorldNeedsUpdate || force) {
-                    if (this.parent !== null) {
-                        this.matrixWorld.multiplyMatrices(
-                            this.parent.matrixWorld,
-                            this.matrix
-                        );
-                        this.matrixWorld.decompose(
-                            _translationWorld,
-                            _quaternionWorld,
-                            _scaleWorld
-                        );
-                        this.matrix.decompose(
-                            _translationObject,
-                            _quaternionObject,
-                            _scaleObject
-                        );
-                        this.matrixWorld.compose(
-                            _translationWorld,
-                            _quaternionObject,
-                            _scaleWorld
-                        );
-                    } else {
-                        this.matrixWorld.copy(this.matrix);
-                    }
-
-                    this.matrixWorldNeedsUpdate = false;
-                    force = true;
-                } // update children
-
-                for (let i = 0, l = this.children.length; i < l; i++) {
-                    this.children[i].updateMatrixWorld(force);
-                }
-            }
-        }
-
-        return new Gyroscope();
-    }
-
     setup() {
         this.originalColor = this.actor._cardData.color;
 
-        const gyro = GizmoScalerPawn.makeGyroscope();
+        const gyro = new THREE.Gyroscope({scaleInvariant: true});
         this.shape.add(gyro);
         gyro.add(
             this.makeAxisHelper()
@@ -546,12 +436,22 @@ class GizmoScalerPawn {
     makeAxisHelper() {
         const points = [];
         points.push(new Microverse.THREE.Vector3(0, 0, 0));
-        points.push(new Microverse.THREE.Vector3(...this.actor._cardData.axis));
+        points.push((new Microverse.THREE.Vector3(...this.actor._cardData.axis)).multiplyScalar(3));
 
         const geometry = new Microverse.THREE.BufferGeometry().setFromPoints( points );
         const material = new Microverse.THREE.LineBasicMaterial({color: this.originalColor});
 
-        return new Microverse.THREE.Line(geometry, material);
+        const line = new Microverse.THREE.Line(geometry, material);
+
+        const boxGeometry = new Microverse.THREE.BoxGeometry(0.3, 0.3, 0.3);
+        const boxMaterial = new Microverse.THREE.MeshBasicMaterial({color: this.originalColor});
+        const box = new Microverse.THREE.Mesh(boxGeometry, boxMaterial);
+        box.translateOnAxis(new Microverse.THREE.Vector3(...this.actor._cardData.axis), 3);
+
+        const group = new Microverse.THREE.Group();
+        group.add(line);
+        group.add(box);
+        return group;
     }
 
     startDrag(event) {

@@ -18,6 +18,7 @@ import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { Gyroscope } from './gyroscope';
 
 import { PM_Visible, PM_Camera, RenderManager } from "@croquet/worldcore-kernel";
 
@@ -264,7 +265,7 @@ class ThreeRenderManager extends RenderManager {
 const THREE = {
     ...THREEModule, Pass, CopyShader, CSMFrustum, CSMShader, CSM,
     OBJLoader, MTLLoader, GLTFLoader, FBXLoader, DRACOLoader, SVGLoader, EXRLoader, BufferGeometryUtils,
-    FontLoader, Font, TextGeometry
+    FontLoader, Font, TextGeometry, Gyroscope
 };
 
 export {THREE, THREE_MESH_BVH, PM_ThreeVisible, PM_ThreeCamera, ThreeRenderManager};
