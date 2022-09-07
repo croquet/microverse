@@ -64,31 +64,6 @@ class AvatarPawn {
         }
     }
 
-    /*
-
-    walk(time, delta, vq) {
-        const COLLIDE_THROTTLE = 50;
-        const THROTTLE = 15; // 20
-        if (this.collidePortal(vq)) {return;}
-        if (!this.checkFloor(vq)) {
-            // if the new position leads to a position where there is no walkable floor below
-            // it tries to move the avatar the opposite side of the previous good position.
-            vq.v = Microverse.v3_lerp(this.lastCollideTranslation, vq.v, -1);
-        } else {
-            this.lastCollideTranslation = vq.v;
-        }
-        if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
-            if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
-                this.lastCollideTime = time;
-                vq = this.walkTerrain(vq);
-            }
-            this.lastUpdateTime = time;
-            this.positionTo(vq.v, vq.q);
-        }
-    }
-
-    */
-
     modelLoaded() {
         this.avatarModel = this.shape.children[0];
         let found = false;
@@ -249,21 +224,17 @@ class AvatarPawn {
             this.say("setAnimationClipIndex", 0);
         } else {
             this.say("setAnimationClipIndex", this.handedness === "Left" ? 12 : 9);
-            // the index into the left hand pointing finger animation is not determined yet. tryAnimation has an issue
-            // to reliably have at most one animation loop.
+
             let local = new Microverse.THREE.Vector3(...xyz);
             local.applyMatrix4(global);
             let normLocal = v3_normalize(local.toArray());
             let normHere = [0, 0, -1];
 
             let allQ = q_lookAt(normHere, [0, 1, 0], normLocal);
-
             // console.log("hand", q_pitch(allQ), q_yaw(allQ), q_roll(allQ));
+            let tQ = q_multiply(allQ, q_euler(-Math.PI / 2, 0, 0));
 
-            let tQ = q_euler(-q_pitch(allQ), q_roll(allQ), -q_yaw(allQ));
-
-            let handQ = q_multiply(q_euler(Math.PI / 2 - 0.2, hFactor * 1.3, 0), tQ);
-            hand.rotation.set(q_pitch(handQ), q_yaw(handQ), q_roll(handQ));
+            hand.rotation.set(-q_pitch(tQ), q_yaw(tQ), q_roll(tQ));
             hand.position.set(...v3_add(elbowPos, v3_rotate(handPos, tQ)));
         }
     }
