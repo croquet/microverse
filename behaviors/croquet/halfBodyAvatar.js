@@ -227,7 +227,9 @@ class AvatarPawn {
 
             let local = new Microverse.THREE.Vector3(...xyz);
             local.applyMatrix4(global);
-            let normLocal = v3_normalize(local.toArray());
+            local = local.toArray();
+            local[2] = Math.min(local[2], -1);
+            let normLocal = v3_normalize(local);
             let normHere = [0, 0, -1];
 
             let allQ = q_lookAt(normHere, [0, 1, 0], normLocal);
