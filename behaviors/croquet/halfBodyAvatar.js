@@ -3,11 +3,17 @@ class AvatarActor {
         this._cardData.animationClipIndex = 9;
         this.say("animationStateChanged");
         this.listen("poseAvatarRequest", "poseAvatar");
+        this.listen("setAvatarData", "resetPose");
     }
 
     poseAvatar(data) {
         this.lastPose = data;
         this.say("avatarPosed", data);
+    }
+
+    resetPose() {
+        this.lastPose = {type: "move", coordinates: [0, 1, -100], pointing: false};
+        this.say("avatarPosed", this.lastPose);
     }
 }
 
@@ -85,18 +91,6 @@ class AvatarPawn {
 
         this.addFoot();
 
-        this.handedness = this.actor._cardData.handedness === "Left" ? "Left" : "Right";
-        this.otherHandName = this.actor._cardData.handedness === "Left" ? "RightHand" : "LeftHand";
-
-        let otherHand = this.bones.get(this.otherHandName);
-        if (otherHand) {
-            otherHand.position.set();
-        } else {
-            return;
-        }
-
-        this.moveHand([0, 1, -100]);
-
         if (this.actor.lastPose) {
             this.avatarPosed(this.actor.lastPose);
         }
@@ -136,6 +130,12 @@ class AvatarPawn {
 
     avatarPosed(data) {
         if (!this.bones) {return;}
+
+        this.handedness = this.actor._cardData.handedness === "Left" ? "Left" : "Right";
+        this.otherHandName = this.actor._cardData.handedness === "Left" ? "RightHand" : "LeftHand";
+
+        let otherHand = this.bones.get(this.otherHandName);
+        otherHand.position.set();
         let {type, coordinates, pointing} = data;
         if (type === "pointerMove" || type === "move") {
             this.moveHead(coordinates);
