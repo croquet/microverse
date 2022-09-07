@@ -2023,7 +2023,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let avatarType = oldCardData.avatarType;
 
         [
-            "dataLocation", "dataTranslation", "dataScale", "dataRotation",
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
         if (!configuration.type && !avatarType) {
