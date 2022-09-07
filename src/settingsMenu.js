@@ -117,6 +117,14 @@ function createSettingsMenu(useEnter) {
 
     document.body.appendChild(settingsMenu);
 
+    let stopPropagation = (evt) => evt.stopPropagation();
+    settingsMenuBody.addEventListener("pointerdown", stopPropagation);
+    settingsMenuBody.addEventListener("pointermove", stopPropagation);
+    settingsMenuBody.addEventListener("pointerup", stopPropagation);
+    settingsMenuBody.addEventListener("click", stopPropagation);
+    settingsMenuBody.addEventListener("keydown", stopPropagation);
+    settingsMenuBody.addEventListener("keyup", stopPropagation);
+
     let dialogTitle = settingsMenu.querySelector("#dialogTitle");
     let joinPrompt = settingsMenu.querySelector("#joinPrompt");
     let dialogEnterButton = settingsMenu.querySelector("#dialogEnterButton");
