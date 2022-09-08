@@ -290,7 +290,6 @@ class PropertySheetPawn {
             this.shape.remove(this.back);
             this.back = null;
         }
-        this.shape.children = [];
 
         let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
 
@@ -390,8 +389,6 @@ class PropertySheetWindowPawn {
             this.back = null;
         }
 
-        this.shape.children = [];
-
         let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
 
         let frameGeometry = this.roundedCornerGeometry(extent.x, extent.y, 0.0001, 0.02);
@@ -478,7 +475,6 @@ class PropertySheetDismissPawn {
 
         if (this.back) {
             this.shape.remove(this.back);
-            this.shape.children = [];
         }
 
         let backgroundColor = (this.actor._cardData.backgroundColor !== undefined)
@@ -593,7 +589,6 @@ class PropertySheetWindowBarPawn {
 
         if (this.back) {
             this.shape.remove(this.back);
-            this.shape.children = [];
         }
 
         let backGeometry = new Microverse.THREE.BoxGeometry(0.022, 0.022, 0.00001);
