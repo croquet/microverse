@@ -1,3 +1,5 @@
+import { startShareMenu } from "./shareMenu";
+
 let worldMenu = null;
 let worldMenuVisible = false;
 let imageInput = null;
@@ -70,6 +72,12 @@ function settingsPressed(myAvatar) {
     }
 }
 
+function sharePressed() {
+    startShareMenu();
+}
+
+
+
 function switchQRView(_myAvatar) {
     let qrDiv = worldMenu.querySelector("#qrDiv");
     let statsDiv = worldMenu.querySelector("#statsDiv");
@@ -118,6 +126,10 @@ function initWorldMenu(badge) {
     <div class="menu-icon save-icon"></div>
     <span class="menu-label-text">Settings</span>
 </div>
+<div id="shareButton" class="menu-label menu-item">
+    <div class="menu-icon save-icon"></div>
+    <span class="menu-label-text">Share</span>
+</div>
 <div id="fullscreenBttn" class="menu-label menu-item">
     <div class="menu-icon fullscreen-icon"></div>
     <span class="menu-label-text">Fullscreen</span>
@@ -134,10 +146,12 @@ function initWorldMenu(badge) {
     let connect = div.querySelector("#worldMenu-connect");
     let fullscreen = div.querySelector("#fullscreenBttn");
     let settings = div.querySelector("#worldMenu-settings");
+    let share = div.querySelector("#shareButton");
 
     html.appendChild(load);
     html.appendChild(save);
     html.appendChild(connect);
+    html.appendChild(share);
     html.appendChild(fullscreen);
     html.appendChild(settings);
 
@@ -146,30 +160,6 @@ function initWorldMenu(badge) {
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
 }
-//     let div;
-
-//     div = worldMenu.querySelector("#fullscreenBttn");    
-//     div.onclick = (e) => {
-//     e.stopPropagation();
-//     e.preventDefault();
-
-//     if (e.shiftKey) {
-//         document.body.classList.toggle("tilt");
-//         return;
-//     }
-
-//     if (!document.fullscreenElement) {
-//         // If the document is not in full screen mode
-//         // make the document full screen
-//         document.body.requestFullscreen();
-//     } else {
-//         // Otherwise exit the full screen
-//         if (document.exitFullscreen) {
-//             document.exitFullscreen();
-//         }
-//     }
-// }
-
 
 function toggleMenu(myAvatar) {
     if (worldMenuVisible) {
@@ -250,6 +240,9 @@ function toggleMenu(myAvatar) {
 
     div = worldMenu.querySelector("#worldMenu-settings");
     if (div) div.onclick = () => settingsPressed(myAvatar);
+
+    div = worldMenu.querySelector("#shareButton");
+    if (div) div.onclick = () => sharePressed();
 
     div = worldMenu.querySelector("#worldMenu-forceStop");
     if (div) {
