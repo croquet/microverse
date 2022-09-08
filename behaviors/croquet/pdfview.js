@@ -128,7 +128,7 @@ class PDFPawn {
         // if this is a reload, discard any GPU resources we were holding onto
         if (this.pages) {
             const meshPool = this.pageMeshPool;
-            this.shape.children.slice().forEach(o => {
+            [...this.shape.children].forEach(o => {
                 if (o.name === "page") {
                     this.shape.remove(o);
                     meshPool.push(o);
@@ -236,7 +236,7 @@ console.log(this);
         // where we already have a mesh for a page we're going to display, be sure
         // to reuse it
         const meshPool = this.pageMeshPool;
-        this.shape.children.slice().forEach(o => {
+        [...this.shape.children].forEach(o => {
             if (o.name === "page") {
                 this.shape.remove(o);
                 meshPool.push(o);

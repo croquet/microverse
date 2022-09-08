@@ -112,8 +112,7 @@ class CradleActor {
 class CradlePawn {
   setup() {
       if (this.obj) {
-          this.shape.children.forEach((o) => this.shape.remove(o));
-          this.shape.children = [];
+          [...this.shape.children].forEach((o) => this.shape.remove(o));
           this.obj.dispose();
           this.obj = null;
       }
@@ -149,8 +148,7 @@ class CradleLinkPawn {
       this.addEventListener("pointerDoubleDown", "nop");
 
       if (this.actor._cardData.cradleProto) { return; }
-      this.shape.children.forEach((c) => this.shape.remove(c));
-      this.shape.children = [];
+      [...this.shape.children].forEach((c) => this.shape.remove(c));
 
       let s;
       if (this.actor._name === "cradlelink0") { s = [0.1, 2.3]; }

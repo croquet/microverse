@@ -250,12 +250,10 @@ class BarGraphPawn {
     }
 
     constructBars() {
-        this.shape.children.forEach((c) => {
+        [...this.shape.children].forEach((c) => {
             c.material.dispose();
             this.shape.remove(c);
         });
-        // I don't know why the above does not actually remove children
-        this.shape.children = [];
         this.bars = [];
         let len = this.actor._cardData.length;
         let size = 1 / len;
