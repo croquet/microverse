@@ -146,6 +146,30 @@ function initWorldMenu(badge) {
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
 }
+//     let div;
+
+//     div = worldMenu.querySelector("#fullscreenBttn");    
+//     div.onclick = (e) => {
+//     e.stopPropagation();
+//     e.preventDefault();
+
+//     if (e.shiftKey) {
+//         document.body.classList.toggle("tilt");
+//         return;
+//     }
+
+//     if (!document.fullscreenElement) {
+//         // If the document is not in full screen mode
+//         // make the document full screen
+//         document.body.requestFullscreen();
+//     } else {
+//         // Otherwise exit the full screen
+//         if (document.exitFullscreen) {
+//             document.exitFullscreen();
+//         }
+//     }
+// }
+
 
 function toggleMenu(myAvatar) {
     if (worldMenuVisible) {
@@ -170,6 +194,28 @@ function toggleMenu(myAvatar) {
     }
 
     let div;
+    
+    div = worldMenu.querySelector("#fullscreenBttn");
+    div.onclick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+    
+        if (e.shiftKey) {
+            document.body.classList.toggle("tilt");
+            return;
+        }
+    
+        if (!document.fullscreenElement) {
+            // If the document is not in full screen mode
+            // make the document full screen
+            document.body.requestFullscreen();
+        } else {
+            // Otherwise exit the full screen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
 
     div = worldMenu.querySelector("#worldMenu-qr");
     div.onclick = (evt) => {
@@ -196,6 +242,8 @@ function toggleMenu(myAvatar) {
         evt.stopPropagation();
         loadPressed(myAvatar);
     }
+
+    
 
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);

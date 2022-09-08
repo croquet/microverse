@@ -95,28 +95,6 @@ class Shell {
             }
         });
 
-        this.fullscreenBttn = document.getElementById("fullscreenBttn");
-        this.fullscreenBttn.onclick = (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            if (e.shiftKey) {
-                document.body.classList.toggle("tilt");
-                return;
-            }
-
-            if (!document.fullscreenElement) {
-                // If the document is not in full screen mode
-                // make the document full screen
-                document.body.requestFullscreen();
-            } else {
-                // Otherwise exit the full screen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
         // joystick sends events into primary frame
         this.capturedPointers = {};
         this.joystick = document.getElementById("joystick");
@@ -438,13 +416,13 @@ class Shell {
                 this.joystick.style.setProperty("display", "none");
             }
         }
-        if (fullscreenFlag !== undefined && this.fullscreenBttn) {
-            if (fullscreenFlag) {
-                this.fullscreenBttn.style.removeProperty("display");
-            } else {
-                this.fullscreenBttn.style.setProperty("display", "none");
-            }
-        }
+        // if (fullscreenFlag !== undefined && this.fullscreenBttn) {
+        //     if (fullscreenFlag) {
+        //         this.fullscreenBttn.style.removeProperty("display");
+        //     } else {
+        //         this.fullscreenBttn.style.setProperty("display", "none");
+        //     }
+        // }
     }
 
     manuallyRenderPrimaryFrame() {
