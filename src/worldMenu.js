@@ -118,6 +118,12 @@ function initWorldMenu(badge) {
     <div class="menu-icon save-icon"></div>
     <span class="menu-label-text">Settings</span>
 </div>
+<div id="fullscreenBttn" class="menu-label menu-item">
+    <div class="menu-icon fullscreen-icon"></div>
+    <span class="menu-label-text">Fullscreen</span>
+</div>
+</div>
+
 `.trim();
 
     let div = document.createElement("div");
@@ -126,11 +132,13 @@ function initWorldMenu(badge) {
     let save = div.querySelector("#worldMenu-save");
     let load = div.querySelector("#worldMenu-load");
     let connect = div.querySelector("#worldMenu-connect");
+    let fullscreen = div.querySelector("#fullscreenBttn");
     let settings = div.querySelector("#worldMenu-settings");
 
     html.appendChild(load);
     html.appendChild(save);
     html.appendChild(connect);
+    html.appendChild(fullscreen);
     html.appendChild(settings);
 
     worldMenu = html;
