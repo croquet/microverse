@@ -359,10 +359,8 @@ class ThreeRenderManager extends RenderManager {
 
         this.hasXR().then((xr) => {
             if (xr) {
-                if (!this.vrButtonAdded) {
-                    this.vrButton = VRButton.createButton(this.renderer);
-                    document.body.appendChild(this.vrButton);
-                }
+                this.vrButton = VRButton.createButton(this.renderer);
+                document.body.appendChild(this.vrButton);
                 this.renderer.xr.enabled = true;
                 this.xrController = new XRController(this);
             } else {
