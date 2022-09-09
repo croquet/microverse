@@ -338,12 +338,29 @@ class ThreeRenderManager extends RenderManager {
             options.canvas = this.canvas;
         }
 
+        this.setupRenderer(options);
+    }
+
+    setupRenderer(options) {
+        if (this.renderer) {
+            this.renderer.dispose();
+        }
+
+        if (this.vrButton) {
+            this.vrButton.remove();
+        }
+
+        if (this.canvas) {
+            options.canvas = this.canvas;
+        }
+        
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
 
         this.hasXR().then((xr) => {
             if (xr) {
-                document.body.appendChild(VRButton.createButton(this.renderer));
+                this.vrButton = VRButton.createButton(this.renderer);
+                document.body.appendChild(this.vrButton);
                 this.renderer.xr.enabled = true;
                 this.xrController = new XRController(this);
             } else {
