@@ -1893,7 +1893,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 console.log("pointerDown in editMode");
             }
         } else {
-            if (!this.focusPawn) {
+            if (!this.focusPawn && e.xy) {
                 // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
                 this.lookYaw = q_yaw(this._rotation);
@@ -1917,7 +1917,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }else {
             // we should add and remove responders dynamically so that we don't have to check things this way
-            if (!this.focusPawn && this.isPointerDown) {
+            if (!this.focusPawn && this.isPointerDown && e.xy) {
                 let yp = this.xy2yp(e.xy);
                 let yaw = (this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
                 let pitch = this.lookPitch + this.dragWorld[1] - yp[1];
