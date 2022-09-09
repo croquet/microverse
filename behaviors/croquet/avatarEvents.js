@@ -2,6 +2,9 @@ class AvatarPawn {
     setup() {
         if (!this.isMyPlayerPawn) {return;}
 
+        this.maxFall = -100;
+        this.fallDistance = this.eyeHeight / 12;
+
         this.addFirstResponder("pointerTap", {ctrlKey: true, altKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
 

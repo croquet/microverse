@@ -21,7 +21,6 @@ import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
 
 const EYE_HEIGHT = 1.676;
-const FALL_DISTANCE = EYE_HEIGHT / 6;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
@@ -85,7 +84,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     // used by the BVH based walking logic. customizable when the avatar is not a human size.
     get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
-    get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     ensureNicknameCard() {
@@ -726,6 +724,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         setupWorldMenuButton(this, App, this.sessionId);
 
         window.myAvatar = this;
+
+        this.eyeHeight = EYE_HEIGHT;
+        this.fallDistance = EYE_HEIGHT / 12;
+        this.maxFall = -15;
 
         // drop and paste
         this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
@@ -1489,12 +1491,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     checkFall(vq) {
-        const MAX_FALL = -100;
         if (!this.isFalling) {return vq;}
         let v = vq.v;
-        v = [v[0], v[1] - this.actor.fallDistance, v[2]];
+        v = [v[0], v[1] - this.fallDistance, v[2]];
         this.isFalling = false;
-        if (v[1] < MAX_FALL) {
+        if (v[1] < this.maxFall) {
             this.goHome();
             return {v: v3_zero(), q: q_identity()};
         }
