@@ -49,7 +49,7 @@ const isFirefox = navigator.userAgent.includes('Firefox');
 if (isFirefox) AA = false;
 const isMobile = !!("ontouchstart" in window);
 if (isMobile) AA = false;
-if (navigator.xr && navigator.xr.isSessionSupported("immersive-vr")) AA = true;
+
 console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -641,7 +641,6 @@ function startWorld(appParameters, world) {
         tps: 30,
         eventRateLimit: 60,
         options: {world},
-        step: "manual",
         // developer can override defaults
         ...appParameters,
         // except for the 'microverse' flag
@@ -659,10 +658,7 @@ function startWorld(appParameters, world) {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             return StartWorldcore(sessionParameters);
-        }).then((session) => {
-            let renderer = session.view.service("ThreeRenderManager");
-            let step = (time, _xrFrame) => session.step(time);
-            renderer.renderer.setAnimationLoop(step);
+        }).then(() => {
             let {baseurl} = basenames();
             return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
@@ -679,6 +675,8 @@ https://croquet.io`.trim());
 }
 
 export function startMicroverse() {
+    let searchParams = new URL(window.location.href).searchParams;
+
     let setButtons = (display) => {
         ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
             let bttn = document.querySelector("#" + n);
