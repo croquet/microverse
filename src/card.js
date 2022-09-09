@@ -13,7 +13,7 @@ import {
 } from '@croquet/worldcore-kernel';
 import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
-import { addShadows, normalizeSVG, addTexture } from './assetManager.js'
+import { addMeshProperties, normalizeSVG, addTexture } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
@@ -674,6 +674,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let name = this.actor.name;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let singleSided = options.singleSided !== undefined ? options.singleSided : false;
+        let noFog = options.noFog !== undefined ? options.noFog : false;
+
         // bail out if we're in the process of loading this same model
         if (!model3d || this._model3dLoading === model3d) {return;}
 
@@ -687,7 +689,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 console.log("model load has been superseded");
                 return;
             }
-            addShadows(obj, shadow, singleSided, THREE);
+
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
             this.setupAnimation(obj);
@@ -701,7 +703,19 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 this.cleanupColliderObject();
                 this.shape.remove(this.placeholder);
             }
-
+            if(options.flatten) {
+                let flattenedObj = this.flattenObj(obj);
+                if(flattenedObj !== obj) {
+                    obj.traverse((mesh) => {
+                        if (mesh.geometry){
+                            mesh.geometry.dispose();
+                            mesh.material.dispose();
+                        }
+                    });
+                    obj = flattenedObj;
+                }
+            }
+            addMeshProperties(obj, shadow, singleSided, noFog, THREE);
             if (this.actor.layers.indexOf('walk') >= 0) {
                 this.constructCollider(obj);
             }
@@ -868,6 +882,55 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 this.shape.add(obj);
             });
         }
+    }
+
+    // flattenObj does its best to remove groups and merge meshes with the same
+    // textures. It is used if the "flatten:" flag is set in the card.
+    // It is a poor man's mesh merge, so should not be used if the same texture is used
+    // in different kinds of materials (which is likely rare).
+    // It is quite similar to constructCollider and these could be merged at some point.
+    flattenObj(obj) {
+        let staticGroup = new THREE.Group();
+        let meshData = [];
+        let beforeCount = 0, endCount = 0;
+        try {
+            obj.traverse(c =>{
+                beforeCount++;
+                if(c.geometry){
+                    let cloned = c.geometry.clone();
+                    cloned.applyMatrix4(c.matrixWorld);
+                    if (cloned.index) {
+                        // this test may be dubious as some models can legitimately contain
+                        // non-indexed buffered geometry.
+                        if(cloned.attributes.uv2){
+                            // three.js doesn't support these
+                            delete cloned.attributes.uv2;
+                            delete cloned.attributes.texcoord_2;
+                        }
+                        let id = c.material.map ? c.material.map.id : 0;
+                        if (!meshData[id]) meshData[id] = {material: c.material.clone(), geometries:[]};
+                        meshData[id].geometries.push(cloned);
+                    } else {
+                        console.warn("skipping a geometry in the model that is not indexed");
+                    }
+                }
+            });
+
+            let BufferGeometryUtils = THREE.BufferGeometryUtils;
+            meshData.forEach(m=>{
+                endCount++;
+                let mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( m.geometries, false);
+                let mesh = new THREE.Mesh(mergedGeometry, m.material);
+                staticGroup.add(mesh);
+            })
+
+        } catch (err) {
+            console.error("failed to build the static for:", obj);
+            console.error(err);
+            return obj;
+        }
+        console.log("Static - before:", beforeCount, "end:", endCount, "object:", obj);
+        return staticGroup;
     }
 
     constructCollider(obj) {

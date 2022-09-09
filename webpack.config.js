@@ -41,7 +41,7 @@ const config = {
     module: {
         rules: [
             {
-                test: /\.(jpe?g|png|gif|svg|zip|glb)$/i,
+                test: /\.(jpe?g|png|gif|svg|zip|glb|glsl|aac)$/i,
                 type: 'asset/resource',
             },
         ]
@@ -64,8 +64,11 @@ const config = {
                 { from: 'assets/css/*'},
                 { from: 'assets/fonts/**/*'},
                 { from: 'assets/images/*'},
+                { from: 'assets/sounds/*'},
                 { from: 'assets/avatar-images/*'},
                 { from: 'assets/sky/*'},
+                { from: 'assets/src/*'},            
+                { from: 'assets/shaders/*'},    
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'behaviors/**/*'}
