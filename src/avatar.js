@@ -21,7 +21,6 @@ import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
 
 const EYE_HEIGHT = 1.676;
-const FALL_DISTANCE = EYE_HEIGHT / 12;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
@@ -85,7 +84,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     // used by the BVH based walking logic. customizable when the avatar is not a human size.
     get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
-    get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     ensureNicknameCard() {
@@ -616,6 +614,7 @@ function setModelOpacity(model, visible, opacity) {
     let transparent = opacity !== 1;
     model.visible = visible;
     model.traverse(n => {
+        n.renderOrder = 10000; // render this only after everything else
         if (n.material && n.material.opacity !== opacity) {
             n.material.opacity = opacity;
             n.material.transparent = transparent;
@@ -725,6 +724,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         setupWorldMenuButton(this, App, this.sessionId);
 
         window.myAvatar = this;
+
+        this.eyeHeight = EYE_HEIGHT;
+        this.fallDistance = EYE_HEIGHT / 12;
+        this.maxFall = -15;
 
         // drop and paste
         this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
@@ -1367,7 +1370,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let newSpace = manager.origReferenceSpace.getOffsetReferenceSpace(offsetTransform);
         xr.setReferenceSpace(newSpace);
-    }
+   }
 
     // compute motion from spin and velocity
     updatePose(delta) {
@@ -1488,12 +1491,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     checkFall(vq) {
-        const MAX_FALL = -15;
         if (!this.isFalling) {return vq;}
         let v = vq.v;
-        v = [v[0], v[1] - this.actor.fallDistance, v[2]];
+        v = [v[0], v[1] - this.fallDistance, v[2]];
         this.isFalling = false;
-        if (v[1] < MAX_FALL) {
+        if (v[1] < this.maxFall) {
             this.goHome();
             return {v: v3_zero(), q: q_identity()};
         }
@@ -2009,7 +2011,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         for (let [_viewId, a] of manager.players) {
             // a for actor, p for pawn
             let p = GetPawn(a.id);
-            if (!p) {continue;}
             if (!this.actor.inWorld) {
                 setOpacity(p, 1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
@@ -2045,7 +2046,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let avatarType = oldCardData.avatarType;
 
         [
-            "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
         if (!configuration.type && !avatarType) {
@@ -2156,8 +2157,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (newCard) {
             this.lastCardId = newCard.id;
             let pawn = GetPawn(newCard.id);
-            if (!pawn) {return;}
             let pose = pawn.getJumpToPose ? pawn.getJumpToPose() : null;
+
             if (pose) {
                 let obj = {xyz: pose[0], offset: pose[1], look: true, targetId: newCard.id, normal: pawn.hitNormal || [0, 0, 1]};
                 this.say("goThere", obj);
