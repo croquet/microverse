@@ -130,7 +130,7 @@ export function init(Constants) {
                 singleSided: true,    
                 noFog: true,
                 type: "3d",
-                static: true
+                flatten: true
             }
         },
         {
@@ -158,7 +158,7 @@ export function init(Constants) {
                     215.58989538473676
                 ],
                 type: "3d",
-                static: true
+                flatten: true
             },
         }
     ];

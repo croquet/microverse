@@ -703,16 +703,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 this.cleanupColliderObject();
                 this.shape.remove(this.placeholder);
             }
-            if(options.static){
-                let staticObj = this.constructStatic(obj);
-                if(staticObj !== obj){
-                    obj.traverse( mesh => {
-                        if(mesh.geometry){
+            if(options.flatten) {
+                let flattenedObj = this.flattenObj(obj);
+                if(flattenedObj !== obj) {
+                    obj.traverse((mesh) => {
+                        if (mesh.geometry){
                             mesh.geometry.dispose();
                             mesh.material.dispose();
                         }
                     });
-                    obj = staticObj;
+                    obj = flattenedObj;
                 }
             }
             addMeshProperties(obj, shadow, singleSided, noFog, THREE);
@@ -884,17 +884,17 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         }
     }
 
-    // constructStatic does its best to remove groups and merge meshes with the same
-    // textures. It is used if the "static:" flag is set in the card. 
+    // flattenObj does its best to remove groups and merge meshes with the same
+    // textures. It is used if the "flatten:" flag is set in the card.
     // It is a poor man's mesh merge, so should not be used if the same texture is used
     // in different kinds of materials (which is likely rare).
     // It is quite similar to constructCollider and these could be merged at some point.
-    constructStatic(obj) {
+    flattenObj(obj) {
         let staticGroup = new THREE.Group();
         let meshData = [];
         let beforeCount = 0, endCount = 0;
         try {
-            obj.traverse(c =>{ 
+            obj.traverse(c =>{
                 beforeCount++;
                 if(c.geometry){
                     let cloned = c.geometry.clone();
@@ -907,8 +907,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                             delete cloned.attributes.uv2;
                             delete cloned.attributes.texcoord_2;
                         }
-                        let id = c.material.map?c.material.map.id : 0;
-                        if(!meshData[id])meshData[id]={material: c.material.clone(), geometries:[]}
+                        let id = c.material.map ? c.material.map.id : 0;
+                        if (!meshData[id]) meshData[id] = {material: c.material.clone(), geometries:[]};
                         meshData[id].geometries.push(cloned);
                     } else {
                         console.warn("skipping a geometry in the model that is not indexed");
@@ -932,7 +932,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         console.log("Static - before:", beforeCount, "end:", endCount, "object:", obj);
         return staticGroup;
     }
-
 
     constructCollider(obj) {
         let geometries = [];

@@ -429,7 +429,6 @@ class Shell {
         let fullscreenFlag = data.fullscreen;
         if (!document.head.querySelector("#joystick-css")) {
             this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
-            debugger;
         }
         if (joystickFlag !== undefined && this.joystick) {
             if (joystickFlag) {

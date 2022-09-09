@@ -32,13 +32,12 @@ class CampusMapPawn {
         // lazily create geometry and material to be shared with all dots.
         let THREE = Microverse.THREE;
         if (this.balls) {
-            this.balls.forEach((b) => {
+            [...this.balls].forEach((b) => {
                 this.shape.remove(b);
                 b.geometry.dispose();
                 b.material.dispose();
             });
         }
-        this.shape.children = [];
         this.balls = [];
 
         if (this.geometry) {
