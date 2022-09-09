@@ -19,6 +19,8 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import { XRControllerModelFactory } from 'three/examples/jsm//webxr/XRControllerModelFactory.js';
 
 import { PM_Visible, PM_Camera, RenderManager } from "@croquet/worldcore-kernel";
 
@@ -103,7 +105,7 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         render.camera.matrixWorldNeedsUpdate = true;
     }
 
-    setRayCast(xy){
+    setRayCast(xy) {
         const x = ( xy[0] / window.innerWidth ) * 2 - 1;
         const y = - ( xy[1] / window.innerHeight ) * 2 + 1;
         const render = this.service("ThreeRenderManager");
@@ -112,8 +114,19 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         return this.raycaster;
     }
 
-    pointerRaycast(xy, targets, optStrictTargets) {
-        this.setRayCast(xy);
+    setXRRayCast(xrEvent) {
+        let vec = new THREE.Vector3(0, 0, -1);
+        vec.applyEuler(xrEvent.target.rotation);
+        if (!this.raycaster) this.raycaster = new THREE.Raycaster();
+        this.raycaster.set(xrEvent.target.position, vec);
+    }
+
+    pointerRaycast(source, targets, optStrictTargets) {
+        if (Array.isArray(source)) {
+            this.setRayCast(source);
+        } else {
+            this.setXRRayCast(source);
+        }
         const render = this.service("ThreeRenderManager");
         const h = this.raycaster.intersectObjects(targets || render.threeLayer("pointer"));
         if (h.length === 0) return {};
@@ -173,6 +186,136 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
 };
 
 //------------------------------------------------------------------------------------------
+//-- XRController --------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
+
+class XRController {
+    constructor(manager) {
+        this.manager = manager;
+        this.controllerModelFactory = new XRControllerModelFactory();
+
+        this.raycaster = new THREE.Raycaster();
+
+        function selectStart(controller, evt) {
+            if (manager.avatar) {
+                let e = {
+                    button: 0,
+                    buttons: 1,
+                    id: 1,
+                    source: evt,
+                };
+                manager.avatar.doPointerDown(e);
+            }
+            controller.userData.pointerDown = true;
+        }
+
+        function selectEnd(controller, evt) {
+            if (manager.avatar) {
+                let e = {
+                    button: 0,
+                    buttons: 1,
+                    id: 1,
+                    source: evt,
+                };
+                manager.avatar.doPointerUp(e);
+            }
+            controller.userData.pointerDown = false;
+        }
+
+        [0, 1].forEach((i) => {
+            let n = `controller${i}`;
+            this[n] = manager.renderer.xr.getController(i);
+            let c = this[n];
+            c.addEventListener("selectstart", (evt) => selectStart(c, evt));
+            c.addEventListener("selectend", (evt) => selectEnd(c, evt));
+            c.userData.pointerDown = false;
+            c.addEventListener("connected", (event) => {
+                c.add(this.buildController(event.data, i));
+            });
+            c.addEventListener("disconnected", () => {
+                c.remove(this.children[0]);
+            });
+            manager.scene.add(c);
+
+	    let gn = `controllerGrip${i}`;
+            this[gn] = manager.renderer.xr.getControllerGrip(i);
+            let g = this[gn];
+	    g.add(this.controllerModelFactory.createControllerModel(g));
+	    manager.scene.add(g);
+        });
+        this.lastDelta = [0, 0];
+    }
+
+    buildController(data, i) {
+        let geometry;
+        let material;
+
+        if (data.gamepad) {
+            this[`gamepad${i}`] = data.gamepad;
+        }
+
+        if (!this.manager.origReferenceSpace) {
+            this.manager.origReferenceSpace = this.manager.renderer.xr.getReferenceSpace();
+        }
+
+        switch (data.targetRayMode) {
+            case 'tracked-pointer':
+                geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, - 1 ], 3));
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
+                material = new THREE.LineBasicMaterial({vertexColors: true, blending: THREE.AdditiveBlending});
+                return new THREE.Line(geometry, material);
+            case 'gaze':
+                geometry = new THREE.RingGeometry(0.02, 0.04, 32).translate(0, 0, -1);
+                material = new THREE.MeshBasicMaterial({opacity: 0.5, transparent: true});
+                return new THREE.Mesh(geometry, material);
+        }
+
+    }
+
+    update(avatar) {
+        let dx = 0;
+        let dy = 0;
+        dx += this.gamepad0?.axes[2] || 0;
+        dx += this.gamepad1?.axes[2] || 0;
+        dy += this.gamepad0?.axes[3] || 0;
+        dy += this.gamepad1?.axes[3] || 0;
+
+        if (this.lastDelta[0] === 0 && this.lastDelta[1] === 0 &&
+            dx !== 0 && dy !== 0) {
+            avatar.startMotion();
+        }
+        avatar.updateMotion(dx * 80, dy * 80);
+        if (this.lastDelta[0] !== 0 && this.lastDelta[1] !== 0 &&
+            dx === 0 && dy === 0) {
+            avatar.endMotion();
+        }
+        this.lastDelta = [dx, dy];
+
+        if (this.controller0.userData.pointerDown) {
+            let e = {
+                button: 0,
+                buttons: 1,
+                id: 1,
+                source: {target: this.controller0}
+            };
+            avatar.doPointerMove(e);
+        }
+
+        if (this.controller1.userData.pointerDown) {
+            let e = {
+                button: 0,
+                buttons: 1,
+                id: 1,
+                source: {target: this.controller1}
+            };
+            avatar.doPointerMove(e);
+        }
+    }
+}
+
+
+//------------------------------------------------------------------------------------------
 //-- ThreeRenderManager --------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 
@@ -198,17 +341,34 @@ class ThreeRenderManager extends RenderManager {
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
 
-        this.composer = new EffectComposer( this.renderer );
-
-        this.renderPass = new RenderPass( this.scene, this.camera );
-        this.composer.addPass( this.renderPass );
-
-        this.resize();
-        this.subscribe("input", "resize", () => this.resize());
-        this.setRender(true);
+        this.hasXR().then((xr) => {
+            if (xr) {
+                document.body.appendChild(VRButton.createButton(this.renderer));
+                this.renderer.xr.enabled = true;
+                this.xrController = new XRController(this);
+            } else {
+                // at this moment, there is no effects added but this is where it will go.
+                this.composer = new EffectComposer( this.renderer );
+                this.renderPass = new RenderPass( this.scene, this.camera );
+                this.composer.addPass( this.renderPass );
+            }
+            this.resize();
+            this.subscribe("input", "resize", () => this.resize());
+            this.setRender(true);
+        });
     }
 
-    setRender(bool){this.doRender = bool; }
+    setRender(bool) {
+        this.doRender = bool;
+    }
+
+    hasXR() {
+        if (navigator.xr) {
+            return navigator.xr.isSessionSupported("immersive-vr");
+        }
+        return Promise.resolve(false);
+    }
+
     destroy() {
         super.destroy();
         this.renderer.dispose();
@@ -219,7 +379,9 @@ class ThreeRenderManager extends RenderManager {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.composer.setSize(window.innerWidth, window.innerHeight)
+        if (this.composer) {
+            this.composer.setSize(window.innerWidth, window.innerHeight)
+        }
     }
 
     dirtyLayer(name) {
@@ -248,9 +410,18 @@ class ThreeRenderManager extends RenderManager {
     }
 
     update() {
-        if(this.doRender)this.composer.render();
-    }
+        if (this.doRender) {
+            if (this.composer) {
+                this.composer.render();
+            } else {
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
 
+        if (this.xrController && this.avatar) {
+            this.xrController.update(this.avatar);
+        }
+    }
 }
 
 const THREE = {
