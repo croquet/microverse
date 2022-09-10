@@ -268,35 +268,35 @@ function updateLocalConfig() {
 }
 
 let avatars = [
-    {png: "f1",
+    {png: "https://croquet.io/microverse/assets/avatar-images/f1.png",
      url: "https://d1a370nemizbjq.cloudfront.net/0725566e-bdc0-40fd-a22f-cc4c333bcb90.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "f2",
+    {png: "https://croquet.io/microverse/assets/avatar-images/f2.png",
      url: "https://d1a370nemizbjq.cloudfront.net/50ef7f5f-b401-4b47-a8dc-1c4eda1ba8d2.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "f3",
+    {png: "https://croquet.io/microverse/assets/avatar-images/f3.png",
      url: "https://d1a370nemizbjq.cloudfront.net/b5c04bb2-a1df-4ca4-be2e-fb54799e9030.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "f4",
+    {png: "https://croquet.io/microverse/assets/avatar-images/f4.png",
      url: "https://d1a370nemizbjq.cloudfront.net/b480f1d0-3a0f-4766-9860-c213e6c50f3d.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "m1",
+    {png: "https://croquet.io/microverse/assets/avatar-images/m1.png",
      url: "https://d1a370nemizbjq.cloudfront.net/05d16812-01de-48cc-8e06-c6514ba14a77.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "m2",
+    {png: "https://croquet.io/microverse/assets/avatar-images/m2.png",
      url: "https://d1a370nemizbjq.cloudfront.net/2955d824-31a4-47e1-ba58-6c387c63b660.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "m3",
+    {png: "https://croquet.io/microverse/assets/avatar-images/m3.png",
      url: "https://d1a370nemizbjq.cloudfront.net/579d4ec8-ade3-49ea-8b52-2ea5fe097f7d.glb",
      type: "ReadyPlayerMe",
     },
-    {png: "m4",
+    {png: "https://croquet.io/microverse/assets/avatar-images/m4.png",
      url: "https://d1a370nemizbjq.cloudfront.net/535100f3-c58c-4fd8-9fb9-4ee090e844bf.glb",
      type: "ReadyPlayerMe",
     }
@@ -351,7 +351,11 @@ function populateAvatarSelection() {
         let div = document.createElement("div");
         div.classList.add("avatarThumb");
         div.onclick = () => avatarSelected(entry);
-        div.style.backgroundImage = `url(./assets/avatar-images/${entry.png}.png)`;
+        if (entry.png.indexOf("/") >= 0) {
+            div.style.backgroundImage = `url(${entry.png})`;
+        } else {
+            div.style.backgroundImage = `url(./assets/avatar-images/${entry.png}.png)`;
+        }
         div.setAttribute("avatarURL", entry.url);
         holder.appendChild(div);
     });
