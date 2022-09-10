@@ -659,7 +659,10 @@ function startWorld(appParameters, world) {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             return StartWorldcore(sessionParameters);
-        }).then(() => {
+        }).then((session) => {
+            let renderer = session.view.service("ThreeRenderManager");
+            let step = (time, _xrFrame) => session.step(time);
+            renderer.renderer.setAnimationLoop(step);
             let {baseurl} = basenames();
             return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
