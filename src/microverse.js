@@ -49,6 +49,7 @@ const isFirefox = navigator.userAgent.includes('Firefox');
 if (isFirefox) AA = false;
 const isMobile = !!("ontouchstart" in window);
 if (isMobile) AA = false;
+if (navigator.xr && navigator.xr.isSessionSupported("immersive-vr")) AA = true;
 
 console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
 
