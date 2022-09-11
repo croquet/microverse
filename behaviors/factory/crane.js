@@ -165,8 +165,7 @@ class CraneActor {
 class CranePawn {
     setup() {
         if (this.obj) {
-            this.shape.children.forEach((o) => this.shape.remove(o));
-            this.shape.children = [];
+            [...this.shape.children].forEach((o) => this.shape.remove(o));
             this.obj.dispose();
             this.obj = null;
         }
@@ -224,8 +223,7 @@ class CraneLinkPawn {
         this.addEventListener("pointerDoubleDown", "nop");
 
         if (this.actor._cardData.craneProto) { return; }
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         let s = [0.1, 2.3]; // Radius, Height (Half Height Here)
         let geometry = new Microverse.THREE.CylinderGeometry(s[0], s[0], s[1], 20);
@@ -273,8 +271,7 @@ class CraneButtonActor { // Buttons Move Crane
 
 class CraneButtonPawn {
     setup() {
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         if (this.shape.children.length === 0) {
 

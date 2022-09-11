@@ -2,6 +2,8 @@
 // https://croquet.io
 // info@croquet.io
 
+/* globals XRRigidTransform */
+
 import {
     Data, App, View, mix, GetPawn, AM_Player, PM_Player,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
@@ -19,7 +21,6 @@ import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
 
 const EYE_HEIGHT = 1.676;
-const FALL_DISTANCE = EYE_HEIGHT / 6;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
@@ -83,7 +84,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     // used by the BVH based walking logic. customizable when the avatar is not a human size.
     get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
-    get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     ensureNicknameCard() {
@@ -691,6 +691,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const renderMgr = this.service("ThreeRenderManager");
         this.camera = renderMgr.camera;
         this.scene = renderMgr.scene;
+        renderMgr.avatar = this; // hack
 
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
         this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
@@ -723,6 +724,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         setupWorldMenuButton(this, App, this.sessionId);
 
         window.myAvatar = this;
+
+        this.eyeHeight = EYE_HEIGHT;
+        this.fallDistance = EYE_HEIGHT / 12;
+        this.maxFall = -15;
 
         // drop and paste
         this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
@@ -808,6 +813,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
         addShellListener(this.shellListener);
+
         // initialize actor
         // the fact that we're creating an AvatarPawn rather than a RemoteAvatarPawn
         // means that this pawn is for the local user.  it will either be for the
@@ -1332,6 +1338,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         this.positionTo(vq.v, vq.q);
                     }
                 }
+                this.updateXRReference();
                 this.refreshCameraTransform();
 
                 // this part is copied from CardPawn.update()
@@ -1347,6 +1354,23 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         this.updatePortalRender();
     }
+
+    updateXRReference() {
+        let manager = this.service("ThreeRenderManager");
+        if (!manager.origReferenceSpace) {return;}
+        let xr = manager.renderer.xr;
+
+        let inv = m4_invert(this.global);
+        let vv = m4_getTranslation(inv);
+        let rr = m4_getRotation(inv);
+
+        let offsetTransform = new XRRigidTransform(
+            {x: vv[0], y: vv[1], z: vv[2]},
+            {x: rr[0], y: rr[1], z: rr[2], w: rr[3]});
+
+        let newSpace = manager.origReferenceSpace.getOffsetReferenceSpace(offsetTransform);
+        xr.setReferenceSpace(newSpace);
+   }
 
     // compute motion from spin and velocity
     updatePose(delta) {
@@ -1467,12 +1491,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     checkFall(vq) {
-        const MAX_FALL = -100;
         if (!this.isFalling) {return vq;}
         let v = vq.v;
-        v = [v[0], v[1] - this.actor.fallDistance, v[2]];
+        v = [v[0], v[1] - this.fallDistance, v[2]];
         this.isFalling = false;
-        if (v[1] < MAX_FALL) {
+        if (v[1] < this.maxFall) {
             this.goHome();
             return {v: v3_zero(), q: q_identity()};
         }
@@ -1870,7 +1893,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 console.log("pointerDown in editMode");
             }
         } else {
-            if (!this.focusPawn) {
+            if (!this.focusPawn && e.xy) {
                 // because this case is called as the last responder, facusPawn should be always empty
                 this.dragWorld = this.xy2yp(e.xy);
                 this.lookYaw = q_yaw(this._rotation);
@@ -1894,7 +1917,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }else {
             // we should add and remove responders dynamically so that we don't have to check things this way
-            if (!this.focusPawn && this.isPointerDown) {
+            if (!this.focusPawn && this.isPointerDown && e.xy) {
                 let yp = this.xy2yp(e.xy);
                 let yaw = (this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
                 let pitch = this.lookPitch + this.dragWorld[1] - yp[1];
@@ -2023,7 +2046,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let avatarType = oldCardData.avatarType;
 
         [
-            "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
         if (!configuration.type && !avatarType) {

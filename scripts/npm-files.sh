@@ -11,6 +11,7 @@ find ${DIST}/assets/images -type f ! \( -name 'grid.png' \) -exec rm -f {} +
 rm -rf ${DIST}/assets/sky
 rm -rf ${DIST}/assets/3D
 rm -rf ${DIST}/assets/fonts
+rm -rf ${DIST}/assets/avatar-images
 mkdir -p ${DIST}/assets/fonts
 
 cp -rp assets/fonts/css assets/fonts/webfonts assets/fonts/Roboto* ${DIST}/assets/fonts
