@@ -1305,6 +1305,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // so just call the PM_Smoothed version of update()
             this.tug = 0.06;
             super.update(time, delta);
+            this.updateXRReference();
         } else {
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");

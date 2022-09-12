@@ -620,6 +620,33 @@ class MyViewRoot extends ViewRoot {
 
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
+        this.setAnimationLoop(this.session);
+    }
+
+    detach() {
+        console.log("ViewRoot detached");
+    }
+
+    setAnimationLoop(session) {
+        // manual stepping management happens here.
+        const threeRenderManager = this.service("ThreeRenderManager");
+        const renderer = threeRenderManager.renderer;
+        let step = (time, xrFrame) => {
+            if (xrFrame) {
+                //console.log("xrStep", time);
+                session.step(time);
+            }
+        };
+        renderer.setAnimationLoop(step);
+        /*
+          // we do not need this "backup" ticking (as far as I can tell).
+        let basicStep = (time) => {
+            console.log("basicStep", time);
+            window.requestAnimationFrame(basicStep);
+            session.step(time);
+        };
+        basicStep(Date.now());
+        */
     }
 }
 
@@ -662,9 +689,7 @@ function startWorld(appParameters, world) {
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then((session) => {
-            let renderer = session.view.service("ThreeRenderManager");
-            let step = (time, _xrFrame) => session.step(time);
-            renderer.renderer.setAnimationLoop(step);
+            session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
             return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
@@ -681,8 +706,6 @@ https://croquet.io`.trim());
 }
 
 export function startMicroverse() {
-    let searchParams = new URL(window.location.href).searchParams;
-
     let setButtons = (display) => {
         ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
             let bttn = document.querySelector("#" + n);

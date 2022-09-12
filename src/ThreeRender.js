@@ -233,7 +233,8 @@ class XRController {
                 c.add(this.buildController(event.data, i));
             });
             c.addEventListener("disconnected", () => {
-                c.remove(this.children[0]);
+                c.remove(c.children[0]);
+                manager.origReferenceSpace = null;
             });
             manager.scene.add(c);
 
@@ -281,13 +282,19 @@ class XRController {
         dy += this.gamepad0?.axes[3] || 0;
         dy += this.gamepad1?.axes[3] || 0;
 
-        if (this.lastDelta[0] === 0 && this.lastDelta[1] === 0 &&
-            dx !== 0 && dy !== 0) {
+        if ((this.lastDelta[0] === 0 && this.lastDelta[1] === 0) &&
+            (dx !== 0 || dy !== 0)) {
+            console.log("startMotion");
             avatar.startMotion();
         }
-        avatar.updateMotion(dx * 80, dy * 80);
-        if (this.lastDelta[0] !== 0 && this.lastDelta[1] !== 0 &&
-            dx === 0 && dy === 0) {
+
+        if (dx !== 0 || dy !== 0) {
+            console.log("updateMotion");
+            avatar.updateMotion(dx * 80, dy * 80);
+        }
+        if ((this.lastDelta[0] !== 0 || this.lastDelta[1] !== 0) &&
+            (dx === 0 && dy === 0)) {
+            console.log("endMotion");
             avatar.endMotion();
         }
         this.lastDelta = [dx, dy];
