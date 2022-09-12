@@ -663,6 +663,11 @@ function startWorld(appParameters, world) {
             let renderer = session.view.service("ThreeRenderManager");
             let step = (time, _xrFrame) => session.step(time);
             renderer.renderer.setAnimationLoop(step);
+            let basicStep = (time) => {
+                window.requestAnimationFrame(basicStep);
+                step(time);
+            };
+            basicStep(Date.now());
             let {baseurl} = basenames();
             return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
@@ -679,8 +684,6 @@ https://croquet.io`.trim());
 }
 
 export function startMicroverse() {
-    let searchParams = new URL(window.location.href).searchParams;
-
     let setButtons = (display) => {
         ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
             let bttn = document.querySelector("#" + n);
