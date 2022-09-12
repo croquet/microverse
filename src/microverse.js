@@ -661,8 +661,15 @@ function startWorld(appParameters, world) {
             return StartWorldcore(sessionParameters);
         }).then((session) => {
             let renderer = session.view.service("ThreeRenderManager");
-            let step = (time, _xrFrame) => session.step(time);
+            let step = (time, _xrFrame) => {
+                session.step(time);
+            };
             renderer.renderer.setAnimationLoop(step);
+            let basicStep = (time) => {
+                window.requestAnimationFrame(basicStep);
+                step(time);
+            };
+            basicStep(Date.now());
             let {baseurl} = basenames();
             return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {

@@ -233,7 +233,7 @@ class XRController {
                 c.add(this.buildController(event.data, i));
             });
             c.addEventListener("disconnected", () => {
-                c.remove(this.children[0]);
+                c.remove(c.children[0]);
             });
             manager.scene.add(c);
 
