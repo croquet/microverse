@@ -426,7 +426,12 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDown(e) {
         let eventType = "pointerDown";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {
@@ -451,7 +456,13 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerUp(e) {
         let eventType = "pointerUp";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         this.isPointerDown = false;
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -473,7 +484,13 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerMove(e) {
         let eventType = "pointerMove";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {
