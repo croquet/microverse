@@ -69,10 +69,6 @@
     display: flex;
     border-radius: 15px;
     padding: 20px;
-    /* position: relative; */
-    /* bottom: 20px; */
-    /* right: 20px; */
-    /* justify-content: center; */
     align-items: center;
 }
 .cancelButton {
