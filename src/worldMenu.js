@@ -73,7 +73,7 @@ function settingsPressed(myAvatar) {
 }
 
 function sharePressed() {
-    startShareMenu();
+    startShareMenu(worldMenu.badge);
 }
 
 
@@ -104,10 +104,10 @@ function initWorldMenu(badge) {
     let html = document.createElement("div");
     html.id = "worldMenu";
     html.classList.add("worldMenu");
-
-    html.appendChild(badge);
-    // badge.id = "worldMenu-qr";
-    // badge.classList.add("menu-qr", "menu-item");
+    
+    // html.appendChild(badge);
+    badge.id = "worldMenu-qr";
+    badge.classList.add("menu-qr", "menu-item");
 
     let buttons = `
 <div id="worldMenu-load" class="menu-label menu-item">
@@ -156,6 +156,7 @@ function initWorldMenu(badge) {
     html.appendChild(settings);
 
     worldMenu = html;
+    worldMenu.badge = badge;
     filterDomEventsOn(worldMenu);
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
@@ -256,7 +257,7 @@ function toggleMenu(myAvatar) {
 
 export function setupWorldMenuButton(myAvatar, App, sessionId) {
     if (!worldMenu) {
-        let ownerDiv = document.createElement("div");
+        let badge = document.createElement("div");
         let statsDiv = document.createElement("div");
         statsDiv.id = "statsDiv";
         // let qrDiv = document.createElement("div");
@@ -264,17 +265,17 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
 
         statsDiv.classList.add("statsHidden");
 
-        // ownerDiv.appendChild(qrDiv);
-        ownerDiv.appendChild(statsDiv);
+        // badge.appendChild(qrDiv);
+        badge.appendChild(statsDiv);
 
-        App.root = ownerDiv;
+        App.root = badge;
         App.badge = false;
         // App.qrcode = qrDiv;
         App.stats = statsDiv;
         App.makeSessionWidgets(sessionId);
         // qrDiv.onclick = null;
 
-        initWorldMenu(ownerDiv);
+        initWorldMenu(badge);
     }
     let worldMenuBttn = document.querySelector("#worldMenuBttn");
     worldMenuBttn.onclick = () => toggleMenu(myAvatar);

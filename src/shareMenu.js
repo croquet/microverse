@@ -2,6 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
+let shareMenuContent = null;
 let shareMenu = null;
 let shareMenuBody = null;
 
@@ -17,61 +18,44 @@ let resolveDialog;
 // export function setAvatarForshareMenu(myAvatar) {
 //     avatar = myAvatar;
 // }
-
-export function startShareMenu(useEnter, r) {
-    // note that even if called when already in session with a default (Alice) avatar,
-    // the user must provide an avatar choice to be able to change the name
-    resolveDialog = r;
-    nicknameIsValid = false;
-    avatarIsValid = false;
-    loadCSS().then(() => createShareMenu(useEnter));
-}
-
-
 function loadCSS() {
-    if (!document.head.querySelector("#settings-css")) {
-        return new Promise((resolve, reject) => {
             let css = document.createElement("link");
             css.rel = "stylesheet";
             css.type = "text/css";
             css.id = "settings-css";
             css.href = "./assets/css/settings.css";
-            css.onload = resolve;
-            css.onerror = reject;
             document.head.appendChild(css);
-        });
-    }
-    return Promise.resolve(true);
 }
 
-function createShareMenu(useEnter) {
+ loadCSS();
+
+export function startShareMenu(badge) {
+    createShareMenu(badge);
+}
+
+function createShareMenu(badge) {
     let share = `
 <div id="joinDialog" class="noselect">
-  <div id='joinDialogBody' class='wide'>
-    <div id='dialogTitle'>
-        <div id='titleHolder' class='settingColumn'>
-            <img id='titleLogo' src='assets/images/microverse-logo.png'/>
-        </div>
-    </div>
-    <div id='joinSettings'>
-        <div id="settings-title">Share</div>
-
-        <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
+    <div id='joinDialogBody' class='wide'>
+        <div id='joinSettings'>
+            <div id="settings-title">Share</div>
+            <div id="share-qr"></div>
             <div id='cancelButton'>Cancel</div>
-        </div>
+        </div>        
     </div>
-  </div>
 </div>`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = share;
 
+    shareMenuContent = div.querySelector("#share-qr");
     shareMenu = div.querySelector("#joinDialog");
     shareMenuBody = div.querySelector("#joinDialogBody");
 
     const cancelButton = shareMenu.querySelector('#cancelButton');
     cancelButton.addEventListener('click', () => cancel());
 
+    shareMenuContent.appendChild(badge);
     document.body.appendChild(shareMenu);
     
     setShareSize()

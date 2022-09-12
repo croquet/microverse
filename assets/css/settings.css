@@ -64,12 +64,22 @@
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     background-color: rgba(0, 0, 0, .5);
-    display: flex;
+    justify-content: space-between;
     flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
+    display: flex;
     border-radius: 15px;
+    padding: 20px;
+    /* position: relative; */
+    /* bottom: 20px; */
+    /* right: 20px; */
+    /* justify-content: center; */
+    align-items: center;
 }
+.cancelButton {
+    justify-content: flex-end;
+    display: flex;
+  }
+
 
 #joinPrompt {
     display: flex;
@@ -774,6 +784,7 @@
 
 #settings-title {
     font-size: 25px;
+    text-align:center;
 }
 
 .settings-padding {

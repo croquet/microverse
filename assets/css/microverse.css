@@ -184,6 +184,7 @@ body.tilt>iframe {
     display: flex;
     align-items: center;
     justify-content: center;
+    border:1px solid red;
 }
 
 #qrDiv {
