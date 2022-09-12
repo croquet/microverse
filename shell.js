@@ -415,13 +415,13 @@ class Shell {
                 this.joystick.style.setProperty("display", "none");
             }
         }
-        // if (fullscreenFlag !== undefined && this.fullscreenBttn) {
-        //     if (fullscreenFlag) {
-        //         this.fullscreenBttn.style.removeProperty("display");
-        //     } else {
-        //         this.fullscreenBttn.style.setProperty("display", "none");
-        //     }
-        // }
+        if (fullscreenFlag !== undefined && this.fullscreenBttn) {
+            if (fullscreenFlag) {
+                this.fullscreenBttn.style.removeProperty("display");
+            } else {
+                this.fullscreenBttn.style.setProperty("display", "none");
+            }
+        }
     }
 
     manuallyRenderPrimaryFrame() {
