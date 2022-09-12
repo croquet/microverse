@@ -106,8 +106,8 @@ function initWorldMenu(badge) {
     html.classList.add("worldMenu");
 
     html.appendChild(badge);
-    badge.id = "worldMenu-qr";
-    badge.classList.add("menu-qr", "menu-item");
+    // badge.id = "worldMenu-qr";
+    // badge.classList.add("menu-qr", "menu-item");
 
     let buttons = `
 <div id="worldMenu-load" class="menu-label menu-item">
@@ -207,17 +207,17 @@ function toggleMenu(myAvatar) {
         }
     }
 
-    div = worldMenu.querySelector("#worldMenu-qr");
-    div.onclick = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
+    // div = worldMenu.querySelector("#worldMenu-qr");
+    // div.onclick = (evt) => {
+    //     evt.preventDefault();
+    //     evt.stopPropagation();
 
-        if (evt.shiftKey || isMobile) {
-            switchQRView(myAvatar);
-            return;
-        }
-        qrPressed(myAvatar, window.location);
-    }
+    //     if (evt.shiftKey || isMobile) {
+    //         switchQRView(myAvatar);
+    //         return;
+    //     }
+    //     qrPressed(myAvatar, window.location);
+    // }
 
     div = worldMenu.querySelector("#worldMenu-save");
     div.onclick = (evt) => {
@@ -259,20 +259,20 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
         let ownerDiv = document.createElement("div");
         let statsDiv = document.createElement("div");
         statsDiv.id = "statsDiv";
-        let qrDiv = document.createElement("div");
-        qrDiv.id = "qrDiv";
+        // let qrDiv = document.createElement("div");
+        // qrDiv.id = "qrDiv";
 
         statsDiv.classList.add("statsHidden");
 
-        ownerDiv.appendChild(qrDiv);
+        // ownerDiv.appendChild(qrDiv);
         ownerDiv.appendChild(statsDiv);
 
         App.root = ownerDiv;
         App.badge = false;
-        App.qrcode = qrDiv;
+        // App.qrcode = qrDiv;
         App.stats = statsDiv;
         App.makeSessionWidgets(sessionId);
-        qrDiv.onclick = null;
+        // qrDiv.onclick = null;
 
         initWorldMenu(ownerDiv);
     }
