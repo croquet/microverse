@@ -679,8 +679,6 @@ https://croquet.io`.trim());
 }
 
 export function startMicroverse() {
-    let searchParams = new URL(window.location.href).searchParams;
-
     let setButtons = (display) => {
         ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
             let bttn = document.querySelector("#" + n);
