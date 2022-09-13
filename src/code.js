@@ -7,6 +7,7 @@ const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "./ThreeRender.js";
 import * as WorldcoreRapierExports from "./physics.js";
+import * as FrameExports from "./frame.js";
 
 //console.log(WorldcoreRapierExports);
 
@@ -592,7 +593,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source})`;
         let cls;
         try {
-            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports};
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports, ...FrameExports};
             cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);

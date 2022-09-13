@@ -571,7 +571,13 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerTap(e) {
         let eventType = "pointerTap";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {

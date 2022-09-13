@@ -207,6 +207,7 @@ class XRController {
                 manager.avatar.doPointerDown(e);
             }
             controller.userData.pointerDown = true;
+            controller.userData.pointerDownTime = Date.now();
         }
 
         function selectEnd(controller, evt) {
@@ -217,9 +218,16 @@ class XRController {
                     id: 1,
                     source: evt,
                 };
+                if (controller.userData.pointerDownTime) {
+                    let now = Date.now();
+                    if (now - controller.userData.pointerDownTime < 400) {
+                        manager.avatar.doPointerTap(e);
+                    }
+                }
                 manager.avatar.doPointerUp(e);
             }
             controller.userData.pointerDown = false;
+            controller.userData.pointerDownTime = null;
         }
 
         [0, 1].forEach((i) => {
@@ -289,12 +297,10 @@ class XRController {
         }
 
         if (dx !== 0 || dy !== 0) {
-            console.log("updateMotion");
             avatar.updateMotion(dx * 80, dy * 80);
         }
         if ((this.lastDelta[0] !== 0 || this.lastDelta[1] !== 0) &&
             (dx === 0 && dy === 0)) {
-            console.log("endMotion");
             avatar.endMotion();
         }
         this.lastDelta = [dx, dy];
@@ -360,7 +366,7 @@ class ThreeRenderManager extends RenderManager {
         if (this.canvas) {
             options.canvas = this.canvas;
         }
-        
+
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
 
