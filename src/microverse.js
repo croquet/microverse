@@ -625,6 +625,7 @@ class MyViewRoot extends ViewRoot {
 
     detach() {
         console.log("ViewRoot detached");
+        super.detach();
     }
 
     setAnimationLoop(session) {

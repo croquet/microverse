@@ -97,7 +97,7 @@ export const AM_Code = superclass => class extends superclass {
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
         let behaviorName = this._behavior.$behaviorName;
-        let moduleName = this._behavior.module.name;
+        let moduleName = this._behavior.module.externalName;
         return this.futureWithBehavior(time, moduleName, behaviorName);
     }
 
@@ -401,7 +401,7 @@ export const PM_Code = superclass => class extends superclass {
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
                         if (behavior.$behavior.teardown) {
-                            this.call(`${behavior.module.name}$${behavior.$behaviorName}`, "teardown");
+                            this.call(`${behavior.module.externalName}$${behavior.$behaviorName}`, "teardown");
                         }
                     };
                 }
