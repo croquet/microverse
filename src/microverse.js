@@ -40,58 +40,41 @@ const defaultSystemBehaviorModules = [
     "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
 ];
 
-// turn off antialiasing for mobile and safari
-// Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
-// Firefox seems to be dissolving in front of our eyes as well. It is also much slower.
-// mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
-let AA = true;
-const isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-if (isSafari) AA = false;
-const isFirefox = navigator.userAgent.includes('Firefox');
-if (isFirefox) AA = false;
-const isMobile = !!("ontouchstart" in window);
-if (isMobile) AA = false;
-if (navigator.xr && navigator.xr.isSessionSupported("immersive-vr")) AA = true;
+function getAntialias() {
+    // turn off antialiasing for mobile and safari
+    // Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
+    // Firefox seems to be dissolving in front of our eyes as well. It is also much slower.
+    // mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 
-console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
+    let urlOption = new URL(window.location).searchParams.get("AA");
+    if (urlOption) {
+        if (urlOption === "true") {
+            console.log(`antialias is true, urlOption AA is set`);
+            return true;
+        } else {
+            console.log(`antialias is false, urlOption AA is unset`);
+            return false;
+        }
+    }
+    let AA = true;
+    const isSafari = navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
+    if (isSafari) AA = false;
+    const isFirefox = navigator.userAgent.includes("Firefox");
+    if (isFirefox) AA = false;
+    const isMobile = !!("ontouchstart" in window);
+    if (isMobile) AA = false;
+    if (navigator.xr && navigator.xr.isSessionSupported("immersive-vr")) AA = true;
+    console.log(`antialias is ${AA}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
+    return AA;
+}
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
-
-/*
-function loadLoaders() {
-    return loadThreeJSLib("postprocessing/Pass.js", THREE)
-        .then(() => loadThreeJSLib("shaders/CopyShader.js", THREE))
-        .then(() => loadThreeJSLib("csm/CSMFrustum.js", THREE))
-        .then(() => loadThreeJSLib("csm/CSMShader.js", THREE))
-        .then(()=>{
-            let libs = [
-                "loaders/OBJLoader.js",
-                "loaders/MTLLoader.js",
-                "loaders/GLTFLoader.js",
-                "loaders/FBXLoader.js",
-                "loaders/DRACOLoader.js",
-                "loaders/SVGLoader.js",
-                "loaders/EXRLoader.js",
-                "utils/BufferGeometryUtils.js",
-                "csm/CSM.js"
-            ];
-
-            window.JSZip = JSZip;
-            window.fflate = fflate;
-
-            return Promise.all(libs.map((file) => {
-                return loadThreeJSLib(file, THREE);
-            }));
-        });
-}
-*/
 
 function loadLoaders() {
     window.JSZip = JSZip;
     window.fflate = fflate;
     window.THREE = THREE;
     return Promise.resolve(THREE);
-    //return loadThreeLibs(THREE);
 }
 
 function basenames() {
@@ -595,7 +578,7 @@ class MyViewRoot extends ViewRoot {
     static viewServices() {
         const services = [
             InputManager,
-            {service: ThreeRenderManager, options:{useBVH: true, antialias:AA}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias: getAntialias()}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
