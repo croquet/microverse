@@ -31,11 +31,8 @@ function loadCSS() {
 
 
  function savePressed() {
-
     let div = document.createElement("a");
-
     let dataStr = "data:text/json;charset=utf-8,";
-
     div.setAttribute("href", dataStr);
     div.setAttribute("download", "scene.vrse");
     div.click();
@@ -46,13 +43,18 @@ export function startShareMenu(badge) {
     createShareMenu(badge);
 }
 
+
+
 function createShareMenu(badge) {
     let share = `
     <div id="joinDialog" class="noselect">
     <div id='joinDialogBody' class='wide'>
         <div id='joinSettings'>
             <div id="settings-title">Share</div>
-            <div id="share-qr"></div>
+            <div id="share-container">
+                <p id="shareQR">test</p>
+                <div id="share-qr"></div>
+            </div>
             <div class="dialogButtonsHolder settingColumn">
                 <button type="button" id="cancelButton" class="btn btn-danger">Cancel</button>
                 <div id="worldMenu-save">

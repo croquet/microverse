@@ -211,20 +211,20 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
         let badge = document.createElement("div");
         let statsDiv = document.createElement("div");
         statsDiv.id = "statsDiv";
-        // let qrDiv = document.createElement("div");
-        // qrDiv.id = "qrDiv";
+        let qrDiv = document.createElement("div");
+        qrDiv.id = "qrDiv";
 
         statsDiv.classList.add("statsHidden");
 
-        // badge.appendChild(qrDiv);
+        badge.appendChild(qrDiv);
         badge.appendChild(statsDiv);
 
         App.root = badge;
         App.badge = false;
-        // App.qrcode = qrDiv;
+        App.qrcode = qrDiv;
         App.stats = statsDiv;
         App.makeSessionWidgets(sessionId);
-        // qrDiv.onclick = null;
+        qrDiv.onclick = null;
 
         initWorldMenu(badge);
     }

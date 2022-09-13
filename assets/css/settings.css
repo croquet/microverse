@@ -65,7 +65,7 @@
   height: 100%;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   justify-content: space-between;
   flex-direction: column;
   display: flex;
