@@ -48,16 +48,18 @@ export function startShareMenu(badge) {
 
 function createShareMenu(badge) {
     let share = `
-<div id="joinDialog" class="noselect">
+    <div id="joinDialog" class="noselect">
     <div id='joinDialogBody' class='wide'>
         <div id='joinSettings'>
             <div id="settings-title">Share</div>
             <div id="share-qr"></div>
-            <div id="worldMenu-save">
-                <span>Export</span>
+            <div class="dialogButtonsHolder">
+                <div id="worldMenu-save">
+                    <button type="button" class="btn btn-outline-success">Export
+                </div>
+                <button type="button" id="cancelButton" class="btn btn-danger">Cancel</div>
             </div>
-            <div id='cancelButton'>Cancel</div>
-        </div>        
+        </div>
     </div>
 </div>`.trim();
 

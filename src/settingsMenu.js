@@ -45,55 +45,62 @@ function loadCSS() {
 
 function createSettingsMenu(useEnter) {
     let settings = `
-<div id="joinDialog" class="noselect">
-  <div id='joinDialogBody' class='wide'>
-    <div id='dialogTitle'>
-        <div id='titleHolder' class='settingColumn'>
-            <img id='titleLogo' src='assets/images/microverse-logo.png'/>
-        </div>
-    </div>
-    <div id='joinSettings'>
-        <div id='joinPrompt' class='settingColumn'>
-            <div id='joinPromptTitle'>Choose nickname and avatar</div>
-            <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either by selecting from those on display or pasting a valid Ready Player Me URL.</div>
-        </div>
-        <div id="settings-title">Settings</div>
-        <div class="settings-container">
-            <div class="settings-padding">
-                <div id='nameInput' class='stringInputHolder settingColumn'>
-                    <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
-                    <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
-                    <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
-                    <div id='nameFilterWarning'><br/></div>
-                </div>
-                <div class='namePrompt'>Select Avatar</div>
-                <div id='dialogAvatarSelections' class='settingColumn'>
-                <div id='avatarList'></div>
-                </div>
-                <div id='avatarURL' class='stringInputHolder settingColumn'>
-                <div id='avatarURLPrompt' class='namePrompt'>Or, Enter an Avatar URL</div>
-                <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'></div>
-                </div>
-                <div id="handednessRow"class="settingsColumn">
-                <div id="handednessLabel">Handedness:</div>
-                <select id='handedness' class='handedness'>
-                    <option>Right</option>
-                    <option>Left</option>
-                </select>
-                </div>
+
+    <div id="joinDialog" class="noselect">
+    <div id='joinDialogBody' class='wide'>
+        <div id='dialogTitle'>
+            <div id='titleHolder' class='settingColumn'>
+                <img id='titleLogo' src='assets/images/microverse-logo.png' />
             </div>
         </div>
+        <div id='joinSettings'>
+            <div id='joinPrompt' class='settingColumn'>
+                <div id='joinPromptTitle'>Choose nickname and avatar</div>
+                <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either
+                    by selecting from those on display or pasting a valid Ready Player Me URL.</div>
+            </div>
+            <div id="settings-title">Settings</div>
+            <div class="settings-container">
+                <div class="settings-padding">
+                    <div id='nameInput' class='stringInputHolder settingColumn'>
+                        <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
+                        <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
+                        <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
+                        <div id='nameFilterWarning'><br /></div>
+                    </div>
+                    <div class='namePrompt'>Select Avatar</div>
+                    <div id='dialogAvatarSelections' class='settingColumn'>
+                        <div id='avatarList'></div>
+                    </div>
+                    <div id='avatarURL' class='stringInputHolder settingColumn'>
+                        <div id='avatarURLPrompt' class='namePrompt'>Or, Enter an Avatar URL</div>
+                        <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'>
+                        </div>
+                    </div>
+                    <div id="handednessRow" class="settingsColumn">
+                        <div id="handednessLabel">Handedness:</div>
+                        <select id='handedness' class='handedness'>
+                            <option>Right</option>
+                            <option>Left</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-        <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
-            <div id='enterButton'>Enter</div>
-        </div>
-        <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
-            <div id='cancelButton'>Cancel</div>
-            <div id='acceptButton'>Apply</div>
+            <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
+                <div id='enterButton'>Enter</div>
+            </div>
+            <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
+                <button type="button" id="cancelButton" class="btn btn-danger">Cancel</button>
+                <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
+            </div>
         </div>
     </div>
-  </div>
-</div>`.trim();
+</div>
+</div>
+</div>
+</div>
+`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = settings;

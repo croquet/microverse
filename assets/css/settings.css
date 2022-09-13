@@ -1,6 +1,8 @@
-/* @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap'); */
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 
+*{
+    font-family: 'Poppins';
+}
 .noselect {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -171,28 +173,20 @@
     background-color: #218838;
 }
 
-#cancelButton {
-    width: 20%;
-    height: 45px;
-    line-height: 45px;
-    text-align: center;
-    background-color: #dc3535;
-    border-radius: 14px;
-    cursor: pointer;
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-success{
+    color: #fff;
+    background-color: #28a745;
+    border-color: #28a745;
 }
 
 #cancelButton:hover {
     background-color: #c82333;
-}
-
-#acceptButton {
-    width: 40%;
-    height: 45px;
-    line-height: 45px;
-    text-align: center;
-    background-color: #28a745;
-    border-radius: 14px;
-    cursor: pointer;
 }
 
 #acceptButton:hover {
