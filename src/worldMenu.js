@@ -15,21 +15,6 @@ function qrPressed(_myAvatar, url) {
     div.remove();
 }
 
-function savePressed(myAvatar) {
-    let model = myAvatar.actor.wellKnownModel("ModelRoot");
-
-    let div = document.createElement("a");
-
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData(), null, 4));
-
-    div.setAttribute("href", dataStr);
-    div.setAttribute("download", "scene.vrse");
-    div.click();
-    if (worldMenuVisible) {
-        toggleMenu();
-    }
-}
-
 function loadPressed(myAvatar) {
     if (!imageInput) {
         let input = document.createElement("div");
@@ -118,10 +103,6 @@ function initWorldMenu(badge) {
     <div class="menu-icon load-icon"></div>
     <span class="menu-label-text">Import</span>
 </div>
-<div id="worldMenu-save" class="menu-label menu-item">
-    <div class="menu-icon save-icon"></div>
-    <span class="menu-label-text">Export</span>
-</div>
 <div id="worldMenu-connect" class="menu-label menu-item">
     <div class="menu-icon connect-icon"></div>
     <span class="menu-label-text">Connect</span>
@@ -141,14 +122,12 @@ function initWorldMenu(badge) {
     let div = document.createElement("div");
     div.innerHTML = buttons;
 
-    let save = div.querySelector("#worldMenu-save");
     let load = div.querySelector("#worldMenu-load");
     let connect = div.querySelector("#worldMenu-connect");
     let settings = div.querySelector("#worldMenu-settings");
     let share = div.querySelector("#shareButton");
 
     html.appendChild(load);
-    html.appendChild(save);
     html.appendChild(connect);
     html.appendChild(share);
     html.appendChild(settings);
@@ -197,12 +176,7 @@ function toggleMenu(myAvatar) {
     //     qrPressed(myAvatar, window.location);
     // }
 
-    div = worldMenu.querySelector("#worldMenu-save");
-    div.onclick = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        savePressed(myAvatar);
-    }
+
 
     div = worldMenu.querySelector("#worldMenu-load");
     div.onclick = (evt) => {

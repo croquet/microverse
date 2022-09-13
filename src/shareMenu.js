@@ -29,6 +29,19 @@ function loadCSS() {
 
  loadCSS();
 
+
+ function savePressed() {
+
+    let div = document.createElement("a");
+
+    let dataStr = "data:text/json;charset=utf-8,";
+
+    div.setAttribute("href", dataStr);
+    div.setAttribute("download", "scene.vrse");
+    div.click();
+}
+
+
 export function startShareMenu(badge) {
     createShareMenu(badge);
 }
@@ -40,6 +53,9 @@ function createShareMenu(badge) {
         <div id='joinSettings'>
             <div id="settings-title">Share</div>
             <div id="share-qr"></div>
+            <div id="worldMenu-save">
+                <span>Export</span>
+            </div>
             <div id='cancelButton'>Cancel</div>
         </div>        
     </div>
@@ -48,6 +64,7 @@ function createShareMenu(badge) {
     let div = document.createElement("div");
     div.innerHTML = share;
 
+    let saveWorld = div.querySelector("#worldMenu-save");
     shareMenuContent = div.querySelector("#share-qr");
     shareMenu = div.querySelector("#joinDialog");
     shareMenuBody = div.querySelector("#joinDialogBody");
@@ -56,9 +73,18 @@ function createShareMenu(badge) {
     cancelButton.addEventListener('click', () => cancel());
 
     shareMenuContent.appendChild(badge);
-    document.body.appendChild(shareMenu);
+    document.body.appendChild(shareMenu, saveWorld);
     
+    saveWorld.onclick = (evt) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        savePressed();
+    }
+
+
     setShareSize()
+
+
 }
 
 function closeDialog(changed) {
