@@ -38,6 +38,8 @@ const defaultSystemBehaviorModules = [
     "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
 ];
 
+let AA = true;
+
 function getAntialias() {
     // turn off antialiasing for mobile and safari
     // Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
@@ -48,22 +50,25 @@ function getAntialias() {
     if (urlOption) {
         if (urlOption === "true") {
             console.log(`antialias is true, urlOption AA is set`);
-            return true;
+            return Promise.resolve(true);
         } else {
             console.log(`antialias is false, urlOption AA is unset`);
-            return false;
+            return Promise.resolve(false);
         }
     }
-    let AA = true;
+    let aa = true;
     const isSafari = navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
-    if (isSafari) AA = false;
+    if (isSafari) aa = false;
     const isFirefox = navigator.userAgent.includes("Firefox");
-    if (isFirefox) AA = false;
+    if (isFirefox) aa = false;
     const isMobile = !!("ontouchstart" in window);
-    if (isMobile) AA = false;
-    if (navigator.xr && navigator.xr.isSessionSupported("immersive-vr")) AA = true;
-    console.log(`antialias is ${AA}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
-    return AA;
+    if (isMobile) aa = false;
+
+    return (navigator.xr.isSessionSupported("immersive-vr").catch((_err) => false)).then((supported) => {
+        if (supported) {aa = supported;}
+        console.log(`antialias is ${aa}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
+        return aa;
+    });
 }
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
@@ -712,6 +717,9 @@ export function startMicroverse() {
         if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
         sendToShell("hud", {joystick: true, fullscreen: true});
         setButtons("flex");
+        return getAntialias();
+    }).then((aa) => {
+        AA = aa;
         launchMicroverse();
     });
 }
