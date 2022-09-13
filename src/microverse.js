@@ -631,7 +631,6 @@ class MyViewRoot extends ViewRoot {
         const renderer = threeRenderManager.renderer;
         let step = (time, xrFrame) => {
             if (xrFrame) {
-                //console.log("xrStep", time);
                 session.step(time);
             }
         };

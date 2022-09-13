@@ -1349,7 +1349,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         this.positionTo(vq.v, vq.q);
                     }
                 }
-                this.updateXRReference();
                 this.refreshCameraTransform();
 
                 // this part is copied from CardPawn.update()
@@ -1363,14 +1362,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
             }
         }
+        this.updateXRReference();
         this.updatePortalRender();
     }
 
     updateXRReference() {
         let manager = this.service("ThreeRenderManager");
         if (!manager.origReferenceSpace) {return;}
-        let xr = manager.renderer.xr;
 
+        let xr = manager.renderer.xr;
         let inv = m4_invert(this.global);
         let vv = m4_getTranslation(inv);
         let rr = m4_getRotation(inv);
@@ -1381,7 +1381,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let newSpace = manager.origReferenceSpace.getOffsetReferenceSpace(offsetTransform);
         xr.setReferenceSpace(newSpace);
-   }
+    }
 
     // compute motion from spin and velocity
     updatePose(delta) {
