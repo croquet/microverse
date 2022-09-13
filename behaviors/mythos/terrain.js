@@ -81,8 +81,8 @@ class TerrainPawn {
         const THREE = Microverse.THREE;
 
         // images
-        let heightmap_I = this.loadImageAsset("./assets/images/heightmap.jpg");
-        let noise_I = this.loadImageAsset("./assets/images/noise.jpg");
+        let heightmap_I = await this.loadImageAsset("./assets/images/heightmap.jpg");
+        let noise_I = await this.loadImageAsset("./assets/images/noise.jpg");
         // textures
         let grass_T = this.loadTextureAsset("./assets/images/grass.jpg");
         let terrain1_T = this.loadTextureAsset("./assets/images/terrain1.jpg");
@@ -231,9 +231,12 @@ class TerrainPawn {
 
     loadImageAsset(URL){
         let assetManager = this.service("AssetManager").assetManager;
-        return assetManager.fillCacheIfAbsent(URL, () => {
-            return new Microverse.THREE.ImageLoader().load(URL);
-        }, this.id);
+        
+        return new Promise((resolve, reject) => {
+            new Microverse.THREE.ImageLoader().load(URL, (image) => {
+                resolve(assetManager.fillCacheIfAbsent(URL, () => image, this.id));
+            });
+        });
     }
 
     loadFileAsset(URL){
