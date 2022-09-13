@@ -53,11 +53,11 @@ function createShareMenu(badge) {
         <div id='joinSettings'>
             <div id="settings-title">Share</div>
             <div id="share-qr"></div>
-            <div class="dialogButtonsHolder">
+            <div class="dialogButtonsHolder settingColumn">
+                <button type="button" id="cancelButton" class="btn btn-danger">Cancel</button>
                 <div id="worldMenu-save">
-                    <button type="button" class="btn btn-outline-success">Export
+                    <button type="button" class="btn btn-outline-success">Export</button>
                 </div>
-                <button type="button" id="cancelButton" class="btn btn-danger">Cancel</div>
             </div>
         </div>
     </div>

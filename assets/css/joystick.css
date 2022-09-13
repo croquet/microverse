@@ -1,141 +1,137 @@
 #joystick {
-    box-sizing: border-box;
-    position: fixed;
-    left:  75px;
-    bottom: 25px;
-    -ms-transform: translate(-50%, 0%);
-    transform: translate(-50%, 0%);
-    width: 126px;
-    height: 126px;
-    border: 1px solid #FFF;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 200;
+  box-sizing: border-box;
+  position: fixed;
+  left: 75px;
+  bottom: 25px;
+  -ms-transform: translate(-50%, 0%);
+  transform: translate(-50%, 0%);
+  width: 126px;
+  height: 126px;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
 }
 
 #knob {
-    position: fixed;
-    transform: translate(30px, 30px);
-    left: -11px;
-    top: -11px;
-    width: 53px;
-    height: 53px;
-    border-radius: 40px;
-    background-color: rgba(124, 124, 124, 0.5);
-    z-index: 310;
-    pointer-events: none;
+  position: fixed;
+  transform: translate(30px, 30px);
+  left: -11px;
+  top: -11px;
+  width: 53px;
+  height: 53px;
+  border-radius: 40px;
+  background-color: rgba(124, 124, 124, 0.5);
+  z-index: 310;
+  pointer-events: none;
 }
 
 #trackingknob {
+  position: fixed;
+  transform: translate(0px, 0px);
+  width: 123px;
+  height: 123px;
+  border-radius: 50%;
+  z-index: 301;
+}
+
+@media (max-width: 600px), (max-height: 600px) {
+  #trackingknob {
+    width: 82px;
+    height: 82px;
+  }
+
+  #joystick {
+    bottom: 18px;
+    width: 85px;
+    height: 85px;
+  }
+
+  #knob {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-height: 600px) {
+  #joystick {
+    bottom: 45px;
+  }
+}
+
+@media (max-width: 1899px) {
+  #directions {
     position: fixed;
-    transform: translate(0px, 0px);
-    width: 123px;
-    height: 123px;
-    border-radius: 50%;
-    z-index: 301;
+    left: 19px;
+    top: 20px;
+    width: 85px;
+    height: 85px;
+    /* background-color: rgba(179, 16, 16, 0.5); */
+    pointer-events: none;
+    transform: rotate(45deg);
+    color: white;
+  }
 }
 
-@media (max-width:600px),
-(max-height:600px) {
-    #trackingknob {
-        width: 82px;
-        height: 82px;
-    }
+@media (min-width: 1900px) {
+  #trackingknob {
+    width: 135px;
+    height: 135px;
+  }
 
-    #joystick {
-        bottom: 18px;
-        width: 85px;
-        height: 85px;
-    }
+  #joystick {
+    bottom: 65px;
+    width: 140px;
+    height: 140px;
+  }
 
-    #knob {
-        width: 40px;
-        height: 40px;
-    }
+  #directions {
+    position: fixed;
+    left: 27px;
+    top: 26px;
+    width: 85px;
+    height: 85px;
+    /* background-color: rgba(179, 16, 16, 0.5); */
+    pointer-events: none;
+    transform: rotate(45deg);
+    color: white;
+  }
+
+  #knob {
+    width: 72px;
+    height: 69px;
+    left: -31px;
+    top: -31px;
+  }
 }
-
-@media (max-height:600px) {
-    #joystick {
-        bottom: 45px;
-    }
-}
-
-@media (max-width:1899px) {
-    #directions {
-        position: fixed;
-        left: 19px;
-        top: 20px;
-        width: 85px;
-        height: 85px;
-        /* background-color: rgba(179, 16, 16, 0.5); */
-        pointer-events: none;
-        transform: rotate(45deg);
-        color: white;
-    }
-}
-
-@media (min-width:1900px) {
-    #trackingknob {
-        width: 135px;
-        height: 135px;
-    }
-
-    #joystick {
-        bottom: 65px;
-        width: 140px;
-        height: 140px;
-    }
-
-    #directions {
-        position: fixed;
-        left: 27px;
-        top: 26px;
-        width: 85px;
-        height: 85px;
-        /* background-color: rgba(179, 16, 16, 0.5); */
-        pointer-events: none;
-        transform: rotate(45deg);
-        color: white;
-    }
-
-    #knob {
-        width: 72px;
-        height: 69px;
-        left: -31px;
-        top: -31px;
-    }
-}
-
-
 
 .joystick-arrow {
-    position: fixed;
-    z-index: 400;
-    font-size: 8px;
+  position: fixed;
+  z-index: 400;
+  font-size: 8px;
 }
 
 .top {
-    transform: rotate(-45deg);
-    left: 2px;
-    top: 2px;
+  transform: rotate(-45deg);
+  left: 2px;
+  top: 2px;
 }
 
 .left {
-    left: 2px;
-    top: 74px;
-    transform: rotate(-135deg);
-
+  left: 2px;
+  top: 74px;
+  transform: rotate(-135deg);
 }
 
 .bottom {
-    transform: rotate(135deg);
-    left: 75px;
-    top: 75px;
+  transform: rotate(135deg);
+  left: 75px;
+  top: 75px;
 }
 
 .right {
-    left: 74px;
-    top: 3px;
-    transform: rotate(45deg);
+  left: 74px;
+  top: 3px;
+  transform: rotate(45deg);
 }
