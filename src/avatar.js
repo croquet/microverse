@@ -665,6 +665,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
 }
 
 let dormantAvatarSpec = null;
+let useDormantAvatarSpec = true;
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
@@ -872,7 +873,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     detach() {
-        dormantAvatarSpec = this.specForRevival();
+        this.setDormantAvatarSpec(this.specForRevival());
         if (this.fadeNearbyInterval) {
             clearInterval(this.fadeNearbyInterval);
             this.fadeNearbyInterval = null;
@@ -1179,6 +1180,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return spec;
     }
 
+    setDormantAvatarSpec(data) {
+        if (useDormantAvatarSpec) {
+            dormantAvatarSpec = data;
+        }
+    }
+
+    useDormantAvatarSpec(bool) {
+        useDormantAvatarSpec = bool;
+    }
+
     specForPortal(portal, jumpVector, crossingBackwards) {
         // we are about to enter this portal. meaning we disappear from this world and appear in the target world
         // visually nothing should change, so we need this avatar's position relative to the portal, as well as
@@ -1305,7 +1316,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // so just call the PM_Smoothed version of update()
             this.tug = 0.06;
             super.update(time, delta);
-            this.updateXRReference();
         } else {
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
@@ -1469,6 +1479,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
     }
+
     checkFloor(vq) {
         // cast a ray to negative y direction and see if there is a walk layer object
         let walkLayer = this.service("ThreeRenderManager").threeLayer("walk");
