@@ -74,6 +74,10 @@ function settingsPressed(myAvatar) {
 
 function sharePressed() {
     startShareMenu(worldMenu.badge);
+    if (worldMenuVisible) {
+        toggleMenu();
+    }
+
 }
 
 
