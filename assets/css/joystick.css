@@ -1,7 +1,7 @@
 #joystick {
     box-sizing: border-box;
     position: fixed;
-    left: 10%;
+    left:  25px;
     bottom: 25px;
     -ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
