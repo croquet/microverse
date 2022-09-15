@@ -123,7 +123,7 @@ class PhysicsActor {
         const physicsWorld = this._myPhysicsWorld;
         if (!physicsWorld) {return;}
         let world = physicsWorld.world;
-        let joint = world.getJoint(this.jointHandle);
+        let joint = world.getImpulseJoint(this.jointHandle);
         if (joint) {
             world.removeJoint(joint);
         }

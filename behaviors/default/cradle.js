@@ -144,8 +144,8 @@ class CradleLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        if (p3d.normal[2] <= 0) { r.applyImpulse({x: 0, y: 0, z: -150}, true); }
-        else { r.applyImpulse({x: 0, y: 0, z: 150}, true); }
+        if (p3d.normal[2] <= 0) { r.applyImpulse({x: 0, y: 0, z: -1500}, true); }
+        else { r.applyImpulse({x: 0, y: 0, z: 1500}, true); }
     }
 
     teardown() {

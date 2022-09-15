@@ -147,7 +147,7 @@ export function init(Constants) {
                 name: "cascade",
                 translation: [117.51152685835386, 5.399264662960818, -133.3030737470486],
                 rotation: [0, -Math.PI * 0.24, 0],
-                // translation: [3, 3, -10],
+                translation: [3, 3, -10],
                 behaviorModules: ["CascadeBox"],
                 type: "object"
             }

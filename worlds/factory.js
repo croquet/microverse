@@ -324,7 +324,6 @@ export function init(Constants) {
                 frameColor: 0x888888,
             }
         },
-        /*
         {
             card: {
                 name: "cascade",
@@ -334,7 +333,6 @@ export function init(Constants) {
                 type: "object"
             }
         },
-        */
         {
             card: {
                 translation: [51.91000213623047, 5.175040227971613, -28.295106048051267],

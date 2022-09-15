@@ -64,13 +64,13 @@ class CascadeBoxActor {
 
     removeObjects() {
         if (this.children) {
-            this.children.forEach((c) => c.destroy());
+            [...this.children].forEach((c) => c.destroy());
         }
     }
 
     removePhysics() {
-        if (this.physics) {
-            this.physics.destroy();
+        if (this.physicsWorld) {
+            this.physicsWorld.destroy();
         }
     }
 
@@ -188,6 +188,7 @@ class CascadeActor {
     }
 
     translated() {
+        console.log(this.translation);
         /*
           if this object fell below, it kills itself.
           destroy() is a method of the base CardActor. It invokes all destroy() methods of attached
