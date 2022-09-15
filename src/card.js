@@ -1365,6 +1365,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     getMyAvatar() {
         let playerManager = this.actor.service("PlayerManager");
         let myAvatar = playerManager.players.get(this.viewId);
+        if (!myAvatar) {return undefined;}
         return GetPawn(myAvatar.id);
     }
 
