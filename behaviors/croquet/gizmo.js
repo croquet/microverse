@@ -26,7 +26,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [1, 0, 0],
                 color: 0xff0000,
-                hoverColor: 0xff5555
+                hoverColor: 0xff00ff
             });
 
             this.moveY = this.createCard({
@@ -38,7 +38,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 1, 0],
                 color: 0x00ff00,
-                hoverColor: 0xaaffaa
+                hoverColor: 0xff00ff
             });
 
             this.moveZ = this.createCard({
@@ -50,7 +50,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 0, 1],
                 color: 0x0000ff,
-                hoverColor: 0x5555ff
+                hoverColor: 0xff00ff
             });
         } else if (this.gizmoMode === "move") {
             this.moveX.destroy();
@@ -66,7 +66,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [1, 0, 0],
                 color: 0xff0000,
-                hoverColor: 0xff5555
+                hoverColor: 0xff00ff
             });
 
             this.rotateY = this.createCard({
@@ -78,7 +78,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 1, 0],
                 color: 0x00ff00,
-                hoverColor: 0xaaffaa
+                hoverColor: 0xff00ff
             });
 
             this.rotateZ = this.createCard({
@@ -90,7 +90,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 0, 1],
                 color: 0x0000ff,
-                hoverColor: 0x5555ff
+                hoverColor: 0xff00ff
             });
 
             this.gizmoMode = "rotate";
@@ -114,7 +114,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [1, 0, 0],
                 color: 0xff0000,
-                hoverColor: 0xff5555
+                hoverColor: 0xff00ff
             });
 
             this.scaleY = this.createCard({
@@ -126,7 +126,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 1, 0],
                 color: 0x00ff00,
-                hoverColor: 0xaaffaa
+                hoverColor: 0xff00ff
             });
 
             this.scaleZ = this.createCard({
@@ -138,7 +138,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 0, 1],
                 color: 0x0000ff,
-                hoverColor: 0x5555ff
+                hoverColor: 0xff00ff
             });
         }
         console.log("cycled modes, now: ", this.gizmoMode);
@@ -223,6 +223,13 @@ class GizmoAxisPawn {
                     new Microverse.THREE.Vector3(...this.positionAtDragStart)
                 );
             }
+
+            // if (window.planeHelper) {
+            //     this.shape.parent.remove(window.planeHelper);
+            //     window.planeHelper = undefined;
+            // }
+            // window.planeHelper = new Microverse.THREE.PlaneHelper( intersectionPlane, 10, 0xffff00 );
+            // this.shape.parent.add(window.planeHelper);
 
             console.log(intersectionPlane);
 
@@ -338,6 +345,12 @@ class GizmoRotorPawn {
     rotationInteractionPlane() {
         const interactionPlane = new Microverse.THREE.Plane();
         interactionPlane.setFromNormalAndCoplanarPoint(new Microverse.THREE.Vector3(...this.localRotationAxis()), new Microverse.THREE.Vector3(...this.actor.parent.parent._translation));
+        // if (window.planeHelper) {
+        //     this.shape.parent.remove(window.planeHelper);
+        //     window.planeHelper = undefined;
+        // }
+        // window.planeHelper = new Microverse.THREE.PlaneHelper( interactionPlane, 10, 0xffff00 )
+        // this.shape.parent.add(window.planeHelper);
         return interactionPlane;
     }
 
@@ -406,9 +419,9 @@ class GizmoScalerActor {
         this.listen("scaleTarget", "scaleTarget");
     }
 
-    translateTarget(scale) {
+    scaleTarget(scale) {
         console.log("scale target", scale);
-        // this.parent.parent.set({translation})
+        this.parent.parent.set({scale})
     }
 }
 
@@ -454,74 +467,56 @@ class GizmoScalerPawn {
         return group;
     }
 
+    localRotationAxis() {
+        let orthAxis = this.actor._cardData.axis[0] == 1 ? [0, 0, 1] : this.actor._cardData.axis[1] == 1 ? [0, 0, 1] : [1, 0, 0];
+        return Microverse.v3_rotate(orthAxis, this.actor.parent.parent._rotation || Microverse.q_identity());
+    }
+
+    rotationInteractionPlane() {
+        const interactionPlane = new Microverse.THREE.Plane();
+        interactionPlane.setFromNormalAndCoplanarPoint(new Microverse.THREE.Vector3(...this.localRotationAxis()), new Microverse.THREE.Vector3(...this.actor.parent.parent._translation));
+        // if (window.planeHelper) {
+        //     this.shape.parent.remove(window.planeHelper);
+        //     window.planeHelper = undefined;
+        // }
+        // window.planeHelper = new Microverse.THREE.PlaneHelper( interactionPlane, 10, 0xffff00 )
+        // this.shape.parent.add(window.planeHelper);
+        return interactionPlane;
+    }
+
     startDrag(event) {
         console.log("start on axis", event);
         const avatar = Microverse.GetPawn(event.avatarId);
         // avatar.addFirstResponder("pointerMove", {shiftKey: true}, this);
         avatar.addFirstResponder("pointerMove", {}, this);
-        this.dragStart = [...event.xyz];
-        this.positionAtDragStart = [...this.actor.parent.parent._translation];
+        this.scaleAtDragStart = [...this.actor.parent.parent.scale];
+
+        this.dragStart = event.ray.intersectPlane(
+            this.rotationInteractionPlane(),
+            new Microverse.THREE.Vector3()
+        );
     }
 
     drag(event) {
         if (this.dragStart) {
             console.log("drag on axis", event);
-
-            // if we are dragging along the Y axis
-            let intersectionPlane = new Microverse.THREE.Plane();
-
-            if (
-                this.actor._cardData.axis[0] == 1 ||
-                this.actor._cardData.axis[1] == 1
-            ) {
-                // intersect with the XY axis
-                intersectionPlane.setFromNormalAndCoplanarPoint(
-                    new Microverse.THREE.Vector3(0, 0, 1),
-                    new Microverse.THREE.Vector3(...this.positionAtDragStart)
-                );
-            } else {
-                // intersect with the XZ axis
-                intersectionPlane.setFromNormalAndCoplanarPoint(
-                    new Microverse.THREE.Vector3(0, 1, 0),
-                    new Microverse.THREE.Vector3(...this.positionAtDragStart)
-                );
-            }
-
-            console.log(intersectionPlane);
-
-            let intersectionPoint = event.ray.intersectPlane(
-                intersectionPlane,
+            const newDragPoint = event.ray.intersectPlane(
+                this.rotationInteractionPlane(),
                 new Microverse.THREE.Vector3()
             );
 
-            console.log("intersectionPoint", intersectionPoint);
+            let distanceAtDragStart = new Microverse.THREE.Vector3(...this.dragStart).sub(new Microverse.THREE.Vector3(...this.actor.parent.parent._translation)).length();
+            let distanceAtDragEnd = new Microverse.THREE.Vector3(...newDragPoint).sub(new Microverse.THREE.Vector3(...this.actor.parent.parent._translation)).length();
 
-            const delta3D = intersectionPoint
-                .clone()
-                .sub(new Microverse.THREE.Vector3(...this.dragStart));
+            const scale = distanceAtDragEnd / distanceAtDragStart;
 
-            console.log("delta3D", delta3D);
+            console.log("scale", scale);
 
-            const nextPosition =
-                this.actor._cardData.axis[0] == 1
-                    ? [
-                          delta3D.x + this.positionAtDragStart[0],
-                          this.positionAtDragStart[1],
-                          this.positionAtDragStart[2],
-                      ]
-                    : this.actor._cardData.axis[1] == 1
-                    ? [
-                          this.positionAtDragStart[0],
-                          delta3D.y + this.positionAtDragStart[1],
-                          this.positionAtDragStart[2],
-                      ]
-                    : [
-                          this.positionAtDragStart[0],
-                          this.positionAtDragStart[1],
-                          delta3D.z + this.positionAtDragStart[2],
-                      ];
-            this.publish(this.actor.id, "translateTarget", nextPosition);
-            // this.set({translation: nextPosition})
+            let nextScale = [...this.scaleAtDragStart];
+            let scaledCoordinate = this.actor._cardData.axis.findIndex(a => a == 1);
+            nextScale[scaledCoordinate] *= scale;
+
+            this.publish(this.actor.id, "scaleTarget", nextScale);
         }
     }
 
@@ -535,11 +530,11 @@ class GizmoScalerPawn {
 
     pointerEnter() {
         console.log("hover");
-        this.shape.children[0].children[0].setColor(this.actor._cardData.hoverColor);
+        this.shape.children[0].children[0].children.forEach(child => child.material.color.set(this.actor._cardData.hoverColor));
     }
 
     pointerLeave() {
-        this.shape.children[0].children[0].setColor(this.originalColor);
+        this.shape.children[0].children[0].children.forEach(child => child.material.color.set(this.originalColor));
     }
 }
 

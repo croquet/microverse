@@ -113,8 +113,10 @@ class AvatarEventHandlerPawn {
                     console.log("Tried to gizmo gizmo");
                     this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
                 } else {
+                    if (this.gizmoTargetPawn != pawn) {
+                        pawn.selectEdit();
+                    }
                     this.gizmoTargetPawn = pawn;
-                    this.gizmoTargetPawn.selectEdit();
                     this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
                 }
             }
