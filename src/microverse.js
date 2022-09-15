@@ -583,7 +583,7 @@ class MyViewRoot extends ViewRoot {
     static viewServices() {
         const services = [
             InputManager,
-            {service: ThreeRenderManager, options:{useBVH: true, antialias: getAntialias()}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias: AA}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
