@@ -40,7 +40,7 @@ const defaultSystemBehaviorModules = [
 
 let AA = true;
 
-function getAntialias() {
+async function getAntialias() {
     // turn off antialiasing for mobile and safari
     // Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
     // Firefox seems to be dissolving in front of our eyes as well. It is also much slower.
@@ -50,10 +50,10 @@ function getAntialias() {
     if (urlOption) {
         if (urlOption === "true") {
             console.log(`antialias is true, urlOption AA is set`);
-            return Promise.resolve(true);
+            return true;
         } else {
             console.log(`antialias is false, urlOption AA is unset`);
-            return Promise.resolve(false);
+            return false;
         }
     }
     let aa = true;
@@ -64,11 +64,13 @@ function getAntialias() {
     const isMobile = !!("ontouchstart" in window);
     if (isMobile) aa = false;
 
-    return (navigator.xr.isSessionSupported("immersive-vr").catch((_err) => false)).then((supported) => {
+    try {
+        const supported = await navigator.xr.isSessionSupported("immersive-vr");
         if (supported) {aa = supported;}
-        console.log(`antialias is ${aa}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
-        return aa;
-    });
+    } catch (_) { /* ignore */ }
+
+    console.log(`antialias is ${aa}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
+    return aa;
 }
 
 console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
