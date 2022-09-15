@@ -102,8 +102,7 @@ class PendulumActor {
 class PendulumPawn {
     setup() {
         if (this.obj) {
-            this.shape.children.forEach((o) => this.shape.remove(o));
-            this.shape.children = [];
+            [...this.shape.children].forEach((o) => this.shape.remove(o));
             this.obj.dispose();
             this.obj = null;
         }
@@ -153,8 +152,7 @@ class PendulumLinkPawn {
         this.addEventListener("pointerDoubleDown", "nop");
 
         if (this.actor._cardData.pendulumProto) {return;}
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         let s = [0.1, 2.3];
         let geometry = new Microverse.THREE.CylinderGeometry(s[0], s[0], s[1], 20);

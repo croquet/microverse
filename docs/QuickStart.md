@@ -2,128 +2,117 @@
 
 [https://croquet.io](https://croquet.io)
 
+## TL;DR
+
+    npm create croquet-microverse
+
+    npm start
+
+---
 ## Introduction
 
-This guide will enable you to quickly set up the Croquet Microverse. Refer to tutorials in the docs directory for its key concepts and features that let you build shared worlds.
+This guide will enable you to quickly set up your own Croquet Microverse project. Refer to tutorials in the [docs directory](index.md) for its key concepts and features that let you build shared worlds.
 
-## Prerequisites
+### Prerequisites
 
-1. [Node](https://nodejs.org/)
-2. [Git](https://git-scm.com)
-3. Web browser (we recommend [Chrome](https://chrome.google.com/) at this time)
+1. [Node.js](https://nodejs.org/)
+2. Web browser (we recommend [Chrome](https://chrome.google.com/) at this time)
 
-Our tools are written in JavaScript and need Node.js to run. In particular the `npm` command provided by Node is used to install JS packages. Microverse is hosted on GitHub and the instructions assume you use the command line `git` client to access it.
-
-You can also use the [Github Desktop application](https://desktop.github.com/). This is a convenient way to access much of the functionality of git without having to learn the full system.
+Our tools are written in JavaScript and need Node.js to run. In particular the `npm` command provided by Node is used to install JS packages.
 
 The users of your worlds do not need these tools. Microverse worlds are deployed as static web pages so only a web browser is needed to visit them.
 
+---
 ## Installation Steps
 
-### Clone or Fork the GitHub Repository
+1. Create an empty directory for your project
+2. In that directory, run the following command:
 
-You can find the latest Croquet Microverse along with documentation in the [Microverse repository](https://github.com/croquet/microverse) on GitHub. Cloning this repository will give you almost everything you will need to get started creating your own Croquet Microverse.
+       npm create croquet-microverse
 
-`git clone https://github.com/croquet/microverse.git`
+   This will create a ready-to-use folder structure for your project
+3. Paste your API key from [croquet.io/keys](https://croquet.io/keys/) (be sure to select "Microverse") into a file named `apiKey.js`
 
-Alternatively, fork the repository to your account and clone your repository.
+        /* Copy this into a file named apiKey.js */
+        const apiKey = '123abcd_Get_your_own_key';
+        const appId = 'com.mycompany.myorg.myapp';
+        export default {apiKey, appId};
+
+    You can pick your own `appId` or go with the default shown in the template.
 
 ---
-### Obtain your API Key
+## Video Walkthrough
+Here's a video walkthrough of the steps: [vimeo.com/739770287](https://vimeo.com/739770287)
 
-***You do not need to create a new API Key to run the Croquet Microverse system if you are running it locally on your own computer***. However, once you deploy your Microverse application to your web server you will require an API key to access the Croquet Reflector Network.
 
-You can create a free account at [croquet.io/keys](https://croquet.io/keys/), which automatically generates a "development key". Additional application specific API keys with URL restrictions can be created as well (see the deployment section of this document for further details).
+[![Walkthrough](https://croquet.io/images/videos/thumbnails/howto-microverse.jpg)](https://vimeo.com/739770287)
 
-### Create the apiKey.js File
-Create a file called `apiKey.js` by copying `apiKey.js-example` to `apiKey.js`. Then edit the two properties in the file named `apiKey` and `appId`. The appId needs to be [dot-separated words](https://developer.android.com/studio/build/application-id), such as "com.example.myapp". Refer to the API document of [`Session.join()`](https://croquet.io/docs/croquet/Session.html#.join) for other parameters you can specify.
+---
+## Try your project locally
 
-#### apiKey.js-example
+In the directory you just created, run
 
-```
-const apiKey = "paste your apiKey from croquet.io/keys";
-const appId = "type your own appId such as com.example.david.mymicroverse";
-export default {apiKey, appId};
+    npm start
 
-// you may export other Croquet session parameters to override default values.
-```
+This will start the development web server. In its output there will be lines like
 
-Paste your Croquet API key and type an application ID of your choice in the `apiKey.js` file and save it.
+    [webpack-dev-server] Project is running at:
+    [webpack-dev-server] Loopback: http://localhost:9684/
+    [webpack-dev-server] On Your Network (IPv4): http://192.168.1.145:9684/
 
-#### apiKey.js
-```
-const apiKey = "1_a2b3c4e5f6g7h8i9j0kxyzzyqwerty142nsj6fasdsadad";
-const appId = "com.example.david.mymicroverse";
-export default {apiKey, appId};
-```
+Copy the Network URL (e.g. `http://192.168.1.145:9684/`) and paste it into your web browser. We recommend using this URL over the `localhost` one to be able to join the session from other devices, e.g. your phone.
 
-### Install Packages and start Microverse
-
-Set up the local servers. In a terminal window, change to the microverse folder then run the `npm install` command to install packages:
-* `cd microverse` (or the directory where the microverse repo was downloaded.)
-* `npm install`
-
-Start the local servers.  In the same terminal window, run `npm start` to start the servers.
-* `npm start`
-
-This will start two servers. The first is the file server on localhost:9684. The second is the watch-server that enables you to inject code changes into a running session.
-
-We use the port 9684 for the file server and the port 9011 for the watch server. Make sure that your local firewall (Windows Defender on Windows or Firewall system preferences on Mac) allows connections to those ports.
-
-The servers can be run independently as well.
-* `npm run file-server` starts the file server.
-* `npm run watch-server` starts the watch-server.
-
-You should see something similar to this:
-
-![Croquet Console](./assets/console.png)
-
-### Open the Croquet Microverse in a browser
-
-To enter the demo world for the Croquet Microverse, open `localhost:9684` in your web browser.
-
-Alternatively, you can use your computer's local IP address. You will see this address displayed in the your terminal once you run `npm start`. You will see a line similar to this: 
-
-`[webpack-dev-server] On Your Network (IPv4): http://192.168.87.30:9684/`.
-
-The advantage to this is you can connect other devices that are hosted on the same local network. For example, you can scan the QR code in the Microverse menu with your phone and easily join the same session.
-
-Once your Croquet Microverse world is loaded, the URL will change - both a new session ID and a password are autogenerated and added to the URL. This full URL allows you to enter the same world from other tabs and devices.
-
-If you have another device on the local network and the computer is visible from the device by an IP address, you can join in the same session from the device. Replace localhost with the IP address of the computer (such as 192.168.0.123) in the full URL and open it from other device. You can deploy the system to your server, as described in the deployment section, and make it publicly available.
+Congratulations!
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/1b60d234f785e84f31eff3b4385c1dcbeb8831ad/shared-space.jpg" width=600"/>
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/1b60d234f785e84f31eff3b4385c1dcbeb8831ad/shared-space.jpg" width=640"/>
 </p>
 
-### Assets
-
-A Microverse world can load asset files from the web with URL, and also from the Croquet File Server by using the Croquet DataId. the asset files used in the example worlds in this repo are also made available at [https://github.com/croquet/microverse-assets](https://github.com/croquet/microverse-assets). The assets are released also under the Apache License 2.0 and you may use the files for your projects.
-
-### Deployment
-
-You can run `npm run build` to create the deployable file tree in the directory called  `dist`. Optionally, you can run `npm run create-version` to record the commit hash to a file called `meta/version.txt`. You add a proper `apiKey.js` to the directory, and then simply copy the entire contents of the directory to a web server.
-
-You can also use a hosting services such as Netlify and Vercel, which let you connect your GitHub repository to automate deployment. To do so, add a script to copy the entire `dist` directory to your git repository and simply push it.
-
-There is a `npm init` package called `create-croquet-microverse`. If you create an empty directory and run `npm init croquet-microverse`, the package sets up a working installation with smaller number of files. You can add an `apiKey.js` to the directory to start developing your Microverse world. While you can copy the entire files including `node_modules/@croquet/microverse-library/lib` to deploy the project created by `create-croquet-microverse`, we recommend to copy the directory `node_modules/@croquet/microverse-library/lib` to your top level directory, and edit index.html to refert to it.
-
-### Updates
-
-Croquet will continuously update this repository with new features and bug fixes. Most of the files affected will be under the `lib` and `assets` directory but occasionally some files in the worlds, including `default.js`, will be modified. If you edit `default.js` in your clone, fetching upstream updates may cause conflicts. Making your world file under a different name and launching it with the URL option `?world=` can avoid conflicts.
-
-Keep it in mind that occasionally we push a commit that updates the file server or the watch server (those are only external dependencies). When an update appears to break them please re-run `npm install` to see if that fixes the issue.
-
-## Resources
 ---
 
-### Croquet.io
-[https://croquet.io/](https://croquet.io/) is the best place to get started with what the Croquet Microverse is and what it can do.
+## Deploy your world to a web server
 
-The Croquet Microverse uses the [Croquet Library](https://croquet.io/docs/croquet) and the [Worldcore framework](https://croquet.io/docs/worldcore). Additionaly it depends on [Three.js](https://threejs.org/) for 3D rendering. To develop your own behaviors with new visual appearances, you will need to be familiar with those libraries.
+A Croquet app like Microverse is deployed as a static web app. You do not need any other kind of server.
 
-### Discord
+1. Create a production key at [croquet.io/keys](https://croquet.io/keys/) and add a restriction to your target URL, then edit the key in your `apiKey.js`
 
-The best resource for help in developing Croquet Microverse worlds is on our Discord server. The Croquet Discord server is where you can ask questions, view examples, and see the Metaverse being constructed while you watch. Join the [Croquet Discord server](https://croquet.io/discord).
+        const apiKey = '123abcd_production_key_goes_here';
+
+2. Copy the `lib` directory
+
+    At runtime, Microverse only needs the files in `node_modules/@croquet/microverse-library/lib` so we recommend to copy that directory to your project directory, and edit `index.html` to refer to it.
+
+        <script defer src="lib/index.js"></script>
+
+3. Upload the whole project directory to any web server.
+
+    One simple way is GitHub pages. Check your directory into git, publish to GitHub, and enable [pages](https://pages.github.com).
+
+    Here's an example
+    * code: [github.com/codefrau/microverse-neon](https://github.com/codefrau/microverse-neon)
+    * live: [codefrau.github.io/microverse-neon](https://codefrau.github.io/microverse-neon/)
+
+    Note: you see I checked in my `apiKey.js`. Unlike server-side API keys, client-side API keys are not a secret. Anyone looking at the code on your website can see it. Instead, it is protected by the URL restriction, it will only work on your own website, not on anyone else's (if they were to copy it).
+
+---
+## Updating
+
+In your project directory run
+
+    npm i @croquet/microverse-library@latest
+
+This will update your `package.json` and the installed version of Microverse to the latest. Then copy the updated `node_modules/@croquet/microverse-library/lib` directory again as described above.
+
+---
+## Resources
+
+### Documentation
+  - [Microverse](index.md) tutorials etc.
+  - [CroquetOS](https://croquet.io/docs/croquet/) the underlying multiplayer OS
+  - [WorldCore](https://croquet.io/docs/worldcore) the underlying game engine
+
+### Help
+
+   The best resource for help in developing Croquet Microverse worlds is our Discord community. The Croquet Discord server is where you can chat with fellow developers, ask questions, and show off your own creations. Join the [Croquet Discord server](https://croquet.io/discord/).
 
 **Copyright (c) 2022 Croquet Corporation**

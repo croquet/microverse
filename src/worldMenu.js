@@ -63,6 +63,13 @@ function connectPressed() {
     }
 }
 
+function settingsPressed(myAvatar) {
+    if (myAvatar) {
+        myAvatar.showSettingsMenu();
+        toggleMenu(myAvatar);
+    }
+}
+
 function switchQRView(_myAvatar) {
     let qrDiv = worldMenu.querySelector("#qrDiv");
     let statsDiv = worldMenu.querySelector("#statsDiv");
@@ -106,7 +113,12 @@ function initWorldMenu(badge) {
 <div id="worldMenu-connect" class="menu-label menu-item">
     <span class="menu-label-text">Connect</span>
     <div class="menu-icon connect-icon"></div>
-</div>`.trim();
+</div>
+<div id="worldMenu-settings" class="menu-label menu-item">
+    <span class="menu-label-text">Settings...</span>
+    <div class="menu-icon load-icon"></div>
+</div>
+`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = buttons;
@@ -114,10 +126,12 @@ function initWorldMenu(badge) {
     let save = div.querySelector("#worldMenu-save");
     let load = div.querySelector("#worldMenu-load");
     let connect = div.querySelector("#worldMenu-connect");
+    let settings = div.querySelector("#worldMenu-settings");
 
     html.appendChild(save);
     html.appendChild(load);
     html.appendChild(connect);
+    html.appendChild(settings);
 
     worldMenu = html;
     filterDomEventsOn(worldMenu);
@@ -177,6 +191,9 @@ function toggleMenu(myAvatar) {
 
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);
+
+    div = worldMenu.querySelector("#worldMenu-settings");
+    if (div) div.onclick = () => settingsPressed(myAvatar);
 
     div = worldMenu.querySelector("#worldMenu-forceStop");
     if (div) {

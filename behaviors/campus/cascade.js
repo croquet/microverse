@@ -239,8 +239,7 @@ class CascadePawn {
 
         */
 
-        // this.shape.children.forEach((c) => this.shape.remove(c));
-        // this.shape.children = [];
+        // [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         if (this.shape.children.length === 0) {
             let rapierShape = this.actor._cardData.rapierShape;
@@ -411,8 +410,7 @@ class SprayActor {
 
 class SprayPawn {
     setup() {
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         if (this.shape.children.length === 0) {
             let s = 0.2;

@@ -12,7 +12,9 @@ const config = {
         path: path.join(__dirname, 'dist'),
         filename: 'lib/[name]-[contenthash:8].js',
         chunkFilename: (pathData) => {
-            let name = pathData.chunk.id.replace(/(src_|_js)/g, '');
+            let name = pathData.chunk.id;
+            if (typeof name === "number") name = "chunk"; // production mode
+            name = name.replace(/(src_|_js)/g, '');
             if (name === 'vendors-node_modules_croquet_worldcore-kernel_Mixins') name = "croquet";
             if (name === 'vendors-node_modules_dimforge_rapier3d_rapier') name = "rapier3d";
             if (name.includes('node_modules')) name = "misc";
@@ -62,6 +64,7 @@ const config = {
                 { from: 'assets/css/*'},
                 { from: 'assets/fonts/**/*'},
                 { from: 'assets/images/*'},
+                { from: 'assets/avatar-images/*'},
                 { from: 'assets/sky/*'},
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},

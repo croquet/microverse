@@ -12,11 +12,10 @@ class EarthPawn {
 
         const THREE = Microverse.THREE;
 
-        this.shape.children.forEach((c) => {
+        [...this.shape.children].forEach((c) => {
             c.material.dispose();
             this.shape.remove(c);
         });
-        this.shape.children = []; // ??
 
         let assetManager = this.service("AssetManager").assetManager;
 

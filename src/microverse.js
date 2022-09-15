@@ -7,17 +7,19 @@ import {
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { PhysicsManager } from "./physics.js";
+import { AgoraChatManager } from "./agoraChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
 import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
-import { frameName } from "./frame.js";
+import { frameName, sendToShell, addShellListener } from "./frame.js";
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
+import { startSettingsMenu } from "./settingsMenu.js";
 // apps -------------------------------------------
 import { MultiBlaster } from '../apps/multiblaster.js';
 
@@ -36,56 +38,50 @@ const defaultSystemBehaviorModules = [
     "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "physics.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
 ];
 
-// turn off antialiasing for mobile and safari
-// Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
-// Firefox seems to be dissolving in front of our eyes as well. It is also much slower.
-// mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 let AA = true;
-const isSafari = navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1;
-if (isSafari) AA = false;
-const isFirefox = navigator.userAgent.includes('Firefox');
-if (isFirefox) AA = false;
-const isMobile = !!("ontouchstart" in window);
-if (isMobile) AA = false;
-console.log("antialias is: ", AA, 'mobile:', isMobile, 'browser:', isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser");
 
 console.log("%cTHREE.REVISION:", "color: #f00", THREE.REVISION);
 
-/*
-function loadLoaders() {
-    return loadThreeJSLib("postprocessing/Pass.js", THREE)
-        .then(() => loadThreeJSLib("shaders/CopyShader.js", THREE))
-        .then(() => loadThreeJSLib("csm/CSMFrustum.js", THREE))
-        .then(() => loadThreeJSLib("csm/CSMShader.js", THREE))
-        .then(()=>{
-            let libs = [
-                "loaders/OBJLoader.js",
-                "loaders/MTLLoader.js",
-                "loaders/GLTFLoader.js",
-                "loaders/FBXLoader.js",
-                "loaders/DRACOLoader.js",
-                "loaders/SVGLoader.js",
-                "loaders/EXRLoader.js",
-                "utils/BufferGeometryUtils.js",
-                "csm/CSM.js"
-            ];
+async function getAntialias() {
+    // turn off antialiasing for mobile and safari
+    // Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
+    // Firefox seems to be dissolving in front of our eyes as well. It is also much slower.
+    // mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 
-            window.JSZip = JSZip;
-            window.fflate = fflate;
+    let urlOption = new URL(window.location).searchParams.get("AA");
+    if (urlOption) {
+        if (urlOption === "true") {
+            console.log(`antialias is true, urlOption AA is set`);
+            return true;
+        } else {
+            console.log(`antialias is false, urlOption AA is unset`);
+            return false;
+        }
+    }
+    let aa = true;
+    const isSafari = navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
+    if (isSafari) aa = false;
+    const isFirefox = navigator.userAgent.includes("Firefox");
+    if (isFirefox) aa = false;
+    const isMobile = !!("ontouchstart" in window);
+    if (isMobile) aa = false;
 
-            return Promise.all(libs.map((file) => {
-                return loadThreeJSLib(file, THREE);
-            }));
-        });
+    try {
+        const supported = await navigator.xr.isSessionSupported("immersive-vr");
+        if (supported) {aa = supported;}
+    } catch (_) { /* ignore */ }
+
+    console.log(`antialias is ${aa}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
+    return aa;
 }
-*/
+
+console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
 
 function loadLoaders() {
     window.JSZip = JSZip;
     window.fflate = fflate;
     window.THREE = THREE;
     return Promise.resolve(THREE);
-    //return loadThreeLibs(THREE);
 }
 
 function basenames() {
@@ -157,6 +153,7 @@ class MyPlayerManager extends PlayerManager {
         this.followers = new Set();
 
         this.subscribe("playerManager", "create", this.playerCreated);
+        this.subscribe("playerManager", "details", this.playerDetails);
         this.subscribe("playerManager", "destroy", this.playerDestroyed);
         this.subscribe("playerManager", "enter", this.playerEnteredWorld);
         this.subscribe("playerManager", "leave", this.playerLeftWorld);
@@ -165,6 +162,8 @@ class MyPlayerManager extends PlayerManager {
     get presenter() { return this.players.get(this.presentationMode); }
 
     createPlayer(playerOptions) {
+        // invoked by PlayerManager.onJoin.
+
         // when we have a better user management,
         // options will be compatible with a card spec
         // until then, we check the AvatarNames variable, and if it is a short name
@@ -176,6 +175,10 @@ class MyPlayerManager extends PlayerManager {
         // names/shapes (but remains invisible).  if the user comes through into this
         // world, at that point the avatar is updated to the name and shape that the
         // user had in the previous world (see AvatarPawn.frameTypeChanged).
+
+        // this method does not need to call super.createPlayer, which has null
+        // behaviour.  once the player is created and returned, onJoin will publish
+        // "playerManager:create", which we handle here with playerCreated.
 
         let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
@@ -190,20 +193,84 @@ class MyPlayerManager extends PlayerManager {
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
                 dataLocation: `./assets/avatars/${avatarSpec}.zip`,
+                type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options, ...avatarSpec};
+            options = {...options, ...avatarSpec, avatarType: "custom"};
         }
-
         return AvatarActor.create(options);
     }
 
+    playerDetails({ playerId, details }) {
+        // any object can publish a "playerManager:details" event specifying
+        // a player id and some new property values for that player.  for example,
+        // this is how the AgoraChatManager informs everyone when its local view
+        // has joined or left the chat.
+        const player = this.players.get(playerId);
+        if (!player) return;
+
+        player.setAndPublish(details); // will publish a "playerManager:detailsUpdated" event
+    }
+
     destroyPlayer(player) {
-        if (player.inWorld) player.set({inWorld: false});
+        // although the player itself is about to be removed and doesn't care,
+        // setting its inWorld to false will trigger event subscribers that do -
+        // for example, this manager's own playerLeftWorld
+        if (player.inWorld) player.setAndPublish({ inWorld: false });
         super.destroyPlayer(player);
     }
 
     playerInWorldChanged(player) {
+        // invoked directly from AvatarActor.inWorldSet when someone has toggled
+        // the inWorld property of an AvatarActor.  this can happen either directly
+        // in the model domain (such as from destroyPlayer above) or from the
+        // AvatarPawn, with a say("_set", <props>).
+        // this method then publishes a player enter or leave event, based on the
+        // value of inWorld.  one subscriber to those events is this MyPlayerManager
+        // itself: the playerEnteredWorld and playerLeftWorld methods below do
+        // appropriate housekeeping for the change of state.  any view that needs to
+        // note arrival and departure of avatars in the world is also free to subscribe.
+
+        // being in or out of world is a distinct layer from the
+        // view-join and view-exit events that signal connection and
+        // disconnection in a Croquet session.  the latter are subscribed to in
+        // the Worldcore PlayerManager - this manager's superclass - and handled
+        // by invoking createPlayer and destroyPlayer on the manager. the event
+        // "playerManager:create" is published after createPlayer has completed;
+        // "playerManager:destroy" is published as part of destroyPlayer, before
+        // invocation of player.destroy() - mainly handled in Actor - that does
+        // the cleanup.
+
+        // in summary:
+        //   to respond to players having been created or about to be destroyed,
+        //   subscribe to
+        //     playerManager:create
+        //     playerManager:destroy
+        //   to respond to players having entered or left this world, subscribe to
+        //     playerManager:enter
+        //     playerManager:leave
+
+        // NB: if a tab goes dormant and is then revived, the model state that will
+        // be constructed on that revival depends on the state of the session...
+        //   (a) if there are other users in the session:
+        //       the model will process the destruction of the tab's previous avatar
+        //       and creation of a new one, which means that the avatar pawn's
+        //       constructor will find that the actor does not yet have the inWorld
+        //       property.  the pawn will publish the dormantAvatarSpec it recorded on
+        //       going dormant (see avatar.js), which will transfer all saved properties
+        //       (position, nickname, 3d model pointer etc) to the new actor.
+        //   (b) if there are no other users in the session:
+        //       the model will process the re-creation of the old avatar as if
+        //       it has never been seen before (or load it from snapshot, if one was
+        //       taken after the avatar's creation).  the avatar pawn's constructor
+        //       in the primary frame will find that the actor *does* already have the
+        //       inWorld flag.  it will use dormantAvatarSpec to impose the avatar's
+        //       saved properties, as above.
+        //
+        // the avatar pawn constructor is the place where we get to ensure that
+        // avatar properties that must *not* be preserved across dormancy - for now,
+        // this means inChat - are explicitly reset.
+
         if (player.inWorld) {
             this.publish("playerManager", "enter", player);
         } else {
@@ -302,14 +369,17 @@ class MyPlayerManager extends PlayerManager {
         }
         delete player.presenterToken;
         this.followers.delete(player.playerId);
+        if (player._inChat) player.setAndPublish({ inChat: false });
         this.publish("playerManager", "playerCountChanged");
     }
 
     playerCreated(_player) {
+        // console.log(frameName(), "playerCreated", player);
         this.publish("playerManager", "playerCountChanged");
     }
 
     playerDestroyed(_player) {
+        // console.log(frameName(), "playerDestroyed", player);
         this.publish("playerManager", "playerCountChanged");
     }
 }
@@ -513,9 +583,9 @@ MyModelRoot.register("MyModelRoot");
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        return [
+        const services = [
             InputManager,
-            {service: ThreeRenderManager, options:{useBVH: true, antialias:AA}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias: AA}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
@@ -523,7 +593,10 @@ class MyViewRoot extends ViewRoot {
             VideoManager,
             BehaviorViewManager,
         ];
+        if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
+        return services;
     }
+
     constructor(model) {
         super(model);
         const threeRenderManager = this.service("ThreeRenderManager");
@@ -537,6 +610,33 @@ class MyViewRoot extends ViewRoot {
 
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
+        this.setAnimationLoop(this.session);
+    }
+
+    detach() {
+        console.log("ViewRoot detached");
+        super.detach();
+    }
+
+    setAnimationLoop(session) {
+        // manual stepping management happens here.
+        const threeRenderManager = this.service("ThreeRenderManager");
+        const renderer = threeRenderManager.renderer;
+        let step = (time, xrFrame) => {
+            if (xrFrame) {
+                session.step(time);
+            }
+        };
+        renderer.setAnimationLoop(step);
+        /*
+          // we do not need this "backup" ticking (as far as I can tell).
+        let basicStep = (time) => {
+            console.log("basicStep", time);
+            window.requestAnimationFrame(basicStep);
+            session.step(time);
+        };
+        basicStep(Date.now());
+        */
     }
 }
 
@@ -545,6 +645,8 @@ function deleteParameter(url, key) {
     urlObj.searchParams.delete(key);
     return urlObj.toString();
 }
+
+let resolveConfiguration = null;
 
 function startWorld(appParameters, world) {
     // appParameters are loaded from apiKey.js (see index.js)
@@ -576,7 +678,8 @@ function startWorld(appParameters, world) {
             return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             return StartWorldcore(sessionParameters);
-        }).then(() => {
+        }).then((session) => {
+            session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
             return fetch(`${baseurl}meta/version.txt`);
         }).then((response) => {
@@ -592,7 +695,40 @@ https://croquet.io`.trim());
         });
 }
 
-export async function startMicroverse() {
+export function startMicroverse() {
+    let setButtons = (display) => {
+        ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
+            let bttn = document.querySelector("#" + n);
+            if (bttn) {
+                bttn.style.display = display;
+            }
+        });
+    };
+
+    sendToShell("hud", {joystick: false, fullscreen: false});
+    setButtons("none");
+
+    const configPromise = new Promise(resolve => resolveConfiguration = resolve)
+        .then(localConfig => {
+            window.settingsMenuConfiguration = { ...localConfig };
+            return !localConfig.showSettings || localConfig.userHasSet
+                ? false // as if user has run dialog with no changes
+                : new Promise(resolve => startSettingsMenu(true, resolve));
+        });
+    sendToShell("send-configuration");
+
+    return configPromise.then(changed => {
+        if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
+        sendToShell("hud", {joystick: true, fullscreen: true});
+        setButtons("flex");
+        return getAntialias();
+    }).then((aa) => {
+        AA = aa;
+        launchMicroverse();
+    });
+}
+
+async function launchMicroverse() {
     let {baseurl, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
@@ -644,3 +780,16 @@ export async function startMicroverse() {
     // Default parameters are filled in the body of startWorld. You can override them.
     startWorld(apiKeysModule.default, basename);
 }
+
+const shellListener = (command, data) => {
+    // console.log(`${frameId} received: ${JSON.stringify(data)}`);
+    if (command === "local-configuration") {
+        const { localConfig } = data;
+        console.log("microverse received local-configuration", localConfig);
+        if (resolveConfiguration) {
+            resolveConfiguration(localConfig);
+            resolveConfiguration = null;
+        }
+    }
+};
+addShellListener(shellListener);

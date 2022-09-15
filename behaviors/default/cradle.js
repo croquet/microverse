@@ -121,17 +121,16 @@ class CradleActor {
 }
 
 class CradlePawn {
-    setup() {
-        if (this.obj) {
-            this.shape.children.forEach((o) => this.shape.remove(o));
-            this.shape.children = [];
-            this.obj.dispose();
-            this.obj = null;
-        }
+  setup() {
+      if (this.obj) {
+          [...this.shape.children].forEach((o) => this.shape.remove(o));
+          this.obj.dispose();
+          this.obj = null;
+      }
 
-        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
-        this.addEventListener("pointerDoubleDown", "nop");
-    }
+      this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+      this.addEventListener("pointerDoubleDown", "nop");
+  }
 }
 
 class CradleLinkActor {
@@ -160,8 +159,7 @@ class CradleLinkPawn {
         this.addEventListener("pointerDoubleDown", "nop");
 
         if (this.actor._cardData.cradleProto) { return; }
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         let s = this.actor._name === "cradlelink0" ? [0.1, 2.3] : [0.1, 12.3];
 

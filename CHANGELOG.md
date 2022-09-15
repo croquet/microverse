@@ -3,6 +3,57 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-09-09
+### Fixed
+- Half body avatar movement improved.
+- All use of iterating this.shape.children to remove elements makes a copy of the original array.
+
+### Added
+- The first cut of WebXR support.
+
+## 2022-09-02
+### Changed
+- Version is updated to 0.1.7
+
+### Fixed
+- Loading a behavior in a VRSE file works again.
+- Mitigate initial avatar rendering issues
+
+## 2022-08-26
+### Added
+- Voice chat and Avatar selection page is added.
+
+### Fixed
+- Some code clean up.
+- Further tweaking on avatar translucency.
+- successive 3D model load requests handled properly (the last one wins)
+- The half body avatar's hand position is tweaked.
+
+### Modified
+- Hooks around avatar customization.
+
+## 2022-08-19
+### Fixed
+- properly show behaviors already selected in property sheet.
+- Fixes around Ready Player Me half body avatars.
+- Some issues around create-croquet-microverse.
+
+### Added
+- Bloom rendering pass to ThreeRender.js and a demo of using it.
+
+## 2022-08-12
+### Added
+- A new smallfactory world is added (tentative).
+- Convenience methods rotateBy, forwardBy, translateBy and scaleBy are added to CardActor
+- Some work on Ready Player Me avatar support has been started.
+
+### Fixed
+- Some documentation updates.
+
+### Changed
+- Check the structure of import from a behavior file and warn the user if it is malformed.
+- Use Worldcore version 1.3.1.
+
 ## 2022-08-05
 
 ### Added

@@ -7,6 +7,7 @@ const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "./ThreeRender.js";
 import * as WorldcorePhysicsExports from "./physics.js";
+import * as FrameExports from "./frame.js";
 
 //console.log(WorldcoreRapierExports);
 
@@ -17,6 +18,11 @@ function newProxy(object, handler, module, behavior) {
     }
     return new Proxy(object, {
         get(target, property) {
+            // Note to developers:
+            // You may be seeing this in the developer tool of the browser.
+            // Don't worry! You can press the "Step into" button several times to get to the
+            // "apply" line a few lines below. If you step into it, you will see the behavior
+            // method you are trying to get to.
             if (property === isProxy) {return true;}
             if (property === "_target") {return object;}
             if (property === "_behavior") {return behavior;}
@@ -91,7 +97,7 @@ export const AM_Code = superclass => class extends superclass {
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
         let behaviorName = this._behavior.$behaviorName;
-        let moduleName = this._behavior.module.name;
+        let moduleName = this._behavior.module.externalName;
         return this.futureWithBehavior(time, moduleName, behaviorName);
     }
 
@@ -395,7 +401,7 @@ export const PM_Code = superclass => class extends superclass {
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
                         if (behavior.$behavior.teardown) {
-                            this.call(`${behavior.module.name}$${behavior.$behaviorName}`, "teardown");
+                            this.call(`${behavior.module.externalName}$${behavior.$behaviorName}`, "teardown");
                         }
                     };
                 }
@@ -546,6 +552,7 @@ export const PM_Code = superclass => class extends superclass {
     }
 
     removeUpdateRequest(array) {
+        if (!this.updateRequests) {return;}
         let index = this.updateRequests.findIndex((o) => o[0] === array[0] && o[1] === array[1]);
         if (index < 0) {return;}
         this.updateRequests.splice(index, 1);
@@ -586,7 +593,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source})`;
         let cls;
         try {
-            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcorePhysicsExports};
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcorePhysicsExports, ...FrameExports};
             cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
@@ -715,8 +722,17 @@ export class BehaviorModelManager extends ModelService {
         if (!externalName) {return null;}
         let module = this.modules.get(externalName);
         if (!module) {return null;}
-        return module.actorBehaviors.get(behaviorName)
-            || module.pawnBehaviors.get(behaviorName);
+        let b = module.actorBehaviors.get(behaviorName);
+        if (b) {
+            b.ensureBehavior();
+            return b;
+        }
+        b = module.pawnBehaviors.get(behaviorName);
+        if (b) {
+            b.ensureBehavior();
+            return b;
+        }
+        return null;
     }
 
     loadStart(key) {
@@ -780,7 +796,7 @@ export class BehaviorModelManager extends ModelService {
 
         codeArray.forEach((moduleDef) => {
             let {action, name, systemModule, location} = moduleDef;
-            if (location) {
+            if (location && !location.startsWith("(detached)")) {
                 let index = location.lastIndexOf("/");
                 let pathPart = location.slice(0, index);
                 if (userDir && !pathPart.startsWith(userDir) && !pathPart.startsWith(systemDir)) {
@@ -898,7 +914,7 @@ export class BehaviorModelManager extends ModelService {
                     function randomString() {
                         return Math.floor(Math.random() * 36 ** 10).toString(36);
                     }
-                    newM.location = `${randomString()}/${randomString()}`;
+                    newM.location = `(detached):${randomString()}/${randomString()}`;
                 }
                 return [key, newM];
             });
@@ -1031,7 +1047,7 @@ export class BehaviorViewManager extends ViewService {
         let promises = [];
         let scripts = [];
 
-        if (!window._alLResolvers) {
+        if (!window._allResolvers) {
             window._allResolvers = new Map();
         }
 
