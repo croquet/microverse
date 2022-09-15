@@ -114,7 +114,6 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         this.raycaster.setFromCamera({x: x, y: y}, render.camera);
         this.raycaster.params.Line = {threshold: 0.3}
         this.raycaster.params.Point = {threshold: 0.3}
-        console.log("setRayCast");
         return this.raycaster;
     }
 

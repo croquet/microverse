@@ -26,7 +26,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [1, 0, 0],
                 color: 0xff0000,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.moveY = this.createCard({
@@ -38,7 +38,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 1, 0],
                 color: 0x00ff00,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.moveZ = this.createCard({
@@ -50,7 +50,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 0, 1],
                 color: 0x0000ff,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
         } else if (this.gizmoMode === "move") {
             this.moveX.destroy();
@@ -66,7 +66,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [1, 0, 0],
                 color: 0xff0000,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.rotateY = this.createCard({
@@ -78,7 +78,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 1, 0],
                 color: 0x00ff00,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.rotateZ = this.createCard({
@@ -90,7 +90,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 0, 1],
                 color: 0x0000ff,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.gizmoMode = "rotate";
@@ -114,7 +114,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [1, 0, 0],
                 color: 0xff0000,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.scaleY = this.createCard({
@@ -126,7 +126,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 1, 0],
                 color: 0x00ff00,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
 
             this.scaleZ = this.createCard({
@@ -138,7 +138,7 @@ class GizmoActor {
                 noSave: true,
                 axis: [0, 0, 1],
                 color: 0x0000ff,
-                hoverColor: 0xff00ff
+                hoverColor: 0xffff00
             });
         }
         console.log("cycled modes, now: ", this.gizmoMode);
@@ -166,28 +166,35 @@ class GizmoAxisPawn {
     setup() {
         this.originalColor = this.actor._cardData.color;
 
+        let isMine = this.getMyAvatar().gizmoTargetPawn == this.parent.parent;
+
+        console.log("isMine", isMine);
+
         const gyro = new THREE.Gyroscope({rotationInvariant: true, scaleInvariant: true});
         this.shape.add(gyro);
         gyro.add(
-            this.makeAxisHelper()
+            this.makeAxisHelper(isMine)
         );
 
         this.dragStart = undefined;
         this.positionAtDragStart = undefined;
         this.movementEnabled = false;
-        this.addEventListener("pointerDown", "startDrag");
-        this.addEventListener("pointerMove", "drag");
-        this.addEventListener("pointerUp", "endDrag");
-        this.addEventListener("pointerEnter", "pointerEnter");
-        this.addEventListener("pointerLeave", "pointerLeave");
+
+        if (isMine) {
+            this.addEventListener("pointerDown", "startDrag");
+            this.addEventListener("pointerMove", "drag");
+            this.addEventListener("pointerUp", "endDrag");
+            this.addEventListener("pointerEnter", "pointerEnter");
+            this.addEventListener("pointerLeave", "pointerLeave");
+        }
     }
 
-    makeAxisHelper() {
+    makeAxisHelper(isMine) {
         return new Microverse.THREE.ArrowHelper(
             new Microverse.THREE.Vector3(...this.actor._cardData.axis),
             new Microverse.THREE.Vector3(0, 0, 0),
             3,
-            this.originalColor
+            isMine ? this.originalColor : 0xffffff
         )
     }
 
@@ -302,17 +309,20 @@ class GizmoRotorPawn {
     setup() {
         this.originalColor = this.actor._cardData.color;
         const gyro = new THREE.Gyroscope({scaleInvariant: true});
+        let isMine = this.getMyAvatar().gizmoTargetPawn == this.parent.parent;
         this.shape.add(gyro);
-        gyro.add(this.createCircle(this.actor._cardData.color, this.actor._cardData.axis));
+        gyro.add(this.createCircle(isMine ? this.actor._cardData.color : 0xffffff, this.actor._cardData.axis));
 
         this.dragStart = undefined;
         this.rotationAtDragStart = undefined;
         this.movementEnabled = false;
-        this.addEventListener("pointerDown", "startDrag");
-        this.addEventListener("pointerMove", "drag");
-        this.addEventListener("pointerUp", "endDrag");
-        this.addEventListener("pointerEnter", "pointerEnter");
-        this.addEventListener("pointerLeave", "pointerLeave");
+        if (isMine) {
+            this.addEventListener("pointerDown", "startDrag");
+            this.addEventListener("pointerMove", "drag");
+            this.addEventListener("pointerUp", "endDrag");
+            this.addEventListener("pointerEnter", "pointerEnter");
+            this.addEventListener("pointerLeave", "pointerLeave");
+        }
     }
 
     createCircle(color, axis) {
@@ -333,7 +343,7 @@ class GizmoRotorPawn {
 
         console.log(geo);
 
-        const mat = new Microverse.THREE.LineBasicMaterial({ color });
+        const mat = new Microverse.THREE.LineBasicMaterial({ color, toneMapped: false });
         const circle = new Microverse.THREE.LineLoop(geo, mat);
         return circle
     }
@@ -430,10 +440,12 @@ class GizmoScalerPawn {
     setup() {
         this.originalColor = this.actor._cardData.color;
 
+        let isMine = this.getMyAvatar().gizmoTargetPawn == this.parent.parent;
+
         const gyro = new THREE.Gyroscope({scaleInvariant: true});
         this.shape.add(gyro);
         gyro.add(
-            this.makeAxisHelper()
+            this.makeAxisHelper(isMine)
         );
 
         this.dragStart = undefined;
@@ -446,18 +458,18 @@ class GizmoScalerPawn {
         this.addEventListener("pointerLeave", "pointerLeave");
     }
 
-    makeAxisHelper() {
+    makeAxisHelper(isMine) {
         const points = [];
         points.push(new Microverse.THREE.Vector3(0, 0, 0));
         points.push((new Microverse.THREE.Vector3(...this.actor._cardData.axis)).multiplyScalar(3));
 
         const geometry = new Microverse.THREE.BufferGeometry().setFromPoints( points );
-        const material = new Microverse.THREE.LineBasicMaterial({color: this.originalColor});
+        const material = new Microverse.THREE.LineBasicMaterial({color: isMine ? this.originalColor : 0xffffff, toneMapped: false});
 
         const line = new Microverse.THREE.Line(geometry, material);
 
         const boxGeometry = new Microverse.THREE.BoxGeometry(0.3, 0.3, 0.3);
-        const boxMaterial = new Microverse.THREE.MeshBasicMaterial({color: this.originalColor});
+        const boxMaterial = new Microverse.THREE.MeshBasicMaterial({color: isMine ? this.originalColor : 0xffffff, toneMapped: false});
         const box = new Microverse.THREE.Mesh(boxGeometry, boxMaterial);
         box.translateOnAxis(new Microverse.THREE.Vector3(...this.actor._cardData.axis), 3);
 

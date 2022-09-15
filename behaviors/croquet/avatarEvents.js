@@ -25,6 +25,11 @@ class AvatarEventHandlerActor {
         this.gizmo?.destroy();
         this.gizmo = undefined;
     }
+
+    teardown() {
+        this.gizmo?.parent.sayUnselectEdit();
+        this.gizmo?.destroy();
+    }
 }
 
 class AvatarEventHandlerPawn {
@@ -34,15 +39,15 @@ class AvatarEventHandlerPawn {
         this.addFirstResponder("pointerTap", {ctrlKey: true, altKey: true}, this);
         this.addEventListener("pointerTap", this.pointerTap);
 
-        this.addFirstResponder("pointerDown", {ctrlKey: true, altKey: true}, this);
+        this.addFirstResponder("pointerDown", {ctrlKey: true, shiftKey:true, altKey: true}, this);
         this.addLastResponder("pointerDown", {}, this);
         this.addEventListener("pointerDown", this.pointerDown);
 
-        this.addFirstResponder("pointerMove", {ctrlKey: true, altKey: true}, this);
+        this.addFirstResponder("pointerMove", {ctrlKey: true, shiftKey:true, altKey: true}, this);
         this.addLastResponder("pointerMove", {}, this);
         this.addEventListener("pointerMove", this.pointerMove);
 
-        this.addLastResponder("pointerUp", {ctrlKey: true, altKey: true}, this);
+        this.addLastResponder("pointerUp", {ctrlKey: true, shiftKey:true, altKey: true}, this);
         this.addEventListener("pointerUp", this.pointerUp);
 
         this.addLastResponder("pointerWheel", {ctrlKey: true, altKey: true}, this);
@@ -66,6 +71,7 @@ class AvatarEventHandlerPawn {
             this.editPawn = null;
             this.editPointerId = null;
         }
+        this.publish(this.actor.id, "removeGizmo");
     }
 
     pointerDown(e) {
@@ -75,7 +81,7 @@ class AvatarEventHandlerPawn {
         let p3e = this.pointerEvent(rc, e);
         let pawn = Microverse.GetPawn(p3e.targetId);
 
-        let pawnIsGizmo = pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
+        let pawnIsGizmo = pawn && pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
 
         if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
             this.gizmoTargetPawn.unselectEdit();
@@ -119,6 +125,8 @@ class AvatarEventHandlerPawn {
                     this.gizmoTargetPawn = pawn;
                     this.publish(this.actor.id, "addOrCycleGizmo", this.gizmoTargetPawn.actor);
                 }
+            } else {
+                this.publish(this.actor.id, "removeGizmo");
             }
         } else {
             if (!this.focusPawn) {
@@ -133,6 +141,9 @@ class AvatarEventHandlerPawn {
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
             this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent", "pointerDown", this, e);
+            if (!pawnIsGizmo) {
+                this.publish(this.actor.id, "removeGizmo");
+            }
         }
     }
 
@@ -250,6 +261,7 @@ class AvatarEventHandlerPawn {
 
         this.removeLastResponder("keyUp", {ctrlKey: true}, this);
         this.removeEventListener("keyUp", this.keyUp);
+
     }
 }
 
