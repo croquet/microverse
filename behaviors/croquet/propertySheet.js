@@ -290,7 +290,6 @@ class PropertySheetPawn {
             this.shape.remove(this.back);
             this.back = null;
         }
-        this.shape.children = [];
 
         let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
 
@@ -390,8 +389,6 @@ class PropertySheetWindowPawn {
             this.back = null;
         }
 
-        this.shape.children = [];
-
         let extent = {x: this.actor._cardData.width, y: this.actor._cardData.height};
 
         let frameGeometry = this.roundedCornerGeometry(extent.x, extent.y, 0.0001, 0.02);
@@ -478,7 +475,6 @@ class PropertySheetDismissPawn {
 
         if (this.back) {
             this.shape.remove(this.back);
-            this.shape.children = [];
         }
 
         let backgroundColor = (this.actor._cardData.backgroundColor !== undefined)
@@ -593,7 +589,6 @@ class PropertySheetWindowBarPawn {
 
         if (this.back) {
             this.shape.remove(this.back);
-            this.shape.children = [];
         }
 
         let backGeometry = new Microverse.THREE.BoxGeometry(0.022, 0.022, 0.00001);
@@ -653,14 +648,19 @@ class BehaviorMenuActor {
         let target = this.service("ActorManager").get(this._cardData.target);
         let items = [];
 
-        let behaviorModules = [...this.behaviorManager.modules].filter(([_key, value]) => {
-            return !value.systemModule;
-        });
+        this.targetSystemModules = [];
+        let behaviorModules = [...this.behaviorManager.modules];
 
-        behaviorModules.forEach(([k, _v]) => {
-            let selected = target._behaviorModules && target._behaviorModules.indexOf(k) >= 0;
-            let obj = {label: k, selected};
-            items.push(obj);
+        behaviorModules.forEach(([k, v]) => {
+            if (!v.systemModule) {
+                let selected = target._behaviorModules?.indexOf(k) >= 0;
+                let obj = {label: k, selected};
+                items.push(obj);
+            } else {
+                if (target._behaviorModules?.indexOf(k) >= 0) {
+                    this.targetSystemModules.push({label: k, selected: true});
+                }
+            }
         });
 
         items.push({label: "------------"});
@@ -671,7 +671,18 @@ class BehaviorMenuActor {
     setBehaviors(data) {
         console.log("setBehaviors");
         let target = this.service("ActorManager").get(this._cardData.target);
-        target.setBehaviors(data.selection);
+        let selection = [ ...this.targetSystemModules, ...data.selection];
+        let behaviorModules = [];
+
+        selection.forEach((obj) => {
+            let {label, selected} = obj;
+            if (target.behaviorManager.modules.get(label)) {
+                if (selected) {
+                    behaviorModules.push(label);
+                }
+            }
+        });
+        target.updateBehaviors({behaviorModules});
     }
 
     itemsUpdated() {

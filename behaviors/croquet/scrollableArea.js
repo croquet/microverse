@@ -70,8 +70,7 @@ class ScrollAreaPawn {
         //console.log("target set");
         this.initializeClipping();
 
-        this.shape.children.forEach((c) => this.shape.remove(c));
-        this.shape.children = [];
+        [...this.shape.children].forEach((c) => this.shape.remove(c));
 
         let geometry = this.roundedCornerGeometry(
             this.actor._cardData.width,

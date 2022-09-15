@@ -2,6 +2,8 @@
 // https://croquet.io
 // info@croquet.io
 
+/* globals XRRigidTransform */
+
 import {
     Data, App, View, mix, GetPawn, AM_Player, PM_Player,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
@@ -13,23 +15,17 @@ import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "./ThreeRender.js";
 import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
+import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
+import { startSettingsMenu } from "./settingsMenu.js";
 
 const EYE_HEIGHT = 1.676;
-// const EYE_EPSILON = 0.01;
-const FALL_DISTANCE = EYE_HEIGHT / 12;
-const MAX_FALL = -15;
-const MAX_V = 0.015;
-const KEY_V = MAX_V / 2;
-// const MAX_SPIN = 0.0004;
-// const JOYSTICK_V = 0.000030;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
 const COLLISION_RADIUS = 0.8;
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
-const Q_ROTATION_180 = q_euler(0, Math.PI, 0);
 let initialPortalLookExternal;
 
 
@@ -61,6 +57,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("continueFollowing", this.continueFollowing);
         this.listen("stopPresentation", this.stopPresentation);
         this.listen("inWorldSet", this.inWorldSet);
+        this.listen("nameSet", this.nameSet);
         this.listen("fileUploaded", "fileUploaded");
         this.listen("addSticky", this.addSticky);
         this.listen("textPasted", this.textPasted);
@@ -68,7 +65,18 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.listen("leavePresentation", this.leavePresentation);
+        this.listen("setAvatarData", "setAvatarData");
+        this.listen("setWorldState", "setWorldState");
         this.future(0).tick();
+    }
+
+    setAndPublish(details) {
+        // aug 2022: a convenience function for updating a player's properties and
+        // publishing an event that anyone interested in the state of all players
+        // can subscribe to - for example the agoraChatManager, which wants to know
+        // which users are now in the chat.
+        this.set(details);
+        this.publish("playerManager", "detailsUpdated");
     }
 
     get pawn() { return AvatarPawnFactory; }
@@ -76,8 +84,61 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     // used by the BVH based walking logic. customizable when the avatar is not a human size.
     get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
-    get fallDistance(){ return this._fallDistance || FALL_DISTANCE }; // how far we fall per update
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
+
+    ensureNicknameCard() {
+        if (!this.inWorld) return;
+        if (this._cardData.noNicknameCard) {return;}
+
+        const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
+        const PADDING = 0.1; // horizontal and vertical
+        const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
+        if (!this.nicknameCard) {
+            const marginLeft = (PADDING - MARGIN_FUDGE) / TEXT_SCALE;
+            const marginTop = PADDING * 1.1 / TEXT_SCALE;
+            const options = {
+                name: 'nickname',
+                className: "TextFieldActor",
+                behaviorModules: ["Billboard"],
+                translation: [0, 1, -0.1], // above and slightly in front
+                type: "text",
+                depth: 0.02,
+                margins: { left: marginLeft, top: marginTop },
+                backgroundColor: 0x300079,
+                frameColor: 0x400089,
+                fullBright: true,
+                opacity: 0.8,
+                runs: [],
+                width: 0.1,
+                height: 0.1,
+                textScale: TEXT_SCALE,
+                readOnly: true,
+                noDismissButton: true,
+                noSave: true,
+                parent: this
+            };
+            this.nicknameCard = this.createCard(options);
+        }
+
+        const nickname = this._name;
+        if (!nickname) {
+            this.nicknameCard.destroy();
+            this.nicknameCard = null;
+            return;
+        }
+        const measurement = TextFieldActor.defaultMeasurement(nickname);
+        const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
+        const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
+        this.nicknameCard.load([{text: nickname, style: {color: 'white'}}]);
+        this.nicknameCard.setExtent({width: signWidth / TEXT_SCALE, height: signHeight / TEXT_SCALE});
+    }
+
+    removeNicknameCard() {
+        if (this.nicknameCard) {
+            this.nicknameCard.destroy();
+        }
+        this.nicknameCard = null;
+    }
 
     // The user leaves the "guided tour".
     leavePresentation() {
@@ -93,12 +154,22 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         }
     }
 
+    setWorldState(data) {
+        // let {inWorld, translation, rotation, anchor} = data;
+        this.set(data);
+    }
+
     stopPresentation() {
         this.service("PlayerManager").stopPresentation();
     }
 
     inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
+        if (v) this.ensureNicknameCard();
+    }
+
+    nameSet({o, v}) {
+        if (o !== v) this.ensureNicknameCard();
     }
 
     startFalling() {
@@ -190,7 +261,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     followMeToWorld(presenterTransferData) {
         // presenterTransferData is the same as the spec this avatar will use to enter
-        // the new world, minus its cardData.
+        // the new world, minus its cardData and name.
         // first confirm that we are indeed still the presenter.
         const manager = this.service("PlayerManager");
         if (manager.presentationMode === this.playerId) {
@@ -406,7 +477,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     createPortal(translation, rotation, portalURL) {
         // sigh - all portals are "backwards"
         // or maybe *all* models are backwards and we need to fix dropPose and avatar models?
-        rotation = q_multiply(Q_ROTATION_180, rotation); // flip by 180 degrees
+        rotation = q_multiply(q_euler(0, Math.PI, 0), rotation); // flip by 180 degrees
 
         let card = {
             name: "portal",
@@ -427,6 +498,33 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
         this.createCard(card);
         this.publish(this.sessionId, "triggerPersist");
+    }
+
+    setAvatarData(options) {
+        console.log("setAvatarData", options);
+        this.setupAvatarBehavior(options);
+        this.updateOptions(options);
+        // this.ensureNicknameCard(); handled separately
+    }
+
+    setupAvatarBehavior(options) {
+        console.log("setupAvatarBehavior");
+        if (!options.avatarEventHandler) {
+            options.avatarEventHandler = "AvatarEventHandler";
+        }
+
+        let handlerModuleName = options.avatarEventHandler;
+        let behaviorManager = this.service("BehaviorModelManager");
+
+        if (behaviorManager && behaviorManager.modules.get(handlerModuleName)) {
+            if (!options.behaviorModules) {
+                options.behaviorModules = [handlerModuleName];
+            } else {
+                if (!options.behaviorModules.includes(handlerModuleName)) {
+                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
+                }
+            }
+        }
     }
 }
 
@@ -512,11 +610,24 @@ const PM_SmoothedDriver = superclass => class extends superclass {
     }
 }
 
+function setModelOpacity(model, visible, opacity) {
+    let transparent = opacity !== 1;
+    model.visible = visible;
+    model.traverse(n => {
+        n.renderOrder = 10000; // render this only after everything else
+        if (n.material && n.material.opacity !== opacity) {
+            n.material.opacity = opacity;
+            n.material.transparent = transparent;
+            n.material.side = THREE.DoubleSide;
+            n.material.needsUpdate = true;
+        }
+    });
+}
+
 class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     constructor(actor) {
         super(actor);
         this.lastUpdateTime = 0;
-        this.opacity = 1;
 
         this.spin = q_identity();
         this.velocity = [0, 0, 0];
@@ -526,6 +637,12 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         this.lookOffset = [0, 0, 0]; // Vector displacing the camera from the avatar origin.
 
         this.tug = 0.06; // instead of default 0.2, to work with spaced updates
+        this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
+    }
+
+    addChild(id) {
+        super.addChild(id);
+        delete this.lastOpacity;
     }
 
     setOpacity(opacity) {
@@ -534,7 +651,6 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
         if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity")) {
             opacity = this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity", opacity);
         }
-
         let transparent = opacity !== 1;
         this.shape.visible = this.actor.inWorld && opacity !== 0;
         this.shape.traverse(n => {
@@ -546,16 +662,37 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
             }
         });
     }
+
+    removeChild(id) {
+        super.removeChild(id);
+        delete this.lastOpacity;
+    }
+
+    modelLoaded() {
+        console.log("remote avatar model loaded");
+        delete this.lastOpacity;
+        delete this.lastInWorld;
+        this.modelLoadTime = Date.now();
+        setModelOpacity(this.shape.children[0], true, 0);
+    }
+
+    detach() {
+        delete this.modelLoadTime;
+        super.detach();
+    }
 }
 
+let dormantAvatarSpec = null;
+let useDormantAvatarSpec = true;
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
 
+        console.log("LocalAvatarPawn");
+
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
         this.lastCollideTranslation = this.actor.translation;
-        this.opacity = 1;
 
         this.spin = q_identity();
         this.velocity = v3_zero();
@@ -573,16 +710,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const renderMgr = this.service("ThreeRenderManager");
         this.camera = renderMgr.camera;
         this.scene = renderMgr.scene;
+        renderMgr.avatar = this; // hack
 
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
         this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
 
+        /*
         this.walkCamera = new THREE.Object3D();
-
         this.walkcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0));
+        */
+
         this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
-        this.future(100).fadeNearby();
+        this.fadeNearby();
+        if (this.fadeNearbyInterval) {
+            clearInterval(this.fadeNearbyInterval);
+            this.fadeNearbyInterval = null;
+        }
+        this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
         document.getElementById("homeBttn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBttn"));
@@ -598,6 +743,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         setupWorldMenuButton(this, App, this.sessionId);
 
         window.myAvatar = this;
+
+        this.eyeHeight = EYE_HEIGHT;
+        this.fallDistance = EYE_HEIGHT / 12;
+        this.maxFall = -15;
 
         // drop and paste
         this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
@@ -622,9 +771,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
         this.setPortalClipping();
 
-        let handlerModuleName = this.actor._cardData.avatarEventHandler;
-
         this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }) => {
+            let handlerModuleName = this.actor._cardData.avatarEventHandler;
             switch (command) {
                 case "frame-type":
                     const isPrimary = frameType === "primary";
@@ -661,26 +809,67 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "startMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "startMotion")) {
+                        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "startMotion", dx, dy);
+                    } else {
+                        this.startMotion(dx, dy);
+                    }
                     break;
                 case "motion-end":
-                    this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion")) {
+                        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion", dx, dy);
+                    } else {
+                        this.endMotion(dx, dy);
+                    }
                     break;
                 case "motion-update":
-                    this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "updateMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "updateMotion")) {
+                        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "updateMotion", dx, dy);
+                    } else {
+                        this.updateMotion(dx, dy);
+                    }
                     break;
             }
         }
         addShellListener(this.shellListener);
-        //initialize actor
-        const actorSpec = { inWorld: this.isPrimary };
-        const anchor = this.anchorFromURL(window.location, !this.isPrimary);
-        if (anchor) {
-            actorSpec.anchor = anchor; // actor or {translation, rotation}
-            actorSpec.translation = anchor.translation;
-            actorSpec.rotation = anchor.rotation;
+
+        // initialize actor
+        // the fact that we're creating an AvatarPawn rather than a RemoteAvatarPawn
+        // means that this pawn is for the local user.  it will either be for the
+        // primary frame (in which case it sets the actor's inWorld to true) or
+        // non-primary (inWorld set to false - which forces the pawn's setOpacity
+        // method to set its own visibility to false, so it can sneak around
+        // as a disembodied through-portal camera).
+        // if there is a dormantAvatarSpec in the global context, and we're building
+        // the primary-frame avatar, we publish that spec to become the configuration for
+        // this actor - and hence for this pawn, and all RemoteAvatarPawns that other
+        // users have for it.
+        const inWorld = this.isPrimary;
+        let actorSpec;
+        let avatarSpec;
+        if (inWorld && dormantAvatarSpec) {
+            actorSpec = dormantAvatarSpec;
+            actorSpec.inWorld = true;
+            dormantAvatarSpec = null;
+            avatarSpec = actorSpec.cardData;
+        } else {
+            actorSpec = { inWorld };
+            const anchor = this.anchorFromURL(window.location, !this.isPrimary);
+            if (anchor) {
+                actorSpec.anchor = anchor; // actor or {translation, rotation}
+                actorSpec.translation = anchor.translation;
+                actorSpec.rotation = anchor.rotation;
+            }
+            let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+            avatarSpec = {...tempCardSpec};
         }
-        this.say("_set", actorSpec);
+
+        this.say("setWorldState", {
+            inWorld: actorSpec.inWorld,
+            translation: actorSpec.translation,
+            rotation: actorSpec.rotation,
+            anchor: actorSpec.anchor});
+        this.say("setAvatarData", avatarSpec); // NB: after setting actor's name
         this.say("resetStartPosition");
 
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
@@ -692,10 +881,50 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.listen("forceOnPosition", this.onPosition);
 
         this.listen("goThere", this.stopFalling);
+
+        this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
+
         console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
+    }
+
+    detach() {
+        this.setDormantAvatarSpec(this.specForRevival());
+        if (this.fadeNearbyInterval) {
+            clearInterval(this.fadeNearbyInterval);
+            this.fadeNearbyInterval = null;
+        }
+        delete this.modelLoadTime;
+        super.detach();
+    }
+
+    startMotion(dx, dy) {
+        this.spin = q_identity();
+        this.velocity = v3_zero();
+        this.say("startFalling");
+        if (dx || dy) this.updateMotion(dx, dy);
+    }
+
+    endMotion(_dx, _dy) {
+        this.activeMMotion = false;
+        this.spin = q_identity();
+        this.velocity = v3_zero();
+    }
+
+    updateMotion(dx, dy) {
+        const JOYSTICK_V = 0.000030;
+        const MAX_V = 0.015;
+        const MAX_SPIN = 0.0004;
+
+        let v = dy * JOYSTICK_V;
+        v = Math.min(Math.max(v, -MAX_V), MAX_V);
+
+        const yaw = dx * (this.isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
+        this.spin = q_euler(0, yaw ,0);
+        this.velocity = [0, 0, v];
+        this.maybeLeavePresentation();
     }
 
     get presenting() {
@@ -855,6 +1084,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         comeHere.setAttribute("presenting", this.presenting);
     }
 
+    modelLoaded() {
+        console.log("avatar model loaded");
+        delete this.lastOpacity;
+        delete this.lastInWorld;
+        this.modelLoadTime = Date.now();
+        setModelOpacity(this.shape.children[0], true, 0);
+    }
+
     setEditMode(evt) {
         evt.target.setAttribute("pressed", true);
         evt.target.setPointerCapture(evt.pointerId);
@@ -905,11 +1142,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     // the camera when walking: based on avatar with 3rd person lookOffset
     walkLook() {
-        let behaviorManager = this.actor.behaviorManager;
-
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        let behavior = behaviorManager.lookup(handlerModuleName, "AvatarPawn");
-        if (behavior && behavior.$behavior && behavior.$behavior.walkLook) {
+        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "walkLook")) {
             return this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "walkLook");
         }
 
@@ -946,6 +1180,32 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         //     this.portalClip.constant = -this.portalClip.constant;
         // }
         return mcam;
+    }
+
+    specForRevival() {
+        // on going dormant, generate the spec to be used if this tab is revived
+        const spec = {
+            translation: this._translation,
+            rotation: this._rotation,
+            lookPitch: this.lookPitch,
+            lookYaw: this.lookYaw,
+            lookOffset: this.lookOffset,
+            cardData: this.actor._cardData, // keep avatar appearance
+            name: this.actor._name, // and name
+            inChat: false, // see comment in MyPlayerManager.playerInWorldChanged
+            behaviorModules: this.actor._behaviorModules,
+        };
+        return spec;
+    }
+
+    setDormantAvatarSpec(data) {
+        if (useDormantAvatarSpec) {
+            dormantAvatarSpec = data;
+        }
+    }
+
+    useDormantAvatarSpec(bool) {
+        useDormantAvatarSpec = bool;
     }
 
     specForPortal(portal, jumpVector, crossingBackwards) {
@@ -991,6 +1251,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         const actorSpec = {
             inWorld: enteringWorld,
         };
+
+        // portal-enter and world-enter provide cardData so avatar can keep its
+        // appearance.
+        if (spec?.cardData) actorSpec.cardData = spec.cardData;
+        if (spec?.name) actorSpec.name = spec.name;
+
         // a portal transition under our own steam specifies translation, rotation etc
         if (enteringWorld && spec?.translation) {
             let { translation, rotation } = spec;
@@ -1022,19 +1288,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (spec.lookYaw) this.lookYaw = spec.lookYaw;
             if (spec.lookOffset) this.lookOffset = spec.lookOffset;
         }
-        // portal-enter and world-enter provide cardData so avatar can keep its
-        // appearance.
-        if (spec?.cardData) actorSpec.cardData = spec.cardData;
-        if (spec?.name) actorSpec.name = spec.name;
         if (leavingWorld) {
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
             this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion");
         }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
+        // the actor handling of _set (in Actor.set) applies the specified properties
+        // in alphabetical order, each property triggering a say(`${propname}Set`).
         this.say("_set", actorSpec);
-        // start presenting and following in new space too
         if (enteringWorld) {
+            delete this.modelLoadTime;
+            this.say("setAvatarData", actorSpec.cardData || {}); // NB: after setting actor's name
+            // start presenting and following in new space too
             if (spec?.presenting) {
                 let manager = this.actor.service("PlayerManager");
                 if (!manager.presentationMode) {
@@ -1053,6 +1319,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             console.log(`${frameName()} sending world-enter to ${url} following: ${following}`);
             this.setWorldSwitchFreeze(true);
             followerTransferData.cardData = this.actor._cardData;
+            followerTransferData.name = this.actor._name;
             sendToShell("world-enter", { portalURL: url, transferData: followerTransferData });
         } else {
             console.log(`${frameName()} not sending world-enter to ${url}`);
@@ -1075,27 +1342,63 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 // get the potential new pose from velocity and spin.
                 // the v and q variable is passed around to compute a new position.
                 // unless positionTo() is called the avatar state (should) stays the same.
+
                 let vq = this.updatePose(delta);
-                if (this.collidePortal(vq)) {return;}
-                if (!this.checkFloor(vq)) {
-                    // if the new position leads to a position where there is no walkable floor below
-                    // it tries to move the avatar the opposite side of the previous good position.
-                    vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+
+                let handlerModuleName = this.actor._cardData.avatarEventHandler;
+                if (this.has(`${handlerModuleName}$AvatarPawn`, "walk")) {
+                    this.call(`${handlerModuleName}$AvatarPawn`, "walk", time, delta, vq);
                 } else {
-                    this.lastCollideTranslation = vq.v;
-                }
-                if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
-                    if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
-                        this.lastCollideTime = time;
-                        vq = this.collide(vq);
+                    if (this.collidePortal(vq)) {return;}
+                    if (!this.checkFloor(vq)) {
+                        // if the new position leads to a position where there is no walkable floor below
+                        // it tries to move the avatar the opposite side of the previous good position.
+                        vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
+                    } else {
+                        this.lastCollideTranslation = vq.v;
                     }
-                    this.lastUpdateTime = time;
-                    this.positionTo(vq.v, vq.q);
+                    if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+                        if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
+                            this.lastCollideTime = time;
+                            vq = this.checkFall(vq);
+                            vq = this.walkTerrain(vq);
+                        }
+                        this.lastUpdateTime = time;
+                        this.positionTo(vq.v, vq.q);
+                    }
                 }
                 this.refreshCameraTransform();
+
+                // this part is copied from CardPawn.update()
+                // as we may not be calling super.update() all the time to avoid the smoothing logic from kicking in.
+                // We should think about cleaning up here.
+                if (this.updateRequests) {
+                    this.updateRequests.forEach((u) => {
+                        // [behaviorName, methodName]
+                        this.call(...u, time, delta);
+                    });
+                }
             }
         }
+        this.updateXRReference();
         this.updatePortalRender();
+    }
+
+    updateXRReference() {
+        let manager = this.service("ThreeRenderManager");
+        if (!manager.origReferenceSpace) {return;}
+
+        let xr = manager.renderer.xr;
+        let inv = m4_invert(this.global);
+        let vv = m4_getTranslation(inv);
+        let rr = m4_getRotation(inv);
+
+        let offsetTransform = new XRRigidTransform(
+            {x: vv[0], y: vv[1], z: vv[2]},
+            {x: rr[0], y: rr[1], z: rr[2], w: rr[3]});
+
+        let newSpace = manager.origReferenceSpace.getOffsetReferenceSpace(offsetTransform);
+        xr.setReferenceSpace(newSpace);
     }
 
     // compute motion from spin and velocity
@@ -1194,6 +1497,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
     }
+
     checkFloor(vq) {
         // cast a ray to negative y direction and see if there is a walk layer object
         let walkLayer = this.service("ThreeRenderManager").threeLayer("walk");
@@ -1214,6 +1518,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         return someFloor;
+    }
+
+    checkFall(vq) {
+        if (!this.isFalling) {return vq;}
+        let v = vq.v;
+        v = [v[0], v[1] - this.fallDistance, v[2]];
+        this.isFalling = false;
+        if (v[1] < this.maxFall) {
+            this.goHome();
+            return {v: v3_zero(), q: q_identity()};
+        }
+        return {v: v, q: vq.q};
     }
 
     collideBVH(collideList, vq) {
@@ -1345,11 +1661,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             onGround = onGround || positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
 
-        if (!this.checkFloor({v: newPosition, q: vq.q})) {
-            let newv = v3_lerp(this.lastCollideTranslation, vq.v, -1);
-            return {v: newv, q: vq.q};
-        }
-
         if (onGround) {
             this.isFalling = false;
             return {v: this.translation, q: vq.q};
@@ -1439,7 +1750,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             sendToShell("portal-enter", { portalId: portal.portalId, transferData });
             // if we were presenting, tell followers to come with us
             if (this.presenting) {
-                const { cardData: _cd, ...presenterTransferData } = transferData;
+                const { cardData: _cd, name: _n, ...presenterTransferData } = transferData;
                 this.say("followMeToWorld", presenterTransferData);
                 // calls followToWorld() in followers
                 // which will result in frameTypeChanged() on follower's clients
@@ -1449,26 +1760,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return false;
     }
 
-    collide(vq) {
+    walkTerrain(vq) {
         let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
         if (!walkLayer) return vq;
 
         let v = vq.v;
 
-        if (this.isFalling) {
-            v = [v[0], v[1] - this.actor.fallDistance, v[2]];
-            this.isFalling = false;
-            if (v[1] < MAX_FALL) {
-                this.goHome();
-                return {v: v3_zero(), q: q_identity()};
-            }
-        }
-
         let collideList = walkLayer.filter(obj => obj.collider);
         if (collideList.length > 0) {
-            let a = this.collideBVH(collideList, {v, q: vq.q});
-            window.abc = a;
-            return a;
+            return this.collideBVH(collideList, {v, q: vq.q});
         }
         return vq;
     }
@@ -1479,6 +1779,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // you can override the avatars behavior.
         let w = this.wasdVelocity;
         let nw;
+
+        const MAX_V = 0.015;
+        const KEY_V = MAX_V / 2;
 
         if (e.ctrlKey || e.altKey) {
             switch(e.key) {
@@ -1594,15 +1897,44 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let manager = this.actor.service("PlayerManager");
         let presentationMode = manager.presentationMode;
         let setOpacity = (pawn, opacity) => {
-            // don't try to set (and record) opacity until the avatar has its shape
-            if (!pawn.shape.children.length || pawn.lastOpacity === opacity) {return;}
+            const inWorld = pawn.actor.inWorld;
+            // don't try to set (and record) opacity until the avatar has its model
+            if (!pawn.modelLoadTime || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
+
             pawn.lastOpacity = opacity;
-            pawn.setOpacity(opacity);
+            pawn.lastInWorld = inWorld;
+
+            let origOpacity = opacity;
+
+            let handlerModuleName = pawn.actor._cardData.avatarEventHandler;
+            if (pawn.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+                opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", this, opacity);
+            }
+
+            let model = pawn.shape.children[0];
+            if (!model) {return;}
+
+            let visible = inWorld && opacity !== 0;
+            setModelOpacity(model, visible, opacity);
+
+            // don't mess with opacity levels of children, but make them
+            // visible or invisible appropriately
+            if (pawn._children) {
+                for (let c of pawn._children) {
+                    if (c.shape) c.shape.visible = visible;
+                }
+            }
+
+            let ghostfoot = this.shape.getObjectByName("ghostfoot");
+            if (ghostfoot) {
+                ghostfoot.visible = pawn.actor.inWorld && origOpacity !== 0;
+            }
         };
 
         for (let [_viewId, a] of manager.players) {
             // a for actor, p for pawn
             let p = GetPawn(a.id);
+            if (!p) {continue;}
             if (!this.actor.inWorld) {
                 setOpacity(p, 1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
@@ -1619,72 +1951,88 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 setOpacity(p, d);
             }
         }
-        this.future(100).fadeNearby();
     }
 
-    setAvatarModel(url) {
-        this.getBuffer(url).then((buffer) => {
-            let assetManager = this.service("AssetManager").assetManager;
-            return assetManager.load(buffer, "glb", THREE, {});
-        }).then((obj) => {
-            let found = false;
-            obj.traverse((mesh) => {
-                if (mesh.isBone) {
-                    if (mesh.name === "Spine") {
-                        found = true;
-                    }
-                }
-            });
-            if (found) {
-                console.log("a model with a spine found");
-                return true;
-            } else {
-                return false;
-            }
-        }).then((readyPlayerMe) => {
-            this.animationRunning = false;
-            let options = {
-                type: "3d",
-                modelType: "glb",
-                dataLocation: url,
-                name: "url",
-                dataRotation: [0, Math.PI, 0],
-                shadow: true,
-            };
-            if (readyPlayerMe) {
-                options = {...options, ...{
-                    avatarEventHandler: "HalfBodyAvatarEventHandler",
-                    behaviorModules: ["HalfBodyAvatarEventHandler"],
-                    dataScale: [1, 1, 1],
-                    dataTranslation: [0, -0.5, 0]
-                }};
-            } else {
-                options = {...options, ...{
-                    dataScale:  [0.3, 0.3, 0.3],
-                    dataTranslation:  [0, -0.4, 0]
-                }};
-            }
-            setTimeout(() => {
-                this.say("setCardData", options);
-            }, 75); // a temporary hack to make sure that we don't have duplicated animation future loop.
-        });
+    addChild(id) {
+        super.addChild(id);
+        delete this.lastOpacity;
     }
 
-    setOpacity(opacity) {
-        if (!this.shape) {return;}
+    removeChild(id) {
+        super.removeChild(id);
+        delete this.lastOpacity;
+    }
+
+    makeCardSpecFrom(configuration, actor) {
+        let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity")) {
-            opacity = this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity", opacity);
+        let behaviorModules = actor._behaviorModules || [];
+        let avatarType = oldCardData.avatarType;
+
+        [
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
+            "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
+
+        if (!configuration.type && !avatarType) {
+            let options = {
+                name: this.actor._name,
+                dataScale: [0.3, 0.3, 0.3],
+                dataRotation: q_euler(0, Math.PI, 0),
+                dataTranslation: [0, -0.4, 0],
+                dataLocation: `./assets/avatars/${this.actor._name}.zip`,
+                modelType: "glb",
+                type: "3d",
+                behaviorModules: behaviorModules,
+                ...oldCardData,
+            };
+            if (options.type === "initial") {options.type = "3d";}
+            return options;
         }
 
-        let transparent = opacity !== 1;
-        this.shape.visible = this.actor.inWorld && opacity !== 0;
-        this.shape.traverse(n => {
-            if (n.material) {
-                n.material.opacity = opacity;
-                n.material.transparent = transparent;
-                n.material.side = THREE.DoubleSide;
-                n.material.needsUpdate = true;
+        let options = {
+            type: "3d",
+            modelType: "glb",
+            dataLocation: configuration.avatarURL,
+            name: configuration.nickname,
+            dataRotation: [0, Math.PI, 0],
+            handedness: configuration.handedness,
+            shadow: true,
+            behaviorModules: behaviorModules,
+            ...oldCardData,
+        };
+        if (options.type === "initial") {options.type = "3d";}
+        if (configuration.type === "ReadyPlayerMe") {
+            options = {...options, ...{
+                avatarEventHandler: "HalfBodyAvatarEventHandler",
+                dataScale: [1.5, 1.5, 1.5],
+                dataTranslation: [0, -0.7, 0],
+                behaviorModules: [...options.behaviorModules, "HalfBodyAvatarEventHandler"]
+            }};
+            if (options.behaviorModules.indexOf(handlerModuleName) >= 0) {
+                options.behaviorModules = options.behaviorModules.filter((n) => n !== handlerModuleName);
+            }
+        } else {
+            options = {...options, ...{
+                dataScale:  [0.3, 0.3, 0.3],
+                dataTranslation:  [0, -0.4, 0]
+            }};
+        }
+        return options;
+    }
+
+    showSettingsMenu() {
+        if (document.body.querySelector("#joinDialog")) {return;}
+        let promise = new Promise((resolve, _reject) => {
+            startSettingsMenu(false, resolve);
+        });
+        promise.then(changed => {
+            if (changed) {
+                const configuration = window.settingsMenuConfiguration;
+                sendToShell("update-configuration", { localConfig: configuration });
+                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+                delete this.modelLoadTime;
+                this.say("setAvatarData", tempCardSpec);
+                this.modelHasLoaded = false;
             }
         });
     }
@@ -1733,6 +2081,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (newCard) {
             this.lastCardId = newCard.id;
             let pawn = GetPawn(newCard.id);
+            if (!pawn) {return;}
             let pose = pawn.getJumpToPose ? pawn.getJumpToPose() : null;
 
             if (pose) {

@@ -412,7 +412,9 @@ export const PM_Pointer = superclass => class extends superclass {
             event = this.pointerEvent(rc, wcEvent);
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent", type, target, event);
+        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "handlingEvent", type, target, event);
+        }
         if (array) {
             array.forEach((n) => n.listener.call(target, event));
         }
@@ -424,7 +426,12 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDown(e) {
         let eventType = "pointerDown";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {
@@ -449,7 +456,13 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerUp(e) {
         let eventType = "pointerUp";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         this.isPointerDown = false;
         let firstResponder = this.findFirstResponder(e, eventType);
@@ -471,7 +484,13 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerMove(e) {
         let eventType = "pointerMove";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {
@@ -552,7 +571,13 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerTap(e) {
         let eventType = "pointerTap";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+
+        let rc;
+        if (e.source) {
+            rc = this.pointerRaycast(e.source, this.getTargets(eventType));
+        } else {
+            rc = this.pointerRaycast(e.xy, this.getTargets(eventType));
+        }
 
         let firstResponder = this.findFirstResponder(e, eventType);
         if (firstResponder) {

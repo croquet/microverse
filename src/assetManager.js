@@ -590,9 +590,10 @@ export class Loader {
     }
 }
 
-export function addShadows(obj3d, shadow, singleSide, THREE) {
+export function addMeshProperties(obj3d, shadow, singleSide, noFog, THREE) {
     obj3d.traverse(n => {
         if(n.material) {
+            if(noFog)n.material.fog = false;
             if (singleSide) {
                 n.material.side = THREE.FrontSide; //only render front side
             }
