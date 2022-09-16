@@ -1,6 +1,7 @@
 class LightPawn {
     setup() {
         this.removeLights();
+        this.lights = [];
         this.constructBackground(this.actor._cardData);
         this.constructDirectionalLights();
         this.listen("updateShape", "updateShape");
@@ -32,12 +33,12 @@ class LightPawn {
 
     removeLights() {
         if (this.lights) {
-            this.lights.forEach((light) => {
+            [...this.lights].forEach((light) => {
                 light.dispose();
                 this.shape.remove(light);
             });
         }
-        this.lights = [];
+        delete this.lights;
     }
 
     teardown() {

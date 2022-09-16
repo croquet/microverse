@@ -7,6 +7,7 @@ class LightPawn {
         let group = this.shape;
 
         this.removeLights();
+        this.lights = [];
 
         this.setupCSM(scene, camera, Microverse.THREE);
 
@@ -24,11 +25,21 @@ class LightPawn {
 
     removeLights() {
         if (this.lights) {
-            this.lights.forEach((light) => {
+            [...this.lights].forEach((light) => {
+                light.dispose();
                 this.shape.remove(light);
             });
         }
-        this.lights = [];
+        delete this.lights;
+
+        if (this.csm) {
+	    for ( let i = 0; i < this.csm.lights.length; i ++ ) {
+	        this.csm.parent.remove( this.csm.lights[ i ].target );
+	    }
+            this.csm.remove();
+            this.csm.dispose();
+            delete this.csm;
+        }
     }
 
     teardown() {
