@@ -201,6 +201,7 @@
 .dialogButtonsHolder.disabled #enterButton,
 .dialogButtonsHolder.disabled #acceptButton {
   background-color: #6c757d;
+  border-color: #6c757d;
   pointer-events: none;
 }
 

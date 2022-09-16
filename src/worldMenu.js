@@ -44,10 +44,19 @@ function loadPressed(myAvatar) {
 }
 
 function connectPressed() {
+    const connectButton = document.getElementById('connectBtn');
+    const connectIcon = document.getElementById('connectIcon')
+
     window.BehaviorViewManager.setURL("ws://localhost:9011");
-    if (worldMenuVisible) {
-        toggleMenu();
-    }
+
+    connectButton.addEventListener('click', function handleClick() {
+    connectButton.textContent = 'Connected';
+    connectButton.classList.add('connected');
+
+    connectIcon.classList.remove('connect-icon');
+    connectIcon.classList.add('connected-icon');
+
+});
 }
 
 function settingsPressed(myAvatar) {
@@ -104,8 +113,8 @@ function initWorldMenu(badge) {
     <span class="menu-label-text">Import</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
-    <div class="menu-icon connect-icon"></div>
-    <span class="menu-label-text">Connect</span>
+    <div class="menu-icon connect-icon" id="connectIcon"></div>
+    <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
     <div class="menu-icon save-icon"></div>
