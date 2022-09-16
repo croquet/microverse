@@ -766,12 +766,3 @@
   padding-top: 20px;
   padding-bottom: 20px;
 }
-
-input[type="radio"] {
-  opacity: 0;
-}
-
-input[type="radio"]:checked + label,
-.Checked + label {
-  background: yellow;
-}
