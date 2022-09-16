@@ -78,12 +78,17 @@ function createSettingsMenu(useEnter) {
                         </div>
                     </div>
                     <div id="handednessRow" class="settingsColumn">
-                        <div id="handednessLabel">Handedness:</div>
-                        <select id='handedness' class='handedness'>
-                            <option>Right</option>
-                            <option>Left</option>
-                        </select>
-                    </div>
+                    
+                        <div id="handednessLabel">Hand:</div>
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id='handedness'>
+                                <label class="btn btn-secondary active">
+                                    <input type="radio" name="options" id="right" autocomplete="off" checked> Right
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="options" id="left" autocomplete="off"> Left
+                                </label>
+                            </div>
+                        </div>
                 </div>
             </div>
 
