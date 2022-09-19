@@ -85,7 +85,7 @@ class PhysicsActor {
         this.removeCollider();
         const physicsWorld = this.physicsWorld;
         this._myPhysicsWorld =  physicsWorld;
-        let collider = physicsWorld.world.createCollider(cd, this.rigidBodyHandle);
+        let collider = physicsWorld.world.createCollider(cd, this.getRigidBody());
         this.colliderHandle = collider.handle;
         return this.colliderHandle;
     }
