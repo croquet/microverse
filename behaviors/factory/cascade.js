@@ -188,7 +188,6 @@ class CascadeActor {
     }
 
     translated() {
-        console.log(this.translation);
         /*
           if this object fell below, it kills itself.
           destroy() is a method of the base CardActor. It invokes all destroy() methods of attached
