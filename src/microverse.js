@@ -409,6 +409,7 @@ class MyModelRoot extends ModelRoot {
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
         this.subscribe(this.id, "loadDone", "loadDone");
+        this.subscribe(this.id, "removeAll", "removeAll");
 
         if (persistentData) {
             console.log("loading persistent data");
@@ -554,6 +555,37 @@ class MyModelRoot extends ModelRoot {
             savedData.data = string;
             this.loadFromFile(savedData, asScene, pose);
         }
+    }
+
+    removeAll() {
+        /*
+        let actors = this.service("ActorManager").actors;
+        let avatarBehaviors = new Set();
+        for (let [_k, actor] of actors) {
+            if (actor.playerId) {
+                if (actor.behaviorModules) {
+                    avatarBehaviors.add(...actor.behaviorModules);
+                }
+                continue;
+            }
+            actor.destroy();
+        }
+
+        let manager = this.service("BehaviorModelManager");
+
+        let modules = manager.moduleDefs;
+
+        let newModuleDefs = [];
+
+        for (let [_k, v] of modules) {
+            if (avatarBehaviors.has(v.externalName)) {
+                newModuleDefs.push(v);
+            }
+        }
+
+        manager.cleanUp();
+        manager.loadLibraries(newModuleDefs);
+        */
     }
 
     loadFromFile({ _name, version, data }, asScene, pose) {

@@ -537,6 +537,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (cardData.textureLocation) {
             assetManager.revoke(cardData.textureLocation, this.id);
         }
+        this.cleanupColliderObject();
         super.destroy();
     }
 
@@ -550,12 +551,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
     cleanupColliderObject() {
         if (this.colliderObject) {
-            this.colliderObject.children.forEach((m) => {
-                this.colliderObject.remove(m);
+            [...this.colliderObject.children].forEach((m) => {
+                if (m.geometry) {
+                    m.geometry.dispose();
+                    this.colliderObject.remove(m);
+                }
             });
             if (this.colliderObject.geometry) {
                 this.colliderObject.geometry.dispose();
             }
+            this.colliderObject.removeFromParent();
             delete this.colliderObject;
         }
     }
