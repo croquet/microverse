@@ -182,8 +182,8 @@ class CascadeActor {
         // Apply an upward force and random spin.
         let r = this.rigidBody;
         if (r) {
-            r.applyImpulse({x: 0, y: 1, z: 0}, true);
-            r.applyTorqueImpulse({x: Math.random() * 0.01, y: Math.random() * 0.2, z: Math.random() * 0.01}, true);
+            r.applyImpulse({x: 0, y: 0.1, z: 0}, true);
+            r.applyTorqueImpulse({x: Math.random() * 0.01 - 0.005, y: 0, z: Math.random() * 0.01 - 0.005}, true);
         }
     }
 
