@@ -40,7 +40,7 @@ class CradleActor {
                 if (i === d - 1) { // For the Final Link, do Something Different (Not Necessary)
                     card = this.createCard({
                         name,
-                        translation: [0, -14, t * 4 + 0.1],
+                        translation: [0, -14 - 1, t * 4],
                         dataScale: [5.9, 5.9, 5.9],
                         parent: this,
                         type: "3d",
@@ -144,8 +144,8 @@ class CradleLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        if (p3d.normal[2] <= 0) { r.applyImpulse({x: 0, y: 0, z: -1500}, true); }
-        else { r.applyImpulse({x: 0, y: 0, z: 1500}, true); }
+        if (p3d.normal[2] <= 0) { r.applyImpulse({x: 0, y: 0, z: -750}, true); }
+        else { r.applyImpulse({x: 0, y: 0, z: 750}, true); }
     }
 
     teardown() {

@@ -193,7 +193,7 @@ class CraneLinkActor {
         if (ratio === 0) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        let movement = Microverse.v3_scale([0, 0, ratio * 600], 6);
+        let movement = Microverse.v3_scale([0, 0, ratio * 100], 6);
         r.applyImpulse({x: movement[0], y: movement[1], z: movement[2]}, true);
     }
 
@@ -201,7 +201,7 @@ class CraneLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        let jolt = Microverse.v3_scale(p3d.normal, 400);
+        let jolt = Microverse.v3_scale(p3d.normal, 20);
         r.applyImpulse({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
     }
 

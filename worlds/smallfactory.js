@@ -12,8 +12,6 @@ export function init(Constants) {
         "smalllights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "spin.js"
     ];
 
-    Constants.UseRapier = true;
-
     Constants.DefaultCards = [
         {
             card: {

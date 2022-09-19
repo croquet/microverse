@@ -165,7 +165,10 @@ class CascadeActor {
         */
 
         if (rapierForce) {
-            this.rigidBody.applyImpulse(rapierForce);
+            if (!this.initialImpulseApplied) {
+                this.initialImpulseApplied = true;
+                this.rigidBody.applyImpulse(rapierForce);
+            }
         }
 
         /*
@@ -180,8 +183,8 @@ class CascadeActor {
         // Apply an upward force and random spin.
         let r = this.rigidBody;
         if (r) {
-            r.applyImpulse({x: 0, y: 1, z: 0}, true);
-            r.applyTorqueImpulse({x: Math.random() * 0.01, y: Math.random() * 0.2, z: Math.random() * 0.01}, true);
+            r.applyImpulse({x: 0, y: 0.1, z: 0}, true);
+            r.applyTorqueImpulse({x: Math.random() * 0.01 - 0.005, y: 0, z: Math.random() * 0.01 - 0.005}, true);
         }
     }
 
@@ -334,15 +337,15 @@ class SprayActor {
         const bt = [t[0], t[1] - 0.2, t[2]]; // bt for base translation
 
         let r = Math.random() * Math.PI * 2;
-        let x = Math.cos(r) * 0.02;
-        let z = Math.sin(r) * 0.02;
+        let x = Math.cos(r) * 0.02 - 0.01;
+        let z = Math.sin(r) * 0.02 - 0.01;
         let shape;
         let size;
         let density;
 
         let dice = Math.random();
 
-        if (dice < 0.01) {
+        if (dice < 0.1) {
             /*
               The FlightTracker behavior is used, but without the "Elected" behavior, it does not start fetching the live data. It is used solely to create the Earth appearance.
             */
@@ -355,7 +358,7 @@ class SprayActor {
                 behaviorModules: ["Physics", "FlightTracker", "Cascade"],
                 rapierSize: 0.8,
                 rapierShape: "ball",
-                rapierForce: {x, y: 0, z},
+                rapierForce: {x: x * 5, y: 0, z: z * 5},
                 density: 2,
                 parent: this.parent,
                 shadow: true,
