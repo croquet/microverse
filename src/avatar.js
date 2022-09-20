@@ -19,6 +19,7 @@ import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
+// import Swal from "sweetalert2";
 
 const EYE_HEIGHT = 1.676;
 const COLLIDE_THROTTLE = 50;
@@ -1000,6 +1001,25 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     loadvrse(buffer) {
         let result = new TextDecoder("utf-8").decode(buffer);
         this.loadFromFile(result, false, true);
+
+        /*
+        Swal.fire({
+            title: 'Do you want to load VRSE to replace existing world or add as new cards?',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Replace',
+            denyButtonText: `Add`,
+        }).then((swal) => {
+            let result = new TextDecoder("utf-8").decode(buffer);
+            if (swal.isConfirmed) {
+                let model = this.actor.wellKnownModel("ModelRoot");
+                this.publish(model.id, "removeAll");
+                this.loadFromFile(result, false, true);
+            } else if (swal.isDenied) {
+                this.loadFromFile(result, false, true);
+            }
+        });
+        */
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
