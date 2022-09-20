@@ -47,7 +47,7 @@ export function init(Constants) {
                 name: "crane",
                 type: "object",
                 translation: [-1.4447057496318962, -5.504611090090481, 30.282952880859376],
-                behaviorModules: ["Rapier", "Crane"],
+                behaviorModules: ["Physics", "Crane"],
                 layers: ["pointer"],
                 shadow: true,
                 scale: [0.4, 0.4, 0.4],

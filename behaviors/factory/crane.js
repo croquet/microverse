@@ -10,7 +10,7 @@
     
     (cd = Microverse.RAPIER.ColliderDesc.ball(0.85))
     (let translation = [0, 34.135389925172704 - i * 2, 0])
-    (card.call("Rapier$RapierActor", "createImpulseJoint", "ball" ...))
+    (card.call("Physics$PhysicsActor", "createImpulseJoint", "ball" ...))
     (let s = [0.1, 2.3])
 
 */
