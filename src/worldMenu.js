@@ -1,4 +1,6 @@
 import { startShareMenu } from "./shareMenu";
+import { startHelpMenu } from "./helpMenu";
+
 
 let worldMenu = null;
 let worldMenuVisible = false;
@@ -74,6 +76,15 @@ function sharePressed() {
 
 }
 
+function helpPressed() {
+    startHelpMenu();
+    if (worldMenuVisible) {
+        toggleMenu();
+    }
+
+}
+
+
 
 
 function switchQRView(_myAvatar) {
@@ -120,8 +131,12 @@ function initWorldMenu(badge) {
     <div class="menu-icon settings-icon"></div>
     <span class="menu-label-text">Settings</span>
 </div>
+<div id="helpButton" class="menu-label menu-item">
+    <div class="menu-icon help-icon"></div>
+    <span class="menu-label-text">Help</span>
+</div>
 <div id="shareButton" class="menu-label menu-item">
-    <div class="menu-icon save-icon"></div>
+    <div class="menu-icon share-icon"></div>
     <span class="menu-label-text">Share</span>
 </div>
 </div>
@@ -135,11 +150,13 @@ function initWorldMenu(badge) {
     let connect = div.querySelector("#worldMenu-connect");
     let settings = div.querySelector("#worldMenu-settings");
     let share = div.querySelector("#shareButton");
+    let help = div.querySelector("#helpButton");
 
     html.appendChild(load);
     html.appendChild(connect);
     html.appendChild(share);
     html.appendChild(settings);
+    html.appendChild(help);
 
     worldMenu = html;
     worldMenu.badge = badge;
@@ -204,6 +221,9 @@ function toggleMenu(myAvatar) {
 
     div = worldMenu.querySelector("#shareButton");
     if (div) div.onclick = () => sharePressed();
+
+    div = worldMenu.querySelector("#helpButton");
+    if (div) div.onclick = () => helpPressed();
 
     div = worldMenu.querySelector("#worldMenu-forceStop");
     if (div) {
