@@ -571,6 +571,7 @@ class ScriptingBehavior extends Model {
         this.module = options.module;
         this.name = options.name;
         this.type = options.type;
+        this.location = options.location;
     }
 
     setCode(string) {
@@ -590,7 +591,7 @@ class ScriptingBehavior extends Model {
             source = trimmed;
         }
 
-        let code = `return (${source})`;
+        let code = `return (${source}) //# sourceURL=${window.location.origin}/behaviors_evaled/${this.location + "/" || ""}${this.name}`;
         let cls;
         try {
             const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports, ...FrameExports};
@@ -618,7 +619,7 @@ class ScriptingBehavior extends Model {
     ensureBehavior() {
         if (!this.$behavior) {
             let maybeCode = this.code;
-            this.setCode(maybeCode, true);
+            this.setCode(maybeCode);
         }
         return this.$behavior;
     }
@@ -845,10 +846,15 @@ export class BehaviorModelManager extends ModelService {
                             let externalName = this.externalNames.get(`${location}$${moduleDef.name}`);
                             let behavior = this.lookup(externalName, behaviorName);
                             if (!behavior) {
+                                let cookedLocation = location;
+                                if (location.startsWith("(detached):")) {
+                                    cookedLocation = location.slice("(detached):".length);
+                                }
                                 behavior = ScriptingBehavior.create({
                                     systemBehavior: systemModule,
                                     module: module,
                                     name: behaviorName,
+                                    location: cookedLocation,
                                     type: behaviorType.slice(0, behaviorType.length - 1)
                                 });
                                 behavior.setCode(codeString);
