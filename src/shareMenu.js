@@ -40,6 +40,7 @@ function loadCSS() {
 
 
 export function startShareMenu(badge) {
+    if (document.body.querySelector("#joinDialog")) {return;}
     createShareMenu(badge);
 }
 
