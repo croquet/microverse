@@ -50,6 +50,7 @@ function createShareMenu(badge) {
     let share = `
     <div id="joinDialog" class="noselect">
     <div id='joinDialogBody' class='wide'>
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x">x</button>
         <div id='joinSettings'>
             <div id="settings-title">Share</div>
             <div id="share-container">
