@@ -591,7 +591,7 @@ class ScriptingBehavior extends Model {
             source = trimmed;
         }
 
-        let code = `return (${source}) //# sourceURL=${window.location.origin}/behaviors_evaled/${this.location + "/" || ""}${this.name}`;
+        let code = `return (${source}) //# sourceURL=${window.location.origin}/behaviors_evaled/${this.location}/${this.name}`;
         let cls;
         try {
             const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcoreRapierExports, ...FrameExports};
