@@ -49,8 +49,8 @@ export function startShareMenu(badge) {
 function createShareMenu(badge) {
     let share = `
     <div id="joinDialog" class="noselect">
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright">x</button>
     <div id='joinDialogBody' class='wide'>
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x">x</button>
         <div id='joinSettings'>
             <div id="settings-title">Share</div>
             <div id="share-container">
@@ -88,7 +88,7 @@ function createShareMenu(badge) {
     }
 
 
-    setShareSize()
+    // setShareSize()
 
 
 }
@@ -103,18 +103,18 @@ function cancel() {
 }
 
 
-function setShareSize() {
-    let width = 610;
-    let height = 610; // default, for a wide screen
-    // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
-    // the 'wide' format
-    const innerWidth = window.innerWidth;
-    if (innerWidth && innerWidth < 630) {
-        shareMenuBody.classList.remove('wide');
-        width = 432;
-    }
-    shareMenuBody.style.width = `${width}px`;
-    shareMenuBody.style.height = `${height}px`;
-}
+// function setShareSize() {
+//     let width = 610;
+//     let height = 610; // default, for a wide screen
+//     // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
+//     // the 'wide' format
+//     const innerWidth = window.innerWidth;
+//     if (innerWidth && innerWidth < 630) {
+//         shareMenuBody.classList.remove('wide');
+//         width = 432;
+//     }
+//     shareMenuBody.style.width = `${width}px`;
+//     shareMenuBody.style.height = `${height}px`;
+// }
 
 

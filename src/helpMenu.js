@@ -48,8 +48,8 @@ export function startHelpMenu() {
 function createHelpMenu() {
     let help = `
     <div id="joinDialog" class="noselect">
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright">x</button>
     <div id='joinDialogBody' class='wide'>
-      <button type="button" id="cancelButton" class="btn btn-danger btn-x">x</button>
       <div id='joinSettings'>
         <div id="settings-title">Help</div>
         <div id="share-container">

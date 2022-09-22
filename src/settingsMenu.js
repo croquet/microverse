@@ -47,8 +47,8 @@ function createSettingsMenu(useEnter) {
     let settings = `
 
     <div id="joinDialog" class="noselect">
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright">x</button>
     <div id='joinDialogBody' class='wide'>
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x">x</button>
         <div id='dialogTitle'>
             <div id='titleHolder' class='settingColumn'>
                 <img id='titleLogo' src='assets/images/microverse-logo.png' />
