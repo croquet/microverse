@@ -49,18 +49,63 @@ function createHelpMenu() {
     let help = `
     <div id="joinDialog" class="noselect">
     <div id='joinDialogBody' class='wide'>
-        <div id='joinSettings'>
-            <div id="settings-title">Help</div>
-            <div id="share-container">
-                <p id="shareQR">test</p>
-                <div id="share-qr"></div>
+      <button type="button" id="cancelButton" class="btn btn-danger btn-x">x</button>
+      <div id='joinSettings'>
+        <div id="settings-title">Help</div>
+        <div id="share-container">
+          <div id="table-wrapper">
+            <div id="table-scroll">
+  
+              <table class="help-tips">
+                <tr class="help-row">
+                  <td>
+                    <p class="table-head">Navigate</p>
+                    <p class="table-desc">Move around using the joystick, arrow keys or WASD. The location of the joystick
+                      on screen can be
+                      changed in the settings.</p>
+                  </td>
+                  <td class="icon-column">
+                    <div class="icons"><img src="../assets/images/move.png" /><img src="../assets/images/wasd.png" />
+                    </div>
+                  </td>
+                </tr>
+                <tr class="help-row">
+                  <td>
+                    <p class="table-head">Look</p>
+                    <p class="table-desc">Click and drag to change camera look position.</p>
+                  </td>
+                  <td class="icon-column">
+                    <div class="icons"><img src="../assets/images/look.png" /></div>
+                  </td>
+                </tr>
+                <tr class="help-row">
+                  <td>
+                    <p class="table-head">Fullscreen</p>
+                    <p class="table-desc">Make your browser fullscreen.</p>
+                  </td>
+                  <td class="icon-column"><i class="fa-solid fa-expand icons"></i></td>
+                </tr>
+                <tr class="help-row">
+                  <td>
+                    <p class="table-head">Home</p>
+                    <p class="table-desc">Reset location back to original landing place.</p>
+                  </td>
+                  <td class="icon-column"><i class="fa-light fa-house icons"></i></td>
+                </tr>
+                <tr class="help-row">
+                  <td>
+                    <p class="table-head">Gather</p>
+                    <p class="table-desc">Shows how many users in a world. Click to "gather" all users to you.</p>
+                  </td>
+                  <td class="icon-column"><i class="fa-light fa-users icons"></i></td>
+                </tr>
+              </table>
             </div>
-            <div class="dialogButtonsHolder settingColumn">
-                <button type="button" id="cancelButton" class="btn btn-danger">Cancel</button>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>`.trim();
+  </div>`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = help;

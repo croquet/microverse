@@ -767,3 +767,68 @@
   padding-top: 20px;
   padding-bottom: 20px;
 }
+
+#share-container {
+  display: flex;
+}
+
+.left,
+.right {
+  flex: 50%;
+  border: 1px solid red;
+}
+
+tr.help-row > td {
+  padding-right: 20px;
+  height: 50px;
+  border-bottom: 2px solid white;
+}
+
+.help-row {
+  border-bottom: 2px solid white;
+}
+
+td:first-child {
+  margin-bottom: 15px;
+}
+
+.icons {
+  padding-right: 10px;
+  font-size: 30px;
+  height: 37px;
+  background-repeat: no-repeat;
+}
+
+.table-head {
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+
+.table-desc {
+  font-size: 15px;
+  margin-top: 5px;
+}
+
+.icon-column {
+  width: 100px;
+  text-align: center;
+}
+
+.btn-x {
+  position: absolute;
+  right: 190px;
+  top: 110px;
+  width: 40px;
+  height: 40px;
+  border-radius: 60px;
+  font-size: 15px;
+  text-align: center;
+}
+
+#table-wrapper {
+  position: relative;
+}
+#table-scroll {
+  overflow: auto;
+  height: 600px;
+}
