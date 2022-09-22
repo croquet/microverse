@@ -697,6 +697,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
         this.yawDirection = this.isMobile ? -1 : 1;
+        this.pitchDirection = this.isMobile ? 1 : -1;
 
         /*
         this.walkCamera = new THREE.Object3D();
@@ -1949,8 +1950,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // we should add and remove responders dynamically so that we don't have to check things this way
             if (!this.focusPawn && this.isPointerDown && e.xy) {
                 let yp = this.xy2yp(e.xy);
-                let yaw = (this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection);
-                let pitch = this.lookPitch + this.dragWorld[1] - yp[1];
+                let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
+                let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;
                 pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
                 this.dragWorld = yp;
                 this.lookTo(pitch, yaw);
