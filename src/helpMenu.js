@@ -40,6 +40,7 @@ function loadCSS() {
 
 
 export function startHelpMenu() {
+    if (document.body.querySelector("#joinDialog")) {return;}
     createHelpMenu();
 }
 
