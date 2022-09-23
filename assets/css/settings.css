@@ -18,6 +18,7 @@
 }
 
 #joinDialog {
+  display: block;
   width: 600px;
   height: 600px;
   z-index: 2;
@@ -281,9 +282,6 @@
   line-height: 50px;
   text-align: center;
   color: white;
-}
-
-#chatCountText {
 }
 
 #chatButtons {
@@ -866,4 +864,15 @@ td:first-child {
   width: 600px;
   height: 600px;
   position: relative;
+}
+
+.none {
+  display: none !important;
+}
+
+.show {
+  visibility: visible;
+  display: block;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
 }

@@ -47,7 +47,7 @@ function createSettingsMenu(useEnter) {
     let settings = `
 
     <div id="joinDialog" class="noselect">
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright">x</button>
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright cancel-button">x</button>
     <div id='joinDialogBody' class='wide'>
         <div id='dialogTitle'>
             <div id='titleHolder' class='settingColumn'>
@@ -97,7 +97,7 @@ function createSettingsMenu(useEnter) {
                 <div id='enterButton'>Enter</div>
             </div>
             <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
-                <button type="button" id="cancelButton" class="btn btn-danger">Cancel</button>
+                <button type="button" class="btn btn-danger cancel-button">Cancel</button>
                 <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
             </div>
         </div>
@@ -133,8 +133,12 @@ function createSettingsMenu(useEnter) {
     const acceptButton = settingsMenu.querySelector('#acceptButton');
     acceptButton.addEventListener('click', () => accept());
 
-    const cancelButton = settingsMenu.querySelector('#cancelButton');
-    cancelButton.addEventListener('click', () => cancel());
+    const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
+    cancelButton.forEach(button =>{
+        button.addEventListener('click', function handleClick (){
+        settingsMenu.classList.add('none');
+        })
+    });
 
     let dialogHandedness = settingsMenu.querySelector("#handedness");
     dialogHandedness.addEventListener("input", () => handednessChanged());

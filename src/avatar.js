@@ -2129,7 +2129,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     showSettingsMenu() {
-        if (document.body.querySelector("#joinDialog")) {return;}
+        const settingsMenu = document.body.querySelector("#joinDialog");
+        if (settingsMenu) {
+            settingsMenu.classList.remove('none');
+            return;
+        }
         let promise = new Promise((resolve, _reject) => {
             startSettingsMenu(false, resolve);
         });
@@ -2142,7 +2146,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.say("setAvatarData", tempCardSpec);
                 this.modelHasLoaded = false;
             }
-        });
+        }); 
+
     }
 
     goHome() {
