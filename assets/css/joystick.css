@@ -17,8 +17,7 @@
 #knob {
   position: fixed;
   transform: translate(30px, 30px);
-  left: -11px;
-  top: -11px;
+  top: 2px;
   width: 53px;
   height: 53px;
   border-radius: 40px;
@@ -43,7 +42,7 @@
   }
 
   #joystick {
-    bottom: 18px;
+    bottom: 40px;
     width: 85px;
     height: 85px;
   }
@@ -63,8 +62,6 @@
 @media (max-width: 1899px) {
   #directions {
     position: fixed;
-    left: 19px;
-    top: 20px;
     width: 85px;
     height: 85px;
     /* background-color: rgba(179, 16, 16, 0.5); */
