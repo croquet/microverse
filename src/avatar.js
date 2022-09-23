@@ -2129,9 +2129,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     showSettingsMenu() {
-        const settingsMenu = document.body.querySelector("#joinDialog");
-        if (settingsMenu) {
-            settingsMenu.classList.remove('none');
+        const popup = document.body.querySelector("#joinDialog");
+        if (popup) {
+            popup.classList.remove('none');
             return;
         }
         let promise = new Promise((resolve, _reject) => {
