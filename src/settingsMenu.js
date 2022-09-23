@@ -25,6 +25,7 @@ export function startSettingsMenu(useEnter, r) {
     nicknameIsValid = false;
     avatarIsValid = false;
     loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
+    
 }
 
 function loadCSS() {

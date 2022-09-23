@@ -190,20 +190,6 @@ function toggleMenu(myAvatar) {
     let div;
 
 
-    // div = worldMenu.querySelector("#worldMenu-qr");
-    // div.onclick = (evt) => {
-    //     evt.preventDefault();
-    //     evt.stopPropagation();
-
-    //     if (evt.shiftKey || isMobile) {
-    //         switchQRView(myAvatar);
-    //         return;
-    //     }
-    //     qrPressed(myAvatar, window.location);
-    // }
-
-
-
     div = worldMenu.querySelector("#worldMenu-load");
     div.onclick = (evt) => {
         evt.preventDefault();
@@ -211,7 +197,9 @@ function toggleMenu(myAvatar) {
         loadPressed(myAvatar);
     }
 
-    
+    let settingsMenu = document.body.querySelector('#joinDialog');
+    console.log(settingsMenu)
+    // settingsMenu.classList.remove('none');
 
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);

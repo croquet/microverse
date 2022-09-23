@@ -2,6 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
+let settingsMenu = null;
 let shareMenuContent = null;
 let shareMenu = null;
 let shareMenuBody = null;
@@ -44,7 +45,6 @@ export function startShareMenu(badge) {
 }
 
 
-
 function createShareMenu(badge) {
     let share = `
     <div id="joinDialog" class="noselect">
@@ -65,17 +65,22 @@ function createShareMenu(badge) {
         </div>
     </div>
 </div>`.trim();
-
     let div = document.createElement("div");
     div.innerHTML = share;
+
+    settingsMenu = div.querySelector("#joinDialog");
 
     let saveWorld = div.querySelector("#worldMenu-save");
     shareMenuContent = div.querySelector("#share-qr");
     shareMenu = div.querySelector("#joinDialog");
     shareMenuBody = div.querySelector("#joinDialogBody");
 
-    const cancelButton = shareMenu.querySelector('#cancelButton');
-    cancelButton.addEventListener('click', () => cancel());
+    const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
+    cancelButton.forEach(button =>{
+        button.addEventListener('click', function handleClick (){
+        settingsMenu.classList.add('none');
+        })
+    });
 
     shareMenuContent.appendChild(badge);
     document.body.appendChild(shareMenu, saveWorld);
