@@ -53,6 +53,21 @@
   }
 }
 
+@media (min-width: 601px) {
+  #joystick {
+    bottom: 45px;
+  }
+  #directions {
+    left: 20px;
+    top: 20px;
+  }
+
+  #knob {
+    top: -10px;
+    left: -10px;
+  }
+}
+
 @media (max-height: 600px) {
   #joystick {
     bottom: 45px;
