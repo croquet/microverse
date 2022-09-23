@@ -78,6 +78,7 @@
   width: 600px;
   height: 600px;
   position: relative;
+  padding-bottom: 10px;
 }
 .cancelButton {
   justify-content: flex-end;
