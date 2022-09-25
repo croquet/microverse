@@ -97,7 +97,7 @@ export const AM_Code = superclass => class extends superclass {
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
         let behaviorName = this._behavior.$behaviorName;
-        let moduleName = this._behavior.module.name;
+        let moduleName = this._behavior.module.externalName;
         return this.futureWithBehavior(time, moduleName, behaviorName);
     }
 
@@ -401,7 +401,7 @@ export const PM_Code = superclass => class extends superclass {
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
                         if (behavior.$behavior.teardown) {
-                            this.call(`${behavior.module.name}$${behavior.$behaviorName}`, "teardown");
+                            this.call(`${behavior.module.externalName}$${behavior.$behaviorName}`, "teardown");
                         }
                     };
                 }
@@ -668,6 +668,14 @@ export class BehaviorModelManager extends ModelService {
     init(name) {
         super.init(name || "BehaviorModelManager");
 
+        this.cleanUp();
+
+        this.subscribe(this.id, "loadStart", "loadStart");
+        this.subscribe(this.id, "loadOne", "loadOne");
+        this.subscribe(this.id, "loadDone", "loadDone");
+    }
+
+    cleanUp() {
         this.moduleDefs = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, location:string?}>
 
         this.modules = new Map(); // <externalName /* Bar1 */, {name /*Bar*/, actorBehaviors: Map<name, codestring>, pawnBehaviors: Map<name, codestring>, systemModule: boolean, location:string?}>
@@ -678,12 +686,7 @@ export class BehaviorModelManager extends ModelService {
         this.viewUses = new Map();  // {ScriptingBehavior [cardPawnId]}
 
         this.externalNames = new Map();
-
         this.loadCache = null;
-
-        this.subscribe(this.id, "loadStart", "loadStart");
-        this.subscribe(this.id, "loadOne", "loadOne");
-        this.subscribe(this.id, "loadDone", "loadDone");
     }
 
     createAvailableName(name, location) {

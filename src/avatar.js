@@ -19,6 +19,7 @@ import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
+// import Swal from "sweetalert2";
 
 const EYE_HEIGHT = 1.676;
 const COLLIDE_THROTTLE = 50;
@@ -695,7 +696,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         renderMgr.avatar = this; // hack
 
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
-        this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
+        this.yawDirection = this.isMobile ? -1 : 1;
 
         /*
         this.walkCamera = new THREE.Object3D();
@@ -1000,6 +1001,25 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     loadvrse(buffer) {
         let result = new TextDecoder("utf-8").decode(buffer);
         this.loadFromFile(result, false, true);
+
+        /*
+        Swal.fire({
+            title: 'Do you want to load VRSE to replace existing world or add as new cards?',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Replace',
+            denyButtonText: `Add`,
+        }).then((swal) => {
+            let result = new TextDecoder("utf-8").decode(buffer);
+            if (swal.isConfirmed) {
+                let model = this.actor.wellKnownModel("ModelRoot");
+                this.publish(model.id, "removeAll");
+                this.loadFromFile(result, false, true);
+            } else if (swal.isDenied) {
+                this.loadFromFile(result, false, true);
+            }
+        });
+        */
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -1795,7 +1815,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             case 'a': case 'A': // left strafe
             case 'd': case 'D': // right strafe
             case 's': case 'S': // backward
-                this.yawDirection = -2;
                 this.wasdMap[e.key.toLowerCase()] = true;
                 switch (e.key) {
                     case 'w': case 'W': // forward
@@ -1830,7 +1849,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             case 'a': case 'A': // left strafe
             case 'd': case 'D': // right strafe
             case 's': case 'S': // backward
-                this.yawDirection = -1;
                 this.wasdMap[e.key.toLowerCase()] = false;
                 let h;
                 if (this.wasdMap.a && !this.wasdMap.d) {
@@ -2023,6 +2041,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         for (let [_viewId, a] of manager.players) {
             // a for actor, p for pawn
             let p = GetPawn(a.id);
+            if (!p) {continue;}
             if (!this.actor.inWorld) {
                 setOpacity(p, 1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
@@ -2058,7 +2077,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let avatarType = oldCardData.avatarType;
 
         [
-            "dataLocation", "dataTranslation", "dataScale", "dataRotation",
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
         if (!configuration.type && !avatarType) {
@@ -2169,6 +2188,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (newCard) {
             this.lastCardId = newCard.id;
             let pawn = GetPawn(newCard.id);
+            if (!pawn) {return;}
             let pose = pawn.getJumpToPose ? pawn.getJumpToPose() : null;
 
             if (pose) {

@@ -328,6 +328,7 @@ As describe above, you can create a new world, populate the world with objects, 
 
 ### Publishing a new version of `@croquet/microverse-library`
 - Update `npm/package.json`, in particular the value for `version`.
+- Update `package.json`, in particular the value for `version`.
 - Run `npm run build-lib`. This creates a minimum set of files needed to run a test installation in the directory called `dist`. This directory can be published as an npm package.
 - Run `npm publish` in the `dist` directory.
 - Edit the line 75 of `index.js` of the `create-croquet-microverse` git repository so that it refers to the intended version of `@croquet/microverse-library`. If other dependencies need new versions, update them as well.

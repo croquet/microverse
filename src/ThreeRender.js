@@ -392,11 +392,12 @@ class ThreeRenderManager extends RenderManager {
         this.doRender = bool;
     }
 
-    hasXR() {
-        if (navigator.xr) {
-            return navigator.xr.isSessionSupported("immersive-vr");
+    async hasXR() {
+        try {
+            return await navigator.xr.isSessionSupported("immersive-vr");
+        } catch (_) {
+            return false;
         }
-        return Promise.resolve(false);
     }
 
     destroy() {

@@ -3,6 +3,27 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-09-16
+### Changed
+- The settings interface uses avatar's 2D images stored on the server.
+
+### Added
+- sendToShell() function is available for behaviors.
+- A mechanism for an avatar to bypass dormantAvatarSpec.
+- a pawn side method getMyAvatar() is added.
+
+### Fixed
+- WebXR movement with joystick is fixed.
+- an error in accessing isSessionSupported is properly handled.
+
+## 2022-09-09
+### Fixed
+- Half body avatar movement improved.
+- All use of iterating this.shape.children to remove elements makes a copy of the original array.
+
+### Added
+- The first cut of WebXR support.
+
 ## 2022-09-02
 ### Changed
 - Version is updated to 0.1.7
