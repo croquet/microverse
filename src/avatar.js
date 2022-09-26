@@ -1972,7 +1972,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // If there are left over first responders (pointer capture) from a user object,
         // delete them here.
         if (this.firstResponders) {
-            for (let [_eventType, array] of this.firstResponders) {
+            for (let [_eventName, array] of this.firstResponders) {
                 for (let i = array.length - 1; i >= 0; i--) {
                     let obj = array[i];
                     if (obj.pawn !== this) {
