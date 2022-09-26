@@ -17,10 +17,10 @@
   user-select: text;
 }
 
-#joinDialog {
+#joinDialog,
+#helpDialog,
+#shareDialog {
   display: block;
-  width: 600px;
-  height: 600px;
   z-index: 2;
   display: flex;
   justify-content: center;
@@ -29,18 +29,6 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-}
-
-#joinDialog.hidden {
-  display: none;
-}
-
-/* #joinDialogBody.wide .settingColumn {
-    width: 75%;
-} */
-
-.settingColumn {
-  width: 95%;
 }
 
 #dialogTitle {
@@ -67,7 +55,6 @@
 #joinSettings {
   display: block;
   font-family: "Poppins";
-  height: 100%;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   background-color: rgba(0, 0, 0, 0.6);
@@ -76,8 +63,6 @@
   display: flex;
   border-radius: 15px;
   align-items: center;
-  width: 600px;
-  height: 600px;
   position: relative;
   padding-bottom: 10px;
 }
@@ -834,12 +819,6 @@ td:first-child {
   z-index: 10;
 }
 
-.topright {
-  position: absolute;
-  right: -20px;
-  top: -25px;
-}
-
 #table-wrapper {
   position: relative;
 }
@@ -863,8 +842,6 @@ td:first-child {
 }
 
 #joinDialogBody {
-  width: 600px;
-  height: 600px;
   position: relative;
 }
 
@@ -877,4 +854,33 @@ td:first-child {
   display: block;
   -webkit-animation: fadeIn 1s;
   animation: fadeIn 1s;
+}
+
+@media (min-width: 626px) {
+  #joinDialog,
+  #helpDialog,
+  #shareDialog #joinSettings {
+    width: 600px;
+    height: 600px;
+  }
+  .topright {
+    position: absolute;
+    right: -20px;
+    top: -25px;
+  }
+  .dialogButtonsHolder {
+    width: 95%;
+  }
+}
+
+@media (max-width: 625px) {
+  #joinDialog,
+  #helpDialog,
+  #shareDialog #joinSettings {
+    width: 90%;
+    padding: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }

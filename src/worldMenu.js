@@ -166,7 +166,9 @@ function initWorldMenu(badge) {
 }
 
 function toggleMenu(myAvatar) {
-    if (worldMenuVisible) {
+    const uiVisible = document.body.querySelector('#ui')
+
+    if (worldMenuVisible || uiVisible) {
         worldMenu.classList.remove("menuVisible");
         worldMenuVisible = false;
         return;
@@ -178,9 +180,9 @@ function toggleMenu(myAvatar) {
 
     if (myAvatar.actor.service("PlayerManager").presentationMode) {
         let presentation = `
-<div id="worldMenu-forceStop" class="menu-label menu-item">
-    <span class="menu-label-text">Stop Presentation</span>
-</div>`.trim();
+            <div id="worldMenu-forceStop" class="menu-label menu-item">
+                <span class="menu-label-text">Stop Presentation</span>
+            </div>`.trim();
 
         let div = document.createElement("div");
         div.innerHTML = presentation;

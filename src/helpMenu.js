@@ -40,7 +40,7 @@ function loadCSS() {
 
 
 export function startHelpMenu() {
-    const el = document.body.querySelector("#joinDialog");
+    const el = document.body.querySelector("#helpDialog");
     if (el) {
         el.classList.remove('none')
         el.classList.add('show')
@@ -56,7 +56,7 @@ export function startHelpMenu() {
 
 function createHelpMenu() {
     let help = `
-    <div id="joinDialog" class="noselect">
+    <div id="helpDialog" class="noselect">
     <button type="button" id="cancelButton" class="btn btn-danger btn-x topright">x</button>
     <div id='joinDialogBody' class='wide'>
       <div id='joinSettings'>
@@ -166,7 +166,7 @@ function createHelpMenu() {
     let div = document.createElement("div");
     div.innerHTML = help;
 
-    helpMenu = div.querySelector("#joinDialog");
+    helpMenu = div.querySelector("#helpDialog");
     helpMenuBody = div.querySelector("#joinDialogBody");
 
     const cancelButton = helpMenu.querySelector('#cancelButton');

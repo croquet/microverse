@@ -41,7 +41,7 @@ function loadCSS() {
 
 
 export function startShareMenu(badge) {
-    const el = document.body.querySelector("#joinDialog");
+    const el = document.body.querySelector("#shareDialog");
     if (el) {
         el.classList.remove('none')
         el.classList.add('show')
@@ -56,7 +56,7 @@ export function startShareMenu(badge) {
 
 function createShareMenu(badge) {
     let share = `
-    <div id="joinDialog" class="noselect">
+    <div id="shareDialog" class="noselect">
     <button type="button" class="btn btn-danger btn-x topright cancel-button">x</button>
     <div id='joinDialogBody' class='wide'>
         <div id='joinSettings'>
@@ -77,11 +77,11 @@ function createShareMenu(badge) {
     let div = document.createElement("div");
     div.innerHTML = share;
 
-    settingsMenu = div.querySelector("#joinDialog");
+    settingsMenu = div.querySelector("#shareDialog");
 
     let saveWorld = div.querySelector("#worldMenu-save");
     shareMenuContent = div.querySelector("#share-qr");
-    shareMenu = div.querySelector("#joinDialog");
+    shareMenu = div.querySelector("#shareDialog");
     shareMenuBody = div.querySelector("#joinDialogBody");
 
     const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
