@@ -49,7 +49,7 @@ class Shell {
         setTitle(portalURL);
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
-        hud.parentElement.removeChild(hud);
+        hud.remove();
         const shellHud = document.getElementById("shell-hud");
         shellHud.classList.toggle("is-shell", true);
         // TODO: create HUD only when needed?
