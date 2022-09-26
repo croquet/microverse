@@ -41,7 +41,16 @@ function loadCSS() {
 
 
 export function startShareMenu(badge) {
-    createShareMenu(badge);
+    const el = document.body.querySelector("#joinDialog");
+    if (el) {
+        el.classList.remove('none')
+        el.classList.add('show')
+        return;
+    }else{
+        createShareMenu(badge)
+        el.classList.remove('show')
+        el.classList.add('none')
+    }
 }
 
 

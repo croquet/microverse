@@ -65,6 +65,7 @@
 }
 
 #joinSettings {
+  display: block;
   font-family: "Poppins";
   height: 100%;
   border-bottom-left-radius: 10px;

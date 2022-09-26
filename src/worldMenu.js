@@ -198,8 +198,6 @@ function toggleMenu(myAvatar) {
     }
 
     let settingsMenu = document.body.querySelector('#joinDialog');
-    console.log(settingsMenu)
-    // settingsMenu.classList.remove('none');
 
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);

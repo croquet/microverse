@@ -40,7 +40,16 @@ function loadCSS() {
 
 
 export function startHelpMenu() {
-    createHelpMenu();
+    const el = document.body.querySelector("#joinDialog");
+    if (el) {
+        el.classList.remove('none')
+        el.classList.add('show')
+        return;
+    }else{
+        createHelpMenu();
+        el.classList.remove('show')
+        el.classList.add('none')
+    }
 }
 
 
