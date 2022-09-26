@@ -42,6 +42,17 @@ function newProxy(object, handler, module, behavior) {
             }
             return target[property];
         },
+        set(target, property, value) {
+            // let behavior handler override the method / getter
+            const setter = handler && handler.hasOwnProperty(property) && Object.getOwnPropertyDescriptor(handler, property)?.set;
+            if (setter) {
+                // use the card object as "this" in behavior setters
+                setter.apply(object, [value]);
+            } else {
+                target[property] = value;
+            }
+            return true;
+        },
     });
 }
 
