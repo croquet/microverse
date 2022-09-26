@@ -27,7 +27,6 @@ function newProxy(object, handler, module, behavior) {
             if (property === "_target") {return object;}
             if (property === "_behavior") {return behavior;}
             if (handler && handler.hasOwnProperty(property)) {
-                const handlerProp = handler[property];
                 if (typeof handlerProp === "function") {
                     // use the card as "this" in behavior methods
                     return new Proxy(handlerProp, {
@@ -36,6 +35,9 @@ function newProxy(object, handler, module, behavior) {
                         }
                     });
                 }
+                // use the card as "this" in behavior getters
+                const getter = Object.getOwnPropertyDescriptor(handler, property)?.get;
+                const handlerProp = getter ? getter.apply(object) : handler[property];
                 return handlerProp;
             }
             return target[property];
