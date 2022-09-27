@@ -406,6 +406,31 @@ class Shell {
                     console.warn("shell: ignoring world-enter from non-primary portal-" + fromPortalId);
                 }
                 return;
+            case "world-replace":
+                // same as world-enter except we delete the old frame first
+                if (fromPortalId === this.primaryFrameId) {
+                    console.log("shell: world-replace to " + data.targetURL);
+                    // release and fade outcurrent world
+                    this.primaryFrame.style.background = "black";
+                    this.primaryFrame.src = "";
+                    this.primaryFrame.style.transition = "opacity 1s";
+                    this.primaryFrame.style.opacity = 0;
+                    this.removeFrame(this.primaryFrameId);
+                    // create new world
+                    let targetFrameId = this.findFrame(data.targetURL);
+                    if (!targetFrameId) {
+                        console.log("shell: world-replace creating frame for", data.targetURL);
+                        targetFrameId = this.addFrame(null, data.targetURL);
+                    }
+                    setTimeout(() => {
+                        const frameEntry = this.frameEntry(targetFrameId);
+                        frameEntry.isMicroverse = true; // HACK
+                        this.activateFrame(targetFrameId, true, data.transferData); // true => push state
+                    }, 1000);
+                } else {
+                    console.warn("shell: ignoring world-replace from non-primary portal-" + fromPortalId);
+                }
+                return;
             case "hud":
                 this.setButtonsVisibility(data);
                 return;
