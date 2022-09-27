@@ -760,7 +760,6 @@
 }
 
 #share-container {
-  display: flex;
   padding: 20px;
 }
 
@@ -883,4 +882,40 @@ td:first-child {
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+#share-qr {
+  padding: 20px;
+  border: 1px solid grey;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+p#shareQR {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.copy-link {
+  height: 35px;
+  width: 200px;
+  border: 1px solid grey;
+  border-radius: 10px;
+  float: left;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  color: #898989;
+}
+
+.desc {
+  font-size: 13px;
+}
+
+p.share-title {
+  margin-bottom: 10px;
 }

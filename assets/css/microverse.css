@@ -191,6 +191,7 @@ body.tilt > iframe {
   border-radius: 10px;
   background-color: white;
   padding: 10px;
+  cursor: pointer;
 }
 
 #qrDiv {
@@ -330,6 +331,13 @@ body.tilt > iframe {
 .btn-outline-success {
   color: #28a745;
   background-color: transparent;
+  background-image: none;
+  border-color: #28a745;
+}
+
+.btn-outline-success:hover {
+  color: white;
+  background-color: #28a745;
   background-image: none;
   border-color: #28a745;
 }

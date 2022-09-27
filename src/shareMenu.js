@@ -60,16 +60,17 @@ function createShareMenu(badge) {
     <button type="button" class="btn btn-danger btn-x topright cancel-button">x</button>
     <div id='joinDialogBody' class='wide'>
         <div id='joinSettings'>
-            <div id="settings-title">Share</div>
             <div id="share-container">
-                <p id="shareQR">test</p>
+                <p id="shareQR" class="share-title">Share Session<br></p>
+                <p class="desc">Scan QR code or click to open a new browser tab<br> in the same session.</p>
                 <div id="share-qr"></div>
-            </div>
-            <div class="dialogButtonsHolder settingColumn">
-                <button type="button" class="btn btn-danger cancel-button">Cancel</button>
-                <div id="worldMenu-save">
-                    <button type="button" class="btn btn-outline-success">Export</button>
-                </div>
+
+                <p class="share-title">Copy Share Link</p>
+                <div class="copy-link">generated link</div><div class="btn copy-btn btn-outline-success">Copy</div>
+
+                <p class="share-title">Save Microverse file</p>
+                <button type="button" class="btn btn-outline-success">Download</button>
+                
             </div>
         </div>
     </div>
