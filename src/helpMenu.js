@@ -1,6 +1,8 @@
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
+import { sendToShell } from "./frame.js";
+
 
 let helpMenuContent = null;
 let helpMenu = null;
@@ -40,16 +42,7 @@ function loadCSS() {
 
 
 export function startHelpMenu() {
-    const el = document.body.querySelector("#helpDialog");
-    if (el) {
-        el.classList.remove('none')
-        el.classList.add('show')
-        return;
-    }else{
-        createHelpMenu();
-        el.classList.remove('show')
-        el.classList.add('none')
-    }
+createHelpMenu();
 }
 
 
@@ -177,24 +170,41 @@ function createHelpMenu() {
       for (let i = 0; i<ui.length; ++i){
           ui[i].classList.remove("none");
       };
+      sendToShell("hud",{joystick:true,fullscreen:true})
   }
 
   
+  function close() {
+    const el = document.body.querySelector("#helpDialog");
+    if (el) {
+        el.classList.remove('none')
+        el.classList.add('show')
+        return;
+    }else{
+        el.classList.remove('show')
+        el.classList.add('none')
+    }
+  }
+
   const cancelButton = helpMenu.querySelectorAll('.cancel-button');
   cancelButton.forEach(button =>{
       button.addEventListener('click', function handleClick (){
       helpMenu.classList.add('none');
       showUi();
+      sendToShell("hud",{joystick:true,fullscreen:true})
       })
   });
 
+
     document.body.appendChild(helpMenu);
     
-
     setHelpSize()
 
 
 }
+
+
+
 
 function closeDialog(changed) {
     helpMenu.remove();

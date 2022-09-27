@@ -1,6 +1,8 @@
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
+import { sendToShell } from "./frame.js";
+
 
 let settingsMenu = null;
 let shareMenuContent = null;
@@ -41,16 +43,7 @@ function loadCSS() {
 
 
 export function startShareMenu(badge) {
-    const el = document.body.querySelector("#shareDialog");
-    if (el) {
-        el.classList.remove('none')
-        el.classList.add('show')
-        return;
-    }else{
-        createShareMenu(badge)
-        el.classList.remove('show')
-        el.classList.add('none')
-    }
+    createShareMenu(badge)
 }
 
 
@@ -69,7 +62,7 @@ function createShareMenu(badge) {
                 <div class="copy-link">generated link</div><div class="btn copy-btn btn-outline-success">Copy</div>
 
                 <p class="share-title">Save Microverse file</p>
-                <button type="button" class="btn btn-outline-success">Download</button>
+                <button type="button" class="btn btn-outline-success" id="worldMenu-save">Download</button>
                 
             </div>
         </div>
@@ -92,16 +85,29 @@ function createShareMenu(badge) {
         for (let i = 0; i<ui.length; ++i){
             ui[i].classList.remove("none");
         };
+        sendToShell("hud",{joystick:true,fullscreen:true})
     }
 
+    function close() {
+        const el = document.body.querySelector("#shareDialog");
+        if (el) {
+            el.classList.remove('none')
+            el.classList.add('show')
+            return;
+        }else{
+            el.classList.remove('show')
+            el.classList.add('none')
+        }
+      }
     
-    const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
-    cancelButton.forEach(button =>{
-        button.addEventListener('click', function handleClick (){
-        settingsMenu.classList.add('none');
-        showUi();
-        })
-    });
+      const cancelButton = shareMenu.querySelectorAll('.cancel-button');
+      cancelButton.forEach(button =>{
+          button.addEventListener('click', function handleClick (){
+          shareMenu.classList.add('none');
+          showUi();
+          sendToShell("hud",{joystick:true,fullscreen:true})
+          })
+      });
 
     shareMenuContent.appendChild(badge);
     document.body.appendChild(shareMenu, saveWorld);
@@ -126,20 +132,3 @@ function closeDialog(changed) {
 function cancel() {
     closeDialog(false);
 }
-
-
-// function setShareSize() {
-//     let width = 610;
-//     let height = 610; // default, for a wide screen
-//     // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
-//     // the 'wide' format
-//     const innerWidth = window.innerWidth;
-//     if (innerWidth && innerWidth < 630) {
-//         shareMenuBody.classList.remove('wide');
-//         width = 432;
-//     }
-//     shareMenuBody.style.width = `${width}px`;
-//     shareMenuBody.style.height = `${height}px`;
-// }
-
-

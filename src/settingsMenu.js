@@ -2,6 +2,8 @@
 // https://croquet.io
 // info@croquet.io
 
+import { sendToShell } from "./frame.js";
+
 let settingsMenu = null;
 let settingsMenuBody = null;
 
@@ -24,8 +26,7 @@ export function startSettingsMenu(useEnter, r) {
     resolveDialog = r;
     nicknameIsValid = false;
     avatarIsValid = false;
-    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
-    
+    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);    
 }
 
 function loadCSS() {
@@ -140,7 +141,7 @@ function createSettingsMenu(useEnter) {
         for (let i = 0; i<ui.length; ++i){
             ui[i].classList.remove("none");
         };
-    }
+        }
 
 
     const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
@@ -148,6 +149,7 @@ function createSettingsMenu(useEnter) {
         button.addEventListener('click', function handleClick (){
         settingsMenu.classList.add('none');
         showUi();
+        sendToShell("hud",{joystick:true,fullscreen:true})
         })
     });
 

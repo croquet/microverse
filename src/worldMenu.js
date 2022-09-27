@@ -1,5 +1,7 @@
 import { startShareMenu } from "./shareMenu";
 import { startHelpMenu } from "./helpMenu";
+import { sendToShell } from "./frame.js";
+
 
 
 let worldMenu = null;
@@ -67,6 +69,7 @@ function settingsPressed(myAvatar) {
         myAvatar.showSettingsMenu();
         toggleMenu(myAvatar);
         toggleUi();
+        sendToShell("hud",{joystick:false,fullscreen:false})
     }
 }
 
@@ -75,6 +78,7 @@ function sharePressed() {
     if (worldMenuVisible) {
         toggleMenu();
         toggleUi();
+        sendToShell("hud",{joystick:false,fullscreen:false})
     }
 
 }
@@ -84,6 +88,7 @@ function helpPressed() {
     if (worldMenuVisible) {
         toggleMenu();
         toggleUi();
+        sendToShell("hud",{joystick:false,fullscreen:false})
     }
 
 }
