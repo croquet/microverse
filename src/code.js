@@ -644,11 +644,15 @@ class ScriptingBehavior extends Model {
 
         let proxy = newProxy(receiver, myHandler, module, this);
         try {
-            let f = proxy[name];
-            if (!f) {
+            let prop = proxy[name];
+            if (typeof prop === "undefined") {
                 throw new Error(`a method named ${name} not found in ${behaviorName || this}`);
             }
-            result = f.apply(proxy, values);
+            if (typeof prop === "function") {
+                result = prop.apply(proxy, values);
+            } else {
+                result = prop;
+            }
         } catch (e) {
             console.error("an error occured in", behaviorName, name, e);
         }
