@@ -415,12 +415,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     options.dataRotation = q_euler(...card.dataRotation);
                 }
 
-                // TODO: remove after alpha
-                if (options.targetURL && !options.portalURL) {
-                    options.portalURL = options.targetURL;
-                    delete options.targetURL;
-                }
-
                 if (nameMap) {
                     if (options.behaviorModules) {
                         options.behaviorModules = options.behaviorModules.map((n) => nameMap.get(n) || n);

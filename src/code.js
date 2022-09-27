@@ -27,13 +27,24 @@ function newProxy(object, handler, module, behavior) {
             if (property === "_target") {return object;}
             if (property === "_behavior") {return behavior;}
             if (handler && handler.hasOwnProperty(property)) {
-                return new Proxy(handler[property], {
-                    apply: function(_target, thisArg, argumentList) {
-                        return handler[property].apply(thisArg, argumentList);
-                    }
-                });
+                // let behavior handler override the method / getter
+                const getter = Object.getOwnPropertyDescriptor(handler, property)?.get;
+                // use the card object as "this" in behavior getters
+                const handlerProp = getter ? getter.apply(object) : handler[property];
+                return handlerProp;
             }
             return target[property];
+        },
+        set(target, property, value) {
+            // let behavior handler override the method / getter
+            const setter = handler && handler.hasOwnProperty(property) && Object.getOwnPropertyDescriptor(handler, property)?.set;
+            if (setter) {
+                // use the card object as "this" in behavior setters
+                setter.apply(object, [value]);
+            } else {
+                target[property] = value;
+            }
+            return true;
         },
     });
 }
@@ -148,7 +159,7 @@ export const AM_Code = superclass => class extends superclass {
 
         let behavior = this.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
-            throw new Error(`epxander named ${behaviorName} not found`);
+            throw new Error(`behavior named ${behaviorName} not found`);
         }
 
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
@@ -191,7 +202,7 @@ export const AM_Code = superclass => class extends superclass {
         // listener can be:
         // this.func
         // name for a base object method
-        // name for an expander method
+        // name for a behavior method
         // string with "." for this module, a behavior and method name
         // // string with "$" and "." for external name of module, a behavior name, method name
 
@@ -380,7 +391,7 @@ export const PM_Code = superclass => class extends superclass {
 
         let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
-            throw new Error(`epxander named ${behaviorName} not found`);
+            throw new Error(`behavior named ${behaviorName} not found`);
         }
 
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
@@ -633,11 +644,15 @@ class ScriptingBehavior extends Model {
 
         let proxy = newProxy(receiver, myHandler, module, this);
         try {
-            let f = proxy[name];
-            if (!f) {
+            let prop = proxy[name];
+            if (typeof prop === "undefined") {
                 throw new Error(`a method named ${name} not found in ${behaviorName || this}`);
             }
-            result = f.apply(proxy, values);
+            if (typeof prop === "function") {
+                result = prop.apply(proxy, values);
+            } else {
+                result = prop;
+            }
         } catch (e) {
             console.error("an error occured in", behaviorName, name, e);
         }

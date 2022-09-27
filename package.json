@@ -11,6 +11,7 @@
     "watch-server": "npx watch-server",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
+    "build-watch": "webpack watch --mode development --devtool eval-source-map --output-filename 'lib/[name].js'",
     "create-version": "./scripts/commit.sh",
     "build-lib": "npm run build-dev; npm run create-version; cp npm/package.json dist; ./scripts/npm-files.sh; ./scripts/fix-index-html.sh dist"
   },
