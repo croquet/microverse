@@ -57,7 +57,7 @@ export function startHelpMenu() {
 function createHelpMenu() {
     let help = `
     <div id="helpDialog" class="noselect">
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright">x</button>
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright cancel-button">x</button>
     <div id='joinDialogBody' class='wide'>
       <div id='joinSettings'>
         <div id="settings-title">Help</div>
@@ -168,9 +168,25 @@ function createHelpMenu() {
 
     helpMenu = div.querySelector("#helpDialog");
     helpMenuBody = div.querySelector("#joinDialogBody");
+    helpMenu = div.querySelector("#helpDialog");
 
-    const cancelButton = helpMenu.querySelector('#cancelButton');
-    cancelButton.addEventListener('click', () => cancel());
+
+    function showUi(){
+      const ui = document.body.querySelectorAll('.ui');
+  
+      for (let i = 0; i<ui.length; ++i){
+          ui[i].classList.remove("none");
+      };
+  }
+
+  
+  const cancelButton = helpMenu.querySelectorAll('.cancel-button');
+  cancelButton.forEach(button =>{
+      button.addEventListener('click', function handleClick (){
+      helpMenu.classList.add('none');
+      showUi();
+      })
+  });
 
     document.body.appendChild(helpMenu);
     

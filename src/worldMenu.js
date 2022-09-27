@@ -3,6 +3,7 @@ import { startHelpMenu } from "./helpMenu";
 
 
 let worldMenu = null;
+let uiVisible = null;
 let worldMenuVisible = false;
 let imageInput = null;
 
@@ -65,6 +66,7 @@ function settingsPressed(myAvatar) {
     if (myAvatar) {
         myAvatar.showSettingsMenu();
         toggleMenu(myAvatar);
+        toggleUi();
     }
 }
 
@@ -72,6 +74,7 @@ function sharePressed() {
     startShareMenu(worldMenu.badge);
     if (worldMenuVisible) {
         toggleMenu();
+        toggleUi();
     }
 
 }
@@ -80,6 +83,7 @@ function helpPressed() {
     startHelpMenu();
     if (worldMenuVisible) {
         toggleMenu();
+        toggleUi();
     }
 
 }
@@ -159,20 +163,30 @@ function initWorldMenu(badge) {
     html.appendChild(help);
 
     worldMenu = html;
+
     worldMenu.badge = badge;
     filterDomEventsOn(worldMenu);
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
 }
 
-function toggleMenu(myAvatar) {
-    const uiVisible = document.body.querySelector('#ui')
+function toggleUi(){
+    const ui = document.body.querySelectorAll('.ui');
 
-    if (worldMenuVisible || uiVisible) {
+    for (let i = 0; i<ui.length; ++i){
+        ui[i].classList.add("none");
+    };
+}
+
+function toggleMenu(myAvatar) {
+
+    if (worldMenuVisible) {
         worldMenu.classList.remove("menuVisible");
         worldMenuVisible = false;
         return;
     }
+
+
 
     if (worldMenu.lastChild.id === "worldMenu-forceStop") {
         worldMenu.lastChild.remove();
@@ -220,8 +234,10 @@ function toggleMenu(myAvatar) {
 
     worldMenuVisible = true;
     worldMenu.classList.add("menuVisible");
+
     return worldMenu;
 }
+
 
 export function setupWorldMenuButton(myAvatar, App, sessionId) {
     if (!worldMenu) {

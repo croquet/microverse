@@ -84,10 +84,21 @@ function createShareMenu(badge) {
     shareMenu = div.querySelector("#shareDialog");
     shareMenuBody = div.querySelector("#joinDialogBody");
 
+
+    function showUi(){
+        const ui = document.body.querySelectorAll('.ui');
+    
+        for (let i = 0; i<ui.length; ++i){
+            ui[i].classList.remove("none");
+        };
+    }
+
+    
     const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
     cancelButton.forEach(button =>{
         button.addEventListener('click', function handleClick (){
         settingsMenu.classList.add('none');
+        showUi();
         })
     });
 

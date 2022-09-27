@@ -134,10 +134,20 @@ function createSettingsMenu(useEnter) {
     const acceptButton = settingsMenu.querySelector('#acceptButton');
     acceptButton.addEventListener('click', () => accept());
 
+    function showUi(){
+        const ui = document.body.querySelectorAll('.ui');
+    
+        for (let i = 0; i<ui.length; ++i){
+            ui[i].classList.remove("none");
+        };
+    }
+
+
     const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
     cancelButton.forEach(button =>{
         button.addEventListener('click', function handleClick (){
         settingsMenu.classList.add('none');
+        showUi();
         })
     });
 

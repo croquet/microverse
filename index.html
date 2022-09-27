@@ -11,11 +11,11 @@
 
 </head>
 
-<body class="no-select" id="ui">
+<body class="no-select">
   <div id="hud">
     <div class="container">
       <div class="controllers" style="border:1px solid red">
-        <div id="homeBttn" class="bttn">
+        <div id="homeBttn" class="bttn ui">
           <i class="fa-light fa-house no-pointer-events"></i>
         </div>
         <div id="editModeBttn" mobile="false" class="bttn">
@@ -24,7 +24,7 @@
         <div id="worldMenuBttn" class="bttn">
           <i class="fas fa-solid fa-bars no-pointer-events"></i>
         </div>
-        <div id="usersComeHereBttn" class="bttn">
+        <div id="usersComeHereBttn" class="bttn ui">
           <div id="userCount">
             <div id="userCountReadout"></div>
           </div>
@@ -35,10 +35,10 @@
     </div>
   </div>
   <div id="shell-hud">
-    <div id="fullscreenBttn" class="bttn">
+    <div id="fullscreenBttn" class="bttn ui">
       <i class="fa-solid fa-expand"></i>
     </div>
-    <div id="joystick">
+    <div id="joystick" class="ui">
       <div class="box">
         <span class="wrap"><span class="touch"></span></span>
         <span class="wrap"><span class="touch"></span></span>
@@ -54,7 +54,6 @@
         </div>
         <div id="trackingknob"></div>
       </div>
-
     </div>
   </div>
 </body>
