@@ -159,7 +159,7 @@ export const AM_Code = superclass => class extends superclass {
 
         let behavior = this.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
-            throw new Error(`epxander named ${behaviorName} not found`);
+            throw new Error(`behavior named ${behaviorName} not found`);
         }
 
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
@@ -202,7 +202,7 @@ export const AM_Code = superclass => class extends superclass {
         // listener can be:
         // this.func
         // name for a base object method
-        // name for an expander method
+        // name for a behavior method
         // string with "." for this module, a behavior and method name
         // // string with "$" and "." for external name of module, a behavior name, method name
 
@@ -391,7 +391,7 @@ export const PM_Code = superclass => class extends superclass {
 
         let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
         if (!behavior) {
-            throw new Error(`epxander named ${behaviorName} not found`);
+            throw new Error(`behavior named ${behaviorName} not found`);
         }
 
         return behavior.invoke(this[isProxy] ? this._target : this, name, ...values);
