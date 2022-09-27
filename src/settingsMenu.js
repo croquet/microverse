@@ -177,23 +177,22 @@ function createSettingsMenu(useEnter) {
     dialogAcceptCancelButtons.classList.toggle("hidden", useEnter);
 
     populateAvatarSelection();
-    setSettingsSize();
+    // setSettingsSize();
     return Promise.resolve(settingsMenu);
 }
 
-function setSettingsSize() {
-    let width = 610;
-    let height = 610; // default, for a wide screen
-    // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
-    // the 'wide' format
-    const innerWidth = window.innerWidth;
-    if (innerWidth && innerWidth < 630) {
-        settingsMenuBody.classList.remove('wide');
-        width = 432;
-    }
-    settingsMenuBody.style.width = `${width}px`;
-    settingsMenuBody.style.height = `${height}px`;
-}
+// function setSettingsSize() {
+//     let width = 610;
+//     let height = 610; 
+
+//     const innerWidth = window.innerWidth;
+//     if (innerWidth && innerWidth < 630) {
+//         settingsMenuBody.classList.remove('wide');
+//         width = 432;
+//     }
+//     settingsMenuBody.style.width = `${width}px`;
+//     settingsMenuBody.style.height = `${height}px`;
+// }
 
 function fillFromPrevious() {
     const localSettings = window.settingsMenuConfiguration || {};
