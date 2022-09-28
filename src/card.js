@@ -651,11 +651,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let color = options.placeholderColor || 0x808080;
             let offset = options.placeholderOffset || [0, -1.7, 0];
 
-            const gridImage = './assets/images/grid.png';
-            const texture = new THREE.TextureLoader().load(gridImage);
+            const gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+            let image = new Image();
+            let texture = new THREE.Texture(image);
+            image.onload = () => texture.needsUpdate = true;
+            image.src = gridImage;
+
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set( size[0], size[2] );
+            texture.repeat.set(size[0], size[2]);
             let pGeometry = new THREE.BoxGeometry(...size);
             let pMaterial = new THREE.MeshStandardMaterial({map:texture, color: color, side: THREE.FrontSide});
 
