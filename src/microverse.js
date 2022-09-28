@@ -725,6 +725,34 @@ https://croquet.io`.trim());
         });
 }
 
+function isRunningLocalNetwork() {
+    let hostname = window.location.hostname;
+    if (hostname === "localhost") {return true;}
+
+    if (!/[0-9.]+/) {return false;}
+
+    let split = hostname.split(".");
+    if (split.length !== 4) {return false;}
+
+    let digits = split.map(parseFloat);
+
+    let hex = (n) => 0 <= n && n <= 255;
+
+    if (digits[0] === 192 && digits[1] === 168 && hex(digits[2]) && hex(digits[3])) {
+        return true;
+    }
+
+    if (digits[0] === 172 && (16 <= digits[1] && digits[1] <= 31) &&
+        hex(digits[2]) && hex(digits[3])) {
+        return true;
+    }
+    if (digits[0] === 10 && hex(digits[1]) && hex(digits[2]) && hex(digits[3])) {
+        return true;
+    }
+
+    return false;
+}
+
 export function startMicroverse() {
     let setButtons = (display) => {
         ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
@@ -786,19 +814,27 @@ async function launchMicroverse() {
         Constants.Library = new CodeLibrary();
         Constants.Library.addModules(json.data.behaviorModules);
     }
+
     let apiKeysModule;
+    let local = isRunningLocalNetwork();
+
     try {
         // use eval to hide import from webpack
-        apiKeysModule = await eval(`import('${baseurl}apiKey.js')`);
+        if (local) {
+            apiKeysModule = await eval(`import('${baseurl}apiKey-dev.js')`);
+        } else {
+            apiKeysModule = await eval(`import('${baseurl}apiKey.js')`);
+        }
+
         const { apiKey, appId } = apiKeysModule.default;
         if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
         if (typeof appId !== "string") throw Error("apiKey.js: appId must be a string");
         if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`invalid apiKey: "${apiKey}"`);
         if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`invalid appId: "${appId}"`);
     } catch (error) {
-        if (error.name === "TypeError") {
+        if (error.name === "TypeError" && local) {
             // apiKey.js not found, use local dev key
-            console.warn("apiKey.js not found, using default key for local development. Please create a valid apiKey.js (see croquet.io/keys)");
+            console.warn("apiKey.js not found, using default key for local development. Please create a valid apiKey-dev.js for development, and apiKey.js for deployment to a public server (see croquet.io/keys)");
             apiKeysModule = {
                 default: {
                     apiKey: "1kBmNnh69v93i5tOpj7bqqaJxjD3HJEucxd7egi7H",
