@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-09-23
+### Fixed
+- Regression in non-VR environment at start up is fixed.
+
+### Changed
+- The direction of the mouse look on laptop is fixed.
+
+### Added
+- sourceURL in comment allows the behavior name show up in the developer tool.
+
 ## 2022-09-16
 ### Changed
 - The settings interface uses avatar's 2D images stored on the server.
