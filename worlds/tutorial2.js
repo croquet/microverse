@@ -63,10 +63,10 @@ export function init(Constants) {
         {
             card: {
                 name:"Joe the Box",
-                behaviorModules: ["JoeTheBox"],
+                behaviorModules: ["JoeTheBox", "SimpleSpin"],
                 layers: ["pointer"],
                 type: "object",
-                translation:[-4, 0.4, -9],
+                translation:[-4, 0.4, -10],
                 shadow: true,
             }
         },

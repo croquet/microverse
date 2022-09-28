@@ -21,7 +21,6 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm//webxr/XRControllerModelFactory.js';
-import { Gyroscope } from './gyroscope';
 
 import { PM_Visible, PM_Camera, RenderManager } from "@croquet/worldcore-kernel";
 
@@ -112,8 +111,8 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         const render = this.service("ThreeRenderManager");
         if (!this.raycaster) this.raycaster = new THREE.Raycaster();
         this.raycaster.setFromCamera({x: x, y: y}, render.camera);
-        this.raycaster.params.Line = {threshold: 0.3}
-        this.raycaster.params.Point = {threshold: 0.3}
+        this.raycaster.params.Line = {threshold: 0.2};
+        this.raycaster.params.Point = {threshold: 0.2};
         return this.raycaster;
     }
 
@@ -133,9 +132,7 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         const render = this.service("ThreeRenderManager");
         const h = this.raycaster.intersectObjects(targets || render.threeLayer("pointer"));
         if (h.length === 0) {
-            return {
-                ray: this.raycaster.ray.clone()
-            };
+            return {ray: this.raycaster.ray.clone()};
         }
 
         let hit;
@@ -169,9 +166,7 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         if (normal) {
             let m = new THREE.Matrix3().getNormalMatrix( hit.object.matrixWorld );
             normal = normal.clone().applyMatrix3( m ).normalize();
-        } /*else {
-            normal = new THREE.Vector3(0,1,0);
-        }*/
+        }
 
         return {
             pawn: this.getPawn(hit.object),
@@ -467,7 +462,7 @@ class ThreeRenderManager extends RenderManager {
 const THREE = {
     ...THREEModule, Pass, UnrealBloomPass, CopyShader, CSMFrustum, CSMShader, CSM,
     OBJLoader, MTLLoader, GLTFLoader, FBXLoader, DRACOLoader, SVGLoader, EXRLoader, BufferGeometryUtils,
-    FontLoader, Font, TextGeometry, Gyroscope
+    FontLoader, Font, TextGeometry
 };
 
 export {THREE, THREE_MESH_BVH, PM_ThreeVisible, PM_ThreeCamera, ThreeRenderManager};

@@ -49,7 +49,7 @@ class Shell {
         setTitle(portalURL);
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
-        hud.parentElement.removeChild(hud);
+        hud.remove();
         const shellHud = document.getElementById("shell-hud");
         shellHud.classList.toggle("is-shell", true);
         // TODO: create HUD only when needed?
@@ -404,6 +404,31 @@ class Shell {
                     this.activateFrame(targetFrameId, true, data.transferData); // true => push state
                 } else {
                     console.warn("shell: ignoring world-enter from non-primary portal-" + fromPortalId);
+                }
+                return;
+            case "world-replace":
+                // same as world-enter except we delete the old frame first
+                if (fromPortalId === this.primaryFrameId) {
+                    console.log("shell: world-replace to " + data.targetURL);
+                    // release and fade outcurrent world
+                    this.primaryFrame.style.background = "black";
+                    this.primaryFrame.src = "";
+                    this.primaryFrame.style.transition = "opacity 1s";
+                    this.primaryFrame.style.opacity = 0;
+                    this.removeFrame(this.primaryFrameId);
+                    // create new world
+                    let targetFrameId = this.findFrame(data.targetURL);
+                    if (!targetFrameId) {
+                        console.log("shell: world-replace creating frame for", data.targetURL);
+                        targetFrameId = this.addFrame(null, data.targetURL);
+                    }
+                    setTimeout(() => {
+                        const frameEntry = this.frameEntry(targetFrameId);
+                        frameEntry.isMicroverse = true; // HACK
+                        this.activateFrame(targetFrameId, true, data.transferData); // true => push state
+                    }, 1000);
+                } else {
+                    console.warn("shell: ignoring world-replace from non-primary portal-" + fromPortalId);
                 }
                 return;
             case "hud":

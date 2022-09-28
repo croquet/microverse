@@ -19,6 +19,7 @@ import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
+// import Swal from "sweetalert2";
 
 const EYE_HEIGHT = 1.676;
 const COLLIDE_THROTTLE = 50;
@@ -67,6 +68,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("leavePresentation", this.leavePresentation);
         this.listen("setAvatarData", "setAvatarData");
         this.listen("setWorldState", "setWorldState");
+
+        this.listen("addOrCycleGizmo", "addOrCycleGizmo");
+        this.listen("removeGizmo", "removeGizmo");
+
         this.future(0).tick();
     }
 
@@ -474,6 +479,30 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.publish(this.sessionId, "triggerPersist");
     }
 
+    addOrCycleGizmo(data) {
+        let {target, viewId} = data;
+        if (!this.gizmo) {
+            if (!this.behaviorManager.modules.get("Gizmo")) {return;}
+            this.gizmo = this.createCard({
+                translation: target.translation,
+                name: 'gizmo',
+                behaviorModules: ["Gizmo"],
+                parent: target.parent,
+                type: "object",
+                noSave: true,
+            });
+            this.gizmo.target = target;
+            this.gizmo.creatorId = viewId;
+        } else {
+            this.publish(this.gizmo.id, "cycleModes");
+        }
+    }
+
+    removeGizmo() {
+        this.gizmo?.destroy();
+        delete this.gizmo;
+    }
+
     createPortal(translation, rotation, portalURL) {
         // sigh - all portals are "backwards"
         // or maybe *all* models are backwards and we need to fix dropPose and avatar models?
@@ -648,8 +677,8 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     setOpacity(opacity) {
         if (!this.shape) {return;}
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity")) {
-            opacity = this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "mapOpacity", opacity);
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
         }
         let transparent = opacity !== 1;
         this.shape.visible = this.actor.inWorld && opacity !== 0;
@@ -713,7 +742,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         renderMgr.avatar = this; // hack
 
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
-        this.yawDirection = -1; // which way the mouse moves the world depends on if we are using WASD or not
+        this.yawDirection = this.isMobile ? -1 : 1;
+        this.pitchDirection = this.isMobile ? 1 : -1;
 
         /*
         this.walkCamera = new THREE.Object3D();
@@ -809,22 +839,22 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "startMotion")) {
-                        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "startMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
                     } else {
                         this.startMotion(dx, dy);
                     }
                     break;
                 case "motion-end":
-                    if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion")) {
-                        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
                     } else {
                         this.endMotion(dx, dy);
                     }
                     break;
                 case "motion-update":
-                    if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "updateMotion")) {
-                        this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "updateMotion", dx, dy);
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
                     } else {
                         this.updateMotion(dx, dy);
                     }
@@ -896,6 +926,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             clearInterval(this.fadeNearbyInterval);
             this.fadeNearbyInterval = null;
         }
+
+        this.gizmo?.parent.sayUnselectEdit();
+        this.gizmo?.destroy();
         delete this.modelLoadTime;
         super.detach();
     }
@@ -1018,6 +1051,25 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     loadvrse(buffer) {
         let result = new TextDecoder("utf-8").decode(buffer);
         this.loadFromFile(result, false, true);
+
+        /*
+        Swal.fire({
+            title: 'Do you want to load VRSE to replace existing world or add as new cards?',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Replace',
+            denyButtonText: `Add`,
+        }).then((swal) => {
+            let result = new TextDecoder("utf-8").decode(buffer);
+            if (swal.isConfirmed) {
+                let model = this.actor.wellKnownModel("ModelRoot");
+                this.publish(model.id, "removeAll");
+                this.loadFromFile(result, false, true);
+            } else if (swal.isDenied) {
+                this.loadFromFile(result, false, true);
+            }
+        });
+        */
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -1143,8 +1195,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // the camera when walking: based on avatar with 3rd person lookOffset
     walkLook() {
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarEventHandlerPawn`, "walkLook")) {
-            return this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "walkLook");
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "walkLook")) {
+            return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
         }
 
         const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
@@ -1290,7 +1342,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         if (leavingWorld) {
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            this.call(`${handlerModuleName}$AvatarEventHandlerPawn`, "endMotion");
+            this.call(`${handlerModuleName}$AvatarPawn`, "endMotion");
         }
         // now actually leave or enter the world (stops presenting in old world)
         console.log(`${frameName()} setting actor`, actorSpec);
@@ -1813,7 +1865,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             case 'a': case 'A': // left strafe
             case 'd': case 'D': // right strafe
             case 's': case 'S': // backward
-                this.yawDirection = -2;
                 this.wasdMap[e.key.toLowerCase()] = true;
                 switch (e.key) {
                     case 'w': case 'W': // forward
@@ -1848,7 +1899,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             case 'a': case 'A': // left strafe
             case 'd': case 'D': // right strafe
             case 's': case 'S': // backward
-                this.yawDirection = -1;
                 this.wasdMap[e.key.toLowerCase()] = false;
                 let h;
                 if (this.wasdMap.a && !this.wasdMap.d) {
@@ -1891,6 +1941,109 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let w = window.innerWidth / 2;
         let c = (fov * Math.PI / 180) / h;
         return[c * (xy[0] - w), c * (h - xy[1])];
+    }
+
+    pointerDown(e) {
+        let render = this.service("ThreeRenderManager");
+        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
+        this.targetDistance = rc.distance;
+        let p3e = this.pointerEvent(rc, e);
+        let pawn = GetPawn(p3e.targetId);
+
+        let pawnIsGizmo = pawn && pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
+
+        if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
+            this.gizmoTargetPawn.unselectEdit();
+            this.gizmoTargetPawn = null;
+            this.publish(this.actor.id, "removeGizmo");
+        }
+
+        if (e.ctrlKey || e.altKey) { // should be the first responder case
+            if (pawn) {
+                if (pawnIsGizmo) {
+                    console.log("Tried to gizmo gizmo");
+                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
+                } else {
+                    if (this.gizmoTargetPawn != pawn) {
+                        pawn.selectEdit();
+                    }
+                    this.gizmoTargetPawn = pawn;
+                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
+                }
+            } else {
+                this.publish(this.actor.id, "removeGizmo");
+            }
+        } else {
+            if (this.gizmoTargetPawn) {
+                this.gizmoTargetPawn.unselectEdit();
+                this.gizmoTargetPawn = null;
+                this.publish(this.actor.id, "removeGizmo");
+            } else {
+                this.dragWorld = this.xy2yp(e.xy);
+                this.lookYaw = q_yaw(this._rotation);
+            }
+            let handlerModuleName = this.actor._cardData.avatarEventHandler;
+            if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+                this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
+            }
+            if (!pawnIsGizmo) {
+                this.publish(this.actor.id, "removeGizmo");
+            }
+        }
+    }
+
+    pointerMove(e) {
+        // should be the last responder case
+        if (!this.focusPawn && this.isPointerDown && e.xy) {
+            let yp = this.xy2yp(e.xy);
+            let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
+            let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;
+            pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
+            this.dragWorld = yp;
+            this.lookTo(pitch, yaw);
+        }
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerMove", this, e);
+        }
+    }
+
+    pointerUp(e) {
+        // Below is a suppot for an incomplete user program.
+        // If there are left over first responders (pointer capture) from a user object,
+        // delete them here.
+        if (this.firstResponders) {
+            for (let [_eventName, array] of this.firstResponders) {
+                for (let i = array.length - 1; i >= 0; i--) {
+                    let obj = array[i];
+                    if (obj.pawn !== this) {
+                        array.splice(i, 1);
+                    }
+                }
+            }
+        }
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerUp", this, e);
+        }
+    }
+
+    pointerTap(_e) {
+        /*
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerTap", this, e);
+        }
+        */
+    }
+
+    pointerWheel(e) {
+        let z = this.lookOffset[2];
+        z += Math.max(1,z) * e.deltaY / 1000.0;
+        z = Math.min(100, Math.max(z,0));
+        this.lookOffset = [this.lookOffset[0], z, z];
+        let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
+        this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //,
     }
 
     fadeNearby() {
