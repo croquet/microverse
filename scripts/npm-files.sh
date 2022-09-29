@@ -31,3 +31,7 @@ cp -p behaviors/default/lights.js ${DIST}/behaviors/default/lights.js
 rm -rf ${DIST}/worlds
 mkdir -p ${DIST}/worlds
 cp worlds/test.js ${DIST}/worlds/default.js
+
+cp npm/package.json ${DIST}/package.json
+mkdir ${DIST}/scripts
+cp npm/install.js ${DIST}/scripts

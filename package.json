@@ -1,6 +1,6 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
@@ -13,7 +13,7 @@
     "build-dev": "webpack --mode development",
     "build-watch": "webpack watch --mode development --devtool eval-source-map --output-filename 'lib/[name].js'",
     "create-version": "./scripts/commit.sh",
-    "build-lib": "npm run build-dev; npm run create-version; cp npm/package.json dist; ./scripts/npm-files.sh; ./scripts/fix-index-html.sh dist"
+    "build-lib": "npm run build-dev; npm run create-version; ./scripts/npm-files.sh"
   },
   "author": "Croquet Corporation",
   "license": "Apache-2.0",
