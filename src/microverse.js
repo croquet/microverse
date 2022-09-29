@@ -727,27 +727,31 @@ https://croquet.io`.trim());
 
 function isRunningLocalNetwork() {
     let hostname = window.location.hostname;
-    if (hostname === "localhost") {return true;}
 
-    if (!/[0-9.]+/) {return false;}
+    let local_patterns = [
+        /^localhost$/,
+        /^.*\.local$/,
+        /^.*\.ngrok.io$/,
+        // 10.0.0.0 - 10.255.255.255
+        /^(::ffff:)?10(?:\.\d{1,3}){3}$/,
+        // 127.0.0.0 - 127.255.255.255
+        /^(::ffff:)?127(?:\.\d{1,3}){3}$/,
+        // 169.254.1.0 - 169.254.254.255
+        /^(::f{4}:)?169\.254\.([1-9]|1?\d\d|2[0-4]\d|25[0-4])\.\d{1,3}$/,
+        // 172.16.0.0 - 172.31.255.255
+        /^(::ffff:)?(172\.1[6-9]|172\.2\d|172\.3[01])(?:\.\d{1,3}){2}$/,
+        // 192.168.0.0 - 192.168.255.255
+        /^(::ffff:)?192\.168(?:\.\d{1,3}){2}$/,
+        // fc00::/7
+        /^f[cd][\da-f]{2}(::1$|:[\da-f]{1,4}){1,7}$/,
+        // fe80::/10
+        /^fe[89ab][\da-f](::1$|:[\da-f]{1,4}){1,7}$/,
+        // ::1
+        /^::1$/,
+    ];
 
-    let split = hostname.split(".");
-    if (split.length !== 4) {return false;}
-
-    let digits = split.map(parseFloat);
-
-    let hex = (n) => 0 <= n && n <= 255;
-
-    if (digits[0] === 192 && digits[1] === 168 && hex(digits[2]) && hex(digits[3])) {
-        return true;
-    }
-
-    if (digits[0] === 172 && (16 <= digits[1] && digits[1] <= 31) &&
-        hex(digits[2]) && hex(digits[3])) {
-        return true;
-    }
-    if (digits[0] === 10 && hex(digits[1]) && hex(digits[2]) && hex(digits[3])) {
-        return true;
+    for (let i = 0; i < local_patterns.length; i++) {
+        if (local_patterns[i].test(hostname)) {return true;}
     }
 
     return false;

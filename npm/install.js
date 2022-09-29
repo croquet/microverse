@@ -5,20 +5,25 @@ function main() {
     let fs = require("fs");
     let path = require("path");
 
-    function copyFileSync(source, target) {
+    function copyFileSync(source, target, noOverwrite) {
         let targetFile = target;
 
-        // If target is a directory, a new file with the same name will be created
-        if (fs.existsSync(target)) {
+        // If target is a directory, a new file with the same name will be created.
+        // if the target already exists and noOverwrite flag is true, it skips the file.
+        if (fs.existsSync(targetFile)) {
             if (fs.lstatSync(target).isDirectory()) {
                 targetFile = path.join(target, path.basename(source));
             }
         }
 
+        if (fs.existsSync(targetFile) && noOverwrite) {
+            return;
+        }
+
         fs.writeFileSync(targetFile, fs.readFileSync(source));
     }
 
-    function copyFolderRecursiveSync(source, target) {
+    function copyFolderRecursiveSync(source, target, noOverwrite) {
         let files = [];
 
         // Check if folder needs to be created or integrated
@@ -34,9 +39,9 @@ function main() {
             files.forEach((file) => {
                 let curSource = path.join(source, file);
                 if (fs.lstatSync(curSource).isDirectory()) {
-                    copyFolderRecursiveSync(curSource, targetFolder);
+                    copyFolderRecursiveSync(curSource, targetFolder, noOverwrite);
                 } else {
-                    copyFileSync(curSource, targetFolder);
+                    copyFileSync(curSource, targetFolder, noOverwrite);
                 }
             });
         }
@@ -46,7 +51,7 @@ function main() {
         let dist = process.env.INIT_CWD;
         copyFolderRecursiveSync("behaviors", dist);
         copyFolderRecursiveSync("assets", dist);
-        copyFolderRecursiveSync("worlds", dist);
+        copyFolderRecursiveSync("worlds", dist, true);
         copyFolderRecursiveSync("meta", dist);
         copyFolderRecursiveSync("lib", dist);
         copyFileSync("index.html", dist + "/index.html");
