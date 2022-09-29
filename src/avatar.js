@@ -65,6 +65,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("resetStartPosition", this.resetStartPosition);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
+        this.subscribe("actorManager", "destroyed", this.actorDestroyed);
+
         this.listen("leavePresentation", this.leavePresentation);
         this.listen("setAvatarData", "setAvatarData");
         this.listen("setWorldState", "setWorldState");
@@ -477,6 +479,12 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
         this.createCard(options);
         this.publish(this.sessionId, "triggerPersist");
+    }
+
+    actorDestroyed(id) {
+        if (this.gizmo?.target?.id === id) {
+            this.removeGizmo();
+        }
     }
 
     addOrCycleGizmo(data) {

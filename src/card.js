@@ -53,6 +53,11 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.listen("setAnimationClipIndex", this.setAnimationClipIndex);
     }
 
+    destroy() {
+        this.publish("actorManager", "destroyed", this.id);
+        super.destroy();
+    }
+
     separateOptions(options) {
         // options are either intrinsic or non-intrinsic. We store non-intrinsic values in _cardData.
         let cardOptions = {};
