@@ -4,7 +4,7 @@
 
 ## Introduction
 
-In this next tutorial, we will load a 3D model of a gallery where we will place a number of objects. We will also define a number of new behaviors that will add a simple interaction to the objects in that world.
+In this second tutorial, we will load a 3D model of a gallery where we will place a number of objects. We will also define a number of new behaviors that will add a simple interaction to the objects in that world.
 
 You can try it out right now. The launch URL is:
 
@@ -14,7 +14,7 @@ Here is an image of the world we will be constructing:
 
 ![Tutorial 2](./assets/Tutorial2.png)
 
-We are adding some new behaviors to the cards in this world. The "joeTheBox.js" behavior demonstrates how to directly construct a 3D object. The "simpleSpin.js" behavior demonstrates how a simple user interaction triggering an object to spin around its main axis. We will dive into these behaviors shortly.
+We are adding some new behaviors to the cards in this world. The "joeTheBox.js" behavior demonstrates how to construct a 3D object. The "simpleSpin.js" behavior demonstrates how a simple user interaction triggering an object to spin around its main axis. We will dive into these behaviors shortly.
 
 ```
     Constants.UserBehaviorDirectory = "behaviors/tutorial";
@@ -25,7 +25,7 @@ We are adding some new behaviors to the cards in this world. The "joeTheBox.js" 
 
 ## Cards
 
-There are a number of additional cards defined in this world, but everything is still quite simple. Let's start with the definition of the gallery.
+There are a number of cards defined in this world. Let's start with the definition of the gallery.
 
 ```javascript
 
@@ -40,7 +40,6 @@ There are a number of additional cards defined in this world, but everything is 
                 shadow: true,
                 layers: ["walk"],
                 translation: [0, -1.7, 0],
-                shadow: true,
 
                 placeholder: true,
                 placeholderSize: [100, 0.01, 100],
@@ -51,7 +50,7 @@ There are a number of additional cards defined in this world, but everything is 
 
 ```
 
-As you can see, this is a bit more complex than the previous creation of the simple grid floor, but not that much.
+The most important change is we are now referencing a 3D model that is in our assets folder. This is the model of the gallery and was originally created in Blender and exported as a single GLB file including textures. It was then zipped for faster transfer.
 
 ```javascript
 type: "3d",
@@ -59,9 +58,7 @@ dataLocation: "./assets/3D/artgallery_042122.glb.zip",
 dataScale: [1,1,1],
 ```
 
-The most important change is we are now referencing a 3D model that is in our assets folder. This is the model of the gallery and was originally created in Blender and exported as a single GLB file including textures. It was then zipped for faster transfer.
-
-We also specify that the type is "3d", so that the file loader has some hint of how to manage it.
+We also specify that the type is "3d", so that the visual appearance is specified by the 3D model.
 
 We set dataScale: to [1,1,1] as that tells the importer that one unit in the model corresponds to one unit in the world - in this case, both are in meters.
 
@@ -99,7 +96,7 @@ The next two cards - the light card and the image card are exactly the same.
 },
 ```
 
-The two new cards are different however. The first card is the "Joe the Box" card which is defined by a behavior similar to the grid floor that we saw earlier. Also note that Joe includes the "SimpleSpin" behavior. The second box is loaded from the 3D assets in the same way that the gallery itself was loaded.
+There are  two new cards. The first card is the "Joe the Box" card that uses behavior called "JoeTheBox" similar to the grid floor that we saw earlier. Also note that Joe includes the "SimpleSpin" behavior. The second box is loaded from the 3D assets in the same way that the gallery itself was loaded.
 
 ```javascript
 {
@@ -128,7 +125,7 @@ The two new cards are different however. The first card is the "Joe the Box" car
 
 ## Behaviors
 
-There are two new behaviors for us to explore. The first is "joeTheBox", a very simple pawn construction behavior. This version of Joe has no simulation or shared interactions associated with it, thus there is no actor behavior. The second is "simpleSpin", a simple actor user interaction and simulation behavior. SimpleSpin is focused on user interaction and simulation, so this has no pawn behavior. The [introductory tutorial](./tutorial-Tutorial1.html) has an overview of the actor and pawn system and their relationship.
+There are two new behaviors for us to explore. The first is "JoeTheBox", a very simple pawn construction behavior. This version of Joe has no simulation or shared interactions associated with it, thus there is no actor behavior. The second is "simpleSpin", a simple actor user interaction and simulation behavior. SimpleSpin is focused on user interaction and simulation, so this has no pawn behavior. The [introductory tutorial](./tutorial-Tutorial1.html) has an overview of the actor and pawn system and their relationship.
 
 ## Joe
 
@@ -138,20 +135,29 @@ This is first version of the "joeTheBox.js" behavior. We will introduce more adv
 ```javascript
 class JoeTheBoxPawn {
     setup() {
-        console.log("Building JoeTheBox");
+        console.log("JoeTheBox.setup()");
         const THREE = Microverse.THREE;
-        const gridImage = './assets/images/grid.png';
-        const texture = new THREE.TextureLoader().load(gridImage);
+
+        // this is the base64 encoded version of a png file with the unit grid pattern.
+        let gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+        let image = new Image();
+        let texture = new THREE.Texture(image);
+        image.onload = () => texture.needsUpdate = true;
+        image.src = gridImage;
+
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(10, 10);
+        texture.repeat.set( 10, 10 );
 
-        this.box = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 1, 1, 1, 1, 1),
+        [...this.shape.children].forEach((c) => c.removeFromParent());
+
+        let box = new THREE.Mesh(
+            new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
-        this.box.receiveShadow = true;
-        this.box.castShadow = true;
-        this.shape.add(this.box);
+        box.receiveShadow = true;
+        box.castShadow = true;
+        this.shape.add(box);
     }
 }
 
@@ -166,9 +172,9 @@ export default {
 ```
 
 
-A behavior has a very simple class structure. The setup() function is guaranteed to be called whenever JoeTheBox is created or whenever it is changed. If you are modifying this behavior in your code editor, when you save the updated code, the setup() function will be called again.
+A behavior has a very simple class structure. The setup() function is called whenever JoeTheBox is created or whenever it is changed. If you are modifying this behavior in your code editor, when you save the updated code, the setup() function will be called again. (cf. Development.md for Behavior's Life Cycle. because `setup()` may be called multiple times during a session, the code above removes the "box" created in the previous invocation before making a new one.)
 
-Notice that the THREE library object is accessed via the Microverse shared object. Though Microverse is not defined here, it is passed into the behavior automatically. The THREE library is an example of an object that can be accessed.
+Notice that the THREE library object is accessed via the Microverse global object. Though Microverse is not defined here, it is passed into the behavior automatically. The THREE library is an example of an object that can be accessed.
 
 This code uses the Three.js libray to create a cube and add a grid texture to it. Once it is constructed, we add the new cube to this.shape, which is added to the three.js scene.
 
@@ -242,7 +248,7 @@ The last thing we want to do is enable you to remove the SimpleSpin behavior. Th
 
 ```javascript
         this.removeEventListener("pointerDown", "toggle");
-        this.spinning = undefined;
+	delete this.spinning;
 ```
 
 **Copyright (c) 2022 Croquet Corporation**

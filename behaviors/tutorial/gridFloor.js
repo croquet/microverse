@@ -4,7 +4,7 @@
 
 class GridFloorPawn {
     setup() {
-        console.log("AM I GETTING HERE?")
+        console.log("GridFloorPawn.setup()")
         let THREE = Microverse.THREE;
 
         // this is the base64 encoded version of a png file with the unit grid pattern.

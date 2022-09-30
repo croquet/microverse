@@ -326,7 +326,7 @@ Note however that the content is not evaluated as a JavaScript expression; rathe
 With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the top-right menu to create a VRSE file. If you specify the location of the VRSE file to the `?world=` URL parameter, the content will be used to start the world.
 
 ## Persistence
-The system internally records "persistent data" at 60 second intervals when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
+The system stores the "persistent data" about every 60 seconds if there is some activity in the world. It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states. This data is used when you migrate a session to use a new version of the core library of Microverse or the Croquet OS. When the Croquet OS detects that the same sessionId and appId combination is used with different library it starts a fresh session but re-loads contents from the persistent data. 
 
 Also note that the start file, either in `.js` or `.vrse`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
