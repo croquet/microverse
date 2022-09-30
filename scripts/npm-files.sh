@@ -33,5 +33,4 @@ mkdir -p ${DIST}/worlds
 cp worlds/test.js ${DIST}/worlds/default.js
 
 cp npm/package.json ${DIST}/package.json
-mkdir ${DIST}/scripts
-cp npm/install.js ${DIST}/scripts
+cp npm/install.js ${DIST}/install.js

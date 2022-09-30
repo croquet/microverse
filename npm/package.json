@@ -1,6 +1,6 @@
 {
     "name": "@croquet/microverse-library",
-    "version": "0.1.14",
+    "version": "0.1.15",
     "description": "An npm package version of Microverse",
     "main": "lib/index.js",
     "author": "Croquet Corporation",
@@ -11,7 +11,7 @@
         "url": "github:croquet/microverse"
     },
     "scripts": {
-        "postinstall" : "scripts/install.js"
+        "postinstall" : "node install.js"
     },
     "bugs": "https://github.com/croquet/microverse/issues",
     "publishConfig": {

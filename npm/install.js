@@ -1,7 +1,4 @@
-#!/usr/bin/env node
-
 function main() {
-    let { execSync } = require("child_process");
     let fs = require("fs");
     let path = require("path");
 
@@ -54,7 +51,7 @@ function main() {
         copyFolderRecursiveSync("worlds", dist, true);
         copyFolderRecursiveSync("meta", dist);
         copyFolderRecursiveSync("lib", dist);
-        copyFileSync("index.html", dist + "/index.html");
+        copyFileSync("index.html", `${dist}${path.sep}index.html`);
     }
 
     console.log("starting to copy files", process.cwd());
