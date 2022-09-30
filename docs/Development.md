@@ -19,6 +19,12 @@ One of the demo worlds in the repository is called `tutorial1`, and can be enter
 
 ![tutorial1](./assets/demoWorld1.png)
 
+## Use `npm create croquet-microverse`
+
+Instead of cloning the main github repository, you can also create a minimum set of files to run Croquet Microverse which you can use as a starting point of your own project. Create an empty directory and run
+
+    npm create croquet-microverse
+
 ## World Template File
 
 Tutorial1 is made up of three cards (not including the avatars). There is a floor card, which allows us to walk around.  A light card that lets us see the world around us. And a flat card with the Croquet logo on it. The code defining this world can be found in the `worlds` directory. Open microverse/worlds/tutorial1.js in your text editor to see the following code. The init function is used to define the objects that make up the world.
@@ -281,14 +287,14 @@ The first thing to keep in mind is that the behavior is stringified and then eva
 However there are a few ways to work with the browser's developer tool. We utilize the `sourceURL` mechanism of modern browsers' developer tools, the behavior name is shown in the "Sources"  tab.
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/4b2ea341c776cd183c3c06308ca3a65489423a54/sources.png" width="300"/>
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/4b2ea341c776cd183c3c06308ca3a65489423a54/sources.png" width="800"/>
 </p>
 
 You can put a `debugger` statement in your behavior code. If the session is connected to the watch server the new definition of behavior is loaded immediately and the breakpoint will be triggered when execution hits the statement.
 Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see results in the console, click on the behavior name you are interested (LightPawn, ElectedPawn etc. in the image below);
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/f49b5660b5fadb0549dd396eddb99cb54f6426ec/console.png" width="300"/>
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/f49b5660b5fadb0549dd396eddb99cb54f6426ec/console.png" width="800"/>
 </p>
 
 You can set a breakpoint by clicking the line number in the code that is displayed.
