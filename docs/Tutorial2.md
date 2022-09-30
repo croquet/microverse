@@ -234,8 +234,8 @@ The Croquet OS works by guaranteeing synchronization of simulations and user eve
 The next two lines are the actual update of the rotation of the target object.
 
 ```javascript
-        this.angle += this.spinSpeed;
-        this.set({ rotation: Microverse.q_euler(0, this.angle, 0) });
+    this.angle += this.spinSpeed;
+    this.set({ rotation: Microverse.q_euler(0, this.angle, 0) });
 ```
 
 We add the spinSpeed to the current angle, then we inform the actor that the rotation has been updated using the ```this.set()``` function. The rotation field requires a quaternion, so we use the ```Microverse.q_euler()``` function to generate a quaternion from this.angle around the y-axis. Worldcore does the work of informing the pawn that the rotation has been changed, so our target object - the cube, starts rotating.
@@ -247,8 +247,8 @@ https://croquet.io/docs/worldcore/
 The last thing we want to do is enable you to remove the SimpleSpin behavior. The teardown() function is called when a behavior is removed. Here we can first remove the pointerDown event listener and then set this.spinning to be undefined.
 
 ```javascript
-        this.removeEventListener("pointerDown", "toggle");
-	delete this.spinning;
+    this.removeEventListener("pointerDown", "toggle");
+    delete this.spinning;
 ```
 
 **Copyright (c) 2022 Croquet Corporation**

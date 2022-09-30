@@ -41,14 +41,14 @@ We group these properties into four categories, "spatial", "pointer", "visual", 
 
 Many properties have types of three-element array for (x, y, z) vector, or four-element array for a quaternion.
 
-```TypeScript```
+```TypeScript
 type Vector3 = [<number>, <number, <number>]
 type Quaternion = [<number>, <number, <number>, <number>]
 ```
 
 Also, typically a rotation type can take an Euler angle. Namely, if a three-element array is specified for rotation it is interpreted as an Euler angle. So the "Rotation" type can be represented as follows and the value is intepretered based on the length of the array.
 
-```TypeScript```
+```TypeScript
 type Euler = [<number>, <number, <number>]
 type Rotation = Quaternion|Euler
 ```

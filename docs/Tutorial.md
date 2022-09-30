@@ -28,11 +28,11 @@ This guide will enable you to quickly set up Croquet Microverse and introduce yo
 
 3. In the terminal run
 
-```npm i```
+   `npm install`
 
-if you cloned the git repository, and then 
+   if you cloned the git repository, and then 
 
-```npm start```
+   `npm start`
 
 4. Open browser at `localhost:9684` and enter a new world.
 
@@ -176,15 +176,14 @@ You need to obtrain a production API key from [https://croquet.io/keys](https://
 
 You can pick your own `appId`. We recommend to make a unique appId.
 
-```JavaScript```
+```JavaScript
         /* Copy this into a file named apiKey.js */
         const apiKey = '123abcd_Get_your_own_key';
         const appId = 'com.mycompany.myorg.myapp';
         export default {apiKey, appId};
 ```
 
-(cf. Quick Start for some more information.)
-
+(cf. the Quick Start for some more information.)
 
 ## Croquet Microverse References
 Croquet Microverse is built on top of a number of other systems. The most important is the Croquet OS and the Croquet Worldcore framework. It isn't essential that you be familiar with these but you may find them useful in understanding the basis of how Croquet Microverse operates.

@@ -53,17 +53,17 @@ this.set({translation: [1, 2, 3]});
 The property `_translation` is updated and then an event with the property name with "Set" attached is published.
 
 ### `_translation`
-`Array<number, number, number>`
+`Vector3`
 
 The [x, y, z] translation of the card.
 
 ### `_rotation`
-`Array<number, number, number, number>`
+`Quaternion`
 
 The rotation of the card in quaternion.
 
 ### `_scale`
-`Array<number, number, number>`
+`Vector3`
 
 The scale of the card in three axes.
 

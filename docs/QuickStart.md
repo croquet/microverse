@@ -4,13 +4,8 @@
 
 ## TL;DR
 
-```
-    npm create croquet-microverse
-```
-
-```
-    npm start
-```
+* `npm create croquet-microverse`
+* `npm start`
 
 ---
 ## Introduction
@@ -68,13 +63,13 @@ Congratulations!
 
 ## Deploy your world to a web server
 
-A Croquet app like Microverse is deployed as a static web app. You do not need any special server side features.
+A Croquet app like Microverse is deployed as a static web app. You do not need any special server-side features.
 
-1. Create a production key at [croquet.io/keys](https://croquet.io/keys/) and add a restriction to your target URL. Create a file called apiKey.js (from apiKey.js-example) and paste your key into the value of apiKey.
+1. Create a production key at [croquet.io/keys](https://croquet.io/keys/) and add a restriction to your target URL. Then create a file called apiKey.js (from apiKey.js-example) and paste your key into the value of `apiKey`.
 
 You can pick your own `appId`. We recommend to make a unique appId.
 
-```JavaScript```
+```JavaScript
         /* Copy this into a file named apiKey.js */
         const apiKey = '123abcd_Get_your_own_key';
         const appId = 'com.mycompany.myorg.myapp';
