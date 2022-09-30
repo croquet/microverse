@@ -56,6 +56,8 @@ this.set({lookPitch: m, lookYaw: n});
 
 The offset in 3D coordinates between avatar's position and the camera's position. A typical third person view behind the avatar has [0, p, p], where p is a positive number.
 
+While those three variables are used in the default `walkLook()` implementation, you can override the method to have a totally custom camera position. (see below.)
+
 ## AvatarActor Methods
 
 ### `goTo(v:Vector3, q:Quaternion, fall:boolean)`
@@ -88,11 +90,11 @@ This method computes the position and rotation in front of the avatar at specifi
 
 ### `translateTo(v:Vector3)`
 
-This method moves the translation of the avatar to the specified `[x, y, z]` coordinates.
+This method sets the translation of the avatar to the specified `[x, y, z]` coordinates.
 
 ### `rotateTo(q:Quotanion)`
 
-This method sets the translation of the avatar to the specified by a quaternion (`[x, y, z, w]`).
+This method sets the rotation of the avatar to the specified by a quaternion (`[x, y, z, w]`).
 
 ### `scaleTo(s:Vector3)`
 
@@ -126,7 +128,7 @@ This method updates the local avatar pawn translation directly to the given valu
 
 ### `scaleTo(s:Vector3)`
 
-This method updates the local avatar pawn translation directly to the given value to have immediate screen update and publishes an event to set the corresponding actors's rotation.
+This method updates the local avatar pawn translation directly to the given value to have immediate screen update and publishes an event to set the corresponding actors's scale.
 
 ### `positionTo(v:Vector3, q:Quaternion)`
 
@@ -150,7 +152,7 @@ Called repeatedly when the shell sends the `motion-update` DOM message from the 
 
 ### `endMotion(dx:number, dy:number)`
 
-Called repeatedly when the shell sends the `motion-end` DOM message from the Microverse shell, typically when the joystick is released.
+Called when the shell sends the `motion-end` DOM message from the Microverse shell, typically when the joystick is released.
 
 ### `walkLook():Matrix4`
 
