@@ -168,6 +168,24 @@ The system stores the "persistent data" about every 60 seconds if there is some 
 
 Note that the world template file, either a js file in `worlds` directory or a vrse, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
+## Deployment
+
+There is one more step to deploy your world to your server and make it available for public.
+
+You need to obtrain a production API key from [https://croquet.io/keys](https://croquet.io/keys) and a restriction to your target URL. Create a file called apiKey.js (from apiKey.js-example) and paste your key into the value of apiKey.
+
+You can pick your own `appId`. We recommend to make a unique appId.
+
+```JavaScript```
+        /* Copy this into a file named apiKey.js */
+        const apiKey = '123abcd_Get_your_own_key';
+        const appId = 'com.mycompany.myorg.myapp';
+        export default {apiKey, appId};
+```
+
+(cf. Quick Start for some more information.)
+
+
 ## Croquet Microverse References
 Croquet Microverse is built on top of a number of other systems. The most important is the Croquet OS and the Croquet Worldcore framework. It isn't essential that you be familiar with these but you may find them useful in understanding the basis of how Croquet Microverse operates.
 

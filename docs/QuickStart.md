@@ -74,10 +74,12 @@ A Croquet app like Microverse is deployed as a static web app. You do not need a
 
 You can pick your own `appId`. We recommend to make a unique appId.
 
+```JavaScript```
         /* Copy this into a file named apiKey.js */
         const apiKey = '123abcd_Get_your_own_key';
         const appId = 'com.mycompany.myorg.myapp';
         export default {apiKey, appId};
+```
 
 2. Upload the whole project directory to any web server.
 
