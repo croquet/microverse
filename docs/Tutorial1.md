@@ -12,9 +12,7 @@ It looks like this:
 
 As you can see, this world is shared with another user. tutorial1 is made up of just three cards (not including the avatars). There is a floor card, which allows us to walk around, a light card that lets us see the world around us, and a flat card with the Croquet logo on it. The code defining this world can be found in the worlds folder in the repository. Open microverse/worlds/tutorial.js to see the following code. The init function is used to define the objects that make up the world.
 
-The first value is Constants.AvatarNames, which specifies the name of the 3D model files in microverse/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
-
-**Avatars are still under construction and will evolve rapidly as we move toward the Microverse Beta release.**
+The first value is `Constants.AvatarNames`, which specifies the name of the 3D model files in microverse/assets/avatars folder. When you add your own avatars, you can simply place them in the same folder and specify their names here.
 
 ```Javascript
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
@@ -26,6 +24,9 @@ export function init(Constants) {
         "newwhite", "fixmadhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
     ];
 ```
+
+Alternatively, you can specify a full card spec for an avatar. The `behaviorModules` property of the spec will be used so that you can customize the avatar's behavior. In particular, the half body avatars created on the Ready Player Me is supposed. (cf. `worlds/test.js`, and also try pressing the Settings... menu in the three line menu at top right.)
+
 The next section defines the various behaviors we will be attaching to our cards. Typically you create a directory for your behavior modules for the world you are creating, and list them in this section.
 
 ```Javascript
@@ -91,11 +92,11 @@ Let's explore the properties that are used to define the cards.
 
 `scale: [4,4,4]` A three element array that defines how a card will be scaled. Cards are usually imported or defined to be contained within a 1x1x1 box for easier management.
 
-`type: 'object'` This defines the nature of the card. Some cards are 2D objects, some 3D and there are a number of others.
+`type: "object"` This defines how the visual appearance of the card is constructed. A type can be "2d", "3d", "text", or "object". Type "object" means that its visual appearance is created by a user-defined behavior, in this case the GridFloor behavior shown below.
 
 `shadow: true` Specifies that this card will be both a recipient and a caster of shadows in the world. [note: we will want to separate recipient and caster into separate flags].
 
-A full list of card properties will be available at the end of this document.
+A full list of card properties is available in the CardSpec.md document.
 
 ## Behaviors
 ---
@@ -110,18 +111,19 @@ This is the code:
 // Croquet Microverse
 // Generates a simple gridded floor card
 
-class GridFloorActor {
-    setup() {
-        // nothing to do here yet
-    }
-}
-
 class GridFloorPawn {
     setup() {
-        console.log("AM I GETTING HERE?")
+        console.log("GridFloorPawn.setup()")
         const THREE = Microverse.THREE;
-        const gridImage = './assets/images/grid.png';
-        const texture = new THREE.TextureLoader().load(gridImage);
+
+        // this is the base64 encoded version of a png file with the unit grid pattern.
+        let gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+        let image = new Image();
+        let texture = new THREE.Texture(image);
+        image.onload = () => texture.needsUpdate = true;
+        image.src = gridImage;
+
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 100, 100 );
@@ -154,13 +156,11 @@ export default {
 }
 ```
 
-It is a very simple behavior. The major part of the system is to construct the 3D floor and apply a grid to it. You may recognize that it uses the Three.js 3D rendering system.
+This behavior construct the 3D floor and apply a grid to it. As you can see, you can use the features of Three.js 3D rendering system to construct visual appearances.
 
-There are three parts to this behavior. The first is what we call the "actor". In Croquet, the actor is the replicated state of the object - the part that Croquet guarantees is exactly the same on every users machines at all times. In this case, the GridFloorActor doesn't have much to do to keep things in sync and is really just a placeholder.
+The file contains a behavior for what we call the "pawn". As might be clear from its name, it is controlled by the actor and it's job is to represent the state of the actor as the actor is updated - whether from the local user or a remote user. In this case, the only job of the GridFloorPawn is to construct something for us to stand on. As you can see, the floor is simply a three.js BoxGeometry with a grid texture applied to it. The definition of a behavior uses the keyword `class` to accommodate exisitng sytax highlighting mechanisms and all source code management features that your editor provides but there are certain restrictions and styles a behavior definition has to follow.
 
-The second part is what we call the "pawn". As might be clear from its name, it is controlled by the actor and it's job is to represent the state of the actor as the actor is updated - whether from the local user or a remote user. In this case, the only job of the GridFloorPawn is to construct something for us to stand on. As you can see, the floor is simply a three.js BoxGeometry with a grid texture applied to it.
-
-The last part of the behavior code is simply bundling the actor and pawn behaviors into an exportable module that can then be added to the card when we create that.
+The last part of the behavior code is an export specification. A behavior module file is expected to export a list of modules, in each of which has a name, a list of actor behaviors and a list of pawnBehaviors for the module.
 
 * [Tutorial2]{@tutorial Tutorial2}
 

@@ -8,18 +8,24 @@ Every object you create in the world is called a "card". A card can be in any sh
 
 Cards communicate with each other using the [Croquet's publish/subscribe mechanism](https://croquet.io/docs/croquet/) to trigger actions.
 
-A behavior is a class extension mechanism. It is like a subclass of a card which can be attached and detached to a card dynamically. Attached behaviors can enhance features of the "actor" (the model) of the card as well as the "pawn" (the view).
+A behavior is an object-extension mechanism. It is like a subclass of a card which can be attached and detached to a card dynamically. Attached behaviors can enhance features of the "actor" (the model) of the card as well as the "pawn" (the view).
 
 Therefore, creating a Croquet Microverse world means to arrange your 3D objects in the world, including the terrain model, and specify behaviors to some objects. Other user can join a world where you can collaboratively create it.  Once you are satisfied, the world definition can be saved into a file, or card specifications can be extracted to the world file.
 
 ## Start a demo world
-You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.vrse`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used. If the value ends with .vrse, it is interpreted as a URL for a .json file saved from the Save menu. The JSON file can be a URL for a public place like GitHub Gist.
+You can specify the starting point of a session by giving a URL parameter `?world=`. If the value for this parameter does not end with `.vrse`, the value is interpreted as the name of a file in the `worlds` directory, and corresponding `.js` file is used as template. If the value ends with .vrse, it is interpreted as a URL for a .vrse file saved from the Save menu. The VRSE file can be a URL for a public place like GitHub Gist.
 
 One of the demo worlds in the repository is called `tutorial1`, and can be entered by opening [http://localhost:9684/?world=tutorial1]([http://localhost:9684/?world=tutorial1])
 
 ![tutorial1](./assets/demoWorld1.png)
 
-## World Definition File
+## Use `npm create croquet-microverse`
+
+Instead of cloning the main github repository, you can also create a minimum set of files to run Croquet Microverse which you can use as a starting point of your own project. Create an empty directory and run
+
+    npm create croquet-microverse
+
+## World Template File
 
 Tutorial1 is made up of three cards (not including the avatars). There is a floor card, which allows us to walk around.  A light card that lets us see the world around us. And a flat card with the Croquet logo on it. The code defining this world can be found in the `worlds` directory. Open microverse/worlds/tutorial1.js in your text editor to see the following code. The init function is used to define the objects that make up the world.
 
@@ -99,9 +105,14 @@ From our tutorial1, let us look at the behaviors in the GridFloor module.
 
 class GridFloorPawn {
     setup() {
-        const THREE = Microverse.THREE;
-        const gridImage = './assets/images/grid.png';
-        const texture = new THREE.TextureLoader().load(gridImage);
+        let THREE = Microverse.THREE;
+	let gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+        let image = new Image();
+        let texture = new THREE.Texture(image);
+        image.onload = () => texture.needsUpdate = true;
+        image.src = gridImage;
+
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 100, 100 );
@@ -135,13 +146,17 @@ export default {
 
 Since this module only defines the visual representation, it does not have any actor behaviors. The pawn behavior add a new Three.js `Mesh` to `this.shape`, which is the Three.js `Group` that represents the root of the visual apperanace.
 
-Because behaviors are dynamically modified and attached and detached, their "life cycle" needs some attention. Namely, when the definition is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. Also, when a behavior is detached from the card, the `teardown()` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is designed to automatically reconnects and reconstruct the view smart when the tab comes back to the foreground.  However, it means that the `setup()` method may be called again at that moment.
+### Behaviors Life Cycle
 
-In the `GridFloorPawn` case, we simply remove all children that `this.shape` might have first, and then create the new floor Mesh.
+Because behaviors are dynamically attached and detached, one needs to understand their "life cycle".  When the definition of a behavior is edited and updated (via the watch server or in-world editing), the `setup()` method of the edited behavior is called. When a behavior is detached from the card, the `teardown()` method is called. Also note that when the browser tab running the application is hidden, the application may lose the WebSocket connection to the Croquet backend. The Croquet system is designed to automatically reconnects and reconstruct the view smart when the tab comes back to the foreground.  However, it means that the `setup()` method may be called again at that moment.
+
+So it is a typical idiom that the `setup()` method cleans up resources it has created in the previous invocation.
+
+In the `GridFloorPawn` case, we remove the `this.floor` object that may exist when `setup()` is invoked, and then create the new floor Mesh.
 
 The `Microverse` variable contains all of the exported functions and objects from the Microverse system, including many features re-exported from the Worldcore framework. Refer to the [Worldcore documentation](https://croquet.io/docs/worldcore) for what is available. The most commonly used one is `Microverse.THREE`, which contains all exports from Three.js.
 
-Let us look at another module that adds an ability to pointer drag to add a spin to a card.
+Let us look at another module for slightly more involved example of the life cycle.
 
 
 ```Javascript
@@ -267,22 +282,28 @@ While you listed the name of the behaviors in the world file, such as `tutorial1
 
 ## Debugging
 There are a few tips to know when you debug behavior code with browser's developer tools.
-The first thing to keep in mind is that the behavior is stringified and then evaluated to create a JavaScript class object. Therefore, the code is not bound to the original source code anymore. It means that if you navigate to the file from the browser's source tree and set a breakpoint, it will not hit. Instead there are two ways to do so.
-The first is simply put the `debugger` statement in behavior code.  Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see results in the console, click on the generated file name such as `VM197`, `VM348`, etc.
+The first thing to keep in mind is that the behavior is stringified and then evaluated to create a JavaScript class object. Therefore, the code is not fully bound to the original source code anymore, therefore you cannot set a break point if you navigate to the file from the browser's navigation pane.
+
+However there are a few ways to work with the browser's developer tool. We utilize the `sourceURL` mechanism of modern browsers' developer tools, the behavior name is shown in the "Sources"  tab.
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/6644ea9a84561d6f8ec365003a9ce22a/raw/de5c60ff73262b99ba366d32ca440aa46fb2d1f5/debug.png" width="300"/>
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/4b2ea341c776cd183c3c06308ca3a65489423a54/sources.png" width="800"/>
 </p>
 
-This will bring up the view of the generated code, and you can set a breakpoint.
+You can put a `debugger` statement in your behavior code. If the session is connected to the watch server the new definition of behavior is loaded immediately and the breakpoint will be triggered when execution hits the statement.
+Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see results in the console, click on the behavior name you are interested (LightPawn, ElectedPawn etc. in the image below);
 
-Another tip is that when the execution of the program is stopped at the breakpoint for more than 30 seconds, the WebSocket to the reflector is disconnected. This is okay as Croquet will reconnect when you continue execution; but an event may be lost if the view is destroyed.
+<p align="center">
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/f49b5660b5fadb0549dd396eddb99cb54f6426ec/console.png" width="800"/>
+</p>
 
-Yet another tip is that, if the watch-server injects new code, the modified behavior code will be treated as a new chunk of code, and the breakpoint you think you set will not be hit.
+You can set a breakpoint by clicking the line number in the code that is displayed.
 
-Inevitably you will encounter errors during the development. And because your code will be invoked from Croquet's publish/subscribe messaging system and also wrapped in a Proxy, the stack trace itself may be opaque.  However, you can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `DriveActor`'s `setup` method, and the error was `this.xxx is not a function`.
+Note that when the execution of the program is stopped at the breakpoint for more than 30 seconds, the WebSocket to the reflector is disconnected. This is okay as Croquet will reconnect when you continue execution; but an event may be lost if the view is destroyed.
 
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/696cc5b9b966e3ed58d021f604d64cb90ee2b625/error.png" width="800"/>
+Inevitably you will encounter errors during the development. Because your code will be invoked from Croquet's publish/subscribe messaging system and also the invocation typically is wrapped in a Proxy, the stack trace is slightly more convoluted.  However, you can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `GizmoActor's `cycleModes` method, and the error was `destroy` is not a property of `undefined`.
+
+<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/9df635f91ad8a0acf91cc34f86d7c0004a7350de/error.png" width="800"/>
 
 Once you figure this out, you can put a breakpoint in the offending method and step execute.
 
@@ -290,7 +311,7 @@ A Croquet Microverse session may lock up when Three.js crashes with NaN or Infin
 
 ## The Property Sheet
 
-You can bring up the Property Sheet for a card by holding down the control key and clicking on a card.
+You can bring up the Property Sheet for a card by holding down the control key, clicking on a card, and then click on a gray sphere that shows up near the card.
 
 ![PropertySheet](./assets/PropertySheet.png)
 
@@ -305,7 +326,7 @@ Note however that the content is not evaluated as a JavaScript expression; rathe
 With the Property Sheet, you can extract the values for your world file.  You can also choose the "Save" item in the top-right menu to create a VRSE file. If you specify the location of the VRSE file to the `?world=` URL parameter, the content will be used to start the world.
 
 ## Persistence
-The system internally records "persistent data" at 60 second intervals when there are some activities. The data saved is essentially the same as the file created by "Save". It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states.
+The system stores the "persistent data" about every 60 seconds if there is some activity in the world. It contains essential data to recreate the cards, but does not contain transient values of views, or avatars' states. This data is used when you migrate a session to use a new version of the core library of Microverse or the Croquet OS. When the Croquet OS detects that the same sessionId and appId combination is used with different library it starts a fresh session but re-loads contents from the persistent data. 
 
 Also note that the start file, either in `.js` or `.vrse`, is used only once to initialize the session. Any changes to the file after starting the world will not have any effects if you open the same Croquet Microvese session, which is specified by the `?q=` URL parameter.
 
@@ -331,7 +352,7 @@ As describe above, you can create a new world, populate the world with objects, 
 - Update `package.json`, in particular the value for `version`.
 - Run `npm run build-lib`. This creates a minimum set of files needed to run a test installation in the directory called `dist`. This directory can be published as an npm package.
 - Run `npm publish` in the `dist` directory.
-- Edit the line 75 of `index.js` of the `create-croquet-microverse` git repository so that it refers to the intended version of `@croquet/microverse-library`. If other dependencies need new versions, update them as well.
+- Edit the line 31 of `index.js` of the `create-croquet-microverse` git repository so that it refers to the intended version of `@croquet/microverse-library`. If other dependencies need new versions, update them as well.
 - Edit the version of `package.json` of `create-croquet-microverse` repository so that a new version can be published to npm.
 - Run `npm publish` in the croquet-create-microverse.
 

@@ -53,17 +53,17 @@ this.set({translation: [1, 2, 3]});
 The property `_translation` is updated and then an event with the property name with "Set" attached is published.
 
 ### `_translation`
-`Array<number, number, number>`
+`Vector3`
 
 The [x, y, z] translation of the card.
 
 ### `_rotation`
-`Array<number, number, number, number>`
+`Quaternion`
 
 The rotation of the card in quaternion.
 
 ### `_scale`
-`Array<number, number, number>`
+`Vector3`
 
 The scale of the card in three axes.
 
@@ -185,7 +185,7 @@ This method moves the translation of the card to the specified `[x, y, z]` coord
 
 ### `rotateTo(q:Quotanion)`
 
-This method sets the translation of the card to the specified by a quaternion (`[x, y, z, w]`).
+This method sets the rotation of the card to the specified by a quaternion (`[x, y, z, w]`).
 
 ### `scaleTo(s:Vector3)`
 
@@ -194,6 +194,22 @@ This method sets the scale of the card to the specified by scale factors in [x, 
 ### `positionTo(v:Vector3, q:Quaternion)`
 
 This method sets the translation and rotation of the card, making sure that those two values are used in the same logical time and used for the rendering.
+
+### `translateBy(v:Vector3)`
+
+This method moves the translation of the card by the specified `[x, y, z]` vector.
+
+### `rotateBy(q:Quotanion)`
+
+This method combines the rotation of the card by  the specified by a quaternion (`[x, y, z, w]`).
+
+### `scaleBy(s:Vector3)`
+
+This method multiplies the scale of the card by the specified by scale factors in [x, y, z] axis.
+
+### `setAnimationClipIndex(animationClipIndex:number)`
+
+A Three.js keyframe based animation is supported. The animation clip can contain multiple tracks. The index specified here dictates which track to play. A cardData called animationStartTime specifiy the base for time offset.
 
 ### `nop()`
 
