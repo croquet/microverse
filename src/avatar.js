@@ -563,6 +563,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             }
         }
     }
+
+    destroy() {
+        this.removeGizmo();
+        super.destroy();
+    }
 }
 
 AvatarActor.register('AvatarActor');
@@ -935,8 +940,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.fadeNearbyInterval = null;
         }
 
-        this.gizmo?.parent.sayUnselectEdit();
-        this.gizmo?.destroy();
+        this.gizmoTargetPawn?.unselectEdit();
+        delete this.gizmoTargetPawn;
         delete this.modelLoadTime;
         super.detach();
     }
