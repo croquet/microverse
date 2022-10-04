@@ -3,6 +3,15 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-09-30
+### Added
+- World replace command (a lighter weight version of portals) is added.
+- Support for getters/setters from a bahavior is added.
+- The first version of Gizmo is added.
+
+### Changed
+- The handling of apiKey.js (now solely for production) and optional apiKey-dev.js (used if runniing locally) is changed.
+
 ## 2022-09-23
 ### Fixed
 - Regression in non-VR environment at start up is fixed.
