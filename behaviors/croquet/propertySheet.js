@@ -624,6 +624,8 @@ class BehaviorMenuActor {
             this.menu.destroy();
         }
 
+        let editIconLocation = "3rAfsLpz7uSBKuKxcjHvejhWp9mTBWh8hsqN7UnsOjJoGgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddNRYkEAseOwEzGSMRMCoWQTUKEwQLBSc5JSsrQF0bHVwRAB0DBxcGXB8bEQAdBBcAARddKwMGHktLKksKNjocPyIiFBMfJRkzIyRKND4zIAZGRUVGCjECAEEFHRM6N10WEwYTXTUnEQYFHTsXOUQaAxUVFgVERR4kNxY8A0QiBAsQX0dDHTslBipENh83HQU";
+
         this.menu = this.createCard({
             name: 'behavior menu',
             behaviorModules: ["Menu"],
@@ -633,7 +635,7 @@ class BehaviorMenuActor {
             noSave: true,
             depth: 0.01,
             cornerRadius: 0.05,
-            menuIcons: {"_": 'edit.svg', "apply": null, "------------": null},
+            menuIcons: {"_": editIconLocation, "apply": null, "------------": null},
         });
 
         this.subscribe(this.menu.id, "itemsUpdated", "itemsUpdated");

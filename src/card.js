@@ -53,6 +53,11 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.listen("setAnimationClipIndex", this.setAnimationClipIndex);
     }
 
+    destroy() {
+        this.publish("actorManager", "destroyed", this.id);
+        super.destroy();
+    }
+
     separateOptions(options) {
         // options are either intrinsic or non-intrinsic. We store non-intrinsic values in _cardData.
         let cardOptions = {};
@@ -415,12 +420,6 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     options.dataRotation = q_euler(...card.dataRotation);
                 }
 
-                // TODO: remove after alpha
-                if (options.targetURL && !options.portalURL) {
-                    options.portalURL = options.targetURL;
-                    delete options.targetURL;
-                }
-
                 if (nameMap) {
                     if (options.behaviorModules) {
                         options.behaviorModules = options.behaviorModules.map((n) => nameMap.get(n) || n);
@@ -657,11 +656,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let color = options.placeholderColor || 0x808080;
             let offset = options.placeholderOffset || [0, -1.7, 0];
 
-            const gridImage = './assets/images/grid.png';
-            const texture = new THREE.TextureLoader().load(gridImage);
+            const gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+            let image = new Image();
+            let texture = new THREE.Texture(image);
+            image.onload = () => texture.needsUpdate = true;
+            image.src = gridImage;
+
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set( size[0], size[2] );
+            texture.repeat.set(size[0], size[2]);
             let pGeometry = new THREE.BoxGeometry(...size);
             let pMaterial = new THREE.MeshStandardMaterial({map:texture, color: color, side: THREE.FrontSide});
 

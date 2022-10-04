@@ -1,6 +1,6 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.1.12",
+  "version": "0.1.15",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
@@ -11,8 +11,9 @@
     "watch-server": "npx watch-server",
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
+    "build-watch": "webpack watch --mode development --devtool eval-source-map --output-filename 'lib/[name].js'",
     "create-version": "./scripts/commit.sh",
-    "build-lib": "npm run build-dev; npm run create-version; cp npm/package.json dist; ./scripts/npm-files.sh; ./scripts/fix-index-html.sh dist"
+    "build-lib": "npm run build-dev; npm run create-version; ./scripts/npm-files.sh"
   },
   "author": "Croquet Corporation",
   "license": "Apache-2.0",
@@ -20,22 +21,23 @@
     "> 5%"
   ],
   "dependencies": {
+    "@croquet/hybrid-msdf-text": "^1.0.1",
     "@croquet/worldcore-kernel": "1.3.1",
     "three": "^0.143.0",
     "three-mesh-bvh": "^0.5.15",
     "@dimforge/rapier3d": "0.9.0",
     "fflate": "^0.7.3",
-    "@croquet/hybrid-msdf-text": "^1.0.1",
     "jszip": "^3.7.1",
     "load-bmfont": "^1.4.1",
-    "pako": "^2.0.4"
+    "pako": "^2.0.4",
   },
   "devDependencies": {
+    "@croquet/microverse-file-server": "^1.0.4",
+    "@croquet/microverse-watch-server": "^1.0.6",
+    "@types/three": "^0.143.2",
     "buffer": "^6.0.3",
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.0",
-    "@croquet/microverse-watch-server": "^1.0.6",
-    "@croquet/microverse-file-server": "^1.0.4",
     "npm-run-all": "^4.1.5",
     "source-map-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.3",
@@ -44,6 +46,5 @@
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.9.3"
   },
-  "comment": "Sometimes you would like to try running microverse with a local version of Worldcore. In that case, use:",
   "comment": "@croquet/worldcore-kernel: file:../worldcore/packages/kernel"
 }

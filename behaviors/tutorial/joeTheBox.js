@@ -6,20 +6,29 @@
 
 class JoeTheBoxPawn {
     setup() {
-        console.log("AM I GETTING HERE?")
+        console.log("JoeTheBox.setup()");
         const THREE = Microverse.THREE;
-        const gridImage = './assets/images/grid.png';
-        const texture = new THREE.TextureLoader().load(gridImage);
+
+        // this is the base64 encoded version of a png file with the unit grid pattern.
+        let gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+        let image = new Image();
+        let texture = new THREE.Texture(image);
+        image.onload = () => texture.needsUpdate = true;
+        image.src = gridImage;
+
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 10, 10 );
 
-        this.box = new THREE.Mesh(
+        [...this.shape.children].forEach((c) => c.removeFromParent());
+
+        let box = new THREE.Mesh(
             new THREE.BoxGeometry( 1, 1, 1, 1, 1, 1 ),
             new THREE.MeshStandardMaterial({ map: texture, color: 0xcccccc }));
-        this.box.receiveShadow = true;
-        this.box.castShadow = true;
-        this.shape.add(this.box);
+        box.receiveShadow = true;
+        box.castShadow = true;
+        this.shape.add(box);
     }
 }
 
