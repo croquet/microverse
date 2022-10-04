@@ -149,7 +149,6 @@ export default {
     modules: [
         {
             name: "GridFloor",
-            actorBehaviors: [GridFloorActor],
             pawnBehaviors: [GridFloorPawn],
         }
     ]

@@ -1,6 +1,5 @@
 class GizmoActor {
     setup() {
-        console.log("actor", this.parent);
         this.listen("cycleModes", "cycleModes");
         this.cycleModes();
         this.addPropertySheetButton();
@@ -300,6 +299,12 @@ class GizmoActor {
         }
         console.log("cycled modes, now: ", this.gizmoMode);
     }
+
+    teardown() {
+        if (this.target) {
+            this.target.sayUnselectEdit();
+        }
+    }
 }
 
 class GizmoPawn {
@@ -324,6 +329,7 @@ class GizmoPawn {
     interaction() {
         this.lastTime = this.now();
     }
+
 }
 
 class GizmoAxisActor {
