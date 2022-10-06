@@ -77,17 +77,19 @@ class PropertySheetActor {
         this.target = target;
         // this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.9, y: 0.4});
 
-        this.cardSpecWindow = this.newWindow({x: 1.7, y: 2.8}, {x: -0.5, y: 0});
+        this.cardSpecWindow = this.newWindow({x: 1.8, y: 2.8}, {x: -0.55, y: 0});
 
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
             name: 'card spec',
-            translation: [0, 0, 0.025],
+            translation: [-0.05, 0, 0.025],
             parent: this.cardSpecWindow,
             type: "text",
             margins: {left: 8, top: 8, right: 8, bottom: 8},
             textScale: 0.0014,
             backgroundColor: 0xcccccc,
+            barColor: 0x888888,
+            knobColor: 0x606060,
             width: 1.7 - 0.04,
             height: 2.8 - 0.04,
             depth: 0.002,

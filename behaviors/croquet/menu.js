@@ -51,6 +51,7 @@ class MenuActor {
                     readOnly: true,
                     singleLine: true,
                     autoResize: true,
+                    noScrollBar: true,
                     noDismissButton: true,
                     runs: [{text: item.label}],
                     behaviorModules: ["MenuItem"],

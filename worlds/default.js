@@ -213,6 +213,7 @@ export function init(Constants) {
                 height: 2,
                 textScale: 0.002,
                 shadow: true,
+                noScrollBar: true
             }
         },
         {
