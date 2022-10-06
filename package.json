@@ -29,7 +29,7 @@
     "fflate": "^0.7.3",
     "jszip": "^3.7.1",
     "load-bmfont": "^1.4.1",
-    "pako": "^2.0.4",
+    "pako": "^2.0.4"
   },
   "devDependencies": {
     "@croquet/microverse-file-server": "^1.0.4",
