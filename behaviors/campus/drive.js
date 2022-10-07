@@ -8,7 +8,6 @@ class DriveActor {
         }
         this.addEventListener("keyDown", "control");
         this.addEventListener("pointerDown", "nop");
-        // this.addEventListener("pointerDown", "ride");
         // this.subscribe("scope", "newAngle", "newAngle");
     }
     run() {
@@ -22,11 +21,6 @@ class DriveActor {
             this.avatar._rotation = this._rotation;
             this.avatar.say("forceOnPosition");
         }
-    }
-    ride() {
-        let actors = this.queryCards();
-        let avatar = actors.find(o => o.layers.includes("avatar"));
-        this.avatar = avatar;
     }
     /*
     newAngle(angle) {
