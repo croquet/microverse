@@ -124,14 +124,28 @@ export class PhysicsManager extends ModelService {
     }
 
     createGlobalWorld(options) {
+        if (this.globalWorld) {return;}
         this.globalWorld = this.createWorld(options, this.id);
         return this.globalWorld;
+    }
+
+    deleteWorld(id) {
+        let world = this.worlds.get(id);
+        if (!world) {return;}
+        world.destroy();
+        this.worlds.delete(id);
+    }
+
+    deleteGlobalWorld() {
+        this.deleteWorld(this.id);
+        delete this.globalWorld;
     }
 
     destroy() {
         for (let [_k, v] of this.worlds) {
             v.destroy();
         }
+        delete this.globalWorld;
         this.worlds = new Map();
         super.destroy();
     }
