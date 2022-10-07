@@ -6,7 +6,7 @@ import * as WorldcoreExports from "@croquet/worldcore-kernel";
 const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "./ThreeRender.js";
-import * as WorldcorePhysicsExports from "./physics.js";
+import * as PhysicsExports from "./physics.js";
 import * as FrameExports from "./frame.js";
 
 //console.log(WorldcoreRapierExports);
@@ -605,7 +605,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source}) //# sourceURL=${window.location.origin}/behaviors_evaled/${this.location}/${this.name}`;
         let cls;
         try {
-            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...WorldcorePhysicsExports, ...FrameExports};
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...PhysicsExports, ...FrameExports, RAPIER: PhysicsExports.Physics};
             cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
