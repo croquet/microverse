@@ -17,8 +17,6 @@ class CascadeBoxActor {
             this.setPhysicsWorld(physicsManager.createWorld({timeStep: 15}, this.id));
         }
 
-        let baseSize = [5, 0.3, 5];
-
         this.removeObjects();
 
         this.base1 = this.createCard({
@@ -27,7 +25,7 @@ class CascadeBoxActor {
             layers: ["pointer"],
             behaviorModules: ["Physics", "Cascade"],
             rotation: [0.4, 0, 0],
-            rapierSize: baseSize,
+            rapierSize: [5, 0.3, 3.5],
             color: 0x997777,
             rapierShape: "cuboid",
             rapierType: "positionBased",
@@ -40,9 +38,9 @@ class CascadeBoxActor {
             type: "object",
             layers: ["pointer"],
             behaviorModules: ["Physics", "Cascade"],
-            translation: [0, -1.9, 5.0],
+            translation: [0, -1.6, 3.8],
             rotation: [0.28, 0, 0],
-            rapierSize: [5, 0.3, 4],
+            rapierSize: [5, 0.3, 3.5],
             color: 0x997777,
             rapierShape: "cuboid",
             rapierType: "positionBased",

@@ -23,8 +23,9 @@ class RearrangeButtonActor {
         let cascade = this.queryCards().filter((c) => c.name === "cascade");
         if (cascade[0]) {
             cascade[0].set({
-                translation: [32.35043668195448, 0.5333311732970384, -18.116381872009743],
-                rotation: Microverse.q_euler(0.47123889803846897, Math.PI, 0)
+                translation: [32.35043668195448, 0.2, -17.6],
+                rotation: Microverse.q_euler(0, Math.PI, 0),
+                scale: [0.75, 0.75, 0.75]
             });
         }
     }

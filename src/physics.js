@@ -86,7 +86,6 @@ PhysicsWorld.register("PhysicsWorld");
 // Maintains a list of players connected to the session.
 
 export class PhysicsManager extends ModelService {
-
     static async asyncStart() {
         if (window.RAPIERModule) {
             Physics = window.RAPIERModule;
@@ -113,7 +112,7 @@ export class PhysicsManager extends ModelService {
     }
 
     init() {
-        super.init('PhysicsManager');
+        super.init("PhysicsManager");
         this.worlds = new Map();
         // this.globalWorld = this.createWorld({}, this.id);
     }
@@ -122,6 +121,11 @@ export class PhysicsManager extends ModelService {
         let world = PhysicsWorld.create(options);
         this.worlds.set(id, world);
         return world;
+    }
+
+    createGlobalWorld(options) {
+        this.globalWorld = this.createWorld(options, this.id);
+        return this.globalWorld;
     }
 
     destroy() {

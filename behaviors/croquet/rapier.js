@@ -11,6 +11,10 @@
 */
 
 class RapierActor {
+    setup() {
+        this._oldRapier07 = true;
+    }
+
     teardown() {
         this.removeImpulseJoint();
         this.removeCollider();

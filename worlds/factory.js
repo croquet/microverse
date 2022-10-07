@@ -327,7 +327,7 @@ export function init(Constants) {
         {
             card: {
                 name: "cascade",
-                translation: [13.096899862946268, 2.1, 17.421859492871423],
+                translation: [13.096899862946268, 1.7, 17.421859492871423],
                 rotation: [0, Math.PI / 2, 0],
                 behaviorModules: ["CascadeBox"],
                 type: "object"
