@@ -2,10 +2,10 @@
 // https://croquet.io
 // info@croquet.io
 
-import {ModelService, ViewService} from "@croquet/worldcore-kernel";
+import {ModelService, ViewService, GetPawn, v3_transform} from "@croquet/worldcore-kernel";
 import {THREE} from "../ThreeRender.js";
 import {getTextGeometry, HybridMSDFShader, MSDFFontPreprocessor, getTextLayout} from "@croquet/hybrid-msdf-text";
-import { CardActor, CardPawn } from "../card.js";
+import {CardActor, CardPawn} from "../card.js";
 import loadFont from "load-bmfont";
 
 import * as defaultFont from "../../assets/fonts/Roboto.json";
@@ -346,6 +346,11 @@ export class TextFieldActor extends CardActor {
             this.setupDismissButton();
         }
 
+        if (options.scrollBar) {
+            // that means that a change in readOnly should trigger this
+            this.setupScrollBar(options);
+        }
+
         if (options.readOnly) {
             let margins = options.margins;
             let marginsLeft = margins && margins.left !== undefined ? margins.left : 0;
@@ -464,6 +469,9 @@ export class TextFieldActor extends CardActor {
         if (!options.noDismissButton) {
             this.setupDismissButton();
         }
+        if (options.scrollBar) {
+            this.setupScrollBar(options);
+        }
     }
 
     get value() {
@@ -482,25 +490,30 @@ export class TextFieldActor extends CardActor {
             translation: this.dismissButtonPosition(),
             noSave: true,
             color: 0x222222});
-        /*
-
-        this.createCard({
-            translation: this.dismissButtonPosition(),
-            name: 'dismiss text',
-            behaviorModules: ["PropertySheetDismiss"],
-            parent: this,
-            type: "object",
-            noSave: true,
-            backgroundColor: this._cardData.backgroundColor,
-            color: 0x222222
-        });
-        */
-
         this.subscribe(this.dismissButton.id, "dismiss", "dismiss");
     }
 
+    setupScrollBar(options) {
+        if (this.scrollBar) {
+            this.scrollBar.destroy();
+        }
+        if (!options.scrollBar) {return;}
+        this.scrollBar = TextScrollBarActor.create({
+            type: "object",
+            name: "scroll bar",
+            noSave: true,
+            parent: this,
+            barColor: options.barColor,
+            knobColor: options.knobColor,
+            barWidth: options.barWidth,
+        });
+    }
+
     dismissButtonPosition() {
-        return [this._cardData.width / 2 - (0.072), this._cardData.height / 2 - (0.072), 0.06];
+
+        let barWidth = this._cardData.barWidth === undefined ? 0.1 : this._cardData.barWidth;
+        let scrollBar = this._cardData.scrollBar ? barWidth : 0;
+        return [this._cardData.width / 2 - (0.072) + scrollBar, this._cardData.height / 2 - (0.072), 0.06];
     }
 
     dismiss() {
@@ -533,7 +546,10 @@ export class TextFieldPawn extends CardPawn {
             this.addEventListener("keyDown", "keyDown");
         }
 
+        this.subscribe(this.id, "scroll", "scroll");
         this.listen("cardDataSet", "cardDataUpdated");
+
+        this.scrollBarRatio = 0;
     }
 
     destroy() {
@@ -626,23 +642,6 @@ export class TextFieldPawn extends CardPawn {
             layout = new TextLayout({font});
             fontRegistry.addLayout(name, layout);
         }
-    }
-
-    setupScrollMesh() {
-        let geom = new THREE.PlaneGeometry(0.1, 5);
-        let mat = new THREE.MeshBasicMaterial({color: 0xFF0000, side: THREE.DoubleSide});
-        this.scrollMesh = new THREE.Mesh(geom, mat);
-        this.scrollMesh.name = "scroll";
-        this.scrollMesh.position.set(2.5, 0, 0.001);
-
-        let knobGeom = new THREE.PlaneGeometry(0.1, 0.1);
-        let knobMat = new THREE.MeshBasicMaterial({color: 0x00FF00, side: THREE.DoubleSide});
-        this.scrollKnobMesh = new THREE.Mesh(knobGeom, knobMat);
-        this.scrollKnobMesh.name = "scrollKnob";
-
-        this.scrollKnobMesh.position.set(0, 2.5, 0.001);
-        this.scrollMesh.add(this.scrollKnobMesh);
-        this.plane.add(this.scrollMesh);
     }
 
     updateMesh(stringInfo) {
@@ -746,17 +745,20 @@ export class TextFieldPawn extends CardPawn {
         });
     }
 
-    computeClippingPlanes(ary) {
-        //let [top, bottom, right, left] = ary; this is the order
+    computeClippingPlanes() {
+        let height = this.plane.geometry.parameters.height;
+        let width = this.plane.geometry.parameters.width;
         let planes = [];
         let text = this.plane;
         if (Number.isNaN(text.matrixWorld.elements[0])) return [];
         for (let i = 0; i < 4; i++) {
             planes[i] = new THREE.Plane();
             planes[i].copy(this.clippingPlanes[i]);
-            planes[i].constant = ary[i];
+            planes[i].constant = i < 2 ? height / 2 : width / 2;
             planes[i].applyMatrix4(text.matrixWorld);
         }
+        planes._width = width;
+        planes._height = height;
         return planes;
     }
 
@@ -800,7 +802,7 @@ export class TextFieldPawn extends CardPawn {
         let height = this.plane.geometry.parameters.height;
 
         let x = ((width / 2) + vec2.x) / this.textScale();
-        let y = ((height / 2) - vec2.y) / this.textScale();
+        let y = ((height / 2) - vec2.y + this.getScrollTop(height)) / this.textScale();
 
         return {x, y};
     }
@@ -1077,7 +1079,7 @@ export class TextFieldPawn extends CardPawn {
         this.showSelections();
         if (this.scrollNeeded) {
             this.scrollNeeded = false;
-            this.scrollSelectionToView();
+            // this.scrollSelectionToView();
         }
     }
 
@@ -1109,6 +1111,17 @@ export class TextFieldPawn extends CardPawn {
         this.changed();
     }
 
+    getScrollTop(height) {
+        // scrollTop is in meters, telling how far above the top y goes outside of the original location.
+        // barRatio = 0 -> 0 meters
+        // barRatio = 1 -> text's doc height - height of visible area + a line worth height.
+
+        let docHeight = this.warota.docHeight * this.textScale();
+        let maxOffset = docHeight - height + 0.1;
+        if (docHeight <= height) {return 0;}
+        return maxOffset * this.scrollBarRatio;
+    }
+
     setExtent() {
         let extent = this.actor.extent;
         let depth = this.actor.depth;
@@ -1126,16 +1139,45 @@ export class TextFieldPawn extends CardPawn {
             this.geometry = geometry;
         }
 
+        let scrollTop = this.getScrollTop(newHeight);
+
         this.textMesh.position.x = -newWidth / 2;
-        this.textMesh.position.y = newHeight / 2;
+        this.textMesh.position.y = newHeight / 2 + scrollTop;
         this.textMesh.position.z = depth + 0.005;
 
-        let bounds = {left: 0, top: 0, bottom: newHeight / this.textScale(), right: newWidth / this.textScale()};
+        this.setScrollBarExtent(extent, {width: newWidth, height: newHeight});
+
+        let bounds = {left: 0, top: scrollTop / this.textScale(), bottom: (newHeight + scrollTop) / this.textScale(), right: newWidth / this.textScale()};
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
 
     setTextRenderingBounds(bounds) {
         this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    }
+
+    setScrollBarExtent(pixels, extent) {
+        let scrollBar = GetPawn(this.actor.scrollBar?.id);
+        if (scrollBar) {
+            let height = this.plane.geometry.parameters.height;
+            let docHeight = this.warota.docHeight * this.textScale();
+            let scrollTop = this.getScrollTop(height);
+
+            let minRatio = 0.1 / height;
+
+            if (docHeight > height) {
+                height -= 0.1;
+            }
+
+            let pos = scrollTop / docHeight;
+            let ratio = Math.min(height / docHeight, 1);
+            ratio = Math.max(minRatio, ratio);
+            scrollBar.setExtent(extent, pos, ratio);
+        }
+    }
+
+    scroll(scrollBarRatio) {
+        this.scrollBarRatio = scrollBarRatio;
+        this.needsUpdate();
     }
 
     ensureSelection(id) {
@@ -1145,20 +1187,16 @@ export class TextFieldPawn extends CardPawn {
         if (!color) {
             color = "blue";
         }
+
         if (!sel) {
             const bar = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
-
-            bar.onBeforeRender = this.selectionBeforeRender.bind(this);
-
             bar.visible = false;
             this.plane.add(bar);
             bar.name = "caret";
-            // plane.onBeforeRender = this.selectionBeforeRender.bind(this);
 
             let boxes = [];
             for (let i = 0; i < 3; i++) {
                 let box = new THREE.Mesh(new THREE.PlaneBufferGeometry(0, 0), new THREE.MeshBasicMaterial({color}));
-                box.onBeforeRender = this.selectionBeforeRender.bind(this);
                 box.visible = false;
                 box.name = `box${i}`;
                 this.plane.add(box);
@@ -1178,15 +1216,15 @@ export class TextFieldPawn extends CardPawn {
         }
 
         let ts = this.textScale();
+        let width = this.plane.geometry.parameters.width;
+        let height = this.plane.geometry.parameters.height;
+        let scrollTop = this.getScrollTop(height);
 
         for (let k in this.actor.content.selections) {
             delete unused[k];
             let thisSelection = this.ensureSelection(k);
             thisSelection.boxes.forEach(box => box.visible = false);
             let selection = this.actor.content.selections[k];
-
-            let width = this.plane.geometry.parameters.width;
-            let height = this.plane.geometry.parameters.height;
 
             if (selection.end === selection.start) {
                 let caret = thisSelection.bar;
@@ -1199,9 +1237,14 @@ export class TextFieldPawn extends CardPawn {
                 if (old) {
                     old.dispose();
                 }
+                if (!caret.material.clippingPlanes ||
+                    caret.material.clippingPlanes._width !== width ||
+                    caret.material.clippingPlanes._height !== height) {
+                    caret.material.clippingPlanes = this.computeClippingPlanes();
+                }
 
                 let left = (-width / 2) + (caretRect.left + 6) * ts; // ?
-                let top = (height / 2) - (caretRect.top + caretRect.height / 2 + 4) * ts;
+                let top = (height / 2) - (caretRect.top + caretRect.height / 2 + 4) * ts + scrollTop;
                 caret.position.set(left, top, depth + 0.001);
             } else {
                 let rects = this.warota.selectionRects(selection);
@@ -1213,7 +1256,7 @@ export class TextFieldPawn extends CardPawn {
 
                     if (rect) {
                         let left = (-width / 2) + ((rect.width / 2) + rect.left + 8) * ts; // ?
-                        let top = (height / 2) - (rect.top + rect.height / 2 + 4) * ts;
+                        let top = (height / 2) - (rect.top + rect.height / 2 + 4) * ts + scrollTop;
                         let rWidth = rect.width * ts; // ?
                         let rHeight = rect.height * ts;
 
@@ -1221,53 +1264,22 @@ export class TextFieldPawn extends CardPawn {
                         box.geometry = geom;
                         box.position.set(left, top, depth + 0.001);
                         box.visible = true;
+
+                        if (!box.material.clippingPlanes ||
+                            box.material.clippingPlanes._width !== width ||
+                            box.material.clippingPlanes._height !== height) {
+                            box.material.clippingPlanes = this.computeClippingPlanes();
+                        }
                     }
                 }
             }
         }
         for (let k in unused) {
-            this.selections[k].bar.remove();
-            this.selections[k].boxes.forEach(box => box.remove());
+            this.selections[k].bar.removeFromParent();
+            this.selections[k].boxes.forEach((box) => box.removeFromParent());
             delete this.selections[k];
         }
         this.publish(this.id, "selectionUpdated");
-    }
-
-    scrollSelectionToView() {
-        /*
-        let scrollTop = this.dom.scrollTop;
-        let viewHeight = parseFloat(this.dom.style.getPropertyValue("height"));
-        let selection = this.model.content.selections[this.viewId];
-        if (!selection) {return;}
-        if (selection.end !== selection.start) {return;}
-        let caretRect = this.warota.barRect(selection);
-
-        if (caretRect.top + caretRect.height > viewHeight + scrollTop) {
-            this.dom.scrollTop = caretRect.top + caretRect.height - viewHeight;
-        } else if (caretRect.top < scrollTop) {
-            this.dom.scrollTop = caretRect.top;
-        }
-        */
-    }
-
-    selectionBeforeRender(renderer, scene, camera, geometry, material, _group) {
-        /*
-        let meterInPixel = this.model.extent.width / 0.01;
-        let scrollT = this.warota.scrollTop;
-        let docHeight = this.warota.docHeight;
-        let docInMeter = docHeight * meterInPixel;
-        let top = -scrollT * docHeight;
-        let bottom = -(top - 0.01);
-        let right = 0.01 * (1.0 - this.warota.relativeScrollBarWidth);
-        let left = 0;
-        */
-
-        let left = 2.5;
-        let right = 2.5;
-        let bottom = 2.5;
-        let top = 2.5;
-        let planes = this.computeClippingPlanes([top, bottom, right, left]);
-        material.clippingPlanes = planes;
     }
 
     addWidget(name, dom) {
@@ -1289,16 +1301,12 @@ export class TextFieldPawn extends CardPawn {
 }
 
 class DismissButtonActor extends CardActor {
-    init(options) {
-        super.init({...options, multiusser: true});
-    }
-
     get pawn() {return DismissButtonPawn;}
 }
 
 DismissButtonActor.register("DismissButtonActor");
 
-export class DismissButtonPawn extends CardPawn {
+class DismissButtonPawn extends CardPawn {
     constructor(actor) {
         super(actor);
         this.addToLayers("pointer");
@@ -1342,5 +1350,101 @@ export class DismissButtonPawn extends CardPawn {
 
     dismiss(_evt) {
         this.publish(this.actor.id, "dismiss");
+    }
+}
+
+class TextScrollBarActor extends CardActor {
+    get pawn() {return TextScrollBarPawn;}
+}
+
+TextScrollBarActor.register("TextScrollBarActor");
+
+class TextScrollBarPawn extends CardPawn {
+    constructor(actor) {
+        super(actor);
+        let barColor = actor._cardData.barColor === undefined ? 0x666666 : actor._cardData.barColor;
+        let knobColor = actor._cardData.knobColor === undefined ? 0xcccccc : actor._cardData.knobColor;
+        let barWidth = actor._cardData.barWidth === undefined ? 0.1 : actor._cardData.barWidth;
+        let geom = new THREE.PlaneGeometry(barWidth, 0);
+        let mat = new THREE.MeshBasicMaterial({color: barColor, side: THREE.DoubleSide});
+        this.scrollMesh = new THREE.Mesh(geom, mat);
+        this.scrollMesh.name = "scroll";
+
+        let knobGeom = new THREE.PlaneGeometry(barWidth, 0);
+        let knobMat = new THREE.MeshBasicMaterial({color: knobColor, side: THREE.DoubleSide});
+        this.scrollKnobMesh = new THREE.Mesh(knobGeom, knobMat);
+        this.scrollKnobMesh.name = "scrollKnob";
+
+        this.scrollKnobMesh.position.set(0, 0, 0.001);
+        this.scrollMesh.add(this.scrollKnobMesh);
+        this.shape.add(this.scrollMesh);
+
+        this.addEventListener("pointerDown", "pointerDown");
+        this.addEventListener("pointerMove", "pointerMove");
+        this.addEventListener("pointerUp", "pointerUp");
+    }
+
+    pointerDown(evt) {
+        this.interactionPlane = new THREE.Plane();
+        let normal = v3_transform([0, 0, 1], this.global);
+        this.interactionPlane.setFromNormalAndCoplanarPoint(
+            new THREE.Vector3(...normal),
+            new THREE.Vector3(...evt.xyz));
+        let avatar = this.getMyAvatar();
+        avatar.addFirstResponder("pointerMove", {}, this);
+    }
+
+    pointerMove(evt) {
+        let origin = new THREE.Vector3(...evt.ray.origin);
+        let direction = new THREE.Vector3(...evt.ray.direction);
+        let ray = new THREE.Ray(origin, direction);
+        let dragPoint = ray.intersectPlane(
+            this.interactionPlane,
+            new THREE.Vector3()
+        );
+
+        let y = this.cookEvent(dragPoint.toArray());
+        if (this.parent) {
+            this.publish(this.parent.id, "scroll", y);
+        }
+    }
+
+    pointerUp(_evt) {
+        let avatar = this.getMyAvatar();
+        avatar.removeFirstResponder("pointerMove", {}, this);
+    }
+
+    cookEvent(xyz) {
+        if (!xyz) {return;}
+        let vec = new THREE.Vector3(...xyz);
+        let inv = this.shape.matrixWorld.clone().invert();
+        let vec2 = vec.applyMatrix4(inv);
+
+        let height = this.scrollMesh.geometry.parameters.height;
+
+        let y = ((height / 2) - vec2.y);
+        return Math.max(Math.min(y / height, 1), 0);
+    }
+
+    setExtent(extent, scrollRatio, knobRatio) {
+        let barWidth = this.actor._cardData.barWidth === undefined ? 0.1 : this.actor._cardData.barWidth;
+        if (this.scrollMesh.geometry.parameters.height !== extent.height) {
+            let geom = new THREE.PlaneGeometry(barWidth, extent.height);
+            this.scrollMesh.geometry.dispose();
+            this.scrollMesh.geometry = geom;
+        }
+
+        let knobHeight = extent.height * knobRatio;
+        if (this.scrollKnobMesh.geometry.parameters.height !== knobHeight) {
+            let knobGeom = new THREE.PlaneGeometry(barWidth, knobHeight);
+            this.scrollKnobMesh.geometry.dispose();
+            this.scrollKnobMesh.geometry = knobGeom;
+        }
+
+        let top = extent.height / 2 - extent.height * scrollRatio;
+        top -= knobHeight / 2;
+
+        this.scrollKnobMesh.position.set(0, top, 0.0015);
+        this.set({translation: [extent.width / 2 + barWidth / 2, 0, 0.001]});
     }
 }

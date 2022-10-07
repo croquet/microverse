@@ -77,17 +77,20 @@ class PropertySheetActor {
         this.target = target;
         // this.menuWindow = this.newWindow({x: 1, y: 1.5}, {x: 0.9, y: 0.4});
 
-        this.cardSpecWindow = this.newWindow({x: 1.7, y: 2.8}, {x: -0.5, y: 0});
+        this.cardSpecWindow = this.newWindow({x: 1.8, y: 2.8}, {x: -0.55, y: 0});
 
         this.cardSpec = this.createCard({
             className: "TextFieldActor",
             name: 'card spec',
-            translation: [0, 0, 0.025],
+            translation: [-0.05, 0, 0.025],
             parent: this.cardSpecWindow,
             type: "text",
             margins: {left: 8, top: 8, right: 8, bottom: 8},
             textScale: 0.0014,
             backgroundColor: 0xcccccc,
+            scrollBar: true,
+            barColor: 0x888888,
+            knobColor: 0x606060,
             width: 1.7 - 0.04,
             height: 2.8 - 0.04,
             depth: 0.002,
@@ -533,6 +536,7 @@ class PropertySheetEditActor {
             depth: 0.05,
             fullBright: true,
             frameColor: 0x888888,
+            scrollBar: true,
         });
     }
 }
@@ -624,6 +628,8 @@ class BehaviorMenuActor {
             this.menu.destroy();
         }
 
+        let editIconLocation = "3rAfsLpz7uSBKuKxcjHvejhWp9mTBWh8hsqN7UnsOjJoGgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddNRYkEAseOwEzGSMRMCoWQTUKEwQLBSc5JSsrQF0bHVwRAB0DBxcGXB8bEQAdBBcAARddKwMGHktLKksKNjocPyIiFBMfJRkzIyRKND4zIAZGRUVGCjECAEEFHRM6N10WEwYTXTUnEQYFHTsXOUQaAxUVFgVERR4kNxY8A0QiBAsQX0dDHTslBipENh83HQU";
+
         this.menu = this.createCard({
             name: 'behavior menu',
             behaviorModules: ["Menu"],
@@ -633,7 +639,7 @@ class BehaviorMenuActor {
             noSave: true,
             depth: 0.01,
             cornerRadius: 0.05,
-            menuIcons: {"_": 'edit.svg', "apply": null, "------------": null},
+            menuIcons: {"_": editIconLocation, "apply": null, "------------": null},
         });
 
         this.subscribe(this.menu.id, "itemsUpdated", "itemsUpdated");

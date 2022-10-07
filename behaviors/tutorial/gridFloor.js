@@ -2,18 +2,19 @@
 // Croquet Microverse
 // Generates a simple gridded floor card
 
-class GridFloorActor {
-    setup() {
-        // nothing to do here yet
-    }
-}
-
 class GridFloorPawn {
     setup() {
-        console.log("AM I GETTING HERE?")
-        const THREE = Microverse.THREE;
-        const gridImage = './assets/images/grid.png';
-        const texture = new THREE.TextureLoader().load(gridImage);
+        console.log("GridFloorPawn.setup()")
+        let THREE = Microverse.THREE;
+
+        // this is the base64 encoded version of a png file with the unit grid pattern.
+        let gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
+
+        let image = new Image();
+        let texture = new THREE.Texture(image);
+        image.onload = () => texture.needsUpdate = true;
+        image.src = gridImage;
+
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
         texture.repeat.set( 100, 100 );
@@ -39,8 +40,9 @@ export default {
     modules: [
         {
             name: "GridFloor",
-            actorBehaviors: [GridFloorActor],
             pawnBehaviors: [GridFloorPawn],
         }
     ]
 }
+
+/* globals Microverse */

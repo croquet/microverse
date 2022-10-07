@@ -69,9 +69,11 @@ const config = {
                 { from: 'assets/sky/*'},
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
-                { from: 'behaviors/**/*'}
+                { from: 'behaviors/**/*'},
+                { from: 'apiKey.js', noErrorOnMissing: true },
+                { from: 'apiKey-dev.js', noErrorOnMissing: true },
             ]
-        }),
+        })
     ],
 };
 
@@ -106,7 +108,7 @@ module.exports = (env, argv) => {
         config.plugins.push(
             new CopyPlugin({
                 patterns: [
-                    { from: 'apiKey.js', to: 'apiKey.js', noErrorOnMissing: true },
+                    { from: 'apiKey-dev.js', to: 'apiKey-dev.js', noErrorOnMissing: true },
                 ]
             })
         );

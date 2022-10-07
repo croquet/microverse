@@ -227,7 +227,7 @@ export const PM_PointerTarget = superclass => class extends superclass {
     registerEventListener(data) {
         // console.log("registerEventLIstener", data);
         let {eventName} = data;
-        let func = (evt) => this.say("dispatchEvent", {eventName, evt});
+        let func = (evt) => this.say("dispatchEvent", {eventName, evt: evt});
         this.modelListeners.set(eventName, func);
         this.addEventListener(eventName, func, `dispatch_${eventName}`);
     }
@@ -474,7 +474,6 @@ export const PM_Pointer = superclass => class extends superclass {
             this.invokeListeners(eventName, this.focusPawn, rc, e);
         }
 
-        // this is dubious but we clear the editPawn anyway.
         let lastResponder = this.findLastResponder(e, eventName);
         if (lastResponder) {
             return this.invokeListeners(eventName, lastResponder, rc, e);
@@ -646,6 +645,9 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.id = wcEvent.id;
         pe.button = wcEvent.button;
         pe.buttons = wcEvent.buttons;
+        if (rc.ray) {
+            pe.ray = {origin: rc.ray.origin.toArray(), direction: rc.ray.direction.toArray()};
+        }
         if (wcEvent.deltaY !== undefined) {
             pe.deltaY = wcEvent.deltaY;
         }

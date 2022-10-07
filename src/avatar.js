@@ -65,9 +65,15 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("resetStartPosition", this.resetStartPosition);
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
+        this.subscribe("actorManager", "destroyed", this.actorDestroyed);
+
         this.listen("leavePresentation", this.leavePresentation);
         this.listen("setAvatarData", "setAvatarData");
         this.listen("setWorldState", "setWorldState");
+
+        this.listen("addOrCycleGizmo", "addOrCycleGizmo");
+        this.listen("removeGizmo", "removeGizmo");
+
         this.future(0).tick();
     }
 
@@ -475,6 +481,36 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.publish(this.sessionId, "triggerPersist");
     }
 
+    actorDestroyed(id) {
+        if (this.gizmo?.target?.id === id) {
+            this.removeGizmo();
+        }
+    }
+
+    addOrCycleGizmo(data) {
+        let {target, viewId} = data;
+        if (!this.gizmo) {
+            if (!this.behaviorManager.modules.get("Gizmo")) {return;}
+            this.gizmo = this.createCard({
+                translation: target.translation,
+                name: 'gizmo',
+                behaviorModules: ["Gizmo"],
+                parent: target.parent,
+                type: "object",
+                noSave: true,
+            });
+            this.gizmo.target = target;
+            this.gizmo.creatorId = viewId;
+        } else {
+            this.publish(this.gizmo.id, "cycleModes");
+        }
+    }
+
+    removeGizmo() {
+        this.gizmo?.destroy();
+        delete this.gizmo;
+    }
+
     createPortal(translation, rotation, portalURL) {
         // sigh - all portals are "backwards"
         // or maybe *all* models are backwards and we need to fix dropPose and avatar models?
@@ -526,6 +562,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 }
             }
         }
+    }
+
+    destroy() {
+        this.removeGizmo();
+        super.destroy();
     }
 }
 
@@ -644,6 +685,24 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     addChild(id) {
         super.addChild(id);
         delete this.lastOpacity;
+    }
+
+    setOpacity(opacity) {
+        if (!this.shape) {return;}
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
+        }
+        let transparent = opacity !== 1;
+        this.shape.visible = this.actor.inWorld && opacity !== 0;
+        this.shape.traverse(n => {
+            if (n.material) {
+                n.material.opacity = opacity;
+                n.material.transparent = transparent;
+                n.material.side = THREE.DoubleSide;
+                n.material.needsUpdate = true;
+            }
+        });
     }
 
     removeChild(id) {
@@ -880,6 +939,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             clearInterval(this.fadeNearbyInterval);
             this.fadeNearbyInterval = null;
         }
+
+        this.gizmoTargetPawn?.unselectEdit();
+        delete this.gizmoTargetPawn;
         delete this.modelLoadTime;
         super.detach();
     }
@@ -1895,37 +1957,41 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     pointerDown(e) {
-        if (e.ctrlKey || e.altKey) { // should be the first responder case
-            const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer'));
-            this.targetDistance = rc.distance;
-            let p3e = this.pointerEvent(rc, e);
-            p3e.lookNormal = this.actor.lookNormal;
-            let pawn = GetPawn(p3e.targetId);
-            pawn = pawn || null;
+        let render = this.service("ThreeRenderManager");
+        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
+        this.targetDistance = rc.distance;
+        let p3e = this.pointerEvent(rc, e);
+        let pawn = GetPawn(p3e.targetId);
 
-            if (this.editPawn !== pawn) {
-                if (this.editPawn) {
-                    console.log('pointerDown clear old editPawn')
-                    this.editPawn.unselectEdit();
-                    this.editPawn = null;
-                    this.editPointerId = null;
-                }
-                console.log('pointerDown set new editPawn', pawn)
-                if (pawn) {
-                    this.editPawn = pawn;
-                    this.editPointerId = e.id;
-                    this.editPawn.selectEdit();
-                    this.buttonDown = e.button;
-                    if (!p3e.normal) {p3e.normal = this.actor.lookNormal}
-                    this.p3eDown = p3e;
+        let pawnIsGizmo = pawn && pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
+
+        if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
+            this.gizmoTargetPawn.unselectEdit();
+            this.gizmoTargetPawn = null;
+            this.publish(this.actor.id, "removeGizmo");
+        }
+
+        if (e.ctrlKey || e.altKey) { // should be the first responder case
+            if (pawn) {
+                if (pawnIsGizmo) {
+                    console.log("Tried to gizmo gizmo");
+                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
+                } else {
+                    if (this.gizmoTargetPawn != pawn) {
+                        pawn.selectEdit();
+                    }
+                    this.gizmoTargetPawn = pawn;
+                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
                 }
             } else {
-                console.log("pointerDown in editMode");
+                this.publish(this.actor.id, "removeGizmo");
             }
         } else {
-            if (!this.focusPawn && e.xy) {
-                // because this case is called as the last responder, facusPawn should be always empty
+            if (this.gizmoTargetPawn) {
+                this.gizmoTargetPawn.unselectEdit();
+                this.gizmoTargetPawn = null;
+                this.publish(this.actor.id, "removeGizmo");
+            } else {
                 this.dragWorld = this.xy2yp(e.xy);
                 this.lookYaw = q_yaw(this._rotation);
             }
@@ -1933,42 +1999,30 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
                 this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
             }
+            if (!pawnIsGizmo) {
+                this.publish(this.actor.id, "removeGizmo");
+            }
         }
     }
 
     pointerMove(e) {
-        if (this.editPawn) {
-            // a pawn is selected for draggging
-            if (e.id === this.editPointerId) {
-                if (this.buttonDown === 0) {
-                    this.editPawn.dragPlane(this.setRayCast(e.xy), this.p3eDown);
-                }else if (this.buttonDown == 2) {
-                    this.editPawn.rotatePlane(this.setRayCast(e.xy), this.p3eDown);
-                }
-            }
-        }else {
-            // we should add and remove responders dynamically so that we don't have to check things this way
-            if (!this.focusPawn && this.isPointerDown && e.xy) {
-                let yp = this.xy2yp(e.xy);
-                let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
-                let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;
-                pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
-                this.dragWorld = yp;
-                this.lookTo(pitch, yaw);
-            }
+        // should be the last responder case
+        if (!this.focusPawn && this.isPointerDown && e.xy) {
+            let yp = this.xy2yp(e.xy);
+            let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
+            let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;
+            pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
+            this.dragWorld = yp;
+            this.lookTo(pitch, yaw);
+        }
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerMove", this, e);
         }
     }
 
-    pointerUp(_e) {
-        if (this.editPawn) {
-            this.editPawn.unselectEdit();
-            this.editPawn = null;
-            this.editPointerId = null;
-            this.p3eDown = null;
-            this.buttonDown = null;
-        }
-
-        // Below is a workaround to support an incomplete user program.
+    pointerUp(e) {
+        // Below is a suppot for an incomplete user program.
         // If there are left over first responders (pointer capture) from a user object,
         // delete them here.
         if (this.firstResponders) {
@@ -1981,15 +2035,19 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
             }
         }
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerUp", this, e);
+        }
     }
 
     pointerTap(_e) {
-        if (this.editPawn) { // this gets set in pointerDown
-            this.editPawn.unselectEdit();
-            this.editPawn.showControls({avatar: this.actor.id,distance: this.targetDistance});
-            this.editPawn = null;
-            this.editPointerId = null;
+        /*
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerTap", this, e);
         }
+        */
     }
 
     pointerWheel(e) {

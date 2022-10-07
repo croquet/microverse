@@ -37,7 +37,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js"
 ];
 
 let AA = true;
@@ -727,6 +727,38 @@ https://croquet.io`.trim());
         });
 }
 
+function isRunningLocalNetwork() {
+    let hostname = window.location.hostname;
+
+    let local_patterns = [
+        /^localhost$/,
+        /^.*\.local$/,
+        /^.*\.ngrok.io$/,
+        // 10.0.0.0 - 10.255.255.255
+        /^(::ffff:)?10(?:\.\d{1,3}){3}$/,
+        // 127.0.0.0 - 127.255.255.255
+        /^(::ffff:)?127(?:\.\d{1,3}){3}$/,
+        // 169.254.1.0 - 169.254.254.255
+        /^(::f{4}:)?169\.254\.([1-9]|1?\d\d|2[0-4]\d|25[0-4])\.\d{1,3}$/,
+        // 172.16.0.0 - 172.31.255.255
+        /^(::ffff:)?(172\.1[6-9]|172\.2\d|172\.3[01])(?:\.\d{1,3}){2}$/,
+        // 192.168.0.0 - 192.168.255.255
+        /^(::ffff:)?192\.168(?:\.\d{1,3}){2}$/,
+        // fc00::/7
+        /^f[cd][\da-f]{2}(::1$|:[\da-f]{1,4}){1,7}$/,
+        // fe80::/10
+        /^fe[89ab][\da-f](::1$|:[\da-f]{1,4}){1,7}$/,
+        // ::1
+        /^::1$/,
+    ];
+
+    for (let i = 0; i < local_patterns.length; i++) {
+        if (local_patterns[i].test(hostname)) {return true;}
+    }
+
+    return false;
+}
+
 export function startMicroverse() {
     let setButtons = (display) => {
         ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
@@ -788,19 +820,24 @@ async function launchMicroverse() {
         Constants.Library = new CodeLibrary();
         Constants.Library.addModules(json.data.behaviorModules);
     }
+
     let apiKeysModule;
+    let local = isRunningLocalNetwork();
+    let apiKeysFile = local ? "apiKey-dev.js" : "apiKey.js";
+
     try {
         // use eval to hide import from webpack
-        apiKeysModule = await eval(`import('${baseurl}apiKey.js')`);
+        apiKeysModule = await eval(`import('${baseurl}${apiKeysFile}')`);
+
         const { apiKey, appId } = apiKeysModule.default;
-        if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
-        if (typeof appId !== "string") throw Error("apiKey.js: appId must be a string");
-        if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`invalid apiKey: "${apiKey}"`);
-        if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`invalid appId: "${appId}"`);
+        if (typeof apiKey !== "string") throw Error(`${apiKeysFile}: apiKey must be a string`);
+        if (typeof appId !== "string") throw Error(`${apiKeysFile}: appId must be a string`);
+        if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`${apiKeysFile}: invalid apiKey: "${apiKey}"`);
+        if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`${apiKeysFile}: invalid appId: "${appId}"`);
     } catch (error) {
-        if (error.name === "TypeError") {
-            // apiKey.js not found, use local dev key
-            console.warn("apiKey.js not found, using default key for local development. Please create a valid apiKey.js (see croquet.io/keys)");
+        if (error.name === "TypeError" && local) {
+            // apiKey-dev.js not found, use default dev key
+            console.warn(`${apiKeysFile} not found, using default key for local development. Please create a valid apiKey-dev.js for local development, and apiKey.js for deployment (see croquet.io/keys)`);
             apiKeysModule = {
                 default: {
                     apiKey: "1kBmNnh69v93i5tOpj7bqqaJxjD3HJEucxd7egi7H",
@@ -808,8 +845,8 @@ async function launchMicroverse() {
                 }
             };
         } else {
-            console.log(error);
-            throw Error("Please make sure that you have created a valid apiKey.js (see croquet.io/keys)");
+            console.error(error);
+            throw Error("Please make sure that you have created a valid apiKey-dev.js for local development, and apiKey.js for deployment (see croquet.io/keys)");
         }
     };
     // Default parameters are filled in the body of startWorld. You can override them.
