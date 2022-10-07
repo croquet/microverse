@@ -16,10 +16,9 @@
 
 #knob {
   position: fixed;
-  transform: translate(30px, 30px);
-  top: 2px;
   width: 53px;
   height: 53px;
+  transform: translate(36.5px, 36.5px); /* (joystick.width - knob.width) / 2 */
   border-radius: 40px;
   background-color: rgba(124, 124, 124, 0.5);
   z-index: 310;
@@ -32,6 +31,7 @@
   width: 123px;
   height: 123px;
   border-radius: 50%;
+  background-color: rgba(124, 124, 124, 0.2);
   z-index: 301;
 }
 
@@ -50,6 +50,7 @@
   #knob {
     width: 40px;
     height: 40px;
+    transform: translate(22.5px, 22.5px); /* (joystick.width - knob.width) / 2 */
   }
 }
 
@@ -63,8 +64,7 @@
   }
 
   #knob {
-    top: -10px;
-    left: -10px;
+    transform: translate(35px, 35px);
   }
 }
 
@@ -113,8 +113,7 @@
   #knob {
     width: 68px;
     height: 68px;
-    left: -25px;
-    top: -25px;
+    transform: translate(36px, 36px); /* (joystick.width - knob.width) / 2 */
   }
 }
 
@@ -124,25 +123,25 @@
   font-size: 8px;
 }
 
-.top {
+.joystick-arrow.top {
   transform: rotate(-45deg);
   left: 2px;
   top: 2px;
 }
 
-.left {
+.joystick-arrow.left {
   left: 2px;
   top: 74px;
   transform: rotate(-135deg);
 }
 
-.bottom {
+.joystick-arrow.bottom {
   transform: rotate(135deg);
   left: 75px;
   top: 75px;
 }
 
-.right {
+.joystick-arrow.right {
   left: 74px;
   top: 3px;
   transform: rotate(45deg);

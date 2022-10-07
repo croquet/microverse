@@ -123,7 +123,7 @@ class Shell {
         this.knob = document.getElementById("knob");
         this.trackingknob = document.getElementById("trackingknob");
 
-        this.knobStyle = window.getComputedStyle(this.knob);
+        this.adjustJoystickKnob();
         window.onresize = () => this.adjustJoystickKnob();
 
         if (!document.head.querySelector("#joystick-css")) {
@@ -165,9 +165,14 @@ class Shell {
     }
 
     adjustJoystickKnob() {
-        let radius = (parseFloat(this.knobStyle.width) / 2) || 30;
-        this.trackingknob.style.transform = "translate(0px, 0px)";
-        this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
+        let joystickStyle = window.getComputedStyle(this.joystick);
+        let knobStyle = window.getComputedStyle(this.knob);
+        let center = (parseFloat(joystickStyle.width) / 2) || 30;
+        let size = (parseFloat(knobStyle.width) / 2) || 10;
+        let radius = center - size;
+        this.joystickLayout = { center, size, radius };
+        this.trackingknob.style.transform = "translate(0px, 0px)"; // top-left
+        this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`;
     }
 
     frameEntry(frameId) {
@@ -678,7 +683,7 @@ class Shell {
         e.preventDefault();
         e.stopPropagation();
         this.activeMMotion = null;
-        let radius = parseFloat(this.knobStyle.width) / 2;
+        let { radius } = this.joystickLayout;
         this.trackingknob.style.transform = "translate(0px, 0px)";
         this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
         this.sendToPortal(this.primaryFrameId, "motion-end");
@@ -692,20 +697,19 @@ class Shell {
             let dx = e.clientX - this.knobX;
             let dy = e.clientY - this.knobY;
 
-            let radius = parseFloat(this.knobStyle.width) / 2;
-            let left = parseFloat(this.knobStyle.left) / 2;
-
             this.sendToPortal(this.primaryFrameId, "motion-update", {dx, dy});
             this.activeMMotion.dx = dx;
             this.activeMMotion.dy = dy;
 
             this.trackingknob.style.transform = `translate(${dx}px, ${dy}px)`;
 
-            let ds = dx ** 2 + dy ** 2;
-            if (ds > (radius + left) ** 2) {
-                ds = Math.sqrt(ds);
-                dx = (radius + left) * dx / ds;
-                dy = (radius + left) * dy / ds;
+            let { radius } = this.joystickLayout;
+
+            let squaredDist = dx ** 2 + dy ** 2;
+            if (squaredDist > radius ** 2) {
+                let dist = Math.sqrt(squaredDist);
+                dx = radius * dx / dist;
+                dy = radius * dy / dist;
             }
 
             this.knob.style.transform = `translate(${radius + dx}px, ${radius + dy}px)`;
