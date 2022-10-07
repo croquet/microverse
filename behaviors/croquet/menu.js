@@ -210,7 +210,7 @@ class MenuPawn {
         ];
     }
 
-    computeClippingPlanes(ary) {
+    menuComputeClippingPlanes(ary) {
         //let [top, bottom, right, left] = ary; this is the order
         let planes = [];
         if (Number.isNaN(this.shape.matrixWorld.elements[0])) return [];
