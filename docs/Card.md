@@ -90,7 +90,7 @@ An informative string for the card.
 
 ### `_cardData`
 
-Any other values that the CardActor holds are stored in an object stored in the `_cardData` property. This is needed to mark the values to be stored in the persistent data. 
+Any other values that the CardActor holds are stored in an object stored in the `_cardData` property. This is needed to mark the values to be stored in the persistent data.
 
 ## CardActor Methods
 
@@ -219,7 +219,7 @@ This method is empty. It is used to have a way to get the tap to focus keyboard 
 
 The corresponding actor for a CardPawn is accessible by `this.actor`. You can read a value in `_cardData` simply by `this.actor._cardData.prop`. But note that a pawn should never modify the state of the actor.
 
-The most important property of CardPawn is `shape`, which is a Three.JS `Group`, and the Micorverse system treats it as the primary visual representation of the card. Customizing the visual appearance of a card means to create a new Three.JS Object3D and add it to `shape`.
+The most important property of CardPawn is `shape`, which is a Three.JS `Group`, and the Microverse system treats it as the primary visual representation of the card. Customizing the visual appearance of a card means to create a new Three.JS Object3D and add it to `shape`.
 
 When the Card's type is "2d", and it has some `textureType`, the texture object is stored in `this.texture`.  If the `textureType is "canvas", the DOM canvas is stored in `this.canvas` so a pawn behavior can paint into the canvas.
 

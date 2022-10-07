@@ -120,7 +120,7 @@ class ScrollAreaPawn {
 
         let menu = [...pawn.children][0];
 
-        let planes = menu.call("Menu$MenuPawn", "computeClippingPlanes", [top, bottom, left, right]);
+        let planes = menu.call("Menu$MenuPawn", "menuComputeClippingPlanes", [top, bottom, left, right]);
         menu.material.clippingPlanes = planes;
 
         if (!pawn) {return;}

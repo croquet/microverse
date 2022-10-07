@@ -820,24 +820,21 @@ async function launchMicroverse() {
 
     let apiKeysModule;
     let local = isRunningLocalNetwork();
+    let apiKeysFile = local ? "apiKey-dev.js" : "apiKey.js";
 
     try {
         // use eval to hide import from webpack
-        if (local) {
-            apiKeysModule = await eval(`import('${baseurl}apiKey-dev.js')`);
-        } else {
-            apiKeysModule = await eval(`import('${baseurl}apiKey.js')`);
-        }
+        apiKeysModule = await eval(`import('${baseurl}${apiKeysFile}')`);
 
         const { apiKey, appId } = apiKeysModule.default;
-        if (typeof apiKey !== "string") throw Error("apiKey.js: apiKey must be a string");
-        if (typeof appId !== "string") throw Error("apiKey.js: appId must be a string");
-        if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`invalid apiKey: "${apiKey}"`);
-        if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`invalid appId: "${appId}"`);
+        if (typeof apiKey !== "string") throw Error(`${apiKeysFile}: apiKey must be a string`);
+        if (typeof appId !== "string") throw Error(`${apiKeysFile}: appId must be a string`);
+        if (!apiKey.match(/^[_a-z0-9]+$/i)) throw Error(`${apiKeysFile}: invalid apiKey: "${apiKey}"`);
+        if (!appId.match(/^[-_.a-z0-9]+$/i)) throw Error(`${apiKeysFile}: invalid appId: "${appId}"`);
     } catch (error) {
         if (error.name === "TypeError" && local) {
-            // apiKey.js not found, use local dev key
-            console.warn("apiKey.js not found, using default key for local development. Please create a valid apiKey-dev.js for development, and apiKey.js for deployment to a public server (see croquet.io/keys)");
+            // apiKey-dev.js not found, use default dev key
+            console.warn(`${apiKeysFile} not found, using default key for local development. Please create a valid apiKey-dev.js for local development, and apiKey.js for deployment (see croquet.io/keys)`);
             apiKeysModule = {
                 default: {
                     apiKey: "1kBmNnh69v93i5tOpj7bqqaJxjD3HJEucxd7egi7H",
@@ -845,8 +842,8 @@ async function launchMicroverse() {
                 }
             };
         } else {
-            console.log(error);
-            throw Error("Please make sure that you have created a valid apiKey.js (see croquet.io/keys)");
+            console.error(error);
+            throw Error("Please make sure that you have created a valid apiKey-dev.js for local development, and apiKey.js for deployment (see croquet.io/keys)");
         }
     };
     // Default parameters are filled in the body of startWorld. You can override them.
