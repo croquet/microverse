@@ -12,6 +12,10 @@ A good description of an issue helps us to address it quickly and accurately. Pl
 
 When you create a pull request, the Microverse core team will work with you and determine if it can be merged. Typically, though, we highly recommend that you make us aware the issue it is trying to solve by making a GitHub issue, discuss with the core team before actually making the pull request.
 
+Also, when you make a pull request, consider squashing commits so that your pull request shows on the good state of code that you can explain better and we can understand easier.
+
+Along the same line, please make sure that the diff between the main branch and your commit does not contain unnecessary changes. Sometimes auto formatter of your editor changes more lines than necessary.
+
 ## Development
 
 The [QuickStart Guide](./docs/QuickStart.md) describes how to set up your development environment.
