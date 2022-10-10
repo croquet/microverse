@@ -2,6 +2,8 @@
 // https://croquet.io
 // info@croquet.io
 
+import { sendToShell } from "./frame.js";
+
 let settingsMenu = null;
 let settingsMenuBody = null;
 
@@ -24,7 +26,7 @@ export function startSettingsMenu(useEnter, r) {
     resolveDialog = r;
     nicknameIsValid = false;
     avatarIsValid = false;
-    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
+    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);    
 }
 
 function loadCSS() {
@@ -45,48 +47,68 @@ function loadCSS() {
 
 function createSettingsMenu(useEnter) {
     let settings = `
-<div id="joinDialog" class="noselect">
-  <div id='joinDialogBody' class='wide'>
-    <div id='dialogTitle'>
-        <div id='titleHolder' class='settingColumn'>
-            <img id='titleLogo' src='assets/images/microverse-logo.png'/>
+
+    <div id="joinDialog" class="noselect">
+    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright cancel-button">x</button>
+    <div id='joinDialogBody' class='wide'>
+        <div id='dialogTitle'>
+            <div id='titleHolder' class='settingColumn'>
+                <img id='titleLogo' src='assets/images/microverse-logo.png' />
+            </div>
+        </div>
+        <div id='joinSettings'>
+            <div id='joinPrompt' class='settingColumn'>
+                <div id='joinPromptTitle'>Choose nickname and avatar</div>
+                <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either
+                    by selecting from those on display or pasting a valid Ready Player Me URL.</div>
+            </div>
+            <div id="settings-title">Settings</div>
+            <div class="settings-container">
+                <div class="settings-padding">
+                    <div id='nameInput' class='stringInputHolder settingColumn'>
+                        <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
+                        <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
+                        <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
+                        <div id='nameFilterWarning'><br /></div>
+                    </div>
+                    <div class='namePrompt'>Select Avatar</div>
+                    <div id='dialogAvatarSelections' class='settingColumn'>
+                        <div id='avatarList'></div>
+                    </div>
+                    <div id='avatarURL' class='stringInputHolder settingColumn'>
+                        <div id='avatarURLPrompt' class='namePrompt'>Or, Enter an Avatar URL</div>
+                        <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'>
+                        </div>
+                    </div>
+                    <div id="handednessRow" class="settingsColumn">
+                    
+                        <div id="handednessLabel">Hand:</div>
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id='handedness'>
+                                <label class="btn btn-secondary active">
+                                    <input type="radio" name="options" id="right" autocomplete="off" checked> Right
+                                </label>
+                                <label class="btn btn-secondary">
+                                    <input type="radio" name="options" id="left" autocomplete="off"> Left
+                                </label>
+                            </div>
+                        </div>
+                </div>
+            </div>
+
+            <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
+                <div id='enterButton'>Enter</div>
+            </div>
+            <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
+                <button type="button" class="btn btn-danger cancel-button">Cancel</button>
+                <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
+            </div>
         </div>
     </div>
-    <div id='joinSettings'>
-        <div id='joinPrompt' class='settingColumn'>
-            <div id='joinPromptTitle'>Choose nickname and avatar</div>
-            <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either by selecting from those on display or pasting a valid Ready Player Me URL.</div>
-        </div>
-        <div id='nameInput' class='stringInputHolder settingColumn'>
-            <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
-            <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
-            <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
-            <div id='nameFilterWarning'><br/></div>
-        </div>
-        <div id='dialogAvatarSelections' class='settingColumn'>
-          <div id='avatarList'></div>
-        </div>
-        <div id='avatarURL' class='stringInputHolder settingColumn'>
-          <div id='avatarURLPrompt' class='namePrompt'>Avatar URL</div>
-          <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'></div>
-        </div>
-        <div id="handednessRow"class="settingsColumn">
-          <div id="handednessLabel">Handedness:</div>
-          <select id='handedness' class='handedness'>
-            <option>Right</option>
-            <option>Left</option>
-          </select>
-        </div>
-        <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
-            <div id='enterButton'>Enter</div>
-        </div>
-        <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
-            <div id='cancelButton'>Cancel</div>
-            <div id='acceptButton'>Accept</div>
-        </div>
-    </div>
-  </div>
-</div>`.trim();
+</div>
+</div>
+</div>
+</div>
+`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = settings;
@@ -97,11 +119,15 @@ function createSettingsMenu(useEnter) {
     const nameField = settingsMenu.querySelector('#nameField');
     nameField.addEventListener('keydown', evt => nameFieldKeydown(evt));
     nameField.addEventListener('input', (evt) => nameFieldChanged(evt));
-    nameField.addEventListener('paste', (evt) => {evt.stopPropagation();});
+    nameField.addEventListener('paste', (evt) => {
+        evt.stopPropagation();
+    });
 
     const avatarURLField = settingsMenu.querySelector('#avatarURLField');
     avatarURLField.addEventListener('input', (evt) => avatarURLFieldChanged(evt));
-    avatarURLField.addEventListener('paste', (evt) => {evt.stopPropagation();});
+    avatarURLField.addEventListener('paste', (evt) => {
+        evt.stopPropagation();
+    });
 
     const enterButton = settingsMenu.querySelector('#enterButton');
     enterButton.addEventListener('click', () => dialogCloseEnter());
@@ -109,8 +135,23 @@ function createSettingsMenu(useEnter) {
     const acceptButton = settingsMenu.querySelector('#acceptButton');
     acceptButton.addEventListener('click', () => accept());
 
-    const cancelButton = settingsMenu.querySelector('#cancelButton');
-    cancelButton.addEventListener('click', () => cancel());
+    function showUi(){
+        const ui = document.body.querySelectorAll('.ui');
+    
+        for (let i = 0; i<ui.length; ++i){
+            ui[i].classList.remove("none");
+        };
+        }
+
+
+    const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
+    cancelButton.forEach(button =>{
+        button.addEventListener('click', function handleClick (){
+        settingsMenu.classList.add('none');
+        showUi();
+        sendToShell("hud",{joystick:true,fullscreen:true})
+        })
+    });
 
     let dialogHandedness = settingsMenu.querySelector("#handedness");
     dialogHandedness.addEventListener("input", () => handednessChanged());
@@ -136,23 +177,22 @@ function createSettingsMenu(useEnter) {
     dialogAcceptCancelButtons.classList.toggle("hidden", useEnter);
 
     populateAvatarSelection();
-    setSettingsSize();
+    // setSettingsSize();
     return Promise.resolve(settingsMenu);
 }
 
-function setSettingsSize() {
-    let width = 610;
-    let height = 610; // default, for a wide screen
-    // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
-    // the 'wide' format
-    const innerWidth = window.innerWidth;
-    if (innerWidth && innerWidth < 630) {
-        settingsMenuBody.classList.remove('wide');
-        width =  432;
-    }
-    settingsMenuBody.style.width = `${width}px`;
-    settingsMenuBody.style.height = `${height}px`;
-}
+// function setSettingsSize() {
+//     let width = 610;
+//     let height = 610; 
+
+//     const innerWidth = window.innerWidth;
+//     if (innerWidth && innerWidth < 630) {
+//         settingsMenuBody.classList.remove('wide');
+//         width = 432;
+//     }
+//     settingsMenuBody.style.width = `${width}px`;
+//     settingsMenuBody.style.height = `${height}px`;
+// }
 
 function fillFromPrevious() {
     const localSettings = window.settingsMenuConfiguration || {};
@@ -203,9 +243,9 @@ function nameFieldChanged(evt) {
     // const unusable = value.replace(/[\x20-\x7F]/g, '');
     value = value.replace(/[^\x20-\x7F]/g, '').trim().slice(0, 12).trim();
     const div = document.getElementById('nameFilterWarning');
-    div.innerHTML = value.length === beforeFilter
-        ? '<br/>'
-        : `Nickname filtered to "${value}"`;
+    div.innerHTML = value.length === beforeFilter ?
+        '<br/>' :
+        `Nickname filtered to "${value}"`;
 
     if (value.length >= 1 && value.length <= 12) {
         configuration.nickname = value;
@@ -223,7 +263,10 @@ function avatarURLFieldChanged(evt) {
     }
     const avatarURLField = settingsMenu.querySelector('#avatarURLField');
     let value = avatarURLField.textContent.trim(); // may be empty
-    avatarSelected({url: value, type: "ReadyPlayerMe"});
+    avatarSelected({
+        url: value,
+        type: "ReadyPlayerMe"
+    });
 }
 
 function updateButtonState() {
@@ -264,7 +307,10 @@ function cancel() {
 
 function updateLocalConfig() {
     const existing = window.settingsMenuConfiguration || {};
-    window.settingsMenuConfiguration = { ...existing, ...configuration };
+    window.settingsMenuConfiguration = {
+        ...existing,
+        ...configuration
+    };
 }
 
 let avatars = [
@@ -308,7 +354,9 @@ function avatarSelected(entry) {
         configuration.type = entry.type;
     }
 
-    if (!settingsMenu) {return;}
+    if (!settingsMenu) {
+        return;
+    }
 
     avatarIsValid = false;
 
@@ -344,7 +392,9 @@ function findPredefined(url) {
 }
 
 function populateAvatarSelection() {
-    if (!settingsMenu) {return;}
+    if (!settingsMenu) {
+        return;
+    }
     let holder = settingsMenu.querySelector("#avatarList");
 
     avatars.forEach((entry) => {

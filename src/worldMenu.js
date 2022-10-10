@@ -1,4 +1,11 @@
+import { startShareMenu } from "./shareMenu";
+import { startHelpMenu } from "./helpMenu";
+import { sendToShell } from "./frame.js";
+
+
+
 let worldMenu = null;
+let uiVisible = null;
 let worldMenuVisible = false;
 let imageInput = null;
 
@@ -11,21 +18,6 @@ function qrPressed(_myAvatar, url) {
     let a = div.querySelector("#link");
     a.click();
     div.remove();
-}
-
-function savePressed(myAvatar) {
-    let model = myAvatar.actor.wellKnownModel("ModelRoot");
-
-    let div = document.createElement("a");
-
-    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData(), null, 4));
-
-    div.setAttribute("href", dataStr);
-    div.setAttribute("download", "scene.vrse");
-    div.click();
-    if (worldMenuVisible) {
-        toggleMenu();
-    }
 }
 
 function loadPressed(myAvatar) {
@@ -57,18 +49,52 @@ function loadPressed(myAvatar) {
 }
 
 function connectPressed() {
+    const connectButton = document.getElementById('connectBtn');
+    const connectIcon = document.getElementById('connectIcon')
+
     window.BehaviorViewManager.setURL("ws://localhost:9011");
-    if (worldMenuVisible) {
-        toggleMenu();
-    }
+
+    connectButton.addEventListener('click', function handleClick() {
+    connectButton.textContent = 'Connected';
+    connectButton.classList.add('connected');
+
+    connectIcon.classList.remove('connect-icon');
+    connectIcon.classList.add('connected-icon');
+
+});
 }
 
 function settingsPressed(myAvatar) {
     if (myAvatar) {
         myAvatar.showSettingsMenu();
         toggleMenu(myAvatar);
+        toggleUi();
+        sendToShell("hud",{joystick:false,fullscreen:false})
     }
 }
+
+function sharePressed() {
+    startShareMenu(worldMenu.badge);
+    if (worldMenuVisible) {
+        toggleMenu();
+        toggleUi();
+        sendToShell("hud",{joystick:false,fullscreen:false})
+    }
+
+}
+
+function helpPressed() {
+    startHelpMenu();
+    if (worldMenuVisible) {
+        toggleMenu();
+        toggleUi();
+        sendToShell("hud",{joystick:false,fullscreen:false})
+    }
+
+}
+
+
+
 
 function switchQRView(_myAvatar) {
     let qrDiv = worldMenu.querySelector("#qrDiv");
@@ -96,55 +122,76 @@ function initWorldMenu(badge) {
     let html = document.createElement("div");
     html.id = "worldMenu";
     html.classList.add("worldMenu");
-
-    html.appendChild(badge);
+    
+    // html.appendChild(badge);
     badge.id = "worldMenu-qr";
     badge.classList.add("menu-qr", "menu-item");
 
     let buttons = `
-<div id="worldMenu-save" class="menu-label menu-item">
-    <span class="menu-label-text">Save</span>
-    <div class="menu-icon save-icon"></div>
-</div>
 <div id="worldMenu-load" class="menu-label menu-item">
-    <span class="menu-label-text">Load</span>
     <div class="menu-icon load-icon"></div>
+    <span class="menu-label-text">Import</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
-    <span class="menu-label-text">Connect</span>
-    <div class="menu-icon connect-icon"></div>
+    <div class="menu-icon connect-icon" id="connectIcon"></div>
+    <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
-    <span class="menu-label-text">Settings...</span>
-    <div class="menu-icon load-icon"></div>
+    <div class="menu-icon settings-icon"></div>
+    <span class="menu-label-text">Settings</span>
 </div>
+<div id="helpButton" class="menu-label menu-item">
+    <div class="menu-icon help-icon"></div>
+    <span class="menu-label-text">Help</span>
+</div>
+<div id="shareButton" class="menu-label menu-item">
+    <div class="menu-icon share-icon"></div>
+    <span class="menu-label-text">Share</span>
+</div>
+</div>
+
 `.trim();
 
     let div = document.createElement("div");
     div.innerHTML = buttons;
 
-    let save = div.querySelector("#worldMenu-save");
     let load = div.querySelector("#worldMenu-load");
     let connect = div.querySelector("#worldMenu-connect");
     let settings = div.querySelector("#worldMenu-settings");
+    let share = div.querySelector("#shareButton");
+    let help = div.querySelector("#helpButton");
 
-    html.appendChild(save);
     html.appendChild(load);
     html.appendChild(connect);
+    html.appendChild(share);
     html.appendChild(settings);
+    html.appendChild(help);
 
     worldMenu = html;
+
+    worldMenu.badge = badge;
     filterDomEventsOn(worldMenu);
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
 }
 
+function toggleUi(){
+    const ui = document.body.querySelectorAll('.ui');
+
+    for (let i = 0; i<ui.length; ++i){
+        ui[i].classList.add("none");
+    };
+}
+
 function toggleMenu(myAvatar) {
+
     if (worldMenuVisible) {
         worldMenu.classList.remove("menuVisible");
         worldMenuVisible = false;
         return;
     }
+
+
 
     if (worldMenu.lastChild.id === "worldMenu-forceStop") {
         worldMenu.lastChild.remove();
@@ -152,9 +199,9 @@ function toggleMenu(myAvatar) {
 
     if (myAvatar.actor.service("PlayerManager").presentationMode) {
         let presentation = `
-<div id="worldMenu-forceStop" class="menu-label menu-item">
-    <span class="menu-label-text">Stop Presentation</span>
-</div>`.trim();
+            <div id="worldMenu-forceStop" class="menu-label menu-item">
+                <span class="menu-label-text">Stop Presentation</span>
+            </div>`.trim();
 
         let div = document.createElement("div");
         div.innerHTML = presentation;
@@ -163,24 +210,6 @@ function toggleMenu(myAvatar) {
 
     let div;
 
-    div = worldMenu.querySelector("#worldMenu-qr");
-    div.onclick = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-
-        if (evt.shiftKey || isMobile) {
-            switchQRView(myAvatar);
-            return;
-        }
-        qrPressed(myAvatar, window.location);
-    }
-
-    div = worldMenu.querySelector("#worldMenu-save");
-    div.onclick = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-        savePressed(myAvatar);
-    }
 
     div = worldMenu.querySelector("#worldMenu-load");
     div.onclick = (evt) => {
@@ -189,11 +218,19 @@ function toggleMenu(myAvatar) {
         loadPressed(myAvatar);
     }
 
+    let settingsMenu = document.body.querySelector('#joinDialog');
+
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);
 
     div = worldMenu.querySelector("#worldMenu-settings");
     if (div) div.onclick = () => settingsPressed(myAvatar);
+
+    div = worldMenu.querySelector("#shareButton");
+    if (div) div.onclick = () => sharePressed();
+
+    div = worldMenu.querySelector("#helpButton");
+    if (div) div.onclick = () => helpPressed();
 
     div = worldMenu.querySelector("#worldMenu-forceStop");
     if (div) {
@@ -202,12 +239,14 @@ function toggleMenu(myAvatar) {
 
     worldMenuVisible = true;
     worldMenu.classList.add("menuVisible");
+
     return worldMenu;
 }
 
+
 export function setupWorldMenuButton(myAvatar, App, sessionId) {
     if (!worldMenu) {
-        let ownerDiv = document.createElement("div");
+        let badge = document.createElement("div");
         let statsDiv = document.createElement("div");
         statsDiv.id = "statsDiv";
         let qrDiv = document.createElement("div");
@@ -215,17 +254,17 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
 
         statsDiv.classList.add("statsHidden");
 
-        ownerDiv.appendChild(qrDiv);
-        ownerDiv.appendChild(statsDiv);
+        badge.appendChild(qrDiv);
+        badge.appendChild(statsDiv);
 
-        App.root = ownerDiv;
+        App.root = badge;
         App.badge = false;
         App.qrcode = qrDiv;
         App.stats = statsDiv;
         App.makeSessionWidgets(sessionId);
         qrDiv.onclick = null;
 
-        initWorldMenu(ownerDiv);
+        initWorldMenu(badge);
     }
     let worldMenuBttn = document.querySelector("#worldMenuBttn");
     worldMenuBttn.onclick = () => toggleMenu(myAvatar);
