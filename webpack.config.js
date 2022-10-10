@@ -59,17 +59,10 @@ const config = {
         }),
         new CopyPlugin({
             patterns: [
-                { from: 'assets/3D/*'},
-                { from: 'assets/SVG/*'},
-                { from: 'assets/avatars/*'},
-                { from: 'assets/css/*'},
-                { from: 'assets/fonts/**/*'},
-                { from: 'assets/images/*'},
-                { from: 'assets/avatar-images/*'},
-                { from: 'assets/sky/*'},
+                { from: 'assets/**/*'},
+                { from: 'behaviors/**/*'},
                 { from: 'worlds/*.{js,vrse}'},
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
-                { from: 'behaviors/**/*'},
                 { from: 'apiKey.js', noErrorOnMissing: true },
                 { from: 'apiKey-dev.js', noErrorOnMissing: true },
             ]
