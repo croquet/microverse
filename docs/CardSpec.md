@@ -260,8 +260,7 @@ visual
 ### Type
 
 ```TypeScript
-type Type ="2d"|"3d"|"lighting"|"object"|"code"
-Type|undefined
+"2d"|"3d"|"lighting"|"object"|"code"
 ```
 
 ### Description

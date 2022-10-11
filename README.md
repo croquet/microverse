@@ -64,7 +64,7 @@ The documentation for the Croquet Microverse is located in the [docs](./docs) di
 * [docs/Avatar.md](./docs/Avatar.md) - The methods and properties of the Avatar classes.
 * [docs/CardSpec.md](./docs/CardSpec.md) - Specification for Microverse Cards
 * [docs/Elected.md](./docs/Elected.md) - The Election mechanism to choose a peer.
-* [docs/Rapier.md](./docs/Rapier.md) - Using the Rapier Physics Engine in Microverses
+* [docs/Physics.md](./docs/Physics.md) - Using the Rapier Physics Engine in Microverses
 * [docs/Tutorial.md](./docs/Tutorial.md) - The introduction to tutorials
 * [docs/Tutorial1.md](./docs/Tutorial1.md) - The tutorial part 1.
 * [docs/Tutorial2.md](./docs/Tutorial2.md) - The tutorial part 2.

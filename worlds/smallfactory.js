@@ -12,8 +12,6 @@ export function init(Constants) {
         "smalllights.js", "crane.js", "garage.js", "forklift.js", "circle.js", "spin.js"
     ];
 
-    Constants.UseRapier = true;
-
     Constants.DefaultCards = [
         {
             card: {
@@ -49,7 +47,7 @@ export function init(Constants) {
                 name: "crane",
                 type: "object",
                 translation: [-1.4447057496318962, -5.504611090090481, 30.282952880859376],
-                behaviorModules: ["Rapier", "Crane"],
+                behaviorModules: ["Crane"],
                 layers: ["pointer"],
                 shadow: true,
                 scale: [0.4, 0.4, 0.4],

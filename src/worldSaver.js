@@ -35,9 +35,6 @@ export class WorldSaver {
 
         let result = {behaviorModules, cards: resultArray};
 
-        if (Constants.UseRapier) {
-            result.useRapier = true;
-        }
         return result;
     }
 

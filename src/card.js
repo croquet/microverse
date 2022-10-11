@@ -448,9 +448,13 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     get rigidBody() {
-        // return this.$rigidBody;
-        return this.call("Rapier$RapierActor", "getRigidBody");
-        // return this.call("Physics$PhysicsActor", "getRigidBody");
+        // the API changed from rapier 0.7.6 to 0.9.0, but we do not want to load two versions of Rapier engines.
+        // The old session with Rapier 0.7.6 will still load with the stubbed out versions of behaviors/croquet/rapier.js.
+        // but the simulation in such a session won't run anymore.
+        if (this._oldRapier07) {
+            return {applyForce: () => undefined, applyTorque: () => undefined};
+        }
+        return this.call("Physics$PhysicsActor", "getRigidBody");
     }
 
     setPhysicsWorld(v) {

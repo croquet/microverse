@@ -181,6 +181,17 @@ class FlightTrackerPawn {
             })
             .catch(error => console.log(error));
     }
+
+    teardown() {
+        const earthbase = `./assets/images/earthbase.png`;
+        const earthshadow = `./assets/images/earthshadow.jpg`;
+        const ball = './assets/images/ball.png';
+        let assetManager = this.service("AssetManager").assetManager;
+
+        assetManager.revoke(ball, this.id);
+        assetManager.revoke(earthbase, this.id);
+        assetManager.revoke(earthshadow, this.id);
+    }
 }
 
 export default {

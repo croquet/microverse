@@ -13,7 +13,6 @@ export function init(Constants) {
     ];
 
     const frameColor = 0x888888;
-    Constants.UseRapier = true;
 
     Constants.DefaultCards = [
         {
@@ -301,7 +300,7 @@ width: 1.8,
                 name: "cradle",
                 type: "object",
                 translation: [-9.67815341742099, 3.2368919013826734, 3.968801765942323],
-                behaviorModules: ["Rapier", "Cradle"],
+                behaviorModules: ["Cradle"],
                 layers: ["pointer"],
                 shadow: true,
                 scale: [0.2, 0.2, 0.2],

@@ -8,15 +8,21 @@
     below to help assist you in changing these values. Also, the code is somewhat
     modified for two connections, so see previous commits for the one connection code.
     
-    (cd = Microverse.RAPIER.ColliderDesc.ball(0.85))
+    (cd = Microverse.Physics.ColliderDesc.ball(0.85))
     (let translation = [0, 34.135389925172704 - i * 2, 0])
-    (card.call("Rapier$RapierActor", "createImpulseJoint", "ball" ...))
+    (card.call("Physics$PhysicsActor", "createImpulseJoint", "ball" ...))
     (let s = [0.1, 2.3])
 
 */
 
 class CraneActor {
     setup() { // Start With Logic, Continue With Physics Implementation
+        if (!this.physicsWorld) {
+            let physicsManager = this.service("PhysicsManager");
+            console.log("new physics world for crane");
+            this.setPhysicsWorld(physicsManager.createWorld({timeStep: 50}, this.id));
+        }
+
         this.pointA = [-1.4447057496318962, -5.504611090090481, 29.225081241195];
         this.pointB = [-1.4447057496318962, -5.504611090090481, -6.8406291023593755];
         this.subscribe("crane", "updatePositionBy", "updatePositionBy");
@@ -31,7 +37,7 @@ class CraneActor {
             parent: this,
             modelType: "glb",
             dataLocation: "35H7xJVLhQNFxNMt5HZigey3PXGNeREIgL3fy_PNJaOsXUFBRUYPGhpTXFlQRhtARhtWR1pEQFBBG1xaGkAadm19f1NxelhAfFNccGxaWntsQmVjTHpXXgVTBxpWWlgbUE1UWEVZUBtBR1BDWkcbWExYXFZHWkNQR0ZQGmABZQcHckV0cnJDXlRReGB3B3JMam0DeUwEGGENWgNhZAxaB1NgWUB0B2waUVRBVBpDQGJqeEV7ZmNQc2JZAWIHAndQVEZ8fURQY0NlBmp_UAd-DH9FZXRXUkRC",
-            behaviorModules: ["Rapier", "CraneLink"],
+            behaviorModules: ["Physics", "CraneLink"],
             craneHandlesEvent: true,
             noSave: true,
             shadow: true,
@@ -44,8 +50,8 @@ class CraneActor {
         this.links = [...Array(d).keys()].map((i) => {
 
             let bodyDesc;
-            if (i === 0 || i === 4) { bodyDesc = Microverse.RAPIER.RigidBodyDesc.newKinematicPositionBased(); } // Top Link, Stays in Place
-            else { bodyDesc = Microverse.RAPIER.RigidBodyDesc.newDynamic(); }
+            if (i === 0 || i === 4) { bodyDesc = Microverse.Physics.RigidBodyDesc.newKinematicPositionBased(); } // Top Link, Stays in Place
+            else { bodyDesc = Microverse.Physics.RigidBodyDesc.newDynamic(); }
 
             let card;
             let translation1 = [0, 35.135389925172704 - i * 2, 1]; // Take into Account the * 2, Change for Differing Values
@@ -64,14 +70,14 @@ class CraneActor {
                     type: "3d",
                     modelType: "glb",
                     dataLocation: "3DXL69tRPG3TIGu1pGwQ8THC_ykY41jJOqMYGH8DInacLDAwNDd-a2siLSghN2oxN2onNis1MSEwai0razFrBxwMDiIACykxDSItAR0rKwodMxQSPQsmL3QidmsnKylqITwlKTQoIWowNiEyKzZqKT0pLSc2KzIhNjchayJ3HnYwcQcnCgp0cCAcJQtpFC0lAHEVHAI-MBEdLSUWciYrDRN2aRMhFR1rICUwJWssaSMcDXI1DgcdITMuHH0cLi0WdxRzKwk8KXB1MgkdKyEgLBR3cjUsdDcd",
-                    behaviorModules: ["Rapier", "CraneLink"],
+                    behaviorModules: ["Physics", "CraneLink"],
                     craneHandlesEvent: true, // To Add Movement Physics
                     craneProto: true, // Since GLB Exists
                     noSave: true,
                     shadow: true,
                 });
-                card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
-                cd = Microverse.RAPIER.ColliderDesc.ball(0.85); // Radius
+                card.call("Physics$PhysicsActor", "createRigidBody", bodyDesc);
+                cd = Microverse.Physics.ColliderDesc.ball(0.85); // Radius
             } 
 
             else if (i >= 4) { // Second Link
@@ -80,13 +86,13 @@ class CraneActor {
                     translation: translation2,
                     type: "object",
                     parent: this,
-                    behaviorModules: ["Rapier", "CraneLink"],
+                    behaviorModules: ["Physics", "CraneLink"],
                     craneHandlesEvent: true,
                     noSave: true,
                     shadow: true,
                 });
-                card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
-                cd = Microverse.RAPIER.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
+                card.call("Physics$PhysicsActor", "createRigidBody", bodyDesc);
+                cd = Microverse.Physics.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
             }
 
             else { // Standard Link
@@ -95,13 +101,13 @@ class CraneActor {
                     translation: translation1,
                     type: "object",
                     parent: this,
-                    behaviorModules: ["Rapier", "CraneLink"],
+                    behaviorModules: ["Physics", "CraneLink"],
                     craneHandlesEvent: true,
                     noSave: true,
                     shadow: true,
                 });
-                card.call("Rapier$RapierActor", "createRigidBody", bodyDesc);
-                cd = Microverse.RAPIER.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
+                card.call("Physics$PhysicsActor", "createRigidBody", bodyDesc);
+                cd = Microverse.Physics.ColliderDesc.cylinder(0.9, 0.4); // Double Height (Gets Halved), Radius
             }
 
             cd.setRestitution(0.5);
@@ -110,7 +116,7 @@ class CraneActor {
             if (i >= 4) { cd.setDensity(6.0); }
             else { cd.setDensity(15.0); }
 
-            card.call("Rapier$RapierActor", "createCollider", cd);
+            card.call("Physics$PhysicsActor", "createCollider", cd);
             return card;
 
         });
@@ -121,12 +127,12 @@ class CraneActor {
                 name: `joint${i}`,
                 type: "object",
                 parent: this,
-                behaviorModules: ["Rapier"],
+                behaviorModules: ["Physics"],
                 noSave: true,
             });
 
-            if (i !== 3) { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 0}); } // Half Y
-            else { card.call("Rapier$RapierActor", "createImpulseJoint", "ball", this.links[3], this.links[8], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 1}); } // Specific Connection (First Joint, Second Joint)
+            if (i !== 3) { card.call("Physics$PhysicsActor", "createImpulseJoint", "ball", this.links[i], this.links[i + 1], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 0}); } // Half Y
+            else { card.call("Physics$PhysicsActor", "createImpulseJoint", "ball", this.links[3], this.links[8], {x: 0, y: -1, z: 0}, {x: 0, y: 1, z: 1}); } // Specific Connection (First Joint, Second Joint)
             return card;
 
         });
@@ -187,16 +193,16 @@ class CraneLinkActor {
         if (ratio === 0) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        let movement = Microverse.v3_scale([0, 0, ratio * 60], 30);
-        r.applyForce({x: movement[0], y: movement[1], z: movement[2]}, true);
+        let movement = Microverse.v3_scale([0, 0, ratio * 100], 6);
+        r.applyImpulse({x: movement[0], y: movement[1], z: movement[2]}, true);
     }
 
     jolt(p3d) { // Jolt From Pendulum
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        let jolt = Microverse.v3_scale(p3d.normal, 250);
-        r.applyForce({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
+        let jolt = Microverse.v3_scale(p3d.normal, 20);
+        r.applyImpulse({x: jolt[0], y: jolt[1], z: jolt[2]}, true);
     }
 
     teardown() {
@@ -209,7 +215,7 @@ class CraneLinkPawn {
 
         /*
 
-          Creates a Three.JS mesh based on the specified rapierShape and rapierSize.
+          Creates a Three.JS mesh based on the specified physicsShape and physicsSize.
           
           For a demo purpose, it does not override an existing shape
           (by checking this.shape.children.length) so that the earth
