@@ -20,25 +20,12 @@ class RearrangeButtonActor {
     }
 
     moveCascadeDemo() {
-        let base = this.queryCards().filter((c) => c.name === "base");
-        if (base[0]) {
-            base[0].set({
-                translation: [32.35043668195448, 0.5333311732970384, -18.116381872009743],
-                rotation: Microverse.q_euler(0.47123889803846897, Math.PI, 0)
-            });
-        }
-
-        let base2 = this.queryCards().filter((c) => c.name === "base 2");
-        if (base2[0]) {
-            base2[0].set({
-                translation: [32.382446107309924, -1.3319528860066834, -20.746485651429282],
-                rotation: Microverse.q_euler(0.35123889803846897, Math.PI, 0)
-            });
-        }
-        let spray = this.queryCards().filter((c) => c.name === "spray");
-        if (spray[0]) {
-            spray[0].set({
-                translation: [32.546121675913284, 1.9440803511382083, -18.116381872009743],
+        let cascade = this.queryCards().filter((c) => c.name === "cascade");
+        if (cascade[0]) {
+            cascade[0].set({
+                translation: [32.35043668195448, 0.2, -17.6],
+                rotation: Microverse.q_euler(0, Math.PI, 0),
+                scale: [0.75, 0.75, 0.75]
             });
         }
     }

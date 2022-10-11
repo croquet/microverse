@@ -13,8 +13,7 @@ export function init(Constants) {
     ];
 
     const frameColor = 0x888888;
-    Constants.UseRapier = true;
-
+ra
     Constants.DefaultCards = [
         {
             card: {

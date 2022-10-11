@@ -6,7 +6,7 @@ import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
-import { RapierPhysicsManager } from "./physics.js";
+import { PhysicsManager } from "./physics.js";
 import { AgoraChatManager } from "./agoraChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
@@ -35,10 +35,12 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js"
 ];
 
 let AA = true;
+
+console.log("%cTHREE.REVISION:", "color: #f00", THREE.REVISION);
 
 async function getAntialias() {
     // turn off antialiasing for mobile and safari
@@ -391,12 +393,12 @@ class MyModelRoot extends ModelRoot {
             MicroverseAppManager,
             BehaviorModelManager,
             FontModelManager,
-            ...(Constants.UseRapier ? [{service: RapierPhysicsManager, options: {useCollisionEventQueue: true}}] : [])
+            PhysicsManager,
         ];
     }
+
     init(options, persistentData) {
         super.init(options);
-
         let appManager = this.service("MicroverseAppManager");
         appManager.add(MultiBlaster);
         appManager.add(TextFieldActor);
@@ -810,9 +812,6 @@ async function launchMicroverse() {
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
-        if (json.data.useRapier) {
-            Constants.UseRapier = json.data.useRapier;
-        }
         Constants.BehaviorModules = json.data.behaviormodules;
         Constants.DefaultCards = json.data.cards;
         Constants.Library = new CodeLibrary();
