@@ -122,7 +122,7 @@ function initWorldMenu(badge) {
     let html = document.createElement("div");
     html.id = "worldMenu";
     html.classList.add("worldMenu");
-    
+
     // html.appendChild(badge);
     badge.id = "worldMenu-qr";
     badge.classList.add("menu-qr", "menu-item");
