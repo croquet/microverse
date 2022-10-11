@@ -2,70 +2,32 @@
 // https://croquet.io
 // info@croquet.io
 
-import { ModelService } from "@croquet/worldcore-kernel";
+import { ModelService, Model } from "@croquet/worldcore-kernel";
 
-export let RAPIER;
+export let Physics;
 
-export function RapierVersion() {
-    return RAPIER.version();
+export function PhysicsVersion() {
+    return "Rapier: " + Physics.version();
 }
 
-//------------------------------------------------------------------------------------------
-//-- RapierPhysicsManager ------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-
-// Maintains a list of players connected to the session.
-
-export class RapierPhysicsManager extends ModelService {
-
-    static async asyncStart() {
-        console.log("Starting Rapier physics!");
-
-        if (window.RAPIERModule) {
-            RAPIER = window.RAPIERModule;
-        } else {
-            RAPIER = await import("@dimforge/rapier3d");
-        }
-    }
-
-    static types() {
-        if (!RAPIER) return {};
-        return {
-            "RAPIER.World": {
-                cls: RAPIER.World,
-                write: world => world.takeSnapshot(),
-                read:  snapshot => RAPIER.World.restoreSnapshot(snapshot)
-            },
-            "RAPIER.EventQueue": {
-                cls: RAPIER.EventQueue,
-                write: _q => {},
-                read:  _q => new RAPIER.EventQueue(true)
-            },
-        };
-    }
-
-    init(options = {}) {
-        super.init('RapierPhysicsManager');
+class PhysicsWorld extends Model {
+    init(options) {
         if (options.useCollisionEventQueue) {
-            this.queue = new RAPIER.EventQueue(true);
+            this.queue = new Physics.EventQueue(true);
         }
 
         const gravity = options.gravity || [0.0, -9.8, 0.0];
         const timeStep = options.timeStep || 50; // In ms
 
-        const g = new RAPIER.Vector3(...gravity);
-        this.world = new RAPIER.World(g);
+        const g = new Physics.Vector3(...gravity);
+        this.world = new Physics.World(g);
 
         this.timeStep = timeStep;
         this.world.timestep = this.timeStep / 1000;
-        this.rigidBodies = [];
-        this.future(0).tick();
-    }
-
-    destroy() {
-        super.destroy();
-        this.world.free();
-        this.world = null;
+        this.rigidBodies = new Map();
+        if (!options.startPaused) {
+            this.future(0).tick();
+        }
     }
 
     pause() {
@@ -78,9 +40,10 @@ export class RapierPhysicsManager extends ModelService {
 
     tick() {
         if (!this.isPaused) {
-            this.world.step(this.queue); // may be undefined
-            this.world.forEachActiveRigidBodyHandle(h => {
-                const rb = this.rigidBodies[h];
+            this.world.step(this.queue); // this.queue may be undefined
+            this.world.forEachActiveRigidBody(body => {
+                let h = body.handle;
+                const rb = this.rigidBodies.get(h);
                 const t = rb.rigidBody.translation();
                 const r = rb.rigidBody.rotation();
 
@@ -92,18 +55,11 @@ export class RapierPhysicsManager extends ModelService {
                 rb.rotateTo(q);
             });
             if (this.queue) {
-                if (this.contactEventHandler) {
-                    this.queue.drainContactEvents((handle1, handle2, started) => {
-                        let rb1 = this.rigidBodies[handle1];
-                        let rb2 = this.rigidBodies[handle2];
-                        this.contactEventHandler.contactEvent(rb1, rb2, started);
-                    });
-                }
-                if (this.intersectionEventHandler) {
-                    this.queue.drainIntersectionEvents((handle1, handle2, intersecting) => {
-                        let rb1 = this.rigidBodies[handle1];
-                        let rb2 = this.rigidBodies[handle2];
-                        this.intersectionEventHandler.intersectionEvent(rb1, rb2, intersecting);
+                if (this.collisionEventHandler) {
+                    this.queue.drainCollisionEvents((handle1, handle2, started) => {
+                        let rb1 = this.rigidBodies.get(handle1);
+                        let rb2 = this.rigidBodies.get(handle2);
+                        this.collisionEventHandler.collision(rb1, rb2, started);
                     });
                 }
             }
@@ -111,11 +67,88 @@ export class RapierPhysicsManager extends ModelService {
         this.future(this.timeStep).tick();
     }
 
-    registerContactEventHandler(handler) {
-        this.contactEventHandler = handler;
+    registerCollisionEventHandler(handler) {
+        this.collisionEventHandler = handler;
     }
-    registerIntersectionEventHandler(handler) {
-        this.intersectionEventHandler = handler;
+
+    destroy() {
+        this.world.free();
+        this.world = null;
+        // super.destroy();
     }
 }
-RapierPhysicsManager.register("RapierPhysicsManager");
+
+PhysicsWorld.register("PhysicsWorld");
+
+//------------------------------------------------------------------------------------------
+//-- PhysicsManager ------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
+// Maintains a list of players connected to the session.
+
+export class PhysicsManager extends ModelService {
+    static async asyncStart() {
+        if (window.RAPIERModule) {
+            Physics = window.RAPIERModule;
+        } else {
+            Physics = await import("@dimforge/rapier3d");
+        }
+        console.log("Starting physics " + PhysicsVersion());
+    }
+
+    static types() {
+        if (!Physics) return {};
+        return {
+            "Physics.World": {
+                cls: Physics.World,
+                write: world => world.takeSnapshot(),
+                read:  snapshot => Physics.World.restoreSnapshot(snapshot)
+            },
+            "Physics.EventQueue": {
+                cls: Physics.EventQueue,
+                write: _q => {},
+                read:  _q => new Physics.EventQueue(true)
+            },
+        };
+    }
+
+    init() {
+        super.init("PhysicsManager");
+        this.worlds = new Map();
+        // this.globalWorld = this.createWorld({}, this.id);
+    }
+
+    createWorld(options, id) {
+        let world = PhysicsWorld.create(options);
+        this.worlds.set(id, world);
+        return world;
+    }
+
+    createGlobalWorld(options) {
+        if (this.globalWorld) {return;}
+        this.globalWorld = this.createWorld(options, this.id);
+        return this.globalWorld;
+    }
+
+    deleteWorld(id) {
+        let world = this.worlds.get(id);
+        if (!world) {return;}
+        world.destroy();
+        this.worlds.delete(id);
+    }
+
+    deleteGlobalWorld() {
+        this.deleteWorld(this.id);
+        delete this.globalWorld;
+    }
+
+    destroy() {
+        for (let [_k, v] of this.worlds) {
+            v.destroy();
+        }
+        delete this.globalWorld;
+        this.worlds = new Map();
+        super.destroy();
+    }
+}
+
+PhysicsManager.register("PhysicsManager");
