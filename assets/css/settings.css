@@ -748,6 +748,7 @@
   font-size: 25px;
   text-align: center;
   margin-top: 50px;
+  margin: 30px 0px 30px 0px;
 }
 
 .settings-padding {
@@ -869,6 +870,7 @@ td:first-child {
   }
   .dialogButtonsHolder {
     width: 95%;
+    margin-top: 10px;
   }
 
   .menu-qr {
@@ -878,7 +880,7 @@ td:first-child {
 
   #joinSettings {
     width: 600px;
-    height: 600px;
+    min-height: 600px;
   }
 }
 
@@ -936,4 +938,10 @@ p#shareQR {
 
 p.share-title {
   margin-bottom: 10px;
+}
+
+.btn-purple {
+  background-color: #761cfe;
+  color: white;
+  font-weight: bold;
 }

@@ -84,10 +84,10 @@ function createSettingsMenu(useEnter) {
                     
                         <div id="handednessLabel">Hand:</div>
                             <div class="btn-group btn-group-toggle" data-toggle="buttons" id='handedness'>
-                                <label class="btn btn-secondary active">
+                                <label class="btn btn-purple active">
                                     <input type="radio" name="options" id="right" autocomplete="off" checked> Right
                                 </label>
-                                <label class="btn btn-secondary">
+                                <label class="btn btn-purple">
                                     <input type="radio" name="options" id="left" autocomplete="off"> Left
                                 </label>
                             </div>
