@@ -84,7 +84,7 @@ body.tilt > iframe {
 
 .btn {
   position: fixed;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.5);
   border: 1px solid white;
   z-index: 200;
   border-radius: 30%;
@@ -103,14 +103,14 @@ body.tilt > iframe {
 }
 
 #homeBtn {
-  bottom: 65px;
+  bottom: 15px;
   right: 10px;
   transform: translate(0, -50%);
 }
 
 #fullscreenBtn {
   right: 10px;
-  bottom: 158px;
+  bottom: 105px;
   margin-bottom: 10px;
 }
 
