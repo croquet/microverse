@@ -763,10 +763,10 @@ function isRunningLocalNetwork() {
 
 export function startMicroverse() {
     let setButtons = (display) => {
-        ["usersComeHereBttn", "homeBttn", "worldMenuBttn"].forEach((n) => {
-            let bttn = document.querySelector("#" + n);
-            if (bttn) {
-                bttn.style.display = display;
+        ["usersComeHereBtn", "homeBtn", "worldMenuBtn"].forEach((n) => {
+            let btn = document.querySelector("#" + n);
+            if (btn) {
+                btn.style.display = display;
             }
         });
     };

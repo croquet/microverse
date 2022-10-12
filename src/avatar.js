@@ -772,14 +772,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
-        document.getElementById("homeBttn").onclick = () => this.goHome();
-        filterDomEventsOn(document.getElementById("homeBttn"));
-        document.getElementById("usersComeHereBttn").onclick = () => this.comeToMe();
-        filterDomEventsOn(document.getElementById("usersComeHereBttn"));
-        document.getElementById("editModeBttn").setAttribute("mobile", this.isMobile);
-        document.getElementById("editModeBttn").setAttribute("pressed", false);
+        document.getElementById("homeBtn").onclick = () => this.goHome();
+        filterDomEventsOn(document.getElementById("homeBtn"));
+        document.getElementById("usersComeHereBtn").onclick = () => this.comeToMe();
+        filterDomEventsOn(document.getElementById("usersComeHereBtn"));
+        document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
+        document.getElementById("editModeBtn").setAttribute("pressed", false);
 
-        let editButton = document.getElementById("editModeBttn");
+        let editButton = document.getElementById("editModeBtn");
         editButton.onpointerdown = (evt) => this.setEditMode(evt);
         editButton.onpointerup = (evt) => this.clearEditMode(evt);
 
@@ -1124,7 +1124,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showNumbers() {
         let manager = this.actor.service("PlayerManager");
-        let comeHere = document.getElementById("usersComeHereBttn");
+        let comeHere = document.getElementById("usersComeHereBtn");
         let userCountReadout = comeHere.querySelector("#userCountReadout");
         if (userCountReadout) {
             // TODO: change PlayerManager to only create avatars for players that are actually in the world

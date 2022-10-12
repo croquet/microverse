@@ -95,8 +95,8 @@ class Shell {
             }
         });
 
-        this.fullscreenBttn = document.getElementById("fullscreenBttn");
-        this.fullscreenBttn.onclick = (e) => {
+        this.fullscreenBtn = document.getElementById("fullscreenBtn");
+        this.fullscreenBtn.onclick = (e) => {
             e.stopPropagation();
             e.preventDefault();
 
@@ -467,11 +467,11 @@ class Shell {
                 this.joystick.style.setProperty("display", "none");
             }
         }
-        if (fullscreenFlag !== undefined && this.fullscreenBttn) {
+        if (fullscreenFlag !== undefined && this.fullscreenBtn) {
             if (fullscreenFlag) {
-                this.fullscreenBttn.style.removeProperty("display");
+                this.fullscreenBtn.style.removeProperty("display");
             } else {
-                this.fullscreenBttn.style.setProperty("display", "none");
+                this.fullscreenBtn.style.setProperty("display", "none");
             }
         }
     }

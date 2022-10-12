@@ -266,9 +266,9 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
 
         initWorldMenu(badge);
     }
-    let worldMenuBttn = document.querySelector("#worldMenuBttn");
-    worldMenuBttn.onclick = () => toggleMenu(myAvatar);
-    filterDomEventsOn(worldMenuBttn);
+    let worldMenuBtn = document.querySelector("#worldMenuBtn");
+    worldMenuBtn.onclick = () => toggleMenu(myAvatar);
+    filterDomEventsOn(worldMenuBtn);
 }
 
 export function filterDomEventsOn(elem) {

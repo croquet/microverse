@@ -82,7 +82,7 @@ body.tilt > iframe {
   -moz-user-select: none;
 }
 
-.bttn {
+.btn {
   position: fixed;
   background-color: rgba(0, 0, 0, 0.2);
   border: 1px solid white;
@@ -98,48 +98,48 @@ body.tilt > iframe {
   align-items: center;
 }
 
-.bttn:hover {
+.btn:hover {
   background-color: #80808080;
 }
 
-#homeBttn {
+#homeBtn {
   bottom: 65px;
   right: 10px;
   transform: translate(0, -50%);
 }
 
-#usersComeHereBttn {
+#usersComeHereBtn {
   bottom: 0px;
   right: 10px;
   transform: translate(0, -50%);
 }
 
-#fullscreenBttn {
+#fullscreenBtn {
   right: 10px;
   bottom: 158px;
 }
 
-#worldMenuBttn {
+#worldMenuBtn {
   top: 10px;
   left: 10px;
 }
 
-#editModeBttn {
+#editModeBtn {
   top: 50%;
   left: 10px;
   transform: translate(0, -50%);
   display: none;
 }
 
-#editModeBttn[mobile="true"] {
+#editModeBtn[mobile="true"] {
   display: flex;
 }
 
-#editModeBttn[pressed="true"] {
+#editModeBtn[pressed="true"] {
   background-color: #80808080;
 }
 
-#editModeBttn[pressed="false"] {
+#editModeBtn[pressed="false"] {
   background-color: #d3d3d380;
 }
 
@@ -302,7 +302,7 @@ body.tilt > iframe {
   text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
 }
 
-#usersComeHereBttn[presenting="true"] {
+#usersComeHereBtn[presenting="true"] {
   background-color: #880000;
 }
 
