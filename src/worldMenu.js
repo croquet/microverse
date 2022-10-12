@@ -148,6 +148,15 @@ function initWorldMenu(badge) {
     <div class="menu-icon share-icon"></div>
     <span class="menu-label-text">Share</span>
 </div>
+
+<div id="usersComeHereBtn" class="menu-label menu-item">
+          <div class="menu-icon presentationMode-icon"></div>
+          <span class="menu-label-text">Follow Me </span> 
+          <div id="userCount">
+          <div id="userCountReadout" class="badge badge-warning"></div>
+        </div>
+        </div>
+
 </div>
 
 `.trim();
@@ -160,9 +169,12 @@ function initWorldMenu(badge) {
     let settings = div.querySelector("#worldMenu-settings");
     let share = div.querySelector("#shareButton");
     let help = div.querySelector("#helpButton");
+    let presentationMode = div.querySelector("#usersComeHereBtn");
+
 
     html.appendChild(load);
     html.appendChild(connect);
+    html.appendChild(presentationMode);
     html.appendChild(share);
     html.appendChild(settings);
     html.appendChild(help);
@@ -267,6 +279,8 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
         initWorldMenu(badge);
     }
     let worldMenuBtn = document.querySelector("#worldMenuBtn");
+    const presentationButton = document.body.querySelector("#usersComeHereBtn");
+
     worldMenuBtn.onclick = () => toggleMenu(myAvatar);
     filterDomEventsOn(worldMenuBtn);
 }

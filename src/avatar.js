@@ -774,8 +774,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         document.getElementById("homeBtn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBtn"));
-        document.getElementById("usersComeHereBtn").onclick = () => this.comeToMe();
-        filterDomEventsOn(document.getElementById("usersComeHereBtn"));
+        
         document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBtn").setAttribute("pressed", false);
 
@@ -784,6 +783,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         editButton.onpointerup = (evt) => this.clearEditMode(evt);
 
         setupWorldMenuButton(this, App, this.sessionId);
+
+        const presentationButton = document.body.querySelector("#usersComeHereBtn");
+        presentationButton.onclick = () => this.comeToMe();
+        filterDomEventsOn(presentationButton);
 
         window.myAvatar = this;
 
@@ -1141,7 +1144,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 userCountReadout.textContent = `${followers}/${total}`;
                 tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
             } else {
-                userCountReadout.textContent = `${total}`;
+                userCountReadout.textContent = `+(${total})`;
             }
             comeHere.setAttribute("title", tooltip);
         }
