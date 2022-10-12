@@ -1,7 +1,7 @@
 #joystick {
   box-sizing: border-box;
   position: fixed;
-  left: 75px;
+  left: 105px;
   bottom: 25px;
   -ms-transform: translate(-50%, 0%);
   transform: translate(-50%, 0%);
@@ -50,7 +50,10 @@
   #knob {
     width: 40px;
     height: 40px;
-    transform: translate(22.5px, 22.5px); /* (joystick.width - knob.width) / 2 */
+    transform: translate(
+      22.5px,
+      22.5px
+    ); /* (joystick.width - knob.width) / 2 */
   }
 }
 
