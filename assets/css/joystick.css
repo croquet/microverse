@@ -1,7 +1,6 @@
 #joystick {
   box-sizing: border-box;
   position: fixed;
-  left: 105px;
   bottom: 25px;
   -ms-transform: translate(-50%, 0%);
   transform: translate(-50%, 0%);
@@ -45,6 +44,7 @@
     bottom: 40px;
     width: 85px;
     height: 85px;
+    left: 50%;
   }
 
   #knob {
@@ -60,6 +60,7 @@
 @media (min-width: 601px) {
   #joystick {
     bottom: 45px;
+    left: 105px;
   }
   #directions {
     left: 20px;
