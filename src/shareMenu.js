@@ -103,7 +103,7 @@ function createShareMenu(badge) {
       const cancelButton = shareMenu.querySelectorAll('.cancel-button');
       cancelButton.forEach(button =>{
           button.addEventListener('click', function handleClick (){
-          shareMenu.classList.add('none');
+          shareMenu.remove();
           showUi();
           sendToShell("hud",{joystick:true,fullscreen:true})
           })

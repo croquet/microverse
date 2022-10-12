@@ -189,7 +189,7 @@ function createHelpMenu() {
   const cancelButton = helpMenu.querySelectorAll('.cancel-button');
   cancelButton.forEach(button =>{
       button.addEventListener('click', function handleClick (){
-      helpMenu.classList.add('none');
+      helpMenu.remove();
       showUi();
       sendToShell("hud",{joystick:true,fullscreen:true})
       })

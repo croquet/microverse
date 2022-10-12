@@ -147,7 +147,7 @@ function createSettingsMenu(useEnter) {
     const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
     cancelButton.forEach(button =>{
         button.addEventListener('click', function handleClick (){
-        settingsMenu.classList.add('none');
+        settingsMenu.remove();
         showUi();
         sendToShell("hud",{joystick:true,fullscreen:true})
         })
