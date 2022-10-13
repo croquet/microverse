@@ -52,6 +52,7 @@ function main() {
         copyFolderRecursiveSync("meta", dist);
         copyFolderRecursiveSync("lib", dist);
         copyFileSync("index.html", `${dist}${path.sep}index.html`);
+        copyFileSync(".gitignore", `${dist}${path.sep}.gitignore`);
     }
 
     console.log("starting to copy files", process.cwd());
