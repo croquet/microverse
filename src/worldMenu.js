@@ -54,14 +54,12 @@ function connectPressed() {
 
     window.BehaviorViewManager.setURL("ws://localhost:9011");
 
-    connectButton.addEventListener('click', function handleClick() {
     connectButton.textContent = 'Connected';
     connectButton.classList.add('connected');
 
     connectIcon.classList.remove('connect-icon');
     connectIcon.classList.add('connected-icon');
 
-});
 }
 
 function settingsPressed(myAvatar) {
