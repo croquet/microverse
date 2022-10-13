@@ -60,7 +60,7 @@
 @media (min-width: 601px) {
   #joystick {
     bottom: 45px;
-    left: 105px;
+    left: 50%;
   }
   #directions {
     left: 20px;
