@@ -1,0 +1,9 @@
+{
+  "translation": {
+    "avatar": {
+      "here_one": "user is",
+      "here_many": "users are",
+      "world": "in this world"
+    }
+  }
+}

@@ -21,6 +21,8 @@ import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
 import { startSettingsMenu } from "./settingsMenu.js";
 // import Swal from "sweetalert2";
 
+import i18next from 'i18next';
+
 const EYE_HEIGHT = 1.676;
 const COLLIDE_THROTTLE = 50;
 const THROTTLE = 15; // 20
@@ -1130,7 +1132,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // TODO: change PlayerManager to only create avatars for players that are actually in the world
             let total = manager.players.size;
             let here = manager.playersInWorld().length;
-            let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
+            let tooltip = `${here} ${here === 1 ? i18next.t('avatar.here_one') : i18next.t('avatar.here_many')} ${i18next.t('avatar.world')}`;
             if (here !== total) {
                 let watching = total - here;
                 tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;

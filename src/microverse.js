@@ -29,6 +29,25 @@ import {AssetManager} from "./wcAssetManager.js";
 // import {loadThreeJSLib} from "./ThreeJSLibLoader.js";
 //import {loadThreeLibs} from "../three/threeLibsLoader.js";
 
+import i18next from 'i18next';
+import en from '../locales/en.json'
+import eo from '../locales/eo.json'
+
+let lng = "en";
+let urlLngOption = new URL(window.location).searchParams.get("lng");
+if (urlLngOption) {
+    lng = urlLngOption;
+}
+
+i18next.init({
+    lng: lng,
+    debug: true,
+    resources: {
+        en,
+        eo
+    }
+});
+
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
 ];
