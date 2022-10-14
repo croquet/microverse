@@ -774,7 +774,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         document.getElementById("homeBtn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBtn"));
-        
+
         document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBtn").setAttribute("pressed", false);
 
@@ -1406,7 +1406,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
             this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
-            if (this.actor.inWorld) {
+            const spectator = this.wellKnownModel("modelRoot").broadcastMode && !this.actor.broadcaster;
+            if (this.actor.inWorld || spectator) {
                 // get the potential new pose from velocity and spin.
                 // the v and q variable is passed around to compute a new position.
                 // unless positionTo() is called the avatar state (should) stays the same.
@@ -1425,7 +1426,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     } else {
                         this.lastCollideTranslation = vq.v;
                     }
-                    if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+                    if ((this.actor.fall || spectator) && time - this.lastUpdateTime > THROTTLE) {
                         if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                             this.lastCollideTime = time;
                             vq = this.checkFall(vq);
@@ -2208,7 +2209,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.say("setAvatarData", tempCardSpec);
                 this.modelHasLoaded = false;
             }
-        }); 
+        });
 
     }
 
