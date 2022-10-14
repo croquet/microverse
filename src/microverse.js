@@ -408,6 +408,7 @@ class MyModelRoot extends ModelRoot {
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
+        this.subscribe(this.sessionId, "addBroadcaster", "addBroadcaster");
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
         this.subscribe(this.id, "loadDone", "loadDone");
@@ -518,6 +519,16 @@ class MyModelRoot extends ModelRoot {
         this.savePersistentData();
     }
 
+    addBroadcaster(viewId) {
+        let manager = this.service("PlayerManager");
+        let player = manager.player(viewId);
+        if (player) player.broadcaster = true;
+        if (!this.broadcastMode) {
+            this.broadcastMode = true;
+            this.publish(this.sessionId, "broadcastModeEnabled");
+        }
+    }
+
     loadStart(key) {
         this.loadKey = key;
         this.loadBuffer = [];
@@ -615,6 +626,23 @@ class MyModelRoot extends ModelRoot {
 
 MyModelRoot.register("MyModelRoot");
 
+// Broadcast mode is to support larger audiences. It disables sending
+// reflector messages for mere spectators. Broadcasters are still able
+// to send reflector messages.
+// This should be a method of MyViewRoot but we can't access "this"
+// until after the super() call in the constructor.
+// We need it this early because otherwise messages would be
+// sent during construction of some views
+function setupBroadcastMode(model) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const broadcasting = searchParams.get("broadcastMode") === "true";
+    if (model.broadcastMode && !broadcasting) {
+        // HACK need a proper way to enable viewOnly mode
+        model.__realm.vm.controller.sessionSpec.viewOnly = true;
+    }
+    return broadcasting;
+}
+
 class MyViewRoot extends ViewRoot {
     static viewServices() {
         const services = [
@@ -632,6 +660,7 @@ class MyViewRoot extends ViewRoot {
     }
 
     constructor(model) {
+        const broadcasting = setupBroadcastMode(model);
         super(model);
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
@@ -645,6 +674,7 @@ class MyViewRoot extends ViewRoot {
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
         this.setAnimationLoop(this.session);
+        if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
     }
 
     detach() {
@@ -702,8 +732,9 @@ function startWorld(appParameters, world) {
         flags: ["microverse"],
     };
 
-    // remove portal parameter from url for QR code
+    // remove portal and broadcast parameters from url for QR code
     App.sessionURL = deleteParameter(App.sessionURL, "portal");
+    App.sessionURL = deleteParameter(App.sessionURL, "broadcastMode");
 
     return loadLoaders()
         .then(() => {

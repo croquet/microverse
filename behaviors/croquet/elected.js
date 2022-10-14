@@ -18,42 +18,47 @@ and behaviors/default/flightTracker.js.
 
 /*
 
-ElectedActor keeps all active views. Its this.views property is a Set
-that retains the order of elements (viewIds), thus we can just pick
-the first entry as the leader of the peers.
+ElectedActor keeps track of the currently elected view. It picks the first
+of all players currently in the world as the leader of the peers.
 
-setup() may be called multiple times in its life cycle. So assignment
-into this.views is guarded by an if statement.
+setup() may be called multiple times in its life cycle. But since
+firstEligibleView prefers the currently elected view, it is safe to call again.
 
 */
 
 class ElectedActor {
     setup() {
-        if (!this.views) {
-            this.views = new Set();
+        this.subscribe("playerManager", "create", "updateElectedView");
+        this.subscribe("playerManager", "destroy", "updateElectedView");
+        this.subscribe("playerManager", "enter", "updateElectedView");
+        this.subscribe("playerManager", "leave", "updateElectedView");
+        this.updateElectedView();
+    }
+
+    // previous versions of this behavior have used these methods
+    viewJoined() { this.unsubscribe(this.sessionId, "view-join"); }
+    viewExited() { this.unsubscribe(this.sessionId, "view-exit"); }
+
+    firstEligibleView() {
+        const manager = this.service("PlayerManager");
+        // prefer currently elected view, if player is in the world
+        const current = manager.player(this.electedViewId);
+        if (current && current.inWorld) return this.electedViewId;
+        // prefer in-world players (in particular, no spectators)
+        for (const [viewId, player] of manager.players) {
+            if (player.inWorld) return viewId;
         }
-        let manager = this.service("PlayerManager");
-        let alreadyIds = [...manager.players].map(pair => pair[0]);
-        alreadyIds.forEach((id) => {
-            this.views.add(id);
-        });
-
-        this.subscribe(this.sessionId, "view-join", "viewJoined");
-        this.subscribe(this.sessionId, "view-exit", "viewExited");
+        // otherwise, pick the first player
+        for (const [viewId] of manager.players) {
+            return viewId;
+        }
     }
 
-    electedView() {
-        for (const view of this.views) return view;
-    }
-
-    viewJoined(viewId) { this.publishViewElectedAfter(() => this.views.add(viewId)); }
-    viewExited(viewId) { this.publishViewElectedAfter(() => this.views.delete(viewId)); }
-
-    publishViewElectedAfter(action) {
-        const electedBefore = this.electedView();
-        action();
-        const electedAfter = this.electedView();
+    updateElectedView() {
+        const electedBefore = this.electedViewId;
+        const electedAfter = this.firstEligibleView();
         if (electedBefore !== electedAfter) {
+            this.electedViewId = electedAfter;
             this.say("view-elected", electedAfter);
         }
     }
@@ -78,7 +83,7 @@ class ElectedPawn {
     setup() {
         if (this.electedViewId === undefined) {
             this.electedViewId = "";
-            this.onViewElected(this.actorCall("ElectedActor", "electedView"));
+            this.onViewElected(this.actorCall("ElectedActor", "electedViewId"));
         }
         this.listen({event: "view-elected", handling: "oncePerFrame"}, "onViewElected");
 
