@@ -61,7 +61,6 @@ function connectPressed() {
 
 function settingsPressed(myAvatar) {
     if (myAvatar) {
-        hideMenusExcept(myAvatar);
         myAvatar.showSettingsMenu();
         sendToShell("hud", {joystick: false, fullscreen: false});
     }
@@ -70,7 +69,6 @@ function settingsPressed(myAvatar) {
 
 function sharePressed(myAvatar) {
     if (myAvatar) {
-        hideMenusExcept(myAvatar);
         myAvatar.showShareMenu();
         sendToShell("hud", {joystick: false, fullscreen: false});
     }
@@ -79,8 +77,7 @@ function sharePressed(myAvatar) {
 
 function helpPressed(myAvatar) {
     if (myAvatar) {
-        hideMenusExcept(myAvatar);
-        myAvatar.showHelpMenu();
+        startHelpMenu();
         sendToShell("hud", {joystick: false, fullscreen: false});
     }
     toggleMenu();
@@ -280,5 +277,21 @@ export function closeAllDialogs() {
     let panels = document.querySelectorAll(".dialogPanel");
     panels.forEach((p) => p.remove());
     sendToShell("hud", {joystick: true, fullscreen: true});
+}
+
+export function loadCSS() {
+    if (!document.head.querySelector("#settings-css")) {
+        return new Promise((resolve, reject) => {
+            let css = document.createElement("link");
+            css.rel = "stylesheet";
+            css.type = "text/css";
+            css.id = "settings-css";
+            css.href = "./assets/css/settings.css";
+            css.onload = resolve;
+            css.onerror = reject;
+            document.head.appendChild(css);
+        });
+    }
+    return Promise.resolve(true);
 }
 

@@ -2,20 +2,14 @@
 // https://croquet.io
 // info@croquet.io
 
-import {sendToShell} from "./frame.js";
-
-import {filterDomEventsOn, closeAllDialogs} from "./worldMenu.js";
-
+import {filterDomEventsOn, closeAllDialogs, loadCSS} from "./worldMenu.js";
 import { App } from "@croquet/worldcore-kernel";
 
 let settingsMenu = null;
-let settingsMenuBody = null;
-
 let nicknameIsValid;
 let avatarIsValid;
 
 let configuration = {};
-
 let resolveDialog;
 
 export function startSettingsMenu(useEnter, r) {
@@ -31,22 +25,6 @@ export function startSettingsMenu(useEnter, r) {
 export function startShareMenu(avatar) {
     closeAllDialogs();
     loadCSS().then(() => createShareMenu(avatar));
-}
-
-function loadCSS() {
-    if (!document.head.querySelector("#settings-css")) {
-        return new Promise((resolve, reject) => {
-            let css = document.createElement("link");
-            css.rel = "stylesheet";
-            css.type = "text/css";
-            css.id = "settings-css";
-            css.href = "./assets/css/settings.css";
-            css.onload = resolve;
-            css.onerror = reject;
-            document.head.appendChild(css);
-        });
-    }
-    return Promise.resolve(true);
 }
 
 function createSettingsMenu(useEnter) {
@@ -110,13 +88,17 @@ function createSettingsMenu(useEnter) {
     div.innerHTML = settings;
 
     settingsMenu = div.querySelector("#joinDialog");
-    settingsMenuBody = div.querySelector("#joinDialogBody");
 
     let closeButton = settingsMenu.querySelector("#close-button");
     let enterButton = settingsMenu.querySelector('#enterButton');
     let acceptButton = settingsMenu.querySelector('#acceptButton');
-
-    closeButton.onclick = () => closeAllDialogs();
+    let cancelButton = settingsMenu.querySelector('#cancel-button');
+    let dialogHandedness = settingsMenu.querySelector("#handedness");
+    let dialogTitle = settingsMenu.querySelector("#dialogTitle");
+    let joinPrompt = settingsMenu.querySelector("#joinPrompt");
+    let settingsTitle = settingsMenu.querySelector("#settings-title");
+    let dialogEnterButton = settingsMenu.querySelector("#dialogEnterButton");
+    let dialogAcceptCancelButtons = settingsMenu.querySelector("#dialogAcceptCancelButtons");
 
     let nameField = settingsMenu.querySelector('#nameField');
     nameField.addEventListener('keydown', evt => nameFieldKeydown(evt));
@@ -131,23 +113,12 @@ function createSettingsMenu(useEnter) {
         evt.stopPropagation();
     });
 
-    enterButton.addEventListener('click', () => dialogCloseEnter());
-    acceptButton.addEventListener('click', () => accept());
+    enterButton.onclick = () => dialogCloseEnter();
+    acceptButton.onclick = () => accept();
+    closeButton.onclick = () => closeAllDialogs();
+    cancelButton.onclick = () => closeAllDialogs();
 
-    const cancelButton = settingsMenu.querySelector('#cancel-button');
-    cancelButton.onclick = () => {
-        closeAllDialogs();
-        sendToShell("hud", {joystick: true, fullscreen: true})
-    };
-
-    let dialogHandedness = settingsMenu.querySelector("#handedness");
     dialogHandedness.addEventListener("input", () => handednessChanged());
-
-    let dialogTitle = settingsMenu.querySelector("#dialogTitle");
-    let joinPrompt = settingsMenu.querySelector("#joinPrompt");
-    let settingsTitle = settingsMenu.querySelector("#settings-title");
-    let dialogEnterButton = settingsMenu.querySelector("#dialogEnterButton");
-    let dialogAcceptCancelButtons = settingsMenu.querySelector("#dialogAcceptCancelButtons");
 
     dialogTitle.classList.toggle("hidden", !useEnter);
     joinPrompt.style.display = useEnter ? "flex" : "none";

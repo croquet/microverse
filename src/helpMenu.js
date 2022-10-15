@@ -1,60 +1,24 @@
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
-import { sendToShell } from "./frame.js";
 
+import {filterDomEventsOn, closeAllDialogs, loadCSS} from "./worldMenu.js";
 
-let helpMenuContent = null;
-let helpMenu = null;
-let helpMenuBody = null;
-
-let nicknameIsValid;
-let avatarIsValid;
-
-let configuration = {};
-
-let resolveDialog;
-
-// let avatar;// we need to be careful to update this variable
-
-// export function setAvatarForhelpMenu(myAvatar) {
-//     avatar = myAvatar;
-// }
-function loadCSS() {
-            let css = document.createElement("link");
-            css.rel = "stylesheet";
-            css.type = "text/css";
-            css.id = "settings-css";
-            css.href = "./assets/css/settings.css";
-            document.head.appendChild(css);
-}
-
- loadCSS();
-
-
- function savePressed() {
-    let div = document.createElement("a");
-    let dataStr = "data:text/json;charset=utf-8,";
-    div.setAttribute("href", dataStr);
-    div.setAttribute("download", "scene.vrse");
-    div.click();
-}
-
+let helpMenuBody;
 
 export function startHelpMenu() {
-createHelpMenu();
+    closeAllDialogs();
+    loadCSS().then(createHelpMenu);
 }
-
-
 
 function createHelpMenu() {
     let help = `
-    <div id="helpDialog" class="noselect">
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright cancel-button">x</button>
+    <div id="helpDialog" class="dialogPanel no-select">
+    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
     <div id='joinDialogBody' class='wide'>
-      <div id='joinSettings'>
+      <div id='joinSettings' class="dialogPanel">
         <div id="settings-title">Help</div>
-        <div id="share-container">
+        <div id="share-container" class="content-container>
           <div id="table-wrapper">
             <div id="table-scroll" id="scrollbar">
   
@@ -159,62 +123,17 @@ function createHelpMenu() {
     let div = document.createElement("div");
     div.innerHTML = help;
 
-    helpMenu = div.querySelector("#helpDialog");
+    let helpMenu = div.querySelector("#helpDialog");
+    let closeButton = helpMenu.querySelector("#close-button");
     helpMenuBody = div.querySelector("#joinDialogBody");
-    helpMenu = div.querySelector("#helpDialog");
 
+    filterDomEventsOn(helpMenu);
 
-    function showUi(){
-      const ui = document.body.querySelectorAll('.ui');
-  
-      for (let i = 0; i<ui.length; ++i){
-          ui[i].classList.remove("none");
-      };
-      sendToShell("hud",{joystick:true,fullscreen:true})
-  }
-
-  
-  function close() {
-    const el = document.body.querySelector("#helpDialog");
-    if (el) {
-        el.classList.remove('none')
-        el.classList.add('show')
-        return;
-    }else{
-        el.classList.remove('show')
-        el.classList.add('none')
-    }
-  }
-
-  const cancelButton = helpMenu.querySelectorAll('.cancel-button');
-  cancelButton.forEach(button =>{
-      button.addEventListener('click', function handleClick (){
-      helpMenu.remove();
-      showUi();
-      sendToShell("hud",{joystick:true,fullscreen:true})
-      })
-  });
-
+    closeButton.onclick = () => closeAllDialogs();
 
     document.body.appendChild(helpMenu);
-    
     setHelpSize()
-
-
 }
-
-
-
-
-function closeDialog(changed) {
-    helpMenu.remove();
-    helpMenu = null;
-}
-
-function cancel() {
-    closeDialog(false);
-}
-
 
 function setHelpSize() {
     let width = 610;
