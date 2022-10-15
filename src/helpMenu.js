@@ -26,9 +26,7 @@ function createHelpMenu() {
                 <tr class="help-row">
                   <td>
                     <p class="table-head">Navigate</p>
-                    <p class="table-desc">Move around using the joystick, arrow keys or WASD. The location of the joystick
-                      on screen can be
-                      changed in the settings.</p>
+                    <p class="table-desc">Move around using the joystick, or WASD keys.</p>
                   </td>
                   <td class="icon-column">
                     <div class="icons"><img src="../assets/images/move.png" /><img src="../assets/images/wasd.png" />
@@ -47,7 +45,7 @@ function createHelpMenu() {
                 <tr class="help-row">
                 <td>
                   <p class="table-head">Manipulate</p>
-                  <p class="table-desc">Ctrl + click on an object to open that object's behavior properties. select from a premade menu or create your own (read docs)</p>
+                  <p class="table-desc">Ctrl + click on an object to open and cycle through the "gizmo" tools. The gray sphere is a button to open the property sheet tool.</p>
                 </td>
                 <td class="icon-column">
                   <div class="icons"><img src="../assets/images/ctrlclick.png" />
