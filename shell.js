@@ -167,8 +167,8 @@ class Shell {
     adjustJoystickKnob() {
         let joystickStyle = window.getComputedStyle(this.joystick);
         let knobStyle = window.getComputedStyle(this.knob);
-        let center = (parseFloat(joystickStyle.width) / 2) || 30;
-        let size = (parseFloat(knobStyle.width) / 2) || 10;
+        let center = (parseFloat(joystickStyle.width) || 120) / 2;
+        let size = (parseFloat(knobStyle.width) || 60) / 2;
         let radius = center - size;
         this.joystickLayout = { center, size, radius };
         this.trackingknob.style.transform = "translate(0px, 0px)"; // top-left

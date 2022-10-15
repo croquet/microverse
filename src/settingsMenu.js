@@ -2,7 +2,11 @@
 // https://croquet.io
 // info@croquet.io
 
-import { sendToShell } from "./frame.js";
+import {sendToShell} from "./frame.js";
+
+import {filterDomEventsOn, closeAllDialogs} from "./worldMenu.js";
+
+import { App } from "@croquet/worldcore-kernel";
 
 let settingsMenu = null;
 let settingsMenuBody = null;
@@ -14,19 +18,19 @@ let configuration = {};
 
 let resolveDialog;
 
-// let avatar;// we need to be careful to update this variable
-
-// export function setAvatarForSettingsMenu(myAvatar) {
-//     avatar = myAvatar;
-// }
-
 export function startSettingsMenu(useEnter, r) {
     // note that even if called when already in session with a default (Alice) avatar,
     // the user must provide an avatar choice to be able to change the name
     resolveDialog = r;
     nicknameIsValid = false;
     avatarIsValid = false;
-    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);    
+    closeAllDialogs();
+    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
+}
+
+export function startShareMenu(avatar) {
+    closeAllDialogs();
+    loadCSS().then(() => createShareMenu(avatar));
 }
 
 function loadCSS() {
@@ -47,66 +51,58 @@ function loadCSS() {
 
 function createSettingsMenu(useEnter) {
     let settings = `
-
-    <div id="joinDialog" class="noselect">
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright cancel-button">x</button>
-    <div id='joinDialogBody' class='wide'>
-        <div id='dialogTitle'>
-            <div id='titleHolder' class='settingColumn'>
-                <img id='titleLogo' src='assets/images/microverse-logo.png' />
+<div id="joinDialog" class="dialogPanel no-select">
+    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+    <div id="joinDialogBody" class="wide">
+        <div id="dialogTitle">
+            <div id="titleHolder" class="settingColumn">
+                <!-- <img id="titleLogo" src="assets/images/microverse-logo.png" /> -->
             </div>
         </div>
-        <div id='joinSettings'>
-            <div id='joinPrompt' class='settingColumn'>
-                <div id='joinPromptTitle'>Choose nickname and avatar</div>
-                <div id='joinPromptBlurb'>To enter this world you must specify a nickname, and choose an avatar either
-                    by selecting from those on display or pasting a valid Ready Player Me URL.</div>
+        <div id="settingsPane" class="dialogPanel">
+            <div id="joinPrompt" class="settingColumn">
+                <div id="joinPromptTitle">Choose nickname and avatar</div>
+                <div id="joinPromptBlurb" class="promptBlurb">To enter this world you must specify a nickname, and choose an avatar either
+                    by selecting from those on display or pasting a valid Ready Player Me URL.
+                </div>
             </div>
             <div id="settings-title">Settings</div>
             <div class="settings-container">
-                <div class="settings-padding">
-                    <div id='nameInput' class='stringInputHolder settingColumn'>
-                        <div id='namePrompt' class='namePrompt'>Nickname<span>*</span></div>
-                        <div id='nameField' class="nameField allowSelect" contenteditable='true'></div>
-                        <div id='nameExplanation'>Enter 1-12 characters (ASCII only).</div>
-                        <div id='nameFilterWarning'><br /></div>
-                    </div>
-                    <div class='namePrompt'>Select Avatar</div>
-                    <div id='dialogAvatarSelections' class='settingColumn'>
-                        <div id='avatarList'></div>
-                    </div>
-                    <div id='avatarURL' class='stringInputHolder settingColumn'>
-                        <div id='avatarURLPrompt' class='namePrompt'>Or, Enter an Avatar URL</div>
-                        <div id='avatarURLField' class="nameField avatarNameField allowSelect" contenteditable='true'>
-                        </div>
-                    </div>
-                    <div id="handednessRow" class="settingsColumn">
-                    
-                        <div id="handednessLabel">Hand:</div>
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id='handedness'>
-                                <label class="btn btn-purple active">
-                                    <input type="radio" name="options" id="right" autocomplete="off" checked> Right
-                                </label>
-                                <label class="btn btn-purple">
-                                    <input type="radio" name="options" id="left" autocomplete="off"> Left
-                                </label>
-                            </div>
-                        </div>
+                <div id="nameInput" class="stringInputHolder settingColumn">
+                    <div id="namePrompt" class="namePrompt">Nickname<span>*</span></div>
+                    <div id="nameField" class="nameField allowSelect" contenteditable="true"></div>
+                    <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
+                    <div id="nameFilterWarning"><br /></div>
                 </div>
-            </div>
-
-            <div id='dialogEnterButton' class='dialogButtonsHolder settingColumn oneItem disabled'>
-                <div id='enterButton'>Enter</div>
-            </div>
-            <div id='dialogAcceptCancelButtons' class='dialogButtonsHolder settingColumn'>
-                <button type="button" class="btn btn-danger cancel-button">Cancel</button>
-                <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
+                <div class="namePrompt">Select Avatar</div>
+                <div id="dialogAvatarSelections" class="settingColumn">
+                    <div id="avatarList"></div>
+                </div>
+                <div id="avatarURL" class="stringInputHolder settingColumn">
+                    <div id="avatarURLPrompt" class="namePrompt">Or, Enter an Avatar URL</div>
+                    <div id="avatarURLField" class="nameField avatarNameField allowSelect" contenteditable="true"></div>
+                </div>
+                <div id="handednessRow" class="settingsColumn">
+                    <div id="handednessLabel">Hand:</div>
+                    <div class="btn-group" id="handedness">
+                        <label class="btn btn-radio-button">
+                            <input type="radio" name="options" id="right" checked><span class="handedness-label">Right</span>
+                        </label>
+                        <label class="btn btn-radio-button">
+                             <input type="radio" name="options" id="left"><span class="handedness-label">Left</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="dialogEnterButton" class="dialogButtonsHolder settingColumn disabled">
+                    <div id="enterButton">Enter</div>
+                </div>
+                <div id="dialogAcceptCancelButtons" class="dialogButtonsHolder settingColumn twoItems">
+                    <button id="cancel-button" type="button" class="btn btn-danger cancel-button">Cancel</button>
+                    <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-</div>
-</div>
 </div>
 `.trim();
 
@@ -116,83 +112,58 @@ function createSettingsMenu(useEnter) {
     settingsMenu = div.querySelector("#joinDialog");
     settingsMenuBody = div.querySelector("#joinDialogBody");
 
-    const nameField = settingsMenu.querySelector('#nameField');
+    let closeButton = settingsMenu.querySelector("#close-button");
+    let enterButton = settingsMenu.querySelector('#enterButton');
+    let acceptButton = settingsMenu.querySelector('#acceptButton');
+
+    closeButton.onclick = () => closeAllDialogs();
+
+    let nameField = settingsMenu.querySelector('#nameField');
     nameField.addEventListener('keydown', evt => nameFieldKeydown(evt));
     nameField.addEventListener('input', (evt) => nameFieldChanged(evt));
     nameField.addEventListener('paste', (evt) => {
         evt.stopPropagation();
     });
 
-    const avatarURLField = settingsMenu.querySelector('#avatarURLField');
+    let avatarURLField = settingsMenu.querySelector('#avatarURLField');
     avatarURLField.addEventListener('input', (evt) => avatarURLFieldChanged(evt));
     avatarURLField.addEventListener('paste', (evt) => {
         evt.stopPropagation();
     });
 
-    const enterButton = settingsMenu.querySelector('#enterButton');
     enterButton.addEventListener('click', () => dialogCloseEnter());
-
-    const acceptButton = settingsMenu.querySelector('#acceptButton');
     acceptButton.addEventListener('click', () => accept());
 
-    function showUi(){
-        const ui = document.body.querySelectorAll('.ui');
-    
-        for (let i = 0; i<ui.length; ++i){
-            ui[i].classList.remove("none");
-        };
-        }
-
-
-    const cancelButton = settingsMenu.querySelectorAll('.cancel-button');
-    cancelButton.forEach(button =>{
-        button.addEventListener('click', function handleClick (){
-        settingsMenu.remove();
-        showUi();
-        sendToShell("hud",{joystick:true,fullscreen:true})
-        })
-    });
+    const cancelButton = settingsMenu.querySelector('#cancel-button');
+    cancelButton.onclick = () => {
+        closeAllDialogs();
+        sendToShell("hud", {joystick: true, fullscreen: true})
+    };
 
     let dialogHandedness = settingsMenu.querySelector("#handedness");
     dialogHandedness.addEventListener("input", () => handednessChanged());
 
-    document.body.appendChild(settingsMenu);
-
-    let stopPropagation = (evt) => evt.stopPropagation();
-    settingsMenuBody.addEventListener("pointerdown", stopPropagation);
-    settingsMenuBody.addEventListener("pointermove", stopPropagation);
-    settingsMenuBody.addEventListener("pointerup", stopPropagation);
-    settingsMenuBody.addEventListener("click", stopPropagation);
-    settingsMenuBody.addEventListener("keydown", stopPropagation);
-    settingsMenuBody.addEventListener("keyup", stopPropagation);
-
     let dialogTitle = settingsMenu.querySelector("#dialogTitle");
     let joinPrompt = settingsMenu.querySelector("#joinPrompt");
+    let settingsTitle = settingsMenu.querySelector("#settings-title");
     let dialogEnterButton = settingsMenu.querySelector("#dialogEnterButton");
     let dialogAcceptCancelButtons = settingsMenu.querySelector("#dialogAcceptCancelButtons");
 
     dialogTitle.classList.toggle("hidden", !useEnter);
-    joinPrompt.classList.toggle("hidden", !useEnter);
-    dialogEnterButton.classList.toggle("hidden", !useEnter);
-    dialogAcceptCancelButtons.classList.toggle("hidden", useEnter);
+    joinPrompt.style.display = useEnter ? "flex" : "none";
+    settingsTitle.classList.toggle("hidden", useEnter);
+    closeButton.classList.toggle("hidden", useEnter);
+
+    dialogEnterButton.style.display = useEnter ? "flex" : "none";
+    dialogAcceptCancelButtons.style.display = useEnter ? "none" : "flex";
 
     populateAvatarSelection();
-    // setSettingsSize();
+
+    document.body.appendChild(settingsMenu);
+    filterDomEventsOn(settingsMenu);
+
     return Promise.resolve(settingsMenu);
 }
-
-// function setSettingsSize() {
-//     let width = 610;
-//     let height = 610; 
-
-//     const innerWidth = window.innerWidth;
-//     if (innerWidth && innerWidth < 630) {
-//         settingsMenuBody.classList.remove('wide');
-//         width = 432;
-//     }
-//     settingsMenuBody.style.width = `${width}px`;
-//     settingsMenuBody.style.height = `${height}px`;
-// }
 
 function fillFromPrevious() {
     const localSettings = window.settingsMenuConfiguration || {};
@@ -383,8 +354,8 @@ function avatarSelected(entry) {
 }
 
 function handednessChanged() {
-    let dialogHandedness = settingsMenu.querySelector("#handedness");
-    configuration.handedness = dialogHandedness.value;
+    let left = settingsMenu.querySelector("#left");
+    configuration.handedness = !left.checked ? "Right" : "Left";
 }
 
 function findPredefined(url) {
@@ -408,5 +379,115 @@ function populateAvatarSelection() {
         }
         div.setAttribute("avatarURL", entry.url);
         holder.appendChild(div);
+    });
+}
+
+// share dialog
+
+function createShareMenu(avatar) {
+    let share = `
+    <div id="shareDialog" class="dialogPanel no-select">
+    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+    <div id="joinDialogBody" class="wide">
+        <div id="joinSettings" class="dialogPanel">
+            <div id="share-container" class="content-container">
+                <div id="share-title" class="share-title settingsColumn">Share Session<br></div>
+                <div class="promptBlurb">Scan QR code or click to open a new browser tab<br> in the same session.</div>
+                <div id="share-qr" class="settingsColumn"></div>
+
+                <div class="share-settings-label settingsColumn">Copy Share Link</div>
+                <div id="copy-link" class="copy-link allow-select settingsColumn">generated link</div>
+                <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
+
+                <div class="share-settings-label settingsColumn">Save the world VRSE file</div>
+                <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
+            </div>
+        </div>
+    </div>
+</div>`.trim();
+
+    let div = document.createElement("div");
+    div.innerHTML = share;
+
+    let shareDialog = div.querySelector("#shareDialog");
+    let shareQR = div.querySelector("#share-qr");
+    let closeButton = shareDialog.querySelector("#close-button");
+    let badgeHolder = document.createElement("div");
+    let link = div.querySelector("#copy-link");
+    let copyLink = div.querySelector("#copy-button");
+    let saveWorld = div.querySelector("#save-button");
+
+    filterDomEventsOn(shareDialog);
+
+    let badge = App.makeQRCanvas();
+    let url = window.location;
+    shareQR.appendChild(badgeHolder);
+    badgeHolder.appendChild(badge);
+    badgeHolder.classList.add("menu-qr");
+    badge.classList.add("share-qr-canvas");
+    badge.onclick = () => {
+        let div = document.createElement("div");
+        div.innerHTML = `<a id="link" target="_blank" rel="noopener noreferrer" href="${url}"></a>`;
+        document.getElementById("hud").appendChild(div);
+        let a = div.querySelector("#link");
+        a.click();
+        div.remove();
+    };
+
+    closeButton.onclick = () => closeAllDialogs();
+
+    link.textContent = url;
+
+    saveWorld.onclick = (_evt) => savePressed(avatar);
+
+    copyLink.onclick = (_evt) => copyPressed(avatar);
+
+    document.body.appendChild(shareDialog);
+}
+
+function savePressed(myAvatar) {
+    let model = myAvatar.actor.wellKnownModel("ModelRoot");
+
+    let div = document.createElement("a");
+
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(model.saveData(), null, 4));
+
+    div.setAttribute("href", dataStr);
+    div.setAttribute("download", "scene.vrse");
+    div.click();
+}
+
+function copyPressed(_myAvatar) {
+    let isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
+    let url = window.location;
+
+    let clipboardAPI = () => {
+        if (navigator.clipboard) {
+            return navigator.clipboard.writeText(url).then(() => true, () => false);
+        }
+        return Promise.resolve(false);
+    };
+
+    clipboardAPI().then((result) => {
+        if (!result) {
+            if (!isiOSDevice) {
+                this.copy.value = url;
+                this.copy.select();
+                this.copy.setSelectionRange(0, 99999);
+                document.execCommand("copy");
+                return;
+            }
+
+            let range = document.createRange();
+            range.selectNodeContents(this.copy);
+            this.copy.textContent = url;
+
+            let selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            this.copy.setSelectionRange(0, 100000);
+            document.execCommand("copy");
+        }
     });
 }

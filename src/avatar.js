@@ -18,7 +18,7 @@ import {CardActor, CardPawn} from "./card.js";
 import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
-import { startSettingsMenu } from "./settingsMenu.js";
+import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 // import Swal from "sweetalert2";
 
 const EYE_HEIGHT = 1.676;
@@ -774,7 +774,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         document.getElementById("homeBtn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBtn"));
-        
+
         document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBtn").setAttribute("pressed", false);
 
@@ -2190,12 +2190,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     showSettingsMenu() {
-        const el = document.body.querySelector("#joinDialog");
-        if (el) {
-            el.classList.remove('none')
-            return;
-        }
-
         let promise = new Promise((resolve, _reject) => {
             startSettingsMenu(false, resolve);
         });
@@ -2208,8 +2202,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.say("setAvatarData", tempCardSpec);
                 this.modelHasLoaded = false;
             }
-        }); 
+        });
 
+    }
+
+    showShareMenu() {
+        startShareMenu(this);
     }
 
     goHome() {
