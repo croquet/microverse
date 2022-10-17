@@ -1125,6 +1125,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let manager = this.actor.service("PlayerManager");
         let comeHere = document.getElementById("userCountDisplay");
         if (!comeHere) {return;}
+
+        if (this.service("AgoraChatManager")) {
+            comeHere.style.display = "none";
+            return;
+        }
+        
         let userCountReadout = comeHere.querySelector("#userCountReadout");
         if (!userCountReadout) {return;}
         
