@@ -149,6 +149,9 @@ function initWorldMenu(badge) {
     let help = div.querySelector("#worldMenu-helpButton");
     let presentationMode = div.querySelector("#usersComeHereBtn");
 
+    html.appendChild(badge);
+    badge.id = "worldMenu-qr";
+    badge.classList.add("menu-qr", "menu-item");
 
     html.appendChild(load);
     html.appendChild(connect);
@@ -156,10 +159,6 @@ function initWorldMenu(badge) {
     html.appendChild(share);
     html.appendChild(settings);
     html.appendChild(help);
-
-    html.appendChild(badge);
-    badge.id = "worldMenu-qr";
-    badge.classList.add("menu-qr", "menu-item");
 
     worldMenu = html;
 
