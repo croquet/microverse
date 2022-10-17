@@ -403,7 +403,7 @@ function createShareMenu(avatar) {
     filterDomEventsOn(shareDialog);
 
     let badge = App.makeQRCanvas();
-    let url = window.location;
+    let url = App.sessionURL;
     shareQR.appendChild(badgeHolder);
     badgeHolder.appendChild(badge);
     badgeHolder.classList.add("menu-qr");
@@ -442,7 +442,7 @@ function savePressed(myAvatar) {
 
 function copyPressed(_myAvatar) {
     let isiOSDevice = navigator.userAgent.match(/ipad|iphone/i);
-    let url = window.location;
+    let url = App.sessionURL;
 
     let clipboardAPI = () => {
         if (navigator.clipboard) {
