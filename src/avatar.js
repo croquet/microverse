@@ -1962,7 +1962,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
-        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
+        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer").filter((card)=>!card.editMode));
         this.targetDistance = rc.distance;
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
