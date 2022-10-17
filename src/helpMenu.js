@@ -2,27 +2,25 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, loadCSS} from "./worldMenu.js";
+import {filterDomEventsOn, closeAllDialogs, loadCSS, hideShellControls} from "./worldMenu.js";
 
 let helpMenuBody;
 
 export function startHelpMenu() {
     closeAllDialogs();
     loadCSS().then(createHelpMenu);
+    hideShellControls();
 }
 
 function createHelpMenu() {
     let help = `
     <div id="helpDialog" class="dialogPanel no-select">
     <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
-    <div id='joinDialogBody' class='wide'>
-      <div id='joinSettings' class="dialogPanel">
-        <div id="settings-title">Help</div>
-        <div id="share-container" class="content-container>
+        <div id="help-title" class="panel-title">Help</div>
+        <div id="share-container" class="content-container">
           <div id="table-wrapper">
             <div id="table-scroll" id="scrollbar">
-  
-              <table class="help-tips">
+              <table class="help-table">
                 <tr class="help-row">
                   <td>
                     <p class="table-head">Navigate</p>
@@ -112,7 +110,6 @@ function createHelpMenu() {
                 </tr>
               </table>
             </div>
-          </div>
         </div>
       </div>
     </div>
@@ -130,21 +127,4 @@ function createHelpMenu() {
     closeButton.onclick = () => closeAllDialogs();
 
     document.body.appendChild(helpMenu);
-    setHelpSize()
 }
-
-function setHelpSize() {
-    let width = 610;
-    let height = 610; // default, for a wide screen
-    // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
-    // the 'wide' format
-    const innerWidth = window.innerWidth;
-    if (innerWidth && innerWidth < 630) {
-        helpMenuBody.classList.remove('wide');
-        width = 432;
-    }
-    helpMenuBody.style.width = `${width}px`;
-    helpMenuBody.style.height = `${height}px`;
-}
-
-

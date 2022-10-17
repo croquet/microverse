@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, loadCSS} from "./worldMenu.js";
+import {filterDomEventsOn, closeAllDialogs, loadCSS, hideShellControls} from "./worldMenu.js";
 import { App } from "@croquet/worldcore-kernel";
 
 let settingsMenu = null;
@@ -20,64 +20,66 @@ export function startSettingsMenu(useEnter, r) {
     avatarIsValid = false;
     closeAllDialogs();
     loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
+    hideShellControls();
 }
 
 export function startShareMenu(avatar) {
     closeAllDialogs();
     loadCSS().then(() => createShareMenu(avatar));
+    hideShellControls();
 }
 
 function createSettingsMenu(useEnter) {
     let settings = `
 <div id="joinDialog" class="dialogPanel no-select">
     <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
-    <div id="joinDialogBody" class="wide">
+    <div id="join-container" class="content-container">
+        <!--
         <div id="dialogTitle">
             <div id="titleHolder" class="settingColumn">
-                <!-- <img id="titleLogo" src="assets/images/microverse-logo.png" /> -->
+                <img id="titleLogo" src="assets/images/microverse-logo.png" />
             </div>
         </div>
-        <div id="settingsPane" class="dialogPanel">
-            <div id="joinPrompt" class="settingColumn">
-                <div id="joinPromptTitle">Choose nickname and avatar</div>
-                <div id="joinPromptBlurb" class="promptBlurb">To enter this world you must specify a nickname, and choose an avatar either
-                    by selecting from those on display or pasting a valid Ready Player Me URL.
+        -->
+        <div id="joinPrompt" class="settingColumn">
+            <div id="joinPromptTitle">Settings</div>
+            <div id="joinPromptBlurb" class="promptBlurb">Specify a nickname, and choose an avatar either
+                by selecting from those on display or pasting a valid Ready Player Me URL.
+            </div>
+        </div>
+        <div id="settings-title" class="panel-title">Settings</div>
+        <div class="settings-container">
+            <div id="nameInput" class="stringInputHolder settingColumn">
+                <div id="namePrompt" class="namePrompt">Nickname<span>*</span></div>
+                <div id="nameField" class="nameField allowSelect" contenteditable="true"></div>
+                <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
+                <div id="nameFilterWarning"><br /></div>
+            </div>
+            <div class="namePrompt">Select Avatar</div>
+            <div id="dialogAvatarSelections" class="settingColumn">
+                <div id="avatarList"></div>
+            </div>
+            <div id="avatarURL" class="stringInputHolder settingColumn">
+                <div id="avatarURLPrompt" class="namePrompt">Or, Enter an Avatar URL</div>
+                <div id="avatarURLField" class="nameField avatarNameField allowSelect" contenteditable="true"></div>
+            </div>
+            <div id="handednessRow" class="settingsColumn">
+                <div id="handednessLabel">Hand:</div>
+                <div class="btn-group" id="handedness">
+                    <label class="btn btn-radio-button">
+                        <input type="radio" name="options" id="right" checked><span class="handedness-label">Right</span>
+                    </label>
+                    <label class="btn btn-radio-button">
+                         <input type="radio" name="options" id="left"><span class="handedness-label">Left</span>
+                    </label>
                 </div>
             </div>
-            <div id="settings-title">Settings</div>
-            <div class="settings-container">
-                <div id="nameInput" class="stringInputHolder settingColumn">
-                    <div id="namePrompt" class="namePrompt">Nickname<span>*</span></div>
-                    <div id="nameField" class="nameField allowSelect" contenteditable="true"></div>
-                    <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
-                    <div id="nameFilterWarning"><br /></div>
-                </div>
-                <div class="namePrompt">Select Avatar</div>
-                <div id="dialogAvatarSelections" class="settingColumn">
-                    <div id="avatarList"></div>
-                </div>
-                <div id="avatarURL" class="stringInputHolder settingColumn">
-                    <div id="avatarURLPrompt" class="namePrompt">Or, Enter an Avatar URL</div>
-                    <div id="avatarURLField" class="nameField avatarNameField allowSelect" contenteditable="true"></div>
-                </div>
-                <div id="handednessRow" class="settingsColumn">
-                    <div id="handednessLabel">Hand:</div>
-                    <div class="btn-group" id="handedness">
-                        <label class="btn btn-radio-button">
-                            <input type="radio" name="options" id="right" checked><span class="handedness-label">Right</span>
-                        </label>
-                        <label class="btn btn-radio-button">
-                             <input type="radio" name="options" id="left"><span class="handedness-label">Left</span>
-                        </label>
-                    </div>
-                </div>
-                <div id="dialogEnterButton" class="dialogButtonsHolder settingColumn disabled">
-                    <div id="enterButton">Enter</div>
-                </div>
-                <div id="dialogAcceptCancelButtons" class="dialogButtonsHolder settingColumn twoItems">
-                    <button id="cancel-button" type="button" class="btn btn-danger cancel-button">Cancel</button>
-                    <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
-                </div>
+            <div id="dialogEnterButton" class="dialogButtonsHolder settingColumn disabled">
+                <div id="enterButton">Enter</div>
+            </div>
+            <div id="dialogAcceptCancelButtons" class="dialogButtonsHolder settingColumn twoItems">
+                <button id="cancel-button" type="button" class="btn btn-danger cancel-button">Cancel</button>
+                <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
             </div>
         </div>
     </div>
@@ -120,13 +122,25 @@ function createSettingsMenu(useEnter) {
 
     dialogHandedness.addEventListener("input", () => handednessChanged());
 
-    dialogTitle.classList.toggle("hidden", !useEnter);
-    joinPrompt.style.display = useEnter ? "flex" : "none";
-    settingsTitle.classList.toggle("hidden", useEnter);
-    closeButton.classList.toggle("hidden", useEnter);
+    if (dialogTitle) {
+        dialogTitle.classList.toggle("hidden", !useEnter);
+    }
+    if (joinPrompt) {
+        joinPrompt.style.display = useEnter ? "flex" : "none";
+    }
+    if (settingsTitle) {
+        settingsTitle.classList.toggle("hidden", useEnter);
+    }
+    if (closeButton) {
+        closeButton.classList.toggle("hidden", useEnter);
+    }
 
-    dialogEnterButton.style.display = useEnter ? "flex" : "none";
-    dialogAcceptCancelButtons.style.display = useEnter ? "none" : "flex";
+    if (dialogEnterButton) {
+        dialogEnterButton.style.display = useEnter ? "flex" : "none";
+    }
+    if (dialogAcceptCancelButtons) {
+        dialogAcceptCancelButtons.style.display = useEnter ? "none" : "flex";
+    }
 
     populateAvatarSelection();
 
@@ -358,24 +372,20 @@ function populateAvatarSelection() {
 function createShareMenu(avatar) {
     let share = `
     <div id="shareDialog" class="dialogPanel no-select">
-    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
-    <div id="joinDialogBody" class="wide">
-        <div id="joinSettings" class="dialogPanel">
-            <div id="share-container" class="content-container">
-                <div id="share-title" class="share-title settingsColumn">Share Session<br></div>
-                <div class="promptBlurb">Scan QR code or click to open a new browser tab<br> in the same session.</div>
-                <div id="share-qr" class="settingsColumn"></div>
+        <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+        <div id="share-container" class="content-container">
+            <div id="share-title" class="panel-title settingsColumn">Share Session<br></div>
+            <div class="promptBlurb">Scan QR code or click to open a new browser tab<br> in the same session.</div>
+            <div id="share-qr" class="settingsColumn"></div>
 
-                <div class="share-settings-label settingsColumn">Copy Share Link</div>
-                <div id="copy-link" class="copy-link allow-select settingsColumn">generated link</div>
-                <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
+            <div class="share-settings-label settingsColumn">Copy Share Link</div>
+            <div id="copy-link" class="copy-link allow-select settingsColumn">generated link</div>
+            <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
 
-                <div class="share-settings-label settingsColumn">Save the world VRSE file</div>
-                <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
-            </div>
+            <div class="share-settings-label settingsColumn">Save world VRSE file</div>
+            <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
         </div>
-    </div>
-</div>`.trim();
+    </div>`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = share;

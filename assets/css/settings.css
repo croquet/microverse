@@ -5,20 +5,6 @@
   user-select: text;
 }
 
-#joinDialog,
-#helpDialog,
-#shareDialog {
-    display: block;
-    z-index: 2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
 #dialogTitle {
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
@@ -40,18 +26,31 @@
 }
 
 .dialogPanel {
-    display: block;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
     font-family: "Poppins";
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     background-color: rgba(0, 0, 0, 0.6);
-    justify-content: space-between;
-    flex-direction: column;
-    display: flex;
     border-radius: 15px;
     align-items: center;
-    position: relative;
+    position: absolute;
     padding-bottom: 10px;
+
+    width: 600px;
+    min-height: 600px;
+
+    z-index: 2;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.panel-title {
+    font-size: 25px;
+    text-align: center;
+    margin: 30px 0px 30px 0px;    
 }
 
 .cancelButton {
@@ -155,6 +154,12 @@
     color: #fff;
     background-color: #dc3545;
     border-color: #dc3545;
+}
+
+.topright {
+    position: absolute;
+    right: -20px;
+    top: -25px;
 }
 
 .btn-radio-button {
@@ -729,19 +734,10 @@
     margin-bottom: 30px;
 }
 
-.settings-container {
-    width: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+.content-container {
     width: 85%;
     margin-left: auto;
     margin-right: auto;
-}
-
-#settings-title {
-    font-size: 25px;
-    text-align: center;
-    margin-top: 50px;
-    margin: 30px 0px 30px 0px;
 }
 
 .dialog-container {
@@ -750,24 +746,17 @@
     padding-bottom: 20px;
 }
 
-.left,
-.right {
-    flex: 50%;
-    border: 1px solid red;
-}
-
-tr.help-row > td {
-    padding-right: 20px;
-    height: 50px;
-    border-bottom: 2px solid white;
+.help-table {
+    border-collapse: collapse;
 }
 
 .help-row {
     border-bottom: 2px solid white;
 }
 
-td:first-child {
-    margin-bottom: 15px;
+.help-row > td {
+    padding-right: 20px;
+    height: 50px;
 }
 
 .icons {
@@ -801,8 +790,9 @@ td:first-child {
 }
 
 #table-wrapper {
-    position: relative;
+    padding: 20px;
 }
+
 #table-scroll {
     overflow: auto;
     height: 490px;
@@ -822,78 +812,11 @@ td:first-child {
     background-color: #f5f5f5;
 }
 
-.none {
-    display: none !important;
-}
-
 .show {
     visibility: visible;
     display: block;
     -webkit-animation: fadeIn 1s;
     animation: fadeIn 1s;
-}
-
-@media (min-width: 626px) {
-    #joinDialog,
-    #helpDialog,
-    #shareDialog #joinSettings {
-	width: 600px;
-	height: 600px;
-    }
-
-    .dialog-container {
-	width: 90px;
-    }
-
-    #share-qr {
-	width: 80%;
-    }
-
-    .topright {
-	position: absolute;
-	right: -20px;
-	top: -25px;
-    }
-
-    .dialogButtonsHolder {
-	margin-top: 30px;
-    }
-
-    #joinSettings {
-	width: 600px;
-	min-height: 600px;
-    }
-
-    .dialogPanel {
-	width: 600px;
-	min-height: 600px;
-    }
-}
-
-@media (max-width: 625px) {
-    #joinDialog,
-    #helpDialog,
-    #shareDialog #joinSettings {
-	width: 90%;
-	padding: 20px;
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-    }
-
-    #joinSettings {
-	width: 100%;
-	height: 100%;
-    }
-
-    .dialogButtonHolder {
-	margin-top: 10px;
-    }
-
-    .dialogPanel {
-	width: 100%;
-	min-height: 100%;
-    }
 }
 
 #share-qr {
@@ -931,11 +854,6 @@ td:first-child {
     font-size: 13px;
 }
 
-.share-title {
-    margin-bottom: 10px;
-    margin-top: 20px;
-}
-
 .share-settings-label {
     margin-bottom: 10px;
     margin-top: 20px;
@@ -945,4 +863,71 @@ td:first-child {
     background-color: #761cfe;
     color: white;
     font-weight: bold;
+}
+
+
+@media (min-width: 626px) {
+    .dialog-container {
+	width: 90px;
+    }
+
+    .dialogButtonsHolder {
+	margin-top: 30px;
+    }
+}
+
+@media (max-width: 625px) {
+    .dialogPanel {
+	width: 90%;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+    }
+
+    .dialogButtonHolder {
+	margin-top: 10px;
+    }
+
+    .share-qr-canvas {
+	width: 120px;
+	height: 120px;
+	margin: 10px;
+    }
+
+    #copy-link {
+	width: 160px;
+    }
+
+    .topright {
+	right: 10px;
+	top: 10px;
+    }
+
+    #table-wrapper {
+	padding: 10px;
+    }
+
+    .content-container {
+	width: 95%;
+    }
+}
+
+@media (max-height: 700px) {
+    #dialogAvatarSelections {
+	height: 40px;
+	padding-bottom: 10px;
+    }
+
+    .dialogPanel {
+        min-height: 500px;
+	height: 500px;
+    }
+
+    .panel-title {
+	margin: 20px 0px 10px 0px;
+    }
+
+    #table-scroll {
+	height: 490px;
+    }
 }

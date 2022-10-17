@@ -2,7 +2,6 @@ import { startHelpMenu } from "./helpMenu.js";
 import { sendToShell } from "./frame.js";
 
 let worldMenu = null;
-let uiVisible = null;
 let worldMenuVisible = false;
 let imageInput = null;
 
@@ -133,7 +132,7 @@ function initWorldMenu(badge) {
 </div>
 <div id="usersComeHereBtn" class="menu-label menu-item">
     <div class="menu-icon presentationMode-icon"></div>
-    <span class="menu-label-text">Follow Me </span>
+    <span class="menu-label-text">Gather</span>
     <div id="userCount">
         <div id="userCountReadout" class="badge badge-warning"></div>
     </div>
@@ -167,10 +166,6 @@ function initWorldMenu(badge) {
     filterDomEventsOn(worldMenu);
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
-}
-
-function hideMenusExcept(...args) {
-    console.log(args);
 }
 
 function toggleMenu(myAvatar) {
@@ -261,7 +256,6 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
         initWorldMenu(badge);
     }
     let worldMenuBtn = document.querySelector("#worldMenuBtn");
-    const presentationButton = document.body.querySelector("#usersComeHereBtn");
 
     worldMenuBtn.onclick = () => toggleMenu(myAvatar);
     filterDomEventsOn(worldMenuBtn);
@@ -271,12 +265,17 @@ export function filterDomEventsOn(elem) {
     elem.onpointerdown = (evt) => evt.stopPropagation();
     elem.onpointerup = (evt) => evt.stopPropagation();
     elem.onpointermove = (evt) => evt.stopPropagation();
+    elem.onwheel = (evt) => evt.stopPropagation();
 }
 
 export function closeAllDialogs() {
     let panels = document.querySelectorAll(".dialogPanel");
     panels.forEach((p) => p.remove());
     sendToShell("hud", {joystick: true, fullscreen: true});
+}
+
+export function hideShellControls() {
+    sendToShell("hud", {joystick: false, fullscreen: false});
 }
 
 export function loadCSS() {
