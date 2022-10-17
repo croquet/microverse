@@ -255,10 +255,12 @@ function accept() {
     //     avatar.setSettings(configuration);
     // }
     closeDialog(true);
+    closeAllDialogs();
 }
 
 function cancel() {
     closeDialog(false);
+    closeAllDialogs();
 }
 
 function updateLocalConfig() {

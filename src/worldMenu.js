@@ -19,18 +19,32 @@ function qrPressed(_myAvatar, url) {
 function loadPressed(myAvatar) {
     if (!imageInput) {
         let input = document.createElement("div");
-        input.innerHTML = `<input id="imageinput" type="file" accept="application/json;">`;
+        input.innerHTML = `<input id="imageinput" type="file" accept="application/json,image/*,.glb,.obj..fbx,.zip,.svg,.vrse,.exr,.pdf,.mp3,.wav">`;
         imageInput = input.firstChild;
+
+        let getFileType = (fileName) => {
+            let index = fileName.lastIndexOf(".");
+            if (index >= 0) {
+                return fileName.slice(index + 1).toLowerCase();
+            }
+            return null;
+        };
 
         imageInput.onchange = () => {
             for (const file of imageInput.files) {
+                let type = getFileType(file.name);
+
                 new Promise(resolve => {
                     let reader = new FileReader();
                     reader.onload = () => resolve(reader.result);
-                    reader.readAsBinaryString(file);
+                    reader.readAsArrayBuffer(file);
                 }).then((data) => {
-                    myAvatar.loadFromFile(data);
-                })
+                    if (type === "vrse") {
+                        myAvatar.loadvrse(data);
+                    } else {
+                        myAvatar.analyzeAndUploadFile(data, file.name, type);
+                    }
+                });
             }
             imageInput.value = "";
         };
@@ -118,6 +132,14 @@ function initWorldMenu(badge) {
     <div class="menu-icon connect-icon" id="connectIcon"></div>
     <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
+<div id="usersComeHereBtn" class="menu-label menu-item">
+    <div class="menu-icon presentationMode-icon"></div>
+    <span class="menu-label-text">Gather</span>
+</div>
+<div id="worldMenu-shareButton" class="menu-label menu-item">
+    <div class="menu-icon share-icon"></div>
+    <span class="menu-label-text">Share</span>
+</div>
 <div id="worldMenu-settings" class="menu-label menu-item">
     <div class="menu-icon settings-icon"></div>
     <span class="menu-label-text">Settings</span>
@@ -125,17 +147,6 @@ function initWorldMenu(badge) {
 <div id="worldMenu-helpButton" class="menu-label menu-item">
     <div class="menu-icon help-icon"></div>
     <span class="menu-label-text">Help</span>
-</div>
-<div id="worldMenu-shareButton" class="menu-label menu-item">
-    <div class="menu-icon share-icon"></div>
-    <span class="menu-label-text">Share</span>
-</div>
-<div id="usersComeHereBtn" class="menu-label menu-item">
-    <div class="menu-icon presentationMode-icon"></div>
-    <span class="menu-label-text">Gather</span>
-    <div id="userCount">
-        <div id="userCountReadout" class="badge badge-warning"></div>
-    </div>
 </div>
 `.trim();
 
@@ -167,6 +178,8 @@ function initWorldMenu(badge) {
     document.getElementById("hud").appendChild(worldMenu);
 }
 
+
+
 function toggleMenu(myAvatar) {
     if (worldMenuVisible) {
         worldMenu.classList.remove("menuVisible");
@@ -181,6 +194,7 @@ function toggleMenu(myAvatar) {
     if (myAvatar.actor.service("PlayerManager").presentationMode) {
         let presentation = `
             <div id="worldMenu-forceStop" class="menu-label menu-item">
+                <div class="menu-icon presentationMode-icon"></div>
                 <span class="menu-label-text">Stop Presentation</span>
             </div>`.trim();
 
@@ -188,6 +202,12 @@ function toggleMenu(myAvatar) {
         div.innerHTML = presentation;
         worldMenu.appendChild(div.firstChild);
     }
+
+    const presentationButton = document.body.querySelector("#usersComeHereBtn");
+    presentationButton.onclick = () => {
+        toggleMenu();
+        myAvatar.comeToMe();
+    };
 
     let div;
 

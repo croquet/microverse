@@ -784,10 +784,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         setupWorldMenuButton(this, App, this.sessionId);
 
-        const presentationButton = document.body.querySelector("#usersComeHereBtn");
-        presentationButton.onclick = () => this.comeToMe();
-        filterDomEventsOn(presentationButton);
-
         window.myAvatar = this;
 
         this.eyeHeight = EYE_HEIGHT;
@@ -1127,29 +1123,30 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showNumbers() {
         let manager = this.actor.service("PlayerManager");
-        let comeHere = document.getElementById("usersComeHereBtn");
+        let comeHere = document.getElementById("userCountDisplay");
+        if (!comeHere) {return;}
         let userCountReadout = comeHere.querySelector("#userCountReadout");
-        if (userCountReadout) {
-            // TODO: change PlayerManager to only create avatars for players that are actually in the world
-            let total = manager.players.size;
-            let here = manager.playersInWorld().length;
-            let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
-            if (here !== total) {
-                let watching = total - here;
-                tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;
-                total = `${here}+${watching}`;
-            }
-            if (manager.presentationMode) {
-                let followers = manager.followers.size; // includes the presenter
-                userCountReadout.textContent = `${followers}/${total}`;
-                tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
-            } else {
-                userCountReadout.textContent = `+(${total})`;
-            }
-            comeHere.setAttribute("title", tooltip);
+        if (!userCountReadout) {return;}
+        
+        // TODO: change PlayerManager to only create avatars for players that are actually in the world
+        let total = manager.players.size;
+        let here = manager.playersInWorld().length;
+        let suffix = here === 1 ? "user" : "users";
+        let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
+        if (here !== total) {
+            let watching = total - here;
+            tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;
+            total = `${here}+${watching}`;
         }
-
-        comeHere.setAttribute("presenting", this.presenting);
+        if (manager.presentationMode) {
+            let followers = manager.followers.size; // includes the presenter
+            userCountReadout.textContent = `${followers}/${total}`;
+            tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
+        } else {
+            userCountReadout.textContent = `${total} ${suffix}`;
+        }
+        comeHere.setAttribute("title", tooltip);
+        userCountReadout.setAttribute("presenting", this.presenting);
     }
 
     modelLoaded() {
