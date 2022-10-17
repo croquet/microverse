@@ -58,18 +58,29 @@ function loadPressed(myAvatar) {
     }
 }
 
-function connectPressed() {
-    const connectButton = document.getElementById('connectBtn');
-    const connectIcon = document.getElementById('connectIcon')
+export function connectFeedback(flag) {
+    let connectButton = document.getElementById('connectBtn');
+    let connectIcon = document.getElementById('connectIcon')
 
-    window.BehaviorViewManager.setURL("ws://localhost:9011");
+    if (flag) {
+        connectButton.textContent = 'Connected';
+        connectButton.classList.add('connected');
+        connectIcon.classList.remove('connect-icon');
+        connectIcon.classList.add('connected-icon');
+    } else {
+        connectButton.textContent = 'Connect';
+        connectButton.classList.remove('connected');
+        connectIcon.classList.add('connect-icon');
+        connectIcon.classList.remove('connected-icon');
+    }
+}
 
-    connectButton.textContent = 'Connected';
-    connectButton.classList.add('connected');
+function connectPressed(myAvatar) {
+    let manager = myAvatar.service("BehaviorViewManager");
 
-    connectIcon.classList.remove('connect-icon');
-    connectIcon.classList.add('connected-icon');
-
+    if (manager) {
+        manager.setURL("ws://localhost:9011", connectFeedback);
+    }
 }
 
 function settingsPressed(myAvatar) {
