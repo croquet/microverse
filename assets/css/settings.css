@@ -760,10 +760,12 @@
 }
 
 .icons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
     padding-right: 10px;
     font-size: 30px;
-    height: 37px;
-    background-repeat: no-repeat;
 }
 
 .table-head {
