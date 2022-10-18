@@ -1388,54 +1388,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
     showSelectEdit(obj3d) {
         this.service("ThreeRenderManager").addToOutline(obj3d);
-        obj3d.traverse((obj)=>{
-            if(obj.geometry){
-
-                let m = obj.material;
-                let mat;
-                if(Array.isArray(m))mat = m;
-                else mat = [m];
-
-                mat.forEach(m=>{
-                    let c = m.color;
-                    if(c && !m._oldColor) { // check for reused color
-                        m._oldColor = c;
-                        let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;
-                        m.color = new THREE.Color(gray, gray, gray);
-                        m._oldOpacity = m.opacity;
-                        m.opacity = 0.5;
-                        m._oldTransparent = m.transparent;
-                        m.transparent = true;
-                        m.needsUpdate = true;
-                    }
-                })
-            }
-        });
     }
 
     showUnselectEdit(obj3d) {
         this.service("ThreeRenderManager").clearOutline(obj3d);
-        let mat;
-        obj3d.traverse((obj)=>{
-            if(obj.type === '_lineHighlight') {
-                lines.push(obj);
-            } else if(obj.geometry) {
-                mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
-                mat.dispose = arrayDispose;
-                //console.log("removeWire, material",mat);
-                mat.forEach(m=>{
-                    if(m._oldColor) {
-                        m.color = m._oldColor;
-                        m.opacity = m._oldOpacity;
-                        m.transparent = m._oldTransparent;
-                        delete m._oldColor;
-                        delete m._oldOpacity;
-                        delete m._oldTransparent;
-                        m.needsUpdate = true;
-                    }
-                });
-            }
-        });
     }
 
     saveCard(data) {
