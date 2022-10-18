@@ -400,6 +400,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                         runs: runs,
                     };
                     Cls = TextFieldActor;
+                } else if (card.type === "text") {
+                    Cls = TextFieldActor;
                 } else if (card.className) {
                     Cls = appManager.get(card.className);
                     delete options.className;
@@ -473,6 +475,10 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     collisionEvent(rb1, rb2, started) {
         return this.call(this.collisionEventHandlerBehavior, this.collisionEventHandlerMethod, rb1, rb2, started);
+    }
+
+    getTextFieldActorClass() {
+        return TextFieldActor;
     }
 }
 CardActor.register('CardActor');
@@ -1362,7 +1368,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     doSelectEdit() {
-        this.editMode=true;
+        this.editMode = true;
         console.log("doSelectEdit")
         if (this.renderObject) {
             this.showSelectEdit(this.renderObject);
@@ -1370,7 +1376,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     doUnselectEdit() {
-        this.editMode=false;
+        this.editMode = false;
         console.log("doUnselectEdit")
         if (this.renderObject) {
             this.showUnselectEdit(this.renderObject);
@@ -1418,7 +1424,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let mat;
         obj3d.traverse((obj)=>{
             if(obj.type === '_lineHighlight') {
-                lines.push(obj);
+                // lines.push(obj);
             } else if(obj.geometry) {
                 mat = (Array.isArray(obj.material)) ? obj.material : [obj.material];
                 mat.dispose = arrayDispose;

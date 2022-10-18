@@ -114,7 +114,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             const marginTop = PADDING * 1.1 / TEXT_SCALE;
             const options = {
                 name: 'nickname',
-                className: "TextFieldActor",
                 behaviorModules: ["Billboard"],
                 translation: [0, 1, -0.1], // above and slightly in front
                 type: "text",
@@ -136,7 +135,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             this.nicknameCard = this.createCard(options);
         }
 
-        const measurement = TextFieldActor.defaultMeasurement(nickname);
+        const measurement = this.getTextFieldActorClass().defaultMeasurement(nickname);
         const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
         const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
         this.nicknameCard.load([{text: nickname, style: {color: 'white'}}]);
