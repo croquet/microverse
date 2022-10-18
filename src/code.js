@@ -1011,12 +1011,24 @@ export class BehaviorViewManager extends ViewService {
         super(name || "BehaviorViewManager");
         this.url = null;
         this.socket = null;
-        window.BehaviorViewManager = this;
+        this.status = false;
         this.model = this.wellKnownModel("BehaviorModelManager");
         this.subscribe(this.model.id, "callViewSetupAll", "callViewSetupAll");
     }
 
-    setURL(url) {
+    isConnected() {
+        return this.socket && this.socket.readyState === WebSocket.OPEN && this.status === true;
+    }
+
+    destroy() {
+        if (this.callback) {
+            this.callback(false);
+        }
+        this.setURL(null);
+    }
+
+    setURL(url, optCallback) {
+        this.callback = optCallback;
         if (this.socket) {
             try {
                 this.socket.onmessage = null;
@@ -1029,6 +1041,24 @@ export class BehaviorViewManager extends ViewService {
         this.url = url;
         this.socket = new WebSocket(url);
         this.socket.onmessage = (event) => this.load(event.data);
+
+        this.socket.onopen = (_event) => {
+            console.log("connected");
+            this.status = true;
+            if (this.callback) {
+                this.callback(true);
+            }
+        };
+
+        this.socket.onclose = (_event) => {
+            console.log("disconnected");
+            this.socket.onmessage = null;
+            this.socket = null;
+            this.status = false;
+            if (this.callback) {
+                this.callback(false);
+            }
+        };
     }
 
     callViewSetupAll(pairs) {
