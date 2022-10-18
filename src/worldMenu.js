@@ -136,7 +136,7 @@ function initWorldMenu(badge) {
 
     let buttons = `
 <div id="worldMenu-load" class="menu-label menu-item">
-    <div class="menu-icon import-icon" style="margin-left: 4px"></div>
+    <div class="menu-icon import-icon"></div>
     <span class="menu-label-text">Import</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
