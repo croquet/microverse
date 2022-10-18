@@ -82,7 +82,7 @@ function createHelpMenu() {
                         </td>
                         <td class="icon-column">
                             <div class="icons">
-                                <div class="help-pane-icon import-icon png-icon"></div>
+                                <div class="help-pane-icon import-icon help-menu-icon"></div>
                             </div>
                         </td>
                      </tr>
@@ -93,7 +93,7 @@ function createHelpMenu() {
                          </td>
                          <td class="icon-column">
                              <div class="icons">
-                                 <div class="help-pane-icon connect-icon png-icon"</div>
+                                 <div class="help-pane-icon connect-icon help-menu-icon"</div>
                              </div>
                          </td>
                      </tr>
@@ -104,7 +104,7 @@ function createHelpMenu() {
                          </td>
                          <td class="icon-column">
                              <div class="icons">
-                                 <div class="help-pane-icon share-icon png-icon"></div>
+                                 <div class="help-pane-icon share-icon help-menu-icon"></div>
                              </div>
                          </td>
                      </tr>
@@ -115,7 +115,7 @@ function createHelpMenu() {
                          </td>
                          <td class="icon-column">
                              <div class="icons">
-                                 <div class="help-pane-icon settings-icon png-icon"></div>
+                                 <div class="help-pane-icon settings-icon help-menu-icon"></div>
                              </div>
                          </td>
                     </tr>

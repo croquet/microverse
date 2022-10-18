@@ -1064,26 +1064,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     loadvrse(buffer) {
         let result = new TextDecoder("utf-8").decode(buffer);
-        this.loadFromFile(result, false, true);
+        let parsed;
+        try {
+            parsed = JSON.parse(result);
+        } catch (e) {
+            console.log("vrse file is not in JSON format");
+        }
 
-        /*
-        Swal.fire({
-            title: 'Do you want to load VRSE to replace existing world or add as new cards?',
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Replace',
-            denyButtonText: `Add`,
-        }).then((swal) => {
-            let result = new TextDecoder("utf-8").decode(buffer);
-            if (swal.isConfirmed) {
-                let model = this.actor.wellKnownModel("ModelRoot");
-                this.publish(model.id, "removeAll");
-                this.loadFromFile(result, false, true);
-            } else if (swal.isDenied) {
-                this.loadFromFile(result, false, true);
-            }
-        });
-        */
+        if (!parsed) {return;}
+
+        let cards = parsed.data.cards;
+        let toplevel = 0;
+        for (let i = 0; i < cards.length; i++) {
+            let card = cards[i].card;
+            if (!card.parent) {toplevel++;}
+        }
+
+        let asScene = toplevel >= 2;
+        this.loadFromFile(result, asScene, !asScene);
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
