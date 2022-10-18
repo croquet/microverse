@@ -130,6 +130,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 readOnly: true,
                 noDismissButton: true,
                 noSave: true,
+                avatarParts: true,
                 parent: this
             };
             this.nicknameCard = this.createCard(options);
@@ -2116,7 +2117,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // visible or invisible appropriately
             if (pawn._children) {
                 for (let c of pawn._children) {
-                    if (c.shape) c.shape.visible = visible;
+                    if (c.actor._cardData.avatarParts) c.shape.visible = visible;
                 }
             }
 
