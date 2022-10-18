@@ -17,7 +17,7 @@ import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
 import { TextFieldActor } from "./text/text.js";
 
-import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
+import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 // import Swal from "sweetalert2";
 
@@ -928,10 +928,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
 
         this.listen("clearGizmo", this.clearGizmo);
-        console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
+        this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
+        this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
+        
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
+
+        console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
     }
 
     detach() {
@@ -1158,6 +1162,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         userCountDisplay.setAttribute("title", tooltip);
         readout.setAttribute("presenting", this.presenting);
+    }
+
+    presentationStarted() {
+        updateWorldMenu(this);
+    }
+    presentationStopped() {
+        updateWorldMenu(this);
     }
 
     modelLoaded() {

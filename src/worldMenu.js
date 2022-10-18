@@ -143,7 +143,7 @@ function initWorldMenu(badge) {
     <div class="menu-icon connect-icon" id="connectIcon"></div>
     <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
-<div id="usersComeHereBtn" class="menu-label menu-item">
+<div id="worldMenu-gather" class="menu-label menu-item">
     <div class="menu-icon presentationMode-icon"></div>
     <span class="menu-label-text">Gather</span>
 </div>
@@ -169,7 +169,7 @@ function initWorldMenu(badge) {
     let settings = div.querySelector("#worldMenu-settings");
     let share = div.querySelector("#worldMenu-shareButton");
     let help = div.querySelector("#worldMenu-helpButton");
-    let presentationMode = div.querySelector("#usersComeHereBtn");
+    let presentationMode = div.querySelector("#worldMenu-gather");
 
     html.appendChild(badge);
     badge.id = "worldMenu-qr";
@@ -189,36 +189,15 @@ function initWorldMenu(badge) {
     document.getElementById("hud").appendChild(worldMenu);
 }
 
-
-
-function toggleMenu(myAvatar) {
-    if (worldMenuVisible) {
-        worldMenu.classList.remove("menuVisible");
-        worldMenuVisible = false;
-        return;
-    }
-
-    if (worldMenu.lastChild.id === "worldMenu-forceStop") {
-        worldMenu.lastChild.remove();
-    }
+function setMenuItems(myAvatar) {
+    let gatherItem = worldMenu.querySelector("#worldMenu-gather");
+    let label = gatherItem.querySelector("span");
 
     if (myAvatar.actor.service("PlayerManager").presentationMode) {
-        let presentation = `
-            <div id="worldMenu-forceStop" class="menu-label menu-item">
-                <div class="menu-icon presentationMode-icon"></div>
-                <span class="menu-label-text">Stop Presentation</span>
-            </div>`.trim();
-
-        let div = document.createElement("div");
-        div.innerHTML = presentation;
-        worldMenu.appendChild(div.firstChild);
+        label.textContent = "Stop Gathering";
+    } else {
+        label.textContent = "Gather";
     }
-
-    const presentationButton = document.body.querySelector("#usersComeHereBtn");
-    presentationButton.onclick = () => {
-        toggleMenu();
-        myAvatar.comeToMe();
-    };
 
     let div;
 
@@ -253,15 +232,36 @@ function toggleMenu(myAvatar) {
     div = worldMenu.querySelector("#worldMenu-helpButton");
     if (div) div.onclick = () => helpPressed(myAvatar);
 
-    div = worldMenu.querySelector("#worldMenu-forceStop");
-    if (div)　div.onclick = () => forceStop(myAvatar);
+    div = gatherItem;
+    if (div) {
+        div.onclick = () => {
+            toggleMenu();
+            if (myAvatar.actor.service("PlayerManager").presentationMode) {
+                forceStop(myAvatar);
+            } else {
+                myAvatar.comeToMe();
+            }
+        };
+    }
+}
+
+function toggleMenu(myAvatar) {
+    if (worldMenuVisible) {
+        worldMenu.classList.remove("menuVisible");
+        worldMenuVisible = false;
+        return;
+    }
+
+    setMenuItems(myAvatar);
 
     worldMenuVisible = true;
     worldMenu.classList.add("menuVisible");
-
-    return worldMenu;
 }
 
+export function updateWorldMenu(myAvatar) {
+    if (!worldMenuVisible) {return;}
+    setMenuItems(myAvatar);
+}
 
 export function setupWorldMenuButton(myAvatar, App, sessionId) {
     if (!worldMenu) {
@@ -302,10 +302,19 @@ export function closeAllDialogs() {
     let panels = document.querySelectorAll(".dialogPanel");
     panels.forEach((p) => p.remove());
     sendToShell("hud", {joystick: true, fullscreen: true});
+
+    let homeBtn = document.querySelector("#homeBtn");
+    if (homeBtn) {
+        homeBtn.style.display = "flex";
+    }
 }
 
 export function hideShellControls() {
     sendToShell("hud", {joystick: false, fullscreen: false});
+    let homeBtn = document.querySelector("#homeBtn");
+    if (homeBtn) {
+        homeBtn.style.display = "none";
+    }
 }
 
 export function loadCSS() {
@@ -323,4 +332,3 @@ export function loadCSS() {
     }
     return Promise.resolve(true);
 }
-
