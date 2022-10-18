@@ -153,7 +153,7 @@ body.tilt > iframe {
     padding: 5px;
     border: 1px solid white;
     color: white;
-    width: 225px;
+    width: 210px;
 }
 
 .menuVisible {
@@ -172,7 +172,6 @@ body.tilt > iframe {
     background-color: white;
     padding: 10px;
     cursor: pointer;
-    height: 190px;
 }
 
 #qrDiv {
