@@ -505,7 +505,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.animationInterval = null;
         this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
         this.constructCard();
-        this.editMode = false; // used to determine if we should ignore pointer events
+        this._editMode = false; // used to determine if we should ignore pointer events
     }
 
     sayDeck(message, vars) {
@@ -1359,27 +1359,27 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     selectEdit() {
-        this.say('selectEdit');
+        this.say("selectEdit");
     }
 
     unselectEdit() {
-        this.say('unselectEdit')
+        this.say("unselectEdit")
         delete this._plane;
     }
 
     doSelectEdit() {
-        this.editMode = true;
+        this._editMode = true;
         console.log("doSelectEdit")
         if (this.renderObject) {
-            this.showSelectEdit(this.renderObject);
+            this.addWireBox(this.renderObject);
         }
     }
 
     doUnselectEdit() {
-        this.editMode = false;
+        this._editMode = false;
         console.log("doUnselectEdit")
         if (this.renderObject) {
-            this.showUnselectEdit(this.renderObject);
+            this.removeWireBox(this.renderObject);
         }
     }
 
@@ -1392,6 +1392,50 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return GetPawn(myAvatar.id);
     }
 
+
+    addWireBox(obj3d) {
+        let tmpMat = new THREE.Matrix4();
+        let currentMat = obj3d.matrix;
+        let box;
+        try {
+            obj3d.matrix = tmpMat;
+            box = new THREE.Box3().setFromObject(obj3d);
+        } finally {
+            obj3d.matrix = currentMat;
+        }
+
+        console.log(box.max.x - box.min.x, box.max.y - box.min.y, box.max.z - box.min.z);
+        let geom = new THREE.BoxGeometry(
+            box.max.x - box.min.x,
+            box.max.y - box.min.y,
+            box.max.z - box.min.z
+        );
+        let edges = new THREE.EdgesGeometry(geom);
+        let line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
+            color: 0xff0000,
+            linewidth: 4,
+            transparent: true,
+            opacity: 0.6,
+            depthTest: false,
+            depthWrite: false
+        }));
+
+        line._wireline = true;
+        line.renderOrder = 10000;
+        obj3d.add(line);
+    }
+
+    removeWireBox(obj3d) {
+        [...obj3d.children].forEach((c) => {
+            if (c._wireline) {
+                c.geometry.dispose();
+                c.material.dispose();
+                c.removeFromParent();
+            }
+        });
+    }
+
+    /*
     showSelectEdit(obj3d) {
         this.service("ThreeRenderManager").addToOutline(obj3d);
         obj3d.traverse((obj)=>{
@@ -1442,7 +1486,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 });
             }
         });
-    }
+    }*/
 
     saveCard(data) {
         if (data.viewId !== this.viewId) {return;}

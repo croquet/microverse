@@ -330,6 +330,22 @@ class GizmoPawn {
         this.lastTime = this.now();
     }
 
+    forceOnTop(obj3d) {
+        obj3d.traverse((obj) => {
+            if (obj.geometry) {
+                obj.renderOrder = 10000; // draw last
+                let m = obj.material;
+                let mat;
+                mat = Array.isArray(m) ? m : [m];
+                mat.forEach(m => {
+                    m.opacity = 0.9999;
+                    m.transparent = true;
+                    m.depthTest = false;
+                    m.depthWrite = false;
+                });
+            }
+        });
+    }
 }
 
 class GizmoAxisActor {
@@ -359,24 +375,6 @@ class GizmoAxisPawn {
         }
     }
 
-    forceOnTop(obj3d){
-        obj3d.traverse((obj)=>{
-            if(obj.geometry){
-                obj.renderOrder = 10000; // draw last
-                let m = obj.material;
-                let mat;
-                if(Array.isArray(m))mat = m;
-                else mat = [m];
-                mat.forEach(m=>{
-                    m.opacity = 0.9999;
-                    m.transparent = true;
-                    m.depthTest = false;
-                    m.depthWrite = false;
-                })
-            }
-        });
-    }
-
     makeAxisHelper(isMine) {
         this.axis = this.actor._cardData.axis;
         let arrow = new Microverse.THREE.ArrowHelper(
@@ -385,7 +383,7 @@ class GizmoAxisPawn {
             3,
             isMine ? this.originalColor : 0xffffff
         );
-        this.forceOnTop(arrow);
+        this.parent.call("Gizmo$GizmoPawn", "forceOnTop", arrow);
         return arrow;
     }
 
@@ -502,24 +500,6 @@ class GizmoRotorPawn {
         }
     }
 
-    forceOnTop(obj3d){
-        obj3d.traverse((obj)=>{
-            if(obj.geometry){
-                obj.renderOrder = 10000; // draw last
-                let m = obj.material;
-                let mat;
-                if(Array.isArray(m))mat = m;
-                else mat = [m];
-                mat.forEach(m=>{
-                    m.opacity = 0.9999;
-                    m.transparent = true;
-                    m.depthTest = false;
-                    m.depthWrite = false;
-                })
-            }
-        });
-    }
-
     createCircle(color, axis) {
         const curve = new Microverse.THREE.EllipseCurve(
             0.0, 0.0,            // Center x, y
@@ -538,7 +518,7 @@ class GizmoRotorPawn {
 
         const mat = new Microverse.THREE.LineBasicMaterial({color, toneMapped: false, linewidth: 2});
         const circle = new Microverse.THREE.LineLoop(geo, mat);
-        this.forceOnTop(circle);
+        this.parent.call("Gizmo$GizmoPawn", "forceOnTop", circle);
         return circle;
     }
 
@@ -694,24 +674,6 @@ class GizmoScalerPawn {
         }
     }
 
-    forceOnTop(obj3d){
-        obj3d.traverse((obj)=>{
-            if(obj.geometry){
-                obj.renderOrder = 10000; // draw last
-                let m = obj.material;
-                let mat;
-                if(Array.isArray(m))mat = m;
-                else mat = [m];
-                mat.forEach(m=>{
-                    m.opacity = 0.9999;
-                    m.transparent = true;
-                    m.depthTest = false;
-                    m.depthWrite = false;
-                })
-            }
-        });
-    }
-
     getGlobalLength() {
         let {THREE, GetPawn, m4_invert, v3_transform, v3_multiply} = Microverse;
 
@@ -772,7 +734,7 @@ class GizmoScalerPawn {
         group.add(line);
         group.add(box);
 
-        this.forceOnTop(group);
+        this.parent.call("Gizmo$GizmoPawn", "forceOnTop", group);
         return group;
     }
 
@@ -876,6 +838,7 @@ class GizmoPropertySheetButtonPawn {
         let button = new Microverse.THREE.Mesh(geometry, material);
         this.shape.add(button);
         this.setColor();
+        this.parent.call("Gizmo$GizmoPawn", "forceOnTop", button);
     }
 
     setColor() {
