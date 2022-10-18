@@ -353,6 +353,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     intrinsicProperties() {return intrinsicProperties;}
 
     saySelectEdit() {
+        console.log("saySelectEdit says doSelectEdit");
         this.say("doSelectEdit");
     }
 
@@ -498,6 +499,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.animationInterval = null;
         this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
         this.constructCard();
+        this.editMode = false; // used to determine if we should ignore pointer events
     }
 
     sayDeck(message, vars) {
@@ -1360,16 +1362,18 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     doSelectEdit() {
+        this.editMode=true;
         console.log("doSelectEdit")
         if (this.renderObject) {
-            this.addWire(this.renderObject);
+            this.showSelectEdit(this.renderObject);
         }
     }
 
     doUnselectEdit() {
+        this.editMode=false;
         console.log("doUnselectEdit")
         if (this.renderObject) {
-            this.removeWire(this.renderObject);
+            this.showUnselectEdit(this.renderObject);
         }
     }
 
@@ -1382,16 +1386,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return GetPawn(myAvatar.id);
     }
 
-    addWire(obj3d) {
-        let parts = [];
-        let lines = [];
-
+    showSelectEdit(obj3d) {
+        this.service("ThreeRenderManager").addToOutline(obj3d);
         obj3d.traverse((obj)=>{
             if(obj.geometry){
-                let edges = new THREE.EdgesGeometry(obj.geometry);
-                let line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x44ff44} ));
-                line.raycast = function(){};
-                lines.push(line);
+
                 let m = obj.material;
                 let mat;
                 if(Array.isArray(m))mat = m;
@@ -1403,20 +1402,19 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                         m._oldColor = c;
                         let gray = (c.r * 0.299 + c.g * 0.587 + c.b * 0.114) * 0.50;
                         m.color = new THREE.Color(gray, gray, gray);
+                        m._oldOpacity = m.opacity;
+                        m.opacity = 0.5;
+                        m._oldTransparent = m.transparent;
+                        m.transparent = true;
+                        m.needsUpdate = true;
                     }
                 })
-                parts.push( obj );
             }
         });
-        for(let i = 0; i < lines.length; i++){
-            let line = lines[i];
-            line.type = '_lineHighlight';
-            parts[i].add(line);
-        }
     }
 
-    removeWire(obj3d) {
-        let lines = [];
+    showUnselectEdit(obj3d) {
+        this.service("ThreeRenderManager").clearOutline(obj3d);
         let mat;
         obj3d.traverse((obj)=>{
             if(obj.type === '_lineHighlight') {
@@ -1428,17 +1426,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 mat.forEach(m=>{
                     if(m._oldColor) {
                         m.color = m._oldColor;
+                        m.opacity = m._oldOpacity;
+                        m.transparent = m._oldTransparent;
                         delete m._oldColor;
+                        delete m._oldOpacity;
+                        delete m._oldTransparent;
+                        m.needsUpdate = true;
                     }
                 });
             }
         });
-        for(let i = 0; i < lines.length;i++) {
-            let line = lines[i];
-            line.removeFromParent();
-            line.geometry.dispose();
-            line.material.dispose();
-        }
     }
 
     saveCard(data) {

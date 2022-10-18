@@ -359,13 +359,33 @@ class GizmoAxisPawn {
         }
     }
 
+    forceOnTop(obj3d){
+        obj3d.traverse((obj)=>{
+            if(obj.geometry){
+                obj.renderOrder = 10000; // draw last
+                let m = obj.material;
+                let mat;
+                if(Array.isArray(m))mat = m;
+                else mat = [m];
+                mat.forEach(m=>{
+                    m.opacity = 0.9999;
+                    m.transparent = true;
+                    m.depthTest = false;
+                    m.depthWrite = false;
+                })
+            }
+        });
+    }
+
     makeAxisHelper(isMine) {
+        this.axis = this.actor._cardData.axis;
         let arrow = new Microverse.THREE.ArrowHelper(
-            new Microverse.THREE.Vector3(...this.actor._cardData.axis),
+            new Microverse.THREE.Vector3(...this.axis),
             new Microverse.THREE.Vector3(0, 0, 0),
             3,
             isMine ? this.originalColor : 0xffffff
         );
+        this.forceOnTop(arrow);
         return arrow;
     }
 
@@ -377,7 +397,12 @@ class GizmoAxisPawn {
 
         // avatar.addFirstResponder("pointerMove", {shiftKey: true}, this);
         avatar.addFirstResponder("pointerMove", {}, this);
-        let {THREE, m4_invert, v3_normalize, v3_sub, m4_identity} = Microverse;
+
+        let {THREE, m4_invert, v3_normalize, v3_sub, m4_identity, v3_cross} = Microverse;
+        // ensure the plane is parallel to the arrow
+        let direction = event.ray.direction;
+        let up = v3_cross(this.axis, direction);
+        direction = v3_cross(up, this.axis);
 
         let parentGlobal = target._parent ? target._parent.global : m4_identity();
         this.gizmoParentInvert = m4_invert(parentGlobal);
@@ -388,7 +413,7 @@ class GizmoAxisPawn {
         this.intersectionPlane = new Microverse.THREE.Plane();
 
         this.intersectionPlane.setFromNormalAndCoplanarPoint(
-            new THREE.Vector3(...v3_sub([0, 0, 0], v3_normalize(event.ray.direction))),
+            new THREE.Vector3(...v3_sub([0, 0, 0], v3_normalize(direction))),
             new Microverse.THREE.Vector3(...this.gizmoDragStart)
         );
 
@@ -425,6 +450,7 @@ class GizmoAxisPawn {
         }
         // console.log(nextPosition);
         this.publish(this.parent.actor.id, "translateTarget", nextPosition);
+        this.publish(this.parent.id, "interaction");
         // this.set({translation: nextPosition})
     }
 
@@ -476,6 +502,24 @@ class GizmoRotorPawn {
         }
     }
 
+    forceOnTop(obj3d){
+        obj3d.traverse((obj)=>{
+            if(obj.geometry){
+                obj.renderOrder = 10000; // draw last
+                let m = obj.material;
+                let mat;
+                if(Array.isArray(m))mat = m;
+                else mat = [m];
+                mat.forEach(m=>{
+                    m.opacity = 0.9999;
+                    m.transparent = true;
+                    m.depthTest = false;
+                    m.depthWrite = false;
+                })
+            }
+        });
+    }
+
     createCircle(color, axis) {
         const curve = new Microverse.THREE.EllipseCurve(
             0.0, 0.0,            // Center x, y
@@ -494,6 +538,7 @@ class GizmoRotorPawn {
 
         const mat = new Microverse.THREE.LineBasicMaterial({color, toneMapped: false, linewidth: 2});
         const circle = new Microverse.THREE.LineLoop(geo, mat);
+        this.forceOnTop(circle);
         return circle;
     }
 
@@ -649,6 +694,24 @@ class GizmoScalerPawn {
         }
     }
 
+    forceOnTop(obj3d){
+        obj3d.traverse((obj)=>{
+            if(obj.geometry){
+                obj.renderOrder = 10000; // draw last
+                let m = obj.material;
+                let mat;
+                if(Array.isArray(m))mat = m;
+                else mat = [m];
+                mat.forEach(m=>{
+                    m.opacity = 0.9999;
+                    m.transparent = true;
+                    m.depthTest = false;
+                    m.depthWrite = false;
+                })
+            }
+        });
+    }
+
     getGlobalLength() {
         let {THREE, GetPawn, m4_invert, v3_transform, v3_multiply} = Microverse;
 
@@ -708,6 +771,8 @@ class GizmoScalerPawn {
 
         group.add(line);
         group.add(box);
+
+        this.forceOnTop(group);
         return group;
     }
 

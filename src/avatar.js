@@ -509,6 +509,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     removeGizmo() {
         this.gizmo?.destroy();
         delete this.gizmo;
+        this.say("clearGizmo"); // let the pawn know
     }
 
     createPortal(translation, rotation, portalURL) {
@@ -926,6 +927,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
 
+        this.listen("clearGizmo", this.clearGizmo);
         console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
         this.wasdVelocity = [0, 0, 0];
@@ -1130,10 +1132,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             comeHere.style.display = "none";
             return;
         }
-        
+
         let userCountReadout = comeHere.querySelector("#userCountReadout");
         if (!userCountReadout) {return;}
-        
+
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
@@ -1409,7 +1411,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
             this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
-            if (this.actor.inWorld) {
+            const spectator = this.wellKnownModel("modelRoot").broadcastMode && !this.actor.broadcaster;
+            if (this.actor.inWorld || spectator) {
                 // get the potential new pose from velocity and spin.
                 // the v and q variable is passed around to compute a new position.
                 // unless positionTo() is called the avatar state (should) stays the same.
@@ -1428,7 +1431,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     } else {
                         this.lastCollideTranslation = vq.v;
                     }
-                    if (this.actor.fall && time - this.lastUpdateTime > THROTTLE) {
+                    if ((this.actor.fall || spectator) && time - this.lastUpdateTime > THROTTLE) {
                         if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                             this.lastCollideTime = time;
                             vq = this.checkFall(vq);
@@ -1962,9 +1965,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return[c * (xy[0] - w), c * (h - xy[1])];
     }
 
+    clearGizmo() {
+        this.gizmoTargetPawn = null;
+    }
+
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
-        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
+        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer").filter((card)=>!card.editMode));
         this.targetDistance = rc.distance;
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
@@ -2206,7 +2213,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.modelHasLoaded = false;
             }
         });
-
     }
 
     showShareMenu() {
