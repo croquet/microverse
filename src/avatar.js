@@ -97,6 +97,15 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!this.inWorld) return;
         if (this._cardData.noNicknameCard) {return;}
 
+        const nickname = this._name;
+        if (!nickname) {
+            if (this.nicknameCard) {
+                this.nicknameCard.destroy();
+                this.nicknameCard = null;
+            }
+            return;
+        }
+
         const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
         const PADDING = 0.1; // horizontal and vertical
         const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
@@ -127,12 +136,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             this.nicknameCard = this.createCard(options);
         }
 
-        const nickname = this._name;
-        if (!nickname) {
-            this.nicknameCard.destroy();
-            this.nicknameCard = null;
-            return;
-        }
         const measurement = TextFieldActor.defaultMeasurement(nickname);
         const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
         const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
@@ -931,7 +934,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
-        
+
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
 
