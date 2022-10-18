@@ -1123,16 +1123,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showNumbers() {
         let manager = this.actor.service("PlayerManager");
-        let comeHere = document.getElementById("userCountDisplay");
-        if (!comeHere) {return;}
-
+        let userCountDisplay = document.getElementById("userCountDisplay");
         if (this.service("AgoraChatManager")) {
-            comeHere.style.display = "none";
+            if (userCountDisplay) {userCountDisplay.remove();}
             return;
         }
 
-        let userCountReadout = comeHere.querySelector("#userCountReadout");
-        if (!userCountReadout) {return;}
+        if (!userCountDisplay) {
+            let c = document.createElement("div");
+            c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
+            userCountDisplay = c.firstChild;
+            document.body.appendChild(userCountDisplay);
+        }
+
+        let readout = userCountDisplay.querySelector("#userCountReadout");
+        if (!readout) {return;}
 
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
@@ -1146,13 +1151,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         if (manager.presentationMode) {
             let followers = manager.followers.size; // includes the presenter
-            userCountReadout.textContent = `${followers}/${total}`;
+            readout.textContent = `${followers}/${total} ${suffix}`;
             tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
         } else {
-            userCountReadout.textContent = `${total} ${suffix}`;
+            readout.textContent = `${total} ${suffix}`;
         }
-        comeHere.setAttribute("title", tooltip);
-        userCountReadout.setAttribute("presenting", this.presenting);
+        userCountDisplay.setAttribute("title", tooltip);
+        readout.setAttribute("presenting", this.presenting);
     }
 
     modelLoaded() {
