@@ -19,8 +19,7 @@ import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } f
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
-import { startSettingsMenu } from "./settingsMenu.js";
-import { startShareMenu } from "./shareMenu.js";
+import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 
 // apps -------------------------------------------
 import { MultiBlaster } from '../apps/multiblaster.js';

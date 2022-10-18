@@ -6,45 +6,37 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>Microverse</title>
   <link id="microverse-css" rel="stylesheet" href="./assets/css/microverse.css" />
-  <script src="https://kit.fontawesome.com/ab959e3445.js" crossorigin="anonymous"></script>
-  <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
-
+  <link href="./assets/fonts/css/all.min.css" rel="stylesheet">
 </head>
 
 <body class="no-select">
   <div id="hud">
     <div class="container">
       <div class="controllers" style="border:1px solid red">
-        <div id="homeBtn" class="btn btn-ui ui">
-          <i class="fa-light fa-house no-pointer-events"></i>
+        <div id="homeBtn" class="btn btn-ui">
+          <i class="fas fa-solid fa-house-user no-pointer-events"></i>
         </div>
         <div id="editModeBtn" mobile="false" class="btn">
           <i class="fas fa-solid fa-angle-up no-pointer-events"></i>
         </div>
         <div id="worldMenuBtn" class="btn btn-ui">
-          <i class="fas fa-solid fa-bars no-pointer-events"></i>
+          <i class="fa fa-solid fa-bars no-pointer-events"></i>
         </div>
         <input id="ghostSlider" type="range" min="0" max="100">
+        <div id="userCountDisplay">
+          <div id="userCountReadout"></div>
+        </div>
       </div>
     </div>
   </div>
   <div id="shell-hud">
-    <div id="fullscreenBtn" class="btn btn-ui ui">
-      <i class="fa-solid fa-expand"></i>
+    <div id="fullscreenBtn" class="btn btn-ui">
+      <i class="fas fa-solid fa-expand"></i>
     </div>
-    <div id="joystick" class="ui">
-      <div class="box">
-        <div id="directions">
-          <i class="fa-solid fa-triangle joystick-arrow top"></i>
-          <i class="fa-solid fa-triangle joystick-arrow right"></i>
-          <i class="fa-solid fa-triangle joystick-arrow bottom"></i>
-          <i class="fa-solid fa-triangle joystick-arrow left"></i>
-        </div>
+    <div id="joystick">
         <div id="trackingknob"></div>
         <div id="knob"></div>
-      </div>
     </div>
   </div>
 </body>
-
 </html>
