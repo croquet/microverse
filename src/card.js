@@ -1417,9 +1417,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             (box.max.y + box.min.y) / 2,
             (box.max.z + box.min.z) / 2
         );
-        
+
         let line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
-            color: 0xff0000,
+            color: 0xdddddd,
             linewidth: 4,
             transparent: true,
             opacity: 0.6,
