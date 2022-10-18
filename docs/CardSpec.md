@@ -628,13 +628,28 @@ Specifies the position of the placeholder object.
 
 ### Name
 
+`avatarParts`
+
+### Category
+
+visual
+
+### Type
+boolean|undefined
+
+### Description
+
+The avatar can apply a special visibility treatment for a card that is attached to it; so that objects don't occulude the user's view. The avatarParts flag enables the visibility changes. (e.g., the name tag above the avatar's head has this flag.)
+
+---
+
+### Name
+
 `textScale`
 
 ### Category
 
-```TypeScript
 visual
-```
 
 ### Type
 number|undefined
