@@ -19,6 +19,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm//webxr/XRControllerModelFactory.js';
 
@@ -390,6 +391,29 @@ class ThreeRenderManager extends RenderManager {
             this.subscribe("input", "resize", () => this.resize());
             this.setRender(true);
         });
+    }
+
+    installOutlinePass(){
+        if(!this.outlinePass){
+            this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), this.scene, this.camera );
+            this.outlinePass.edgeStrength = 3.0;
+            this.outlinePass.edgeGlow = 0.1;
+            this.outlinePass.edgeThickness = 1.5;
+            this.outlinePass.pulsePeriod = 2.0;
+            this.outlinePass.visibleEdgeColor.set( '#88ff88' );
+            this.outlinePass.hiddenEdgeColor.set( '#ff0000' );
+            this.outlinePass.selectedObjects = [];
+            this.composer.addPass( this.outlinePass );
+        }
+    }
+
+    addToOutline(obj){
+        if(!this.outlinePass)this.installOutlinePass();
+        this.outlinePass.selectedObjects.push( obj );
+    }
+
+    clearOutline(){
+        this.outlinePass.selectedObjects = [];
     }
 
     setRender(bool) {

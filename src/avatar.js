@@ -509,6 +509,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     removeGizmo() {
         this.gizmo?.destroy();
         delete this.gizmo;
+        this.say("clearGizmo"); // let the pawn know
     }
 
     createPortal(translation, rotation, portalURL) {
@@ -927,6 +928,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
 
+        this.listen("clearGizmo", this.clearGizmo);
         console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
 
         this.wasdVelocity = [0, 0, 0];
@@ -1955,6 +1957,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let w = window.innerWidth / 2;
         let c = (fov * Math.PI / 180) / h;
         return[c * (xy[0] - w), c * (h - xy[1])];
+    }
+
+    clearGizmo(){
+        this.gizmoTargetPawn = null; 
     }
 
     pointerDown(e) {

@@ -353,6 +353,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     intrinsicProperties() {return intrinsicProperties;}
 
     saySelectEdit() {
+        console.log("saySelectEdit says doSelectEdit");
         this.say("doSelectEdit");
     }
 
@@ -1386,7 +1387,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     showSelectEdit(obj3d) {
-
+        this.service("ThreeRenderManager").addToOutline(obj3d);
         obj3d.traverse((obj)=>{
             if(obj.geometry){
 
@@ -1413,6 +1414,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     showUnselectEdit(obj3d) {
+        this.service("ThreeRenderManager").clearOutline(obj3d);
         let mat;
         obj3d.traverse((obj)=>{
             if(obj.type === '_lineHighlight') {
