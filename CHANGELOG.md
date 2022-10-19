@@ -3,6 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-10-14
+### Changed
+- Rapier package is updated to 0.9.0. (existing physics simulations break).
+
+### Added
+- The observer only mode is added.
+- A new UI design work was merged. (ongoing).
+
 ## 2022-10-07
 ### Fixed
 - Deletion of gizmo when a peer drops out or times out.
