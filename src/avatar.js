@@ -891,32 +891,41 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // this actor - and hence for this pawn, and all RemoteAvatarPawns that other
         // users have for it.
         const inWorld = this.isPrimary;
-        let actorSpec;
-        let avatarSpec;
-        if (inWorld && dormantAvatarSpec) {
-            actorSpec = dormantAvatarSpec;
-            actorSpec.inWorld = true;
-            dormantAvatarSpec = null;
-            avatarSpec = actorSpec.cardData;
-        } else {
-            actorSpec = { inWorld };
-            const anchor = this.anchorFromURL(window.location, !this.isPrimary);
-            if (anchor) {
-                actorSpec.anchor = anchor; // actor or {translation, rotation}
-                actorSpec.translation = anchor.translation;
-                actorSpec.rotation = anchor.rotation;
-            }
-            let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
-            avatarSpec = {...tempCardSpec};
-        }
 
-        this.say("setWorldState", {
-            inWorld: actorSpec.inWorld,
-            translation: actorSpec.translation,
-            rotation: actorSpec.rotation,
-            anchor: actorSpec.anchor});
-        this.say("setAvatarData", avatarSpec); // NB: after setting actor's name
-        this.say("resetStartPosition");
+        // spectator pawns cannot talk to their actors
+        if (this.spectator) {
+            // start spectators to home position
+            this.goHome();
+        } else {
+            // regular avatars
+            let actorSpec;
+            let avatarSpec;
+            if (inWorld && dormantAvatarSpec) {
+                actorSpec = dormantAvatarSpec;
+                actorSpec.inWorld = true;
+                dormantAvatarSpec = null;
+                avatarSpec = actorSpec.cardData;
+            } else {
+                actorSpec = { inWorld };
+                const anchor = this.anchorFromURL(window.location, !this.isPrimary);
+                if (anchor) {
+                    actorSpec.anchor = anchor; // actor or {translation, rotation}
+                    actorSpec.translation = anchor.translation;
+                    actorSpec.rotation = anchor.rotation;
+                }
+                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+                avatarSpec = {...tempCardSpec};
+            }
+
+            // FIXME: do not send 3 messages via reflector
+            this.say("setWorldState", {
+                inWorld: actorSpec.inWorld,
+                translation: actorSpec.translation,
+                rotation: actorSpec.rotation,
+                anchor: actorSpec.anchor});
+            this.say("setAvatarData", avatarSpec); // NB: after setting actor's name
+            this.say("resetStartPosition");
+        }
 
         this.subscribe("playerManager", "playerCountChanged", this.showNumbers);
         this.listen("setLookAngles", this.setLookAngles);
@@ -983,6 +992,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     get presenting() {
         return this.actor.service("PlayerManager").presentationMode === this.viewId;
+    }
+
+    get spectator() {
+        if (!this.wellKnownModel("modelRoot").broadcastMode) return false;
+        if (this.actor.broadcaster) return false;
+        // in case addBroadcaster for our view has not been processed yet by model
+        const searchParams = new URLSearchParams(window.location.search);
+        return searchParams.get("broadcastMode") !== "true";
     }
 
     setWorldSwitchFreeze(bool) {
@@ -1428,8 +1445,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
             this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
-            const spectator = this.wellKnownModel("modelRoot").broadcastMode && !this.actor.broadcaster;
-            if (this.actor.inWorld || spectator) {
+            if (this.actor.inWorld || this.spectator) {
                 // get the potential new pose from velocity and spin.
                 // the v and q variable is passed around to compute a new position.
                 // unless positionTo() is called the avatar state (should) stays the same.
@@ -1448,7 +1464,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     } else {
                         this.lastCollideTranslation = vq.v;
                     }
-                    if ((this.actor.fall || spectator) && time - this.lastUpdateTime > THROTTLE) {
+                    if ((this.actor.fall || this.spectator) && time - this.lastUpdateTime > THROTTLE) {
                         if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
                             this.lastCollideTime = time;
                             vq = this.checkFall(vq);
@@ -2237,7 +2253,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     goHome() {
-        this.say("goHome");
+        if (!this.spectator) this.say("goHome");
+        else {
+            let anchor = this.anchorFromURL(window.location.href);
+            if (!anchor) anchor = {
+                translation: v3_zero(),
+                rotation: q_identity(),
+            }
+            anchor.translation[0] += 0.00001; // defeat the positionTo() optimization
+            this.positionTo(anchor.translation, anchor.rotation);
+        }
     }
 
     comeToMe() {
