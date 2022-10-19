@@ -1988,7 +1988,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
-        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer").filter((card)=>!card._editMode));
+        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
         this.targetDistance = rc.distance;
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
@@ -2037,7 +2037,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     pointerMove(e) {
         // should be the last responder case
-        if (!this.focusPawn && this.isPointerDown && e.xy) {
+        if (!this.focusPawn && this.isPointerDown && e.xy && this.dragWorld) {
             let yp = this.xy2yp(e.xy);
             let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
             let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;

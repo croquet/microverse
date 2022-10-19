@@ -399,7 +399,7 @@ export const PM_Pointer = superclass => class extends superclass {
         let objects = optWalk ? render.threeLayerUnion('pointer', 'walk') : render.threeLayer("pointer");
         return objects.filter((obj) => {
             let array = obj.wcPawn.eventListeners.get(type);
-            return array && array.length !== 0 && !obj.wcPawn._editMode;
+            return array && array.length !== 0;
         });
     }
 

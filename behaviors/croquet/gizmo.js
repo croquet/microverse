@@ -826,7 +826,10 @@ class GizmoPropertySheetButtonPawn {
             this.addEventListener("pointerMove", "nop");
             this.addEventListener("pointerEnter", "hilite");
             this.addEventListener("pointerLeave", "unhilite");
-            this.addEventListener("pointerDown", "openPropertySheet");
+            this.addEventListener("pointerTap", "openPropertySheet");
+            // effectively prevent propagation
+            this.addEventListener("pointerDown", "nop");
+            this.addEventListener("pointerUp", "nop");
         }
     }
 

@@ -157,6 +157,16 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
             }
         }
 
+        for (let i = 0; i < h.length; i++) {
+            let me = h[i].object;
+            if (me.renderOrder > 1000) {
+            // we would actually sort them in renderOrder, but for now we use only for special cases,
+            // and orders among objects with renderOrder should not come in play easily
+                hit = h[i];
+                break;
+            }
+        }
+
         if (!hit) {
             hit = h[0];
         }
@@ -382,7 +392,7 @@ class ThreeRenderManager extends RenderManager {
                 this.renderer.xr.enabled = true;
                 this.xrController = new XRController(this);
             } else {
-                // at this moment, there is no effects added but this is where it will go.
+                // at this moment, there is no effects added but this is where they will go.
                 this.composer = new EffectComposer( this.renderer );
                 this.renderPass = new RenderPass( this.scene, this.camera );
                 this.composer.addPass( this.renderPass );
