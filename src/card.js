@@ -1414,49 +1414,29 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let z = max.z - min.z;
         let az = (max.z + min.z) / 2;
 
-        let c0 = new THREE.CylinderGeometry(0.02, 0.02, x);
-        c0.rotateZ(Math.PI / 2);
-        c0.translate(0 + ax, max.y * 1.01, max.z * 1.01);
+        let cylinder = (len, rotateSel, tx, ty, tz) => {
+            let cyl = new THREE.CylinderGeometry(0.02, 0.02, len);
+            if (rotateSel) {
+                cyl[rotateSel](Math.PI / 2);
+            }
+            cyl.translate(tx, ty, tz);
+            return cyl;
+        };
 
-        let c1 = new THREE.CylinderGeometry(0.02, 0.02, x);
-        c1.rotateZ(Math.PI / 2);
-        c1.translate(0 + ax, max.y * 1.01, min.z * 1.01);
+        let c0 =  cylinder(x, "rotateZ", ax, max.y * 1.01, max.z * 1.01);
+        let c1 =  cylinder(x, "rotateZ", ax, max.y * 1.01, min.z * 1.01);
+        let c2 =  cylinder(x, "rotateZ", ax, min.y * 1.01, max.z * 1.01);
+        let c3 =  cylinder(x, "rotateZ", ax, min.y * 1.01, min.z * 1.01);
 
-        let c2 = new THREE.CylinderGeometry(0.02, 0.02, x);
-        c2.rotateZ(Math.PI / 2);
-        c2.translate(0 + ax, min.y * 1.01, max.z * 1.01);
+        let c4 =  cylinder(y, null,      max.x * 1.01, ay, max.z * 1.01);
+        let c5 =  cylinder(y, null,      max.x * 1.01, ay, min.z * 1.01);
+        let c6 =  cylinder(y, null,      min.x * 1.01, ay, max.z * 1.01);
+        let c7 =  cylinder(y, null,      min.x * 1.01, ay, min.z * 1.01);
 
-        let c3 = new THREE.CylinderGeometry(0.02, 0.02, x);
-        c3.rotateZ(Math.PI / 2);
-        c3.translate(0 + ax, min.y * 1.01, min.z * 1.01);
-
-        let c4 = new THREE.CylinderGeometry(0.02, 0.02, y);
-        c4.translate(max.x * 1.01, 0 + ay, max.z * 1.01);
-
-        let c5 = new THREE.CylinderGeometry(0.02, 0.02, y);
-        c5.translate(max.x * 1.01, 0 + ay, min.z * 1.01);
-
-        let c6 = new THREE.CylinderGeometry(0.02, 0.02, y);
-        c6.translate(min.x * 1.01, 0 + ay, max.z * 1.01);
-
-        let c7 = new THREE.CylinderGeometry(0.02, 0.02, y);
-        c7.translate(min.x * 1.01, 0 + ay, min.z * 1.01);
-
-        let c8 = new THREE.CylinderGeometry(0.02, 0.02, z);
-        c8.rotateX(Math.PI / 2);
-        c8.translate(max.x * 1.01, max.y * 1.01, 0 + az);
-
-        let c9 = new THREE.CylinderGeometry(0.02, 0.02, z);
-        c9.rotateX(Math.PI / 2);
-        c9.translate(max.x * 1.01, min.y * 1.01, 0 + az);
-
-        let c10 = new THREE.CylinderGeometry(0.02, 0.02, z);
-        c10.rotateX(Math.PI / 2);
-        c10.translate(min.x * 1.01, max.y * 1.01, 0 + az);
-
-        let c11 = new THREE.CylinderGeometry(0.02, 0.02, z);
-        c11.rotateX(Math.PI / 2);
-        c11.translate(min.x * 1.01 , min.y * 1.01, 0 + az);
+        let c8 =  cylinder(z, "rotateX", max.x * 1.01, max.y * 1.01, az);
+        let c9 =  cylinder(z, "rotateX", max.x * 1.01, min.y * 1.01, az);
+        let c10 = cylinder(z, "rotateX", min.x * 1.01, max.y * 1.01, az);
+        let c11 = cylinder(z, "rotateX", min.x * 1.01 , min.y * 1.01, az);
 
         let cylinders = [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11];
 
