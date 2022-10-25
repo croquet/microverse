@@ -374,17 +374,23 @@ class PropertySheetPawn {
 
     pointerDown(evt) {
         if (!evt.xyz) {return;}
-        let {THREE} = Microverse;
+        let {THREE, q_yaw, v3_rotateY} = Microverse;
 
         this._dragPlane = new THREE.Plane();
 
+        let avatar = this.getMyAvatar();
+
+        let yaw = q_yaw(avatar.rotation);
+
+        let normal = v3_rotateY([0, 0, -1], yaw);
+        console.log(normal);
+
         this._dragPlane.setFromNormalAndCoplanarPoint(
-            new THREE.Vector3(...evt.ray.direction),
+            new THREE.Vector3(...normal),
             new THREE.Vector3(...evt.xyz)
         );
 
         this.downInfo = {translation: this.translation, downPosition: evt.xyz};
-        let avatar = this.getMyAvatar();
         if (avatar) {
             avatar.addFirstResponder("pointerMove", {}, this);
         }
