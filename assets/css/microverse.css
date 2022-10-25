@@ -96,9 +96,8 @@ body.tilt > iframe {
 }
 
 #homeBtn {
-  bottom: 15px;
-  left: 10%;
-  transform: translate(0, -50%);
+  top: 10px;
+  right: 10px;
 }
 
 #fullscreenBtn {
@@ -108,7 +107,7 @@ body.tilt > iframe {
 
 #worldMenuBtn {
   top: 10px;
-  right: 10px;
+  left: 10px;
 }
 
 #editModeBtn {
@@ -148,7 +147,7 @@ body.tilt > iframe {
   background-color: rgba(0, 0, 0, 0.5);
   position: absolute;
   top: 70px;
-  right: 10px;
+  left: 10px;
   z-index: 200;
   display: none;
   border-radius: 15px;
