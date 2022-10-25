@@ -1194,11 +1194,11 @@ export class TextFieldPawn extends CardPawn {
         }
 
         if (!sel) {
-            let caret = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
-            caret.visible = false;
-            this.plane.add(caret);
-            caret.name = "caret";
-            caret.onBeforeRender = () => this.selectionBeforeRender(caret);
+            let bar = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
+            bar.visible = false;
+            this.plane.add(bar);
+            bar.name = "caret";
+            bar.onBeforeRender = () => this.selectionBeforeRender(bar);
 
             let boxes = [];
             for (let i = 0; i < 3; i++) {
@@ -1210,7 +1210,7 @@ export class TextFieldPawn extends CardPawn {
                 this.plane.add(box);
                 boxes.push(box);
             }
-            sel = {caret, boxes};
+            sel = {bar, boxes};
         }
         this.selections[id] = sel;
         return sel;
