@@ -159,6 +159,10 @@ function initWorldMenu() {
     <div class="menu-icon help-icon"></div>
     <span class="menu-label-text">Help</span>
 </div>
+<div id="worldMenu-fullscreenButton" class="menu-label menu-item">
+    <div class="menu-icon fullscreen-icon"></div>
+    <span class="menu-label-text">Fullscreen</span>
+</div>
 `.trim();
 
     let div = document.createElement("div");
@@ -170,13 +174,18 @@ function initWorldMenu() {
     let share = div.querySelector("#worldMenu-shareButton");
     let help = div.querySelector("#worldMenu-helpButton");
     let presentationMode = div.querySelector("#worldMenu-gather");
+    let fullscreen = div.querySelector("#worldMenu-fullscreenButton");
+
 
     html.appendChild(load);
     html.appendChild(connect);
     html.appendChild(presentationMode);
+    html.appendChild(fullscreen);
     html.appendChild(share);
     html.appendChild(settings);
     html.appendChild(help);
+
+
 
     worldMenu = html;
 
