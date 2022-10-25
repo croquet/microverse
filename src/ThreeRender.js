@@ -19,6 +19,7 @@ import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUti
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm//webxr/XRControllerModelFactory.js';
 
@@ -153,6 +154,16 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
                     hit = h[i];
                     break;
                 }
+            }
+        }
+
+        for (let i = 0; i < h.length; i++) {
+            let me = h[i].object;
+            if (me.renderOrder > 1000) {
+            // we would actually sort them in renderOrder, but for now we use only for special cases,
+            // and orders among objects with renderOrder should not come in play easily
+                hit = h[i];
+                break;
             }
         }
 
@@ -381,7 +392,7 @@ class ThreeRenderManager extends RenderManager {
                 this.renderer.xr.enabled = true;
                 this.xrController = new XRController(this);
             } else {
-                // at this moment, there is no effects added but this is where it will go.
+                // at this moment, there is no effects added but this is where they will go.
                 this.composer = new EffectComposer( this.renderer );
                 this.renderPass = new RenderPass( this.scene, this.camera );
                 this.composer.addPass( this.renderPass );
@@ -390,6 +401,29 @@ class ThreeRenderManager extends RenderManager {
             this.subscribe("input", "resize", () => this.resize());
             this.setRender(true);
         });
+    }
+
+    installOutlinePass(){
+        if(!this.outlinePass){
+            this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), this.scene, this.camera );
+            this.outlinePass.edgeStrength = 3.0;
+            this.outlinePass.edgeGlow = 0.1;
+            this.outlinePass.edgeThickness = 1.5;
+            this.outlinePass.pulsePeriod = 2.0;
+            this.outlinePass.visibleEdgeColor.set( '#88ff88' );
+            this.outlinePass.hiddenEdgeColor.set( '#ff0000' );
+            this.outlinePass.selectedObjects = [];
+            this.composer.addPass( this.outlinePass );
+        }
+    }
+
+    addToOutline(obj){
+        if(!this.outlinePass)this.installOutlinePass();
+        this.outlinePass.selectedObjects.push( obj );
+    }
+
+    clearOutline(){
+        this.outlinePass.selectedObjects = [];
     }
 
     setRender(bool) {

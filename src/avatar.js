@@ -17,8 +17,8 @@ import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
 import { TextFieldActor } from "./text/text.js";
 
-import {setupWorldMenuButton, filterDomEventsOn} from "./worldMenu.js";
-import { startSettingsMenu } from "./settingsMenu.js";
+import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
+import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 // import Swal from "sweetalert2";
 
 const EYE_HEIGHT = 1.676;
@@ -97,6 +97,15 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!this.inWorld) return;
         if (this._cardData.noNicknameCard) {return;}
 
+        const nickname = this._name;
+        if (!nickname) {
+            if (this.nicknameCard) {
+                this.nicknameCard.destroy();
+                this.nicknameCard = null;
+            }
+            return;
+        }
+
         const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
         const PADDING = 0.1; // horizontal and vertical
         const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
@@ -105,7 +114,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             const marginTop = PADDING * 1.1 / TEXT_SCALE;
             const options = {
                 name: 'nickname',
-                className: "TextFieldActor",
                 behaviorModules: ["Billboard"],
                 translation: [0, 1, -0.1], // above and slightly in front
                 type: "text",
@@ -122,18 +130,13 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 readOnly: true,
                 noDismissButton: true,
                 noSave: true,
+                avatarParts: true,
                 parent: this
             };
             this.nicknameCard = this.createCard(options);
         }
 
-        const nickname = this._name;
-        if (!nickname) {
-            this.nicknameCard.destroy();
-            this.nicknameCard = null;
-            return;
-        }
-        const measurement = TextFieldActor.defaultMeasurement(nickname);
+        const measurement = this.getTextFieldActorClass().defaultMeasurement(nickname);
         const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
         const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
         this.nicknameCard.load([{text: nickname, style: {color: 'white'}}]);
@@ -509,6 +512,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     removeGizmo() {
         this.gizmo?.destroy();
         delete this.gizmo;
+        this.say("clearGizmo"); // let the pawn know
     }
 
     createPortal(translation, rotation, portalURL) {
@@ -784,10 +788,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         setupWorldMenuButton(this, App, this.sessionId);
 
-        const presentationButton = document.body.querySelector("#usersComeHereBtn");
-        presentationButton.onclick = () => this.comeToMe();
-        filterDomEventsOn(presentationButton);
-
         window.myAvatar = this;
 
         this.eyeHeight = EYE_HEIGHT;
@@ -930,10 +930,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
 
-        console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
+        this.listen("clearGizmo", this.clearGizmo);
+
+        this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
+        this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
 
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
+
+        console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
     }
 
     detach() {
@@ -1066,26 +1071,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     loadvrse(buffer) {
         let result = new TextDecoder("utf-8").decode(buffer);
-        this.loadFromFile(result, false, true);
+        let parsed;
+        try {
+            parsed = JSON.parse(result);
+        } catch (e) {
+            console.log("vrse file is not in JSON format");
+        }
 
-        /*
-        Swal.fire({
-            title: 'Do you want to load VRSE to replace existing world or add as new cards?',
-            showDenyButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Replace',
-            denyButtonText: `Add`,
-        }).then((swal) => {
-            let result = new TextDecoder("utf-8").decode(buffer);
-            if (swal.isConfirmed) {
-                let model = this.actor.wellKnownModel("ModelRoot");
-                this.publish(model.id, "removeAll");
-                this.loadFromFile(result, false, true);
-            } else if (swal.isDenied) {
-                this.loadFromFile(result, false, true);
-            }
-        });
-        */
+        if (!parsed) {return;}
+
+        let cards = parsed.data.cards;
+        let toplevel = 0;
+        for (let i = 0; i < cards.length; i++) {
+            let card = cards[i].card;
+            if (!card.parent) {toplevel++;}
+        }
+
+        let asScene = toplevel >= 2;
+        this.loadFromFile(result, asScene, !asScene);
     }
 
     dropPose(distance, optOffset) { // compute the position in front of the avatar
@@ -1127,29 +1130,48 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showNumbers() {
         let manager = this.actor.service("PlayerManager");
-        let comeHere = document.getElementById("usersComeHereBtn");
-        let userCountReadout = comeHere.querySelector("#userCountReadout");
-        if (userCountReadout) {
-            // TODO: change PlayerManager to only create avatars for players that are actually in the world
-            let total = manager.players.size;
-            let here = manager.playersInWorld().length;
-            let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
-            if (here !== total) {
-                let watching = total - here;
-                tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;
-                total = `${here}+${watching}`;
-            }
-            if (manager.presentationMode) {
-                let followers = manager.followers.size; // includes the presenter
-                userCountReadout.textContent = `${followers}/${total}`;
-                tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
-            } else {
-                userCountReadout.textContent = `+(${total})`;
-            }
-            comeHere.setAttribute("title", tooltip);
+        let userCountDisplay = document.getElementById("userCountDisplay");
+        if (this.service("AgoraChatManager")) {
+            if (userCountDisplay) {userCountDisplay.remove();}
+            return;
         }
 
-        comeHere.setAttribute("presenting", this.presenting);
+        if (!userCountDisplay) {
+            let c = document.createElement("div");
+            c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
+            userCountDisplay = c.firstChild;
+            document.body.appendChild(userCountDisplay);
+        }
+
+        let readout = userCountDisplay.querySelector("#userCountReadout");
+        if (!readout) {return;}
+
+        // TODO: change PlayerManager to only create avatars for players that are actually in the world
+        let total = manager.players.size;
+        let here = manager.playersInWorld().length;
+        let suffix = here === 1 ? "user" : "users";
+        let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
+        if (here !== total) {
+            let watching = total - here;
+            tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;
+            total = `${here}+${watching}`;
+        }
+        if (manager.presentationMode) {
+            let followers = manager.followers.size; // includes the presenter
+            readout.textContent = `${followers}/${total} ${suffix}`;
+            tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
+        } else {
+            readout.textContent = `${total} ${suffix}`;
+        }
+        userCountDisplay.setAttribute("title", tooltip);
+        readout.setAttribute("presenting", this.presenting);
+    }
+
+    presentationStarted() {
+        updateWorldMenu(this);
+    }
+    presentationStopped() {
+        updateWorldMenu(this);
     }
 
     modelLoaded() {
@@ -1960,6 +1982,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return[c * (xy[0] - w), c * (h - xy[1])];
     }
 
+    clearGizmo() {
+        this.gizmoTargetPawn = null;
+    }
+
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
         let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
@@ -2011,7 +2037,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     pointerMove(e) {
         // should be the last responder case
-        if (!this.focusPawn && this.isPointerDown && e.xy) {
+        if (!this.focusPawn && this.isPointerDown && e.xy && this.dragWorld) {
             let yp = this.xy2yp(e.xy);
             let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
             let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;
@@ -2091,7 +2117,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // visible or invisible appropriately
             if (pawn._children) {
                 for (let c of pawn._children) {
-                    if (c.shape) c.shape.visible = visible;
+                    if (c.actor._cardData.avatarParts) c.shape.visible = visible;
                 }
             }
 
@@ -2191,12 +2217,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     showSettingsMenu() {
-        const el = document.body.querySelector("#joinDialog");
-        if (el) {
-            el.classList.remove('none')
-            return;
-        }
-
         let promise = new Promise((resolve, _reject) => {
             startSettingsMenu(false, resolve);
         });
@@ -2210,7 +2230,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.modelHasLoaded = false;
             }
         });
+    }
 
+    showShareMenu() {
+        startShareMenu(this);
     }
 
     goHome() {

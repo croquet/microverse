@@ -317,16 +317,47 @@ class PropertySheetPawn {
 
         this.scrollAreaPawn = [...this.children].find((c) => {
             return c.actor._behaviorModules && c.actor._behaviorModules.indexOf("ScrollArea") >= 0;
-        })
+        });
+
+        this.addEventListener("pointerDown", "pointerDown");
+        this.addEventListener("pointerUp", "pointerUp");
     }
 
-    translated(data) {
+    translated(_data) {
         this.scrollAreaPawn.say("updateDisplay");
     }
 
+    moveMyself(evt) {
+        if (!evt.ray) {return;}
+
+        let {THREE, v3_add, v3_sub} = Microverse;
+
+        let origin = new THREE.Vector3(...evt.ray.origin);
+        let direction = new THREE.Vector3(...evt.ray.direction);
+        let ray = new THREE.Ray(origin, direction);
+
+        let dragPoint = ray.intersectPlane(
+            this._dragPlane,
+            new Microverse.THREE.Vector3()
+        );
+
+        let down = this.downInfo.downPosition;
+        let drag = dragPoint.toArray();
+
+        let diff = v3_sub(drag, down);
+        let newPos = v3_add(this.downInfo.translation, diff);
+
+        this.set({translation: newPos});
+    }
+
     pointerMove(evt) {
-        if (!evt.xyz) {return;}
         if (!this.downInfo) {return;}
+
+        if (!this.downInfo.child) {
+            return this.moveMyself(evt);
+        }
+
+        if (!evt.xyz) {return;}
         let vec = new Microverse.THREE.Vector3(...evt.xyz);
         let pInv = this.renderObject.matrixWorld.clone().invert();
         vec = vec.applyMatrix4(pInv);
@@ -339,6 +370,32 @@ class PropertySheetPawn {
 
         this.downInfo.child.translateTo([origTranslation[0] + deltaX, origTranslation[1] + deltaY, origTranslation[2]]);
         // console.log(this.downInfo, pVec2);
+    }
+
+    pointerDown(evt) {
+        if (!evt.xyz) {return;}
+        let {THREE} = Microverse;
+
+        this._dragPlane = new THREE.Plane();
+
+        this._dragPlane.setFromNormalAndCoplanarPoint(
+            new THREE.Vector3(...evt.ray.direction),
+            new THREE.Vector3(...evt.xyz)
+        );
+
+        this.downInfo = {translation: this.translation, downPosition: evt.xyz};
+        let avatar = this.getMyAvatar();
+        if (avatar) {
+            avatar.addFirstResponder("pointerMove", {}, this);
+        }
+    }
+
+    pointerUp(_evt) {
+        this._dragPlane = null;
+        let avatar = this.getMyAvatar();
+        if (avatar) {
+            avatar.removeFirstResponder("pointerMove", {}, this);
+        }
     }
 }
 

@@ -1135,7 +1135,10 @@ export class TextFieldPawn extends CardPawn {
             depth !== this.plane.geometry.parameters.depth) {
             let geometry = depth === 0 ? new THREE.PlaneGeometry(newWidth, newHeight) : this.roundedCornerGeometry(newWidth, newHeight, depth, cornerRadius);
             this.plane.geometry = geometry;
-            this.geometry.dispose();
+            if (this.geometry) {
+                this.geometry.dispose();
+                this.geometry = null;
+            }
             this.geometry = geometry;
         }
 

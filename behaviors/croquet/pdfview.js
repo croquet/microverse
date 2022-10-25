@@ -4,6 +4,7 @@ class PDFActor {
         // a suitable aspect ratio.  pageGapPercent is needed for calculating overall
         // scroll position.
         if (this.numPages === undefined) {
+            this.measuredDocLocation = null; // pdfLocation for the latest doc for which we have measurements
             this.numPages = null;
             this.pageGapPercent = null;
             this.scrollPosition = null;
@@ -13,7 +14,6 @@ class PDFActor {
         this.listen("changePage", "changePage");
         this.listen("scrollByPercent", "scrollByPercent");
         this.listen("requestScrollPosition", "requestScrollPosition");
-console.log(this);
     }
 
     viewJoined(viewId) {
@@ -23,10 +23,16 @@ console.log(this);
     }
 
     docLoaded(data) {
-        // might be sent by multiple clients
-        this.numPages = data.numPages;
-        this.pageGapPercent = data.pageGapPercent;
-        this.maxScrollPosition = data.maxScrollPosition;
+        // might be sent by multiple clients.  the first one delivering the measurements for
+        // the current pdfLocation gets to set them, and reset the scroll.
+        const { pdfLocation } = data;
+        if (pdfLocation === this._cardData.pdfLocation && pdfLocation !== this.measuredDocLocation) {
+            this.measuredDocLocation = pdfLocation;
+            this.numPages = data.numPages;
+            this.pageGapPercent = data.pageGapPercent;
+            this.maxScrollPosition = data.maxScrollPosition;
+            this.scrollPosition = null;
+        }
         if (this.scrollPosition === null) this.scrollPosition = { page: 1, percent: 0 };
         this.say("drawAtScrollPosition");
     }
@@ -102,10 +108,10 @@ class PDFPawn {
         if (!window.pdfjsPromise) {
             window.pdfjsPromise = new Promise(resolve => {
                 const s = document.createElement('script');
-                s.setAttribute('src', 'https://unpkg.com/pdfjs-dist@2.14.305/build/pdf.min.js');
+                s.setAttribute('src', 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.min.js');
                 s.onload = () => {
                     const pdfjsLib = window['pdfjs-dist/build/pdf'];
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.14.305/build/pdf.worker.min.js';
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
                     resolve(pdfjsLib);
                 };
                 document.body.appendChild(s);
@@ -119,12 +125,25 @@ class PDFPawn {
         // this.addEventListener("keyUp", "onKeyUp");
         this.addEventListener("pointerWheel", "onPointerWheel");
 
+        this.listen("cardDataSet", "cardDataUpdated");
         this.listen("drawAtScrollPosition", "drawAtScrollPosition");
         this.listen("updateShape", "updateShape");
 
         let moduleName = this._behavior.module.externalName;
         this.addUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
 
+        this.TEXTURE_SIZE = 2048;
+        this.initializeDocProperties();
+
+        // on a behavior reload, the pdf will typically already be loaded
+        if (this.hasLatestPDF()) this.measureDocument();
+        else this.loadDocument(this.actorPDFLocation());
+    }
+
+    actorPDFLocation() { return this.actor._cardData.pdfLocation }
+    hasLatestPDF() { return !!this.pdf && this.pdfLocation === this.actorPDFLocation() }
+
+    initializeDocProperties() {
         // if this is a reload, discard any GPU resources we were holding onto
         if (this.pages) {
             const meshPool = this.pageMeshPool;
@@ -144,19 +163,22 @@ class PDFPawn {
             });
         }
 
-        this.substrateObj = this.shape.children.find((o) => o.name === "2d");
-
-        this.TEXTURE_SIZE = 2048;
         this.numPages = null; // also held by actor
         this.pages = []; // sparse array of page number to details
+        this.pageGap = null;
         this.visiblePages = []; // sparse array of page number to time page became visible
         this.renderQueue = []; // page numbers to render when we have time
         this.renderingPage = false; // false at startup, to trigger immediate first render
         this.pageMeshPool = [];
-console.log(this);
+    }
 
-        const loaded = this.pdf ? Promise.resolve() : this.loadDocument(this.actor._cardData.pdfLocation);
-        loaded.then(() => this.measureDocument());
+    cardDataUpdated(data) {
+        const { pdfLocation } = data.v;
+        if (pdfLocation === data.o.pdfLocation) return;
+
+        this.cancelRenderInProgress();
+        this.initializeDocProperties();
+        this.loadDocument(pdfLocation);
     }
 
     updateShape() {
@@ -168,17 +190,47 @@ console.log(this);
         setTimeout(() => this.drawAtScrollPosition(), 0);
     }
 
+    async loadDocument(pdfLocation) {
+        this.pdf = null;
+        this.pdfLocation = null;
+        let objectURL;
+        try {
+            const buffer = await this.getBuffer(pdfLocation);
+            objectURL = URL.createObjectURL(new Blob([buffer]));
+            const pdfjsLib = await window.pdfjsPromise;
+            const pdf = await pdfjsLib.getDocument(objectURL).promise;
+            if (pdfLocation === this.actorPDFLocation()) {
+                this.pdf = pdf;
+                this.pdfLocation = pdfLocation;
+                console.log(`PDF with ${this.pdf.numPages} pages loaded`);
+                this.measureDocument(); // async
+            }
+        } catch (err) {
+            // PDF loading error
+            console.error(err.message);
+        }
+        if (objectURL) URL.revokeObjectURL(objectURL);
+    }
+
     async measureDocument() {
         const numPages = this.numPages = this.pdf.numPages;
 
         const firstPage = this.ensurePageEntry(1);
         await firstPage.pageReadyP;
-        const { width: firstWidth, height: firstHeight } = firstPage;
-        this.adjustCardSize(firstWidth, firstHeight); // includes setting pageGap
 
-        // the model needs to know the number of pages, the page gap percent (although moot if only one page), and the maximum scroll position (page and percent)
-        if (!this.actor.numPages) {
-            const gapPercent = this.pageGapPercent;
+        if (!this.hasLatestPDF()) return; // it's been replaced while we were preparing
+
+        const { pdfLocation } = this;
+        const actorHasMeasurements = this.actor.measuredDocLocation === pdfLocation;
+
+        // gap is arbitrarily set as 2% of page height for landscape,
+        // 1% for portrait, 1.5% for square.
+        const { width: firstWidth, height: firstHeight } = firstPage;
+        const gapPercent = firstWidth > firstHeight ? 2 : firstWidth === firstHeight ? 1.5 : 1;
+        this.adjustCardSize(firstWidth, firstHeight, gapPercent, !actorHasMeasurements); // includes setting pageGap, which we need in order to render anything
+
+        // the actor needs to know the number of pages, the page gap percent (although moot if only one page), and the maximum scroll position (page and percent).
+        if (!actorHasMeasurements) {
             let lastScroll;
             if (numPages === 1) {
                 lastScroll = { page: 1, percent: 0 };
@@ -208,27 +260,12 @@ console.log(this);
                 }
                 lastScroll = { page: lastPage, percent: lastPercent };
             }
-            this.say("docLoaded", { pageGapPercent: gapPercent, numPages: numPages, maxScrollPosition: lastScroll });
+            this.say("docLoaded", { pdfLocation, pageGapPercent: gapPercent, numPages, maxScrollPosition: lastScroll });
         }
-    }
-
-    async loadDocument(pdfLocation) {
-        const buffer = await this.getBuffer(pdfLocation);
-        const objectURL = URL.createObjectURL(new Blob([buffer]));
-        try {
-            const pdfjsLib = await window.pdfjsPromise;
-            this.pdf = await pdfjsLib.getDocument(objectURL).promise;
-            const numPages = this.pdf.numPages;
-            console.log(`PDF with ${numPages} pages loaded`);
-        } catch(err) {
-            // PDF loading error
-            console.error(err.message);
-        }
-        URL.revokeObjectURL(objectURL);
     }
 
     drawAtScrollPosition() {
-        if (!this.pdf || !this.pageGap) return;
+        if (!this.hasLatestPDF() || !this.pageGap) return;
 
         const { scrollPosition } = this.actor;
         if (!scrollPosition) return;
@@ -309,10 +346,7 @@ console.log(this);
         // this is invoked on every update, so if any page that we
         // want to test isn't ready yet (PageProxy hasn't been fetched) we don't
         // wait for it.
-        const { scrollPosition } = this.actor;
-        if (!scrollPosition || !this.pageGap) return;
-
-        const { page, percent } = scrollPosition;
+        const { page, percent } = this.actor.scrollPosition;
         const { cardWidth, cardHeight } = this;
 
         const prevVisible = this.visiblePages;
@@ -340,10 +374,7 @@ console.log(this);
     manageRenderState() {
         // invoked on every update.  schedule rendering for pages that are nearby,
         // and clean up render results and textures that aren't being used.
-        const { scrollPosition } = this.actor;
-        if (!scrollPosition || !this.pageGap) return; // not fully loaded yet
-
-        const { page } = scrollPosition;
+        const { page } = this.actor.scrollPosition;
         const { numPages } = this;
 
         const queue = this.renderQueue = [];
@@ -432,10 +463,7 @@ console.log(this);
     startRendering(pageNumber) {
         // because we allow rendering to be pre-empted, we can't be sure that it will
         // finish.
-        if (this.renderingPage) {
-            const pageEntry = this.ensurePageEntry(this.renderingPage);
-            pageEntry.renderTask.cancel(); // will reject the render promise
-        }
+        this.cancelRenderInProgress();
         this.renderingPage = pageNumber;
 
         const pageEntry = this.ensurePageEntry(pageNumber);
@@ -467,27 +495,31 @@ console.log(this);
         );
     }
 
+    cancelRenderInProgress() {
+        if (this.renderingPage) {
+            const pageEntry = this.ensurePageEntry(this.renderingPage);
+            pageEntry.renderTask.cancel(); // will reject the render promise
+        }
+    }
+
     finishedRendering(pageNumber) {
         if (this.visiblePages[pageNumber]) this.drawAtScrollPosition();
     }
 
-    adjustCardSize(width, height) {
+    adjustCardSize(width, height, gapPercent, tellActor) {
         // width and height are page pixels.
-        // sent as soon as we discover the size of page 1
-        const { depth, cornerRadius } = this.actor._cardData;
+        // invoked as soon as we discover the size of page 1
+        const { depth } = this.actor._cardData;
         const maxDim = Math.max(width, height);
         const cardScale = 1 / maxDim;
         const cardWidth = this.cardWidth = width * cardScale;
         const cardHeight = this.cardHeight = height * cardScale;
-        const obj = this.substrateObj;
+        const obj = this.shape.children.find((o) => o.name === "2d");
         obj.geometry.dispose();
         obj.geometry = this.squareCornerGeometry(cardWidth, cardHeight, depth);
 
-        // gap is arbitrarily set as 2% of page height for landscape,
-        // 1% for portrait, 1.5% for square.
-        const gapPercent = this.pageGapPercent = width > height ? 2 : width === height ? 1.5 : 1;
         this.pageGap = cardHeight * gapPercent / 100; // three.js units between displayed pages
-        this.say("setCardData", { height: cardHeight, width: cardWidth });
+        if (tellActor) this.say("setCardData", { height: cardHeight, width: cardWidth });
     }
 
     squareCornerGeometry(width, height, depth) {
@@ -610,16 +642,16 @@ console.log(this);
     }
 
     update() {
-        this.updateVisiblePages();
-        this.manageRenderState();
-        this.processRenderQueue();
+        if (this.actor.measuredDocLocation === this.pdfLocation && this.pageGap) {
+            this.updateVisiblePages();
+            this.manageRenderState();
+            this.processRenderQueue();
+        }
     }
 
     teardown() {
         console.log("PDFPawn teardown");
-        const obj = this.substrateObj;
-        obj.geometry.dispose();
-        this.material.dispose();
+        this.cleanupShape();
 
         this.pageMeshPool.forEach(mesh => {
             mesh.geometry.dispose();

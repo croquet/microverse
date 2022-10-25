@@ -1,233 +1,139 @@
 // Copyright 2022 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io
 // info@croquet.io
-import { sendToShell } from "./frame.js";
 
+import {filterDomEventsOn, closeAllDialogs, loadCSS, hideShellControls} from "./worldMenu.js";
 
-let helpMenuContent = null;
-let helpMenu = null;
-let helpMenuBody = null;
-
-let nicknameIsValid;
-let avatarIsValid;
-
-let configuration = {};
-
-let resolveDialog;
-
-// let avatar;// we need to be careful to update this variable
-
-// export function setAvatarForhelpMenu(myAvatar) {
-//     avatar = myAvatar;
-// }
-function loadCSS() {
-            let css = document.createElement("link");
-            css.rel = "stylesheet";
-            css.type = "text/css";
-            css.id = "settings-css";
-            css.href = "./assets/css/settings.css";
-            document.head.appendChild(css);
-}
-
- loadCSS();
-
-
- function savePressed() {
-    let div = document.createElement("a");
-    let dataStr = "data:text/json;charset=utf-8,";
-    div.setAttribute("href", dataStr);
-    div.setAttribute("download", "scene.vrse");
-    div.click();
-}
-
+let helpMenuBody;
 
 export function startHelpMenu() {
-createHelpMenu();
+    closeAllDialogs();
+    loadCSS().then(createHelpMenu);
+    hideShellControls();
 }
-
-
 
 function createHelpMenu() {
     let help = `
-    <div id="helpDialog" class="noselect">
-    <button type="button" id="cancelButton" class="btn btn-danger btn-x topright cancel-button">x</button>
-    <div id='joinDialogBody' class='wide'>
-      <div id='joinSettings'>
-        <div id="settings-title">Help</div>
-        <div id="share-container">
-          <div id="table-wrapper">
-            <div id="table-scroll" id="scrollbar">
-  
-              <table class="help-tips">
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Navigate</p>
-                    <p class="table-desc">Move around using the joystick, arrow keys or WASD. The location of the joystick
-                      on screen can be
-                      changed in the settings.</p>
-                  </td>
-                  <td class="icon-column">
-                    <div class="icons"><img src="../assets/images/move.png" /><img src="../assets/images/wasd.png" />
-                    </div>
-                  </td>
-                </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Look</p>
-                    <p class="table-desc">Click and drag to change camera look position.</p>
-                  </td>
-                  <td class="icon-column">
-                    <div class="icons"><img src="../assets/images/look.png" /></div>
-                  </td>
-                </tr>
-                <tr class="help-row">
-                <td>
-                  <p class="table-head">Manipulate</p>
-                  <p class="table-desc">Ctrl + click on an object to open that object's behavior properties. select from a premade menu or create your own (read docs)</p>
-                </td>
-                <td class="icon-column">
-                  <div class="icons"><img src="../assets/images/ctrlclick.png" />
-                  </div>
-                </td>
-              </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Fullscreen</p>
-                    <p class="table-desc">Make your browser fullscreen.</p>
-                  </td>
-                  <td class="icon-column"><i class="fa-solid fa-expand icons"></i></td>
-                </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Home</p>
-                    <p class="table-desc">Reset location back to original landing place.</p>
-                  </td>
-                  <td class="icon-column"><i class="fa-light fa-house icons"></i></td>
-                </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Gather</p>
-                    <p class="table-desc">Shows how many users in a world. Click to "gather" all users to you.</p>
-                  </td>
-                  <td class="icon-column"><i class="fa-light fa-users icons"></i></td>
-                </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Import</p>
-                    <p class="table-desc">Import any of these formats from your desktop directly
-                    into the Microverse IDE. Either drag and drop, or click the import icon.</p>
-                  </td>
-                  <td class="icon-column">
-                    <div class="icons"><img src="../assets/images/import.png" /></div>
-                  </td>
-                </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Connect</p>
-                    <p class="table-desc">With your favorite IDE open in the background, click connect to link the two for a live programming environment.</p>
-                  </td>
-                  <td class="icon-column">
-                    <div class="icons"><img src="../assets/images/connect.png" /></div>
-                  </td>
-                </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Share</p>
-                    <p class="table-desc">Save your Microverse as a .vrse file to share or use the QR code to share the session with others.</p>
-                  </td>
-                  <td class="icon-column">
-                    <div class="icons"><img src="../assets/images/share.png" /></div>
-                  </td>
-                 </tr>
-                <tr class="help-row">
-                  <td>
-                    <p class="table-head">Settings</p>
-                    <p class="table-desc">Update your in-world nickname, select from default avatars or paste a link to your own.</p>
-                  </td>
-                  <td class="icon-column">
-                    <div class="icons"><img src="../assets/images/settings.png" /></div>
-                  </td>
-                </tr>
-              </table>
+    <div id="helpDialog" class="dialogPanel no-select">
+    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+        <div id="help-title" class="panel-title">Help</div>
+        <div id="share-container" class="content-container">
+            <div id="table-wrapper">
+                <div id="table-scroll" id="scrollbar">
+                    <table class="help-table">
+                        <tr class="help-row">
+                            <td>
+                                <p class="table-head">Navigate</p>
+                                <p class="table-desc">Move around using the joystick, or WASD keys.</p>
+                            </td>
+                            <td class="icon-column">
+                                <div class="icons">
+                                    <div class="help-pane-icon move-icon"></div>
+                                    <div class="help-pane-icon wasd-icon"></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="help-row">
+                            <td>
+                                <p class="table-head">Look</p>
+                                <p class="table-desc">Click and drag to change camera look position.</p>
+                            </td>
+                        <td class="icon-column">
+                            <div class="icons"><div class="help-pane-icon look-icon"></div>
+                        </td>
+                    </tr>
+                    <tr class="help-row">
+                        <td>
+                            <p class="table-head">Manipulate</p>
+                            <p class="table-desc">Ctrl + click on an object to open and cycle through the "gizmo" tools. The gray sphere is a button to open the property sheet tool.</p>
+                        </td>
+                        <td class="icon-column">
+                            <div class="icons">
+                                <div class="help-pane-icon ctrlclick-icon"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="help-row">
+                        <td>
+                            <p class="table-head">Fullscreen</p>
+                            <p class="table-desc">Make your browser fullscreen.</p>
+                        </td>
+                        <td class="icon-column"><i class="fas fa-solid fa-expand icons"></i></td>
+                    </tr>
+                    <tr class="help-row">
+                        <td>
+                            <p class="table-head">Home</p>
+                            <p class="table-desc">Reset location back to original landing place.</p>
+                        </td>
+                        <td class="icon-column"><i class="fas fa-solid fa-house-user icons"></i></td>
+                    </tr>
+                    <tr class="help-row">
+                        <td>
+                            <p class="table-head">Gather</p>
+                            <p class="table-desc">Shows how many users in a world. Click to "gather" all users to you.</p>
+                        </td>
+                        <td class="icon-column"><i class="fas fa-solid fa-users icons"></i></td>
+                    </tr>
+                    <tr class="help-row">
+                        <td>
+                            <p class="table-head">Import</p>
+                            <p class="table-desc">Import any of these formats from your desktop directly
+                                 into the Microverse World. Either drag and drop, or choose the import menu item.</p>
+                        </td>
+                        <td class="icon-column">
+                            <div class="icons">
+                                <div class="help-pane-icon import-icon help-menu-icon"></div>
+                            </div>
+                        </td>
+                     </tr>
+                     <tr class="help-row">
+                         <td>
+                             <p class="table-head">Connect</p>
+                             <p class="table-desc">Click connect to link your text editor to edit behavior files.</p>
+                         </td>
+                         <td class="icon-column">
+                             <div class="icons">
+                                 <div class="help-pane-icon connect-icon help-menu-icon"</div>
+                             </div>
+                         </td>
+                     </tr>
+                     <tr class="help-row">
+                         <td>
+                             <p class="table-head">Share</p>
+                             <p class="table-desc">Save your Microverse as a .vrse file to share or use the QR code to share the session with others.</p>
+                         </td>
+                         <td class="icon-column">
+                             <div class="icons">
+                                 <div class="help-pane-icon share-icon help-menu-icon"></div>
+                             </div>
+                         </td>
+                     </tr>
+                     <tr class="help-row">
+                         <td>
+                             <p class="table-head">Settings</p>
+                             <p class="table-desc">Update your in-world nickname, select from default avatars or paste a link to your own.</p>
+                         </td>
+                         <td class="icon-column">
+                             <div class="icons">
+                                 <div class="help-pane-icon settings-icon help-menu-icon"></div>
+                             </div>
+                         </td>
+                    </tr>
+                </table>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>`.trim();
+    </div>`.trim();
 
     let div = document.createElement("div");
     div.innerHTML = help;
 
-    helpMenu = div.querySelector("#helpDialog");
+    let helpMenu = div.querySelector("#helpDialog");
+    let closeButton = helpMenu.querySelector("#close-button");
     helpMenuBody = div.querySelector("#joinDialogBody");
-    helpMenu = div.querySelector("#helpDialog");
 
+    filterDomEventsOn(helpMenu);
 
-    function showUi(){
-      const ui = document.body.querySelectorAll('.ui');
-  
-      for (let i = 0; i<ui.length; ++i){
-          ui[i].classList.remove("none");
-      };
-      sendToShell("hud",{joystick:true,fullscreen:true})
-  }
-
-  
-  function close() {
-    const el = document.body.querySelector("#helpDialog");
-    if (el) {
-        el.classList.remove('none')
-        el.classList.add('show')
-        return;
-    }else{
-        el.classList.remove('show')
-        el.classList.add('none')
-    }
-  }
-
-  const cancelButton = helpMenu.querySelectorAll('.cancel-button');
-  cancelButton.forEach(button =>{
-      button.addEventListener('click', function handleClick (){
-      helpMenu.remove();
-      showUi();
-      sendToShell("hud",{joystick:true,fullscreen:true})
-      })
-  });
-
+    closeButton.onclick = () => closeAllDialogs();
 
     document.body.appendChild(helpMenu);
-    
-    setHelpSize()
-
-
 }
-
-
-
-
-function closeDialog(changed) {
-    helpMenu.remove();
-    helpMenu = null;
-}
-
-function cancel() {
-    closeDialog(false);
-}
-
-
-function setHelpSize() {
-    let width = 610;
-    let height = 610; // default, for a wide screen
-    // if a dialog 610px wide wouldn't fit, switch to a narrower one and remove
-    // the 'wide' format
-    const innerWidth = window.innerWidth;
-    if (innerWidth && innerWidth < 630) {
-        helpMenuBody.classList.remove('wide');
-        width = 432;
-    }
-    helpMenuBody.style.width = `${width}px`;
-    helpMenuBody.style.height = `${height}px`;
-}
-
-
