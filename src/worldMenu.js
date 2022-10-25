@@ -129,7 +129,7 @@ function forceStop(myAvatar) {
     }
 }
 
-function initWorldMenu(badge) {
+function initWorldMenu() {
     let html = document.createElement("div");
     html.id = "worldMenu";
     html.classList.add("worldMenu");
@@ -171,10 +171,6 @@ function initWorldMenu(badge) {
     let help = div.querySelector("#worldMenu-helpButton");
     let presentationMode = div.querySelector("#worldMenu-gather");
 
-    html.appendChild(badge);
-    badge.id = "worldMenu-qr";
-    badge.classList.add("menu-qr", "menu-item");
-
     html.appendChild(load);
     html.appendChild(connect);
     html.appendChild(presentationMode);
@@ -200,18 +196,6 @@ function setMenuItems(myAvatar) {
     }
 
     let div;
-
-    div = worldMenu.querySelector("#worldMenu-qr");
-    div.onclick = (evt) => {
-        evt.preventDefault();
-        evt.stopPropagation();
-
-        if (evt.shiftKey || isMobile) {
-            switchQRView(myAvatar);
-            return;
-        }
-        qrPressed(myAvatar, window.location);
-    }
 
     div = worldMenu.querySelector("#worldMenu-load");
     div.onclick = (evt) => {
