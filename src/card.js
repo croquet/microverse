@@ -1135,8 +1135,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (buffer) { return Promise.resolve(buffer); }
         if (!this.isDataId(name)) {
             return fetch(name)
-                .then((resp) => resp.arrayBuffer())
-                .then((arrayBuffer) => new Uint8Array(arrayBuffer));
+                .then((resp) => {
+                    if (!resp.ok) throw Error(`fetch failed: ${resp.status} ${resp.statusText}`);
+                    return resp.arrayBuffer();
+                }).then((arrayBuffer) => new Uint8Array(arrayBuffer))
         } else {
             let handle = Data.fromId(name);
             return Data.fetch(this.sessionId, handle);
