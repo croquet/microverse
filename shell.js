@@ -94,29 +94,6 @@ class Shell {
                 console.warn(`shell: popstate location=${location}\ndoes not match portal-${portalId} frame.src=${frame.src}`);
             }
         });
-
-        this.fullscreenBtn = document.getElementById("fullscreenBtn");
-        this.fullscreenBtn.onclick = (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            if (e.shiftKey) {
-                document.body.classList.toggle("tilt");
-                return;
-            }
-
-            if (!document.fullscreenElement) {
-                // If the document is not in full screen mode
-                // make the document full screen
-                document.body.requestFullscreen();
-            } else {
-                // Otherwise exit the full screen
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
         // joystick sends events into primary frame
         this.capturedPointers = {};
         this.joystick = document.getElementById("joystick");
@@ -454,27 +431,27 @@ class Shell {
         }
     }
 
-    setButtonsVisibility(data) {
-        let joystickFlag = data.joystick;
-        let fullscreenFlag = data.fullscreen;
-        if (!document.head.querySelector("#joystick-css")) {
-            this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
-        }
-        if (joystickFlag !== undefined && this.joystick) {
-            if (joystickFlag) {
-                this.joystick.style.removeProperty("display");
-            } else {
-                this.joystick.style.setProperty("display", "none");
-            }
-        }
-        if (fullscreenFlag !== undefined && this.fullscreenBtn) {
-            if (fullscreenFlag) {
-                this.fullscreenBtn.style.removeProperty("display");
-            } else {
-                this.fullscreenBtn.style.setProperty("display", "none");
-            }
-        }
-    }
+    // setButtonsVisibility(data) {
+    //     let joystickFlag = data.joystick;
+    //     let fullscreenFlag = data.fullscreen;
+    //     if (!document.head.querySelector("#joystick-css")) {
+    //         this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
+    //     }
+    //     if (joystickFlag !== undefined && this.joystick) {
+    //         if (joystickFlag) {
+    //             this.joystick.style.removeProperty("display");
+    //         } else {
+    //             this.joystick.style.setProperty("display", "none");
+    //         }
+    //     }
+    //     if (fullscreenFlag !== undefined && this.fullscreenBtn) {
+    //         if (fullscreenFlag) {
+    //             this.fullscreenBtn.style.removeProperty("display");
+    //         } else {
+    //             this.fullscreenBtn.style.setProperty("display", "none");
+    //         }
+    //     }
+    // }
 
     manuallyRenderPrimaryFrame() {
         const acknowledgeReceipt = !!this.pendingSortFrames;

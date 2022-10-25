@@ -75,6 +75,7 @@ export function connectFeedback(flag) {
     }
 }
 
+
 function connectPressed(myAvatar) {
     let manager = myAvatar.service("BehaviorViewManager");
 
@@ -159,7 +160,7 @@ function initWorldMenu() {
     <div class="menu-icon help-icon"></div>
     <span class="menu-label-text">Help</span>
 </div>
-<div id="worldMenu-fullscreenButton" class="menu-label menu-item">
+<div id="fullscreenBtn" class="menu-label menu-item">
     <div class="menu-icon fullscreen-icon"></div>
     <span class="menu-label-text">Fullscreen</span>
 </div>
@@ -174,7 +175,7 @@ function initWorldMenu() {
     let share = div.querySelector("#worldMenu-shareButton");
     let help = div.querySelector("#worldMenu-helpButton");
     let presentationMode = div.querySelector("#worldMenu-gather");
-    let fullscreen = div.querySelector("#worldMenu-fullscreenButton");
+    let fullscreen = div.querySelector("#fullscreenBtn");
 
 
     html.appendChild(load);
@@ -194,14 +195,15 @@ function initWorldMenu() {
     document.getElementById("hud").appendChild(worldMenu);
 }
 
+
 function setMenuItems(myAvatar) {
     let gatherItem = worldMenu.querySelector("#worldMenu-gather");
     let label = gatherItem.querySelector("span");
 
     if (myAvatar.actor.service("PlayerManager").presentationMode) {
-        label.textContent = "Stop Gathering";
+        label.textContent = "Release Users";
     } else {
-        label.textContent = "Gather";
+        label.textContent = "Gather Users";
     }
 
     let div;
@@ -236,6 +238,30 @@ function setMenuItems(myAvatar) {
             }
         };
     }
+
+    let fullscreenBtn = worldMenu.querySelector("#fullscreenBtn");
+fullscreenBtn.onclick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log("help")
+
+    if (e.shiftKey) {
+        document.body.classList.toggle("tilt");
+        return;
+    }
+
+    if (!document.fullscreenElement) {
+        // If the document is not in full screen mode
+        // make the document full screen
+        document.body.requestFullscreen();
+    } else {
+        // Otherwise exit the full screen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+}
+
 }
 
 function toggleMenu(myAvatar) {
