@@ -838,7 +838,6 @@ class GizmoPropertySheetButtonPawn {
     setup() {
         let isMine = this.parent?.actor.creatorId === this.viewId;
 
-        // this.makeButton();
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
         this.parent.call("Gizmo$GizmoPawn", "forceOnTop", this.shape);
         if (isMine) {
@@ -885,6 +884,7 @@ class GizmoPropertySheetButtonPawn {
     openPropertySheet(event) {
         let avatar = Microverse.GetPawn(event.avatarId);
         this.publish(this.actor.id, "openPropertySheet", {avatar: event.avatarId, distance: avatar.targetDistance});
+        this.destroy();
     }
 }
 
