@@ -19,7 +19,7 @@ One of the demo worlds in the repository is called `tutorial1`, and can be enter
 
 ![tutorial1](./assets/demoWorld1.png)
 
-## Use `npm create croquet-microverse`
+## Use create-croquet-microverse package
 
 Instead of cloning the main github repository, you can also create a minimum set of files to run Croquet Microverse which you can use as a starting point of your own project. Create an empty directory and run
 
@@ -303,7 +303,9 @@ Note that when the execution of the program is stopped at the breakpoint for mor
 
 Inevitably you will encounter errors during the development. Because your code will be invoked from Croquet's publish/subscribe messaging system and also the invocation typically is wrapped in a Proxy, the stack trace is slightly more convoluted.  However, you can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `GizmoActor's `cycleModes` method, and the error was `destroy` is not a property of `undefined`.
 
+<p align="center">
 <img src="./assets/error.png" width="800"/>
+</p>
 
 Once you figure this out, you can put a breakpoint in the offending method and step execute.
 
@@ -313,7 +315,9 @@ A Croquet Microverse session may lock up when Three.js crashes with NaN or Infin
 
 You can bring up the Property Sheet for a card by holding down the control key or the alt key on some platforms, clicking on a card, and then click on an icon that looks like a pane-based tool (labeled as "B" in the image below).
 
-![PropertySheet](./assets/labeled-propertySheet.png)
+<p align="center">
+<img src="./assets/labeled-propertySheet.png" width="800"/>
+</p>
 
 You can duplicate or delete the card from "actions". If you multi-select the modules and then press apply, you can attach or detach the modules (and the `setup()` and `teardown()` of them are called.)
 

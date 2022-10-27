@@ -21,24 +21,32 @@ The Croquet Microverse is a browser-based 3D shared experience platform and OS. 
 This guide will enable you to quickly set up Croquet Microverse and introduce you to a number of key concepts that you will need to know to create your own worlds and apps within those worlds. Not only is it easy to do this, it is incredibly fun and rewarding.
 
 ## TLDR
-1. Checkout Quick Start (https://croquet.io/docs/microverse), and run `npm create croquet-microverse`. If you want to develop the core system, clone the GitHub repository https://github.com/croquet/microverse
-    <br>(`git clone https://github.com/croquet/microverse`)
-2. Open a terminal and set the path to your new Microverse folder.
-   <br>`cd microverse`
 
-3. In the terminal run
+1. Run a create npm command in an empty directory.
+
+    `npm create croquet-microverse`
+
+    If you want to develop the core system, clone the GitHub repository https://github.com/croquet/microverse . 
+
+2. If you clone the repository, open a terminal and set the path to your new Microverse folder.
+
+    `cd microverse`
+
+    and then run:
 
    `npm install`
 
-   if you cloned the git repository, and then 
+3.  Run:
 
    `npm start`
 
 4. Open browser at `localhost:9684` and enter a new world.
 
-5. Connect to your IDE via the Watch Server.
+5. Connect to your text editor via the "Connect" menu item.
 
 6. Create your own worlds.
+
+7. Refer to Quick Start (https://croquet.io/docs/microverse), and other docs for further information.
 
 ## Croquet Microverse
 ---
@@ -75,8 +83,7 @@ To start developing your world based on a stable release, you can run in an empt
 
 in the directory.
 
-Alternatively, you can find the most up to date Croquet Microverse library as well as this document in the [Microverse GitHub repository]([https://github.com/croquet/microverse]). Cloning this repository will give you access to the source code of the core library.
-[https://github.com/croquet/microverse](https://github.com/croquet/microverse)
+Alternatively, you can find the most up to date Croquet Microverse system as well as this document in the [Microverse GitHub repository]([https://github.com/croquet/microverse]).
 
 ---
 
@@ -84,7 +91,7 @@ Alternatively, you can find the most up to date Croquet Microverse library as we
 
 Open a terminal on your computer and change the working directory to the new microverse folder, if you clone the github repository. (`cd microverse')
 
-First run `npm install` in the directory.
+First run `npm install` in the directory, if you are strarting from a clone of the GitHub repo.
 
 Then run `npm start` in the same directory. This will run two servers. One is the file server on localhost:9684. The other is the watch-server that enables you to inject code changes into a running session. You can also run them separately by running `npm run file-server` and `npm run watch-server`.
 
