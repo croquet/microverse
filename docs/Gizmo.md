@@ -9,11 +9,11 @@ Croquet Microverse 0.1.15 introduced the "gizmo" interface to control the transl
 <img src="./assets/gizmo-t.png" width="800"/>
 </p>
 
-When you click on a card while the control or alt key pressed down, you get a set of red, green and blue arrows (A) along with an icon of a tool called the property sheet (B) and the bounding box around the object (C), as shown in the above image. Note that the tools are rendered in front of all other objects in the scene.
+When you click on a card while the control or the alt key pressed down, you get a set of red, green and blue arrows (A) along with an icon of a tool called the property sheet (B) and the bounding box around the object (C), as shown in the above image. Note that the tools are rendered in front of all other objects in the scene.
 
 Each of the arrows lets you drag the card in the direction of the arrow. Clicking on the property sheet icon brings up the Property Sheet tool (cf. PropertySheet.md).
 
-When you control-click the object again while the arrows are showing, it switches to the rotation mode. There are red, green and blue rings, and dragging a ring (make sure that the one you intend to move gets yellow highlight) rotates the object around.
+When you control-click (or alt-click) the object again while the arrows are showing, it switches to the rotation mode. There are red, green and blue rings, and dragging a ring (make sure that the one you intend to move gets yellow highlight) rotates the object around.
 
 <p align="center">
 <img src="./assets/gizmo-r.png" width="800"/>

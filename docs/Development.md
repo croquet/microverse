@@ -311,7 +311,7 @@ A Croquet Microverse session may lock up when Three.js crashes with NaN or Infin
 
 ## The Property Sheet
 
-You can bring up the Property Sheet for a card by holding down the control key, clicking on a card, and then click on an icon that looks like a pane-based tool (labeled as "B" in the image below).
+You can bring up the Property Sheet for a card by holding down the control key or the alt key on some platforms, clicking on a card, and then click on an icon that looks like a pane-based tool (labeled as "B" in the image below).
 
 ![PropertySheet](./assets/labeled-propertySheet.png)
 
