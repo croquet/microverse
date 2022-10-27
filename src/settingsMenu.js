@@ -384,7 +384,7 @@ function createShareMenu(avatar) {
             <div id="copy-link" class="copy-link allow-select settingsColumn">generated link</div>
             <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
 
-            <div class="share-settings-label settingsColumn">Save world VRSE file</div>
+            <div class="share-settings-label settingsColumn">Save world as VRSE file</div>
             <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
         </div>
     </div>`.trim();
