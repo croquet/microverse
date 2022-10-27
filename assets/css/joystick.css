@@ -1,79 +1,79 @@
 #joystick {
-    position: fixed;
-    left: 50%;
-    bottom: 50px;
-    -ms-transform: translate(-50%, 0%);
-    transform: translate(-50%, 0%);
-    width: 120px;
-    height: 120px;
-    border: 3px solid #FFF;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    opacity: 0.75;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 200;
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  -ms-transform: translate(-50%, 0%);
+  transform: translate(-50%, 0%);
+  width: 100px;
+  height: 100px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  opacity: 0.75;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
 }
 
 #knob {
-    position: fixed;
-    transform: translate(30px, 30px);
-    left: 0px;
-    top: 0px;
-    width: 60px;
-    height: 60px;
-    border-radius: 40px;
-    background-color: rgba(224, 224, 224, 0.8);
-    z-index: 310;
-    pointer-events: none;
+  position: fixed;
+  transform: translate(30px, 30px);
+  left: 0px;
+  top: 0px;
+  width: 40px;
+  height: 40px;
+  border-radius: 40px;
+  background-color: rgba(224, 224, 224, 0.8);
+  z-index: 310;
+  pointer-events: none;
 }
 
 #trackingknob {
-    position: fixed;
-    transform: translate(0px, 0px);
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background-color: rgba(124, 124, 124, 0.2);
+  position: fixed;
+  transform: translate(0px, 0px);
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: rgba(124, 124, 124, 0.2);
 }
 
-@media (max-width:600px), (max-height:600px) {
-    #trackingknob {
-        width: 86px;
-        height: 86px;
-    }
+@media (max-width: 600px), (max-height: 600px) {
+  #trackingknob {
+    width: 86px;
+    height: 86px;
+  }
 
-    #joystick {
-        bottom: 18px;
-        width: 86px;
-        height: 86px;
-    }
+  #joystick {
+    bottom: 18px;
+    width: 86px;
+    height: 86px;
+  }
 
-    #knob {
-        width: 43px;
-        height: 43px;
-    }
+  #knob {
+    width: 43px;
+    height: 43px;
+  }
 }
 
-@media (max-height:600px) {
-    #joystick {
-        bottom: 45px;
-    }
+@media (max-height: 600px) {
+  #joystick {
+    bottom: 45px;
+  }
 }
 
-@media (min-width:1900px) {
-    #trackingknob {
-        width: 140px;
-        height: 140px;
-    }
+@media (min-width: 1900px) {
+  #trackingknob {
+    width: 140px;
+    height: 140px;
+  }
 
-    #joystick {
-        bottom: 65px;
-        width: 140px;
-        height: 140px;
-    }
+  #joystick {
+    bottom: 65px;
+    width: 140px;
+    height: 140px;
+  }
 
-    #knob {
-        width: 70px;
-        height: 70px;
-    }
+  #knob {
+    width: 70px;
+    height: 70px;
+  }
 }
