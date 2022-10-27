@@ -56,7 +56,7 @@ Copy the Network URL (e.g. `http://192.168.1.145:9684/`) and paste it into your 
 Congratulations!
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/1b60d234f785e84f31eff3b4385c1dcbeb8831ad/shared-space.jpg" width=640"/>
+<img src="./assets/shared-space.jpg" width="640"/>
 </p>
 
 ---

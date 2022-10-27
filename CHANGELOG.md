@@ -3,6 +3,23 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-10-21
+### Changed
+- Gizmo look is updated. in particular tools are rendered in front of other objects.
+- The user count is displayed at the top. Gather is now in the world menu.
+- Event routing honor renderOrder so that object rendered in front with it is tested first.
+
+### Added
+- Better support for adding a card to avatar.
+
+## 2022-10-14
+### Changed
+- webpack.config.js is changed to copy all files under assets automatically
+- the world menu is updated.
+
+### Added
+- Broadcast mode is added.
+
 ## 2022-10-07
 ### Fixed
 - Deletion of gizmo when a peer drops out or times out.

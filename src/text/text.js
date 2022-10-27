@@ -1155,7 +1155,9 @@ export class TextFieldPawn extends CardPawn {
     }
 
     setTextRenderingBounds(bounds) {
-        this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        if (this.textMesh?.material?.uniforms?.corners) {
+            this.textMesh.material.uniforms.corners.value = new THREE.Vector4(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        }
     }
 
     setScrollBarExtent(pixels, extent) {
@@ -1192,16 +1194,19 @@ export class TextFieldPawn extends CardPawn {
         }
 
         if (!sel) {
-            const bar = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
+            let bar = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.1, 0.1), new THREE.MeshBasicMaterial({color}));
             bar.visible = false;
             this.plane.add(bar);
             bar.name = "caret";
+            bar.onBeforeRender = () => this.selectionBeforeRender(bar);
 
             let boxes = [];
             for (let i = 0; i < 3; i++) {
                 let box = new THREE.Mesh(new THREE.PlaneBufferGeometry(0, 0), new THREE.MeshBasicMaterial({color}));
                 box.visible = false;
                 box.name = `box${i}`;
+                box.onBeforeRender = () => this.selectionBeforeRender(box);
+
                 this.plane.add(box);
                 boxes.push(box);
             }
@@ -1209,6 +1214,10 @@ export class TextFieldPawn extends CardPawn {
         }
         this.selections[id] = sel;
         return sel;
+    }
+
+    selectionBeforeRender(obj) {
+        obj.material.clippingPlanes = this.computeClippingPlanes();
     }
 
     showSelections() {
@@ -1240,11 +1249,14 @@ export class TextFieldPawn extends CardPawn {
                 if (old) {
                     old.dispose();
                 }
+
+                /*
                 if (!caret.material.clippingPlanes ||
                     caret.material.clippingPlanes._width !== width ||
                     caret.material.clippingPlanes._height !== height) {
                     caret.material.clippingPlanes = this.computeClippingPlanes();
                 }
+                */
 
                 let left = (-width / 2) + (caretRect.left + 6) * ts; // ?
                 let top = (height / 2) - (caretRect.top + caretRect.height / 2 + 4) * ts + scrollTop;
@@ -1268,11 +1280,14 @@ export class TextFieldPawn extends CardPawn {
                         box.position.set(left, top, depth + 0.001);
                         box.visible = true;
 
+                        /*
                         if (!box.material.clippingPlanes ||
                             box.material.clippingPlanes._width !== width ||
                             box.material.clippingPlanes._height !== height) {
+                            console.log("box compute clipping planes");
                             box.material.clippingPlanes = this.computeClippingPlanes();
                         }
+                        */
                     }
                 }
             }
