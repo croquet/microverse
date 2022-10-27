@@ -206,7 +206,7 @@ class CascadeActor {
           In this example, this is called from the above 'physicsSensor' case.
         */
         let behavior = this._behavior;
-        let physicsWorld = this.physicsWorld();
+        let physicsWorld = this.physicsWorld;
         this.collisionEventHandlerBehavior = `${behavior.module.name}$${behavior.$behaviorName}`;
         this.collisionEventHandlerMethod = methodName;
         physicsWorld.registerCollisionEventHandler(this._target);
