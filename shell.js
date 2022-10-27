@@ -431,27 +431,27 @@ class Shell {
         }
     }
 
-    // setButtonsVisibility(data) {
-    //     let joystickFlag = data.joystick;
-    //     let fullscreenFlag = data.fullscreen;
-    //     if (!document.head.querySelector("#joystick-css")) {
-    //         this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
-    //     }
-    //     if (joystickFlag !== undefined && this.joystick) {
-    //         if (joystickFlag) {
-    //             this.joystick.style.removeProperty("display");
-    //         } else {
-    //             this.joystick.style.setProperty("display", "none");
-    //         }
-    //     }
-    //     if (fullscreenFlag !== undefined && this.fullscreenBtn) {
-    //         if (fullscreenFlag) {
-    //             this.fullscreenBtn.style.removeProperty("display");
-    //         } else {
-    //             this.fullscreenBtn.style.setProperty("display", "none");
-    //         }
-    //     }
-    // }
+    setButtonsVisibility(data) {
+        let joystickFlag = data.joystick;
+        // let fullscreenFlag = data.fullscreen;
+        if (!document.head.querySelector("#joystick-css")) {
+            this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
+        }
+        if (joystickFlag !== undefined && this.joystick) {
+            if (joystickFlag) {
+                this.joystick.style.removeProperty("display");
+            } else {
+                this.joystick.style.setProperty("display", "none");
+            }
+        }
+        // if (fullscreenFlag !== undefined && this.fullscreenBtn) {
+        //     if (fullscreenFlag) {
+        //         this.fullscreenBtn.style.removeProperty("display");
+        //     } else {
+        //         this.fullscreenBtn.style.setProperty("display", "none");
+        //     }
+        // }
+    }
 
     manuallyRenderPrimaryFrame() {
         const acknowledgeReceipt = !!this.pendingSortFrames;
