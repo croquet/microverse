@@ -110,8 +110,15 @@ function helpPressed(myAvatar) {
 function switchQRView(_myAvatar) {
     let qrDiv = worldMenu.querySelector("#qrDiv");
     let statsDiv = worldMenu.querySelector("#statsDiv");
+    let innerDiv = statsDiv.querySelector("#innerDiv");
+    let innderDivSecond = innerDiv.childNodes[1];
 
     let cls = "statsHidden";
+
+    if (innderDivSecond) {innderDivSecond.classList.add(cls);}
+
+    // workaround until I understand it more
+    statsDiv.style.height = "176px";
 
     if (qrDiv.classList.contains(cls)) {
         qrDiv.classList.toggle(cls, false);
