@@ -3,12 +3,12 @@
 [https://croquet.io](https://croquet.io)
 
 ## Introduction
-The property sheet is an in-world interactive tool to edit properties of a card, delete or copy the card, and attach and detach available behavior modules. You can bring the property sheet on a card by Control-Click.
+The property sheet is an in-world interactive tool to edit properties of a card, delete or copy the card, and attach and detach available behavior modules. You can bring the property sheet on a card by pressing don the control key or alt key and click on the card.
 
 The property sheet has three parts. See A, B and C in the picture below.
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/f808b6e65964e59da7e75a76085efe9d7054f5c8/propertySheet.png" width="400"/>
+<img src="./assets/labeled-propertySheet.png" width="400"/>
 </p>
 
 ## The Property Value Pane

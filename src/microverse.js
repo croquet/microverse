@@ -762,6 +762,10 @@ https://croquet.io`.trim());
 function isRunningLocalNetwork() {
     let hostname = window.location.hostname;
 
+    if (/^\[.*\]$/.test(hostname)) {
+        hostname = hostname.slice(1, hostname.length - 1);
+    }
+
     let local_patterns = [
         /^localhost$/,
         /^.*\.local$/,
