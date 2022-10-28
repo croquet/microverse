@@ -105,7 +105,7 @@ Once you have done that, the demo world for Croquet Microverse will load and you
 
 ![Croquet Microverse](./assets/CroquetMicroverseBrowser.png)
 
-Your new Microverse awaits...
+Your new Microverse awaits. If you start from the GitHub repo, you will more interesting stuff in the default world; but create-croquet-microverse is made as a minimum installation so that you can jsut start adding your objects.
 
 ### 5. The Watch Server
 The watch server enables you to edit code from your own text editor and have it injected and run inside the Croquet Microverse while it is running without the need to reload. The watch server is automatically launched when execute `npm start`. You can start the watch server on its own by running `npm run watch-server`. The watch-server by default starts watching the directory called `behaviors/croquet` for system behaviors and a directory specified in the world file, typically `behaviors/default` or another sub directory under `behaviors`.
