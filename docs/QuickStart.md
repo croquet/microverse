@@ -47,11 +47,12 @@ In the directory you just created, run
 
 This will start the development web server. In its output there will be lines like:
 
-    [webpack-dev-server] Project is running at:
-    [webpack-dev-server] Loopback: http://localhost:9684/
-    [webpack-dev-server] On Your Network (IPv4): http://192.168.1.145:9684/
+    Running at:
+        http://127.0.0.1:9684
+        http://192.168.0.105:9684
+        http://[::1]:9684
 
-Copy the Network URL (e.g. `http://192.168.1.145:9684/`) and paste it into your web browser. We recommend using this URL over the `localhost` one to be able to join the session from other devices, e.g. your phone.
+Copy the Network URL (e.g. `http://192.168.0.105:9684/`) and paste it into your web browser. We recommend using this URL over the `localhost` one to be able to join the session from other devices, e.g. your phone.
 
 Congratulations!
 
