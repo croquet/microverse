@@ -23,7 +23,7 @@ One of the demo worlds in the repository is called `tutorial1`, and can be enter
 
 Instead of cloning the main github repository, you can also create a minimum set of files to run Croquet Microverse which you can use as a starting point of your own project. Create an empty directory and run
 
-    npm create croquet-microverse
+    npm create croquet-microverse@latest
 
 ## World Template File
 
