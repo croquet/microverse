@@ -14,7 +14,7 @@ rm -rf ${DIST}/assets/SVG
 rm -rf ${DIST}/assets/images
 
 mkdir -p ${DIST}/assets/fonts
-cp -rp assets/fonts/css assets/fonts/webfonts assets/fonts/Roboto* ${DIST}/assets/fonts
+cp -rp assets/fonts/css assets/fonts/webfonts assets/fonts/Roboto* assets/fonts/Poppins*.woff2 ${DIST}/assets/fonts
 
 rm -rf ${DIST}/apps
 rm -rf ${DIST}/docs

@@ -19,7 +19,7 @@ One of the demo worlds in the repository is called `tutorial1`, and can be enter
 
 ![tutorial1](./assets/demoWorld1.png)
 
-## Use `npm create croquet-microverse`
+## Use create-croquet-microverse package
 
 Instead of cloning the main github repository, you can also create a minimum set of files to run Croquet Microverse which you can use as a starting point of your own project. Create an empty directory and run
 
@@ -287,14 +287,14 @@ The first thing to keep in mind is that the behavior is stringified and then eva
 However there are a few ways to work with the browser's developer tool. We utilize the `sourceURL` mechanism of modern browsers' developer tools, the behavior name is shown in the "Sources"  tab.
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/4b2ea341c776cd183c3c06308ca3a65489423a54/sources.png" width="800"/>
+<img src="./assets/sources.png" width="800"/>
 </p>
 
 You can put a `debugger` statement in your behavior code. If the session is connected to the watch server the new definition of behavior is loaded immediately and the breakpoint will be triggered when execution hits the statement.
 Another is to put a `console.log` call in behavior code. When the `console.log` is executed and you see results in the console, click on the behavior name you are interested (LightPawn, ElectedPawn etc. in the image below);
 
 <p align="center">
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/f49b5660b5fadb0549dd396eddb99cb54f6426ec/console.png" width="800"/>
+<img src="./assets/sourceURL.png" width="800"/>
 </p>
 
 You can set a breakpoint by clicking the line number in the code that is displayed.
@@ -303,7 +303,9 @@ Note that when the execution of the program is stopped at the breakpoint for mor
 
 Inevitably you will encounter errors during the development. Because your code will be invoked from Croquet's publish/subscribe messaging system and also the invocation typically is wrapped in a Proxy, the stack trace is slightly more convoluted.  However, you can still see the top of the stack and the error (typically shown like the image below), and see that the error occurred in `GizmoActor's `cycleModes` method, and the error was `destroy` is not a property of `undefined`.
 
-<img src="https://gist.githubusercontent.com/yoshikiohshima/45848af5a19dddbe1ea77f5d238fced0/raw/9df635f91ad8a0acf91cc34f86d7c0004a7350de/error.png" width="800"/>
+<p align="center">
+<img src="./assets/error.png" width="800"/>
+</p>
 
 Once you figure this out, you can put a breakpoint in the offending method and step execute.
 
@@ -311,9 +313,11 @@ A Croquet Microverse session may lock up when Three.js crashes with NaN or Infin
 
 ## The Property Sheet
 
-You can bring up the Property Sheet for a card by holding down the control key, clicking on a card, and then click on a gray sphere that shows up near the card.
+You can bring up the Property Sheet for a card by holding down the control key or the alt key on some platforms, clicking on a card, and then click on an icon that looks like a pane-based tool (labeled as "B" in the image below).
 
-![PropertySheet](./assets/PropertySheet.png)
+<p align="center">
+<img src="./assets/labeled-propertySheet.png" width="800"/>
+</p>
 
 You can duplicate or delete the card from "actions". If you multi-select the modules and then press apply, you can attach or detach the modules (and the `setup()` and `teardown()` of them are called.)
 

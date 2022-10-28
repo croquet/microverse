@@ -163,14 +163,6 @@ This method add a Croquet event subscription by calling the `subscribe()` method
 
 This method publishes a Croquet event with `this.id` as its `scope`.
 
-### `sayDeck(message:string, data:any)`
-
-This method publishes a Croquet event in the scope of `this._parent.id` if `this._parent` is not undefined, or in `this.id` if it is undefined. Note that `this.parent` is resolved dynamically at the call time.
-
-### `listenDeck(message:string, listener:function|string)`
-
-This method subscribes a Croquet event in the scope of `this._parent.id` if `this._parent` is not undefined, or in `this.id` if it is undefined. Note that `this.parent` is resolved at the first time it is called, and any change to `this._parent` will not update the subscription.
-
 ### `addLayer(newLayerName:string)`
 
 This method adds a new element to the `layers` array. If `newLayerName` is already in the `layers` array, the call does not have any effects.
@@ -268,6 +260,8 @@ this.future(20).mth();
 this.future(20).call("Module$Behavior", "mth");
 ```
 
+Note that using `window.setInterval()` and `window.setTimeout()` can be used to have the same effects. It is sometimes convenient to use them when you want to stop the future loop easily.
+
 ### `addEventListener(eventName:EventName, listener:function|string)`
 
 This method adds a "listener" to be invoked when an event occurs on the pawn of a card. When `listener` is a string, it has to have the name of an existing method of CardPawn or the behavior itself. (Internally the function object is stored in the event listener data structure.)
@@ -300,14 +294,9 @@ This method add a Croquet event subscription by calling the `subscribe()` method
 
 This method publishes a Croquet event with `this.actor.id` as its `scope`.
 
-### `sayDeck(message:string, data:any)`
+### `getMyAvatar():AvatarPawn`
 
-This method publishes a Croquet event in the scope of `this.actor._parent.id` if `this.actor._parent` is not undefined, or in `this.actor.id` if it is undefined. Note that `this.actor.parent` is resolved dynamically at the call time.
-
-### `listenDeck(message:string, listener:function|string)`
-
-This method subscribes a Croquet event in the scope of `this.actor._parent.id` if `this.actor._parent` is not undefined, or in `this.actor.id` if it is undefined. Note that `this.parent` is resolved at the first time it is called, and any change to `this.actor._parent` will not update the subscription.
-
+This method returns the AvatarPawn of the local client. Recall that the notion of "my" avatar only exists on the view side. The model side treats all avatars equally, even the one that is associated with the local computer. This is why this method is on the pawn side, and returns the AvatarPawn.
 
 ### `addUpdateRequest(array:Array<behaviorName, methodName>)`
 

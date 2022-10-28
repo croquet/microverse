@@ -125,7 +125,7 @@ function switchQRView(_myAvatar) {
 function forceStop(myAvatar) {
     myAvatar.say("stopPresentation");
     if (worldMenuVisible) {
-        toggleMenu();
+        // toggleMenu();
     }
 }
 
@@ -235,7 +235,7 @@ function setMenuItems(myAvatar) {
     div = gatherItem;
     if (div) {
         div.onclick = () => {
-            toggleMenu();
+            // toggleMenu();
             if (myAvatar.actor.service("PlayerManager").presentationMode) {
                 forceStop(myAvatar);
             } else {
