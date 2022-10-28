@@ -133,7 +133,7 @@
 }
 
 .dialogButtonsHolder.twoItems {
-    justify-content: space-evenly;
+    justify-content: space-between;
 }
 
 #enterButton {
@@ -154,6 +154,12 @@
     color: #fff;
     background-color: #dc3545;
     border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    color: #fff;
+    background-color: #630710;
+    border-color: #630710;
 }
 
 .topright {
