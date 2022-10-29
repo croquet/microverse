@@ -17,6 +17,7 @@ function main() {
             return;
         }
 
+        console.log(targetFile, source);
         fs.writeFileSync(targetFile, fs.readFileSync(source));
     }
 
@@ -27,7 +28,8 @@ function main() {
         let targetFolder = path.join(target, path.basename(source));
 
         if (!fs.existsSync(targetFolder)) {
-            fs.mkdirSync(targetFolder);
+            console.log("mkdirSync", targetFolder, source);
+            fs.mkdirSync(targetFolder, {recursive: true});
         }
 
         // Copy
@@ -44,18 +46,38 @@ function main() {
         }
     }
 
+    function deleteDir(target) {
+        // target should be a directory. All files under the directory will be removed recursively.
+        console.log("deleteDir:", target);
+        if (fs.existsSync(target)) {
+            if (fs.lstatSync(target).isDirectory()) {
+                console.log("deleting: ", target);
+                if (fs.rmSync) {
+                    try {
+                        fs.rmSync(target, {recursive: true});
+                    } catch (e) {
+                        console.log("failed to remove dir");
+                    }
+                }
+            }
+        }
+    }
+
+    let dist = process.env.INIT_CWD;
+    let sep = path.sep;
+
     function copyFiles() {
-        let dist = process.env.INIT_CWD;
-        copyFolderRecursiveSync("behaviors", dist);
+        console.log("starting to copy files", process.cwd());
+        copyFolderRecursiveSync(`behaviors${sep}croquet`, `${dist}${sep}behaviors`);
+        copyFolderRecursiveSync(`behaviors${sep}default`, `${dist}${sep}behaviors`, true);
         copyFolderRecursiveSync("assets", dist);
         copyFolderRecursiveSync("worlds", dist, true);
         copyFolderRecursiveSync("meta", dist);
         copyFolderRecursiveSync("lib", dist);
-        copyFileSync("index.html", `${dist}${path.sep}index.html`);
+        copyFileSync("index.html", `${dist}${sep}index.html`);
     }
 
-    console.log("starting to copy files", process.cwd());
-
+    deleteDir(`${dist}${sep}lib`);
     copyFiles();
 }
 
