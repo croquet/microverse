@@ -307,7 +307,6 @@ class XRController {
 
         if ((this.lastDelta[0] === 0 && this.lastDelta[1] === 0) &&
             (dx !== 0 || dy !== 0)) {
-            console.log("startMotion");
             avatar.startMotion();
         }
 
@@ -388,6 +387,31 @@ class ThreeRenderManager extends RenderManager {
         this.hasXR().then((xr) => {
             if (xr) {
                 this.vrButton = VRButton.createButton(this.renderer);
+                let styleCallback = (records, _observer) => {
+                    let styleChanged = false;
+
+                    for (let i = 0; i < records.length; i++) {
+                        if (records[i].type === "attributes") {
+                            styleChanged = true;
+                            break;
+                        }
+                    }
+                    if (styleChanged) {
+                        if (this.vrButton.textContent === "ENTER VR") {
+                            if (this.vrButton.style.left) {
+                                this.vrButton.style.removeProperty("left");
+                                this.vrButton.style.setProperty("right", "20px");
+                            }
+                        }
+                    }
+                };
+                if (this.observer) {
+                    this.observer.disconnect();
+                    this.observer = null;
+                }
+                this.observer = new MutationObserver(styleCallback);
+                this.observer.observe(this.vrButton, {attributes: true, attributeFilter: ["style"]});
+
                 document.body.appendChild(this.vrButton);
                 this.renderer.xr.enabled = true;
                 this.xrController = new XRController(this);
