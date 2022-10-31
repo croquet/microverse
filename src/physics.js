@@ -17,7 +17,7 @@ class PhysicsWorld extends Model {
         }
 
         const gravity = options.gravity || [0.0, -9.8, 0.0];
-        const timeStep = options.timeStep || 50; // In ms
+        const timeStep = options.timeStep || 5; // Gets Converted to Miliseconds (Hz) 5 Approx 200 Hz
 
         const g = new Physics.Vector3(...gravity);
         this.world = new Physics.World(g);
