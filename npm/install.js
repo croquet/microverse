@@ -75,6 +75,7 @@ function main() {
         copyFolderRecursiveSync("meta", dist);
         copyFolderRecursiveSync("lib", dist);
         copyFileSync("index.html", `${dist}${sep}index.html`);
+        copyFileSync("apiKey.js-example", `${dist}${sep}apiKey.js-example`);
     }
 
     deleteDir(`${dist}${sep}lib`);
