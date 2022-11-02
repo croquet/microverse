@@ -2221,8 +2221,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     rotation: q_identity(),
                 }
             }
-            anchor.translation[0] += 0.00001; // defeat the positionTo() optimization
-            this.positionTo(anchor.translation, anchor.rotation);
+            let translation = [...anchor.translation];
+            translation[0] += 0.00001; // defeat the positionTo() optimization
+            this.positionTo(translation, anchor.rotation);
         }
     }
 
