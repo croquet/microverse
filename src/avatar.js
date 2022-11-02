@@ -15,20 +15,16 @@ import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "./ThreeRender.js";
 import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
 import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
-import { TextFieldActor } from "./text/text.js";
+// import { TextFieldActor } from "./text/text.js";
 
 import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
-// import Swal from "sweetalert2";
 
 const EYE_HEIGHT = 1.676;
-const COLLIDE_THROTTLE = 50;
-const THROTTLE = 15; // 20
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
 const COLLISION_RADIUS = 0.8;
 const M4_ROTATIONY_180 = m4_rotationY(Math.PI);
 let initialPortalLookExternal;
-
 
 export class AvatarActor extends mix(CardActor).with(AM_Player) {
     init(options) {
@@ -794,6 +790,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.fallDistance = EYE_HEIGHT / 12;
         this.maxFall = -15;
 
+        this.service("WalkManager").setupDefaultWalkers();
+
         // drop and paste
         this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
             if (type === "pastedtext") {
@@ -1451,29 +1449,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 // unless positionTo() is called the avatar state (should) stays the same.
 
                 let vq = this.updatePose(delta);
+                let walkManager = this.service("WalkManager")
+                vq = walkManager.walk(this, vq, time, delta);
 
-                let handlerModuleName = this.actor._cardData.avatarEventHandler;
-                if (this.has(`${handlerModuleName}$AvatarPawn`, "walk")) {
-                    this.call(`${handlerModuleName}$AvatarPawn`, "walk", time, delta, vq);
-                } else {
-                    if (this.collidePortal(vq)) {return;}
-                    if (!this.checkFloor(vq)) {
-                        // if the new position leads to a position where there is no walkable floor below
-                        // it tries to move the avatar the opposite side of the previous good position.
-                        vq.v = v3_lerp(this.lastCollideTranslation, vq.v, -1);
-                    } else {
-                        this.lastCollideTranslation = vq.v;
-                    }
-                    if ((this.actor.fall || this.spectator) && time - this.lastUpdateTime > THROTTLE) {
-                        if (time - this.lastCollideTime > COLLIDE_THROTTLE) {
-                            this.lastCollideTime = time;
-                            vq = this.checkFall(vq);
-                            vq = this.walkTerrain(vq);
-                        }
-                        this.lastUpdateTime = time;
-                        this.positionTo(vq.v, vq.q);
-                    }
-                }
+                // the implementation of positionTo checks closeness to the current value so
+                // calling positionTo should not cause a performance problem.
+                this.positionTo(vq.v, vq.q, this.throttle);
                 this.refreshCameraTransform();
 
                 // this part is copied from CardPawn.update()
@@ -1625,18 +1606,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         return someFloor;
-    }
-
-    checkFall(vq) {
-        if (!this.isFalling) {return vq;}
-        let v = vq.v;
-        v = [v[0], v[1] - this.fallDistance, v[2]];
-        this.isFalling = false;
-        if (v[1] < this.maxFall) {
-            this.goHome();
-            return {v: v3_zero(), q: q_identity()};
-        }
-        return {v: v, q: vq.q};
     }
 
     collideBVH(collideList, vq) {
@@ -1865,19 +1834,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             return true;
         }
         return false;
-    }
-
-    walkTerrain(vq) {
-        let walkLayer = this.service("ThreeRenderManager").threeLayer('walk');
-        if (!walkLayer) return vq;
-
-        let v = vq.v;
-
-        let collideList = walkLayer.filter(obj => obj.collider);
-        if (collideList.length > 0) {
-            return this.collideBVH(collideList, {v, q: vq.q});
-        }
-        return vq;
     }
 
     keyDown(e) {
@@ -2256,9 +2212,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!this.spectator) this.say("goHome");
         else {
             let anchor = this.anchorFromURL(window.location.href);
-            if (!anchor) anchor = {
-                translation: v3_zero(),
-                rotation: q_identity(),
+            if (!anchor) {
+                anchor = {
+                    translation: v3_zero(),
+                    rotation: q_identity(),
+                }
             }
             anchor.translation[0] += 0.00001; // defeat the positionTo() optimization
             this.positionTo(anchor.translation, anchor.rotation);

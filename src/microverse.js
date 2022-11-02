@@ -13,6 +13,7 @@ import {
     FontModelManager, FontViewManager } from "./text/text.js";
 import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
+import { WalkManager } from "./walkManager.js"
 import { frameName, sendToShell, addShellListener } from "./frame.js";
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
@@ -653,6 +654,7 @@ class MyViewRoot extends ViewRoot {
             SyncedStateManager,
             VideoManager,
             BehaviorViewManager,
+            WalkManager,
         ];
         if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
         return services;
