@@ -2222,6 +2222,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 }
             }
             let translation = [...anchor.translation];
+            this.lastCollideTranslation = translation;
             translation[0] += 0.00001; // defeat the positionTo() optimization
             this.positionTo(translation, anchor.rotation);
         }
