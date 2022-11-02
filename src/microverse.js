@@ -195,10 +195,11 @@ class MyPlayerManager extends PlayerManager {
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
                 dataLocation: `./assets/avatars/${avatarSpec}.zip`,
+                avatarType: "wonderland",
                 type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options, ...avatarSpec, avatarType: "custom"};
+            options = {...options , avatarType: "custom", ...avatarSpec};
         }
         return AvatarActor.create(options);
     }

@@ -898,11 +898,14 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // regular avatars
             let actorSpec;
             let avatarSpec;
+            let avatarName;
             if (inWorld && dormantAvatarSpec) {
                 actorSpec = dormantAvatarSpec;
                 actorSpec.inWorld = true;
                 dormantAvatarSpec = null;
                 avatarSpec = actorSpec.cardData;
+                avatarName = actorSpec.name;
+                avatarSpec.name = avatarName;
             } else {
                 actorSpec = { inWorld };
                 const anchor = this.anchorFromURL(window.location, !this.isPrimary);
@@ -911,7 +914,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     actorSpec.translation = anchor.translation;
                     actorSpec.rotation = anchor.rotation;
                 }
-                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor, avatarName);
                 avatarSpec = {...tempCardSpec};
             }
 
@@ -2131,7 +2134,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         delete this.lastOpacity;
     }
 
-    makeCardSpecFrom(configuration, actor) {
+    makeCardSpecFrom(configuration, actor, avatarName) {
         let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behaviorModules = actor._behaviorModules || [];
@@ -2141,9 +2144,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
-        if (!configuration.type && !avatarType) {
+        if (!configuration.type && (!avatarType || avatarType === "wonderland")) {
             let options = {
-                name: this.actor._name,
+                name: avatarName || this.actor._name,
                 dataScale: [0.3, 0.3, 0.3],
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
