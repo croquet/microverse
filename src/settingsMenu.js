@@ -36,12 +36,12 @@ function createSettingsMenu(useEnter) {
     <div id="join-container" class="content-container">
         <!--
         <div id="dialogTitle">
-            <div id="titleHolder" class="settingColumn">
+            <div id="titleHolder">
                 <img id="titleLogo" src="assets/images/microverse-logo.png" />
             </div>
         </div>
         -->
-        <div id="joinPrompt" class="settingColumn">
+        <div id="joinPrompt">
             <div id="joinPromptTitle">Settings</div>
             <div id="joinPromptBlurb" class="promptBlurb">Specify a nickname, and choose an avatar either
                 by selecting from those on display or pasting a valid Ready Player Me URL.
@@ -49,21 +49,21 @@ function createSettingsMenu(useEnter) {
         </div>
         <div id="settings-title" class="panel-title">Settings</div>
         <div class="settings-container">
-            <div id="nameInput" class="stringInputHolder settingColumn">
+            <div id="nameInput" class="stringInputHolder">
                 <div id="namePrompt" class="namePrompt">Nickname<span>*</span></div>
                 <div id="nameField" class="nameField allow-select" contenteditable="true"></div>
                 <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
                 <div id="nameFilterWarning"><br /></div>
             </div>
             <div class="namePrompt">Select Avatar</div>
-            <div id="dialogAvatarSelections" class="settingColumn">
+            <div id="dialogAvatarSelections">
                 <div id="avatarList"></div>
             </div>
-            <div id="avatarURL" class="stringInputHolder settingColumn">
+            <div id="avatarURL" class="stringInputHolder">
                 <div id="avatarURLPrompt" class="namePrompt">Or, Enter an Avatar URL</div>
                 <div id="avatarURLField" class="nameField avatarNameField allow-select" contenteditable="true"></div>
             </div>
-            <div id="handednessRow" class="settingsColumn">
+            <div id="handednessRow">
                 <div id="handednessLabel">Hand:</div>
                 <div class="btn-group" id="handedness">
                     <label class="btn btn-radio-button">
@@ -74,10 +74,10 @@ function createSettingsMenu(useEnter) {
                     </label>
                 </div>
             </div>
-            <div id="dialogEnterButton" class="dialogButtonsHolder settingColumn disabled">
+            <div id="dialogEnterButton" class="dialogButtonsHolder disabled">
                 <div id="enterButton">Enter</div>
             </div>
-            <div id="dialogAcceptCancelButtons" class="dialogButtonsHolder settingColumn twoItems">
+            <div id="dialogAcceptCancelButtons" class="dialogButtonsHolder twoItems">
                 <button id="cancel-button" type="button" class="btn btn-danger cancel-button">Cancel</button>
                 <button type="button" id="acceptButton" class="btn btn-success">Apply</button>
             </div>
@@ -369,16 +369,19 @@ function createShareMenu(avatar) {
     <div id="shareDialog" class="dialogPanel no-select">
         <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
         <div id="share-container" class="content-container">
-            <div id="share-title" class="panel-title settingsColumn">Share Session<br></div>
+            <div id="share-title" class="panel-title">Share Session<br></div>
             <div class="promptBlurb">Scan QR code or click to open a new browser tab<br> in the same session.</div>
-            <div id="share-qr" class="settingsColumn"></div>
+            <div id="share-qr"></div>
 
-            <div class="share-settings-label settingsColumn">Copy Share Link</div>
-            <div id="copy-link" class="copy-link allow-select settingsColumn">generated link</div>
-            <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
-
-            <div class="share-settings-label settingsColumn">Save world VRSE file</div>
-            <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
+            <div class="share-settings-label">Copy Share Link</div>
+            <div class="share-menu-row">
+                <div id="copy-link" class="copy-link allow-select">generated link</div>
+                <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
+            </div>
+            <div class="share-menu-row">
+                <div class="share-settings-label">Save world as VRSE file</div>
+                <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
+            </div>
         </div>
     </div>`.trim();
 

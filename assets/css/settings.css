@@ -30,8 +30,6 @@
     justify-content: center;
     flex-direction: column;
     font-family: "Poppins";
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
     background-color: rgba(0, 0, 0, 0.6);
     border-radius: 15px;
     align-items: center;
@@ -844,18 +842,15 @@
 
 .copy-link {
     height: 35px;
-    width: 200px;
     border: 1px solid grey;
     border-radius: 10px;
-    float: left;
-    margin-right: 10px;
-    margin-bottom: 10px;
     display: flex;
     align-items: center;
     padding-left: 10px;
     color: #898989;
     overflow: hidden;
     white-space: nowrap;
+    flex-grow: 1
 }
 
 .desc {
@@ -865,6 +860,13 @@
 .share-settings-label {
     margin-bottom: 10px;
     margin-top: 20px;
+}
+
+.share-menu-row {
+    display: flex;
+    margin-bottom: 10px;
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-purple {
@@ -900,10 +902,6 @@
 	width: 120px;
 	height: 120px;
 	margin: 10px;
-    }
-
-    #copy-link {
-	width: 160px;
     }
 
     .topright {
