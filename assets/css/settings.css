@@ -90,7 +90,7 @@
 
 .namePrompt {
     font-size: 17px;
-    font-weight: medium;
+    font-weight: 600;
     color: white;
 }
 
@@ -112,7 +112,7 @@
 #nameExplanation,
 #nameFilterWarning {
     font-size: 13px;
-    font-weight: medium;
+    font-weight: 600;
     color: #fb3232;
 }
 
@@ -797,11 +797,14 @@
 
 #table-wrapper {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
 #table-scroll {
     overflow: auto;
-    height: 490px;
+    flex-grow: 1;
+    /* height: 490px; */
 }
 
 #table-scroll::-webkit-scrollbar-track {
@@ -933,21 +936,82 @@
 	margin: 20px 0px 10px 0px;
     }
 
-    #table-scroll {
-	height: 490px;
+    #table-wrapper {
+	height: 400px;
     }
 }
 
 @media (max-height: 400px) {
-    .nameField {
-	height: 20px;
-	font-size: 16px;
-	padding-bottom: 5px;
+    .panel-title {
+	margin: 2px 10px 2px 10px;
     }
+
+   .namePrompt {
+	font-size: 12px;
+    }
+
+   .nameField {
+	height: 14px;
+	font-size: 12px;
+	padding-bottom: 2px;
+	flex-grow: 1;
+   }
+
+   #nameExplanation {
+       display: none;
+   }
+
+   #nameFilterWarning {
+       display: none;
+   }
+
+   #handednessLabel {
+       font-size: 12px;
+   }
 
     #dialogEnterButton {
 	position: relative;
 	top: -66px;
 	right: -200px;
+    }
+
+    .share-qr-canvas {
+	width: 120px;
+	height: 120px;
+	margin: 10px;
+    }
+
+    .share-settings-label {
+	font-size: 12px;
+    }
+
+    .menu-qr {
+	display: none;
+    }
+
+    .dialogPanel {
+	min-height: 300px;
+	height: 300px;
+	width: 500px;
+    }
+
+    #share-qr {
+	display: none;
+    }
+
+    #table-wrapper {
+	height: 180px;
+    }
+
+    .btn-radio-button {
+	padding: 2px;
+    }
+
+    .handedness-label {
+	font-size: 12px;
+    }
+
+    .stringInputHolder {
+	flex-direction: row;
     }
 }

@@ -382,3 +382,26 @@ body.tilt > iframe {
     background-color: #300079;
 }
 
+@media (max-height: 400px) {
+    .share-qr-canvas {
+	width: 120px;
+	height: 120px;
+	margin: 10px;
+    }
+
+    .menu-qr {
+	display: none;
+    }
+
+    .menu-label {
+	font-size: 12px;
+	line-height: 14px;
+    }
+
+    .worldMenu {
+	width: fit-content;
+    }
+    #share-qr {
+	display: none;
+    }
+}

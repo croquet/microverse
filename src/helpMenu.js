@@ -16,8 +16,8 @@ function createHelpMenu() {
     let help = `
     <div id="helpDialog" class="dialogPanel no-select">
     <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
-        <div id="help-title" class="panel-title">Help</div>
         <div id="share-container" class="content-container">
+            <div id="help-title" class="panel-title">Help</div>
             <div id="table-wrapper">
                 <div id="table-scroll" id="scrollbar">
                     <table class="help-table">
