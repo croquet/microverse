@@ -32,7 +32,7 @@
     "pako": "^2.0.4"
   },
   "devDependencies": {
-    "@croquet/microverse-file-server": "^1.0.5",
+    "@croquet/microverse-file-server": "^1.0.6",
     "@croquet/microverse-watch-server": "^1.0.6",
     "@types/three": "^0.143.2",
     "buffer": "^6.0.3",

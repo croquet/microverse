@@ -45,7 +45,7 @@ function createHelpMenu() {
                     <tr class="help-row">
                         <td>
                             <p class="table-head">Manipulate</p>
-                            <p class="table-desc">Ctrl + click on an object to open and cycle through the "gizmo" tools. The gray sphere is a button to open the property sheet tool.</p>
+                            <p class="table-desc">Ctrl + click on an object to open and cycle through the "gizmo" tools. The icon of a multi-pane tool is a button to open the property sheet tool.</p>
                         </td>
                         <td class="icon-column">
                             <div class="icons">
