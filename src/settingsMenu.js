@@ -170,7 +170,8 @@ function fillFromPrevious() {
     if (oldHandedness) {
         if (oldHandedness === "Left") {
             const handedness = settingsMenu.querySelector('#handedness');
-            handedness.value = oldHandedness;
+            const l = handedness.querySelector("#left");
+            l.checked = true;
         }
     }
     updateButtonState();
@@ -252,11 +253,6 @@ function accept() {
     //     avatar.setSettings(configuration);
     // }
     closeDialog(true);
-    closeAllDialogs();
-}
-
-function cancel() {
-    closeDialog(false);
     closeAllDialogs();
 }
 

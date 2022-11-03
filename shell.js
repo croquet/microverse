@@ -819,11 +819,13 @@ function loadLocalStorage() {
 function saveLocalStorage(configuration) {
     if (!window.localStorage) { return; }
     try {
+        let {nickname, type, avatarURL, handedness} = configuration;
         let settings = {
             version: "1",
-            nickname: configuration.nickname,
-            type: configuration.type,
-            avatarURL: configuration.avatarURL
+            nickname,
+            type,
+            avatarURL,
+            handedness
         };
         window.localStorage.setItem('microverse-settings', JSON.stringify(settings));
     } catch (e) { /* ignore */ }
