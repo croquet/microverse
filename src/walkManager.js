@@ -56,13 +56,11 @@ export class WalkManager extends ViewService {
         for (let i = 0; i < this.walkers.length; i++) {
             let walker = this.walkers[i];
             let behavior = avatar.actor.behaviorManager.lookup(walker[0], walker[1]);
-            let result = behavior.invoke(avatar, walker[2], vq, time, delta);
-            vq = result[0];
-            if (Array.isArray(vq)) {debugger;}
-            let isFinal = result[1];
+            let [newVq, isFinal] = behavior.invoke(avatar, walker[2], vq, time, delta);
             if (isFinal) {
-                return vq;
+                return newVq;
             }
+            vq = newVq;
         }
         return vq;
     }
