@@ -724,12 +724,12 @@ console.log("unmuting local audio");
     }
 
     destroy() {
-        super.destroy();
         console.log("DolbyChatMgr: destroy");
         this.stopTestingAudioLevel();
         try {
             this.leaveConference().then(() => this.elements.chatHolder.remove());
         } catch(e) { /* ignore */ }
         activeManager = null; // stop handling events
+        super.destroy();
     }
 }

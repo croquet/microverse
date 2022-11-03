@@ -8,7 +8,7 @@ import {
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { PhysicsManager } from "./physics.js";
 import { AgoraChatManager } from "./agoraChat.js";
-import { DolbyChatManager } from "./dolbyChat.js";
+/* import { DolbyChatManager } from "./dolbyChat.js"; */
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -21,7 +21,7 @@ import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } f
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
-import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
+import { startSettingsMenu } from "./settingsMenu.js";
 
 // apps -------------------------------------------
 import { MultiBlaster } from '../apps/multiblaster.js';
@@ -658,7 +658,7 @@ class MyViewRoot extends ViewRoot {
             BehaviorViewManager,
             WalkManager,
         ];
-        if (window.settingsMenuConfiguration?.voice) services.push(DolbyChatManager);
+        if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
         return services;
     }
 
