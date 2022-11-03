@@ -89,13 +89,6 @@ body.tilt > iframe {
     -ms-user-select: none;
 }
 
-.allowSelect {
-    user-select: initial !important;
-    -webkit-user-select: initial !important;
-    -moz-user-select: initial !important;
-    -ms-user-select: initial !important;
-}
-
 .btn:hover {
     background-color: #80808080;
 }

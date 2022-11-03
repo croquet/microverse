@@ -51,7 +51,7 @@ function createSettingsMenu(useEnter) {
         <div class="settings-container">
             <div id="nameInput" class="stringInputHolder settingColumn">
                 <div id="namePrompt" class="namePrompt">Nickname<span>*</span></div>
-                <div id="nameField" class="nameField allowSelect" contenteditable="true"></div>
+                <div id="nameField" class="nameField allow-select" contenteditable="true"></div>
                 <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
                 <div id="nameFilterWarning"><br /></div>
             </div>
@@ -61,7 +61,7 @@ function createSettingsMenu(useEnter) {
             </div>
             <div id="avatarURL" class="stringInputHolder settingColumn">
                 <div id="avatarURLPrompt" class="namePrompt">Or, Enter an Avatar URL</div>
-                <div id="avatarURLField" class="nameField avatarNameField allowSelect" contenteditable="true"></div>
+                <div id="avatarURLField" class="nameField avatarNameField allow-select" contenteditable="true"></div>
             </div>
             <div id="handednessRow" class="settingsColumn">
                 <div id="handednessLabel">Hand:</div>
@@ -103,17 +103,14 @@ function createSettingsMenu(useEnter) {
     let dialogAcceptCancelButtons = settingsMenu.querySelector("#dialogAcceptCancelButtons");
 
     let nameField = settingsMenu.querySelector('#nameField');
-    nameField.addEventListener('keydown', evt => nameFieldKeydown(evt));
+    nameField.addEventListener('keydown', (evt) => nameFieldKeydown(evt));
     nameField.addEventListener('input', (evt) => nameFieldChanged(evt));
-    nameField.addEventListener('paste', (evt) => {
-        evt.stopPropagation();
-    });
+    nameField.addEventListener('paste', (evt) => evt.stopPropagation());
 
     let avatarURLField = settingsMenu.querySelector('#avatarURLField');
     avatarURLField.addEventListener('input', (evt) => avatarURLFieldChanged(evt));
-    avatarURLField.addEventListener('paste', (evt) => {
-        evt.stopPropagation();
-    });
+    avatarURLField.addEventListener('paste', (evt) => evt.stopPropagation());
+    avatarURLField.addEventListener('keydown', (evt) => evt.stopPropagation());
 
     enterButton.onclick = () => dialogCloseEnter();
     acceptButton.onclick = () => accept();
