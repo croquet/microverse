@@ -8,6 +8,7 @@ import {
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { PhysicsManager } from "./physics.js";
 import { AgoraChatManager } from "./agoraChat.js";
+import { DolbyChatManager } from "./dolbyChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -657,7 +658,7 @@ class MyViewRoot extends ViewRoot {
             BehaviorViewManager,
             WalkManager,
         ];
-        if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
+        if (window.settingsMenuConfiguration?.voice) services.push(DolbyChatManager);
         return services;
     }
 
