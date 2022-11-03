@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js", "urlLink.js", "cradle.js"
+        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
     ];
 
     const frameColor = 0x888888;
@@ -108,7 +108,7 @@ export function init(Constants) {
                 type: "3d",
             }
         },
-       /*
+        /*
         {
             card: {
                 translation: [-12, -0.4, -10.2],
@@ -124,7 +124,8 @@ export function init(Constants) {
                 type: "2d",
                 width: 1.8,
             }
-            },*/
+        },
+        */
         {
             card: {
                 name:"bouncinglogo",
@@ -233,19 +234,19 @@ export function init(Constants) {
                 depth: 0.05,
                 type: "text",
                 runs: [{text: `
-translation: [-12, -0.4, -10.2],
-rotation: [0, -1.5707963267948966, 0],
-layers: ["pointer"],
-className: "PortalActor",
-color: 16737996,
-cornerRadius: 0.05,
-depth: 0.05,
-frameColor: 8947848,
-height: 2.4,
-portalURL: "?world=refinery",
-type: "2d",
-width: 1.8,
-`}],
+                translation: [-12, -0.4, -10.2],
+                rotation: [0, -1.5707963267948966, 0],
+                layers: ["pointer", "portal"],
+                className: "PortalActor",
+                color: 16737996,
+                cornerRadius: 0.05,
+                depth: 0.05,
+                frameColor: 8947848,
+                height: 2.4,
+                portalURL: "?world=refinery",
+                type: "2d",
+                width: 1.8,
+                `}],
                 margins: {left: 20, top: 20, right: 20, bottom: 20},
                 backgroundColor: 0xf4e056,
                 //color: 0xf4e056,
@@ -294,12 +295,23 @@ width: 1.8,
                 type: "2d",
             }
         }
+        {
+            card: {
+                name:"pendulum",
+                type: "object",
+                translation: [-0.03701975732147922, 3.2368919013826734, 8.444841625884546],
+                behaviorModules: ["Rapier", "Pendulum"],
+                layers: ["pointer"],
+                scale: [0.2, 0.2, 0.2],
+                color: 0xaa6666,
+            }
+        },
         */
         {
             card: {
                 name: "cradle",
                 type: "object",
-                translation: [-9.67815341742099, 3.2368919013826734, 3.968801765942323],
+                translation: [-9.67915341742099, 3.2368919013826734, 4.368801765942323],
                 behaviorModules: ["Cradle"],
                 layers: ["pointer"],
                 shadow: true,

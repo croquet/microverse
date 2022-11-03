@@ -3,6 +3,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-10-28
+### Changed
+- PDFView supports replacement of viewed document.
+- Open property sheet button is iconic.
+- Pressing the gather button does not close the world menu
+- The microverse-library installation deletes old lib directory first.
+
+### Added
+- Property Sheet can be simply dragged.
+
 ## 2022-10-21
 ### Changed
 - Gizmo look is updated. in particular tools are rendered in front of other objects.

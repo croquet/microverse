@@ -8,18 +8,20 @@ import {
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { PhysicsManager } from "./physics.js";
 import { AgoraChatManager } from "./agoraChat.js";
+/* import { DolbyChatManager } from "./dolbyChat.js"; */
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
 import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
+import { WalkManager } from "./walkManager.js"
 import { frameName, sendToShell, addShellListener } from "./frame.js";
 
 import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
-import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
+import { startSettingsMenu } from "./settingsMenu.js";
 
 // apps -------------------------------------------
 import { MultiBlaster } from '../apps/multiblaster.js';
@@ -194,10 +196,11 @@ class MyPlayerManager extends PlayerManager {
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
                 dataLocation: `./assets/avatars/${avatarSpec}.zip`,
+                avatarType: "wonderland",
                 type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options, ...avatarSpec, avatarType: "custom"};
+            options = {...options , avatarType: "custom", ...avatarSpec};
         }
         return AvatarActor.create(options);
     }
@@ -653,6 +656,7 @@ class MyViewRoot extends ViewRoot {
             SyncedStateManager,
             VideoManager,
             BehaviorViewManager,
+            WalkManager,
         ];
         if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
         return services;

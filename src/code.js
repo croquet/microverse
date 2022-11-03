@@ -1025,6 +1025,7 @@ export class BehaviorViewManager extends ViewService {
             this.callback(false);
         }
         this.setURL(null);
+        super.destroy();
     }
 
     setURL(url, optCallback) {

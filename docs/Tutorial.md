@@ -24,7 +24,7 @@ This guide will enable you to quickly set up Croquet Microverse and introduce yo
 
 1. Run a create npm command in an empty directory.
 
-    `npm create croquet-microverse`
+    `npm create croquet-microverse@latest`
 
     If you want to develop the core system, clone the GitHub repository https://github.com/croquet/microverse . 
 
@@ -79,7 +79,7 @@ The best resource for help in developing Croquet Microverse worlds is on our Dis
 
 To start developing your world based on a stable release, you can run in an empty directory (let us called it `microverse`) and run:
 
-    npm create croquet-microverse
+    npm create croquet-microverse@latest
 
 in the directory.
 
@@ -124,7 +124,7 @@ Of course you can modify the actual executable dynamically as well. This makes d
 You can easily add a new file in the watched directory (by default `behaviors/default` or your own behaviors directory), and if the file follows the standard behavior structure, the behavior modules written in it will be automatically available.
 
 ### 6. Make Your Own New World
-You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way). If you start microverse with ?world=worldFileName, the file at `worlds/worldFileName.js` is used to start the world. If you started with `create croquet-microverse`, editing `default.js` is just fine.
+You can add a new file in the "worlds" directory (copying default.js or test.js is an easy way). If you start microverse with ?world=worldFileName, the file at `worlds/worldFileName.js` is used to start the world. If you started with `npm create croquet-microverse@latest`, editing `default.js` is just fine.
 
 ## Worlds, Cards and Behaviors
 ---

@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-* `npm create croquet-microverse`
+* `npm create croquet-microverse@latest`
 * `npm start`
 
 ---
@@ -27,7 +27,7 @@ The users of your worlds do not need these tools. Microverse worlds are deployed
 1. Create an empty directory for your project.
 2. In that directory, run the following command:
 
-       npm create croquet-microverse
+       npm create croquet-microverse@latest
 
    This will create a ready-to-use folder structure for your project.
 

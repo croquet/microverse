@@ -183,12 +183,12 @@ export class AgoraChatManager extends ViewService {
         this.sendMessageToChat('activeInChat', { inChat });
     }
 
-    detach() {
-        super.detach();
-        console.log("AgoraChatMgr: detach");
+    destroy() {
+        console.log("AgoraChatMgr: destroy");
         window.removeEventListener('message', this.messageListener);
         if (this.chatIFrame) this.chatIFrame.remove(); // will cause us to crash out of Agora chat, probably not cleanly
         this.chatIFrame = null;
         this.chatReady = false;
+        super.destroy();
     }
 }
