@@ -382,7 +382,7 @@ body.tilt > iframe {
     background-color: #300079;
 }
 
-@media (max-height: 400px) {
+@media (max-height: 480px) {
     .share-qr-canvas {
 	width: 120px;
 	height: 120px;

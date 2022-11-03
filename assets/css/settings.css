@@ -799,6 +799,7 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
+    height: 400px;
 }
 
 #table-scroll {
@@ -927,6 +928,12 @@
 	padding-bottom: 10px;
     }
 
+    .share-qr-canvas {
+	width: 100px;
+	height: 100px;
+	margin: 10px;
+    }
+    
     .dialogPanel {
         min-height: 500px;
 	height: 500px;
@@ -941,7 +948,7 @@
     }
 }
 
-@media (max-height: 400px) {
+@media (max-height: 480px) {
     .panel-title {
 	margin: 2px 10px 2px 10px;
     }
