@@ -38,7 +38,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js", "propertySheet.js", "dragAndDrop.js"
 ];
 
 let AA = true;
@@ -740,9 +740,11 @@ function startWorld(appParameters, world) {
 
     return loadLoaders()
         .then(() => {
-            return loadInitialBehaviors(Constants.SystemBehaviorModules, Constants.SystemBehaviorDirectory);
+            return loadInitialBehaviors(Constants.SystemBehaviorModules,
+                                        Constants.SystemBehaviorDirectory);
         }).then(() => {
-            return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
+            return loadInitialBehaviors(Constants.UserBehaviorModules,
+                                        Constants.UserBehaviorDirectory);
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then((session) => {
@@ -841,7 +843,13 @@ async function launchMicroverse() {
         ModelRoot.evaluate(() => worldModule.init(Constants));
         if (!Constants.SystemBehaviorModules) {
             Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
-            Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+            if (!Constants.ExcludedSystemBehaviorModules) {
+                Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+            } else {
+                Constants.SystemBehaviorModules = defaultSystemBehaviorModules.filter((n) => {
+                    return !Constants.ExcludedSystemBehaviorModules.includes(n);
+                });
+            }
         }
     } else {
         const response = await fetch(basename);
