@@ -12,7 +12,7 @@ import { AgoraChatManager } from "./agoraChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
-import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
+import { CardActor, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
 import { WalkManager } from "./walkManager.js"
 import { frameName, sendToShell, addShellListener } from "./frame.js";
@@ -654,7 +654,6 @@ class MyViewRoot extends ViewRoot {
             KeyFocusManager,
             FontViewManager,
             SyncedStateManager,
-            VideoManager,
             BehaviorViewManager,
             WalkManager,
         ];

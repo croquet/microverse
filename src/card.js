@@ -787,22 +787,23 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         // (that is before returning from this method) to have apps like multiblaster function
 
         if (textureType === "video") {
-            this.video = document.createElement('video');
+            let muted = this.actor._cardData.muted !== undefined ? this.actor._cardData.muted : true;
+            let loop = this.actor._cardData.loop !== undefined ? this.actor._cardData.loop : false;
+            this.video = document.createElement("video");
             this.video.autoplay = true;
-            this.video.muted = true;
-            this.video.loop = true;
+            this.video.muted = muted;
+            this.video.loop = loop;
+            this.video.controls = false;
             this.video.width = textureWidth;
             this.video.height = textureHeight;
 
             this.getBuffer(textureLocation).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
+                this.videoLoaded = true;
                 this.objectURL = objectURL;
                 // need to be revoked when destroyed
             });
-            this.video.loop = true;
-            let videoService = this.service("VideoManager");
-            videoService.add(this.video);
             this.texture = new THREE.VideoTexture(this.video);
             texturePromise = Promise.resolve({
                 width: this.video.width,
@@ -854,7 +855,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         if (dataLocation) {
             return this.getBuffer(dataLocation).then((buffer) => {
-                 assetManager.setCache(dataLocation, buffer, this.id);
+                assetManager.setCache(dataLocation, buffer, this.id);
                 return assetManager.load(buffer, "svg", THREE, loadOptions);
             }).then((obj) => {
                 normalizeSVG(obj, depth, shadow, THREE);
@@ -1586,29 +1587,6 @@ export class MicroverseAppManager extends ModelService {
 }
 
 MicroverseAppManager.register("MicroverseAppManager");
-
-export class VideoManager extends ViewService {
-    constructor(name) {
-        super(name || "VideoManager");
-        this.videos = [];
-        this.handler = () => this.videoStart();
-        document.addEventListener("click", this.handler);
-    }
-
-    add(video) {
-        if (this.videos.indexOf(video) < 0) {
-            this.videos.push(video);
-        }
-    }
-
-    videoStart() {
-        this.videos.forEach((v)=>v.play());
-        if (this.handler) {
-            document.removeEventListener('click', this.handler);
-            delete this.handler;
-        }
-    }
-}
 
 function arrayDispose() {
     if (Array.isArray(this)) {
