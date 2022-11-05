@@ -158,10 +158,6 @@ Called when the shell sends the `motion-end` DOM message from the Microverse she
 
 This method specifies the global camera position. The implementation can use various properties such as the global transformation of the avatar, lookPitch and other properties that the behavior defines.
 
-### `walk(time:number, delta:number, vq:{v:Vector3, q:Quaternion})`
-
-This method receives the time and "delta", which is the elapsed time since last display animation frame time, and the proposed "pose" of the avtar based on the user interaction. The default implementation moves the proposed position based on the BVH collision detection and testing the edge of the walkable terrain and returns another pose. You can override the movement by supplying the walk method at your AvatarPawn behavior. (Its details is somewhat implementation dependent so please consult the actual source code.)
-
 ### `pointerDown(evt)`
 ### `pointerUp(evt)`
 ### `pointerMove(evt)`

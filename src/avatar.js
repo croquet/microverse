@@ -431,11 +431,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (string.startsWith("http://") || string.startsWith("https://")) {
             this.createPortal(translation, rotation, string);
         } else {
-            this.createStickyNote(translation, rotation, string);
+            if (this.behaviorManager.hasBehavior("StickyNote")) {
+                this.createStickyNote(translation, rotation, string);
+            }
         }
     }
 
     addSticky(pe) {
+        if (!this.behaviorManager.hasBehavior("StickyNote")) {return;}
         const tackOffset = 0.1;
         let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
         let normal = [...pe.normal]; // clear up and down
@@ -690,7 +693,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     setOpacity(opacity) {
         if (!this.shape) {return;}
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
             opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
         }
         let transparent = opacity !== 1;
@@ -792,16 +795,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.service("WalkManager").setupDefaultWalkers();
 
-        // drop and paste
-        this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
-            if (type === "pastedtext") {
-                this.pasteText(buffer);
-            } else if (type === "vrse") {
-                this.loadvrse(buffer);
-            } else {
-                this.analyzeAndUploadFile(new Uint8Array(buffer), fileName, type);
-            }
-        });
+        if (this.actor.behaviorManager.hasBehavior("FileDragAndDropHandler")) {
+            // drop and paste
+            this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+                if (type === "pastedtext") {
+                    this.pasteText(buffer);
+                } else if (type === "vrse") {
+                    this.loadvrse(buffer);
+                } else {
+                    this.analyzeAndUploadFile(new Uint8Array(buffer), fileName, type);
+                }
+            });
+        }
 
         // keep track of being in the primary frame or not.  because of the delay involved
         // in creating the avatar, the frame itself (in frame.js) is bound to have already
@@ -853,21 +858,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    if (this.has(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
+                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
                         this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
                     } else {
                         this.startMotion(dx, dy);
                     }
                     break;
                 case "motion-end":
-                    if (this.has(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
+                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
                         this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
                     } else {
                         this.endMotion(dx, dy);
                     }
                     break;
                 case "motion-update":
-                    if (this.has(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
+                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
                         this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
                     } else {
                         this.updateMotion(dx, dy);
@@ -1253,7 +1258,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // the camera when walking: based on avatar with 3rd person lookOffset
     walkLook() {
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "walkLook")) {
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "walkLook")) {
             return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
         }
 
@@ -1979,7 +1984,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (e.ctrlKey || e.altKey) { // should be the first responder case
-            if (pawn) {
+            this.actor.behaviorManager.lookup("Gizmo", "GizmoActor");
+            if (pawn && this.actor.behaviorManager.lookup("Gizmo", "GizmoActor")) {
                 if (pawnIsGizmo) {
                     console.log("Tried to gizmo gizmo");
                     this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
@@ -2003,7 +2009,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.lookYaw = q_yaw(this._rotation);
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
                 this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
             }
             if (!pawnIsGizmo) {
@@ -2023,7 +2029,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.lookTo(pitch, yaw);
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
             this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerMove", this, e);
         }
     }
@@ -2043,7 +2049,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
             this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerUp", this, e);
         }
     }
@@ -2080,7 +2086,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let origOpacity = opacity;
 
             let handlerModuleName = pawn.actor._cardData.avatarEventHandler;
-            if (pawn.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+            if (pawn.hasBehavior(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
                 opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", this, opacity);
             }
 

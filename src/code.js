@@ -173,23 +173,54 @@ export const AM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(scope, eventName, listener);
     }
 
-    has(behaviorName, name) {
-        let moduleName;
-        let split = behaviorName.split("$");
-        if (split.length > 1) {
-            moduleName = split[0];
+    has(moduleName, maybeMethod) {
+        return this.hasBehavior(moduleName, maybeMethod);
+    }
+
+    hasBehavior(moduleName, maybeMethod) {
+        // either
+        // moduleName = "A" and no maybeMethod: if the named module is installed to this
+        // moduleName = "A$B" and no maybeMethod: if the named module installed to this and it has B
+        // moduleName = "A$B" with maybeMethod: if the named module installed to this and it has B,
+        //                                      and B has method maybeMethod
+
+        return this.checkBehavior(this, true, moduleName, maybeMethod);
+    }
+
+    checkBehavior(obj, isActor, moduleName, maybeMethod) {
+        let module;
+        let behaviorName;
+
+        if (moduleName.indexOf("$") > 0) {
+            let split = moduleName.split("$");
+            module = split[0];
             behaviorName = split[1];
+        } else {
+            module = moduleName;
+            behaviorName = null;
         }
 
-        if (!moduleName && this[isProxy]) {
-            moduleName = this._behavior.module.externalName;
+        if (!module && obj[isProxy]) {
+            module = obj._behavior.module.externalName;
         }
 
-        if (!this._behaviorModules) {return false;}
-        if (!this._behaviorModules.includes(moduleName)) {return false;}
-        let behavior = this.behaviorManager.lookup(moduleName, behaviorName);
+        let who = obj;
+        if (!isActor) {
+            who = who.actor;
+        }
+
+        let behaviorModules = who._behaviorModules;
+        let behaviorManager = who.behaviorManager;
+
+        if (!behaviorModules) {return false;}
+        if (!behaviorModules.includes(module)) {return false;}
+
+        if (!behaviorName) {return false;}
+
+        let behavior = behaviorManager.lookup(module, behaviorName);
         if (!behavior) {return false;}
-        return !!behavior.$behavior[name];
+        if (!maybeMethod) {return true;}
+        return !!behavior.$behavior[maybeMethod];
     }
 
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
@@ -437,23 +468,12 @@ export const PM_Code = superclass => class extends superclass {
         return this.scriptSubscribe(scope, subscription, listener);
     }
 
-    has(behaviorName, name) {
-        let moduleName;
-        let split = behaviorName.split("$");
-        if (split.length > 1) {
-            moduleName = split[0];
-            behaviorName = split[1];
-        }
+    has(moduleName, maybeMethod) {
+        return this.hasBehavior(moduleName, maybeMethod);
+    }
 
-        if (!moduleName && this[isProxy]) {
-            moduleName = this.actor._behavior.module.externalName;
-        }
-
-        if (!this.actor._behaviorModules) {return false;}
-        if (!this.actor._behaviorModules.includes(moduleName)) {return false;}
-        let behavior = this.actor.behaviorManager.lookup(moduleName, behaviorName);
-        if (!behavior) {return false;}
-        return !!behavior.$behavior[name];
+    hasBehavior(moduleName, maybeMethod) {
+        return this.actor.checkBehavior(this, false, moduleName, maybeMethod);
     }
 
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
@@ -752,6 +772,18 @@ export class BehaviorModelManager extends ModelService {
             return b;
         }
         return null;
+    }
+
+    hasBehavior(externalName, behaviorName) {
+        if (!externalName) {return false;}
+        let module = this.modules.get(externalName);
+        if (!module) {return false;}
+        if (!behaviorName) {return true;}
+        let b = module.actorBehaviors.get(behaviorName);
+        if (b) {return true;}
+        b = module.pawnBehaviors.get(behaviorName);
+        if (b) {return true;}
+        return false;
     }
 
     loadStart(key) {

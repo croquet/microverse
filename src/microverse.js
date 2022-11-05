@@ -12,7 +12,7 @@ import { AgoraChatManager } from "./agoraChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
-import { CardActor, VideoManager, MicroverseAppManager } from "./card.js";
+import { CardActor, MicroverseAppManager } from "./card.js";
 import { AvatarActor, } from "./avatar.js";
 import { WalkManager } from "./walkManager.js"
 import { frameName, sendToShell, addShellListener } from "./frame.js";
@@ -38,7 +38,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "propertySheet.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js", "propertySheet.js", "dragAndDrop.js"
 ];
 
 let AA = true;
@@ -654,7 +654,6 @@ class MyViewRoot extends ViewRoot {
             KeyFocusManager,
             FontViewManager,
             SyncedStateManager,
-            VideoManager,
             BehaviorViewManager,
             WalkManager,
         ];
@@ -741,9 +740,11 @@ function startWorld(appParameters, world) {
 
     return loadLoaders()
         .then(() => {
-            return loadInitialBehaviors(Constants.SystemBehaviorModules, Constants.SystemBehaviorDirectory);
+            return loadInitialBehaviors(Constants.SystemBehaviorModules,
+                                        Constants.SystemBehaviorDirectory);
         }).then(() => {
-            return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
+            return loadInitialBehaviors(Constants.UserBehaviorModules,
+                                        Constants.UserBehaviorDirectory);
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then((session) => {
@@ -842,7 +843,13 @@ async function launchMicroverse() {
         ModelRoot.evaluate(() => worldModule.init(Constants));
         if (!Constants.SystemBehaviorModules) {
             Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
-            Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+            if (!Constants.ExcludedSystemBehaviorModules) {
+                Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
+            } else {
+                Constants.SystemBehaviorModules = defaultSystemBehaviorModules.filter((n) => {
+                    return !Constants.ExcludedSystemBehaviorModules.includes(n);
+                });
+            }
         }
     } else {
         const response = await fetch(basename);

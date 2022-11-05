@@ -278,7 +278,7 @@ Also if a behavior for a pawn creates Three.js objects, the `setup()` typically 
 
 But don't worry too much about these details initially.  Even if you forget to add them at the beginning, the system will keep working, and you can incrementally (and quickly!) correct your code.
 
-While you listed the name of the behaviors in the world file, such as `tutorial1.js`, this is only necessary to load the behaviors that are used in the `DefaultCards` list.  Once you press the "Connect" button in the menu, all behavior modules that the watch server watches become available.
+The list of behavior files are specified in the world template file is used to load behaviors when the world template file is used to create a new session.  Once you connect to to the watch server by pressing the "Connect" item in the world menu, the watch server will look for changes to an existing files as well as newly-added files in the `UserBehaviorModuleDirectory`.
 
 ## Debugging
 There are a few tips to know when you debug behavior code with browser's developer tools.
@@ -356,7 +356,7 @@ As describe above, you can create a new world, populate the world with objects, 
 - Update `package.json`, in particular the value for `version`.
 - Run `npm run build-lib`. This creates a minimum set of files needed to run a test installation in the directory called `dist`. This directory can be published as an npm package.
 - Run `npm publish` in the `dist` directory.
-- Edit the line 31 of `index.js` of the `create-croquet-microverse` git repository so that it refers to the intended version of `@croquet/microverse-library`. If other dependencies need new versions, update them as well.
+- Edit the line 32 of `index.js` of the `create-croquet-microverse` git repository so that it refers to the intended version of `@croquet/microverse-library`. If other dependencies need new versions, update them as well.
 - Edit the version of `package.json` of `create-croquet-microverse` repository so that a new version can be published to npm.
 - Run `npm publish` in the croquet-create-microverse.
 
