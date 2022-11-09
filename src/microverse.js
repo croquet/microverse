@@ -7,8 +7,8 @@ import {
     InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { PhysicsManager } from "./physics.js";
-import { AgoraChatManager } from "./agoraChat.js";
-/* import { DolbyChatManager } from "./dolbyChat.js"; */
+/*import { AgoraChatManager } from "./agoraChat.js"; */
+import { DolbyChatManager } from "./dolbyChat.js";
 import {
     KeyFocusManager, SyncedStateManager,
     FontModelManager, FontViewManager } from "./text/text.js";
@@ -655,7 +655,7 @@ class MyViewRoot extends ViewRoot {
             BehaviorViewManager,
             WalkManager,
         ];
-        if (window.settingsMenuConfiguration?.voice) services.push(AgoraChatManager);
+        if (window.settingsMenuConfiguration?.voice) services.push(DolbyChatManager);
         return services;
     }
 
@@ -738,11 +738,9 @@ function startWorld(appParameters, world) {
 
     return loadLoaders()
         .then(() => {
-            return loadInitialBehaviors(Constants.SystemBehaviorModules,
-                                        Constants.SystemBehaviorDirectory);
+            return loadInitialBehaviors(Constants.SystemBehaviorModules, Constants.SystemBehaviorDirectory);
         }).then(() => {
-            return loadInitialBehaviors(Constants.UserBehaviorModules,
-                                        Constants.UserBehaviorDirectory);
+            return loadInitialBehaviors(Constants.UserBehaviorModules, Constants.UserBehaviorDirectory);
         }).then(() => {
             return StartWorldcore(sessionParameters);
         }).then((session) => {
