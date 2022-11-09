@@ -6,11 +6,18 @@
 
 import { Data, ViewService, v3_equals, q_equals, q_yaw } from "@croquet/worldcore-kernel";
 
-const token = "<put a testing token here>";
-
 let chatAudioMuted = false; // this state has to persist through dormancy
 let userSelectedMicLabel = null; // ditto
 let activeManager = null;
+
+async function getAccessToken() {
+    const functionURL = 'https://us-central1-dolby-croquet.cloudfunctions.net/generateToken';
+    const response = await fetch(functionURL);
+console.log("Dolby token generated");
+
+    const json = await response.json();
+    return json.token;
+}
 
 export class DolbyChatManager extends ViewService {
     constructor(name) {
@@ -20,11 +27,12 @@ export class DolbyChatManager extends ViewService {
             window.dolbyPromise = new Promise(resolve => {
                 const s = document.createElement('script');
                 s.setAttribute('src', 'https://unpkg.com/@voxeet/voxeet-web-sdk');
-                s.onload = () => {
-                    console.group("Initialize the SDK");
-                    VoxeetSDK.initializeToken(token, () => { console.log("Get a New Access Token"); });
+                s.onload = async () => {
+                    console.log("initialize Dolby SDK");
+                    const accessToken = await getAccessToken();
+                    // The callback is invoked when the token needs to be refreshed.
+                    VoxeetSDK.initializeToken(accessToken, getAccessToken);
                     this.addConferenceEventHandlers();
-                    console.groupEnd();
                     resolve();
                 };
                 document.body.appendChild(s);
@@ -45,7 +53,7 @@ export class DolbyChatManager extends ViewService {
         const player = this.localPlayer;
         const alreadyHere = player && player.inWorld;
         if (alreadyHere) this.prepareSession();
-        console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"} here)`, this);
+console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"} here)`, this);
     }
 
     get localPlayer() { return this.model.service("PlayerManager").players.get(this.viewId); }
@@ -191,26 +199,26 @@ export class DolbyChatManager extends ViewService {
     addConferenceEventHandlers() {
         // media stream was added
         VoxeetSDK.conference.on("streamAdded", (participant, stream) => {
-            console.log(`Stream Added for ${participant.info.name}`); //, stream);
+            console.log(`stream added for ${participant.info.name}`); //, stream);
             if (activeManager) activeManager.updateActiveInChat();
         });
 
         // media stream updated, which happens once an attendee starts sharing video
         VoxeetSDK.conference.on("streamUpdated", (participant, stream) => {
-            console.log(`Stream Updated for ${participant.info.name}`);
+            console.log(`stream updated for ${participant.info.name}`);
             if (activeManager) activeManager.updateActiveInChat();
         });
 
         // app has stopped receiving the media stream for some remote participant
         VoxeetSDK.conference.on("streamRemoved", (participant, stream) => {
-            console.log(`Stream Removed for ${participant.info.name}`);
+            console.log(`stream removed for ${participant.info.name}`);
             if (activeManager) activeManager.updateActiveInChat();
         });
 
         // local participant has left the conference
         VoxeetSDK.conference.on("left", async () => {
             // await VoxeetSDK.session.close();  handled in leaveConference
-            console.log("Participant has left the conference.");
+            console.log("participant has left Dolby conference.");
         });
     }
 
@@ -219,7 +227,7 @@ export class DolbyChatManager extends ViewService {
             this.sessionP = new Promise(async resolve => {
                 // sessionName is typically the participant name.  not clear if it's meant
                 // to be unique.
-                console.group("Open a Session");
+                console.log("open Dolby session");
                 const start = Date.now();
                 await window.dolbyPromise;
                 // on return from dormancy, jumping on the player info too quickly can
@@ -229,22 +237,21 @@ export class DolbyChatManager extends ViewService {
                 if (waited < 1000) await new Promise(resolve => setTimeout(resolve, 1000 - waited));
                 // fingers crossed that all's well now
                 const participant = this.localPlayer._name;
-                console.log(`Session for participant ${participant}`);
                 try {
                     await VoxeetSDK.session.open({ name: participant });
+                    console.log(`Dolby session for participant ${participant}`);
                     resolve(true);
                 } catch (error) {
                     console.error(error);
                     resolve(false);
                 }
-                console.groupEnd();
             });
         }
         return this.sessionP;
     }
 
     async createConference() {
-        console.group("Create the Conference");
+        console.log("create Dolby conference");
         const { persistent, ephemeral } = this.computeSessionHandles();
         const conferenceAlias = `${persistent.slice(0, 8)}:${ephemeral.slice(0, 8)}`;
         const conferenceOptions = {
@@ -262,7 +269,6 @@ export class DolbyChatManager extends ViewService {
         } catch (error) {
             console.error(error);
         }
-        console.groupEnd();
         return conference;
     }
 
@@ -276,7 +282,7 @@ export class DolbyChatManager extends ViewService {
 
         this.elements.chatHolder.classList.add('joining');
 
-        console.group("Join the Conference");
+        console.log("join Dolby conference");
         const joinOptions = {
             spatialAudio: true,
             constraints: { audio: true, video: false }
@@ -307,11 +313,10 @@ export class DolbyChatManager extends ViewService {
         }
 
         this.elements.chatHolder.classList.remove('joining');
-        console.groupEnd();
     };
 
     async leaveConference() {
-        console.group("Leave the Conference");
+        console.log("Leave Dolby conference");
         const prevJoinState = this.joinState;
         this.joinState = 'leaving';
         this.sessionP = null;
@@ -330,14 +335,13 @@ export class DolbyChatManager extends ViewService {
         if (VoxeetSDK.session.isOpen()) {
             try {
                 await VoxeetSDK.session.close();
-                console.log("session closed");
+                console.log("Dolby session closed");
             } catch (error) {
                 console.error(error);
             }
         }
         this.joinState = 'left';
         this.updateActiveInChat();
-        console.groupEnd();
     }
 
     setMyPosition() {
