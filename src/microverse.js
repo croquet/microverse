@@ -78,8 +78,6 @@ async function getAntialias() {
     return aa;
 }
 
-console.log('%cTHREE.REVISION:', 'color: #f00', THREE.REVISION);
-
 function loadLoaders() {
     window.JSZip = JSZip;
     window.fflate = fflate;
