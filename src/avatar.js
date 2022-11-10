@@ -396,7 +396,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 textureType: "image",
                 scale: [4, 4, 4],
                 cornerRadius: 0.02,
-                fullBright: false,
+                fullBright: true,
             };
         } else if (type === "pdf") {
             options = {
