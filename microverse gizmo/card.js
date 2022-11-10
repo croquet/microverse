@@ -6,7 +6,7 @@
 
 import {
     Data, Constants, // re-exported from @croquet/croquet
-    Actor, Pawn, ModelService, mix, AM_Smoothed, PM_Smoothed, GetPawn,
+    Actor, Pawn, ModelService, ViewService, mix, AM_Smoothed, PM_Smoothed, GetPawn,
     v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform, v3_rotate,
     q_euler, q_multiply,
     m4_invert, m4_identity
@@ -359,6 +359,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     sayUnselectEdit() {
+        if(this.editBox)delete this.editBox;
         this.say("doUnselectEdit");
     }
 
@@ -788,23 +789,22 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         // (that is before returning from this method) to have apps like multiblaster function
 
         if (textureType === "video") {
-            let muted = this.actor._cardData.muted !== undefined ? this.actor._cardData.muted : true;
-            let loop = this.actor._cardData.loop !== undefined ? this.actor._cardData.loop : false;
-            this.video = document.createElement("video");
+            this.video = document.createElement('video');
             this.video.autoplay = true;
-            this.video.muted = muted;
-            this.video.loop = loop;
-            this.video.controls = false;
+            this.video.muted = true;
+            this.video.loop = true;
             this.video.width = textureWidth;
             this.video.height = textureHeight;
 
             this.getBuffer(textureLocation).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
-                this.videoLoaded = true;
                 this.objectURL = objectURL;
                 // need to be revoked when destroyed
             });
+            this.video.loop = true;
+            let videoService = this.service("VideoManager");
+            videoService.add(this.video);
             this.texture = new THREE.VideoTexture(this.video);
             texturePromise = Promise.resolve({
                 width: this.video.width,
@@ -856,7 +856,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         if (dataLocation) {
             return this.getBuffer(dataLocation).then((buffer) => {
-                assetManager.setCache(dataLocation, buffer, this.id);
+                 assetManager.setCache(dataLocation, buffer, this.id);
                 return assetManager.load(buffer, "svg", THREE, loadOptions);
             }).then((obj) => {
                 normalizeSVG(obj, depth, shadow, THREE);
@@ -1365,6 +1365,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     selectEdit() {
+        // xyzzy
         this.say("selectEdit", this.getBox(this.renderObject));
     }
 
@@ -1604,6 +1605,29 @@ export class MicroverseAppManager extends ModelService {
 }
 
 MicroverseAppManager.register("MicroverseAppManager");
+
+export class VideoManager extends ViewService {
+    constructor(name) {
+        super(name || "VideoManager");
+        this.videos = [];
+        this.handler = () => this.videoStart();
+        document.addEventListener("click", this.handler);
+    }
+
+    add(video) {
+        if (this.videos.indexOf(video) < 0) {
+            this.videos.push(video);
+        }
+    }
+
+    videoStart() {
+        this.videos.forEach((v)=>v.play());
+        if (this.handler) {
+            document.removeEventListener('click', this.handler);
+            delete this.handler;
+        }
+    }
+}
 
 function arrayDispose() {
     if (Array.isArray(this)) {

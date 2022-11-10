@@ -396,7 +396,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 textureType: "image",
                 scale: [4, 4, 4],
                 cornerRadius: 0.02,
-                fullBright: true,
+                fullBright: false,
             };
         } else if (type === "pdf") {
             options = {
@@ -431,14 +431,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (string.startsWith("http://") || string.startsWith("https://")) {
             this.createPortal(translation, rotation, string);
         } else {
-            if (this.behaviorManager.hasBehavior("StickyNote")) {
-                this.createStickyNote(translation, rotation, string);
-            }
+            this.createStickyNote(translation, rotation, string);
         }
     }
 
     addSticky(pe) {
-        if (!this.behaviorManager.hasBehavior("StickyNote")) {return;}
         const tackOffset = 0.1;
         let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
         let normal = [...pe.normal]; // clear up and down
@@ -494,6 +491,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!this.gizmo) {
             if (!this.behaviorManager.modules.get("Gizmo")) {return;}
             this.gizmo = this.createCard({
+                //translation: target.translation,
                 translation: m4_getTranslation(target.global),
                 name: 'gizmo',
                 behaviorModules: ["Gizmo"],
@@ -693,7 +691,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     setOpacity(opacity) {
         if (!this.shape) {return;}
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
             opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
         }
         let transparent = opacity !== 1;
@@ -795,18 +793,16 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.service("WalkManager").setupDefaultWalkers();
 
-        if (this.actor.behaviorManager.hasBehavior("FileDragAndDropHandler")) {
-            // drop and paste
-            this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
-                if (type === "pastedtext") {
-                    this.pasteText(buffer);
-                } else if (type === "vrse") {
-                    this.loadvrse(buffer);
-                } else {
-                    this.analyzeAndUploadFile(new Uint8Array(buffer), fileName, type);
-                }
-            });
-        }
+        // drop and paste
+        this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+            if (type === "pastedtext") {
+                this.pasteText(buffer);
+            } else if (type === "vrse") {
+                this.loadvrse(buffer);
+            } else {
+                this.analyzeAndUploadFile(new Uint8Array(buffer), fileName, type);
+            }
+        });
 
         // keep track of being in the primary frame or not.  because of the delay involved
         // in creating the avatar, the frame itself (in frame.js) is bound to have already
@@ -858,21 +854,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
                         this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
                     } else {
                         this.startMotion(dx, dy);
                     }
                     break;
                 case "motion-end":
-                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
                         this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
                     } else {
                         this.endMotion(dx, dy);
                     }
                     break;
                 case "motion-update":
-                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
+                    if (this.has(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
                         this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
                     } else {
                         this.updateMotion(dx, dy);
@@ -1258,7 +1254,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // the camera when walking: based on avatar with 3rd person lookOffset
     walkLook() {
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "walkLook")) {
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "walkLook")) {
             return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
         }
 
@@ -1984,8 +1980,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (e.ctrlKey || e.altKey) { // should be the first responder case
-            this.actor.behaviorManager.lookup("Gizmo", "GizmoActor");
-            if (pawn && this.actor.behaviorManager.lookup("Gizmo", "GizmoActor")) {
+            if (pawn) {
                 if (pawnIsGizmo) {
                     console.log("Tried to gizmo gizmo");
                     this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
@@ -2009,7 +2004,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.lookYaw = q_yaw(this._rotation);
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
                 this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
             }
             if (!pawnIsGizmo) {
@@ -2029,7 +2024,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             this.lookTo(pitch, yaw);
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
             this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerMove", this, e);
         }
     }
@@ -2049,7 +2044,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             }
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+        if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
             this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerUp", this, e);
         }
     }
@@ -2086,7 +2081,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let origOpacity = opacity;
 
             let handlerModuleName = pawn.actor._cardData.avatarEventHandler;
-            if (pawn.hasBehavior(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+            if (pawn.has(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
                 opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", this, opacity);
             }
 

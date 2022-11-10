@@ -1,7 +1,14 @@
 class GizmoActor {
     setup() {
         this.listen("cycleModes", "cycleModes");
-        this.cycleModes();
+        let box = this.target.editBox;
+        let scale = this.target.scale;
+        this.editScale = Math.max(scale[0]*(box[3]-box[0]), scale[2]*(box[5]-box[2]));
+        this.editFloor = scale[1]*box[1]-0.1;
+        //this.cycleModes();
+        this.addHorizontalDragGizmo();
+        this.addVerticalDragGizmo();
+        this.addSpinGizmo();
         this.addPropertySheetButton();
         this.subscribe(this.target.id, "translationSet", "translateTarget");
         this.subscribe(this.target.id, "rotationSet", "rotateTarget");
@@ -32,21 +39,25 @@ class GizmoActor {
     }
 
     translateTarget() {
-        let t = this.target.translation;
-        let s = this.target.parent ? this.getScale(this.target.parent.global) : [1, 1, 1];
-        this.set({translation: t, scale: [1 / s[0], 1 / s[1], 1 / s[2]]});
+        //let t = Microverse.m4_getTranslation(this.actor.parent.target.global);
+        //let s = this.target.parent ? this.getScale(this.target.parent.global) : [1, 1, 1];
+       // this.set({translation: t}); //, scale: [1 / s[0], 1 / s[1], 1 / s[2]]});
+       // this.target.set({translation:t});
     }
 
     rotateTarget() {
         // in this case, gizmo itself should not rotate but the gyro should rotate so the three rings
         // show the euler angle of them in a sane way.
+        //let r = this.target.rotation;
 
+       // this.set({rotation: r});
+        /*
         if (this.gizmoMode === "move") {
             this.set({rotation: [0, 0, 0, 1]});
         } else {
             let r = this.target.rotation;
             this.set({rotation: r});
-        }
+        }*/
     }
 
     scaleTarget() {}
@@ -95,12 +106,85 @@ class GizmoActor {
         return offsets[min];
     }
 
+    addHorizontalDragGizmo(){
+        if(this.horzGizmo)this.horzGizmo.destroy();
+        this.poseGizmo = this.createCard({
+            name: "drag horizontal gizmo",
+            dataLocation:`./assets/SVG/dot-circle.svg`,
+            fileName:`./assets/SVG/dot-circle.svg`,
+            modelType: 'svg',
+            shadow:true,
+            singleSided: true,
+            scale:[1,1,0.25],
+            rotation:[Math.PI/2, 0, 0],
+            translation:[0,this.editFloor-0.5, 0],
+            type:'2d',
+            fullBright: false,
+            behaviorModules: ["PoseGizmo"],
+            parent: this,
+            noSave: true,
+            action: 'dragHorizontal',
+            plane: [0,1,0],
+            color: 0x88ff88,
+            frameColor: 0xaaaaaa
+        });
+    }
+
+
+    addVerticalDragGizmo(){
+        if(this.vertGizmo)this.vertGizmo.destroy();
+        this.vertGizmo = this.createCard({
+            name: "drag vertical gizmo",
+            //dataLocation:`./assets/SVG/arrows-alt.svg`,
+            //fileName:`./assets/SVG/arrows-alt.svg`,
+            //modelType: 'svg',
+            radius: 0.25,
+            shadow:true,
+            singleSided: true,
+            //scale:[1,1,0.25],
+            //rotation:[0, Math.PI/2, 0 ],
+            translation:[0,this.editFloor-0.25,0],
+            type:'object',
+            fullBright: false,
+            behaviorModules: ["PoseGizmo"],
+            parent: this,
+            noSave: true,
+            action: 'dragVertical',
+            color: 0xffff88,
+            plane: [0,0,1]
+        });
+    }
+
+    addSpinGizmo(){
+        if(this.spinGizmo)this.spinGizmo.destroy();
+        this.vspinGizmo = this.createCard({
+            name: "spin horizontal gizmo",
+            dataLocation:`./assets/SVG/cog.svg`,
+            fileName:`./assets/SVG/cog.svg`,
+            modelType: 'svg',
+            shadow:true,
+            singleSided: true,
+            scale:[2,2,0.25],
+            rotation:[Math.PI/2, 0, 0 ],
+            translation:[0,this.editFloor-0.5,0],
+            type:'2d',
+            fullBright: false,
+            behaviorModules: ["PoseGizmo"],
+            parent: this,
+            noSave: true,
+            action: 'spinHorizontal',
+            plane: [0,0,1],
+            color: 0x8888ff,
+            frameColor: 0xaaaaaa
+        });
+    }
+
     addPropertySheetButton() {
         if (this.propertySheetButton) {
             this.propertySheetButton.destroy();
         }
 
-        let t = this.closestCorner(this.creatorId);
+//        let t = this.closestCorner(this.creatorId);
 
         this.dataLocation = "3ryPlwPIvSHXjABwnuJjrMQYPp1JH2OnghLGR_cdAbCEGgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddNRYkEAseOwEzGSMRMCoWQTUKEwQLBSc5JSsrQF0bHVwRAB0DBxcGXB8bEQAdBBcAARddBRckQ0E8AEUcRwABPTExOhMCHEMeNENFIAglOitFNBg0OjNGPiYQIl81Sl0WEwYTXUMeCgYrHDc7HkECPScbJxYKOSE6RCgXK0YgFwYgCzAYPioRCkEkAEYVLRU";
 
@@ -111,13 +195,13 @@ class GizmoActor {
             modelType: "svg",
             shadow: true,
             singleSided: true,
-            scale: [0.5, 0.5, 0.5],
+            scale: [0.25, 0.25, 0.25],
             type: "2d",
             fullBright: true,
             behaviorModules: ["GizmoPropertySheetButton", "Billboard"],
-            parent: this,
             noSave: true,
-            translation: t,
+            translation:[1.25,this.editFloor-0.25, 0],
+            parent: this
         });
 
         this.subscribe(this.propertySheetButton.id, "openPropertySheet", "openPropertySheet");
@@ -138,7 +222,7 @@ class GizmoActor {
 
             this.gizmoMode = "move";
             let s = this.target.parent ? this.getScale(this.target.parent.global) : [1, 1, 1];
-            this.set({rotation: [0, 0, 0, 1], scale: [1 / s[0], 1 / s[1], 1 / s[2]]});
+            //this.set({rotation: [0, 0, 0, 1], scale: [1 / s[0], 1 / s[1], 1 / s[2]]});
 
             this.moveX = this.createCard({
                 translation: [0, 0, 0],
@@ -331,6 +415,7 @@ class GizmoPawn {
         });
 
         this.subscribe(this.id, "interaction", "interaction");
+    
     }
 
     checkInteraction() {
@@ -888,6 +973,304 @@ class GizmoPropertySheetButtonPawn {
     }
 }
 
+class PoseGizmoActor{
+    setup() {
+        console.log("PoseGizmo", this.id);
+
+        if(this._cardData.action === 'dragHorizontal' || this._cardData.action === 'dragVertical')
+            this.subscribe(this.parent.id, "translateTarget"+this.id, "translateTarget");
+        else if(this._cardData.action === 'spinHorizontal')
+            this.subscribe(this.parent.id, "spinTarget"+this.id, "spinTarget");
+        this.baseRotation = [...this.parent.target.rotation];
+    }
+
+    translateTarget(translation) {
+        let target = this.parent.target;
+        if(target.parent){
+            let mInverse = Microverse.m4_invert(target.parent.global);
+            let t = Microverse.v3_transform(translation, mInverse);
+            target.set({translation: t});
+
+        }else target.set({translation: translation});
+        this.parent.set({translation: translation});
+    }
+
+    q_toAxisAngle(quat) {
+        let q=Microverse.q_normalize(quat);
+        let angle = 2 * Math.acos(q[3]);
+        let axis = [];
+        let s = Math.sqrt(1-q[3]*q[3]); // assuming quaternion normalised then w is less than 1, so term always positive.
+        if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
+            // if s is close to zero then direction of axis not important
+            axis[0] = 0; 
+            axis[1] = 1;
+            axis[2] = 0;
+        } else {
+            axis[0] = q[0] / s; // normalise axis
+            axis[1] = q[1] / s;
+            axis[2] = q[2] / s;
+        }
+        return {axis: axis, angle:angle};
+     }
+
+    spinTarget(rotation){
+        let target = this.parent.target;
+        let r;
+        if(target.parent){
+            // compute the axis of the rotation so we can transform that into the target frame
+            let axisAngle = this.q_toAxisAngle(rotation);
+            let mNormal = Microverse.m4_toNormal4(target.parent.global);
+            let mInverse = Microverse.m4_invert(mNormal);
+            let axis = Microverse.v3_transform(axisAngle.axis, mInverse);
+            axis = Microverse.v3_normalize(axis);
+            // axis is now in the frame of the target object - the rest is easy
+            let r = Microverse.q_axisAngle(axis, axisAngle.angle);
+            r = Microverse.q_multiply(this.baseRotation, r);
+            target.set({rotation: r});
+
+        }else {
+            r = Microverse.q_multiply(this.baseRotation, rotation);
+            target.set({rotation: r});
+        }
+        this.parent.set({rotation: rotation});
+    }
+}
+
+class PoseGizmoPawn{
+    setup() {
+        this.originalColor = this.actor._cardData.color;
+        this.action = this.actor._cardData.action;
+        this.plane = this.actor._cardData.plane;
+        let isMine = this.parent?.actor.creatorId === this.viewId;
+        let THREE=Microverse.THREE;
+        this.baseVector = new THREE.Vector3();
+        this.vec = new THREE.Vector3();
+        this.vec2 = new THREE.Vector3();
+        this.toVector = new THREE.Vector3();
+
+        this.deltaYaw = 0;
+        this.newRotation = Microverse.q_euler(0, this.deltaYaw, 0);
+
+        if (isMine) {
+            if(this.action === 'spinHorizontal'){
+                console.log("spin horizontal pose")
+                this.addEventListener("pointerDown", "startDrag");
+                this.addEventListener("pointerMove", "hSpin");
+                this.addEventListener("pointerUp", "endDrag");
+            }else if(this.action === 'dragHorizontal'){
+                console.log("drag horizontal pose")
+                this.addEventListener("pointerDown", "startDrag");
+                this.addEventListener("pointerMove", "drag");
+                this.addEventListener("pointerUp", "endDrag");
+            }else if(this.action === 'dragVertical'){
+                console.log("drag pose")
+                this.addEventListener("pointerDown", "startVDrag");
+                this.addEventListener("pointerMove", "drag");
+                this.addEventListener("pointerUp", "endDrag");
+            } 
+            this.addEventListener("pointerEnter", "pointerEnter");
+            this.addEventListener("pointerLeave", "pointerLeave");
+        }
+
+       if(this.actor._cardData.radius)this.makeSphere(this.actor._cardData.radius, this.actor._cardData.color);
+       else this.subscribe(this.id, "2dModelLoaded", "modelLoaded");
+
+    }
+
+    makeSphere(radius, color){
+        const geometry = new Microverse.THREE.SphereGeometry( radius, 32, 16 );
+        const material = new Microverse.THREE.MeshStandardMaterial( { color: color || 0xffff00 } );
+        this.gizmo3d = new Microverse.THREE.Mesh( geometry, material );
+        this.shape.add(this.gizmo3d);
+        this.constructOutline(10001);
+    }
+
+    modelLoaded(){
+        console.log("modelLoaded")
+        this.gizmo3d = this.shape.children[0];
+        this.constructOutline(10000);
+    }
+
+    constructOutline(renderOrder){
+
+        let outlineMat = new Microverse.THREE.MeshStandardMaterial( { 
+            color: 0x444444, 
+            opacity: 0.25,
+            transparent: true,
+            depthTest: false,
+            depthWrite: false,
+           // side: THREE.BackSide,
+        })
+        /*
+        // leaving this here because it would be nice to make it work
+        outlineMat.onBeforeCompile = (shader) => {
+            const token = '#include <begin_vertex>';
+            const customTransform = 'vec3 transformed = position + objectNormal*0.02;';
+            shader.vertexShader = 
+                shader.vertexShader.replace(token,customTransform)
+        }
+        */
+        this.outline3d = this.gizmo3d.clone(true);
+        this.outline3d.traverse((m) => {
+            if (m.material) { 
+                m.material = outlineMat;
+                if (!Array.isArray(m.material)) {
+                    console.log("single material")
+                    m.material = outlineMat;
+                } else {
+                    console.log("multiple material", m.material.length)
+                    let mArray = [];
+                    for(let i = 0; i< m.material.length; i++){
+                        mArray.push(outlineMat);
+                    }
+                    m.material = mArray;
+                }
+            }
+        });
+        this.outline3d.renderOrder = renderOrder;
+        console.log(this.outline3d);
+        this.shape.add(this.outline3d);
+    }
+
+    makeRay(r){
+        let origin = new Microverse.THREE.Vector3(...r.origin);
+        let direction = new Microverse.THREE.Vector3(...r.direction);
+        return new Microverse.THREE.Ray(origin, direction);
+    }
+
+    startDrag(pEvt){
+        // initiate drag for horizontal drag and for rotation around Y 
+        let THREE=Microverse.THREE;
+        let avatar = Microverse.GetPawn(pEvt.avatarId);
+        avatar.addFirstResponder("pointerMove", {}, this);
+        this.baseVector.set(...pEvt.xyz);
+        this.plane = new THREE.Plane( new THREE.Vector3(0,1,0), -this.baseVector.y ); 
+        this.targetStartVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.parent.target.global));
+        this.startRotation = this.newRotation;
+        this.publish(this.parent.id, "interaction");
+    }
+
+    startVDrag(pEvt){
+        // initiate drag for vertical using avatar's look direction to define plane
+        let THREE=Microverse.THREE;
+        let avatar = Microverse.GetPawn(pEvt.avatarId);
+        avatar.addFirstResponder("pointerMove", {}, this);
+        this.baseVector.set(...pEvt.xyz);
+        let lookNorm = avatar.actor.lookNormal;
+        this.vec.copy(this.baseVector);
+        this.vec.normalize();
+        this.vec2.set(...lookNorm);
+        let cos = this.vec2.dot(this.vec);
+        this.plane = new THREE.Plane( this.vec2, -cos*this.baseVector.length());
+        this.targetStartVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.parent.target.global));
+        this.publish(this.parent.id, "interaction");
+    }
+    
+    drag(pEvt){
+        let ray = this.makeRay(pEvt.ray);
+        let intersectionPoint = ray.intersectPlane( this.plane, this.toVector );
+        if(!intersectionPoint)return; // not touching the plane...
+        this.vec.copy( this.toVector );
+        this.vec.sub( this.baseVector );
+        this.vec.add(this.targetStartVector);
+        this.publish(this.parent.actor.id, "translateTarget"+this.actor.id, this.vec.toArray());
+        this.publish(this.parent.id, "interaction");
+    }
+
+    endDrag(pEvt){
+        const avatar = Microverse.GetPawn(pEvt.avatarId);
+        avatar.removeFirstResponder("pointerMove", {}, this);
+        this.publish(this.parent.id, "interaction");
+    }
+    
+    hSpin(pEvt){
+        this.vec.set(0,1,0);
+        // make a horizontal plane through where we think the widget is (either
+        // the point reported in the pointerDown pEvt, or the last point of
+        // contact on pointerMove)
+        //this.plane = new THREE.Plane(this.vec, -this.dragVector.y);
+        // toVector gets the point where the laser intercepts that plane
+        let ray = this.makeRay(pEvt.ray);
+        let intersectPoint = ray.intersectPlane( this.plane, this.toVector );
+        // vec is now given the world position of the centre of the rotator
+        //this.getWorldPosition(this.vec);
+        if(!intersectPoint)return;
+
+        // angle is an angular delta, which will be used as a constant angular
+        // step until it is reset by another onPointerMove, or until cancelled
+        // by a click.
+
+        this.angle = this.computeAngle(this.targetStartVector, this.baseVector, this.toVector);
+
+        // then dragVector takes the most recent value of toVector
+        // this.dragVector.copy(this.toVector);
+        // ESLint complained about isNaN.  See https://stackoverflow.com/questions/46677774/eslint-unexpected-use-of-isnan
+        if (Number.isNaN(this.angle)) { console.log(this.vec, this.dragVector, this.toVector); this.angle = 0; return false;}
+        let axisAngle = Microverse.q_axisAngle([0,1,0], this.angle);
+        //let targetAngle = Microverse.q_euler(0,this.targetStartAngle+this.angle,0);
+        const nextRotation = Microverse.q_multiply( this.startRotation, axisAngle);
+        this.publish(this.parent.actor.id, "spinTarget"+this.actor.id, nextRotation);
+        this.publish(this.parent.id, "interaction");
+        this.newRotation = nextRotation; // prep for next startDrag
+        return true;
+    }
+
+    computeAngle(c, v1, v2){
+        // c = vec (position of centre); v1 = dragVector (previous used point in this drag, or pointer-down location); v2 = toVector (current hit position)
+        c = new THREE.Vector3().copy(c); // take copies that can be mutated
+        v1 = new THREE.Vector3().copy(v1);
+        v2 = new THREE.Vector3().copy(v2);
+        let test = new THREE.Vector3().copy(v1);
+        test.sub(v2);
+        if(test.length()<0.0000000001)return 0;
+        c.y = v1.y = v2.y = 0; // don't want the y
+        v1.sub(c); // vector from center to previous hit point
+        if(v1.length()===0)return 0; // don't die if we are in the center
+        v1.normalize();
+        v2.sub(c); // vector from center to new hit point
+        if(v2.length()===0)return 0;
+        v2.normalize();
+        let angle = Math.acos(v1.dot(v2)); // how far the hit point has rotated
+        let sign = Math.sign(v1.cross(v2).y); // whether a clockwise (+ve y) or anticlockwise rotation
+        return angle*sign;
+    }
+    
+    pointerEnter(){
+        console.log("pointerEnter")
+        let hilite = this.actor._cardData.hiliteColor || 0xffaaa;
+        this.doHilite(hilite); // hilite in yellow
+    }
+
+    pointerLeave(){
+        console.log("pointerLeave")
+        this.doHilite(null);
+    }
+
+    doHilite(hval){
+        this.shape.traverse((m) => {
+            if (m.material) {
+                if (!Array.isArray(m.material)) {
+                    this.setColor(m.material, hval);
+                } else {
+                    m.material.forEach((mm) => this.setColor(mm, hval));
+                }
+            }
+        });
+    }
+
+    setColor(material, color){
+        if(color){
+            if(material.saveColor)return;
+            let c =  new Microverse.THREE.Color(color);
+            material.saveColor = material.color;
+            material.color = c;
+        }else{
+            material.color = material.saveColor;
+            delete material.saveColor;
+        }
+    }
+}
+
 export default {
     modules: [
         {
@@ -913,6 +1296,11 @@ export default {
         {
             name: "GizmoPropertySheetButton",
             pawnBehaviors: [GizmoPropertySheetButtonPawn],
+        },
+        {
+            name: "PoseGizmo",
+            actorBehaviors: [PoseGizmoActor],
+            pawnBehaviors: [PoseGizmoPawn],
         }
     ]
 }
