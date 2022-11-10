@@ -3,6 +3,18 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-11-04
+### Fixed
+- Home button works for spectators.
+- Clean up settings panels so that they fit within landscape phone screens.
+
+### Changed
+- The "ENTER VR" button does not overlap with joystick.
+
+### Added
+- WalkManager is added, and the way the avatar can be more customizable.
+- A simple synchronized video playback behavior is added.
+
 ## 2022-10-28
 ### Changed
 - PDFView supports replacement of viewed document.
