@@ -1126,24 +1126,27 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return material;
     }
 
-    isDataId(name) {
-        return !(name.startsWith("http://") ||
-                 name.startsWith("https://") ||
-                 name.startsWith(".") ||
-                 name.startsWith("/"));
+    dataType(name) {
+        if (name.startsWith("data:")) {return "dataUri";}
+        if (name.startsWith("http://") ||
+            name.startsWith("https://") ||
+            name.startsWith(".") ||
+            name.startsWith("/")) {return "url";}
+        return "dataId"
     }
 
     getBuffer(name) {
         let assetManager = this.service("AssetManager").assetManager;
         let buffer = assetManager.getCache(name);
         if (buffer) { return Promise.resolve(buffer); }
-        if (!this.isDataId(name)) {
+        let dataType = this.dataType(name);
+        if (dataType === "url" || dataType === "dataUri") {
             return fetch(name)
                 .then((resp) => {
                     if (!resp.ok) throw Error(`fetch failed: ${resp.status} ${resp.statusText}`);
                     return resp.arrayBuffer();
                 }).then((arrayBuffer) => new Uint8Array(arrayBuffer))
-        } else {
+        } else if (dataType === "dataId") {
             let handle = Data.fromId(name);
             return Data.fetch(this.sessionId, handle);
         }
@@ -1392,7 +1395,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         }*/
     }
 
-    getBox( obj3d ){ // compute the bounding box of the target object
+    getBox(obj3d) { // compute the bounding box of the target object
         let tmpMat = new THREE.Matrix4();
         let currentMat = obj3d.matrix;
         let box;

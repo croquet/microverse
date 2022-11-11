@@ -38,7 +38,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js", "propertySheet.js", "dragAndDrop.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "propertySheet.js", "dragAndDrop.js", "gizmo.js"
 ];
 
 let AA = true;
@@ -839,12 +839,19 @@ async function launchMicroverse() {
         ModelRoot.evaluate(() => worldModule.init(Constants));
         if (!Constants.SystemBehaviorModules) {
             Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
-            if (!Constants.ExcludedSystemBehaviorModules) {
+            if (!Constants.ExcludedSystemBehaviorModules && !Constants.IncludedSystemBehaviorModules) {
                 Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
             } else {
-                Constants.SystemBehaviorModules = defaultSystemBehaviorModules.filter((n) => {
-                    return !Constants.ExcludedSystemBehaviorModules.includes(n);
-                });
+                let systemBehaviorModules = [...defaultSystemBehaviorModules];
+                if (Constants.ExcludedSystemBehaviorModules) {
+                    systemBehaviorModules = systemBehaviorModules.filter((n) => {
+                        return !Constants.ExcludedSystemBehaviorModules.includes(n);
+                    });
+                }
+                if (Constants.IncludedSystemBehaviorModules) {
+                    systemBehaviorModules.push(...Constants.IncludedSystemBehaviorModules);
+                }
+                Constants.SystemBehaviorModules = systemBehaviorModules;
             }
         }
     } else {
