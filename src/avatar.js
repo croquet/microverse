@@ -494,10 +494,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!this.gizmo) {
             if (!this.behaviorManager.modules.get("Gizmo")) {return;}
             this.gizmo = this.createCard({
-                translation: target.translation,
+                translation: m4_getTranslation(target.global),
                 name: 'gizmo',
                 behaviorModules: ["Gizmo"],
-                parent: target.parent,
+                //parent: target.parent,
                 type: "object",
                 noSave: true,
             });

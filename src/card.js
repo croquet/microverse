@@ -352,8 +352,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     intrinsicProperties() {return intrinsicProperties;}
 
-    saySelectEdit() {
-        console.log("saySelectEdit says doSelectEdit");
+    saySelectEdit(editBox) {
+        console.log("saySelectEdit says doSelectEdit", editBox);
+        this.editBox = editBox;
         this.say("doSelectEdit");
     }
 
@@ -1364,28 +1365,44 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     selectEdit() {
-        this.say("selectEdit");
+        this.say("selectEdit", this.getBox(this.renderObject));
     }
 
     unselectEdit() {
-        this.say("unselectEdit")
+        this.say("unselectEdit");
         delete this._plane;
     }
 
     doSelectEdit() {
         this._editMode = true;
         console.log("doSelectEdit")
+        /*
         if (this.renderObject) {
             this.addWireBox(this.renderObject);
         }
+        */
     }
 
     doUnselectEdit() {
         this._editMode = false;
         console.log("doUnselectEdit")
+        /*
         if (this.renderObject) {
             this.removeWireBox(this.renderObject);
+        }*/
+    }
+
+    getBox( obj3d ){ // compute the bounding box of the target object
+        let tmpMat = new THREE.Matrix4();
+        let currentMat = obj3d.matrix;
+        let box;
+        try {
+            obj3d.matrix = tmpMat;
+            box = new THREE.Box3().setFromObject(obj3d);
+        } finally {
+            obj3d.matrix = currentMat;
         }
+        return [...box.min.toArray(), ...box.max.toArray()]
     }
 
     nop() {}
