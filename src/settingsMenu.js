@@ -67,10 +67,10 @@ function createSettingsMenu(useEnter) {
                 <div id="handednessLabel">Hand:</div>
                 <div class="btn-group" id="handedness">
                     <label class="btn btn-radio-button">
-                        <input type="radio" name="options" id="right" checked><span class="handedness-label">Right</span>
+                         <input type="radio" name="options" id="left"><span class="handedness-label">Left</span>
                     </label>
                     <label class="btn btn-radio-button">
-                         <input type="radio" name="options" id="left"><span class="handedness-label">Left</span>
+                        <input type="radio" name="options" id="right" checked><span class="handedness-label">Right</span>
                     </label>
                 </div>
             </div>
@@ -123,7 +123,7 @@ function createSettingsMenu(useEnter) {
         dialogTitle.classList.toggle("hidden", !useEnter);
     }
     if (joinPrompt) {
-        joinPrompt.style.display = useEnter ? "flex" : "none";
+        joinPrompt.classList.toggle("notUseEnter", !useEnter);
     }
     if (settingsTitle) {
         settingsTitle.classList.toggle("hidden", useEnter);
@@ -133,10 +133,10 @@ function createSettingsMenu(useEnter) {
     }
 
     if (dialogEnterButton) {
-        dialogEnterButton.style.display = useEnter ? "flex" : "none";
+        dialogEnterButton.classList.toggle("notUseEnter", !useEnter);
     }
     if (dialogAcceptCancelButtons) {
-        dialogAcceptCancelButtons.style.display = useEnter ? "none" : "flex";
+        dialogAcceptCancelButtons.classList.toggle("notUseEnter", !useEnter);
     }
 
     populateAvatarSelection();
@@ -217,6 +217,7 @@ function avatarURLFieldChanged(evt) {
     }
     const avatarURLField = settingsMenu.querySelector('#avatarURLField');
     let value = avatarURLField.textContent.trim(); // may be empty
+
     avatarSelected({
         url: value,
         type: "ReadyPlayerMe"
@@ -300,7 +301,11 @@ let avatars = [
 ];
 
 function avatarSelected(entry) {
-    if (entry.url) {
+    let avatarURLField = settingsMenu.querySelector('#avatarURLField');
+    let value = avatarURLField.textContent.trim();
+    let urlValid = /https?:[a-zA-Z0-9/.-]+\.glb/.test(value);
+
+    if (urlValid) {
         configuration.avatarURL = entry.url;
         configuration.type = entry.type;
     }
@@ -322,10 +327,8 @@ function avatarSelected(entry) {
         }
     }
 
-    const avatarURLField = settingsMenu.querySelector('#avatarURLField');
-    let value = avatarURLField.textContent.trim();
     if (value && value === entry.url) {
-        avatarIsValid = true;
+        avatarIsValid = urlValid;
     } else {
         avatarURLField.textContent = "";
     }

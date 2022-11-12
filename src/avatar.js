@@ -1975,7 +1975,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
 
-        let pawnIsGizmo = pawn && pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
+        let pawnIsGizmo = pawn && pawn.actor.isGizmoManipulator;
 
         if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
             this.gizmoTargetPawn.unselectEdit();
@@ -1984,8 +1984,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (e.ctrlKey || e.altKey) { // should be the first responder case
-            this.actor.behaviorManager.lookup("Gizmo", "GizmoActor");
-            if (pawn && this.actor.behaviorManager.lookup("Gizmo", "GizmoActor")) {
+            let doGizmo = this.actor.behaviorManager.modules.get("Gizmo");
+            if (pawn && doGizmo) {
                 if (pawnIsGizmo) {
                     console.log("Tried to gizmo gizmo");
                     this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
