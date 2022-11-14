@@ -61,56 +61,12 @@ class GizmoActor {
 
     scaleTarget() {}
 
-    closestCorner(creatorId) {
-        let avatar = [...this.service("ActorManager").actors].find(([_k, actor]) => {
-            return actor.playerId === creatorId;
-        });
-        if (avatar) {
-            avatar = avatar[1];
-        }
-        if (!avatar) {return;}
-        let {m4_identity, v3_transform, v3_magnitude, v3_sub, v3_add} = Microverse;
-        let target = this.target;
-        let parentGlobal = target._parent ? target._parent.global : m4_identity();
-        let t = target.translation;
-        let g = v3_transform(t, parentGlobal);
-
-        let a = avatar.translation;
-
-        let offsets = [
-            [ 2,  1,  2],
-            [-2,  1,  2],
-            [ 2, -1,  2],
-            [-2, -1,  2],
-            [ 2,  1, -2],
-            [-2,  1, -2],
-            [ 2, -1, -2],
-            [-2, -1, -2]
-        ];
-
-        let locals = offsets.map((o) => v3_add(t, o));
-        let parents = locals.map((l) => v3_transform(l, parentGlobal));
-
-        let dist = Number.MAX_VALUE;
-        let min = -1;
-
-        for (let i = 0; i < parents.length; i++) {
-            let thisDist = v3_magnitude(v3_sub(a, parents[i]));
-            if (thisDist <= dist && parents[i][1] > g[1]) {
-                dist = thisDist;
-                min = i;
-            }
-        }
-
-        return offsets[min];
-    }
-
     addHorizontalDragGizmo(){
         if(this.horzGizmo)this.horzGizmo.destroy();
 
         let dotCircle = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNMjU2IDhDMTE5LjAzMyA4IDggMTE5LjAzMyA4IDI1NnMxMTEuMDMzIDI0OCAyNDggMjQ4IDI0OC0xMTEuMDMzIDI0OC0yNDhTMzkyLjk2NyA4IDI1NiA4em04MCAyNDhjMCA0NC4xMTItMzUuODg4IDgwLTgwIDgwcy04MC0zNS44ODgtODAtODAgMzUuODg4LTgwIDgwLTgwIDgwIDM1Ljg4OCA4MCA4MHoiLz48L3N2Zz4=";
 
-        this.poseGizmo = this.createCard({
+        this.horzGizmo = this.createCard({
             name: "drag horizontal gizmo",
             dataLocation: dotCircle,
             fileName:`./assets/SVG/dot-circle.svg`,
@@ -126,7 +82,7 @@ class GizmoActor {
             parent: this,
             noSave: true,
             action: 'dragHorizontal',
-            plane: [0,1,0],
+            axis: [0,1,0],
             color: 0x88ff88,
             frameColor: 0xaaaaaa
         });
@@ -136,14 +92,9 @@ class GizmoActor {
         if(this.vertGizmo)this.vertGizmo.destroy();
         this.vertGizmo = this.createCard({
             name: "drag vertical gizmo",
-            //dataLocation:`./assets/SVG/arrows-alt.svg`,
-            //fileName:`./assets/SVG/arrows-alt.svg`,
-            //modelType: 'svg',
             radius: 0.25,
             shadow:true,
             singleSided: true,
-            //scale:[1,1,0.25],
-            //rotation:[0, Math.PI/2, 0 ],
             translation:[0, this.editFloor - 0.25, 0],
             type:'object',
             fullBright: false,
@@ -152,7 +103,7 @@ class GizmoActor {
             noSave: true,
             action: 'dragVertical',
             color: 0xffff88,
-            plane: [0,0,1]
+            axis: [0,0,1]
         });
     }
 
@@ -160,7 +111,7 @@ class GizmoActor {
         if (this.spinGizmo) this.spinGizmo.destroy();
         let cog = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iODg4cHgiIGhlaWdodD0iODg4cHgiIHZpZXdCb3g9IjAgMCA4ODggODg4IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgogICAgPCEtLSBHZW5lcmF0b3I6IFNrZXRjaCA1My4xICg3MjYzMSkgLSBodHRwczovL3NrZXRjaGFwcC5jb20gLS0+CiAgICA8dGl0bGU+U2hhcGU8L3RpdGxlPgogICAgPGRlc2M+Q3JlYXRlZCB3aXRoIFNrZXRjaC48L2Rlc2M+CiAgICA8ZyBpZD0iUGFnZS0xIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgICAgICA8cGF0aCBkPSJNNDgzLjE5MTg3Nyw4ODYuMjk0MDA5IEw1NDAuMjU2NDQ1LDgwNS4xMTg1NyBMNjMwLjU1NzY5Myw4NDcuMDIyMjgzIEM2NTQuNTE2OTkzLDgzNS45MTI5NDkgNjc3LjMxOTA4Nyw4MjIuNzI5OTcxIDY5OC43MzM1NTYsODA3LjcwMzc2OCBMNzA3LjYyODE1LDcwOC40MTQ4NTIgTDgwNy4xODA4MTQsNjk5LjQ3NzIyNCBDODIyLjEzOTAwNyw2NzguMjUxOTk0IDgzNS4yODM1ODMsNjU1LjY1NjgyIDg0Ni4zODkxNjUsNjMxLjkxNzA3OCBMODA0LjIyNjkzMSw1NDAuODYxMzg5IEw4ODYuMzA3NzAzLDQ4My4wMzQ5ODYgQzg4Ny40MjgwNjMsNDcwLjE3MjU4MiA4ODgsNDU3LjE1MzA4MyA4ODgsNDQ0IEM4ODgsNDMwLjk0ODg0NCA4ODcuNDM2ODkzLDQxOC4wMjkyMDggODg2LjMzMzY3OSw0MDUuMjY0MDg1IEw4MDQuMTY5MjIyLDM0Ny4zNTM5OTUgTDg0Ni4zODg3OTEsMjU2LjA4MjEyMyBDODM1LjMyNjI4MywyMzIuNDM0NTggODIyLjI0MDU4NSwyMDkuOTIyNzM2IDgwNy4zNTQ0NjEsMTg4Ljc2OTM1MyBMNzA3LjQ3MDQ4NiwxNzkuNzQyODIgTDY5OC40ODczNjYsODAuMTIzNjA3OSBDNjc3LjE0NDQxOCw2NS4xNjkwOTIyIDY1NC40MjUzNDEsNTIuMDQ0NTcgNjMwLjU1NzkxNSw0MC45Nzc4MTk5IEw1NDAuMDQxMDcyLDgyLjkzOTE0MjUgTDQ4Mi44OTMxNjEsMS42Nzk5NjYzIEM0NzAuMDc2ODgsMC41Njc3NDAyOTkgNDU3LjEwNDc0MSwwIDQ0NCwwIEM0MzAuNDI5NzUyLDAgNDE3LjAwMTY5NCwwLjYwODc5MTI2NiA0MDMuNzQxNjQ5LDEuODAwNTUxOTcgTDM0Ni43NDM1NTUsODIuODgxNDMwNSBMMjU2Ljk0MjUxNyw0MS4yMDk4MzYxIEMyMzIuNzY3NjYsNTIuNDU1Nzc0OCAyMDkuNzc0MTQ2LDY1LjgxNDA0NTUgMTg4LjE5OTE0NSw4MS4wNDc0NzYzIEwxNzkuMzcxODUsMTc5LjU4NTE0OCBMODAuODg2NzQ5MywxODguNDI2OTMzIEM2NS42NzQ2MjE1LDIxMC4wMDA0MTkgNTIuMzM2NDkwOCwyMzIuOTkwMDc1IDQxLjEwOTE1MDcsMjU3LjE1OTEwOSBMODIuNzczMDY5NCwzNDcuMTM4NjExIEwxLjc1ODM1NDQ0LDQwNC4yMTM5NzEgQzAuNTk0NDIyNTAzLDQxNy4zMjA1MzcgMCw0MzAuNTkwODUxIDAsNDQ0IEMwLDQ1Ny4zMDcxNiAwLjU4NTQxNDY3MSw0NzAuNDc3NTkgMS43MzE4OTUwOSw0ODMuNDg2OTQgTDgyLjgzMDc3ODQsNTQwLjY0NjAwNSBMNDEuMTA5MjcwNiw2MzAuODQxMTUgQzUyLjI5MzkzNzEsNjU0LjkxODI3OSA2NS41NzMzNzI1LDY3Ny44MjQ5ODIgODAuNzEzNDc0MSw2OTkuMzI3MTU2IEwxNzkuNTI5NTE0LDcwOC4yNTcxOCBMMTg4LjQ0NDk2NSw4MDcuMTI1OTY1IEMyMDkuOTQ4NzgzLDgyMi4yODczNzIgMjMyLjg1OTQ3MSw4MzUuNTg2OTM3IDI1Ni45NDI1NDgsODQ2Ljc5MDE3OCBMMzQ2Ljk1ODkyOCw4MDUuMDYwODU4IEw0MDQuMDQwODc2LDg4Ni4yMjYyNCBDNDE3LjIwMzY5NSw4ODcuNDAwMzMyIDQzMC41MzE4MTgsODg4IDQ0NCw4ODggQzQ1Ny4yMDY1NjQsODg4IDQ3MC4yNzg0NTcsODg3LjQyMzQwMyA0ODMuMTkxODc3LDg4Ni4yOTQwMDkgWiBNNDQzLjk0NDUwOSw3MTcuMzQ4MiBDMjkzLjcyMzA1Nyw3MTcuMzQ4MiAxNzEuOTQ0NTA5LDU5NS4zNzE4OTMgMTcxLjk0NDUwOSw0NDQuOTA2NDkzIEMxNzEuOTQ0NTA5LDI5NC40NDEwOTMgMjkzLjcyMzA1NywxNzIuNDY0Nzg2IDQ0My45NDQ1MDksMTcyLjQ2NDc4NiBDNTk0LjE2NTk2MSwxNzIuNDY0Nzg2IDcxNS45NDQ1MDksMjk0LjQ0MTA5MyA3MTUuOTQ0NTA5LDQ0NC45MDY0OTMgQzcxNS45NDQ1MDksNTk1LjM3MTg5MyA1OTQuMTY1OTYxLDcxNy4zNDgyIDQ0My45NDQ1MDksNzE3LjM0ODIgWiIgaWQ9IlNoYXBlIiBmaWxsPSIjM0YzRjNGIiBmaWxsLXJ1bGU9Im5vbnplcm8iPjwvcGF0aD4KICAgIDwvZz4KPC9zdmc+";
         
-        this.vspinGizmo = this.createCard({
+        this.spinGizmo = this.createCard({
             name: "spin horizontal gizmo",
             dataLocation: cog,
             fileName: "./assets/SVG/cog.svg",
@@ -176,7 +127,7 @@ class GizmoActor {
             parent: this,
             noSave: true,
             action: "spinHorizontal",
-            plane: [0,0,1],
+            axis: [0,1,0],
             color: 0x8888ff,
             frameColor: 0xaaaaaa
         });
@@ -497,7 +448,7 @@ class PoseGizmoPawn {
         let avatar = Microverse.GetPawn(pEvt.avatarId);
         avatar.addFirstResponder("pointerMove", {}, this);
         this.baseVector.set(...pEvt.xyz);
-        this.plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.baseVector.y);
+        this.plane = new THREE.Plane(new THREE.Vector3(...this.actor._cardData.axis), -this.baseVector.y);
         this.targetStartVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.parent.target.global));
         this.startRotation = this.newRotation;
         this.publish(this.parent.id, "interaction");
@@ -509,6 +460,7 @@ class PoseGizmoPawn {
         let avatar = Microverse.GetPawn(pEvt.avatarId);
         avatar.addFirstResponder("pointerMove", {}, this);
         this.baseVector.set(...pEvt.xyz);
+
         let lookNorm = avatar.actor.lookNormal;
         this.vec.copy(this.baseVector);
         this.vec.normalize();
@@ -537,7 +489,6 @@ class PoseGizmoPawn {
     }
 
     hSpin(pEvt) {
-        this.vec.set(0, 1, 0);
         // make a horizontal plane through where we think the widget is (either
         // the point reported in the pointerDown pEvt, or the last point of
         // contact on pointerMove)
@@ -559,7 +510,7 @@ class PoseGizmoPawn {
         // this.dragVector.copy(this.toVector);
         // ESLint complained about isNaN.  See https://stackoverflow.com/questions/46677774/eslint-unexpected-use-of-isnan
         if (Number.isNaN(this.angle)) { console.log(this.vec, this.dragVector, this.toVector); this.angle = 0; return false;}
-        let axisAngle = Microverse.q_axisAngle([0,1,0], this.angle);
+        let axisAngle = Microverse.q_axisAngle(this.actor._cardData.axis, this.angle);
         //let targetAngle = Microverse.q_euler(0,this.targetStartAngle+this.angle,0);
         const nextRotation = Microverse.q_multiply( this.startRotation, axisAngle);
         this.publish(this.parent.actor.id, "spinTarget" + this.actor.id, nextRotation);
@@ -590,13 +541,11 @@ class PoseGizmoPawn {
     }
 
     pointerEnter() {
-        console.log("pointerEnter")
         let hilite = this.actor._cardData.hiliteColor || 0xffaaa;
         this.doHilite(hilite); // hilite in yellow
     }
 
     pointerLeave() {
-        console.log("pointerLeave")
         this.doHilite(null);
     }
 
