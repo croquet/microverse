@@ -2,13 +2,11 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, loadCSS, hideShellControls} from "./worldMenu.js";
-
-let helpMenuBody;
+import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
 
 export function startHelpMenu() {
     closeAllDialogs();
-    loadCSS().then(createHelpMenu);
+    createHelpMenu();
     hideShellControls();
 }
 
@@ -129,7 +127,6 @@ function createHelpMenu() {
 
     let helpMenu = div.querySelector("#helpDialog");
     let closeButton = helpMenu.querySelector("#close-button");
-    helpMenuBody = div.querySelector("#joinDialogBody");
 
     filterDomEventsOn(helpMenu);
 

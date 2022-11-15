@@ -339,3 +339,6 @@ export function loadCSS() {
     }
     return Promise.resolve(true);
 }
+
+loadCSS();
+

@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, loadCSS, hideShellControls} from "./worldMenu.js";
+import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
 import { App } from "@croquet/worldcore-kernel";
 
 let settingsMenu = null;
@@ -19,13 +19,13 @@ export function startSettingsMenu(useEnter, r) {
     nicknameIsValid = false;
     avatarIsValid = false;
     closeAllDialogs();
-    loadCSS().then(() => createSettingsMenu(useEnter)).then(fillFromPrevious);
+    createSettingsMenu(useEnter).then(fillFromPrevious);
     hideShellControls();
 }
 
 export function startShareMenu(avatar) {
     closeAllDialogs();
-    loadCSS().then(() => createShareMenu(avatar));
+    createShareMenu(avatar);
     hideShellControls();
 }
 
