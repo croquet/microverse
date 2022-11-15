@@ -3,6 +3,14 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-11-11
+### Added
+- Dolby.io can be used for voice chat.
+- A mechanism to allow switching object manipulator interface, and a different manipulator (pedestal) was added.
+
+### Fixed
+- perform a sanity check on the URL entered for avatar URL.
+
 ## 2022-11-04
 ### Fixed
 - Home button works for spectators.
