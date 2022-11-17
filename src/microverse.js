@@ -115,9 +115,11 @@ function loadInitialBehaviors(paths, directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
+    let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+
     let promises = paths.map((path) => {
         if (!isSystem) {
-            let code = `import('${baseurl}${directory}/${path}')`;
+            let code = `import('${root}${directory}/${path}')`;
             return eval(code).then((module) => {
                 let rest = directory.slice("behaviors".length);
                 if (rest[0] === "/") {rest = rest.slice(1);}
@@ -125,7 +127,7 @@ function loadInitialBehaviors(paths, directory) {
             })
         } else {
             let modulePath = `${directory.split("/")[1]}/${path}`;
-            let code = `import('${baseurl}behaviors/${modulePath}')`;
+            let code = `import('${root}behaviors/${modulePath}')`;
             return eval(code).then((module) => {
                 return [modulePath, module];
             })
@@ -746,7 +748,8 @@ function startWorld(appParameters, world) {
         }).then((session) => {
             session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
-            return fetch(`${baseurl}meta/version.txt`);
+            let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+            return fetch(`${root}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {
                 return response.text();

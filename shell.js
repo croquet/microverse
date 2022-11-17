@@ -138,7 +138,8 @@ class Shell {
                     delete this._hudFlags;
                 }
             };
-            css.href = "./assets/css/joystick.css";
+            let root = window.alternativeRoot ? window.alternativeRoot : "./";
+            css.href = root + "assets/css/joystick.css";
             document.head.appendChild(css);
         }
 

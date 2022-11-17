@@ -2147,6 +2147,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behaviorModules = actor._behaviorModules || [];
         let avatarType = oldCardData.avatarType;
+        let maybeDataLocation = oldCardData.dataLocation;
 
         [
             "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
@@ -2158,7 +2159,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 dataScale: [0.3, 0.3, 0.3],
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
-                dataLocation: `./assets/avatars/${this.actor._name}.zip`,
+                dataLocation: maybeDataLocation || `./assets/avatars/${this.actor._name}.zip`,
                 modelType: "glb",
                 type: "3d",
                 behaviorModules: behaviorModules,
