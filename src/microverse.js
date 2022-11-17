@@ -830,6 +830,9 @@ export function startMicroverse() {
 }
 
 async function launchMicroverse() {
+    if (window.microverseInitFunction) {
+        return window.microverseInitFunction(startWorld, Constants);
+    }
     let {baseurl, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
@@ -862,7 +865,6 @@ async function launchMicroverse() {
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
-        Constants.BehaviorModules = json.data.behaviormodules;
         Constants.DefaultCards = json.data.cards;
         Constants.Library = new CodeLibrary();
         Constants.Library.addModules(json.data.behaviorModules);
