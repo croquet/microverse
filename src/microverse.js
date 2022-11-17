@@ -200,7 +200,7 @@ class MyPlayerManager extends PlayerManager {
                 type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options , avatarType: "custom", ...avatarSpec};
+            options = {...options , avatarType: "custom", avatarIndex: index, ...avatarSpec};
         }
         return AvatarActor.create(options);
     }
@@ -817,7 +817,7 @@ export function startMicroverse() {
             window.settingsMenuConfiguration = { ...localConfig };
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, resolve));
+                : new Promise(resolve => startSettingsMenu(true, !(window.showcase?.useAvatar), resolve));
         });
     sendToShell("send-configuration");
 

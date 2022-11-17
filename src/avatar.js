@@ -2153,9 +2153,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
-        if (!configuration.type && (!avatarType || avatarType === "wonderland")) {
+        if (avatarType === "wonderland" || !configuration.type) {
             let options = {
-                name: avatarName || this.actor._name,
+                name: avatarName || configuration.nickname || this.actor._name,
                 dataScale: [0.3, 0.3, 0.3],
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
@@ -2202,7 +2202,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showSettingsMenu() {
         let promise = new Promise((resolve, _reject) => {
-            startSettingsMenu(false, resolve);
+            startSettingsMenu(false, !(window.showcase?.useAvatar), resolve);
         });
         promise.then(changed => {
             if (changed) {
