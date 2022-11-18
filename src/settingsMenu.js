@@ -148,10 +148,11 @@ function createSettingsMenu(useEnter) {
     }
 
     if (selectAvatar) {
-        selectAvatar.classList.toggle("hidden", noAvatar);
+        selectAvatar.classList.toggle("hidden", !!noAvatar);
     }
+
     if (avatarSelections) {
-        avatarSelections.classList.toggle("hidden", noAvatar);
+        avatarSelections.classList.toggle("hidden", !!noAvatar);
     }
     if (avatarURL) {
         avatarURL.style.display = noAvatar ? "none" : "flex";

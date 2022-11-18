@@ -817,7 +817,7 @@ export function startMicroverse() {
             window.settingsMenuConfiguration = { ...localConfig };
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, !(window.showcase?.useAvatar), resolve));
+                : new Promise(resolve => startSettingsMenu(true, window.showcase && !window.showcase.useAvatar, resolve));
         });
     sendToShell("send-configuration");
 

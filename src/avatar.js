@@ -2202,7 +2202,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showSettingsMenu() {
         let promise = new Promise((resolve, _reject) => {
-            startSettingsMenu(false, !(window.showcase?.useAvatar), resolve);
+            startSettingsMenu(false, window.showcase && !window.showcase.useAvatar, resolve);
         });
         promise.then(changed => {
             if (changed) {
