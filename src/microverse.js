@@ -410,6 +410,7 @@ class MyModelRoot extends ModelRoot {
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
+        this.subscribe(this.sessionId, "setPersistentDataFlag", "setPersistentDataFlag");
         this.subscribe(this.sessionId, "addBroadcaster", "addBroadcaster");
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
@@ -504,6 +505,11 @@ class MyModelRoot extends ModelRoot {
         }
     }
 
+    setPersistentDataFlag(flag) {
+        this.persistentDataDisabled = !flag;
+        console.log("persistentData: " + (this.persistentDataDisabled ? "disabled" : "enabled"));
+    }
+
     triggerPersist() {
         let now = this.now();
         let diff = now - this.lastPersistTime;
@@ -518,7 +524,9 @@ class MyModelRoot extends ModelRoot {
         }
         this.lastPersistTime = now;
         this.persistRequested = false;
-        this.savePersistentData();
+        if (!this.persistentDataDisabled) {
+            this.savePersistentData();
+        }
     }
 
     addBroadcaster(viewId) {
@@ -677,6 +685,7 @@ class MyViewRoot extends ViewRoot {
         renderer.localClippingEnabled = true;
         this.setAnimationLoop(this.session);
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
+        if (Constants.ShowCaseSpec) this.publish(this.sessionId, "setPersistentDataFlag", false);
     }
 
     detach() {
@@ -815,9 +824,10 @@ export function startMicroverse() {
     const configPromise = new Promise(resolve => resolveConfiguration = resolve)
         .then(localConfig => {
             window.settingsMenuConfiguration = { ...localConfig };
+            let showcase = Constants.ShowCaseSpec;
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, window.showcase && !window.showcase.useAvatar, resolve));
+                : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
         });
     sendToShell("send-configuration");
 
