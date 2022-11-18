@@ -327,11 +327,12 @@ export function hideShellControls() {
 export function loadCSS() {
     if (!document.head.querySelector("#settings-css")) {
         return new Promise((resolve, reject) => {
+            let root = window.alternativeRoot ? window.alternativeRoot : "./";
             let css = document.createElement("link");
             css.rel = "stylesheet";
             css.type = "text/css";
             css.id = "settings-css";
-            css.href = "./assets/css/settings.css";
+            css.href = root + "assets/css/settings.css";
             css.onload = resolve;
             css.onerror = reject;
             document.head.appendChild(css);
@@ -341,4 +342,3 @@ export function loadCSS() {
 }
 
 loadCSS();
-

@@ -214,7 +214,9 @@ export class FontViewManager extends ViewService {
         if (this.fonts.get(name)) {return Promise.resolve(this.fonts.get(name));}
         if (this.isLoading[name]) {return this.isLoading[name];}
 
-        let path = "./assets/fonts";
+        let root = window.alternativeRoot ? window.alternativeRoot : "./";
+        
+        let path = root + "assets/fonts";
         let image = `${path}/${name}.png`;
 
         if (optFont) {

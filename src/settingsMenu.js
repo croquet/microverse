@@ -8,16 +8,18 @@ import { App } from "@croquet/worldcore-kernel";
 let settingsMenu = null;
 let nicknameIsValid;
 let avatarIsValid;
+let noAvatar;
 
 let configuration = {};
 let resolveDialog;
 
-export function startSettingsMenu(useEnter, r) {
+export function startSettingsMenu(useEnter, noAvatarFlag, r) {
     // note that even if called when already in session with a default (Alice) avatar,
     // the user must provide an avatar choice to be able to change the name
     resolveDialog = r;
     nicknameIsValid = false;
     avatarIsValid = false;
+    noAvatar = noAvatarFlag;
     closeAllDialogs();
     createSettingsMenu(useEnter).then(fillFromPrevious);
     hideShellControls();
@@ -55,7 +57,7 @@ function createSettingsMenu(useEnter) {
                 <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
                 <div id="nameFilterWarning"><br /></div>
             </div>
-            <div class="namePrompt">Select Avatar</div>
+            <div id="selectAvatar" class="namePrompt">Select Avatar</div>
             <div id="dialogAvatarSelections">
                 <div id="avatarList"></div>
             </div>
@@ -95,12 +97,18 @@ function createSettingsMenu(useEnter) {
     let enterButton = settingsMenu.querySelector('#enterButton');
     let acceptButton = settingsMenu.querySelector('#acceptButton');
     let cancelButton = settingsMenu.querySelector('#cancel-button');
+    let handednessRow = settingsMenu.querySelector("#handednessRow");
     let dialogHandedness = settingsMenu.querySelector("#handedness");
     let dialogTitle = settingsMenu.querySelector("#dialogTitle");
     let joinPrompt = settingsMenu.querySelector("#joinPrompt");
+    let joinPromptBlurb = settingsMenu.querySelector("#joinPromptBlurb");
     let settingsTitle = settingsMenu.querySelector("#settings-title");
     let dialogEnterButton = settingsMenu.querySelector("#dialogEnterButton");
     let dialogAcceptCancelButtons = settingsMenu.querySelector("#dialogAcceptCancelButtons");
+
+    let selectAvatar = settingsMenu.querySelector("#selectAvatar");
+    let avatarSelections = settingsMenu.querySelector("#dialogAvatarSelections");
+    let avatarURL = settingsMenu.querySelector("#avatarURL");
 
     let nameField = settingsMenu.querySelector('#nameField');
     nameField.addEventListener('keydown', (evt) => nameFieldKeydown(evt));
@@ -139,6 +147,25 @@ function createSettingsMenu(useEnter) {
         dialogAcceptCancelButtons.classList.toggle("notUseEnter", !useEnter);
     }
 
+    if (selectAvatar) {
+        selectAvatar.classList.toggle("hidden", !!noAvatar);
+    }
+
+    if (avatarSelections) {
+        avatarSelections.classList.toggle("hidden", !!noAvatar);
+    }
+    if (avatarURL) {
+        avatarURL.style.display = noAvatar ? "none" : "flex";
+    }
+
+    if (handednessRow) {
+        handednessRow.style.display = noAvatar ? "none" : "flex";
+    }
+
+    if (joinPromptBlurb && noAvatar) {
+        joinPromptBlurb.textContent = "Specify a nickname and press Enter.";
+    }
+
     populateAvatarSelection();
 
     document.body.appendChild(settingsMenu);
@@ -150,7 +177,7 @@ function createSettingsMenu(useEnter) {
 function fillFromPrevious() {
     const localSettings = window.settingsMenuConfiguration || {};
     const oldNick = localSettings.nickname;
-    const oldAvatarURL = localSettings.avatarURL;
+    const oldAvatarURL = noAvatar ? null : localSettings.avatarURL;
     const oldHandedness = localSettings.handedness;
     if (oldNick) {
         const nameField = settingsMenu.querySelector('#nameField');
@@ -225,7 +252,7 @@ function avatarURLFieldChanged(evt) {
 }
 
 function updateButtonState() {
-    const valid = nicknameIsValid && avatarIsValid;
+    const valid = nicknameIsValid && (noAvatar || avatarIsValid);
     const dialogEnterButton = settingsMenu.querySelector('#dialogEnterButton');
     dialogEnterButton.classList.toggle('disabled', !valid);
     const dialogAcceptCancelButtons = settingsMenu.querySelector('#dialogAcceptCancelButtons');
@@ -263,6 +290,10 @@ function updateLocalConfig() {
         ...existing,
         ...configuration
     };
+    if (noAvatar) {
+        window.settingsMenuConfiguration.avatarURL = null;
+        window.settingsMenuConfiguration.type = "wonderland";
+    }
 }
 
 let avatars = [
@@ -301,11 +332,10 @@ let avatars = [
 ];
 
 function avatarSelected(entry) {
-    let avatarURLField = settingsMenu.querySelector('#avatarURLField');
-    let value = avatarURLField.textContent.trim();
+    let value = entry.url;
     let urlValid = /https?:[a-zA-Z0-9/.-]+\.glb/.test(value);
 
-    if (urlValid) {
+    if (urlValid && !noAvatar) {
         configuration.avatarURL = entry.url;
         configuration.type = entry.type;
     }

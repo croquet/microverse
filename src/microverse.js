@@ -115,9 +115,11 @@ function loadInitialBehaviors(paths, directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
+    let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+
     let promises = paths.map((path) => {
         if (!isSystem) {
-            let code = `import('${baseurl}${directory}/${path}')`;
+            let code = `import('${root}${directory}/${path}')`;
             return eval(code).then((module) => {
                 let rest = directory.slice("behaviors".length);
                 if (rest[0] === "/") {rest = rest.slice(1);}
@@ -125,7 +127,7 @@ function loadInitialBehaviors(paths, directory) {
             })
         } else {
             let modulePath = `${directory.split("/")[1]}/${path}`;
-            let code = `import('${baseurl}behaviors/${modulePath}')`;
+            let code = `import('${root}behaviors/${modulePath}')`;
             return eval(code).then((module) => {
                 return [modulePath, module];
             })
@@ -198,7 +200,7 @@ class MyPlayerManager extends PlayerManager {
                 type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options , avatarType: "custom", ...avatarSpec};
+            options = {...options , avatarType: "custom", avatarIndex: index, ...avatarSpec};
         }
         return AvatarActor.create(options);
     }
@@ -746,7 +748,8 @@ function startWorld(appParameters, world) {
         }).then((session) => {
             session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
-            return fetch(`${baseurl}meta/version.txt`);
+            let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+            return fetch(`${root}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {
                 return response.text();
@@ -814,7 +817,7 @@ export function startMicroverse() {
             window.settingsMenuConfiguration = { ...localConfig };
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, resolve));
+                : new Promise(resolve => startSettingsMenu(true, window.showcase && !window.showcase.useAvatar, resolve));
         });
     sendToShell("send-configuration");
 
@@ -830,6 +833,9 @@ export function startMicroverse() {
 }
 
 async function launchMicroverse() {
+    if (window.microverseInitFunction) {
+        return window.microverseInitFunction(startWorld, Constants);
+    }
     let {baseurl, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
@@ -862,7 +868,6 @@ async function launchMicroverse() {
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
-        Constants.BehaviorModules = json.data.behaviormodules;
         Constants.DefaultCards = json.data.cards;
         Constants.Library = new CodeLibrary();
         Constants.Library.addModules(json.data.behaviorModules);
