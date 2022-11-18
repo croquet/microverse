@@ -138,7 +138,7 @@ class Shell {
                     delete this._hudFlags;
                 }
             };
-            let root = window.alternativeRoot ? window.alternativeRoot : "./";
+            let root = window.microverseDir ? window.microverseDir : "./";
             css.href = root + "assets/css/joystick.css";
             document.head.appendChild(css);
         }

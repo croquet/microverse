@@ -115,7 +115,7 @@ function loadInitialBehaviors(paths, directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
-    let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+    let root = window.microverseDir ? window.microverseDir : baseurl;
 
     let promises = paths.map((path) => {
         if (!isSystem) {
@@ -757,7 +757,7 @@ function startWorld(appParameters, world) {
         }).then((session) => {
             session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
-            let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+            let root = window.microverseDir ? window.microverseDir : baseurl;
             return fetch(`${root}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {

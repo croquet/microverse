@@ -327,7 +327,7 @@ export function hideShellControls() {
 export function loadCSS() {
     if (!document.head.querySelector("#settings-css")) {
         return new Promise((resolve, reject) => {
-            let root = window.alternativeRoot ? window.alternativeRoot : "./";
+            let root = window.microverseDir ? window.microverseDir : "./";
             let css = document.createElement("link");
             css.rel = "stylesheet";
             css.type = "text/css";
