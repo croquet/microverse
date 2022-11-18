@@ -685,7 +685,7 @@ class MyViewRoot extends ViewRoot {
         renderer.localClippingEnabled = true;
         this.setAnimationLoop(this.session);
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
-        if (Constants.ShowCaseSpec) this.publish(this.sessionId, "setPersistentDataFlag", false);
+        if (Constants.ShowCaseSpec && !model.persistentDataDisabled) this.publish(this.sessionId, "setPersistentDataFlag", false);
     }
 
     detach() {
