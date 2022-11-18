@@ -2146,7 +2146,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behaviorModules = actor._behaviorModules || [];
-        let avatarType = oldCardData.avatarType;
+        let avatarType = configuration.avatarType;
         let maybeDataLocation = oldCardData.dataLocation;
 
         [

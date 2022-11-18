@@ -332,8 +332,7 @@ let avatars = [
 ];
 
 function avatarSelected(entry) {
-    let avatarURLField = settingsMenu.querySelector('#avatarURLField');
-    let value = avatarURLField.textContent.trim();
+    let value = entry.url;
     let urlValid = /https?:[a-zA-Z0-9/.-]+\.glb/.test(value);
 
     if (urlValid && !noAvatar) {
