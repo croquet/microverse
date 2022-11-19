@@ -19,7 +19,7 @@ function qrPressed(_myAvatar, url) {
 function loadPressed(myAvatar) {
     if (!imageInput) {
         let input = document.createElement("div");
-        input.innerHTML = `<input id="imageinput" type="file" accept="application/json,image/*,.glb,.obj..fbx,.wrl, .zip,.svg,.vrse,.exr,.pdf,.mp3,.wav">`;
+        input.innerHTML = `<input id="imageinput" type="file" accept="application/json,image/*,.glb,.obj..fbx,.wrl,.zip,.svg,.vrse,.exr,.pdf,.mp3,.wav">`;
         imageInput = input.firstChild;
 
         let getFileType = (fileName) => {
