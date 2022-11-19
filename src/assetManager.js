@@ -36,7 +36,7 @@ class ImportChecker {
 export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {data /*(of any kind)*/, ids: [viewObjectId|"0"]}}
-        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf", "vrse"]);
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "wrl", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf", "vrse"]);
     }
 
     fetchFile(item) {
@@ -244,6 +244,7 @@ export class AssetManager {
             "glb": "importGLB",
             "obj": "importOBJ",
             "fbx": "importFBX",
+            "wrl": "importVRML",
             "svg": "importSVG",
             "png": "importIMG",
             "jpg": "importIMG",
@@ -418,6 +419,44 @@ export class Loader {
         const fbxLoader = new THREE.FBXLoader(manager);
         let obj = await new Promise((resolve, reject) => {
             return fbxLoader.load(contents.fbx, resolve, null, reject);
+        }).then((object) => {
+            if (object.animations.length > 0) {
+                const mixer = new THREE.AnimationMixer(object);
+                object._croquetAnimation = {
+                    lastTime: 0,
+                    mixer,
+                    animations: object.animations
+                };
+            }
+            return object;
+        });
+
+        Object.keys(contents).forEach((k) => {
+            if (contents[k] && k !== "imgContents") {
+                URL.revokeObjectURL(contents[k]);
+            }
+        });
+        return obj;
+    }
+
+    async importVRML(buffer, options, THREE) {
+        const setupFiles = async () => {
+            if (!isZip(buffer)) {
+                let c = {"wrl": URL.createObjectURL(new Blob([buffer]))};
+                return Promise.resolve(c);
+            }
+
+            return this.setupFilesInZip(buffer, {"wrl": "ArrayBuffer"});
+        };
+
+        let contents = await setupFiles();
+
+        const manager = new THREE.LoadingManager();
+        this.setURLModifierFor(manager, contents.imgContents);
+
+        const vrmlLoader = new THREE.VRMLLoader(manager);
+        let obj = await new Promise((resolve, reject) => {
+            return vrmlLoader.load(contents.wrl, resolve, null, reject);
         }).then((object) => {
             if (object.animations.length > 0) {
                 const mixer = new THREE.AnimationMixer(object);
