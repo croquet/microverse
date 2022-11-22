@@ -156,7 +156,7 @@ function initWorldMenu(badge) {
 </div>
 <div id="worldMenu-shareButton" class="menu-label menu-item">
     <div class="menu-icon share-icon"></div>
-    <span class="menu-label-text">Share</span>
+    <span class="menu-label-text">Invite</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
     <div class="menu-icon settings-icon"></div>
