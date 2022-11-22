@@ -665,7 +665,10 @@ class MyViewRoot extends ViewRoot {
             BehaviorViewManager,
             WalkManager,
         ];
-        if (window.settingsMenuConfiguration?.voice) services.push(DolbyChatManager);
+        if (window.settingsMenuConfiguration?.voice ||
+            Constants.ShowCaseSpec && Constants.ShowCaseSpec.voiceChat) {
+            services.push(DolbyChatManager);
+        }
         return services;
     }
 
