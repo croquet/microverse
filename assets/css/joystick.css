@@ -36,6 +36,43 @@
     background-color: rgba(124, 124, 124, 0.2);
 }
 
+#joystick-arrows {
+    position: fixed;
+    width: 0px;
+    height: 0px;
+    left: 60px;
+    top: 60px;
+    display: flex;
+}
+
+.joystick-arrow {
+    position: absolute;
+    padding: 0;
+    margin: 0;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSI3IiB2aWV3Qm94PSIwIDAgOCA3IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMy43NTc4MSAwLjc3MzQzOEw3LjAyNjU1IDYuNDM1MDZIMC40ODkwNzRMMy43NTc4MSAwLjc3MzQzOFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=");
+    background-repeat: no-repeat;
+    width: 8px;
+    height: 7px;
+    left: -4px;
+    top: -3.5px;
+}
+
+#joystick-arrow-n {
+    transform: translate(0px, -50px);
+}
+
+#joystick-arrow-e {
+    transform:  translate(50px, 0px) rotate(90deg);
+}
+
+#joystick-arrow-w {
+    transform:  translate(-50px, 0px) rotate(-90deg);
+}
+
+#joystick-arrow-s {
+    transform:  translate(0px, 50px) rotate(180deg);
+}
+
 @media (max-width:600px), (max-height:600px) {
     #trackingknob {
         width: 86px;
@@ -51,6 +88,27 @@
     #knob {
         width: 43px;
         height: 43px;
+    }
+
+    #joystick-arrows {
+	left: 43px;
+	top: 43px;
+    }
+
+    #joystick-arrow-n {
+	transform: translate(0px, -36px);
+    }
+
+    #joystick-arrow-e {
+	transform:  translate(36px, 0px) rotate(90deg);
+    }
+
+    #joystick-arrow-w {
+	transform:  translate(-36px, 0px) rotate(-90deg);
+    }
+
+    #joystick-arrow-s {
+	transform:  translate(0px, 36px) rotate(180deg);
     }
 }
 
@@ -75,5 +133,26 @@
     #knob {
         width: 70px;
         height: 70px;
+    }
+
+    #joystick-arrows {
+	left: 70px;
+	top: 70px;
+    }
+
+    #joystick-arrow-n {
+	transform: translate(0px, -58px);
+    }
+
+    #joystick-arrow-e {
+	transform:  translate(58px, 0px) rotate(90deg);
+    }
+
+    #joystick-arrow-w {
+	transform:  translate(-58px, 0px) rotate(-90deg);
+    }
+
+    #joystick-arrow-s {
+	transform:  translate(0px, 58px) rotate(180deg);
     }
 }
