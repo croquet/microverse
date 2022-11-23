@@ -12,6 +12,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
+import { VRMLLoader } from 'three/examples/jsm/loaders/VRMLLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
@@ -519,7 +520,7 @@ class ThreeRenderManager extends RenderManager {
 
 const THREE = {
     ...THREEModule, Pass, UnrealBloomPass, CopyShader, CSMFrustum, CSMShader, CSM,
-    OBJLoader, MTLLoader, GLTFLoader, FBXLoader, DRACOLoader, SVGLoader, EXRLoader, BufferGeometryUtils,
+    OBJLoader, MTLLoader, GLTFLoader, FBXLoader, VRMLLoader, DRACOLoader, SVGLoader, EXRLoader, BufferGeometryUtils,
     FontLoader, Font, TextGeometry
 };
 

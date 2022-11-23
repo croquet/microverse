@@ -402,8 +402,8 @@ function createShareMenu(avatar) {
     <div id="shareDialog" class="dialogPanel no-select">
         <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
         <div id="share-container" class="content-container">
-            <div id="share-title" class="panel-title">Share Session<br></div>
-            <div class="promptBlurb">Scan QR code or click to open a new browser tab<br> in the same session.</div>
+            <div id="share-title" class="panel-title">Invite Users<br></div>
+            <div class="promptBlurb">Scan QR code or click to open a new browser tab in the same session.</div>
             <div id="share-qr"></div>
 
             <div class="share-settings-label">Copy Share Link</div>

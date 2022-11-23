@@ -97,7 +97,7 @@ function createHelpMenu() {
                      </tr>
                      <tr class="help-row">
                          <td>
-                             <p class="table-head">Share</p>
+                             <p class="table-head">Invite</p>
                              <p class="table-desc">Save your Microverse as a .vrse file to share or use the QR code to share the session with others.</p>
                          </td>
                          <td class="icon-column">

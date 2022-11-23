@@ -5,7 +5,7 @@
 /* globals XRRigidTransform */
 
 import {
-    Data, App, View, mix, GetPawn, AM_Player, PM_Player,
+    Data, App, View, Constants, mix, GetPawn, AM_Player, PM_Player,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
     m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation,
@@ -2202,7 +2202,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showSettingsMenu() {
         let promise = new Promise((resolve, _reject) => {
-            startSettingsMenu(false, window.showcase && !window.showcase.useAvatar, resolve);
+            let showcase = Constants.ShowCaseSpec;
+            startSettingsMenu(false, showcase && !showcase.useAvatar, resolve);
         });
         promise.then(changed => {
             if (changed) {

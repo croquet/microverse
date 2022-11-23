@@ -214,7 +214,7 @@ export class FontViewManager extends ViewService {
         if (this.fonts.get(name)) {return Promise.resolve(this.fonts.get(name));}
         if (this.isLoading[name]) {return this.isLoading[name];}
 
-        let root = window.alternativeRoot ? window.alternativeRoot : "./";
+        let root = window.microverseDir ? window.microverseDir : "./";
         
         let path = root + "assets/fonts";
         let image = `${path}/${name}.png`;

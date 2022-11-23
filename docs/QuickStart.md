@@ -90,11 +90,13 @@ You can pick your own `appId`. We recommend to make a unique appId.
 ---
 ## Updating
 
-In your project directory run
+If you have started with `create-croquet-microverse`, you can update `microverse-library` to the latest version by running:
 
     npm i @croquet/microverse-library@latest
 
-This will update your `package.json` and the installed version of Microverse to the latest. Then copy the updated `node_modules/@croquet/microverse-library/lib` directory again as described above.
+This will update your `package.json` and the files under the `lib` directory where microverse-library code is copied. The files under `behaviors/croquet` are also updated, but files in other directories under `behavior` are kept unchanged.
+
+You don't have to add files under node_modules; and a deployed installation works without it. We recocommend to add node_modules to .gitignore.
 
 ---
 ## Resources

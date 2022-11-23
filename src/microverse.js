@@ -115,7 +115,7 @@ function loadInitialBehaviors(paths, directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
-    let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+    let root = window.microverseDir ? window.microverseDir : baseurl;
 
     let promises = paths.map((path) => {
         if (!isSystem) {
@@ -410,6 +410,7 @@ class MyModelRoot extends ModelRoot {
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
+        this.subscribe(this.sessionId, "setPersistentDataFlag", "setPersistentDataFlag");
         this.subscribe(this.sessionId, "addBroadcaster", "addBroadcaster");
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
@@ -504,6 +505,11 @@ class MyModelRoot extends ModelRoot {
         }
     }
 
+    setPersistentDataFlag(flag) {
+        this.persistentDataDisabled = !flag;
+        console.log("persistentData: " + (this.persistentDataDisabled ? "disabled" : "enabled"));
+    }
+
     triggerPersist() {
         let now = this.now();
         let diff = now - this.lastPersistTime;
@@ -518,7 +524,9 @@ class MyModelRoot extends ModelRoot {
         }
         this.lastPersistTime = now;
         this.persistRequested = false;
-        this.savePersistentData();
+        if (!this.persistentDataDisabled) {
+            this.savePersistentData();
+        }
     }
 
     addBroadcaster(viewId) {
@@ -657,7 +665,10 @@ class MyViewRoot extends ViewRoot {
             BehaviorViewManager,
             WalkManager,
         ];
-        if (window.settingsMenuConfiguration?.voice) services.push(DolbyChatManager);
+        if (window.settingsMenuConfiguration?.voice ||
+            Constants.ShowCaseSpec && Constants.ShowCaseSpec.voiceChat) {
+            services.push(DolbyChatManager);
+        }
         return services;
     }
 
@@ -677,6 +688,7 @@ class MyViewRoot extends ViewRoot {
         renderer.localClippingEnabled = true;
         this.setAnimationLoop(this.session);
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
+        if (Constants.ShowCaseSpec && !model.persistentDataDisabled) this.publish(this.sessionId, "setPersistentDataFlag", false);
     }
 
     detach() {
@@ -729,10 +741,10 @@ function startWorld(appParameters, world) {
         options: {world},
         // developer can override defaults
         ...appParameters,
-        // except for the 'microverse' flag
-        // which identifies microverse sessions for billing
-        flags: ["microverse"],
     };
+    // identify microverse sessions per flags
+    if (!Array.isArray(sessionParameters.flags)) sessionParameters.flags = [];
+    if (!sessionParameters.flags.includes("microverse")) sessionParameters.flags.push("microverse");
 
     // remove portal and broadcast parameters from url for QR code
     App.sessionURL = deleteParameter(App.sessionURL, "portal");
@@ -748,7 +760,7 @@ function startWorld(appParameters, world) {
         }).then((session) => {
             session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
-            let root = window.alternativeRoot ? window.alternativeRoot : baseurl;
+            let root = window.microverseDir ? window.microverseDir : baseurl;
             return fetch(`${root}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {
@@ -815,9 +827,12 @@ export function startMicroverse() {
     const configPromise = new Promise(resolve => resolveConfiguration = resolve)
         .then(localConfig => {
             window.settingsMenuConfiguration = { ...localConfig };
+            // let showcase = Constants.ShowCaseSpec;
+            // Constants is not initialized yet, as Croquet session has not been started.
+            let showcase = window.showcase;
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, window.showcase && !window.showcase.useAvatar, resolve));
+                : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
         });
     sendToShell("send-configuration");
 

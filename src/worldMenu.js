@@ -19,7 +19,7 @@ function qrPressed(_myAvatar, url) {
 function loadPressed(myAvatar) {
     if (!imageInput) {
         let input = document.createElement("div");
-        input.innerHTML = `<input id="imageinput" type="file" accept="application/json,image/*,.glb,.obj..fbx,.zip,.svg,.vrse,.exr,.pdf,.mp3,.wav">`;
+        input.innerHTML = `<input id="imageinput" type="file" accept="application/json,image/*,.glb,.obj..fbx,.wrl,.zip,.svg,.vrse,.exr,.pdf,.mp3,.wav">`;
         imageInput = input.firstChild;
 
         let getFileType = (fileName) => {
@@ -156,7 +156,7 @@ function initWorldMenu(badge) {
 </div>
 <div id="worldMenu-shareButton" class="menu-label menu-item">
     <div class="menu-icon share-icon"></div>
-    <span class="menu-label-text">Share</span>
+    <span class="menu-label-text">Invite</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
     <div class="menu-icon settings-icon"></div>
@@ -327,7 +327,7 @@ export function hideShellControls() {
 export function loadCSS() {
     if (!document.head.querySelector("#settings-css")) {
         return new Promise((resolve, reject) => {
-            let root = window.alternativeRoot ? window.alternativeRoot : "./";
+            let root = window.microverseDir ? window.microverseDir : "./";
             let css = document.createElement("link");
             css.rel = "stylesheet";
             css.type = "text/css";
