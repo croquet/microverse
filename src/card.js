@@ -795,21 +795,28 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.video.muted = muted;
             this.video.loop = loop;
             this.video.controls = false;
-            this.video.width = textureWidth;
-            this.video.height = textureHeight;
-
-            this.getBuffer(textureLocation).then((buffer) => {
+            texturePromise = this.getBuffer(textureLocation).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
-                this.videoLoaded = true;
+                this.video.preload = "metadata";
                 this.objectURL = objectURL;
+                return new Promise((resolve, reject) => {
+                    this.video.onloadeddata = resolve;
+                    this.video.onerror = reject;
+                });
+            }).then(() => {
+                this.videoLoaded = true;
+                this.video.width = options.textureWidth || this.video.videoWidth;
+                this.video.height = options.textureHeight || this.video.videoHeight;
+                this.video.currentTime = 0.03;
                 // need to be revoked when destroyed
-            });
-            this.texture = new THREE.VideoTexture(this.video);
-            texturePromise = Promise.resolve({
-                width: this.video.width,
-                height: this.video.height,
-                texture: this.texture
+                this.texture = new THREE.VideoTexture(this.video);
+
+                return {
+                    width: this.video.width,
+                    height: this.video.height,
+                    texture: this.texture
+                }
             });
         } else if (textureType === "image") {
             texturePromise = this.getBuffer(textureLocation).then((bufferOrObj) => {
