@@ -1,8 +1,8 @@
 .allow-select {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 #dialogTitle {
@@ -63,6 +63,10 @@
     color: white;
     text-align: center;
     gap: 10px;
+}
+
+#joinPrompt.notUseEnter {
+    display: none;
 }
 
 .hidden {
@@ -140,8 +144,12 @@
     line-height: 45px;
     text-align: center;
     background-color: #28a745;
-    border-radius: 14px;
+    border-radius: 0.25rem;
     cursor: pointer;
+}
+
+#dialogEnterButton.notUseEnter {
+    display: none;
 }
 
 #enterButton:hover {
@@ -186,6 +194,14 @@
 
 #acceptButton:hover {
     background-color: #218838;
+}
+
+#dialogAcceptCancelButtons {
+    display: none;
+}
+
+#dialogAcceptCancelButtons.notUseEnter {
+    display: flex;
 }
 
 .dialogButtonsHolder.disabled #enterButton,
@@ -879,64 +895,104 @@
     font-weight: bold;
 }
 
-
-@media (min-width: 626px) {
-    .dialog-container {
-	width: 90px;
-    }
-
-    .dialogButtonsHolder {
-	margin-top: 30px;
-    }
-}
-
-@media (max-width: 625px) {
+@media (max-width: 600px), (max-height: 600px) {
     .dialogPanel {
+	height: 80%;
 	width: 90%;
-	display: block;
+	min-width: 300px;
+	min-height: 300px;
+	display: flex;
 	margin-left: auto;
 	margin-right: auto;
+	flex-direction: column;
+	justify-content: space-around;
     }
 
-    .dialogButtonHolder {
-	margin-top: 10px;
+
+    
+    .content-container {
+	width: 95%;
+	height: 95%;
+    }
+    
+    #dialogAvatarSelections {
+	height: 40px;
+	padding-bottom: 10px;
     }
 
-    .share-qr-canvas {
-	width: 120px;
-	height: 120px;
-	margin: 10px;
+    .namePrompt {
+	font-size: 12px;
+    }
+
+    .nameField {
+	height: 14px;
+	font-size: 12px;
+	padding-top: 2px;
+	flex-grow: 1;
+    }
+
+    #nameExplanation {
+	display: none;
+    }
+
+    #nameFilterWarning {
+	display: none;
+    }
+
+    #handednessLabel {
+	font-size: 12px;
+    }
+
+    .handedness-label {
+	font-size: 12px;
+    }
+
+    #share-qr {
+	display: none;
     }
 
     .topright {
 	right: 10px;
 	top: 10px;
     }
+}
+
+@media (max-height: 600px) {
+    .dialogPanel {
+	width: 80%;
+	height: 300px;
+    }
+
+    .panel-title {
+	margin: 2px 20px 2px 20px;
+    }
 
     #table-wrapper {
 	padding: 10px;
+	height: calc(100% - 50px);
     }
 
-    .content-container {
-	width: 95%;
+    #joinPrompt {
+	display: none;
     }
+
+    #avatarNameField {
+	margin-bottom: 10px;
+    }
+
+    .dialogButtonsHolder {
+	position: relative;
+	top: -65px;
+	width: 50%;
+	left: 50%;
+    }
+
 }
 
-@media (max-height: 700px) {
-    #dialogAvatarSelections {
-	height: 40px;
-	padding-bottom: 10px;
-    }
-
-    .share-qr-canvas {
-	width: 100px;
-	height: 100px;
-	margin: 10px;
-    }
-    
+@media (max-width: 600px) {
     .dialogPanel {
-        min-height: 500px;
-	height: 500px;
+	height: 80%;
+	width: 90%;
     }
 
     .panel-title {
@@ -944,81 +1000,28 @@
     }
 
     #table-wrapper {
-	height: 400px;
-    }
-}
-
-@media (max-height: 480px) {
-    .panel-title {
-	margin: 2px 10px 2px 10px;
-    }
-
-   .namePrompt {
-	font-size: 12px;
-    }
-
-   .nameField {
-	height: 14px;
-	font-size: 12px;
-	padding-bottom: 2px;
-	flex-grow: 1;
-   }
-
-   #nameExplanation {
-       display: none;
-   }
-
-   #nameFilterWarning {
-       display: none;
-   }
-
-   #handednessLabel {
-       font-size: 12px;
-   }
-
-    #dialogEnterButton {
-	position: relative;
-	top: -66px;
-	right: -200px;
-    }
-
-    .share-qr-canvas {
-	width: 120px;
-	height: 120px;
-	margin: 10px;
+	height: calc(100% - 100px);
     }
 
     .share-settings-label {
 	font-size: 12px;
     }
-
-    .menu-qr {
-	display: none;
-    }
-
-    .dialogPanel {
-	min-height: 300px;
-	height: 300px;
-	width: 500px;
-    }
-
-    #share-qr {
-	display: none;
-    }
-
-    #table-wrapper {
-	height: 180px;
-    }
-
-    .btn-radio-button {
-	padding: 2px;
-    }
-
-    .handedness-label {
-	font-size: 12px;
-    }
-
+    
     .stringInputHolder {
 	flex-direction: row;
+    }
+
+    .copy-link {
+	font-size: 12px;
+	height: 14px;
+	border: 1px solid grey;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	padding-left: 10px;
+	color: #898989;
+	overflow: hidden;
+	white-space: nowrap;
+	flex-grow: 1;
     }
 }

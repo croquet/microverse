@@ -26,7 +26,7 @@ This guide will enable you to quickly set up Croquet Microverse and introduce yo
 
     `npm create croquet-microverse@latest`
 
-    If you want to develop the core system, clone the GitHub repository https://github.com/croquet/microverse . 
+    If you want to develop the core system, clone the GitHub repository https://github.com/croquet/microverse .
 
 2. If you clone the repository, open a terminal and set the path to your new Microverse folder.
 
@@ -130,7 +130,7 @@ You can add a new file in the "worlds" directory (copying default.js or test.js 
 
 ## Worlds, Cards and Behaviors
 ---
-A Croquet World is made up of a collection of cards, behaviors and 2d and 3d content. Everything in the world and, every action is multiuser by default. You can think of the world you are constructing as a template. Once a template is lauunched, it will automatically generate a new session ID which is also added to the URL. Sharing this full URL enables other users to join the world with you any time.
+A Croquet World is made up of a collection of cards, behaviors and 2d and 3d content. Everything in the world and, every action is multiuser by default. You can think of the world you are constructing as a template. Once a template is launched, it will automatically generate a new session ID which is also added to the URL. Sharing this full URL enables other users to join the world with you any time.
 
 ### Cards
 

@@ -2,13 +2,11 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, loadCSS, hideShellControls} from "./worldMenu.js";
-
-let helpMenuBody;
+import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
 
 export function startHelpMenu() {
     closeAllDialogs();
-    loadCSS().then(createHelpMenu);
+    createHelpMenu();
     hideShellControls();
 }
 
@@ -99,7 +97,7 @@ function createHelpMenu() {
                      </tr>
                      <tr class="help-row">
                          <td>
-                             <p class="table-head">Share</p>
+                             <p class="table-head">Invite</p>
                              <p class="table-desc">Save your Microverse as a .vrse file to share or use the QR code to share the session with others.</p>
                          </td>
                          <td class="icon-column">
@@ -129,7 +127,6 @@ function createHelpMenu() {
 
     let helpMenu = div.querySelector("#helpDialog");
     let closeButton = helpMenu.querySelector("#close-button");
-    helpMenuBody = div.querySelector("#joinDialogBody");
 
     filterDomEventsOn(helpMenu);
 

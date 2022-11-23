@@ -5,7 +5,7 @@
 /* globals XRRigidTransform */
 
 import {
-    Data, App, View, mix, GetPawn, AM_Player, PM_Player,
+    Data, App, View, Constants, mix, GetPawn, AM_Player, PM_Player,
     v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
     q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
     m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation,
@@ -494,10 +494,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!this.gizmo) {
             if (!this.behaviorManager.modules.get("Gizmo")) {return;}
             this.gizmo = this.createCard({
-                translation: target.translation,
+                translation: m4_getTranslation(target.global),
                 name: 'gizmo',
                 behaviorModules: ["Gizmo"],
-                parent: target.parent,
+                //parent: target.parent,
                 type: "object",
                 noSave: true,
             });
@@ -1975,7 +1975,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
 
-        let pawnIsGizmo = pawn && pawn.actor._behaviorModules?.some(m => m.startsWith("Gizmo"));
+        let pawnIsGizmo = pawn && pawn.actor.isGizmoManipulator;
 
         if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
             this.gizmoTargetPawn.unselectEdit();
@@ -1984,8 +1984,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (e.ctrlKey || e.altKey) { // should be the first responder case
-            this.actor.behaviorManager.lookup("Gizmo", "GizmoActor");
-            if (pawn && this.actor.behaviorManager.lookup("Gizmo", "GizmoActor")) {
+            let doGizmo = this.actor.behaviorManager.modules.get("Gizmo");
+            if (pawn && doGizmo) {
                 if (pawnIsGizmo) {
                     console.log("Tried to gizmo gizmo");
                     this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
@@ -2146,19 +2146,20 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behaviorModules = actor._behaviorModules || [];
-        let avatarType = oldCardData.avatarType;
+        let avatarType = configuration.avatarType;
+        let maybeDataLocation = oldCardData.dataLocation;
 
         [
             "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
             "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
-        if (!configuration.type && (!avatarType || avatarType === "wonderland")) {
+        if (avatarType === "wonderland" || !configuration.type) {
             let options = {
-                name: avatarName || this.actor._name,
+                name: avatarName || configuration.nickname || this.actor._name,
                 dataScale: [0.3, 0.3, 0.3],
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
-                dataLocation: `./assets/avatars/${this.actor._name}.zip`,
+                dataLocation: maybeDataLocation || `./assets/avatars/${this.actor._name}.zip`,
                 modelType: "glb",
                 type: "3d",
                 behaviorModules: behaviorModules,
@@ -2201,7 +2202,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     showSettingsMenu() {
         let promise = new Promise((resolve, _reject) => {
-            startSettingsMenu(false, resolve);
+            let showcase = Constants.ShowCaseSpec;
+            startSettingsMenu(false, showcase && !showcase.useAvatar, resolve);
         });
         promise.then(changed => {
             if (changed) {

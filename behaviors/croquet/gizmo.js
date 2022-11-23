@@ -1,6 +1,7 @@
 class GizmoActor {
     setup() {
         this.listen("cycleModes", "cycleModes");
+        this.isGizmoManipulator = true;
         this.cycleModes();
         this.addPropertySheetButton();
         this.subscribe(this.target.id, "translationSet", "translateTarget");
@@ -367,6 +368,7 @@ class GizmoPawn {
 
 class GizmoAxisActor {
     setup() {
+        this.isGizmoManipulator = true;
         this.subscribe(this.parent.id, "translateTarget", "translateTarget");
     }
 
@@ -493,6 +495,7 @@ class GizmoAxisPawn {
 
 class GizmoRotorActor {
     setup() {
+        this.isGizmoManipulator = true;
         this.subscribe(this.parent.id, "rotateTarget", "rotateTarget");
     }
 
@@ -665,6 +668,7 @@ class GizmoRotorPawn {
 
 class GizmoScalerActor {
     setup() {
+        this.isGizmoManipulator = true;
         this.subscribe(this.parent.id, "scaleTarget", "scaleTarget");
     }
 
@@ -834,6 +838,12 @@ class GizmoScalerPawn {
     }
 }
 
+class GizmoPropertySheetButtonActor {
+    setup() {
+        this.isGizmoManipulator = true;
+    }
+}
+
 class GizmoPropertySheetButtonPawn {
     setup() {
         let isMine = this.parent?.actor.creatorId === this.viewId;
@@ -912,6 +922,7 @@ export default {
         },
         {
             name: "GizmoPropertySheetButton",
+            actorBehaviors: [GizmoPropertySheetButtonActor],
             pawnBehaviors: [GizmoPropertySheetButtonPawn],
         }
     ]

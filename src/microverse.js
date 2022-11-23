@@ -38,7 +38,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "gizmo.js", "propertySheet.js", "dragAndDrop.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "propertySheet.js", "dragAndDrop.js", "gizmo.js"
 ];
 
 let AA = true;
@@ -115,9 +115,11 @@ function loadInitialBehaviors(paths, directory) {
         throw new Error("directory argument has to be specified. It is a name for a sub directory name under the ./behaviors directory.");
     }
     let isSystem = directory === Constants.SystemBehaviorDirectory;
+    let root = window.microverseDir ? window.microverseDir : baseurl;
+
     let promises = paths.map((path) => {
         if (!isSystem) {
-            let code = `import('${baseurl}${directory}/${path}')`;
+            let code = `import('${root}${directory}/${path}')`;
             return eval(code).then((module) => {
                 let rest = directory.slice("behaviors".length);
                 if (rest[0] === "/") {rest = rest.slice(1);}
@@ -125,7 +127,7 @@ function loadInitialBehaviors(paths, directory) {
             })
         } else {
             let modulePath = `${directory.split("/")[1]}/${path}`;
-            let code = `import('${baseurl}behaviors/${modulePath}')`;
+            let code = `import('${root}behaviors/${modulePath}')`;
             return eval(code).then((module) => {
                 return [modulePath, module];
             })
@@ -198,7 +200,7 @@ class MyPlayerManager extends PlayerManager {
                 type: "initial", // this is "initial" here to not show the avatar that may be changed
             }};
         } else {
-            options = {...options , avatarType: "custom", ...avatarSpec};
+            options = {...options , avatarType: "custom", avatarIndex: index, ...avatarSpec};
         }
         return AvatarActor.create(options);
     }
@@ -408,6 +410,7 @@ class MyModelRoot extends ModelRoot {
 
         this.ensurePersistenceProps();
         this.subscribe(this.sessionId, "triggerPersist", "triggerPersist");
+        this.subscribe(this.sessionId, "setPersistentDataFlag", "setPersistentDataFlag");
         this.subscribe(this.sessionId, "addBroadcaster", "addBroadcaster");
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
@@ -502,6 +505,11 @@ class MyModelRoot extends ModelRoot {
         }
     }
 
+    setPersistentDataFlag(flag) {
+        this.persistentDataDisabled = !flag;
+        console.log("persistentData: " + (this.persistentDataDisabled ? "disabled" : "enabled"));
+    }
+
     triggerPersist() {
         let now = this.now();
         let diff = now - this.lastPersistTime;
@@ -516,7 +524,9 @@ class MyModelRoot extends ModelRoot {
         }
         this.lastPersistTime = now;
         this.persistRequested = false;
-        this.savePersistentData();
+        if (!this.persistentDataDisabled) {
+            this.savePersistentData();
+        }
     }
 
     addBroadcaster(viewId) {
@@ -655,7 +665,10 @@ class MyViewRoot extends ViewRoot {
             BehaviorViewManager,
             WalkManager,
         ];
-        if (window.settingsMenuConfiguration?.voice) services.push(DolbyChatManager);
+        if (window.settingsMenuConfiguration?.voice ||
+            Constants.ShowCaseSpec && Constants.ShowCaseSpec.voiceChat) {
+            services.push(DolbyChatManager);
+        }
         return services;
     }
 
@@ -675,6 +688,7 @@ class MyViewRoot extends ViewRoot {
         renderer.localClippingEnabled = true;
         this.setAnimationLoop(this.session);
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
+        if (Constants.ShowCaseSpec && !model.persistentDataDisabled) this.publish(this.sessionId, "setPersistentDataFlag", false);
     }
 
     detach() {
@@ -727,10 +741,10 @@ function startWorld(appParameters, world) {
         options: {world},
         // developer can override defaults
         ...appParameters,
-        // except for the 'microverse' flag
-        // which identifies microverse sessions for billing
-        flags: ["microverse"],
     };
+    // identify microverse sessions per flags
+    if (!Array.isArray(sessionParameters.flags)) sessionParameters.flags = [];
+    if (!sessionParameters.flags.includes("microverse")) sessionParameters.flags.push("microverse");
 
     // remove portal and broadcast parameters from url for QR code
     App.sessionURL = deleteParameter(App.sessionURL, "portal");
@@ -746,7 +760,8 @@ function startWorld(appParameters, world) {
         }).then((session) => {
             session.view.setAnimationLoop(session);
             let {baseurl} = basenames();
-            return fetch(`${baseurl}meta/version.txt`);
+            let root = window.microverseDir ? window.microverseDir : baseurl;
+            return fetch(`${root}meta/version.txt`);
         }).then((response) => {
             if (`${response.status}`.startsWith("2")) {
                 return response.text();
@@ -812,9 +827,12 @@ export function startMicroverse() {
     const configPromise = new Promise(resolve => resolveConfiguration = resolve)
         .then(localConfig => {
             window.settingsMenuConfiguration = { ...localConfig };
+            // let showcase = Constants.ShowCaseSpec;
+            // Constants is not initialized yet, as Croquet session has not been started.
+            let showcase = window.showcase;
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, resolve));
+                : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
         });
     sendToShell("send-configuration");
 
@@ -830,6 +848,9 @@ export function startMicroverse() {
 }
 
 async function launchMicroverse() {
+    if (window.microverseInitFunction) {
+        return window.microverseInitFunction(startWorld, Constants);
+    }
     let {baseurl, basename} = basenames();
 
     if (!basename.endsWith(".vrse")) {
@@ -839,12 +860,19 @@ async function launchMicroverse() {
         ModelRoot.evaluate(() => worldModule.init(Constants));
         if (!Constants.SystemBehaviorModules) {
             Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
-            if (!Constants.ExcludedSystemBehaviorModules) {
+            if (!Constants.ExcludedSystemBehaviorModules && !Constants.IncludedSystemBehaviorModules) {
                 Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
             } else {
-                Constants.SystemBehaviorModules = defaultSystemBehaviorModules.filter((n) => {
-                    return !Constants.ExcludedSystemBehaviorModules.includes(n);
-                });
+                let systemBehaviorModules = [...defaultSystemBehaviorModules];
+                if (Constants.ExcludedSystemBehaviorModules) {
+                    systemBehaviorModules = systemBehaviorModules.filter((n) => {
+                        return !Constants.ExcludedSystemBehaviorModules.includes(n);
+                    });
+                }
+                if (Constants.IncludedSystemBehaviorModules) {
+                    systemBehaviorModules.push(...Constants.IncludedSystemBehaviorModules);
+                }
+                Constants.SystemBehaviorModules = systemBehaviorModules;
             }
         }
     } else {
@@ -855,7 +883,6 @@ async function launchMicroverse() {
         Constants.AvatarNames = defaultAvatarNames;
         Constants.SystemBehaviorDirectory = defaultSystemBehaviorDirectory;
         Constants.SystemBehaviorModules = defaultSystemBehaviorModules;
-        Constants.BehaviorModules = json.data.behaviormodules;
         Constants.DefaultCards = json.data.cards;
         Constants.Library = new CodeLibrary();
         Constants.Library.addModules(json.data.behaviorModules);
