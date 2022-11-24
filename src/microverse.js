@@ -424,6 +424,9 @@ class MyModelRoot extends ModelRoot {
         }
 
         this.loadBehaviorModules(Constants.Library.modules, "1");
+        if (Constants.ShowCaseSpec) {
+            this.publish(this.sessionId, "disableCodeLoadFlag");
+        }
         this.load(Constants.DefaultCards, "1");
     }
 
