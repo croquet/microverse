@@ -709,6 +709,13 @@ export class BehaviorModelManager extends ModelService {
         this.subscribe(this.id, "loadStart", "loadStart");
         this.subscribe(this.id, "loadOne", "loadOne");
         this.subscribe(this.id, "loadDone", "loadDone");
+
+        this.subscribe(this.sessionId, "disableCodeLoadFlag", "disableCodeLoadFlag");
+        this.codeLoadDisabled = false;
+    }
+
+    disableCodeLoadFlag() {
+        this.codeLoadDisabled = true;
     }
 
     cleanUp() {
@@ -834,6 +841,8 @@ export class BehaviorModelManager extends ModelService {
     }
 
     loadLibraries(codeArray) {
+        if (this.codeLoadDisabled) {return;}
+
         let changed = [];
         let nameMap = new Map();
         let userDir;
