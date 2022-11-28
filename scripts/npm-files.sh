@@ -34,4 +34,4 @@ cp worlds/test.js ${DIST}/worlds/default.js
 
 cp npm/package.json ${DIST}/package.json
 cp npm/install.js ${DIST}/install.js
-cp npm/gitignore ${DIST}/.gitignore
+cp npm/gitignore ${DIST}/gitignore
