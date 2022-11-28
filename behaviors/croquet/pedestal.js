@@ -1,5 +1,13 @@
+// To do:
+// Add drag in plane
+// Add scale
+// Add display of values
+// Add double click to set angle to 0
+// Add detents on rotation
+
 class GizmoActor {
     setup() {
+        this.fixWorldcore();
         let box = this.target.editBox;
         let scale = this.target.scale;
         this.isGizmoManipulator = true;
@@ -8,12 +16,98 @@ class GizmoActor {
         this.addHorizontalDragGizmo();
         this.addVerticalDragGizmo();
         this.addSpinGizmo();
+        this.addStandardGizmo();
         this.addPropertySheetButton();
+        this.addInfoCard();
         this.subscribe(this.target.id, "translationSet", "translateTarget");
         this.subscribe(this.target.id, "rotationSet", "rotateTarget");
         this.subscribe(this.target.id, "scaleSet", "scaleTarget");
         this.subscribe(this.sessionId, "view-exit", "goodBye");
         this.listen("goodBye", "goodBye");
+    }
+
+    fixWorldcore(){
+            // This is a fix for Worldcore
+        Window.m4_getRotation = function(m) {
+            const s0 = Microverse.v3_magnitude([m[0], m[4], m[8]]);
+            const s1 = Microverse.v3_magnitude([m[1], m[5], m[9]]);
+            const s2 = Microverse.v3_magnitude([m[2], m[6], m[10]]);
+        
+            const m00 = m[0] / s0;
+            const m01 = m[1] / s1;
+            const m02 = m[2] / s2;
+        
+            const m10 = m[4] / s0;
+            const m11 = m[5] / s1;
+            const m12 = m[6] / s2;
+        
+            const m20 = m[8] / s0;
+            const m21 = m[9] / s1;
+            const m22 = m[10] / s2;
+        
+            let t;
+            let x;
+            let y;
+            let z;
+            let w;
+        
+            if (m22 < 0) {
+                if (m00 > m11) {
+                    t = 1 + m00 - m11 - m22;
+                    x = t;
+                    y = m01+m10;
+                    z = m20+m02;
+                    w = m12-m21;
+                } else {
+                    t = 1 - m00 + m11 - m22;
+                    x = m01+m10;
+                    y = t;
+                    z = m12+m21;
+                    w = m20-m02;
+                }
+            } else {
+                if (m00 < -m11) {
+                    t = 1 - m00 - m11 + m22;
+                    x = m20+m02;
+                    y = m12+m21;
+                    z = t;
+                    w = m01-m10;
+                } else {
+                    t = 1 + m00 + m11 + m22;
+                    x = m12-m21;
+                    y = m20-m02;
+                    z = m01-m10;
+                    w = t;
+                }
+            }
+        
+            const f = 0.5 / Math.sqrt(t);
+            return [f*x, f*y, f*z, f*w];
+        }
+
+        Window.m4_toNormal4 = function(m4){
+            let q = Window.m4_getRotation(m4);
+            return Microverse.m4_rotationQ(q);
+        }
+
+        Window.q_toAxisAngle = function(quat) {
+            let q = Microverse.q_normalize(quat);
+            let angle = 2 * Math.acos(q[3]);
+            let axis = [];
+            let s = Math.sqrt( 1 - q[3] * q[3]);
+            // assuming quaternion normalised then w is less than 1, so term always positive.
+            if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
+                // if s is close to zero then direction of axis not important
+                axis[0] = 0;
+                axis[1] = 1;
+                axis[2] = 0;
+            } else {
+                axis[0] = q[0] / s; // normalise axis
+                axis[1] = q[1] / s;
+                axis[2] = q[2] / s;
+            }
+            return {axis: axis, angle:angle};
+        }
     }
 
     goodBye(viewId) {
@@ -37,29 +131,86 @@ class GizmoActor {
         return [length(x), length(y), length(z)];
     }
 
-    translateTarget() {
-        //let t = Microverse.m4_getTranslation(this.actor.parent.target.global);
-        //let s = this.target.parent ? this.getScale(this.target.parent.global) : [1, 1, 1];
-        // this.set({translation: t}); //, scale: [1 / s[0], 1 / s[1], 1 / s[2]]});
-        // this.target.set({translation:t});
+    translateTarget() { 
+        let t = Microverse.m4_getTranslation(this.target.global);
+        this.set({translation:t});
+        this.standardGizmo.set({translation:t});
+        let s = `${t[0].toFixed(2)}, ${t[1].toFixed(2)}, ${t[2].toFixed(2)}`;
+        this.setInfo(s);
     }
 
     rotateTarget() {
-        // in this case, gizmo itself should not rotate but the gyro should rotate so the three rings
-        // show the euler angle of them in a sane way.
-        //let r = this.target.rotation;
-
-        // this.set({rotation: r});
-        /*
-        if (this.gizmoMode === "move") {
-            this.set({rotation: [0, 0, 0, 1]});
-        } else {
-            let r = this.target.rotation;
-            this.set({rotation: r});
-        }*/
+        let rotation = this.target.rotation;
+        this.standardGizmo.set({rotation: rotation});
+        let y = Microverse.q_yaw(rotation)*180/Math.PI;
+        let p = Microverse.q_pitch(rotation)*180/Math.PI;
+        let r = Microverse.q_roll(rotation)*180/Math.PI;
+        let s = `${y.toFixed(2)}, ${p.toFixed(2)}, ${r.toFixed(2)}`;
+        this.setInfo(s);
     }
 
-    scaleTarget() {}
+    scaleTarget() {
+        console.log("scaleTarget")
+        this.setInfo("scale")
+    }
+
+    addStandardGizmo(){
+        this.standardGizmo = this.createCard({
+            translation: Microverse.m4_getTranslation(this.target.global),
+            rotation: Window.m4_getRotation(this.target.global),
+            name: 'standardGizmo',
+            behaviorModules: ["StandardGizmo"],
+            type: "object",
+            noSave: true,
+        });
+        this.standardGizmo.target = this.target;
+        this.standardGizmo.creatorId = this.creatorId;
+    }
+
+    addInfoCard() {
+        if (!this.infoCard) {
+            const TEXT_SCALE = 0.0025; // 100px of text scales to 0.5 world units
+            const PADDING = 0.05; // horizontal and vertical
+            const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
+            const marginLeft = (PADDING - MARGIN_FUDGE) / TEXT_SCALE;
+            const marginTop = PADDING * 1.1 / TEXT_SCALE;
+            const options = {
+                name: 'info',
+                behaviorModules: ["Billboard"],
+                //translation: [0, 1, -0.1], // above and slightly in front
+                translation: [-1.25, this.editFloor - 0.25, 0],
+                type: "text",
+                depth: 0.02,
+                margins: { left: marginLeft, top: marginTop },
+                backgroundColor: 0x300079,
+                frameColor: 0x400089,
+                fullBright: true,
+                opacity: 0.8,
+                runs: [],
+                width: 0.1,
+                height: 0.1,
+                textScale: TEXT_SCALE,
+                readOnly: true,
+                noDismissButton: true,
+                noSave: true,
+                avatarParts: true,
+                parent: this
+            };
+            this.infoCard = this.createCard(options);
+        }
+
+
+    }
+
+    setInfo(info){
+        const TEXT_SCALE = 0.0025; // 100px of text scales to 0.5 world units
+        const PADDING = 0.05; // horizontal and vertical
+        const measurement = this.getTextFieldActorClass().defaultMeasurement(info);
+        const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
+        const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.2);
+        this.infoCard.load([{text: info, style: {color: 'white'}}]);
+        this.infoCard.setExtent({width: signWidth / TEXT_SCALE, height: signHeight / TEXT_SCALE});
+    }
 
     addHorizontalDragGizmo(){
         if(this.horzGizmo)this.horzGizmo.destroy();
@@ -168,6 +319,8 @@ class GizmoActor {
 
     teardown() {
         if (this.target) {
+            this.standardGizmo.destroy();
+            delete this.standardGizmo;
             this.target.sayUnselectEdit();
         }
     }
@@ -182,11 +335,12 @@ class GizmoPawn {
 
         let assetManager = this.service("AssetManager").assetManager;
         let dataLocation = this.actor.dataLocation;
-        this.getBuffer(dataLocation).then((buffer) => {
-            assetManager.setCache(dataLocation, buffer, "global");
-        });
-
-        this.subscribe(this.id, "interaction", "interaction");
+        if(this.dataLocation)
+            this.getBuffer(dataLocation).then((buffer) => {
+                assetManager.setCache(dataLocation, buffer, "global");
+            });
+        
+        this.subscribe(this.actor.target.id, "interaction", "interaction");
     }
 
     checkInteraction() {
@@ -218,6 +372,67 @@ class GizmoPawn {
                 });
             }
         });
+    }
+}
+
+class StandardGizmoActor{
+    setup(){
+        this.isGizmoManipulator = true;
+        this.spinGizmo = [];
+        this.addSpinGizmo(0xff5555, [0, 0, 0], [0, 0, 1] ,0); 
+        this.addSpinGizmo(0x5555ff, [Math.PI / 2, 0, 0],[0, 1, 0] ,1);
+        this.addSpinGizmo(0x55ff55, [0, Math.PI / 2, 0],[1, 0, 0] ,2);  
+    }
+
+    addSpinGizmo(color, rotation, axis, index){
+        if (this.spinGizmo[index]) this.spinGizmo[index].destroy();        
+        this.spinGizmo[index] = this.createCard({
+            name: "spin gizmo "+index,
+            dataLocation: "./assets/SVG/circle-outline.svg",
+            fileName: "./assets/SVG/circle-outline.svg",
+            modelType: "svg",
+            shadow:true,
+            singleSided: true,
+            scale: [2,2,0.2],
+            rotation: rotation,
+            //translation: [0, this.editFloor - 0.5, 0],
+            type: '2d',
+            fullBright: false,
+            behaviorModules: ["PoseGizmo"],
+            parent: this,
+            noSave: true,
+            action: "spinAxis",
+            axis: axis,
+            color: color,
+            frameColor: 0xaaaaaa
+        });
+    }
+}
+
+class StandardGizmoPawn {
+    setup() {
+        let moduleName = this._behavior.module.externalName;
+        this.addUpdateRequest([`${moduleName}$StandardGizmoPawn`, "update"]);
+    }
+
+    update(){
+        const render = this.service("ThreeRenderManager");
+
+        const cameraMatrix = render.camera.matrix;
+        const cameraXYZ = [...new Microverse.THREE.Vector3().setFromMatrixPosition(cameraMatrix)];
+        const gadgetXYZ = Microverse.m4_getTranslation(this.global);
+        const camRelative = Microverse.v3_sub(cameraXYZ, gadgetXYZ);
+        const distance = Microverse.v3_magnitude(camRelative);
+        if (distance===0) return; // never going to happen during movement.  could happen on setup.
+        let s = distance/4;
+        this._scale = [s,s,s];
+        this.onLocalChanged();
+        
+    }
+
+    teardown() {
+        let moduleName = this._behavior.module.externalName;
+        this.removeUpdateRequest([`${moduleName}$StandardGizmoPawn`, "update"]);
     }
 }
 
@@ -259,13 +474,13 @@ class GizmoPropertySheetButtonPawn {
     hilite() {
         this.entered = true;
         this.setColor();
-        this.publish(this.parent.id, "interaction");
+        this.publish(this.parent.actor.target.id, "interaction");
     }
 
     unhilite() {
         this.entered = false;
         this.setColor();
-        this.publish(this.parent.id, "interaction");
+        this.publish(this.parent.actor.target.id, "interaction");
     }
 
     openPropertySheet(event) {
@@ -277,15 +492,14 @@ class GizmoPropertySheetButtonPawn {
 
 class PoseGizmoActor {
     setup() {
-        console.log("PoseGizmo", this.id);
+       //console.log("PoseGizmo", this.id);
         this.isGizmoManipulator = true;
-
         if (this._cardData.action === "dragHorizontal" || this._cardData.action === "dragVertical") {
-            this.subscribe(this.parent.id, "translateTarget" + this.id, "translateTarget");
-        } else if (this._cardData.action === "spinHorizontal") {
-            this.subscribe(this.parent.id, "spinTarget" + this.id, "spinTarget");
+            this.listen("translateTarget", "translateTarget");
+        } else if (this._cardData.action === "spinHorizontal" || this._cardData.action === "spinAxis") {
+            this.listen("spinTarget", "spinTarget");
         }
-        this.baseRotation = [...this.parent.target.rotation];
+        this.listen("startSpin", "startSpin");
     }
 
     translateTarget(translation) {
@@ -299,45 +513,27 @@ class PoseGizmoActor {
         this.parent.set({translation: translation});
     }
 
-    q_toAxisAngle(quat) {
-        let q = Microverse.q_normalize(quat);
-        let angle = 2 * Math.acos(q[3]);
-        let axis = [];
-        let s = Math.sqrt( 1 - q[3] * q[3]);
-        // assuming quaternion normalised then w is less than 1, so term always positive.
-        if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
-            // if s is close to zero then direction of axis not important
-            axis[0] = 0;
-            axis[1] = 1;
-            axis[2] = 0;
-        } else {
-            axis[0] = q[0] / s; // normalise axis
-            axis[1] = q[1] / s;
-            axis[2] = q[2] / s;
-        }
-        return {axis: axis, angle:angle};
+    startSpin(){
+        // current target rotation (could have changed with other interactions)
+        this.baseRotation = [...this.parent.target.rotation];
+        this.gizmoRotation = [...this.parent.rotation];
+        let globalNorm = Window.m4_toNormal4(this.parent.target.global);
+        this.baseInverse = Microverse.m4_invert(globalNorm);
     }
 
-    spinTarget(rotation){
-        let target = this.parent.target;
-        let r;
-        if(target.parent){
-            // compute the axis of the rotation so we can transform that into the target frame
-            let axisAngle = this.q_toAxisAngle(rotation);
-            let mNormal = Microverse.m4_toNormal4(target.parent.global);
-            let mInverse = Microverse.m4_invert(mNormal);
-            let axis = Microverse.v3_transform(axisAngle.axis, mInverse);
-            axis = Microverse.v3_normalize(axis);
-            // axis is now in the frame of the target object - the rest is easy
-            let r = Microverse.q_axisAngle(axis, axisAngle.angle);
-            r = Microverse.q_multiply(this.baseRotation, r);
-            target.set({rotation: r});
+    spinTarget(rot){
+        // this is done in local coordinates
+        let r = Microverse.q_multiply(rot.target, this.baseRotation);
+        this.parent.target.set({rotation: r});
 
-        }else {
-            r = Microverse.q_multiply(this.baseRotation, rotation);
-            target.set({rotation: r});
+        if(rot.gizmo){
+            r = Microverse.q_multiply(rot.gizmo, this.gizmoRotation);
+            this.parent.set({rotation: r});
         }
-        this.parent.set({rotation: rotation});
+        else {
+            r = Microverse.q_multiply(rot.target, this.gizmoRotation);
+            this.parent.set({rotation: r});
+        }
     }
 }
 
@@ -345,30 +541,30 @@ class PoseGizmoPawn {
     setup() {
         this.originalColor = this.actor._cardData.color;
         this.action = this.actor._cardData.action;
-        this.plane = this.actor._cardData.plane;
         let isMine = this.parent?.actor.creatorId === this.viewId;
         let THREE = Microverse.THREE;
         this.baseVector = new THREE.Vector3();
         this.vec = new THREE.Vector3();
         this.vec2 = new THREE.Vector3();
         this.toVector = new THREE.Vector3();
-
-        this.deltaYaw = 0;
-        this.newRotation = Microverse.q_euler(0, this.deltaYaw, 0);
+        this.globalAxis = new THREE.Vector3();
+        this.newRotation = Microverse.q_identity();
+        this.target = this.actor.parent.target;
+        this.baseAngle = 0;
 
         if (isMine) {
-            if (this.action === "spinHorizontal") {
-                console.log("spin horizontal pose")
+            if (this.action === "spinHorizontal" || this.action === "spinAxis") {
+                //console.log("spin horizontal pose")
                 this.addEventListener("pointerDown", "startDrag");
-                this.addEventListener("pointerMove", "hSpin");
+                this.addEventListener("pointerMove", "spin");
                 this.addEventListener("pointerUp", "endDrag");
             }else if (this.action === "dragHorizontal") {
-                console.log("drag horizontal pose")
+                //console.log("drag horizontal pose")
                 this.addEventListener("pointerDown", "startDrag");
                 this.addEventListener("pointerMove", "drag");
                 this.addEventListener("pointerUp", "endDrag");
             } else if (this.action === "dragVertical") {
-                console.log("drag pose")
+                //console.log("drag pose")
                 this.addEventListener("pointerDown", "startVDrag");
                 this.addEventListener("pointerMove", "drag");
                 this.addEventListener("pointerUp", "endDrag");
@@ -393,7 +589,7 @@ class PoseGizmoPawn {
     }
 
     modelLoaded(){
-        console.log("modelLoaded")
+        //console.log("modelLoaded")
         this.gizmo3d = this.shape.children[0];
         this.constructOutline(10000);
     }
@@ -402,7 +598,7 @@ class PoseGizmoPawn {
 
         let outlineMat = new Microverse.THREE.MeshStandardMaterial({
             color: 0x444444,
-            opacity: 0.25,
+            opacity: 0.2,
             transparent: true,
             depthTest: false,
             depthWrite: false,
@@ -418,21 +614,19 @@ class PoseGizmoPawn {
         }
         */
         this.outline3d = this.gizmo3d.clone(true);
+        this.outline3d.visible = true;
         this.outline3d.traverse((m) => {
             if (m.material) {
                 m.material = outlineMat;
                 if (!Array.isArray(m.material)) {
-                    console.log("single material")
                     m.material = outlineMat;
                 } else {
-                    console.log("multiple material", m.material.length);
                     let mArray = m.material.map((_m) => outlineMat);
                     m.material = mArray;
                 }
             }
         });
         this.outline3d.renderOrder = renderOrder;
-        console.log(this.outline3d);
         this.shape.add(this.outline3d);
     }
 
@@ -444,14 +638,46 @@ class PoseGizmoPawn {
 
     startDrag(pEvt) {
         // initiate drag for horizontal drag and for rotation around Y
+        this.say("startSpin"); // alert actor that this is a new interaction
         let THREE = Microverse.THREE;
         let avatar = Microverse.GetPawn(pEvt.avatarId);
         avatar.addFirstResponder("pointerMove", {}, this);
-        this.baseVector.set(...pEvt.xyz);
-        this.plane = new THREE.Plane(new THREE.Vector3(...this.actor._cardData.axis), -this.baseVector.y);
-        this.targetStartVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.parent.target.global));
+
+        this.startAngle = this.baseAngle;
+        this.targetCenterVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.target.global));
+        this.centerVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.global));
+        let ray = this.makeRay(pEvt.ray);
+        if(this.action === "spinAxis"){
+            // local rotation around each axis for standardGizmo
+            // convert the axis vector into global coordinates of the target
+            let globalNorm = Window.m4_toNormal4(this.target.global);
+            this.axis = Microverse.v3_transform(this.actor._cardData.axis, globalNorm);
+
+            this.vec.copy(this.centerVector);
+            this.vec.normalize();
+            this.vec2.set(...this.axis);
+            let cos = this.vec2.dot(this.vec);
+            // this plane is perpendicular to the rotated axis and goes through the centerVector
+            //console.log(this.vec2, this.centerVector)
+            this.plane = new THREE.Plane( this.vec2, -cos * this.centerVector.length());
+        }
+        else {
+            // forced world coordinates for simple gizmo
+            this.axis = [0,1,0];
+            this.plane = new THREE.Plane(new THREE.Vector3(...this.axis), -this.centerVector.y);
+        }
+        this.globalAxis.set(...this.axis); // need this as a THREE.Vector
+        // determine where the intersection of the initial ray with the new plane is.
+        let intersectPoint = ray.intersectPlane( this.plane, this.toVector );
+        this.baseVector.copy(intersectPoint);
+
+        // this needs to go away before deployment
+        //let scene = this.service("ThreeRenderManager").scene;
+        //this.planeHelper = new THREE.PlaneHelper( this.plane, 20, 0xffff00 );
+        //scene.add( this.planeHelper );
+
         this.startRotation = this.newRotation;
-        this.publish(this.parent.id, "interaction");
+        this.publish(this.target.id, "interaction");
     }
 
     startVDrag(pEvt) {
@@ -467,8 +693,8 @@ class PoseGizmoPawn {
         this.vec2.set(...lookNorm);
         let cos = this.vec2.dot(this.vec);
         this.plane = new THREE.Plane( this.vec2, -cos * this.baseVector.length());
-        this.targetStartVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.parent.target.global));
-        this.publish(this.parent.id, "interaction");
+        this.targetCenterVector = new THREE.Vector3(...Microverse.m4_getTranslation(this.actor.parent.target.global));
+        this.publish(this.target.id, "interaction");
     }
 
     drag(pEvt) {
@@ -477,22 +703,23 @@ class PoseGizmoPawn {
         if(!intersectionPoint)return; // not touching the plane...
         this.vec.copy( this.toVector );
         this.vec.sub( this.baseVector );
-        this.vec.add(this.targetStartVector);
-        this.publish(this.parent.actor.id, "translateTarget" + this.actor.id, this.vec.toArray());
-        this.publish(this.parent.id, "interaction");
+        this.vec.add(this.targetCenterVector);
+        this.say("translateTarget", this.vec.toArray());
+        this.publish(this.target.id, "interaction");
     }
 
     endDrag(pEvt){
+        // this needs to go away before deployment
+        //if(this.planeHelper){
+        //    this.planeHelper.removeFromParent();
+        //    delete this.planeHelper;
+        //}
         const avatar = Microverse.GetPawn(pEvt.avatarId);
         avatar.removeFirstResponder("pointerMove", {}, this);
-        this.publish(this.parent.id, "interaction");
+        this.publish(this.target.id, "interaction");
     }
 
-    hSpin(pEvt) {
-        // make a horizontal plane through where we think the widget is (either
-        // the point reported in the pointerDown pEvt, or the last point of
-        // contact on pointerMove)
-        //this.plane = new THREE.Plane(this.vec, -this.dragVector.y);
+    spin(pEvt) {
         // toVector gets the point where the laser intercepts that plane
         let ray = this.makeRay(pEvt.ray);
         let intersectPoint = ray.intersectPlane( this.plane, this.toVector );
@@ -503,19 +730,29 @@ class PoseGizmoPawn {
         // angle is an angular delta, which will be used as a constant angular
         // step until it is reset by another onPointerMove, or until cancelled
         // by a click.
-
-        this.angle = this.computeAngle(this.targetStartVector, this.baseVector, this.toVector);
-
+        this.angle = this.computeAngle(this.centerVector, this.baseVector, this.toVector);
         // then dragVector takes the most recent value of toVector
         // this.dragVector.copy(this.toVector);
         // ESLint complained about isNaN.  See https://stackoverflow.com/questions/46677774/eslint-unexpected-use-of-isnan
         if (Number.isNaN(this.angle)) { console.log(this.vec, this.dragVector, this.toVector); this.angle = 0; return false;}
-        let axisAngle = Microverse.q_axisAngle(this.actor._cardData.axis, this.angle);
-        //let targetAngle = Microverse.q_euler(0,this.targetStartAngle+this.angle,0);
-        const nextRotation = Microverse.q_multiply( this.startRotation, axisAngle);
-        this.publish(this.parent.actor.id, "spinTarget" + this.actor.id, nextRotation);
-        this.publish(this.parent.id, "interaction");
-        this.newRotation = nextRotation; // prep for next startDrag
+
+        // axis is in global coordinates - need to use local
+        let localAxis;
+        if(this.action === "spinAxis"){
+            // local rotation around each axis for standardGizmo
+            localAxis = this.actor._cardData.axis;
+            let axisAngle = Microverse.q_axisAngle(localAxis, this.angle);
+            this.say("spinTarget", {target: axisAngle});
+        } else {
+            // compute axis in local coordinates - use the predefined baseInverse
+            localAxis = Microverse.v3_transform(this.axis, this.actor.baseInverse);
+            let axisAngle = Microverse.q_axisAngle(localAxis, this.angle);
+            let gizmoAA = Microverse.q_axisAngle(this.axis, this.angle);
+            this.say("spinTarget", {target:axisAngle, gizmo: gizmoAA});
+        }
+
+        this.publish(this.target.id, "interaction");
+        //this.newRotation = nextRotation; // prep for next startDrag
         return true;
     }
 
@@ -525,19 +762,28 @@ class PoseGizmoPawn {
         c = new THREE.Vector3().copy(c); // take copies that can be mutated
         v1 = new THREE.Vector3().copy(v1);
         v2 = new THREE.Vector3().copy(v2);
+        let vCross = new THREE.Vector3();
+        // did we rotate much at all?
         let test = new THREE.Vector3().copy(v1);
         test.sub(v2);
         if(test.length() < 0.0000000001) return 0;
-        c.y = v1.y = v2.y = 0; // don't want the y
+        //c.y = v1.y = v2.y = 0; // don't want the y
         v1.sub(c); // vector from center to previous hit point
         if (v1.length() === 0) return 0; // don't die if we are in the center
-        v1.normalize();
         v2.sub(c); // vector from center to new hit point
         if (v2.length() === 0) return 0;
+
+        v1.normalize();
         v2.normalize();
+        vCross.crossVectors(v1, v2);
         let angle = Math.acos(v1.dot(v2)); // how far the hit point has rotated
-        let sign = Math.sign(v1.cross(v2).y); // whether a clockwise (+ve y) or anticlockwise rotation
-        return angle * sign;
+
+        // the "globalAxis" is the original axis transformed in global coordinates.
+        // The cross product of the two vectors defining the rotation will be parallel to this axis, 
+        // but may be pointing in the opposing direction - hence the sign of the dot product
+        // tells us that the angle between the two axis is negative - or greater than PI.
+        let sign = Math.sign(vCross.dot(this.globalAxis));
+        return angle*sign; //*sign;
     }
 
     pointerEnter() {
@@ -589,6 +835,11 @@ export default {
             name: "PoseGizmo",
             actorBehaviors: [PoseGizmoActor],
             pawnBehaviors: [PoseGizmoPawn],
+        },
+        {
+            name: "StandardGizmo",
+            actorBehaviors:[StandardGizmoActor],
+            pawnBehaviors:[StandardGizmoPawn]
         }
     ]
 }
