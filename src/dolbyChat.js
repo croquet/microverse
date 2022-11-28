@@ -73,11 +73,11 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         </div>
         <div id='chatButtons'>
             <div id='toggleConnection' tabindex='4'>
-                <div class='buttonImage joined' title='leave call'></div>
-                <div class='buttonImage notJoined' title='join call'></div>
+                <div class='buttonImage joined' title='leave voice chat'></div>
+                <div class='buttonImage notJoined' title='join voice chat'></div>
                 <div id='connection-tooltip' class='bouncing'>
                     <div id='connection-tooltip-arrow'></div>
-                    <div id='connection-tooltip-contents' class='noselect'>join call</div>
+                    <div id='connection-tooltip-contents' class='noselect'>join voice chat</div>
                 </div>
             </div>
             <div id='toggleAudio' tabindex='1'>
@@ -138,9 +138,9 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         };
 
         this.uiStyles = {
-            preConnect: { width: '216px', height: '50px', transform: 'translate(-116px, 0px)' },
-            connected: { width: '216px', height: '50px', transform: 'translate(-116px, 0px)' },
-            settings: { width: '216px', height: '188px', transform: 'translate(-116px, 0px)' }
+            preConnect: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
+            connected: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
+            settings: { width: '220px', height: '188px', transform: 'translate(-116px, 0px)' }
         };
         this.setUIStyle('preConnect');
 

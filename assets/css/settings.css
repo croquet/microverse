@@ -345,7 +345,7 @@
 
 #toggleConnection > .notJoined {
     background-color: #28a745;
-    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 40 40' style='enable-background:new 0 0 40 40;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D .st1%7Bfill:%232B2B2B;%7D .st2%7Bfill:%23DC3545;%7D%0A%3C/style%3E%3Cg%3E%3Cpath class='st0' d='M21.8,28.4c0.8-1,1.6-1.9,2.3-2.8c0.7-0.9,1.5-1.1,2.5-0.7c1.9,0.8,3.8,1.6,5.7,2.4c1,0.4,1.4,1.2,1.2,2.3 c-0.4,1.9-0.8,3.7-1.3,5.5c-0.3,1.1-1.1,1.4-2.1,1.4C18,36.6,6.9,27.2,4.9,15.3c-0.2-1.4-0.4-2.7-0.4-4.1C4.3,9.6,4.8,9,6.3,8.7 c1.7-0.4,3.4-0.7,5-1.2c1.1-0.3,1.9,0.1,2.3,1.1c0.9,1.9,1.7,3.9,2.5,5.8c0.4,1,0.2,1.8-0.7,2.5c-0.5,0.3-0.9,0.7-1.3,1.1 c-1.6,1.3-1.6,1.3-0.5,3.1C15.6,24.3,18.3,26.7,21.8,28.4z'/%3E%3C/g%3E%3Cg%3E%3Cpath class='st0' d='M27.7,8.1c0-0.2,0.1-0.3,0.2-0.4c0.1-0.1,0.2-0.2,0.4-0.2h0.4c0.2,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.2,0.4 v4.1h4.1c0.2,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.2,0.4v0.4c0,0.2-0.1,0.3-0.2,0.4c-0.1,0.1-0.2,0.2-0.4,0.2h-4.1v4.1 c0,0.2-0.1,0.3-0.2,0.4c-0.1,0.1-0.2,0.2-0.4,0.2h-0.4c-0.2,0-0.3-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.2-0.4v-4.1h-4.1 c-0.2,0-0.3-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.2-0.4v-0.4c0-0.2,0.1-0.3,0.2-0.4c0.1-0.1,0.2-0.2,0.4-0.2h4.1V8.1z'/%3E%3C/g%3E%3C/svg%3E%0A");    
+    background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 24.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 40 40' style='enable-background:new 0 0 40 40;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D .st1%7Bfill:%232B2B2B;%7D .st2%7Bfill:%23DC3545;%7D%0A%3C/style%3E%3Cg%3E%3Cpath class='st0' d='M21.8,28.4c0.8-1,1.6-1.9,2.3-2.8c0.7-0.9,1.5-1.1,2.5-0.7c1.9,0.8,3.8,1.6,5.7,2.4c1,0.4,1.4,1.2,1.2,2.3 c-0.4,1.9-0.8,3.7-1.3,5.5c-0.3,1.1-1.1,1.4-2.1,1.4C18,36.6,6.9,27.2,4.9,15.3c-0.2-1.4-0.4-2.7-0.4-4.1C4.3,9.6,4.8,9,6.3,8.7 c1.7-0.4,3.4-0.7,5-1.2c1.1-0.3,1.9,0.1,2.3,1.1c0.9,1.9,1.7,3.9,2.5,5.8c0.4,1,0.2,1.8-0.7,2.5c-0.5,0.3-0.9,0.7-1.3,1.1 c-1.6,1.3-1.6,1.3-0.5,3.1C15.6,24.3,18.3,26.7,21.8,28.4z'/%3E%3C/g%3E%3Cg%3E%3Cpath class='st0' d='M27.7,8.1c0-0.2,0.1-0.3,0.2-0.4c0.1-0.1,0.2-0.2,0.4-0.2h0.4c0.2,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.2,0.4 v4.1h4.1c0.2,0,0.3,0.1,0.4,0.2c0.1,0.1,0.2,0.2,0.2,0.4v0.4c0,0.2-0.1,0.3-0.2,0.4c-0.1,0.1-0.2,0.2-0.4,0.2h-4.1v4.1 c0,0.2-0.1,0.3-0.2,0.4c-0.1,0.1-0.2,0.2-0.4,0.2h-0.4c-0.2,0-0.3-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.2-0.4v-4.1h-4.1 c-0.2,0-0.3-0.1-0.4-0.2c-0.1-0.1-0.2-0.2-0.2-0.4v-0.4c0-0.2,0.1-0.3,0.2-0.4c0.1-0.1,0.2-0.2,0.4-0.2h4.1V8.1z'/%3E%3C/g%3E%3C/svg%3E%0A");
     /*background-image: url("./voice-chat-icons/png/join-call.png"); */
     background-size: 67%;
 }
@@ -359,7 +359,7 @@
     top: 14px;
     left: 100%;
     height: 1.5rem;
-    width: 3.8rem;
+    width: 6.4rem;
     color: #000;
     background-color: #ffc107 !important;
     border-radius: 0.25rem;
@@ -909,12 +909,12 @@
     }
 
 
-    
+
     .content-container {
 	width: 95%;
 	height: 95%;
     }
-    
+
     #dialogAvatarSelections {
 	height: 40px;
 	padding-bottom: 10px;
@@ -1006,7 +1006,7 @@
     .share-settings-label {
 	font-size: 12px;
     }
-    
+
     .stringInputHolder {
 	flex-direction: row;
     }
