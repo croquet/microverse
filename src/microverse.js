@@ -61,13 +61,17 @@ async function getAntialias() {
             return false;
         }
     }
-    let aa = true;
     const isSafari = navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
-    if (isSafari) aa = false;
     const isFirefox = navigator.userAgent.includes("Firefox");
-    if (isFirefox) aa = false;
     const isMobile = !!("ontouchstart" in window);
-    if (isMobile) aa = false;
+    let aa = true;
+    if (isMobile) {
+        aa = false;
+    } else if (isSafari && isMobile) {
+        aa = false;
+    } else if (isFirefox) {
+        aa = false;
+    }
 
     try {
         const supported = await navigator.xr.isSessionSupported("immersive-vr");
