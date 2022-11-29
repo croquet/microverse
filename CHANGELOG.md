@@ -3,6 +3,22 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-11-25
+### Added
+- Joystick gets mini arrows.
+
+### Fixed
+- Some documentation
+
+## 2022-11-18
+### Added
+- VRMLLoader (modelType: "wrl") is added.
+- A way to support different start up logic is being added.
+- A way to disable the persistent data saving is added.
+
+### Fixed
+- Make sure that wonderland avatars can be used when voiceChat is enabled in a different way.
+
 ## 2022-11-11
 ### Added
 - Dolby.io can be used for voice chat.
