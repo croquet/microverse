@@ -790,8 +790,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (textureType === "video") {
             let muted = this.actor._cardData.muted !== undefined ? this.actor._cardData.muted : true;
             let loop = this.actor._cardData.loop !== undefined ? this.actor._cardData.loop : false;
+            let autoplay = this.actor._cardData.autoplay !== undefined ? this.actor._cardData.autoplay : false;
             this.video = document.createElement("video");
-            this.video.autoplay = true;
+            this.video.autoplay = autoplay;
             this.video.muted = muted;
             this.video.loop = loop;
             this.video.controls = false;
