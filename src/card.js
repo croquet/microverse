@@ -660,8 +660,18 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     construct3D(options) {
+        let assetManager = this.service("AssetManager").assetManager;
         let model3d = options.dataLocation;
         let modelType = options.modelType;
+        if (!modelType && model3d) {
+            let lastDot = model3d.lastIndexOf(".");
+            if (lastDot > 0) {
+                let suffix = model3d.slice(lastDot + 1);
+                if (assetManager.supportedFileTypes.has(suffix)) {
+                    modelType = suffix;
+                }
+            }
+        }
 
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
@@ -702,7 +712,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (!model3d || this._model3dLoading === model3d) {return;}
 
         this._model3dLoading = model3d;
-        let assetManager = this.service("AssetManager").assetManager;
         this.getBuffer(model3d).then((buffer) => {
             assetManager.setCache(model3d, buffer, this.id);
             return assetManager.load(buffer, modelType, THREE);
@@ -1136,11 +1145,23 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
     dataType(name) {
         if (name.startsWith("data:")) {return "dataUri";}
-        if (name.startsWith("http://") ||
-            name.startsWith("https://") ||
-            name.startsWith(".") ||
-            name.startsWith("/")) {return "url";}
-        return "dataId"
+        // version+hash+key is 87 characters, plus the actual URL
+        // so length > 87 should be a safe check for a name to be a dataId
+        if (/^[a-z0-9-_]+$/i.test(name) && name.length > 87) {
+            return "dataId"
+        }
+
+        /*
+          dot or slash or colon are not valid base64 so we can assume
+          that the other case is "url"
+
+          if (name.startsWith("http://") ||
+          name.startsWith("https://") ||
+          name.startsWith(".") ||
+          name.startsWith("/")) {return "url";}
+        */
+
+        return "url";
     }
 
     getBuffer(name) {
