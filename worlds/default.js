@@ -19,8 +19,7 @@ export function init(Constants) {
             card: {
                 name: "entrance",
                 type: "object",
-                // same position and orientation as in openPortal.js
-                translation: [-12, -0.4, -10.2],
+                translation: [-12, 0, -10.2],
                 rotation: [0, -Math.PI / 2, 0],
                 spawn: "default",
             }
