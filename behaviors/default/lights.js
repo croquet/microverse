@@ -12,13 +12,11 @@ class LightPawn {
         this.removeLights();
         this.lights = [];
 
-        //        this.setupCSM(scene, camera, Microverse.THREE);
-
         const ambient = new THREE.AmbientLight( 0xffffff, .9 );
         group.add(ambient);
         this.lights.push(ambient);
 
-        const sun = new THREE.DirectionalLight( 0xffffff, .9 );
+        const sun = new THREE.DirectionalLight( 0xffffff, 1 );
         sun.position.set(1, 150, 4);
         sun.castShadow = true;
         sun.shadow.blurSamples = 25;
@@ -103,33 +101,13 @@ class LightPawn {
                 if(e !== bg) if(bg) bg.dispose();
                 if(e) e.dispose();
                 texture.dispose();
+            }).then(() => {
+                if (this.actor._cardData.loadSynchronously) {
+                    this.publish(
+                        this.sessionId, "synchronousCardLoaded", {id: this.actor.id});
+                }
             });
         });
-    }
-
-    setupCSM(scene, camera, THREE) {
-        if (this.csm) {
-            this.csm.remove();
-            this.csm.dispose();
-            this.csm = null;
-        }
-
-        let dir = new THREE.Vector3(-2, -2, -0.5);
-        this.csm = new THREE.CSM({
-            fade: true,
-            far: camera.far,
-            maxFar: 1000,
-            cascades: 3,
-            shadowMapSize: 2048,
-            shadowbias: 0.000001,
-            lightDirection: dir,
-            camera: camera,
-            parent: scene,
-            lightIntensity: 0.6,
-            lightFar: 1000,
-            mode: "practical"
-        });
-        this.csm.update();
     }
 
     update(_time) {
