@@ -847,7 +847,7 @@ function isRunningLocalNetwork() {
 
 export function startMicroverse() {
     let setButtons = (display) => {
-        ["usersComeHereBtn", "homeBtn", "worldMenuBtn"].forEach((n) => {
+        ["homeBtn", "worldMenuBtn"].forEach((n) => {
             let btn = document.querySelector("#" + n);
             if (btn) {
                 btn.style.display = display;
@@ -855,15 +855,16 @@ export function startMicroverse() {
         });
     };
 
+    // let showcase = Constants.ShowCaseSpec;
+    // Constants is not initialized yet, as Croquet session has not been started.
+    let showcase = window.showcase;
+
     sendToShell("hud", {joystick: false, fullscreen: false});
     setButtons("none");
 
     const configPromise = new Promise(resolve => resolveConfiguration = resolve)
         .then(localConfig => {
             window.settingsMenuConfiguration = { ...localConfig };
-            // let showcase = Constants.ShowCaseSpec;
-            // Constants is not initialized yet, as Croquet session has not been started.
-            let showcase = window.showcase;
             return !localConfig.showSettings || localConfig.userHasSet
                 ? false // as if user has run dialog with no changes
                 : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
@@ -872,8 +873,10 @@ export function startMicroverse() {
 
     return configPromise.then(changed => {
         if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
-        sendToShell("hud", {joystick: true, fullscreen: true});
-        setButtons("flex");
+        if (!showcase) {
+            sendToShell("hud", {joystick: true, fullscreen: true});
+            setButtons("flex");
+        }
         return getAntialias();
     }).then((aa) => {
         AA = aa;

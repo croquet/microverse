@@ -47,30 +47,34 @@
 
 .joystick-arrow {
     position: absolute;
-    padding: 0;
-    margin: 0;
-    background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSI3IiB2aWV3Qm94PSIwIDAgOCA3IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMy43NTc4MSAwLjc3MzQzOEw3LjAyNjU1IDYuNDM1MDZIMC40ODkwNzRMMy43NTc4MSAwLjc3MzQzOFoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=");
-    background-repeat: no-repeat;
-    width: 8px;
-    height: 7px;
+    padding: 0px;
+    margin: 0px;
+
+    width: 0px;
+    height: 0px;
     left: -4px;
-    top: -3.5px;
+    top: -4px;
+    
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+  
+    border-bottom: 8px solid #aaa;
 }
 
 #joystick-arrow-n {
-    transform: translate(0px, -50px);
+    transform: translate(0px, -48px);
 }
 
 #joystick-arrow-e {
-    transform:  translate(50px, 0px) rotate(90deg);
+    transform:  translate(48px, 0px) rotate(90deg);
 }
 
 #joystick-arrow-w {
-    transform:  translate(-50px, 0px) rotate(-90deg);
+    transform:  translate(-48px, 0px) rotate(-90deg);
 }
 
 #joystick-arrow-s {
-    transform:  translate(0px, 50px) rotate(180deg);
+    transform:  translate(0px, 48px) rotate(180deg);
 }
 
 @media (max-width:600px), (max-height:600px) {
@@ -96,19 +100,19 @@
     }
 
     #joystick-arrow-n {
-	transform: translate(0px, -36px);
+	transform: translate(0px, -34px);
     }
 
     #joystick-arrow-e {
-	transform:  translate(36px, 0px) rotate(90deg);
+	transform:  translate(34px, 0px) rotate(90deg);
     }
 
     #joystick-arrow-w {
-	transform:  translate(-36px, 0px) rotate(-90deg);
+	transform:  translate(-34px, 0px) rotate(-90deg);
     }
 
     #joystick-arrow-s {
-	transform:  translate(0px, 36px) rotate(180deg);
+	transform:  translate(0px, 34px) rotate(180deg);
     }
 }
 
@@ -141,18 +145,18 @@
     }
 
     #joystick-arrow-n {
-	transform: translate(0px, -58px);
+	transform: translate(0px, -56px);
     }
 
     #joystick-arrow-e {
-	transform:  translate(58px, 0px) rotate(90deg);
+	transform:  translate(56px, 0px) rotate(90deg);
     }
 
     #joystick-arrow-w {
-	transform:  translate(-58px, 0px) rotate(-90deg);
+	transform:  translate(-56px, 0px) rotate(-90deg);
     }
 
     #joystick-arrow-s {
-	transform:  translate(0px, 58px) rotate(180deg);
+	transform:  translate(0px, 56px) rotate(180deg);
     }
 }
