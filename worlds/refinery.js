@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "flightTracker.js", "spin.js", "lights.js",
+        "demo.js", "flightTracker.js", "spin.js", "csmLights.js",
         "slides.js", "cascade.js", "earth.js"
     ];
 
