@@ -694,6 +694,23 @@ class MyViewRoot extends ViewRoot {
         renderer.shadowMap.enabled = true;
         renderer.localClippingEnabled = true;
         this.setAnimationLoop(this.session);
+
+        // When any of *initial* cards has loadSynchronously property,
+        // two properties synchrnousLoadCards and notLoadedSynchronousCards are created.
+        // a behavior in synchronousLoad.js checks those properties to decide what to do.
+        // (The order of things is tricky as a behavior won't be installed to pawns;
+        // publishing messages from this constructor won't be received by them.
+
+        let actorManager = this.model.service("ActorManager");
+        let cards = [...actorManager.actors].filter((a) => a[1].isCard).map(a => a[1]);
+        this.synchronousLoadCards = cards.filter((c) => c._cardData.loadSynchronously);
+
+        if (this.synchronousLoadCards) {
+            this.notLoadedSynchronousCards = new Set(this.synchronousLoadCards.map(c => c.id));
+        }
+
+        this.subscribe(this.sessionId, "synchronousCardLoaded", "synchronousCardLoaded");
+
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
         if (Constants.ShowCaseSpec && !model.persistentDataDisabled) this.publish(this.sessionId, "setPersistentDataFlag", false);
     }
@@ -715,13 +732,23 @@ class MyViewRoot extends ViewRoot {
         renderer.setAnimationLoop(step);
         /*
           // we do not need this "backup" ticking (as far as I can tell).
-        let basicStep = (time) => {
+          let basicStep = (time) => {
             console.log("basicStep", time);
             window.requestAnimationFrame(basicStep);
             session.step(time);
-        };
-        basicStep(Date.now());
+          };
+          basicStep(Date.now());
         */
+    }
+
+    synchronousCardLoaded(data) {
+        if (!this.notLoadedSynchronousCards) {return;}
+        if (this.notLoadedSynchronousCards.size === 0) {return;}
+        let id = data.id;
+        this.notLoadedSynchronousCards.delete(id);
+        if (this.notLoadedSynchronousCards.size === 0) {
+            this.publish(this.sessionId, "allSynnchronousCardsLoaded");
+        }
     }
 }
 

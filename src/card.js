@@ -673,6 +673,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
         }
 
+        let publishLoaded = () => {
+            this.publish(this.id, "3dModelLoaded");
+            if (this.actor._cardData.loadSynchronously) {
+                this.publish(this.sessionId, "synchronousCardLoaded", {id: this.actor.id});
+            }
+        };
+
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
@@ -764,7 +771,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
 
             delete this._model3dLoading;
-            this.publish(this.id, "3dModelLoaded");
+            publishLoaded();
         }).catch(_err => {
             delete this._model3dLoading;
         });
@@ -791,6 +798,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let cornerRadius = options.cornerRadius !== undefined ? options.cornerRadius : 0;
 
         this.properties2D = {depth, width, height, textureWidth, textureHeight, name, color, frameColor, fullBright, shadow, cornerRadius};
+
+        let publishLoaded = () => {
+            this.publish(this.id, "2dModelLoaded");
+            if (this.actor._cardData.loadSynchronously) {
+                this.publish(this.sessionId, "synchronousCardLoaded", {id: this.actor.id});
+            }
+        };
 
         // You might want to parallelize the texture data loading and svg data loading by arranging
         // promises cleverly, but this.texture should be set quite early
@@ -891,7 +905,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 }
                 this.objectCreated(obj);
                 this.shape.add(obj);
-                this.publish(this.id, "2dModelLoaded");
+                publishLoaded();
             });
         } else {
             return texturePromise.then((textureObj) => {
@@ -921,7 +935,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 obj.name = "2d";
                 this.objectCreated(obj);
                 this.shape.add(obj);
-                this.publish(this.id, "2dModelLoaded");
+                publishLoaded();
             });
         }
     }
