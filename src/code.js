@@ -49,6 +49,10 @@ function newProxy(object, handler, module, behavior) {
     });
 }
 
+function getViewRoot() {
+    return window.viewRoot;
+}
+
 /* AM_Code: A mixin to support Live programming */
 
 export const AM_Code = superclass => class extends superclass {
@@ -625,7 +629,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source}) //# sourceURL=${window.location.origin}/behaviors_evaled/${this.location}/${this.name}`;
         let cls;
         try {
-            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...PhysicsExports, ...FrameExports, RAPIER: PhysicsExports.Physics};
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...PhysicsExports, ...FrameExports, RAPIER: PhysicsExports.Physics, getViewRoot};
             cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);

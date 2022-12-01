@@ -713,10 +713,12 @@ class MyViewRoot extends ViewRoot {
 
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
         if (Constants.ShowCaseSpec && !model.persistentDataDisabled) this.publish(this.sessionId, "setPersistentDataFlag", false);
+        window.viewRoot = this; // used by getViewRoot() function
     }
 
     detach() {
         console.log("ViewRoot detached");
+        delete window.viewRoot;
         super.detach();
     }
 

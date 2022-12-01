@@ -3,7 +3,7 @@ class SynchronousCardLoaderPawn {
         this.subscribe(this.sessionId, "synchronousLoadCardsStarted", "synchronousLoadCardsStarted");
         this.subscribe(this.sessionId, "allSynnchronousCardsLoaded", "allSynnchronousCardsLoaded");
 
-        let viewRoot = Microverse.viewRoot;
+        let viewRoot = Microverse.getViewRoot();
         if (viewRoot.notLoadedSynchronousCards) {
             this.publish(this.sessionId, "synchronousLoadCardsStarted");
         }
