@@ -353,6 +353,7 @@ export class PortalPawn extends CardPawn {
     setGhostWorld({v}) {
         let canvas = document.getElementById("ThreeCanvas");
         let slider = document.getElementById("ghostSlider");
+        if (!slider) {return;}
         if (typeof v === "number" && isPrimaryFrame) {
             // make our own world translucent, blurry, and desaturated so
             // the portal world becames visible
