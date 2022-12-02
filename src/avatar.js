@@ -905,7 +905,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let avatarSpec;
             let avatarName;
             if (inWorld && dormantAvatarSpec) {
+                const anchor = this.anchorFromURL(window.location, !this.isPrimary);
                 actorSpec = dormantAvatarSpec;
+                actorSpec.anchor = anchor;
                 actorSpec.inWorld = true;
                 dormantAvatarSpec = null;
                 avatarSpec = actorSpec.cardData;
