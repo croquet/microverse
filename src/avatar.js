@@ -2218,7 +2218,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     showShareMenu() {
-        startShareMenu(this);
+        let showcase = Constants.ShowCaseSpec;
+        startShareMenu(this, showcase && !showcase.useAvatar);
     }
 
     goHome() {

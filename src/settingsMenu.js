@@ -25,7 +25,8 @@ export function startSettingsMenu(useEnter, noAvatarFlag, r) {
     hideShellControls();
 }
 
-export function startShareMenu(avatar) {
+export function startShareMenu(avatar, noAvatarFlag) {
+    noAvatar = noAvatarFlag;
     closeAllDialogs();
     createShareMenu(avatar);
     hideShellControls();
@@ -411,7 +412,7 @@ function createShareMenu(avatar) {
                 <div id="copy-link" class="copy-link allow-select">generated link</div>
                 <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
             </div>
-            <div class="share-menu-row">
+            <div id="save-vrse-row" class="share-menu-row">
                 <div class="share-settings-label">Save world as VRSE file</div>
                 <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
             </div>
@@ -428,6 +429,7 @@ function createShareMenu(avatar) {
     let link = div.querySelector("#copy-link");
     let copyLink = div.querySelector("#copy-button");
     let saveWorld = div.querySelector("#save-button");
+    let saveVrseRow = div.querySelector("#save-vrse-row");
 
     filterDomEventsOn(shareDialog);
 
@@ -451,8 +453,11 @@ function createShareMenu(avatar) {
     link.textContent = url;
 
     saveWorld.onclick = (_evt) => savePressed(avatar);
-
     copyLink.onclick = (_evt) => copyPressed(avatar);
+
+    if (noAvatar) {
+        saveVrseRow.style.display = "none";
+    }
 
     document.body.appendChild(shareDialog);
 }

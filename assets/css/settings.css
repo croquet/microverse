@@ -30,7 +30,7 @@
     justify-content: center;
     flex-direction: column;
     font-family: "Poppins";
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.8);
     border-radius: 15px;
     align-items: center;
     position: absolute;
@@ -867,7 +867,6 @@
     display: flex;
     align-items: center;
     padding-left: 10px;
-    color: #898989;
     overflow: hidden;
     white-space: nowrap;
     flex-grow: 1
@@ -1019,7 +1018,6 @@
 	display: flex;
 	align-items: center;
 	padding-left: 10px;
-	color: #898989;
 	overflow: hidden;
 	white-space: nowrap;
 	flex-grow: 1;
