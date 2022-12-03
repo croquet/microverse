@@ -8,25 +8,25 @@ import { App } from "@croquet/worldcore-kernel";
 let settingsMenu = null;
 let nicknameIsValid;
 let avatarIsValid;
-let noAvatar;
+let simplerMenu;
 
 let configuration = {};
 let resolveDialog;
 
-export function startSettingsMenu(useEnter, noAvatarFlag, r) {
+export function startSettingsMenu(useEnter, simplerMenuFlag, r) {
     // note that even if called when already in session with a default (Alice) avatar,
     // the user must provide an avatar choice to be able to change the name
     resolveDialog = r;
     nicknameIsValid = false;
     avatarIsValid = false;
-    noAvatar = noAvatarFlag;
+    simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createSettingsMenu(useEnter).then(fillFromPrevious);
     hideShellControls();
 }
 
-export function startShareMenu(avatar, noAvatarFlag) {
-    noAvatar = noAvatarFlag;
+export function startShareMenu(avatar, simplerMenuFlag) {
+    simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createShareMenu(avatar);
     hideShellControls();
@@ -149,21 +149,21 @@ function createSettingsMenu(useEnter) {
     }
 
     if (selectAvatar) {
-        selectAvatar.classList.toggle("hidden", !!noAvatar);
+        selectAvatar.classList.toggle("hidden", !!simplerMenu);
     }
 
     if (avatarSelections) {
-        avatarSelections.classList.toggle("hidden", !!noAvatar);
+        avatarSelections.classList.toggle("hidden", !!simplerMenu);
     }
     if (avatarURL) {
-        avatarURL.style.display = noAvatar ? "none" : "flex";
+        avatarURL.style.display = simplerMenu ? "none" : "flex";
     }
 
     if (handednessRow) {
-        handednessRow.style.display = noAvatar ? "none" : "flex";
+        handednessRow.style.display = simplerMenu ? "none" : "flex";
     }
 
-    if (joinPromptBlurb && noAvatar) {
+    if (joinPromptBlurb && simplerMenu) {
         joinPromptBlurb.textContent = "Specify a nickname and press Enter.";
     }
 
@@ -178,7 +178,7 @@ function createSettingsMenu(useEnter) {
 function fillFromPrevious() {
     const localSettings = window.settingsMenuConfiguration || {};
     const oldNick = localSettings.nickname;
-    const oldAvatarURL = noAvatar ? null : localSettings.avatarURL;
+    const oldAvatarURL = simplerMenu ? null : localSettings.avatarURL;
     const oldHandedness = localSettings.handedness;
     if (oldNick) {
         const nameField = settingsMenu.querySelector('#nameField');
@@ -253,7 +253,7 @@ function avatarURLFieldChanged(evt) {
 }
 
 function updateButtonState() {
-    const valid = nicknameIsValid && (noAvatar || avatarIsValid);
+    const valid = nicknameIsValid && (simplerMenu || avatarIsValid);
     const dialogEnterButton = settingsMenu.querySelector('#dialogEnterButton');
     dialogEnterButton.classList.toggle('disabled', !valid);
     const dialogAcceptCancelButtons = settingsMenu.querySelector('#dialogAcceptCancelButtons');
@@ -291,7 +291,7 @@ function updateLocalConfig() {
         ...existing,
         ...configuration
     };
-    if (noAvatar) {
+    if (simplerMenu) {
         window.settingsMenuConfiguration.avatarURL = null;
         window.settingsMenuConfiguration.type = "wonderland";
     }
@@ -336,7 +336,7 @@ function avatarSelected(entry) {
     let value = entry.url;
     let urlValid = /https?:[a-zA-Z0-9/.-]+\.glb/.test(value);
 
-    if (urlValid && !noAvatar) {
+    if (urlValid && !simplerMenu) {
         configuration.avatarURL = entry.url;
         configuration.type = entry.type;
     }
@@ -455,7 +455,7 @@ function createShareMenu(avatar) {
     saveWorld.onclick = (_evt) => savePressed(avatar);
     copyLink.onclick = (_evt) => copyPressed(avatar);
 
-    if (noAvatar) {
+    if (simplerMenu) {
         saveVrseRow.style.display = "none";
     }
 

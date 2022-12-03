@@ -4,7 +4,10 @@
 
 import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
 
-export function startHelpMenu() {
+let simplerMenu;
+
+export function startHelpMenu(simplerMenuFlag) {
+    simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createHelpMenu();
     hideShellControls();
@@ -40,7 +43,7 @@ function createHelpMenu() {
                             <div class="icons"><div class="help-pane-icon look-icon"></div>
                         </td>
                     </tr>
-                    <tr class="help-row">
+                    <tr class="help-row" id="manipulate-row">
                         <td>
                             <p class="table-head">Manipulate</p>
                             <p class="table-desc">Ctrl + click on an object to open and cycle through the "gizmo" tools. The icon of a multi-pane tool is a button to open the property sheet tool.</p>
@@ -51,7 +54,7 @@ function createHelpMenu() {
                             </div>
                         </td>
                     </tr>
-                    <tr class="help-row">
+                    <tr class="help-row" id="fullscreen-row">
                         <td>
                             <p class="table-head">Fullscreen</p>
                             <p class="table-desc">Make your browser fullscreen.</p>
@@ -72,7 +75,7 @@ function createHelpMenu() {
                         </td>
                         <td class="icon-column"><i class="fas fa-solid fa-users icons"></i></td>
                     </tr>
-                    <tr class="help-row">
+                    <tr class="help-row" id="import-row">
                         <td>
                             <p class="table-head">Import</p>
                             <p class="table-desc">Import any of these formats from your desktop directly
@@ -84,7 +87,7 @@ function createHelpMenu() {
                             </div>
                         </td>
                      </tr>
-                     <tr class="help-row">
+                     <tr class="help-row" id="connect-row">
                          <td>
                              <p class="table-head">Connect</p>
                              <p class="table-desc">Click connect to link your text editor to edit behavior files.</p>
@@ -106,7 +109,7 @@ function createHelpMenu() {
                              </div>
                          </td>
                      </tr>
-                     <tr class="help-row">
+                     <tr class="help-row" id="settings-row">
                          <td>
                              <p class="table-head">Settings</p>
                              <p class="table-desc">Update your in-world nickname, select from default avatars or paste a link to your own.</p>
@@ -131,6 +134,15 @@ function createHelpMenu() {
     filterDomEventsOn(helpMenu);
 
     closeButton.onclick = () => closeAllDialogs();
+
+    if (simplerMenu) {
+        ["manipulate-row", "import-row", "connect-row", "settings-row"].forEach((n) => {
+            let e = helpMenu.querySelector(`#${n}`);
+            if (e) {
+                e.remove();
+            }
+        });
+    }
 
     document.body.appendChild(helpMenu);
 }

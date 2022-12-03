@@ -1,4 +1,3 @@
-import { startHelpMenu } from "./helpMenu.js";
 import { sendToShell } from "./frame.js";
 
 let worldMenu = null;
@@ -101,7 +100,7 @@ function sharePressed(myAvatar) {
 
 function helpPressed(myAvatar) {
     if (myAvatar) {
-        startHelpMenu();
+        myAvatar.showHelpMenu();
         sendToShell("hud", {joystick: false, fullscreen: false});
     }
     toggleMenu();

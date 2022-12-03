@@ -19,6 +19,7 @@ import {CardActor, CardPawn} from "./card.js";
 
 import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
+import { startHelpMenu } from "./helpMenu.js";
 
 const EYE_HEIGHT = 1.676;
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
@@ -2222,6 +2223,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     showShareMenu() {
         let showcase = Constants.ShowCaseSpec;
         startShareMenu(this, showcase && !showcase.useAvatar);
+    }
+
+    showHelpMenu() {
+        let showcase = Constants.ShowCaseSpec;
+        startHelpMenu(showcase && !showcase.useAvatar);
     }
 
     goHome() {
