@@ -7,19 +7,53 @@ class PDFActor {
             this.measuredDocLocation = null; // pdfLocation for the latest doc for which we have measurements
             this.numPages = null;
             this.pageGapPercent = null;
-            this.scrollPosition = null;
+            this.scrollState = null;
         }
+
+        this.addButtons();
 
         this.listen("docLoaded", "docLoaded");
         this.listen("changePage", "changePage");
         this.listen("scrollByPercent", "scrollByPercent");
         this.listen("requestScrollPosition", "requestScrollPosition");
+
+        this.listen("setCardData", "cardDataUpdated");
+        this.subscribe(this.id, "buttonPageChange", "changePage");
     }
 
-    viewJoined(viewId) {
+    viewJoined(_viewId) {
     }
 
-    viewExited(viewId) {
+    viewExited(_viewId) {
+    }
+
+    addButtons() {
+        const dataLocation = "./assets/SVG/pdf-scroll.svg";
+        const s = this.scrollButtonScale = 0.075;
+        const makeButton = rotation => {
+            return this.createCard({
+                name: "scroll button",
+                dataLocation,
+                fileName: "/svg.svg", // ignored
+                modelType: "svg",
+                shadow: true,
+                singleSided: true,
+                scale: [s, s, 1],
+                rotation,
+                depth: 0.01,
+                type: "2d",
+                fullBright: true,
+                behaviorModules: ["ScrollButton"],
+                parent: this,
+                noSave: true,
+            });
+        }
+
+        this.scrollUpButton = makeButton([0, 0, Math.PI]);
+        this.scrollUpButton.call("ScrollButton$ScrollButtonActor", "setName", "up");
+
+        this.scrollDownButton = makeButton([0, 0, 0]);
+        this.scrollDownButton.call("ScrollButton$ScrollButtonActor", "setName", "down");
     }
 
     docLoaded(data) {
@@ -31,15 +65,23 @@ class PDFActor {
             this.numPages = data.numPages;
             this.pageGapPercent = data.pageGapPercent;
             this.maxScrollPosition = data.maxScrollPosition;
-            this.scrollPosition = null;
+            this.scrollState = null;
         }
-        if (this.scrollPosition === null) this.scrollPosition = { page: 1, percent: 0 };
-        this.say("drawAtScrollPosition");
+        if (this.scrollState === null) this.scrollState = { page: 1, percent: 0 };
+        this.annotateAndAnnounceScroll();
+    }
+
+    cardDataUpdated(data) {
+        if (data.height !== undefined) {
+            const offset = data.height / 2 + this.scrollButtonScale / 4;
+            this.scrollUpButton.translateTo([0, offset, 0.04]);
+            this.scrollDownButton.translateTo([0, -offset, 0.04]);
+        }
     }
 
     changePage(increment) {
         // increment is only ever +/- 1
-        let { page, percent } = this.scrollPosition;
+        let { page, percent } = this.scrollState;
         const { page: maxScrollPage, percent: maxScrollPercent } = this.maxScrollPosition;
 
         if (increment === 1) { // going forwards
@@ -52,8 +94,8 @@ class PDFActor {
             if (page === 0) page = this.numPages; // subject to reduction by normalizeScroll
         }
 
-        this.scrollPosition = this.normalizeScroll(page, 0);
-        this.say("drawAtScrollPosition");
+        this.scrollState = this.normalizeScroll(page, 0);
+        this.annotateAndAnnounceScroll();
     }
 
     requestScrollPosition({ page, percent }) {
@@ -62,7 +104,7 @@ class PDFActor {
     }
 
     scrollByPercent(increment) {
-        let { page, percent } = this.scrollPosition;
+        let { page, percent } = this.scrollState;
         percent += increment;
         const { page: newPage, percent: newPercent } = this.normalizeScroll(page, percent);
         this.announceScrollIfNew(newPage, newPercent);
@@ -95,11 +137,21 @@ class PDFActor {
     }
 
     announceScrollIfNew(page, percent) {
-        const { page: oldPage, percent: oldPercent } = this.scrollPosition;
+        const { page: oldPage, percent: oldPercent } = this.scrollState;
         if (page !== oldPage || percent !== oldPercent) {
-            this.scrollPosition = { page, percent };
-            this.say("drawAtScrollPosition");
+            this.scrollState = { page, percent };
+            this.annotateAndAnnounceScroll();
         }
+    }
+
+    annotateAndAnnounceScroll() {
+        // @@ at some point we'll add annotation for scroll being in progress, and under whose control
+        const { page, percent } = this.scrollState;
+        const { page: lastPage, percent: lastPercent } = this.maxScrollPosition;
+        this.scrollState.upAvailable = page !== 1 || percent !== 0;
+        this.scrollState.downAvailable = page !== lastPage || percent !== lastPercent;
+        this.say("drawAtScrollPosition");
+        this.publish(this.id, "updateButtons");
     }
 }
 
@@ -267,8 +319,8 @@ class PDFPawn {
     drawAtScrollPosition() {
         if (!this.hasLatestPDF() || !this.pageGap) return;
 
-        const { scrollPosition } = this.actor;
-        if (!scrollPosition) return;
+        const { scrollState } = this.actor;
+        if (!scrollState) return;
 
         // where we already have a mesh for a page we're going to display, be sure
         // to reuse it
@@ -285,7 +337,7 @@ class PDFPawn {
 
         const { depth } = this.actor._cardData;
         const { cardWidth, cardHeight } = this;
-        const { page, percent } = scrollPosition;
+        const { page, percent } = scrollState;
         let p = page, yStart = percent / 100, shownHeight = 0;
         while (true) {
             const pageEntry = this.ensurePageEntry(p);
@@ -346,7 +398,7 @@ class PDFPawn {
         // this is invoked on every update, so if any page that we
         // want to test isn't ready yet (PageProxy hasn't been fetched) we don't
         // wait for it.
-        const { page, percent } = this.actor.scrollPosition;
+        const { page, percent } = this.actor.scrollState;
         const { cardWidth, cardHeight } = this;
 
         const prevVisible = this.visiblePages;
@@ -374,7 +426,7 @@ class PDFPawn {
     manageRenderState() {
         // invoked on every update.  schedule rendering for pages that are nearby,
         // and clean up render results and textures that aren't being used.
-        const { page } = this.actor.scrollPosition;
+        const { page } = this.actor.scrollState;
         const { numPages } = this;
 
         const queue = this.renderQueue = [];
@@ -577,7 +629,8 @@ class PDFPawn {
 
         this.pointerDownTime = Date.now();
         this.pointerDownY = p3d.xyz[1];
-        this.pointerDownScroll = { ...this.actor.scrollPosition };
+        const { page, percent } = this.actor.scrollState;
+        this.pointerDownScroll = { page, percent };
         this.pointerDragRange = 0; // how far user drags before releasing pointer
     }
 
@@ -638,7 +691,7 @@ class PDFPawn {
         this.say("changePage", change);
     }
 
-    onKeyUp(e) {
+    onKeyUp(_e) {
     }
 
     update() {
@@ -667,12 +720,106 @@ class PDFPawn {
     }
 }
 
+class ScrollButtonActor {
+    // setup() {
+    // }
+
+    setName(name) {
+        this.buttonName = name;
+    }
+}
+
+class ScrollButtonPawn {
+    setup() {
+        this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
+
+        this.addEventListener("pointerMove", "nop");
+        this.addEventListener("pointerEnter", "hilite");
+        this.addEventListener("pointerLeave", "unhilite");
+        this.addEventListener("pointerTap", "requestPageChange");
+        // effectively prevent propagation
+        this.addEventListener("pointerDown", "nop");
+        this.addEventListener("pointerUp", "nop");
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.addEventListener("pointerDoubleDown", "nop");
+
+        this.subscribe(this.parent.actor.id, "updateButtons", "updateState");
+    }
+
+    svgLoaded() {
+        // make sure everything can be made translucent when we want
+        let svg = this.shape.children[0];
+        svg.traverse((obj) => {
+            if (obj.geometry) {
+                let m = obj.material;
+                let mat = Array.isArray(m) ? m : [m];
+                mat.forEach(m => {
+                    m.transparent = true;
+                    m.opacity = 1;
+                });
+            }
+        });
+        this.shape.visible = false; // to force setColor when first visible
+        this.updateState();
+    }
+
+    updateState() {
+        // invoked on every scroll update, so be efficient
+        const { scrollState } = this.parent.actor;
+        let visible = false;
+        if (scrollState) {
+            const availableProp = `${this.actor.buttonName}Available`;
+            visible = !!scrollState[availableProp];
+        }
+        const wasVisible = !!this.shape.visible;
+        this.shape.visible = visible;
+        if (visible && !wasVisible) this.setColor();
+    }
+
+    setColor() {
+        let svg = this.shape.children[0];
+        if (!svg) return;
+
+        let baseMaterial = svg.children[0].material[0];
+        let symbolMaterial = svg.children[1].material[0];
+
+        let baseColor = 0x808080;
+        let symbolColor = 0x303030;
+        baseMaterial.opacity = this.entered ? 0.8 : 0.5;
+        baseMaterial.color.setHex(baseColor);
+        symbolMaterial.opacity = 1;
+        symbolMaterial.color.setHex(symbolColor);
+    }
+
+    hilite() {
+        this.entered = true;
+        this.setColor();
+        // this.publish(this.parent.id, "interaction"); // on gizmo, used for timer
+    }
+
+    unhilite() {
+        this.entered = false;
+        this.setColor();
+        // this.publish(this.parent.id, "interaction");
+    }
+
+    requestPageChange() {
+        this.publish(this.parent.actor.id, "buttonPageChange", this.actor.buttonName === "down" ? 1 : -1);
+    }
+}
+
+
 export default {
     modules: [
         {
             name: "PDFView",
             actorBehaviors: [PDFActor],
             pawnBehaviors: [PDFPawn],
+        },
+        {
+            name: "ScrollButton",
+            actorBehaviors: [ScrollButtonActor],
+            pawnBehaviors: [ScrollButtonPawn],
         }
     ]
 }
