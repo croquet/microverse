@@ -804,6 +804,8 @@ class ScrollButtonPawn {
     }
 
     requestPageChange() {
+        if (!this.shape.visible) return; // an invisible button still detects events
+
         this.publish(this.parent.actor.id, "buttonPageChange", this.actor.buttonName === "down" ? 1 : -1);
     }
 }
