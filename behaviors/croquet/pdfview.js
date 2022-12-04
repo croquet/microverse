@@ -28,7 +28,9 @@ class PDFActor {
     }
 
     addButtons() {
-        const dataLocation = "./assets/SVG/pdf-scroll.svg";
+
+        const dataLocation = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDMuMjMgNTQzLjQyIj4KICA8cGF0aCBkPSJNNTI2LjYsMjQ4LjY0Yy01LjY1LTY2LjM1LTMzLjk3LTEyMi4yNy04My4zMi0xNjYuODJDMzg4LjAzLDMxLjk1LDMyMi41NiwxMC41NiwyNDguNDksMTYuNjMsMTIzLjE0LDI2LjksMTMuMSwxMzQuNTMsMTUuNjYsMjc3LjY2YzIuNTEsMTM5Ljk5LDEyNC4yMSwyNjEuOTksMjc4Ljg2LDI0OS4yMSwxMjMuNTctMTAuMjEsMjQ1LjQ2LTEyMS4yLDIzMi4wOC0yNzguMjNaIi8+CiAgPHBhdGggZD0iTTI3MS44NCwyODQuMjNjMTMuOS0xMy45OCwyNy43My0yNy45LDQxLjU4LTQxLjgsMTEuOTktMTIuMDMsMjMuOTctMjQuMDgsMzYuMDItMzYuMDUsMTAuMTEtMTAuMDUsMjIuMDYtMTAuMDYsMzIuMTctLjEyLDMuNDQsMy4zOSw2Ljg4LDYuNzgsMTAuMjMsMTAuMjcsOS4xOCw5LjU1LDkuMTQsMjEuNjctLjI2LDMxLjA4LTM0LjcxLDM0Ljc5LTY5LjQ1LDY5LjU0LTEwNC4yMiwxMDQuMjYtOS43Miw5LjcxLTIxLjYxLDkuNy0zMS4yMiwuMDktMzQuNzUtMzQuNzQtNjkuNS02OS40OS0xMDQuMjMtMTA0LjI2LTkuNzYtOS43Ny05LjgxLTIxLjM2LS4xNy0zMS4zLDMuMjUtMy4zNSw2LjUtNi42OSw5LjgtOS45OSwxMC4xLTEwLjA2LDIyLjAyLTEwLjIyLDMyLjE0LS4xNiwyNS4xNSwyNS4wMyw1MC4xOCw1MC4xNiw3NS4yNiw3NS4yNSwuODIsLjgyLDEuNjksMS41OSwyLjksMi43M1oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+";
+        // const dataLocation = "./assets/SVG/pdf-scroll.svg";
         const s = this.scrollButtonScale = 0.075;
         const makeButton = rotation => {
             return this.createCard({
