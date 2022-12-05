@@ -36,13 +36,26 @@
     background-color: rgba(124, 124, 124, 0.2);
 }
 
-#joystick-hint {
+#hint-container{
     position: fixed;
-    bottom: 16px;
+    bottom: 5px;
     width: 100%;
-    text-align: center;
     z-index: 200;
+}
+
+#joystick-hint {
+    text-align: center;
     transition: opacity 0.5s;
+    font-weight: bold;
+    padding: 8px;
+    color: white;
+    text-shadow: 2px 2px 2px rgb(0 0 0 / 50%);
+}
+
+.black-bg{
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding:7px;
 }
 
 #joystick-arrows {
