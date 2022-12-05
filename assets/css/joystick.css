@@ -116,7 +116,7 @@
         height: 43px;
     }
 
-    #joystick-hint {
+    #hint-container {
         bottom: 0px;
         font-size: 12px;
     }
