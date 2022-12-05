@@ -629,10 +629,16 @@ export class Loader {
     }
 }
 
-export function addMeshProperties(obj3d, shadow, singleSide, noFog, THREE) {
+export function addMeshProperties(obj3d, shadow, singleSide, noFog, fullBright, THREE) {
     obj3d.traverse(n => {
         if(n.material) {
             if(noFog)n.material.fog = false;
+            if(fullBright){
+                let transfer = n.material;
+                console.log("material", transfer)
+                n.material = new THREE.MeshBasicMaterial();
+                n.material.copy( transfer );
+            }
             if (singleSide) {
                 n.material.side = THREE.FrontSide; //only render front side
             }

@@ -753,7 +753,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     obj = flattenedObj;
                 }
             }
-            addMeshProperties(obj, shadow, singleSided, noFog, THREE);
+            let fullBright = options.fullBright !== undefined ? options.fullBright : false;
+            addMeshProperties(obj, shadow, singleSided, noFog, fullBright, THREE);
             if (this.actor.layers.indexOf('walk') >= 0) {
                 this.constructCollider(obj);
             }
