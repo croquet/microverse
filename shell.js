@@ -124,7 +124,6 @@ class Shell {
         this.joystick = document.getElementById("joystick");
         this.knob = document.getElementById("knob");
         this.trackingknob = document.getElementById("trackingknob");
-        this.joystickhint = document.getElementById("joystick-hint");
 
         this.adjustJoystickKnob();
         window.onresize = () => this.adjustJoystickKnob();
@@ -714,10 +713,6 @@ class Shell {
                 let dist = Math.sqrt(squaredDist);
                 dx = radius * dx / dist;
                 dy = radius * dy / dist;
-            }
-
-            if (squaredDist > 20) {
-                this.joystickhint.style.opacity = 0;
             }
 
             this.knob.style.transform = `translate(${radius + dx}px, ${radius + dy}px)`;
