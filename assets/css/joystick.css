@@ -36,6 +36,15 @@
     background-color: rgba(124, 124, 124, 0.2);
 }
 
+#joystick-hint {
+    position: fixed;
+    bottom: 16px;
+    width: 100%;
+    text-align: center;
+    z-index: 200;
+    transition: opacity 0.5s;
+}
+
 #joystick-arrows {
     position: fixed;
     width: 0px;
@@ -92,6 +101,11 @@
     #knob {
         width: 43px;
         height: 43px;
+    }
+
+    #joystick-hint {
+        bottom: 0px;
+        font-size: 12px;
     }
 
     #joystick-arrows {
