@@ -63,10 +63,10 @@
     height: 0px;
     left: -4px;
     top: -4px;
-    
+
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
-  
+
     border-bottom: 8px solid #aaa;
 }
 
@@ -109,24 +109,24 @@
     }
 
     #joystick-arrows {
-	left: 43px;
-	top: 43px;
+        left: 43px;
+        top: 43px;
     }
 
     #joystick-arrow-n {
-	transform: translate(0px, -34px);
+        transform: translate(0px, -34px);
     }
 
     #joystick-arrow-e {
-	transform:  translate(34px, 0px) rotate(90deg);
+        transform:  translate(34px, 0px) rotate(90deg);
     }
 
     #joystick-arrow-w {
-	transform:  translate(-34px, 0px) rotate(-90deg);
+        transform:  translate(-34px, 0px) rotate(-90deg);
     }
 
     #joystick-arrow-s {
-	transform:  translate(0px, 34px) rotate(180deg);
+        transform:  translate(0px, 34px) rotate(180deg);
     }
 }
 
@@ -154,23 +154,23 @@
     }
 
     #joystick-arrows {
-	left: 70px;
-	top: 70px;
+        left: 70px;
+        top: 70px;
     }
 
     #joystick-arrow-n {
-	transform: translate(0px, -56px);
+        transform: translate(0px, -56px);
     }
 
     #joystick-arrow-e {
-	transform:  translate(56px, 0px) rotate(90deg);
+        transform:  translate(56px, 0px) rotate(90deg);
     }
 
     #joystick-arrow-w {
-	transform:  translate(-56px, 0px) rotate(-90deg);
+        transform:  translate(-56px, 0px) rotate(-90deg);
     }
 
     #joystick-arrow-s {
-	transform:  translate(0px, 56px) rotate(180deg);
+        transform:  translate(0px, 56px) rotate(180deg);
     }
 }
