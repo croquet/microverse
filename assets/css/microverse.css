@@ -389,10 +389,6 @@ body.tilt > iframe {
 	margin: 10px;
     }
 
-    .menu-qr {
-	display: none;
-    }
-
     .menu-label {
 	font-size: 12px;
 	line-height: 14px;
@@ -401,8 +397,12 @@ body.tilt > iframe {
     .worldMenu {
 	width: fit-content;
     }
+}
 
-    #share-qr {
+
+@media (max-height: 500px) {
+    .menu-qr {
 	display: none;
     }
 }
+
