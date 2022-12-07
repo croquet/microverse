@@ -64,13 +64,16 @@ async function getAntialias() {
     const isSafari = navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
     const isFirefox = navigator.userAgent.includes("Firefox");
     const isMobile = !!("ontouchstart" in window);
+
+    // the code below looks redundant, but let us keep it so that we remember what to do when
+    // we change our mind again.
     let aa = true;
     if (isMobile) {
         aa = false;
     } else if (isSafari && isMobile) {
         aa = false;
     } else if (isFirefox) {
-        aa = false;
+        aa = true;
     }
 
     try {
