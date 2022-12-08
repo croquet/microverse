@@ -116,7 +116,11 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             document.getElementById('toggleAudio').addEventListener('click', () => this.toggleAudio());
             document.getElementById('toggleSettings').addEventListener('click', () => this.toggleSettings());
             document.getElementById('toggleMicrophoneTest').addEventListener('click', () => this.toggleMicrophoneTest());
-            document.getElementById('audioInputs').addEventListener('input', () => this.setAudioInput());
+            const audioInputs = document.getElementById('audioInputs');
+            // for at least Firefox we need to explicitly stop propagation of pointerdown
+            // to the world (where it triggers mouselook)
+            audioInputs.addEventListener('pointerdown', evt => evt.stopPropagation());
+            audioInputs.addEventListener('input', () => this.setAudioInput());
             navigator.mediaDevices.addEventListener('devicechange', () => this.updateAudioInputs());
 
             // if rebuilding after dormancy, re-impose the previous mute state
@@ -125,6 +129,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
         this.elements = {
             chatHolder,
+            connectionTooltip: document.getElementById('connection-tooltip'),
             toggleAudio: document.getElementById('toggleAudio'),
             audioInputs: document.getElementById('audioInputs'),
 
@@ -157,6 +162,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     toggleConnection() {
         this.resumeAudioContextIfNeeded();
+        this.elements.connectionTooltip.style.display = "none";
         const now = Date.now();
         if (now - (this.lastToggle || 0) < 2000 || this.joinState === 'joining' || this.joinState === 'leaving') return;
         this.lastToggle = now;
@@ -274,13 +280,13 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     async joinConference() {
         this.joinState = 'joining';
+        this.elements.chatHolder.classList.add('joining');
         const conference = await this.prepareSession() && await this.createConference();
         if (!conference) {
+            this.elements.chatHolder.classList.remove('joining');
             this.joinState = 'left';
             return;
         }
-
-        this.elements.chatHolder.classList.add('joining');
 
         console.log("join Dolby conference");
         const joinOptions = {
@@ -474,9 +480,13 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         audioPlaceholderOption.label = "Select Microphone";
         audioInputs.appendChild(audioPlaceholderOption);
 
-        const promise = this._updateAudioInputsPromise = VoxeetSDK.mediaDevice.enumerateAudioInputDevices()
+        // Firefox won't provide labels for audio devices unless we get an audio input first. https://stackoverflow.com/questions/46648645/navigator-mediadevices-enumeratedevices-not-display-device-label-on-firefox
+        const prelimPromise = navigator.userAgent.indexOf("Firefox") === -1 ? Promise.resolve() : navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+
+        const promise = this._updateAudioInputsPromise = prelimPromise
+            .then(() => VoxeetSDK.mediaDevice.enumerateAudioInputDevices())
             .then(devices => {
-                devices.forEach(device => {
+                devices.forEach(device => { console.log(device);
                     const { deviceId, label } = device;
 
                     if (deviceId === 'default' || deviceId === 'communications') {

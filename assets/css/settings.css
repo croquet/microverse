@@ -239,7 +239,7 @@
     position: absolute;
     width: 66px;
     height: 50px;
-    background-color: #300079;
+    background-color: rgba(0, 0, 0, 0.5);
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
 }
@@ -288,7 +288,7 @@
     position: absolute;
     left: 66px;
     height: 50px;
-    background-color: #300079;
+    background-color: rgba(0, 0, 0, 0.5);
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
 }
