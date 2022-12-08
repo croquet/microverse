@@ -368,7 +368,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             VoxeetSDK.conference.setSpatialPosition(VoxeetSDK.session.participant, myPosition);
             VoxeetSDK.conference.setSpatialDirection(VoxeetSDK.session.participant, myRotation);
         }
-        this.future(500).setMyPosition();
+        this.future(200).setMyPosition();
     }
 
     playerEnter(p) {
@@ -486,7 +486,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         const promise = this._updateAudioInputsPromise = prelimPromise
             .then(() => VoxeetSDK.mediaDevice.enumerateAudioInputDevices())
             .then(devices => {
-                devices.forEach(device => { console.log(device);
+                devices.forEach(device => {
                     const { deviceId, label } = device;
 
                     if (deviceId === 'default' || deviceId === 'communications') {
