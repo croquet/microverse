@@ -237,7 +237,7 @@
 
 #chatState {
     position: absolute;
-    width: 66px;
+    width: 70px;
     height: 50px;
     background-color: rgba(0, 0, 0, 0.5);
     border-top-left-radius: 8px;
@@ -286,7 +286,7 @@
     display: flex;
     flex-direction: row;
     position: absolute;
-    left: 66px;
+    left: 70px;
     height: 50px;
     background-color: rgba(0, 0, 0, 0.5);
     border-top-right-radius: 8px;
@@ -522,10 +522,14 @@
 #settings {
     /* transition: flex 0.5s; */
     display: flex;
+    flex-direction: column;
     align-items: center;
     scrollbar-width: thin;
     z-index: 3;
     background-color: #191919;
+    overflow-x: hidden;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 #chatHolder.hide-settings #settings {
@@ -673,11 +677,6 @@
 
 #chatHolder.resize {
     cursor: ns-resize;
-}
-
-#settings {
-    flex-direction: column;
-    overflow-x: hidden;
 }
 
 #settingsButtons {
