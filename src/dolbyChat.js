@@ -112,13 +112,12 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             chatHolder = div.firstChild;
             document.body.appendChild(chatHolder);
 
-            document.getElementById('toggleConnection').addEventListener('click', () => this.toggleConnection());
-            document.getElementById('toggleAudio').addEventListener('click', () => this.toggleAudio());
-            document.getElementById('toggleSettings').addEventListener('click', () => this.toggleSettings());
-            document.getElementById('toggleMicrophoneTest').addEventListener('click', () => this.toggleMicrophoneTest());
+            ['toggleConnection', 'toggleAudio', 'toggleSettings', 'toggleMicrophoneTest'].forEach(buttonName => {
+                const elem = document.getElementById(buttonName);
+                elem.addEventListener('pointerdown', evt => evt.stopPropagation());
+                elem.addEventListener('click', () => this[buttonName]());
+            });
             const audioInputs = document.getElementById('audioInputs');
-            // for at least Firefox we need to explicitly stop propagation of pointerdown
-            // to the world (where it triggers mouselook)
             audioInputs.addEventListener('pointerdown', evt => evt.stopPropagation());
             audioInputs.addEventListener('input', () => this.setAudioInput());
             navigator.mediaDevices.addEventListener('devicechange', () => this.updateAudioInputs());
