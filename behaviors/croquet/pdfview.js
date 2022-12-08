@@ -28,34 +28,41 @@ class PDFActor {
     }
 
     addButtons() {
-
-        const dataLocation = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDMuMjMgNTQzLjQyIj4KICA8cGF0aCBkPSJNNTI2LjYsMjQ4LjY0Yy01LjY1LTY2LjM1LTMzLjk3LTEyMi4yNy04My4zMi0xNjYuODJDMzg4LjAzLDMxLjk1LDMyMi41NiwxMC41NiwyNDguNDksMTYuNjMsMTIzLjE0LDI2LjksMTMuMSwxMzQuNTMsMTUuNjYsMjc3LjY2YzIuNTEsMTM5Ljk5LDEyNC4yMSwyNjEuOTksMjc4Ljg2LDI0OS4yMSwxMjMuNTctMTAuMjEsMjQ1LjQ2LTEyMS4yLDIzMi4wOC0yNzguMjNaIi8+CiAgPHBhdGggZD0iTTI3MS44NCwyODQuMjNjMTMuOS0xMy45OCwyNy43My0yNy45LDQxLjU4LTQxLjgsMTEuOTktMTIuMDMsMjMuOTctMjQuMDgsMzYuMDItMzYuMDUsMTAuMTEtMTAuMDUsMjIuMDYtMTAuMDYsMzIuMTctLjEyLDMuNDQsMy4zOSw2Ljg4LDYuNzgsMTAuMjMsMTAuMjcsOS4xOCw5LjU1LDkuMTQsMjEuNjctLjI2LDMxLjA4LTM0LjcxLDM0Ljc5LTY5LjQ1LDY5LjU0LTEwNC4yMiwxMDQuMjYtOS43Miw5LjcxLTIxLjYxLDkuNy0zMS4yMiwuMDktMzQuNzUtMzQuNzQtNjkuNS02OS40OS0xMDQuMjMtMTA0LjI2LTkuNzYtOS43Ny05LjgxLTIxLjM2LS4xNy0zMS4zLDMuMjUtMy4zNSw2LjUtNi42OSw5LjgtOS45OSwxMC4xLTEwLjA2LDIyLjAyLTEwLjIyLDMyLjE0LS4xNiwyNS4xNSwyNS4wMyw1MC4xOCw1MC4xNiw3NS4yNiw3NS4yNSwuODIsLjgyLDEuNjksMS41OSwyLjksMi43M1oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+";
-        // const dataLocation = "./assets/SVG/pdf-scroll.svg";
-        const s = this.scrollButtonScale = 0.075;
-        const makeButton = rotation => {
-            return this.createCard({
-                name: "scroll button",
-                dataLocation,
+        // from chevron-up-solid-thicker
+        const chevronSVG = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgZGF0YS1uYW1lPSJMYXllciAxIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0NzAuMTQgMjc4LjA0Ij4KICA8cGF0aCBkPSJtNDU3LjU0LDIwNC42TDI2NS41NCwxMi42Yy04LjEyLTguMTItMTguOTMtMTIuNi0zMC40My0xMi42LTEwLjgyLDAtMjEuMDIsMy45Ni0yOC45NSwxMS4xOS0uNTYuMzgtMS4wOC44Mi0xLjU4LDEuMzFMMTIuNTgsMjA0LjVjLTE2Ljc4LDE2Ljc4LTE2Ljc4LDQ0LjA4LDAsNjAuODYsMTYuNzgsMTYuNzgsNDQuMDgsMTYuNzgsNjAuODUsMEwyMzUuMDYsMTAzLjgzbDE2MS42MiwxNjEuNjJjOC4zOSw4LjM5LDE5LjQxLDEyLjU4LDMwLjQzLDEyLjU4czIyLjA0LTQuMTksMzAuNDMtMTIuNThjOC4xMi04LjEyLDEyLjYtMTguOTMsMTIuNi0zMC40M3MtNC40Ny0yMi4zMS0xMi42LTMwLjQzWiIvPgo8L3N2Zz4=";
+        const buttonSpecs = {
+            up: { svg: chevronSVG, scale: 0.7, position: [0, 0.05] },
+            down: { svg: chevronSVG, scale: 0.7, position: [0, 0.05], rotation: [0, 0, Math.PI] },
+        };
+        const size = this.buttonSize = 0.1;
+        const CIRCLE_RATIO = 1.25; // ratio of button circle to inner svg
+        const makeButton = symbol => {
+            const { svg, scale, position, rotation } = buttonSpecs[symbol];
+            const button = this.createCard({
+                name: "button",
+                dataLocation: svg,
                 fileName: "/svg.svg", // ignored
                 modelType: "svg",
                 shadow: true,
                 singleSided: true,
-                scale: [s, s, 1],
-                rotation,
+                scale: [size * scale / CIRCLE_RATIO, size * scale / CIRCLE_RATIO, 1],
+                rotation: rotation || [0, 0, 0],
                 depth: 0.01,
                 type: "2d",
                 fullBright: true,
-                behaviorModules: ["ScrollButton"],
+                behaviorModules: ["PDFButton"],
                 parent: this,
                 noSave: true,
             });
+            button.call("PDFButton$PDFButtonActor", "setProperties", { name: symbol, svgScale: scale, svgPosition: position || [0, 0] });
+            return button;
         }
 
-        this.scrollUpButton = makeButton([0, 0, Math.PI]);
-        this.scrollUpButton.call("ScrollButton$ScrollButtonActor", "setName", "up");
+        this.buttons = {};
+        ["up", "down"].forEach(buttonName => {
+            this.buttons[buttonName] = makeButton(buttonName);
+        });
 
-        this.scrollDownButton = makeButton([0, 0, 0]);
-        this.scrollDownButton.call("ScrollButton$ScrollButtonActor", "setName", "down");
     }
 
     docLoaded(data) {
@@ -75,9 +82,13 @@ class PDFActor {
 
     cardDataUpdated(data) {
         if (data.height !== undefined) {
-            const offset = data.height / 2 + this.scrollButtonScale / 4;
-            this.scrollUpButton.translateTo([0, offset, 0.04]);
-            this.scrollDownButton.translateTo([0, -offset, 0.04]);
+            const offsetX = this.buttonSize * 3 / 4;
+            const offsetY = data.height / 2 + this.buttonSize * 3 / 4;
+            const depth = this._cardData.depth || 0.05;
+            const { up, down } = this.buttons;
+            up.translateTo([-offsetX, -offsetY, depth]);
+            down.translateTo([offsetX, -offsetY, depth]);
+            this.say("sizeSet");
         }
     }
 
@@ -180,8 +191,11 @@ class PDFPawn {
         this.addEventListener("pointerWheel", "onPointerWheel");
 
         this.listen("cardDataSet", "cardDataUpdated");
+        this.listen("sizeSet", "sizeSet");
         this.listen("drawAtScrollPosition", "drawAtScrollPosition");
         this.listen("updateShape", "updateShape");
+
+        this.subscribe(this.id, "buttonPressed", "buttonPressed");
 
         let moduleName = this._behavior.module.externalName;
         this.addUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
@@ -318,6 +332,10 @@ class PDFPawn {
         }
     }
 
+    sizeSet() {
+        this.updateButtons();
+    }
+
     drawAtScrollPosition() {
         if (!this.hasLatestPDF() || !this.pageGap) return;
 
@@ -361,7 +379,7 @@ class PDFPawn {
                 const topGap = yStart < 0 ? -yStart * cardHeight : 0;
                 const pageHeight = Math.min((1 - imageTop) * fullPageHeight, cardHeight - shownHeight - topGap);
                 const imageBottom = imageTop + pageHeight / fullPageHeight;
-                const geo = pageMesh.geometry = new THREE.PlaneGeometry(cardWidth, pageHeight);
+                const geo = pageMesh.geometry = new Microverse.THREE.PlaneGeometry(cardWidth, pageHeight);
                 this.shape.add(pageMesh);
                 const pageY = cardHeight / 2 - shownHeight - topGap - pageHeight / 2;
                 pageMesh.position.set(0, pageY, depth / 2 + 0.003);
@@ -372,26 +390,48 @@ class PDFPawn {
                 uv.setXY(3, 1, 1 - imageBottom);
                 uv.needsUpdate = true;
 
-                if (!pageEntry.texture) pageEntry.texture = new THREE.Texture(renderResult);
+                if (!pageEntry.texture) pageEntry.texture = new Microverse.THREE.Texture(renderResult);
                 if (pageMesh.material.map !== pageEntry.texture) {
                     pageMesh.material.map = pageEntry.texture;
                     pageEntry.texture.needsUpdate = true;
                 }
             }
             shownHeight += fullPageHeight - fullPageHeight * yStart + this.pageGap; // whether or not page is being shown
-            if (p === this.numPages || shownHeight >= cardHeight) return;
+            if (p === this.numPages || shownHeight >= cardHeight) break;
             else {
                 p++;
                 yStart = 0;
             }
         }
+        this.updateButtons();
+    }
+
+    updateButtons() {
+        const { scrollState } = this.actor;
+        if (!scrollState) return;
+
+        const { upAvailable, downAvailable } = scrollState;
+        if (upAvailable === undefined) return; // not ready yet
+
+        this.buttonState = {
+            up: upAvailable,
+            down: downAvailable,
+        };
+        this.publish(this.id, "updateButtons");
+    }
+
+    setButtonHilite(buttonName, hilite) {
+        // not actually needed until we have some toggles
+        const groups = [["up"], ["down"]];
+        const group = groups.find(g => g.includes(buttonName));
+        this.publish(this.id, "updateHilites", { buttons: group, hilite });
     }
 
     makePageMesh() {
         const { cardWidth, cardHeight } = this;
-        const pageGeometry = new THREE.PlaneGeometry(cardWidth, cardHeight);
-        const pageMaterial = new THREE.MeshBasicMaterial({ color: "#fff", side: THREE.DoubleSide, toneMapped: false });
-        const pageMesh = new THREE.Mesh(pageGeometry, pageMaterial);
+        const pageGeometry = new Microverse.THREE.PlaneGeometry(cardWidth, cardHeight);
+        const pageMaterial = new Microverse.THREE.MeshBasicMaterial({ color: "#fff", side: Microverse.THREE.DoubleSide, toneMapped: false });
+        const pageMesh = new Microverse.THREE.Mesh(pageGeometry, pageMaterial);
         pageMesh.name = "page";
         return pageMesh;
     }
@@ -581,16 +621,16 @@ class PDFPawn {
         let y = width / 2;
         let z = depth / 2;
 
-        let shape = new THREE.Shape();
+        let shape = new Microverse.THREE.Shape();
         shape.moveTo(-x, -y);
         shape.lineTo(-x, y);
         shape.lineTo(x, y);
         shape.lineTo(x, -y);
         shape.lineTo(-x, -y);
 
-        let extrudePath = new THREE.LineCurve3(new THREE.Vector3(0, 0, z), new THREE.Vector3(0, 0, -z));
+        let extrudePath = new Microverse.THREE.LineCurve3(new Microverse.THREE.Vector3(0, 0, z), new Microverse.THREE.Vector3(0, 0, -z));
         extrudePath.arcLengthDivisions = 3;
-        let geometry = new THREE.ExtrudeGeometry(shape, { extrudePath });
+        let geometry = new Microverse.THREE.ExtrudeGeometry(shape, { extrudePath });
 
         geometry.parameters.width = width;
         geometry.parameters.height = height;
@@ -689,6 +729,11 @@ class PDFPawn {
         }
     }
 
+    buttonPressed(buttonName) {
+        if (buttonName === "up") this.changePage(-1);
+        else if (buttonName === "down") this.changePage(1);
+    }
+
     changePage(change) {
         this.say("changePage", change);
     }
@@ -722,91 +767,100 @@ class PDFPawn {
     }
 }
 
-class ScrollButtonActor {
+class PDFButtonActor {
     // setup() {
     // }
 
-    setName(name) {
-        this.buttonName = name;
+    setProperties(props) {
+        this.buttonName = props.name;
+        this.svgScale = props.svgScale;
+        this.svgPosition = props.svgPosition; // [x, y] to nudge position
     }
 }
 
-class ScrollButtonPawn {
+class PDFButtonPawn {
     setup() {
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
 
         this.addEventListener("pointerMove", "nop");
         this.addEventListener("pointerEnter", "hilite");
         this.addEventListener("pointerLeave", "unhilite");
-        this.addEventListener("pointerTap", "requestPageChange");
+        this.addEventListener("pointerTap", "tapped");
         // effectively prevent propagation
         this.addEventListener("pointerDown", "nop");
         this.addEventListener("pointerUp", "nop");
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addEventListener("pointerDoubleDown", "nop");
 
-        this.subscribe(this.parent.actor.id, "updateButtons", "updateState");
+        this.subscribe(this.parent.id, "updateButtons", "updateState");
+        this.subscribe(this.parent.id, "updateHilites", "updateHilite");
+
+        this.enabled = true;
     }
 
     svgLoaded() {
-        // make sure everything can be made translucent when we want
-        let svg = this.shape.children[0];
-        svg.traverse((obj) => {
-            if (obj.geometry) {
-                let m = obj.material;
-                let mat = Array.isArray(m) ? m : [m];
-                mat.forEach(m => {
-                    m.transparent = true;
-                    m.opacity = 1;
-                });
-            }
-        });
-        this.shape.visible = false; // to force setColor when first visible
+        // no hit-test response on anything but the hittable mesh set up below
+        const { buttonName, svgScale, svgPosition } = this.actor;
+        const svg = this.shape.children[0];
+        // apply any specified position nudging
+        svg.position.x += svgPosition[0];
+        svg.position.y += svgPosition[1];
+        this.shape.raycast = () => false;
+        svg.traverse(obj => obj.raycast = () => false);
+        const { depth } = this.actor._cardData;
+        const radius = 1.25 / svgScale / 2;
+        const segments = 32;
+        const geometry = new Microverse.THREE.CylinderGeometry(radius, radius, depth, segments);
+        const opacity = (buttonName === "mute" || buttonName === "unmute") ? 0 : 1;
+        const material = new Microverse.THREE.MeshBasicMaterial({ color: 0xa0a0a0, side: Microverse.THREE.DoubleSide, transparent: true, opacity });
+        const hittableMesh = new Microverse.THREE.Mesh(geometry, material);
+        hittableMesh.rotation.x = Math.PI / 2;
+        hittableMesh.position.z = -depth / 2;
+        this.shape.add(hittableMesh);
+        hittableMesh._baseRaycast = hittableMesh.raycast;
+        hittableMesh.raycast = (...args) => this.shape.visible ? hittableMesh._baseRaycast(...args) : false;
+        this.shape.visible = false; // until placed
         this.updateState();
     }
 
     updateState() {
         // invoked on every scroll update, so be efficient
-        const { scrollState } = this.parent.actor;
-        let visible = false;
-        if (scrollState) {
-            const availableProp = `${this.actor.buttonName}Available`;
-            visible = !!scrollState[availableProp];
-        }
-        const wasVisible = !!this.shape.visible;
-        this.shape.visible = visible;
-        if (visible && !wasVisible) this.setColor();
+        const { buttonState } = this.parent;
+        if (!buttonState) return; // size not set yet
+
+        const wasVisible = this.shape.visible;
+        this.shape.visible = true;
+        const wasEnabled = this.enabled;
+        this.enabled = buttonState[this.actor.buttonName];
+        if (!wasVisible || this.enabled !== wasEnabled) this.setColor();
     }
 
     setColor() {
         let svg = this.shape.children[0];
         if (!svg) return;
 
-        let baseMaterial = svg.children[0].material[0];
-        let symbolMaterial = svg.children[1].material[0];
-
-        let baseColor = 0x808080;
-        let symbolColor = 0x303030;
-        baseMaterial.opacity = this.entered ? 0.8 : 0.5;
-        baseMaterial.color.setHex(baseColor);
-        symbolMaterial.opacity = 1;
-        symbolMaterial.color.setHex(symbolColor);
+        let color = this.enabled ? (this.entered ? 0x202020 : 0x404040) : 0xc0c0c0;
+        svg.children.forEach(child => child.material[0].color.setHex(color));
     }
 
     hilite() {
-        this.entered = true;
-        this.setColor();
-        // this.publish(this.parent.id, "interaction"); // on gizmo, used for timer
-    }
-
-    unhilite() {
-        this.entered = false;
-        this.setColor();
+        this.parent.call("PDFView$PDFPawn", "setButtonHilite", this.actor.buttonName, true);
         // this.publish(this.parent.id, "interaction");
     }
 
-    requestPageChange() {
-        if (!this.shape.visible) return; // an invisible button still detects events
+    unhilite() {
+        this.parent.call("PDFView$PDFPawn", "setButtonHilite", this.actor.buttonName, false);
+    }
+
+    updateHilite({ buttons, hilite }) {
+        if (!buttons.includes(this.actor.buttonName)) return;
+
+        this.entered = hilite;
+        this.setColor();
+    }
+
+    tapped() {
+        if (!this.enabled) return;
 
         this.publish(this.parent.actor.id, "buttonPageChange", this.actor.buttonName === "down" ? 1 : -1);
     }
@@ -821,11 +875,11 @@ export default {
             pawnBehaviors: [PDFPawn],
         },
         {
-            name: "ScrollButton",
-            actorBehaviors: [ScrollButtonActor],
-            pawnBehaviors: [ScrollButtonPawn],
+            name: "PDFButton",
+            actorBehaviors: [PDFButtonActor],
+            pawnBehaviors: [PDFButtonPawn],
         }
     ]
 }
 
-/* globals THREE */
+/* globals Microverse */
