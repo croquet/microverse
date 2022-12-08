@@ -368,7 +368,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             VoxeetSDK.conference.setSpatialPosition(VoxeetSDK.session.participant, myPosition);
             VoxeetSDK.conference.setSpatialDirection(VoxeetSDK.session.participant, myRotation);
         }
-        this.future(200).setMyPosition();
+        this.future(100).setMyPosition();
     }
 
     playerEnter(p) {
