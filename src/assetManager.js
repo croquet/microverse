@@ -492,12 +492,18 @@ export class Loader {
 
         return getBuffer().then((data) => {
             let loader = new THREE.GLTFLoader();
-            return new Promise((resolve, _reject) => {
+            return new Promise(async (resolve, reject) => {
                 let draco = new THREE.DRACOLoader();
                 draco.setDecoderConfig({type: 'wasm'});
-                draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+                // now strongly recommended to use versioned gstatic URLs (see https://github.com/google/draco)
+                // draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+                draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.5/');
                 loader.setDRACOLoader(draco);
-                return loader.parse(data, null, (obj) => resolve(obj));
+                try {
+                    // note that if the data is corrupted, the loader will probably throw
+                    // an error instead of gracefully invoking the error handler
+                    await loader.parse(data, null, resolve, reject);
+                } catch(e) { reject(e); }
             }).then((loaded) => {
                 let {scene, animations} = loaded;
                 if (animations.length > 0) {

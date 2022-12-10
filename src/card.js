@@ -550,6 +550,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             assetManager.revoke(cardData.textureLocation, this.id);
         }
         this.cleanupColliderObject();
+        delete this._model3dLoading; // if any in progress
         super.destroy();
     }
 
@@ -673,9 +674,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
         }
 
+        let loadSynchronously = !!this.actor._cardData.loadSynchronously;
         let publishLoaded = () => {
             this.publish(this.id, "3dModelLoaded");
-            if (this.actor._cardData.loadSynchronously) {
+            if (loadSynchronously) {
                 this.publish(this.sessionId, "synchronousCardLoaded", {id: this.actor.id});
             }
         };
@@ -719,14 +721,62 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (!model3d || this._model3dLoading === model3d) {return;}
 
         this._model3dLoading = model3d;
-        this.getBuffer(model3d).then((buffer) => {
+        let isAbandoned = () => {
+            let abandoned = model3d !== this._model3dLoading;
+            if (abandoned) console.log("model load has been abandoned");
+            return abandoned;
+        };
+        this.getBuffer(model3d).then(async (buffer) => {
             assetManager.setCache(model3d, buffer, this.id);
-            return assetManager.load(buffer, modelType, THREE);
-        }).then((obj) => {
-            if (model3d !== this._model3dLoading) {
-                console.log("model load has been superseded");
-                return;
+            // in the particular case of a synchronous-load object, if nothing has been
+            // heard from the loader for 10 seconds we start another load process in
+            // case the first somehow got stuck.  we then use the result of whichever
+            // completes first (however long that takes).
+            // for any model that throws an error, we try a maximum of 3 times.
+            const MAX_TRIES = 3;
+            const LOAD_UNRESPONSIVE_TIME = 10000;
+            let remainingTries = MAX_TRIES;
+            let loadWithRetry = () => {
+                return new Promise(async resolve => {
+                    let obj3d = null;
+                    let error = null;
+                    while (!obj3d && remainingTries > 0) {
+                        try {
+                            obj3d = await assetManager.load(buffer, modelType, THREE);
+                        } catch (e) {
+                            console.log(`error on ${model3d}`, e);
+                            remainingTries--;
+                            error = e;
+                        }
+                    }
+                    // only resolve if an explicit object or error appeared
+                    if (obj3d || error) resolve(obj3d ? { obj3d } : { error });
+                })
+            };
+
+            let loader1 = loadWithRetry();
+            let result = null;
+            if (!loadSynchronously) result = await loader1; // { obj3d } or { error }
+            else {
+                let loader2 = new Promise(resolve => {
+                    setTimeout(() => {
+                        // only resolve from an attempted second load if no result
+                        // has been received yet, nor an error triggering a retry.
+                        if (!result && remainingTries === MAX_TRIES) {
+                            resolve(loadWithRetry());
+                        }
+                    }, LOAD_UNRESPONSIVE_TIME);
+                });
+                result = await Promise.any([loader1, loader2]);
             }
+
+            if (isAbandoned()) result = "abandoned"; // ignore any other result
+            else if (result.error) throw result.error;
+            else result = result.obj3d;
+
+            return result;
+        }).then((obj) => {
+            if (obj === "abandoned" || isAbandoned()) return;
 
             this.setupObj(obj, options);
             // if it is loading an old session, the animation field may not be there.
@@ -773,7 +823,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
             delete this._model3dLoading;
             publishLoaded();
-        }).catch(_err => {
+        }).catch(err => {
+            console.error("model load threw error", err);
             delete this._model3dLoading;
         });
     }
@@ -837,7 +888,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     this.video.onloadeddata = null;
                     this.video.onloadedmetadata = null;
                 }
-                    
+
                 this.videoLoaded = true;
                 this.video.width = options.textureWidth || this.video.videoWidth;
                 this.video.height = options.textureHeight || this.video.videoHeight;
