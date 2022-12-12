@@ -183,8 +183,27 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.fall = true;
     }
 
+    getLookFromAnchor() {
+        let anchor = this._anchor;
+        if (!anchor || !anchor._cardData) {return null;}
+        let anchorData = anchor._cardData;
+        let lookOffset = anchorData.lookOffset == undefined ? v3_zero() : anchorData.lookOffset;
+        let lookPitch = anchorData.lookPitch == undefined ? 0 : anchorData.lookPitch;
+        let lookYaw = anchorData.lookYaw == undefined ? 0 : anchorData.lookYaw;
+        return {lookOffset, lookPitch, lookYaw};
+    }
+
     resetStartPosition() {
-        this.goTo(this.translation, this.rotation, false);
+        let anchor = this._anchor;
+        if (!anchor) {
+            this.goTo(this.translation, this.rotation, false);
+            return;
+        }
+
+        let v = anchor.translation;
+        let q = anchor.rotation;
+        let look = this.getLookFromAnchor();
+        this.goTo(v, q, false, look);
     }
 
     onLookTo(data) {
@@ -205,20 +224,25 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             v = v3_zero();
             q = q_identity();
         }
-        this.goTo(v, q, false);
-        this.lookOffset = v3_zero();
-        this.lookPitch = 0;
-        this.lookYaw = 0;
-        this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: this.lookOffset});
+        let look = this.getLookFromAnchor();
+        this.goTo(v, q, false, look);
+        this.lookOffset = look.lookOffset;
+        this.lookPitch = look.lookPitch;
+        this.lookYaw = look.lookYaw;
+        this.say("setLookAngles", {pitch: this.lookPitch, yaw: this.lookYaw, lookOffset: this.lookOffset});
     }
 
-    goTo(v, q, fall) {
+    goTo(v, q, fall, look) {
         this.leavePresentation();
-        this.vStart = [...this.translation];
-        this.qStart = [...this.rotation];
+        this.vStart = this.translation;
+        this.qStart = this.rotation;
         this.vEnd = v;
         this.qEnd = q;
         this.fall = fall;
+        if (look) {
+            this.lookStart = {lookPitch: this.lookPitch, lookYaw: this.lookYaw, lookOffset: this.lookOffset};
+            this.lookEnd = look;
+        }
         this.goToStep(0.1);
         //this.set({translation: there[0], rotation: there[1]});
     }
@@ -326,8 +350,25 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t);
         this.positionTo({v, q});
+
+        if (this.lookStart && this.lookEnd) {
+            let lookPitch = this.lookStart.lookPitch * (1 - t) + this.lookEnd.lookPitch * t;
+            let lookYaw = this.lookStart.lookYaw * (1 - t) + this.lookEnd.lookYaw * t;
+            let lookOffset = v3_lerp(this.lookStart.lookOffset, this.lookEnd.lookOffset, t);
+            this.say("setLookAngles", {pitch: lookPitch, yaw: lookYaw, lookOffset: lookOffset});
+        }
+
         this.say("forceOnPosition");
-        if (t < 1) this.future(50).goToStep(delta, t + delta);
+        if (t < 1) {
+            this.future(50).goToStep(delta, t + delta);
+        } else {
+            this.vStart = null;
+            this.vEnd = null;
+            this.qStart = null;
+            this.qEnd = null;
+            this.lookStart = null;
+            this.looEnd = null;
+        }
     }
 
     // A following avatar updates its pose based on leader's pose, and updates its pawn
