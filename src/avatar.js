@@ -249,19 +249,19 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     goThere(p3d) {
         this.leavePresentation();
-        this.vStart = [...this.translation];
-        this.qStart = [...this.rotation];
+        this.vStart = this.translation;
+        this.qStart = this.rotation;
 
         if (!this.fall && (p3d.targetId === this.restoreTargetId)) { // jumpback if you are  doubleclicking on the same target you did before
             this.vEnd = this.restoreTranslation;
             this.qEnd = this.restoreRotation;
-            this.restoreRotation = undefined;
-            this.restoreTranslation = undefined;
-            this.restoreTargetId = undefined;
+            delete this.restoreRotation;
+            delete this.restoreTranslation;
+            delete this.restoreTargetId;
         } else {
             this.fall = false; // sticky until we move
-            this.restoreRotation = [...this.rotation];
-            this.restoreTranslation = [...this.translation];
+            this.restoreRotation = this.rotation;
+            this.restoreTranslation = this.translation;
             this.restoreTargetId = p3d.targetId;
             let normal = [...(p3d.normal || this.lookNormal)]; //target normal may not exist
             let point = p3d.xyz;
@@ -316,8 +316,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         const { presenter, followers } = this.service("PlayerManager");
         if (presenter.playerId === this.playerId || !followers.has(this.playerId)) return;
 
-        this._translation = [...presenter.translation];
-        this._rotation = [...presenter.rotation];
+        this._translation = presenter.translation;
+        this._rotation = presenter.rotation;
         this.say("forceOnPosition");
         this.follow = presenter.playerId;
         this.fall = false;
@@ -361,13 +361,6 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.say("forceOnPosition");
         if (t < 1) {
             this.future(50).goToStep(delta, t + delta);
-        } else {
-            this.vStart = null;
-            this.vEnd = null;
-            this.qStart = null;
-            this.qEnd = null;
-            this.lookStart = null;
-            this.looEnd = null;
         }
     }
 
@@ -983,7 +976,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.listenImmediate("followToWorld", this.followToWorld);
         this.showNumbers();
 
-        this.listen("forceOnPosition", this.onPosition);
+        this.listen("forceOnPosition", this.forceOnPosition);
 
         this.listen("goThere", this.stopFalling);
 
@@ -1057,10 +1050,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.frozenForWorldSwitch = bool;
     }
 
-    onPosition() {
+    forceOnPosition() {
         this._rotation = this.actor.rotation;
         this._translation = this.actor.translation;
         this.onLocalChanged();
+        this.globalChanged();
     }
 
     setLookAngles(data) {
