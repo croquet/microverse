@@ -7,6 +7,8 @@ const MAX_IMPORT_MB = 100; // aggregate
 
 let THREE;
 
+let cachedLoaders = {};
+
 function isZip(buffer) {
     return buffer[0] === 0x50 && buffer[1] === 0x4b &&
         buffer[2] === 0x03 && buffer[3] === 0x04;
@@ -279,6 +281,9 @@ export class AssetManager {
 }
 
 export class Loader {
+    constructor() {
+    }
+
     localName(str) {
         // str can be  [blob:]https://.../... or /.../... such.
         // It just take the last part after the last /
@@ -491,13 +496,16 @@ export class Loader {
         };
 
         return getBuffer().then((data) => {
-            let loader = new THREE.GLTFLoader();
-            return new Promise((resolve, _reject) => {
+            if (!cachedLoaders.dracoLoader) {
+                let loader = new THREE.GLTFLoader();
                 let draco = new THREE.DRACOLoader();
                 draco.setDecoderConfig({type: 'wasm'});
                 draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
                 loader.setDRACOLoader(draco);
-                return loader.parse(data, null, (obj) => resolve(obj));
+                cachedLoaders.dracoLoader = loader;
+            }
+            return new Promise((resolve, _reject) => {
+                cachedLoaders.dracoLoader.parse(data, null, (obj) => resolve(obj));
             }).then((loaded) => {
                 let {scene, animations} = loaded;
                 if (animations.length > 0) {
