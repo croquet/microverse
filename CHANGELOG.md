@@ -3,6 +3,28 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-12-09
+### Changed
+- 3D models handle fullBright property.
+- turn on anti-aliasing for FireFox
+- changed position update frequency in Dolby spatial audio.
+
+### Added
+- Buttons for PDF viewer and video player.
+
+## 2022-12-02
+### Changed
+- Infer modelType from the suffix of a file name, if it is not .zip
+- Use Worldcore 1.3.2 and Croquet 1.1.0-14
+- Enable anti-aliasing for Safari
+- Stop using cascading shadow map for a closed room like gallery.
+
+### Added
+- loadSynchronously property controls what to do until all objects with the flag are loaded.
+
+### Fixed
+- VideoPlayer for synchronous video playback work on Safari
+
 ## 2022-11-25
 ### Added
 - Joystick gets mini arrows.
