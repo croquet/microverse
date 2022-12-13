@@ -1098,8 +1098,10 @@ export class BehaviorViewManager extends ViewService {
 
         this.socket.onclose = (_event) => {
             console.log("disconnected");
-            this.socket.onmessage = null;
-            this.socket = null;
+            if (this.socket) {
+                this.socket.onmessage = null;
+                this.socket = null;
+            }
             this.status = false;
             if (this.callback) {
                 this.callback(false);
