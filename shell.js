@@ -32,7 +32,7 @@ class Shell {
             console.log("shell: redirecting to canonical URL", canonicalUrl);
             location.href = canonicalUrl; // causes reload
         }
-        console.log("shell: starting");
+        // console.log("shell: starting");
         this.frames = new Map(); // portalId => { frame, owningFrame, ownedFrames, isMicroverse, ?frameTypeArgs, ?frameTypeInterval }
         this.portalData = new Map(); // portalId => portalData
         this.awaitedFrameTypes = {}; // for coordinating a jump between frames
@@ -443,7 +443,7 @@ class Shell {
                 this.setButtonsVisibility(data);
                 return;
             case "send-configuration":
-                console.log("sending config", localConfiguration);
+                // console.log("sending config", localConfiguration);
                 this.sendToPortal(fromPortalId, "local-configuration", { localConfig: localConfiguration });
                 return;
             case "update-configuration":

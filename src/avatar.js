@@ -520,14 +520,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     setAvatarData(options) {
-        console.log("setAvatarData", options);
+        // console.log("setAvatarData", options);
         this.setupAvatarBehavior(options);
         this.updateOptions(options);
         // this.ensureNicknameCard(); handled separately
     }
 
     setupAvatarBehavior(options) {
-        console.log("setupAvatarBehavior");
+        // console.log("setupAvatarBehavior");
         if (!options.avatarEventHandler) {
             options.avatarEventHandler = "AvatarEventHandler";
         }
@@ -693,7 +693,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     }
 
     modelLoaded() {
-        console.log("remote avatar model loaded");
+        // console.log("remote avatar model loaded");
         delete this.lastOpacity;
         delete this.lastInWorld;
         this.modelLoadTime = Date.now();
@@ -928,7 +928,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.wasdVelocity = [0, 0, 0];
         this.wasdMap = {w: false, a: false, d: false, s: false};
 
-        console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
+        // console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
     }
 
     detach() {
@@ -1176,7 +1176,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     modelLoaded() {
-        console.log("avatar model loaded");
+        // console.log("avatar model loaded");
         delete this.lastOpacity;
         delete this.lastInWorld;
         this.modelLoadTime = Date.now();

@@ -50,7 +50,7 @@ class BillboardingPawn {
     }
 
     teardown() {
-        console.log("Billboard teardown");
+        // console.log("Billboard teardown");
         let moduleName = this._behavior.module.externalName;
         this.removeUpdateRequest([`${moduleName}$BillboardingPawn`, "update"]);
     }

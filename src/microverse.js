@@ -193,7 +193,7 @@ class MyPlayerManager extends PlayerManager {
         let index = this.avatarCount % Constants.AvatarNames.length;
         this.avatarCount++;
         let avatarSpec = Constants.AvatarNames[index];
-        console.log(frameName(), "MyPlayerManager", this.avatarCount);
+        // console.log(frameName(), "MyPlayerManager", this.avatarCount);
         let options = {...playerOptions, ...{noSave: true, type: "3d", singleSided: true}};
 
         if (typeof avatarSpec === "string") {
@@ -369,12 +369,12 @@ class MyPlayerManager extends PlayerManager {
     }
 
     playerEnteredWorld(player) {
-        console.log(frameName(), "playerEnteredWorld", player);
+        // console.log(frameName(), "playerEnteredWorld", player);
         this.publish("playerManager", "playerCountChanged");
     }
 
     playerLeftWorld(player) {
-        console.log(frameName(), "playerLeftWorld", player);
+        // console.log(frameName(), "playerLeftWorld", player);
         if (player.playerId === this.presentationMode) {
             this.stopPresentation();
         }
@@ -966,7 +966,7 @@ const shellListener = (command, data) => {
     // console.log(`${frameId} received: ${JSON.stringify(data)}`);
     if (command === "local-configuration") {
         const { localConfig } = data;
-        console.log("microverse received local-configuration", localConfig);
+        // console.log("microverse received local-configuration", localConfig);
         if (resolveConfiguration) {
             resolveConfiguration(localConfig);
             resolveConfiguration = null;

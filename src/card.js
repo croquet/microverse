@@ -75,7 +75,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
 
     updateOptions(options) {
         // fully override the _cardData with given variable (keys that are not in options will be deleted.
-        console.log("updateOptions", options);
+        // console.log("updateOptions", options);
         let {cardOptions, cardData} = this.separateOptions(options);
         this.updateBehaviors(options);
         this.set({...cardOptions});
@@ -837,7 +837,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     this.video.onloadeddata = null;
                     this.video.onloadedmetadata = null;
                 }
-                    
+
                 this.videoLoaded = true;
                 this.video.width = options.textureWidth || this.video.videoWidth;
                 this.video.height = options.textureHeight || this.video.videoHeight;
