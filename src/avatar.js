@@ -708,11 +708,10 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
 
 let dormantAvatarSpec = null;
 let useDormantAvatarSpec = true;
+
 export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
-
-        console.log("LocalAvatarPawn");
 
         this.lastUpdateTime = 0;
         this.lastCollideTime = 0;
@@ -739,11 +738,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.lastHeight = EYE_HEIGHT; // tracking the height above ground
         this.yawDirection = this.isMobile ? -1 : 1;
         this.pitchDirection = this.isMobile ? 1 : -1;
-
-        /*
-        this.walkCamera = new THREE.Object3D();
-        this.walkcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, - 1, 0));
-        */
 
         this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
@@ -2297,5 +2291,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         let pose = inFront ? this.dropPose(6) : null;
         this.publish(model.id, "loadDone", {asScene, key, pose});
+    }
+
+    getAudioListener() {
+        if (!this.audioListener) {
+            this.audioListener = new THREE.AudioListener();
+            this.camera.add(this.audioListener);
+        }
+        return this.audioListener;
     }
 }

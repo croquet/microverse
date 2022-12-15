@@ -1544,6 +1544,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         });
     }
 
+    getAudioListener() {
+        return this.getMyAvatar().getAudioListener();
+    }
+
     /*
     showSelectEdit(obj3d) {
         this.service("ThreeRenderManager").addToOutline(obj3d);
