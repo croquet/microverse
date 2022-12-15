@@ -1,6 +1,7 @@
 class SpatialSoundActor {
     setup() {
         this.listen("tapped", "tapped");
+        this.listen("ended", "ended");
         if (this.state === undefined) {
             this.state = "idle";
             this.size = null;
@@ -113,6 +114,7 @@ class SpatialSoundPawn {
                     this.audio.setLoop(this.loop);
                     this.audio.setVolume(this.volume);
                     this.adjustIfNecessary();
+                    this.audio.onEnded = () => this.ended();
                     this.pause();
                     resolve(this.audio);
                 });
@@ -130,6 +132,7 @@ class SpatialSoundPawn {
         // if (this.actor._cardData.playStartTime) {
         // this.audio.offset = now / 1000 - this.actor._cardData.playStartTime;
         // }
+        // this.audio.offset = 0;
         this.play();
     }
 
@@ -138,9 +141,9 @@ class SpatialSoundPawn {
         if (!this.audio.isPlaying) {return;}
         let actorState = this.actor.state;
         if (!(actorState === "idle" || actorState === "pausePlaying")) {return;}
-        if (this.actor._cardData.pauseTime) {
-            this.audio.offset = this.actor._cardData.pauseTime;
-        }
+        // if (this.actor._cardData.pauseTime) {
+        // this.audio.offset = this.actor._cardData.pauseTime;
+        // }
         this.pause();
     }
 
@@ -156,7 +159,10 @@ class SpatialSoundPawn {
 
     ended() {
         if (this.audio) {
+            this.audio.isPlaying = false;
+            this.audio.offset = 0;
             console.log("ended");
+            this.say("ended");
         }
     }
 
@@ -167,8 +173,9 @@ class SpatialSoundPawn {
     }
 
     pause() {
-        if (this.audio) {
-            this.audio.pause();
+        if (this.audio && this.audio.source) {
+            this.audio.offset = 0;
+            this.audio.stop();
         }
     }
 
