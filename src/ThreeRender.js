@@ -401,7 +401,14 @@ class ThreeRenderManager extends RenderManager {
                         if (this.vrButton.textContent === "ENTER VR") {
                             if (this.vrButton.style.left) {
                                 this.vrButton.style.removeProperty("left");
-                                this.vrButton.style.setProperty("right", "20px");
+                                if (window.enterVRButtonStyle) {
+                                    for (let key in window.enterVRButtonStyle) {
+                                        let value = window.enterVRButtonStyle[key];
+                                        this.vrButton.style.setProperty(key, value);
+                                    }
+                                } else {
+                                    this.vrButton.style.setProperty("right", "20px");
+                                }
                             }
                         }
                     }
