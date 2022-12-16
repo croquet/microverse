@@ -385,6 +385,8 @@ class ThreeRenderManager extends RenderManager {
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
 
+        this.vrButtonStyleSet = false;
+
         this.hasXR().then((xr) => {
             if (xr) {
                 this.vrButton = VRButton.createButton(this.renderer);
@@ -398,9 +400,11 @@ class ThreeRenderManager extends RenderManager {
                         }
                     }
                     if (styleChanged) {
+                        console.log("mutation");
                         if (this.vrButton.textContent === "ENTER VR") {
-                            if (this.vrButton.style.left) {
-                                this.vrButton.style.removeProperty("left");
+                            if (!this.vrButtonStyleSet) {
+                                this.vrButtonStyleSet = true;
+                                this.vrButton.style.removeProperty("left"); // ?
                                 if (window.enterVRButtonStyle) {
                                     for (let key in window.enterVRButtonStyle) {
                                         let value = window.enterVRButtonStyle[key];
