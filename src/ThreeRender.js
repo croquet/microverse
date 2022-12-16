@@ -400,7 +400,6 @@ class ThreeRenderManager extends RenderManager {
                         }
                     }
                     if (styleChanged) {
-                        console.log("mutation");
                         if (this.vrButton.textContent === "ENTER VR") {
                             if (!this.vrButtonStyleSet) {
                                 this.vrButtonStyleSet = true;
