@@ -24,7 +24,7 @@ export class DolbyChatManager extends ViewService {
         super(name || "DolbyChatManager");
         activeManager = this;
 
-        if (window.location.protocal !== "https" && window.location.hostname !== "localhost") {
+        if (window.isSecureContext) {
             console.warn("Audio Chat failed to get microphone permissions. If you are running it off http, please enable https");
             return;
         }
