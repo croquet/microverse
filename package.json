@@ -1,6 +1,6 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
