@@ -892,9 +892,22 @@ class GizmoPropertySheetButtonPawn {
     }
 
     openPropertySheet(event) {
-        let avatar = Microverse.GetPawn(event.avatarId);
-        this.publish(this.actor.id, "openPropertySheet", {avatar: event.avatarId, distance: avatar.targetDistance});
-        this.destroy();
+        let avatarPawn = Microverse.GetPawn(event.avatarId);
+        let avatar = avatarPawn.actor;
+        if (!event.shiftKey) {
+            this.say("openPropertySheet", {avatar: avatar.id, distance: avatarPawn.targetDistance});
+            this.destroy(); // remove button
+        } else {
+            let target = this.actor.parent.target;
+            let targetPawn = Microverse.GetPawn(target.id);
+            let args = {target, targetPawn, avatar, avatarPawn};
+            // log func name and args by default (and reminder that func can be set)
+            let fn = window.microverseShiftClickPropFunc;
+            let keepGizmo = false;
+            if (fn) keepGizmo = fn(args);
+            else console.log("microverseShiftClickPropFunc (not set)", args);
+            if (!keepGizmo) avatarPawn.say("removeGizmo");
+        }
     }
 }
 
