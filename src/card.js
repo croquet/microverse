@@ -261,18 +261,18 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     translateBy(dist) {
-        // dist is either a 3-value array or a scalar.
-        // if it is a 3-value array, it specify the offset.
-        // if it is a scalar, it is intepretered as [0, 0, dist].
+        // dist is either a 3-value array or a number.
+        // if it is a 3-value array, it specifies the offset.
+        // if it is a number, it is interpreted as [0, 0, dist].
         let offset = Array.isArray(dist) ? dist : [0, 0, dist];
         let t = this.translation;
         this.translateTo([t[0] + offset[0], t[1] + offset[1], t[2] + offset[2]]);
     }
 
     forwardBy(dist) {
-        // dist is either a 3-value array or a scalar.
-        // if it is a 3-value array, it specify the offset, in the reference frame of the receiver.
-        // if it is a scalar, it is intepretered as [0, 0, dist].
+        // dist is either a 3-value array or a number.
+        // if it is a 3-value array, it specifies the offset, in the reference frame of the receiver.
+        // if it is a number, it is interpreted as [0, 0, dist].
         let offset = Array.isArray(dist) ? dist : [0, 0, dist];
         let vec = v3_rotate(offset, this.rotation)
         let t = this.translation;
@@ -280,9 +280,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     }
 
     scaleBy(factor) {
-        // factor is either a 3-value array or a scalar.
-        // if it is a 3-value array, it specify the difference.
-        // if it is a scalar, it is intepretered as [factor, factor, factor].
+        // factor is either a 3-value array or a number.
+        // if it is a 3-value array, it specifies the difference.
+        // if it is a number, it is interpreted as [factor, factor, factor].
         let offset = Array.isArray(factor) ? factor : [factor, factor, factor];
         let cur = this.scale;
         this.scaleTo([cur[0] + offset[0], cur[1] + offset[1], cur[2] + offset[2]]);
