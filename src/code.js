@@ -219,7 +219,7 @@ export const AM_Code = superclass => class extends superclass {
         if (!behaviorModules) {return false;}
         if (!behaviorModules.includes(module)) {return false;}
 
-        if (!behaviorName) {return false;}
+        if (!behaviorName) {return true;}
 
         let behavior = behaviorManager.lookup(module, behaviorName);
         if (!behavior) {return false;}
