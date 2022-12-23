@@ -32,8 +32,8 @@ class DroneAssemblyActor {
         else if (this.currentTask[0] === "forwardBy" && this.currentTask[1] < 0) { this.forwardBy(-0.025); } // 0.025 Standard Move Amount
         else if (this.currentTask[0] === "forwardBy" && this.currentTask[1] >= 0) { this.forwardBy(0.025); }
 
-        else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] < 0) { this.rotateBy([0, -this.currentTask[2], 0]); } // Math.PI / 32 Standard Rotation Amount
-        else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] >= 0) { this.rotateBy([0, this.currentTask[2], 0]); }
+        else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] < 0) { this.rotateBy(-this.currentTask[2]); } // Math.PI / 32 Standard Rotation Amount
+        else if (this.currentTask[0] === "rotateBy" && this.currentTask[1] >= 0) { this.rotateBy(this.currentTask[2]); }
 
         else if (this.currentTask[0] === "arcBy" && this.currentTask[1] < 0) { this.arcBy(0.025, [0, -this.currentTask[2], 0]); } // See Above Standard Movement
         else if (this.currentTask[0] === "arcBy" && this.currentTask[1] >= 0) { this.arcBy(0.025, [0, this.currentTask[2], 0]); }
@@ -103,15 +103,9 @@ class DroneAssemblyActor {
             this.translation[2] + forward[2]]);
     }
 
-    rotateBy(angles) { // Rotational Movement (In Place)
-        let q = Microverse.q_euler(...angles);
-        q = Microverse.q_multiply(this.rotation, q);
-        this.rotateTo(q);
-    }
-
-    arcBy(moveAmnt, angles) { // Both Forward + Rotational Movement
+    arcBy(moveAmnt, rotAmnt) { // Both Forward + Rotational Movement
         this.forwardBy(moveAmnt)
-        this.rotateBy(angles);
+        this.rotateBy(rotAmnt);
     }
 }
 

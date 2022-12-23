@@ -175,7 +175,7 @@ This method removes an element from the `layers` array. If `layerName` is not in
 
 This method moves the translation of the card to the specified `[x, y, z]` coordinates.
 
-### `rotateTo(q:Quotanion)`
+### `rotateTo(q:Quaternion)`
 
 This method sets the rotation of the card to the specified by a quaternion (`[x, y, z, w]`).
 
@@ -191,9 +191,9 @@ This method sets the translation and rotation of the card, making sure that thos
 
 This method moves the translation of the card by the specified `[x, y, z]` vector.
 
-### `rotateBy(q:Quotanion)`
+### `rotateBy(q:Quaternion)`
 
-This method combines the rotation of the card by  the specified by a quaternion (`[x, y, z, w]`).
+This method combines the rotation of the card by the specified by a quaternion (`[x, y, z, w]`).
 
 ### `scaleBy(s:Vector3)`
 

@@ -13,7 +13,7 @@ class DriveActor {
     run() {
         if (!this.running) {return;}
         this.future(20).run();
-        this.rotateBy([0, -this.angle, 0]);
+        this.rotateBy(-this.angle);
         this.forwardBy(-this.speed);
         if (this.avatar) {
             let t = this._translation;
@@ -21,25 +21,6 @@ class DriveActor {
             this.avatar._rotation = this._rotation;
             this.avatar.say("forceOnPosition");
         }
-    }
-    /*
-    newAngle(angle) {
-        // angle = angle / 20;
-        // console.log(angle);
-        this.angle = angle;
-    }
-    */
-    rotateBy(angles) {
-        let q = Microverse.q_euler(...angles);
-        q = Microverse.q_multiply(this.rotation, q);
-        this.rotateTo(q);
-    }
-    forwardBy(dist) {
-        let v = Microverse.v3_rotate([0, 0, dist], this.rotation);
-        this.translateTo([
-            this.translation[0] + v[0],
-            this.translation[1] + v[1],
-            this.translation[2] + v[2]]);
     }
     control(key) {
         if (key.key === "ArrowRight") {
@@ -69,4 +50,4 @@ export default {
 }
 
 /* globals Microverse */
-    
+

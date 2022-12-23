@@ -251,11 +251,13 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         this.subscribe(this.id, message, method);
     }
 
-    rotateBy(angles) {
-        // angles are either a 3 value array or 4 value array
-        // if it is a 3-value array, it is interpreted as an euler angle
-        // if it is a 4-value array, it is interpreted as a quaternion
-        let q = angles.length === 3 ? q_euler(...angles) : angles;
+    rotateBy(amount) {
+        // amount is either a 3 value array, a 4 value array, or a number.
+        // if it is a 3-value array, it is interpreted as an euler angle.
+        // if it is a 4-value array, it is interpreted as a quaternion.
+        // if it is a number, it is interpreted as [0, amount, 0].
+        if (typeof amount === "number") amount = [0, amount, 0];
+        let q = amount.length === 3 ? q_euler(...amount) : amount;
         let newQ = q_multiply(this.rotation, q);
         this.rotateTo(newQ);
     }
