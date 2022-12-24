@@ -332,7 +332,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         this.joinState = 'leaving';
         this.sessionP = null;
         this.myLastPosition = null;
-        this.elements.chatHolder.classList.add('unconnected');
+        if (!this.elements) {return;}
         this.stopTestingMicrophone();
         this.stopTestingAudioLevel();
         if (!this.elements.chatHolder.classList.contains('hide-settings')) this.toggleSettings();
