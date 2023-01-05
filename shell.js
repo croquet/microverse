@@ -147,33 +147,37 @@ class Shell {
 
         this.releaseHandler = (e) => {
             for (let k in this.capturedPointers) {
-                this.trackingknob.releasePointerCapture(k);
+                this.joystick.releasePointerCapture(k);
             }
             this.capturedPointers = {};
             this.endMMotion(e);
         };
-        this.trackingknob.onpointerdown = (e) => {
+        this.joystick.onpointerdown = (e) => {
             if (e.pointerId !== undefined) {
                 this.capturedPointers[e.pointerId] = "hiddenKnob";
-                this.trackingknob.setPointerCapture(e.pointerId);
+                this.joystick.setPointerCapture(e.pointerId);
             }
             this.startMMotion(e); // use the knob to start
         };
-        //this.trackingknob.onpointerenter = (e) => console.log("shell: pointerEnter")
-        // this.trackingknob.onpointerleave = (e) => this.releaseHandler(e);
-        this.trackingknob.onpointermove = (e) => this.updateMMotion(e);
-        this.trackingknob.onpointerup = (e) => this.releaseHandler(e);
-        this.trackingknob.onpointercancel = (e) => this.releaseHandler(e);
-        this.trackingknob.onlostpointercapture = (e) => this.releaseHandler(e);
+        //this.joystick.onpointerenter = (e) => console.log("shell: pointerEnter")
+        // this.joystick.onpointerleave = (e) => this.releaseHandler(e);
+        this.joystick.onpointermove = (e) => this.updateMMotion(e);
+        this.joystick.onpointerup = (e) => this.releaseHandler(e);
+        this.joystick.onpointercancel = (e) => this.releaseHandler(e);
+        this.joystick.onlostpointercapture = (e) => this.releaseHandler(e);
     }
 
     adjustJoystickKnob() {
         let joystickStyle = window.getComputedStyle(this.joystick);
         let knobStyle = window.getComputedStyle(this.knob);
+        let top = parseFloat(joystickStyle.top) || 0;
+        let left = parseFloat(joystickStyle.left) || 0;
         let center = (parseFloat(joystickStyle.width) || 120) / 2;
+        let x = left;
+        let y = top + center;
         let size = (parseFloat(knobStyle.width) || 60) / 2;
         let radius = center - size;
-        this.joystickLayout = { center, size, radius };
+        this.joystickLayout = { x, y, radius };
         this.trackingknob.style.transform = "translate(0px, 0px)"; // top-left
         this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`;
     }
@@ -674,12 +678,8 @@ class Shell {
     // mouse motion via joystick element
 
     startMMotion(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.knobX = e.clientX;
-        this.knobY = e.clientY;
-        this.activeMMotion = { dx: 0, dy: 0 };
-        this.sendToPortal(this.primaryFrameId, "motion-start");
+        this.activeMMotion = {};
+        this.updateMMotion(e, "motion-start");
     }
 
     endMMotion(e) {
@@ -692,21 +692,21 @@ class Shell {
         this.sendToPortal(this.primaryFrameId, "motion-end");
     }
 
-    updateMMotion(e) {
+    updateMMotion(e, cmd = "motion-update") {
         e.preventDefault();
         e.stopPropagation();
 
         if (this.activeMMotion) {
-            let dx = e.clientX - this.knobX;
-            let dy = e.clientY - this.knobY;
+            let { x, y, radius } = this.joystickLayout;
 
-            this.sendToPortal(this.primaryFrameId, "motion-update", {dx, dy});
+            let dx = e.clientX - x;
+            let dy = e.clientY - y;
+
+            this.sendToPortal(this.primaryFrameId, cmd, {dx, dy});
             this.activeMMotion.dx = dx;
             this.activeMMotion.dy = dy;
 
             this.trackingknob.style.transform = `translate(${dx}px, ${dy}px)`;
-
-            let { radius } = this.joystickLayout;
 
             let squaredDist = dx ** 2 + dy ** 2;
             if (squaredDist > radius ** 2) {
