@@ -170,14 +170,10 @@ class Shell {
     adjustJoystickKnob() {
         let joystickStyle = window.getComputedStyle(this.joystick);
         let knobStyle = window.getComputedStyle(this.knob);
-        let top = parseFloat(joystickStyle.top) || 0;
-        let left = parseFloat(joystickStyle.left) || 0;
         let center = (parseFloat(joystickStyle.width) || 120) / 2;
-        let x = left;
-        let y = top + center;
         let size = (parseFloat(knobStyle.width) || 60) / 2;
         let radius = center - size;
-        this.joystickLayout = { x, y, radius };
+        this.joystickLayout = { center, radius };
         this.trackingknob.style.transform = "translate(0px, 0px)"; // top-left
         this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`;
     }
@@ -697,10 +693,10 @@ class Shell {
         e.stopPropagation();
 
         if (this.activeMMotion) {
-            let { x, y, radius } = this.joystickLayout;
+            let { center, radius } = this.joystickLayout;
 
-            let dx = e.clientX - x;
-            let dy = e.clientY - y;
+            let dx = e.offsetX - center;
+            let dy = e.offsetY - center;
 
             this.sendToPortal(this.primaryFrameId, cmd, {dx, dy});
             this.activeMMotion.dx = dx;

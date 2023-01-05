@@ -34,6 +34,7 @@
     height: 120px;
     border-radius: 50%;
     background-color: rgba(124, 124, 124, 0.2);
+    pointer-events: none;
 }
 
 #joystick-arrows {
@@ -43,6 +44,7 @@
     left: 60px;
     top: 60px;
     display: flex;
+    pointer-events: none;
 }
 
 .joystick-arrow {
@@ -54,10 +56,10 @@
     height: 0px;
     left: -4px;
     top: -4px;
-    
+
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
-  
+
     border-bottom: 8px solid #aaa;
 }
 
