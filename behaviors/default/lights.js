@@ -1,6 +1,5 @@
 class LightPawn {
     setup() {
-        console.log("LightPawn");
         /*
           let trm = this.service("ThreeRenderManager");
           let scene =  trm.scene;
@@ -12,29 +11,42 @@ class LightPawn {
         this.removeLights();
         this.lights = [];
 
-        const ambient = new THREE.AmbientLight( 0xffffff, .9 );
+        const ambient = new THREE.AmbientLight( 0xffffff, .25 );
         group.add(ambient);
         this.lights.push(ambient);
 
-        const sun = new THREE.DirectionalLight( 0xffffff, 1 );
-        sun.position.set(1, 150, 4);
+        const sun = new THREE.DirectionalLight( 0xffffff, 0.3 );
+        sun.position.set(9, 150, -10);
         sun.castShadow = true;
-        sun.shadow.blurSamples = 25;
-        sun.shadow.camera.left = 25;
-        sun.shadow.camera.right = -25;
-        sun.shadow.camera.top = 25;
-        sun.shadow.camera.bottom = -25;
+        sun.shadow.blurSamples = 5;
+        sun.shadow.camera.left = 40;
+        sun.shadow.camera.right = -30;
+        sun.shadow.camera.top = 30;
+        sun.shadow.camera.bottom = -30;
         sun.shadow.mapSize.width = 2048; // default
         sun.shadow.mapSize.height = 2048; // default
+        sun.shadow.normalBias = 1e-2;
+        sun.shadow.bias = - 1e-3;
+        sun.shadow.radius = 4;
         group.add(sun);
         this.lights.push(sun);
 
+        const blueLight = new THREE.DirectionalLight(0x444488, 0.5);
+        blueLight.position.set(1, 100, 150);
+        group.add(blueLight);
+        this.lights.push(blueLight);
+
+        const redLight = new THREE.DirectionalLight(0x774444, 0.5);
+        redLight.position.set(1, 100, -150);
+        group.add(redLight);
+        this.lights.push(redLight);
+/*
         const sunTarget = new THREE.Object3D();
         sunTarget.position.set(1, 0, 8);
         group.add(sunTarget);
         this.lights.push(sunTarget);
         sun.target = sunTarget;
-
+*/
         this.constructBackground(this.actor._cardData);
 
         let moduleName = this._behavior.module.externalName;

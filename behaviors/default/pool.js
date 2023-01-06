@@ -31,7 +31,7 @@ class PoolPawn {
             let size = this.actor._cardData.poolSize;
             const waterGeometry = new THREE.PlaneGeometry( ...size );
             waterNormals.wrapS = waterNormals.wrapT = THREE.RepeatWrapping;
-            let sunVector = new THREE.Vector3(-1, -1, 1);
+            let sunVector = new THREE.Vector3(-1, 1, 1);
             sunVector.normalize();
             this.water = new water_S.Water(
                 waterGeometry,
@@ -44,7 +44,7 @@ class PoolPawn {
                     //waterColor: 0xaaaaff, //0x001eff,
                     distortionScale: 3.7,
                     turbulence: 0.25,
-                    waterColor: 0x5588aa,
+                    waterColor: 0xaaaaff, //0x5588aa,
                     //side:THREE.DoubleSide,
                     //fog: scene.fog !== undefined
                 }
