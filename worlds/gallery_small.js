@@ -153,7 +153,7 @@ export function init(Constants) {
     {
         card: { // slot 5
             name: "image card",
-            translation: [-12, 0.8, 0.35],
+            translation: [-12, 0.8, 0.1],
             scale: [4, 4, 4],
             rotation: [0, Math.PI / 2, 0],
             type: "2d",
