@@ -87,7 +87,7 @@ export function init(Constants) {
                 frameColor: 16777215,
                 fullBright: true,
                 modelType: "pdf",
-                pdfLocation: "3NpgbtsZGf1kwx7dkoD5CAS0-MH_Xd21mFw93JEhqMjYJjo6Pj10YWEoJyIrPWA7PWAtPCE_Oys6YCchYTthNBs6OR4BNAg7AR1_BScpAxQne313NggKCXZ-fGEnIWAtPCE_Oys6YCMnLTwhOCs8PStgIiEtLyIqKzgqKygvOyI6YREDenYhJSwnESE6Cgl9Ngs-LC0tHisPYzkdCCQrIR82KgIGPQYpfAUBHAdhKi86L2E3Y2MEHxkmAHs0JncmKXk_O3c0On09Ny99I3w3OwUIGXgZentjNDcpCjQX",
+                pdfLocation: "3xH6Eb5U-W520OR_JpIFOiKAcOuQ4TwP5KbywfuFlKuUEAwMCAtCV1ceERQdC1YNC1YbChcJDR0MVhEXVw1XAi0MDyg3Aj4NNytJMxEfNSIRTUtBAD48P0BISlcRF1YbChcJDR0MVhURGwoXDh0KCx1WFBcbGRQcHQ4cHR4ZDRQMVzUTNAgKMhIyVUgOQC40MhcuTSkqOi8TASsySjQIOUEZCQ8aKi4MAAE2Di1XHBkMGVcWCw1JPDcKSD8rLQE7NBoCCzcMNhQhQBZJFA80CjkqFzdPIkwqSStOSU4f",
                 shadow: true,
                 singleSided: true,
                 type: "2d",
