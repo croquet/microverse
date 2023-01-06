@@ -44,7 +44,7 @@ class PoolPawn {
                     //waterColor: 0xaaaaff, //0x001eff,
                     distortionScale: 3.7,
                     turbulence: 0.25,
-                    waterColor: 0xaaaaff, //0x5588aa,
+                    waterColor: 0x4466ff, //0x5588aa,
                     //side:THREE.DoubleSide,
                     //fog: scene.fog !== undefined
                 }

@@ -21,7 +21,7 @@ export function init(Constants) {
                 type: "object",
                 // same position and orientation as in openPortal.js
                 translation: [-12, -0.4, -10.2],
-                rotation: [0, -Math.PI / 2, 0],
+                rotation: [0, -1.97, 0],
                 spawn: "default",
             }
         },
@@ -65,28 +65,56 @@ export function init(Constants) {
                 dataType: "exr",
             }
         },
+
         {
-            card: {
-                name: "AWE Startup to Watch",
-                translation: [-6.5, 1.25, 5.75],
-                rotation: [0, -1, 0, 0],
-                scale: [5, 5, 5],
-                type: "2d",
-                textureType: "image",
-                textureLocation: "3XDWbb5JdYrdC1eegKLevCe76_mbANxZJsO6LYm1NjM4MCwsKCtid3c-MTQ9K3YtK3Y7KjcpLT0sdjE3dy13Ig0sLwgXIh4tFwtpEzE_FQIxbWthIB4cH2BoancxN3Y7KjcpLT0sdjUxOyo3Lj0qKz12NDc7OTQ8PS48PT45LTQsdyguaRETMCARISoSMzw7Cg9uOhEZKCshbWsOPB0wPD4ZG24UFAkdHBY5Pmh3PDksOXcTOWk3YTRhbgcUMG8uPzceMRMrPiopEB4_GhQ2EWEJbQsuFi0OABd1NQIR",
-                cardURL: "https://www.youtube.com/watch?v=XEkN4b-nZp4",
-                behaviorModules: ["URLLink"],
-                fullBright: true,
-                frameColor: 0xcccccc,
-                color: 0xbbbbbb,
-                cornerRadius: 0.05,
-                depth: 0.05,
-                shadow: true,
+            card: { // this opens the portal in the wrong place in the small world
+                name: "portal button",
+                translation: [-12.1, 1.3, -10.82],
+                behaviorModules: ["OpenRefineryPortalButton"],
+                type: "object",
             }
         },
         {
-            card: {
-                name: "Croquet Video 2",
+            card: { // slot 1
+                name: "Croquet Presentation",
+                translation: [6.8, 1.35, -10.25],
+                scale: [5, 5, 5],
+                rotation: [0, -Math.PI / 2, 0],
+                layers: ["pointer"],
+                behaviorModules: ["PDFView"],
+                color: 8947848,
+                depth: 0.05,
+                frameColor: 16777215,
+                fullBright: true,
+                modelType: "pdf",
+                pdfLocation: "3NpgbtsZGf1kwx7dkoD5CAS0-MH_Xd21mFw93JEhqMjYJjo6Pj10YWEoJyIrPWA7PWAtPCE_Oys6YCchYTthNBs6OR4BNAg7AR1_BScpAxQne313NggKCXZ-fGEnIWAtPCE_Oys6YCMnLTwhOCs8PStgIiEtLyIqKzgqKygvOyI6YREDenYhJSwnESE6Cgl9Ngs-LC0tHisPYzkdCCQrIR82KgIGPQYpfAUBHAdhKi86L2E3Y2MEHxkmAHs0JncmKXk_O3c0On09Ny99I3w3OwUIGXgZentjNDcpCjQX",
+                shadow: true,
+                singleSided: true,
+                type: "2d",
+            }
+        },
+        {
+            card: { // slot 2
+                name: "Croquet Video 1",
+                translation: [6.8, 1.35, 0],
+                scale: [5, 5, 5],
+                rotation: [0, -Math.PI / 2, 0],
+                layers: ["pointer"],
+                behaviorModules: ["VideoPlayer"],
+                color: 8947848,
+                depth: 0.025,
+                frameColor: 16777215,
+                fullBright: true,
+                textureType: "video",
+                textureLocation: "./assets/videos/Introducing Microverse World Builder.mp4",
+                shadow: true,
+                singleSided: true,
+                type: "2d",
+            }
+        },
+        {
+            card: { // slot 3
+                name: "Product Hunt",
                 translation: [1.75, 1.25, 5.75],
                 rotation: [0, -1, 0, 0],
                 scale: [5, 5, 5],
@@ -103,81 +131,64 @@ export function init(Constants) {
                 shadow: true,
             }
         },
-        /*{
-            card: {
-                name: "Microverse is here",
-                text: "MICROVERSE",
-                color: 0xEF4A3E,
-                frameColor: 0x444444,
-                weight: 'bold',
-                font: "helvetiker",
-                fullBright: true,
-                bevelEnabled: false,
-                translation: [-8, -1, -10],
-                rotation: [0, -Math.PI / 2, 0],
-                scale: [1, 1, 1],
-                behaviorModules: ["Text3D"],
-                shadow: true,
-            }
-        },*/
+        {
+        card: {  // slot 4
+            name: "AWE Startup to Watch",
+            translation: [-6.5, 1.25, 5.75],
+            rotation: [0, -1, 0, 0],
+            scale: [5, 5, 5],
+            type: "2d",
+            textureType: "image",
+            textureLocation: "3XDWbb5JdYrdC1eegKLevCe76_mbANxZJsO6LYm1NjM4MCwsKCtid3c-MTQ9K3YtK3Y7KjcpLT0sdjE3dy13Ig0sLwgXIh4tFwtpEzE_FQIxbWthIB4cH2BoancxN3Y7KjcpLT0sdjUxOyo3Lj0qKz12NDc7OTQ8PS48PT45LTQsdyguaRETMCARISoSMzw7Cg9uOhEZKCshbWsOPB0wPD4ZG24UFAkdHBY5Pmh3PDksOXcTOWk3YTRhbgcUMG8uPzceMRMrPiopEB4_GhQ2EWEJbQsuFi0OABd1NQIR",
+            cardURL: "https://www.youtube.com/watch?v=XEkN4b-nZp4",
+            behaviorModules: ["URLLink"],
+            fullBright: true,
+            frameColor: 0xcccccc,
+            color: 0xbbbbbb,
+            cornerRadius: 0.05,
+            depth: 0.05,
+            shadow: true,
+        }
+    },
+    {
+        card: { // slot 5
+            name: "image card",
+            translation: [-12, 0.8, 0.35],
+            scale: [4, 4, 4],
+            rotation: [0, Math.PI / 2, 0],
+            type: "2d",
+            textureType: "image",
+            textureLocation: "./assets/images/CroquetLogo_RGB.jpg",
+            cardURL: "https://croquet.io",
+            behaviorModules: ["URLLink"],
+            fullBright: true,
+            frameColor: 0xcccccc,
+            color: 0xbbbbbb,
+            cornerRadius: 0.05,
+            depth: 0.05,
+            shadow: true,
+        }
+    },
 
+    {
+        card: { // 3d model
+            name: "auggie award",
+            translation: [-6.8, -1.875, 4],
+            rotation: [0, -1, 0, 0],
+            layers: ["pointer"],
+            dataLocation: "35hI1OQ1NaqWki0Or-uHXAVM9vipZGVZIc_emQwLfCAcXUFBRUYPGhpTXFlQRhtARhtWR1pEQFBBG1xaGkAaT2BBQmV6T3NAemYEflxSeG9cAAYMTXNxcg0FBxpcWhtWR1pEQFBBG1hcVkdaQ1BHRlAbQ1RbUEZGVBpebAd3ZwBkYVEEZVICWAB7YkdiYm9xc09BXHNRcE1qf3hEdlZEfFFzRGAFGlFUQVQabV1-bFdNZAdnBAxCfnAYXk9kamVaAUVbBnt3QUBaWwUEfnhPb1RWfhhqDQ",
+            dataScale: [4, 4, 4],
+            fileName: "/Auggie2.glb",
+            modelType: "glb",
+            license: "CC-BY",
+            attribution: "'Auggie Awards Trophy AWE 2022' by Kai Oldman derived from 'Auggie Awards Trophy AWE 2021' (https://skfb.ly/otrIP) by oriinbar is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).",
+            shadow: true,
+            singleSided: true,
+            type: "3d",
+        }
+    },
         {
-            card: {
-                name: "auggie award",
-                translation: [-6.8, -1.875, 4],
-                rotation: [0, -1, 0, 0],
-                layers: ["pointer"],
-                dataLocation: "35hI1OQ1NaqWki0Or-uHXAVM9vipZGVZIc_emQwLfCAcXUFBRUYPGhpTXFlQRhtARhtWR1pEQFBBG1xaGkAaT2BBQmV6T3NAemYEflxSeG9cAAYMTXNxcg0FBxpcWhtWR1pEQFBBG1hcVkdaQ1BHRlAbQ1RbUEZGVBpebAd3ZwBkYVEEZVICWAB7YkdiYm9xc09BXHNRcE1qf3hEdlZEfFFzRGAFGlFUQVQabV1-bFdNZAdnBAxCfnAYXk9kamVaAUVbBnt3QUBaWwUEfnhPb1RWfhhqDQ",
-                dataScale: [4, 4, 4],
-                fileName: "/Auggie2.glb",
-                modelType: "glb",
-                license: "CC-BY",
-                attribution: "'Auggie Awards Trophy AWE 2022' by Kai Oldman derived from 'Auggie Awards Trophy AWE 2021' (https://skfb.ly/otrIP) by oriinbar is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).",
-                shadow: true,
-                singleSided: true,
-                type: "3d",
-            }
-        },
-        /*
-        {
-            card: {
-                translation: [-12, -0.4, -10.2],
-                rotation: [0, -Math.PI / 2, 0],
-                layers: ["pointer", "portal"],
-                className: "PortalActor",
-                color: 16737996,
-                cornerRadius: 0.05,
-                depth: 0.05,
-                frameColor: 8947848,
-                height: 2.4,
-                portalURL: "?world=refinery",
-                type: "2d",
-                width: 1.8,
-            }
-            },*/
-        /*{
-            card: {
-                name:"bouncinglogo",
-                translation: [12, 0.70, -10.24],
-                rotation: [0, -Math.PI / 2, 0],
-                behaviorModules: ["BouncingBall"],
-                scale: [3, 3, 3],
-                width: 1,
-                height: 1,
-                layers: ["pointer"],
-                type: "2d",
-                dataLocation: "./assets/SVG/full-circle.svg",
-                textureType: "dynamic",
-                textureWidth: 1024,
-                textureHeight: 1024,
-                frameColor: frameColor,
-                color: 0xffffff,
-                depth: 0.05,
-                fullBright: true,
-            }
-        },*/
-        {
-            card: {
+            card: { // slot 6
                 name: "bitcointracker",
                 translation: [-6.8, 1.35, -16.87],
                 rotation: [0, 0, 0],
@@ -223,127 +234,27 @@ export function init(Constants) {
                 behaviorModules: ["BarGraph"],
             }
         },
-/*
         {
-            card: {
-                name: "text editor",
-                className: "TextFieldActor",
-                translation: [5.5, 0.4, -16.87],
+            card: { // slot 7
+                name:"bouncinglogo",
+                translation: [1.75, 1.35, -16.87],
+                scale: [3, 3, 3],
                 rotation: [0, 0, 0],
-                depth: 0.05,
-                type: "text",
-                runs: [{text: "\nWelcome to the Croquet Gallery!\n"}],
-                margins: {left: 20, top: 20, right: 20, bottom: 20},
-                backgroundColor: 0xf4e056,
-                color: 0x000000,
-                //color: 0xf4e056,
-                frameColor: frameColor,
-                width: 2,
-                height: 2,
-                textScale: 0.002,
-                shadow: true,
-            }
-        },*/
-        {
-            card: {
-                name: "portal button",
-                translation: [-12.1, 1.3, -10.17839395666378],
-                behaviorModules: ["OpenRefineryPortalButton"],
-                type: "object",
-            }
-        },
-        /*
-        {
-            card: {
-                name: "sticky",
-                className: "TextFieldActor",
-                translation: [-12, 0.8, -12.2],
-                behaviorModules: ["StickyNote"],
-                rotation: [0, Math.PI / 2, 0],
-                depth: 0.05,
-                type: "text",
-                runs: [{text: `
-            translation: [-12, -0.4, -10.2],
-            rotation: [0, -1.5707963267948966, 0],
-            layers: ["pointer", "portal"],
-            className: "PortalActor",
-            color: 16737996,
-            cornerRadius: 0.05,
-            depth: 0.05,
-            frameColor: 8947848,
-            height: 2.4,
-            portalURL: "?world=refinery",
-            type: "2d",
-            width: 1.8,
-            `}],
-                margins: {left: 20, top: 20, right: 20, bottom: 20},
-                backgroundColor: 0xf4e056,
-                //color: 0xf4e056,
-                frameColor: frameColor,
+                behaviorModules: ["BouncingBall"],
+                scale: [3, 3, 3],
                 width: 1,
                 height: 1,
-                textScale: 0.002,
-                shadow: true,
-            }
-        },
-        */
-        {
-            card: {
-                name: "Croquet Presentation",
-                translation: [6.8, 1.35, -10.25],
-                scale: [5, 5, 5],
-                rotation: [0, -Math.PI / 2, 0],
                 layers: ["pointer"],
-                behaviorModules: ["PDFView"],
-                color: 8947848,
+                type: "2d",
+                dataLocation: "./assets/SVG/full-circle.svg",
+                textureType: "dynamic",
+                textureWidth: 1024,
+                textureHeight: 1024,
+                frameColor: frameColor,
+                color: 0xffffff,
                 depth: 0.05,
-                frameColor: 16777215,
                 fullBright: true,
-                modelType: "pdf",
-                pdfLocation: "3NpgbtsZGf1kwx7dkoD5CAS0-MH_Xd21mFw93JEhqMjYJjo6Pj10YWEoJyIrPWA7PWAtPCE_Oys6YCchYTthNBs6OR4BNAg7AR1_BScpAxQne313NggKCXZ-fGEnIWAtPCE_Oys6YCMnLTwhOCs8PStgIiEtLyIqKzgqKygvOyI6YREDenYhJSwnESE6Cgl9Ngs-LC0tHisPYzkdCCQrIR82KgIGPQYpfAUBHAdhKi86L2E3Y2MEHxkmAHs0JncmKXk_O3c0On09Ny99I3w3OwUIGXgZentjNDcpCjQX",
-                shadow: true,
-                singleSided: true,
-                type: "2d",
             }
         },
-        {
-            card: {
-                name: "Croquet Video 1",
-                translation: [6.8, 1.35, 0],
-                scale: [5, 5, 5],
-                rotation: [0, -Math.PI / 2, 0],
-                layers: ["pointer"],
-                behaviorModules: ["VideoPlayer"],
-                color: 8947848,
-                depth: 0.025,
-                frameColor: 16777215,
-                fullBright: true,
-                textureType: "video",
-                textureLocation: "./assets/videos/Introducing Microverse World Builder.mp4",
-                shadow: true,
-                singleSided: true,
-                type: "2d",
-            }
-        },
-        /*
-          {
-            card: {
-                translation: [11.914606500892997, 0.4, 0.25],
-                scale: [4, 4, 4],
-                rotation: [0, -Math.PI / 2, 0],
-                layers: ["pointer"],
-                name: "/22.05.23 Croquet AWE Presentation.jpg",
-                cornerRadius: 0.02,
-                fileName: "/22.05.23 Croquet AWE Presentation.jpg",
-                fullBright: false,
-                modelType: "img",
-                shadow: true,
-                singleSided: true,
-                textureLocation: "36xe210tezWr_E_zOXjWN7_Oz_Olw09j9csX_tqBoesMXkJCRkUMGRlQX1pTRRhDRRhVRFlHQ1NCGF9ZGUMZcVJgVE9af0V3XWdVdG5SBXFOV0BPQWN9YW9vBBlfWRhVRFlHQ1NCGFtfVURZQFNERVMZVFUPTHhQcEFMREMAV0N-WVF7RloCBU9ZVXRwB0RgDl5zAWwAUH1GDg8AVRlSV0JXGXtQDkRfW3lcBXJgZVx6b1xVfm4CemVAD0R8TF1DRnBVAAdjZ0JTegZUAWc",
-                textureType: "image",
-                type: "2d",
-            }
-        }
-        */
     ];
 }
