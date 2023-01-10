@@ -3,6 +3,33 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2022-12-06
+### Changed
+- Tweak Joystick behavior.
+
+## 2022-12-30
+
+## 2022-12-23
+### Added
+- log some information when shift-click the property sheet.
+- An option to specify scalar for rotateBy (to rotate around Y).
+
+### Fixed
+- Don't try to tear down Dolby audio when it was not built (when running on http).
+
+## 2022-12-16
+### Fixed
+- double down jump properly display the avatar at the new position.
+- DRACOLoader is loaded once per session, instead of every model load.
+- Don't try to start Dolby audio when running on http.
+
+### Changed
+- Remove some log messages
+
+### Added
+- THREE.js based PositionalAudio (ongoing).
+- Make "Enter VR button position customizable.
+
 ## 2022-12-09
 ### Changed
 - 3D models handle fullBright property.
