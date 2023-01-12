@@ -32,7 +32,7 @@ export class DolbyChatManager extends ViewService {
         if (!window.dolbyPromise) {
             window.dolbyPromise = new Promise(resolve => {
                 const s = document.createElement('script');
-                s.setAttribute('src', 'https://unpkg.com/@voxeet/voxeet-web-sdk');
+                s.setAttribute('src', 'https://cdn.jsdelivr.net/npm/@voxeet/voxeet-web-sdk');
                 s.onload = async () => {
                     console.log("initialize Dolby SDK");
                     const accessToken = await getAccessToken();
@@ -333,6 +333,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         this.sessionP = null;
         this.myLastPosition = null;
         if (!this.elements) {return;}
+        this.elements.chatHolder.classList.add('unconnected');
         this.stopTestingMicrophone();
         this.stopTestingAudioLevel();
         if (!this.elements.chatHolder.classList.contains('hide-settings')) this.toggleSettings();
@@ -746,7 +747,7 @@ console.log("unmuting local audio");
         console.log("DolbyChatMgr: destroy");
         this.stopTestingAudioLevel();
         try {
-            this.leaveConference().then(() => this.elements.chatHolder.remove());
+            this.leaveConference().then(() => this.elements?.chatHolder.remove());
         } catch(e) { /* ignore */ }
         activeManager = null; // stop handling events
         super.destroy();
