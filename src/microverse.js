@@ -29,8 +29,6 @@ import { MultiBlaster } from '../apps/multiblaster.js';
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./wcAssetManager.js";
-// import {loadThreeJSLib} from "./ThreeJSLibLoader.js";
-//import {loadThreeLibs} from "../three/threeLibsLoader.js";
 
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
