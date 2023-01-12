@@ -173,10 +173,10 @@ class PDFPawn {
         if (!window.pdfjsPromise) {
             window.pdfjsPromise = new Promise(resolve => {
                 const s = document.createElement('script');
-                s.setAttribute('src', 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.min.js');
+                s.setAttribute('src', 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js');
                 s.onload = () => {
                     const pdfjsLib = window['pdfjs-dist/build/pdf'];
-                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
+                    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js';
                     resolve(pdfjsLib);
                 };
                 document.body.appendChild(s);
