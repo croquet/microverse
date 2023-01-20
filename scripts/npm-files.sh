@@ -12,7 +12,6 @@ rm -rf ${DIST}/assets/fonts
 rm -rf ${DIST}/assets/avatar-images
 rm -rf ${DIST}/assets/SVG
 rm -rf ${DIST}/assets/images
-rm -rf ${DIST}/assets/src
 
 mkdir -p ${DIST}/assets/fonts
 cp -rp assets/fonts/css assets/fonts/webfonts assets/fonts/Roboto* assets/fonts/Poppins*.woff2 ${DIST}/assets/fonts
