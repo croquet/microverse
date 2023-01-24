@@ -889,7 +889,7 @@ export function startMicroverse() {
 
 async function launchMicroverse() {
     if (window.microverseInitFunction) {
-        return window.microverseInitFunction(startWorld, Constants);
+        return window.microverseInitFunction(startWorld, { Constants, App });
     }
     let {baseurl, basename} = basenames();
 
