@@ -101,8 +101,8 @@ export function init(Constants) {
         {
             card: {
                 name:"porsche",
-                dataRotation: [-Math.PI / 2, -Math.PI / 2, 0],
-                translation: [143.31275751948277,  -0.5025376743590352, -92.18863795132113],
+                dataRotation: [-Math.PI / 2, Math.PI / 2, 0],
+                translation: [148,  -0.5025376743590352, -85],
                 dataScale: [0.0002660954536233986, 0.0002660954536233986, 0.0002660954536233986],
                 layers: ["pointer"],
                 type: "3d",

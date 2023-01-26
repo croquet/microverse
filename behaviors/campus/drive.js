@@ -14,7 +14,7 @@ class DriveActor {
         if (!this.running) {return;}
         this.future(20).run();
         this.rotateBy([0, -this.angle, 0]);
-        this.forwardBy(-this.speed);
+        this.forwardBy(this.speed);
         if (this.avatar) {
             let t = this._translation;
             this.avatar._translation = [t[0], t[1] + 1.6, t[2]];
