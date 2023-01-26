@@ -65,7 +65,7 @@ export function init(Constants) {
         {
             card: {
                 name: "drive code editor",
-                translation: [149.7867578489887, 1.3960140419134306, -91.04373902664706],
+                translation: [149.7867578489887, 1.05, -91.04373902664706],
                 rotation: [0, -0.8748879560491569, 0, 0.4843253703453173],
                 layers: ["pointer"],
                 type: "code",
@@ -73,7 +73,7 @@ export function init(Constants) {
                 textScale: 0.001,
                 margins: {left: 32, top: 32, right: 32, bottom: 32},
                 width: 1.5,
-                height: 3.0,
+                height: 2.3,
                 depth: 0.05,
                 backgroundColor: 0xdddddd,
                 frameColor: frameColor,

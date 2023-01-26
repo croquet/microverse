@@ -13,7 +13,7 @@ class DriveActor {
     run() {
         if (!this.running) {return;}
         this.future(20).run();
-        this.rotateBy(-this.angle);
+        this.rotateBy([0, -this.angle, 0]);
         this.forwardBy(-this.speed);
         if (this.avatar) {
             let t = this._translation;
@@ -22,6 +22,13 @@ class DriveActor {
             this.avatar.say("forceOnPosition");
         }
     }
+    /*
+    newAngle(angle) {
+        // angle = angle / 20;
+        // console.log(angle);
+        this.angle = angle;
+    } 
+    */
     control(key) {
         if (key.key === "ArrowRight") {
             this.angle = Math.min(0.05, this.angle + 0.004);
@@ -50,4 +57,3 @@ export default {
 }
 
 /* globals Microverse */
-
