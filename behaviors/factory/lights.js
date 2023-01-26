@@ -57,10 +57,6 @@ class LightPawn {
         delete this.lights;
 
         if (this.csm) {
-	    for ( let i = 0; i < this.csm.lights.length; i ++ ) {
-                this.csm.parent.remove( this.csm.lights[ i ].target );
-	    }
-
             this.csm.remove();
             this.csm.dispose();
             delete this.csm;
