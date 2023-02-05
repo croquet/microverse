@@ -1946,7 +1946,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
-        let rc = this.pointerRaycast(e.xy, render.threeLayerUnion("pointer"));
+        let rc = this.pointerRaycast(e.source || e.xy, render.threeLayerUnion("pointer")); // XR event does not have xy
         this.targetDistance = rc.distance;
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
@@ -1980,7 +1980,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 this.gizmoTargetPawn.unselectEdit();
                 this.gizmoTargetPawn = null;
                 this.publish(this.actor.id, "removeGizmo");
-            } else {
+            } else if (e.xy) {
                 this.dragWorld = this.xy2yp(e.xy);
                 this.lookYaw = q_yaw(this._rotation);
             }

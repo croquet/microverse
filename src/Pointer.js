@@ -428,8 +428,10 @@ export const PM_Pointer = superclass => class extends superclass {
         let eventName = "pointerDown";
         let rc;
         if (e.source) {
+             // WebXR controller, see selectStart() in ThreeRender.js
             rc = this.pointerRaycast(e.source, this.getTargets(eventName));
         } else {
+            // DOM pointer event
             rc = this.pointerRaycast(e.xy, this.getTargets(eventName));
         }
 
@@ -645,6 +647,9 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.id = wcEvent.id;
         pe.button = wcEvent.button;
         pe.buttons = wcEvent.buttons;
+        if (wcEvent.source) {
+            pe.source = wcEvent.source;
+        }
         if (rc.ray) {
             pe.ray = {origin: rc.ray.origin.toArray(), direction: rc.ray.direction.toArray()};
         }

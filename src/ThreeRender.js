@@ -215,6 +215,7 @@ class XRController {
         function selectStart(controller, evt) {
             if (manager.avatar) {
                 let e = {
+                    type: "xr",
                     button: 0,
                     buttons: 1,
                     id: 1,
@@ -229,6 +230,7 @@ class XRController {
         function selectEnd(controller, evt) {
             if (manager.avatar) {
                 let e = {
+                    type: "xr",
                     button: 0,
                     buttons: 1,
                     id: 1,
@@ -322,6 +324,7 @@ class XRController {
 
         if (this.controller0.userData.pointerDown) {
             let e = {
+                type: "xr",
                 button: 0,
                 buttons: 1,
                 id: 1,
@@ -332,6 +335,7 @@ class XRController {
 
         if (this.controller1.userData.pointerDown) {
             let e = {
+                type: "xr",
                 button: 0,
                 buttons: 1,
                 id: 1,
