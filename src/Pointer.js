@@ -437,23 +437,25 @@ export const PM_Pointer = superclass => class extends superclass {
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
-            return this.invokeListeners(eventName, firstResponder, rc, e);
+            this.invokeListeners(eventName, firstResponder, rc, e);
+        } else {
+            if (e.button === 0) {
+                this.isPointerDown = true;
+                if (this.focusPawn !== rc.pawn) {
+                    this.focusPawn = rc.pawn;
+                }
+            }
+            if (this.focusPawn) {
+                this.invokeListeners(eventName, this.focusPawn, rc, e);
+            } else {
+                let lastResponder = this.findLastResponder(e, eventName);
+                if (lastResponder) {
+                    this.invokeListeners(eventName, lastResponder, rc, e);
+                }
+            }
         }
 
-        if (e.button === 0) {
-            this.isPointerDown = true;
-            if (this.focusPawn !== rc.pawn) {
-                this.focusPawn = rc.pawn;
-            }
-        }
-        if (this.focusPawn) {
-            this.invokeListeners(eventName, this.focusPawn, rc, e);
-        } else {
-            let lastResponder = this.findLastResponder(e, eventName);
-            if (lastResponder) {
-                return this.invokeListeners(eventName, lastResponder, rc, e);
-            }
-        }
+        return rc;
     }
 
     doPointerUp(e) {
@@ -469,18 +471,20 @@ export const PM_Pointer = superclass => class extends superclass {
         this.isPointerDown = false;
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
-            return this.invokeListeners(eventName, firstResponder, rc, e);
+            this.invokeListeners(eventName, firstResponder, rc, e);
+        } else {
+            if (this.focusPawn) {
+                this.invokeListeners(eventName, this.focusPawn, rc, e);
+            } else {
+                let lastResponder = this.findLastResponder(e, eventName);
+                if (lastResponder) {
+                    this.invokeListeners(eventName, lastResponder, rc, e);
+                }
+                // this.focusPawn = null;
+            }
         }
 
-        if (this.focusPawn) {
-            this.invokeListeners(eventName, this.focusPawn, rc, e);
-        }
-
-        let lastResponder = this.findLastResponder(e, eventName);
-        if (lastResponder) {
-            return this.invokeListeners(eventName, lastResponder, rc, e);
-        }
-        // this.focusPawn = null;
+        return rc;
     }
 
     doPointerMove(e) {
@@ -495,27 +499,28 @@ export const PM_Pointer = superclass => class extends superclass {
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
-            return this.invokeListeners(eventName, firstResponder, rc, e);
-        }
-
-        if (this.hoverPawn !== rc.pawn) {
-            if (this.hoverPawn) {
-                this.invokeListeners("pointerLeave", this.hoverPawn, rc, e);
-            }
-            this.hoverPawn = rc.pawn;
-            if (this.hoverPawn) {
-                this.invokeListeners("pointerEnter", this.hoverPawn, rc, e);
-            }
-        }
-
-        if (this.isPointerDown && this.focusPawn && this.focusPawn === rc.pawn) { // dubious check
-            this.invokeListeners(eventName, this.focusPawn, rc, e);
+            this.invokeListeners(eventName, firstResponder, rc, e);
         } else {
-            let lastResponder = this.findLastResponder(e, eventName);
-            if (lastResponder) {
-                return this.invokeListeners(eventName, lastResponder, rc, e);
+            if (this.hoverPawn !== rc.pawn) {
+                if (this.hoverPawn) {
+                    this.invokeListeners("pointerLeave", this.hoverPawn, rc, e);
+                }
+                this.hoverPawn = rc.pawn;
+                if (this.hoverPawn) {
+                    this.invokeListeners("pointerEnter", this.hoverPawn, rc, e);
+                }
+            }
+
+            if (this.isPointerDown && this.focusPawn && this.focusPawn === rc.pawn) { // dubious check
+                this.invokeListeners(eventName, this.focusPawn, rc, e);
+            } else {
+                let lastResponder = this.findLastResponder(e, eventName);
+                if (lastResponder) {
+                    this.invokeListeners(eventName, lastResponder, rc, e);
+                }
             }
         }
+        return rc;
     }
 
     doPointerClick(e) {

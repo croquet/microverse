@@ -210,8 +210,6 @@ class XRController {
         this.manager = manager;
         this.controllerModelFactory = new XRControllerModelFactory();
 
-        this.raycaster = new THREE.Raycaster();
-
         function selectStart(controller, evt) {
             if (manager.avatar) {
                 let e = {
@@ -287,11 +285,23 @@ class XRController {
 
         switch (data.targetRayMode) {
             case 'tracked-pointer':
+                // ray
                 geometry = new THREE.BufferGeometry();
-                geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, - 1 ], 3));
-                geometry.setAttribute('color', new THREE.Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
-                material = new THREE.LineBasicMaterial({vertexColors: true, blending: THREE.AdditiveBlending});
-                return new THREE.Line(geometry, material);
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0,  0, 0, -1], 3));
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute([1, 1, 1, 1,  1, 1, 1, 0], 4));
+                material = new THREE.LineBasicMaterial({vertexColors: true, transparent: true});
+                let rayMesh = new THREE.Line(geometry, material);
+                // hit
+                geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3));
+                let map = new THREE.TextureLoader().load('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAVFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD///8TExN5eXllZWWmpqb19fUHBwc2Njapqand3d08PDwrKyvx8fHLijeGAAAADnRSTlMA6QVM+caA65JXA5YQrBYZ/8UAAADDSURBVHjalZPZDoIwEAAtUG6mpdzw//9powYBSzbO606y9+MPojjXKkmUzuMoEK7TjJ0sra/xQgHD4trWLQOgilO4rICx682LvhuBqjzEG7CTOTBZaL5GBetsTswrVHt+WDdzYVuh+NSvsLP5Ybaody8pTCbABOlrPhmjCTKSRV6IoQsLHcReyBn6sNAP5F7QLOaGBe0FhbsTHMoLCe2d0JKIgphCLFJsUxyUOGppWeK6pYORTk48WvHs5ceRX09+XpknoLkqeUcuWxIAAAAASUVORK5CYII=');
+                material = new THREE.PointsMaterial({map, size: 8, sizeAttenuation: false, depthTest: false, transparent: true});
+                let hitMesh = new THREE.Points(geometry, material);
+                hitMesh.renderOrder = 10000;
+                hitMesh.visible = false;
+                this[`controllerRay${i}`] = rayMesh;
+                this[`controllerHit${i}`] = hitMesh;
+                return new THREE.Group().add(rayMesh, hitMesh);
             case 'gaze':
                 geometry = new THREE.RingGeometry(0.02, 0.04, 32).translate(0, 0, -1);
                 material = new THREE.MeshBasicMaterial({opacity: 0.5, transparent: true});
@@ -301,6 +311,8 @@ class XRController {
     }
 
     update(avatar) {
+        // move avatar using gamepad
+
         let dx = 0;
         let dy = 0;
         dx += this.gamepad0?.axes[2] || 0;
@@ -322,6 +334,9 @@ class XRController {
         }
         this.lastDelta = [dx, dy];
 
+        // generate move events
+
+        let hit;
         if (this.controller0.userData.pointerDown) {
             let e = {
                 type: "xr",
@@ -330,7 +345,18 @@ class XRController {
                 id: 1,
                 source: {target: this.controller0}
             };
-            avatar.doPointerMove(e);
+            hit = avatar.doPointerMove(e);
+        } else if (this.controllerHit0) {
+            hit = avatar.pointerRaycast({target: this.controller0});
+        }
+
+        if (this.controllerHit0) {
+            if (hit.pawn && hit.distance) {
+                this.controllerHit0.visible = true;
+                this.controllerHit0.position.z = -hit.distance;
+            } else {
+                this.controllerHit0.visible = false;
+            }
         }
 
         if (this.controller1.userData.pointerDown) {
@@ -341,7 +367,18 @@ class XRController {
                 id: 1,
                 source: {target: this.controller1}
             };
-            avatar.doPointerMove(e);
+            hit = avatar.doPointerMove(e);
+        } else if (this.controllerHit1) {
+            hit = avatar.pointerRaycast({target: this.controller1});
+        }
+
+        if (this.controllerHit1) {
+            if (hit.pawn && hit.distance) {
+                this.controllerHit1.visible = true;
+                this.controllerHit1.position.z = -hit.distance;
+            } else {
+                this.controllerHit1.visible = false;
+            }
         }
     }
 }
