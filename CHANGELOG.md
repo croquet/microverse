@@ -3,16 +3,17 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 2023-02-06
+We generally group weekly changes into one dated entry on Fridays.
+
+## 2023-02-10
+### Added
+- show hit point in XR
+
 ## Changed
 - user count now says "visitors"
 
-## 2023-02-05
 ### Fixed
 - make pointer events not crash in XR
-
-### Added
-- show hit point in XR
 
 ## 2023-01-20
 ### Changed
