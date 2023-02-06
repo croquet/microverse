@@ -188,7 +188,7 @@ body.tilt > iframe {
 }
 
 .menu-label {
-    height: 44px;
+    height: 55px;
     display: flex;
     align-items: center;
     transition: opacity 0.5s;
@@ -393,10 +393,6 @@ body.tilt > iframe {
 	font-size: 12px;
 	line-height: 14px;
     }
-
-    .worldMenu {
-	width: fit-content;
-    }
 }
 
 
@@ -406,3 +402,14 @@ body.tilt > iframe {
     }
 }
 
+button#VRButton {
+    border-radius: 30px!important;
+    line-height: 7px!important;
+    font-weight: 700!important;
+}
+
+@media (max-width:600px) {
+    button#VRButton {
+        bottom: 200px!important;
+    }
+}

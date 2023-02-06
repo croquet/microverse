@@ -1141,7 +1141,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             userCountDisplay = c.firstChild;
             document.body.appendChild(userCountDisplay);
 
-            if (this.service("DolbyChatManager") && window.innerWidth >= 600) userCountDisplay.style.left = "40%";
+            if (this.service("DolbyChatManager") && window.innerWidth >= 600) {
+                userCountDisplay.style.left = "40%";
+            } else {
+                userCountDisplay.style.left = "50%";
+            }
         }
 
         let readout = userCountDisplay.querySelector("#userCountReadout");
@@ -1150,17 +1154,17 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
-        let suffix = here === 1 ? "user" : "users";
-        let tooltip = `${here} ${here === 1 ? "user is" : "users are"} in this world`;
+        let suffix = here === 1 ? "visitor" : "visitors";
+        let tooltip = `${here} ${here === 1 ? "visitor is" : "visitors are"} in this world`;
         if (here !== total) {
             let watching = total - here;
-            tooltip += `, ${watching} ${watching === 1 ? "user has" : "users have"} not entered yet`;
+            tooltip += `, ${watching} ${watching === 1 ? "visitor has" : "visitors have"} not entered yet`;
             total = `${here}+${watching}`;
         }
         if (manager.presentationMode) {
             let followers = manager.followers.size; // includes the presenter
             readout.textContent = `${followers}/${total} ${suffix}`;
-            tooltip = `${followers} ${followers === 1 ? "user" : "users"} in guided tour, ${tooltip}`;
+            tooltip = `${followers} ${followers === 1 ? "visitor" : "visitors"} in guided tour, ${tooltip}`;
         } else {
             readout.textContent = `${total} ${suffix}`;
         }
