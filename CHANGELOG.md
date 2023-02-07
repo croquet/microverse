@@ -13,7 +13,8 @@ We generally group weekly changes into one dated entry on Fridays.
 - user count now says "visitors"
 
 ### Fixed
-- make pointer events not crash in XR
+- make pointer up/down/move events work again in XR
+- log errors during event handlers instead of crashing
 
 ## 2023-01-20
 ### Changed

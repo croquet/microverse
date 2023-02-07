@@ -413,10 +413,20 @@ export const PM_Pointer = superclass => class extends superclass {
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         if (this.has(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
-            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", type, target, event);
+            try {
+                this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", type, target, event);
+            } catch (e) {
+                console.error(e);
+            }
         }
         if (array) {
-            array.forEach((n) => n.listener.call(target, event));
+            array.forEach((n) => {
+                try {
+                    n.listener.call(target, event);
+                } catch (e) {
+                    console.error(e);
+                }
+            });
         }
     }
 
