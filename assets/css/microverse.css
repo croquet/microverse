@@ -1,10 +1,12 @@
 @font-face {
-    font-family: 'Poppins';
+    font-family: "Poppins";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url(../fonts/Poppins-400.woff2) format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    src: url(../fonts/Poppins-400.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+        U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
+        U+2215, U+FEFF, U+FFFD;
 }
 
 html {
@@ -27,7 +29,8 @@ body {
 body.tilt {
     perspective: 2000px;
     perspective-origin: 50% 50%;
-    background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+    background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 50% / 20px
+        20px;
 }
 
 iframe {
@@ -252,7 +255,6 @@ body.tilt > iframe {
     background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjMiIGhlaWdodD0iMjMiIHZpZXdCb3g9IjAgMCAyMyAyMyIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTEuNSIgY3k9IjExLjU0ODgiIHI9IjkuODEyNSIgZmlsbD0iYmxhY2siIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTEuODEyOSA1LjQ2NjhDMTIuOTQzOCA1LjQ2NjggMTMuODQ3MyA1Ljc4NTcgMTQuNTIzNiA2LjQyMzUyQzE1LjIxMSA3LjA2MTM0IDE1LjU1NDcgNy45MzI2NCAxNS41NTQ3IDkuMDM3NDNDMTUuNTU0NyAxMC4xODc4IDE1LjE5OTkgMTEuMDUzNCAxNC40OTA0IDExLjYzNDJDMTMuNzgwOCAxMi4yMTUxIDEyLjgzODUgMTIuNTA1NiAxMS42NjMzIDEyLjUwNTZMMTEuNTk2OCAxMy44NTUySDkuOTUwMzlMOS44NjcyNCAxMS4xNzNIMTAuNDE2QzExLjQ5MTQgMTEuMTczIDEyLjMxMTggMTEuMDI0OSAxMi44NzczIDEwLjcyODhDMTMuNDUzOCAxMC40MzI2IDEzLjc0MiA5Ljg2ODg3IDEzLjc0MiA5LjAzNzQzQzEzLjc0MiA4LjQzMzc4IDEzLjU3MDIgNy45NjExMSAxMy4yMjY1IDcuNjE5NDNDMTIuODkzOSA3LjI3Nzc0IDEyLjQyODMgNy4xMDY5IDExLjgyOTYgNy4xMDY5QzExLjIzMDkgNy4xMDY5IDEwLjc1OTcgNy4yNzIwNCAxMC40MTYgNy42MDIzNEMxMC4wNzIzIDcuOTMyNjQgOS45MDA1IDguMzkzOTIgOS45MDA1IDguOTg2MTdIOC4xMjEwOUM4LjEyMTA5IDguMzAyOCA4LjI3MDc2IDcuNjkzNDYgOC41NzAxIDcuMTU4MTVDOC44Njk0NCA2LjYyMjg0IDkuMjk2MjggNi4yMDcxMiA5Ljg1MDYxIDUuOTEwOTlDMTAuNDE2IDUuNjE0ODYgMTEuMDcwMSA1LjQ2NjggMTEuODEyOSA1LjQ2NjhaTTEwLjc0ODYgMTcuNjMwOUMxMC40MDQ5IDE3LjYzMDkgMTAuMTE2NyAxNy41MTEzIDkuODgzODcgMTcuMjcyMUM5LjY1MTA1IDE3LjAzMjkgOS41MzQ2NCAxNi43MzY4IDkuNTM0NjQgMTYuMzgzN0M5LjUzNDY0IDE2LjAzMDYgOS42NTEwNSAxNS43MzQ1IDkuODgzODcgMTUuNDk1M0MxMC4xMTY3IDE1LjI1NjEgMTAuNDA0OSAxNS4xMzY1IDEwLjc0ODYgMTUuMTM2NUMxMS4wODEyIDE1LjEzNjUgMTEuMzYzOSAxNS4yNTYxIDExLjU5NjggMTUuNDk1M0MxMS44Mjk2IDE1LjczNDUgMTEuOTQ2IDE2LjAzMDYgMTEuOTQ2IDE2LjM4MzdDMTEuOTQ2IDE2LjczNjggMTEuODI5NiAxNy4wMzI5IDExLjU5NjggMTcuMjcyMUMxMS4zNjM5IDE3LjUxMTMgMTEuMDgxMiAxNy42MzA5IDEwLjc0ODYgMTcuNjMwOVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo=");
 }
 
-
 .import-icon {
     background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMS40MTUwNCIgeT0iMS4zNjAzNSIgd2lkdGg9IjMzIiBoZWlnaHQ9IjMzIiByeD0iNCIgZmlsbD0iYmxhY2siIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMTcuOTQzNiA3LjIyMzYzTDI2LjA4MTEgMTYuODk4Mkw5LjgwNjA1IDE2Ljg5ODJMMTcuOTQzNiA3LjIyMzYzWiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTIwLjY1NTMgMTIuMzc3OUwyMC42NTUzIDMzLjE3MzhMMTUuMjMwMyAzMy4xNzM4TDE1LjIzMDMgMTIuMzc3OUwyMC42NTUzIDEyLjM3NzlaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K");
 }
@@ -298,7 +300,7 @@ body.tilt > iframe {
     line-height: 1.5;
     border-radius: 0.25rem;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-		border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
 .btn-outline-success {
@@ -384,32 +386,31 @@ body.tilt > iframe {
 
 @media (max-height: 800px) {
     .share-qr-canvas {
-	width: 120px;
-	height: 120px;
-	margin: 10px;
+        width: 120px;
+        height: 120px;
+        margin: 10px;
     }
 
     .menu-label {
-	font-size: 12px;
-	line-height: 14px;
+        font-size: 12px;
+        line-height: 14px;
     }
 }
 
-
 @media (max-height: 500px) {
     .menu-qr {
-	display: none;
+        display: none;
     }
 }
 
 button#VRButton {
-    border-radius: 30px!important;
-    line-height: 7px!important;
-    font-weight: 700!important;
+    border-radius: 30px !important;
+    line-height: 7px !important;
+    font-weight: 700 !important;
 }
 
-@media (max-width:600px) {
+@media (max-width: 600px) {
     button#VRButton {
-        bottom: 200px!important;
+        bottom: 200px !important;
     }
 }
