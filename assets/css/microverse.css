@@ -434,4 +434,29 @@ button#VRButton {
     text-align: center;
     color: white;
     width: 50%;
+    border-radius: 10px 10px 0px 0px;
+
 }
+
+
+.world-info-container{
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    color: #212529;
+    display: inline-block;
+    width: 100%;
+    top: 0;
+}
+
+.world-info {
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 80px;
+    margin: 0 auto;
+    padding: 5px;
+    text-align: center;
+    color: white;
+    width: 50%;
+    border-radius: 0px 0px 10px 10px;
+}
+
