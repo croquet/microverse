@@ -373,7 +373,7 @@ export const AM_Code = superclass => class extends superclass {
     }
 }
 
-/* AM_Code: A mixin to support Live programming */
+/* PM_Code: A mixin to support Live programming */
 
 export const PM_Code = superclass => class extends superclass {
     constructor(actor) {
