@@ -1154,7 +1154,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
-        let suffix = here === 1 ? "visitor" : "visitors";
+        let suffix = document.createElement("img");
+        suffix.setAttribute("src", "../../assets/images/visitors.png");
         let tooltip = `${here} ${here === 1 ? "visitor is" : "visitors are"} in this world`;
         if (here !== total) {
             let watching = total - here;
@@ -1163,13 +1164,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         if (manager.presentationMode) {
             let followers = manager.followers.size; // includes the presenter
-            readout.textContent = `${followers}/${total} ${suffix}`;
+            readout.textContent = `${followers}/${total}`;
             tooltip = `${followers} ${followers === 1 ? "visitor" : "visitors"} in guided tour, ${tooltip}`;
         } else {
-            readout.textContent = `${total} ${suffix}`;
+            readout.textContent = `${total}`;
         }
         userCountDisplay.setAttribute("title", tooltip);
         readout.setAttribute("presenting", this.presenting);
+        readout.append(suffix);
+
     }
 
     presentationStarted() {
