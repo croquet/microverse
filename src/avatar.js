@@ -821,7 +821,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         return;
                     }
                     this.refreshCameraTransform();
-                    renderMgr.composer.render();
+                    renderMgr.render();
                     if (acknowledgeReceipt) sendToShell("primary-rendered");
                     break;
                 case "portal-camera-update":
@@ -1543,7 +1543,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             // so it will reorder any frames.
             if (force && !secondaryRenders) {
                 console.log(frameName(), "no portals in sight; rendering immediately");
-                renderMgr.composer.render();
+                renderMgr.render();
                 sendToShell("primary-rendered");
             }
         } else {
@@ -1569,7 +1569,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             initialPortalLookExternal = cameraMatrix;
             if (!this.isPrimary && !this.frozenForWorldSwitch) {
                 this.refreshCameraTransform();
-                renderMgr.composer.render();
+                renderMgr.render();
                 sendToShell("portal-world-rendered");
             }
         }
