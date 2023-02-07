@@ -1155,7 +1155,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
         let suffix = document.createElement("img");
-        suffix.setAttribute("src", "../../assets/images/visitors.png");
+        suffix.src = "../../assets/images/visitors.png";
+
         let tooltip = `${here} ${here === 1 ? "visitor is" : "visitors are"} in this world`;
         if (here !== total) {
             let watching = total - here;
