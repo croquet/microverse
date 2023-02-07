@@ -414,3 +414,24 @@ button#VRButton {
         bottom: 200px !important;
     }
 }
+
+/*control panel*/
+.control-panel-container{
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    color: #212529;
+    display: inline-block;
+    width: 100%;
+    bottom: 0;
+}
+
+.control-panel {
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 80px;
+    margin: 0 auto;
+    padding: 5px;
+    text-align: center;
+    color: white;
+    width: 50%;
+}
