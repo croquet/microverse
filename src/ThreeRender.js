@@ -554,13 +554,17 @@ class ThreeRenderManager extends RenderManager {
         return result;
     }
 
+    render() {
+        if (this.composer) {
+            this.composer.render();
+        } else {
+            this.renderer.render(this.scene, this.camera);
+        }
+    }
+
     update() {
         if (this.doRender) {
-            if (this.composer) {
-                this.composer.render();
-            } else {
-                this.renderer.render(this.scene, this.camera);
-            }
+            this.render();
         }
 
         if (this.xrController && this.avatar) {
