@@ -1471,6 +1471,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let vv = m4_getTranslation(inv);
         let rr = m4_getRotation(inv);
 
+        vv[1] += 1.6; // eye height
+
         let offsetTransform = new XRRigidTransform(
             {x: vv[0], y: vv[1], z: vv[2]},
             {x: rr[0], y: rr[1], z: rr[2], w: rr[3]});
