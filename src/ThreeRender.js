@@ -518,6 +518,8 @@ class ThreeRenderManager extends RenderManager {
         super.destroy();
         this.renderer.dispose();
         if (this.canvas) this.canvas.remove();
+        if (this.vrButton) this.vrButton.remove();
+        if (this.observer) this.observer.disconnect();
     }
 
     resize() {
