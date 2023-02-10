@@ -118,11 +118,11 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         return this.raycaster;
     }
 
-    setXRRayCast(xrEvent) {
+    setXRRayCast(xrController) {
         let vec = new THREE.Vector3(0, 0, -1);
-        vec.applyEuler(xrEvent.target.rotation);
+        vec.applyEuler(xrController.rotation);
         if (!this.raycaster) this.raycaster = new THREE.Raycaster();
-        this.raycaster.set(xrEvent.target.position, vec);
+        this.raycaster.set(xrController.position, vec);
     }
 
     pointerRaycast(source, targets, optStrictTargets) {
@@ -217,7 +217,7 @@ class XRController {
                     button: 0,
                     buttons: 1,
                     id: 1,
-                    source: evt,
+                    source: controller,
                 };
                 manager.avatar.doPointerDown(e);
             }
@@ -232,7 +232,7 @@ class XRController {
                     button: 0,
                     buttons: 1,
                     id: 1,
-                    source: evt,
+                    source: controller,
                 };
                 if (controller.userData.pointerDownTime) {
                     let now = Date.now();
@@ -343,11 +343,11 @@ class XRController {
                 button: 0,
                 buttons: 1,
                 id: 1,
-                source: {target: this.controller0}
+                source: this.controller0,
             };
             hit = avatar.doPointerMove(e);
         } else if (this.controllerHit0) {
-            hit = avatar.pointerRaycast({target: this.controller0});
+            hit = avatar.pointerRaycast(this.controller0);
         }
 
         if (this.controllerHit0) {
@@ -365,11 +365,11 @@ class XRController {
                 button: 0,
                 buttons: 1,
                 id: 1,
-                source: {target: this.controller1}
+                source: this.controller1,
             };
             hit = avatar.doPointerMove(e);
         } else if (this.controllerHit1) {
-            hit = avatar.pointerRaycast({target: this.controller1});
+            hit = avatar.pointerRaycast(this.controller1);
         }
 
         if (this.controllerHit1) {
