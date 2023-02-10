@@ -463,6 +463,11 @@ class Shell {
         if (!document.head.querySelector("#joystick-css")) {
             this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
         }
+        // work around pointer capture bug on Quest
+        if (navigator.userAgent.indexOf("OculusBrowser") !== -1) {
+            joystickFlag = false;
+            fullscreenFlag = false;
+        }
         if (joystickFlag !== undefined && this.joystick) {
             if (joystickFlag) {
                 this.joystick.style.removeProperty("display");
