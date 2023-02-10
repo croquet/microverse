@@ -1927,7 +1927,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     addSticky(e) {
         if (e.shiftKey) {
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e.xy, render.threeLayerUnion('pointer', 'walk'));
+            const rc = this.pointerRaycast(e, render.threeLayerUnion('pointer', 'walk'));
             let pe = this.pointerEvent(rc, e);
             this.say("addSticky", pe);
         }
@@ -1952,7 +1952,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
-        let rc = this.pointerRaycast(e.source || e.xy, render.threeLayerUnion("pointer")); // XR event does not have xy
+        let rc = this.pointerRaycast(e, render.threeLayerUnion("pointer"));
         this.targetDistance = rc.distance;
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);

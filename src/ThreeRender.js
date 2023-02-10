@@ -107,7 +107,7 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         render.camera.matrixWorldNeedsUpdate = true;
     }
 
-    setRayCast(xy) {
+    setRaycastFrom2D(xy) {
         const x = ( xy[0] / window.innerWidth ) * 2 - 1;
         const y = - ( xy[1] / window.innerHeight ) * 2 + 1;
         const render = this.service("ThreeRenderManager");
@@ -118,18 +118,37 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         return this.raycaster;
     }
 
-    setXRRayCast(xrController) {
+    setRaycastFrom3D(xrController) {
         let vec = new THREE.Vector3(0, 0, -1);
         vec.applyEuler(xrController.rotation);
         if (!this.raycaster) this.raycaster = new THREE.Raycaster();
         this.raycaster.set(xrController.position, vec);
     }
 
+    setRaycastFromRay(ray) {
+        if (!this.raycaster) this.raycaster = new THREE.Raycaster();
+        let {origin, direction} = ray;
+        if (Array.isArray(origin)) {
+            origin = new THREE.Vector3(...origin);
+            direction = new THREE.Vector3(...direction);
+        }
+        this.raycaster.set(origin, direction);
+    }
+
     pointerRaycast(source, targets, optStrictTargets) {
-        if (Array.isArray(source)) {
-            this.setRayCast(source);
+        if (source.source) source = source.source;
+        if (source.ray) {
+            this.setRaycastFromRay(source.ray);
+        } else if (source.xy) {
+            this.setRaycastFrom2D(source.xy);
+        } else if (source.origin) {
+            this.setRaycastFromRay(source);
+        } else if (Array.isArray(source)) {
+            this.setRaycastFrom2D(source);
+        } else if (source.position) {
+            this.setRaycastFrom3D(source);
         } else {
-            this.setXRRayCast(source);
+            throw new Error("Unknown raycast source", source);
         }
         const render = this.service("ThreeRenderManager");
         const h = this.raycaster.intersectObjects(targets || render.threeLayer("pointer"));
