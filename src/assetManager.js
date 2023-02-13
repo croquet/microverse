@@ -503,7 +503,7 @@ export class Loader {
                 // now strongly recommended to use versioned gstatic URLs
                 // (see https://github.com/google/draco)
                 // draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
-                draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.5/");
+                draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
                 loader.setDRACOLoader(draco);
                 cachedLoaders.dracoLoader = loader;
             }

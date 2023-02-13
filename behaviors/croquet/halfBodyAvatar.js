@@ -61,9 +61,9 @@ class AvatarPawn {
             const render = this.service("ThreeRenderManager");
             let rc;
             if (type === "pointerDown") {
-                rc = this.pointerRaycast(event.xy, render.threeLayerUnion('pointer', "walk"));
+                rc = this.pointerRaycast(event, render.threeLayerUnion('pointer', "walk"));
             } else {
-                rc = this.pointerRaycast(event.xy, render.threeLayerUnion("walk"));
+                rc = this.pointerRaycast(event, render.threeLayerUnion("walk"));
             }
             let p3e = this.pointerEvent(rc, event);
             this.move(type, p3e.xyz);

@@ -436,14 +436,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDown(e) {
         let eventName = "pointerDown";
-        let rc;
-        if (e.source) {
-             // WebXR controller, see selectStart() in ThreeRender.js
-            rc = this.pointerRaycast(e.source, this.getTargets(eventName));
-        } else {
-            // DOM pointer event
-            rc = this.pointerRaycast(e.xy, this.getTargets(eventName));
-        }
+        let rc = this.pointerRaycast(e, this.getTargets(eventName));
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
@@ -470,13 +463,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerUp(e) {
         let eventName = "pointerUp";
-
-        let rc;
-        if (e.source) {
-            rc = this.pointerRaycast(e.source, this.getTargets(eventName));
-        } else {
-            rc = this.pointerRaycast(e.xy, this.getTargets(eventName));
-        }
+        let rc = this.pointerRaycast(e, this.getTargets(eventName));
 
         this.isPointerDown = false;
         let firstResponder = this.findFirstResponder(e, eventName);
@@ -499,13 +486,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerMove(e) {
         let eventName = "pointerMove";
-
-        let rc;
-        if (e.source) {
-            rc = this.pointerRaycast(e.source, this.getTargets(eventName));
-        } else {
-            rc = this.pointerRaycast(e.xy, this.getTargets(eventName));
-        }
+        let rc = this.pointerRaycast(e, this.getTargets(eventName));
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
@@ -535,7 +516,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerClick(e) {
         let eventName = "click";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventName));
+        const rc = this.pointerRaycast(e, this.getTargets(eventName));
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
@@ -554,7 +535,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerDoubleDown(e) {
         let eventName = "pointerDoubleDown";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventName, true), true);
+        const rc = this.pointerRaycast(e, this.getTargets(eventName, true), true);
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
@@ -568,7 +549,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerWheel(e) {
         let eventName = "pointerWheel";
-        const rc = this.pointerRaycast(e.xy, this.getTargets(eventName, true), true);
+        const rc = this.pointerRaycast(e, this.getTargets(eventName, true), true);
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
@@ -587,13 +568,7 @@ export const PM_Pointer = superclass => class extends superclass {
 
     doPointerTap(e) {
         let eventName = "pointerTap";
-
-        let rc;
-        if (e.source) {
-            rc = this.pointerRaycast(e.source, this.getTargets(eventName));
-        } else {
-            rc = this.pointerRaycast(e.xy, this.getTargets(eventName));
-        }
+        let rc = this.pointerRaycast(e, this.getTargets(eventName));
 
         let firstResponder = this.findFirstResponder(e, eventName);
         if (firstResponder) {
@@ -662,9 +637,6 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.id = wcEvent.id;
         pe.button = wcEvent.button;
         pe.buttons = wcEvent.buttons;
-        if (wcEvent.source) {
-            pe.source = wcEvent.source;
-        }
         if (rc.ray) {
             pe.ray = {origin: rc.ray.origin.toArray(), direction: rc.ray.direction.toArray()};
         }
