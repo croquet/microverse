@@ -29,8 +29,9 @@ class SpinActor {
         this.isSpinning = false;
     }
 
-    newAngle({rotation, viewId}) {
+    newAngle({rotation, viewId, offset}) {
         this.set({rotation});
+        this.publish("demo", "newAngle", offset);
         this.say("focus", viewId);
     }
 
@@ -94,7 +95,7 @@ class SpinPawn {
         this.moveBuffer.push(offset);
         const {q_multiply, q_euler} = Microverse;
         let rotation = q_multiply(this.baseRotation, q_euler(0, offset, 0));
-        this.say("newAngle", {rotation, viewId: this.viewId});
+        this.say("newAngle", {rotation, viewId: this.viewId, offset});
         if (this.moveBuffer.length >= 3) {
             setTimeout(() => this.shiftMoveBuffer(), 100);
         }
@@ -106,6 +107,7 @@ class SpinPawn {
 
     onPointerUp(p3d) {
         this.say("unfocus", this.viewId);
+        if (!this.downP3d) {return;}
         let distance = this.downP3d.distance;
         this.downP3d = null;
         this.baseRotation = null;
