@@ -96,12 +96,6 @@ body.tilt > iframe {
     background-color: #80808080;
 }
 
-#homeBtn {
-    bottom: 15px;
-    left: 10%;
-    transform: translate(0, -50%);
-}
-
 #fullscreenBtn {
     top: 10px;
     left: 10px;
@@ -324,18 +318,11 @@ body.tilt > iframe {
 }
 
 .btn-ui {
-    position: fixed;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 200;
-    border-radius: 50%;
     color: white;
-    padding: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 1.2em;
-    height: 1.2em;
     font-size: 1.5em;
 }
 
@@ -363,7 +350,7 @@ body.tilt > iframe {
 
     position: fixed;
     width: 0px;
-    height: 40px;
+    height: 50px;
 
     top: 0;
     z-index: 1;
@@ -422,13 +409,15 @@ button#VRButton {
 
 .control-panel {
     background-color: rgba(0, 0, 0, 0.5);
-    width: 80px;
     margin: 0 auto;
-    padding: 5px;
     text-align: center;
     color: white;
-    width: 50%;
+    width: 40%;
     border-radius: 10px 10px 0px 0px;
+    height: 50px;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
 }
 
 .world-info-container {
@@ -447,10 +436,10 @@ button#VRButton {
     margin: 0 auto;
     text-align: center;
     color: white;
-    width: 50%;
+    width: 40%;
     border-radius: 0px 0px 10px 10px;
     position: fixed;
-    height: 40px;
+    height: 50px;
     position: fixed;
     left: 50%;
     transform: translate(-50%);
