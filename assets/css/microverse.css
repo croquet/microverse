@@ -390,11 +390,6 @@ body.tilt > iframe {
         height: 120px;
         margin: 10px;
     }
-
-    .menu-label {
-        font-size: 12px;
-        line-height: 14px;
-    }
 }
 
 @media (max-height: 500px) {
