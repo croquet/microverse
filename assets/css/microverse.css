@@ -363,11 +363,12 @@ body.tilt > iframe {
 
     position: fixed;
     width: 0px;
-    height: 50px;
+    height: 40px;
 
-    left: 50%;
-    top: 10px;
+    top: 0;
     z-index: 1;
+    width: 30%;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #userCountReadout {
@@ -375,9 +376,6 @@ body.tilt > iframe {
     white-space: nowrap;
     padding: 8px;
     color: white;
-    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
-    background-color: rgba(0, 0, 0, 0.5);
 }
 
 #userCountReadout[presenting="true"] {
@@ -411,7 +409,7 @@ button#VRButton {
 }
 
 /*control panel*/
-.control-panel-container{
+.control-panel-container {
     position: fixed;
     z-index: 1;
     width: 100%;
@@ -430,11 +428,9 @@ button#VRButton {
     color: white;
     width: 50%;
     border-radius: 10px 10px 0px 0px;
-
 }
 
-
-.world-info-container{
+.world-info-container {
     position: fixed;
     z-index: 1;
     width: 100%;
@@ -444,14 +440,18 @@ button#VRButton {
     top: 0;
 }
 
-.world-info {
+#world-info {
     background-color: rgba(0, 0, 0, 0.5);
     width: 80px;
     margin: 0 auto;
-    padding: 5px;
     text-align: center;
     color: white;
     width: 50%;
     border-radius: 0px 0px 10px 10px;
+    position: fixed;
+    height: 40px;
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%);
+    top: 0;
 }
-

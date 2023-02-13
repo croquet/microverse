@@ -1136,16 +1136,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (!userCountDisplay) {
-            let c = document.createElement("div");
-            c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
-            userCountDisplay = c.firstChild;
-            document.body.appendChild(userCountDisplay);
+            
+            const container = document.getElementById("world-info-container");
+            
 
-            if (this.service("DolbyChatManager") && window.innerWidth >= 600) {
-                userCountDisplay.style.left = "40%";
-            } else {
-                userCountDisplay.style.left = "50%";
-            }
+            let c = document.createElement("div");
+            c.setAttribute("id", "world-info");
+            c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
+            container.innerHTML = c;
+
+            userCountDisplay = c.firstChild;
+
+            document.body.append(c);
+
+            // if (this.service("DolbyChatManager") && window.innerWidth >= 600) {
+            //     userCountDisplay.style.left = "40%";
+            // } else {
+            //     userCountDisplay.style.left = "50%";
+            // }
         }
 
         let readout = userCountDisplay.querySelector("#userCountReadout");
