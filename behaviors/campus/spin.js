@@ -1,7 +1,9 @@
 // Spin
 // Copyright 2022 Croquet Corporation
 // Croquet Microverse
-// Adds a simple spin around y to a Card
+// Adds drag-to-spin around the vertical axis to a Card
+
+// this version publishes a ["demo", "newAngle"] event
 
 class SpinActor {
     setup() {
@@ -53,20 +55,24 @@ class SpinPawn {
     }
 
     isSingleUser() {
+        // check if SingleUser behavior is on the card
         return this.actor.occupier !== undefined;
     }
 
     hasFocus() {
-        return this.actor.occupier == this.viewId;
+        return this.actor.occupier === this.viewId;
     }
 
     onPointerDown(p3d) {
-        this.downP3d = p3d;
         // remember the down event for when we get the focus
-        if (this.isSingleUser()) {
-            this.say("focus", this.viewId);
-        } else {
+        this.downP3d = p3d;
+        // check if SingleUser behavior is on the card
+        if (!this.isSingleUser()) {
+            // if not, it's equivalent to having focus
             this.focusChanged();
+        } else {
+            // otherwise, we need to ask for it
+            this.say("focus", this.viewId);
         }
     }
 
@@ -91,11 +97,13 @@ class SpinPawn {
     onPointerMove(p3d) {
         if (this.isSingleUser() && !this.hasFocus()) {return;}
         if (!this.downP3d) {return;}
+        // angular offset is the distance from the ray tip to the plane
         let offset = this.offsetFromRayTip(p3d.ray, this.downP3d.distance);
-        this.moveBuffer.push(offset);
         const {q_multiply, q_euler} = Microverse;
         let rotation = q_multiply(this.baseRotation, q_euler(0, offset, 0));
         this.say("newAngle", {rotation, viewId: this.viewId, offset});
+        // keep about 100ms of past move events
+        this.moveBuffer.push(offset);
         if (this.moveBuffer.length >= 3) {
             setTimeout(() => this.shiftMoveBuffer(), 100);
         }
@@ -115,36 +123,26 @@ class SpinPawn {
         avatar.removeFirstResponder("pointerMove", {}, this);
         if (this.isSingleUser() && !this.hasFocus()) {return;}
 
+        // if we have a large enough move buffer, we can calculate a spin
         let offset = this.offsetFromRayTip(p3d.ray, distance);
         this.moveBuffer.push(offset);
-
         if (this.moveBuffer.length < 3) {return;}
-
         this.moveBuffer = this.moveBuffer.slice(this.moveBuffer.length - 3);
 
+        // if we moved backwards and forwards, stop
         let signs = new Set();
         for (let i = 0; i < this.moveBuffer.length - 1; i++) {
             signs.add(Math.sign(this.moveBuffer[i + 1] - this.moveBuffer[i][0]));
         }
         if (signs.has(-1) && signs.has(1)) {return;}
 
+        // if we moved enough then start spinning, but not too fast
         let deltaAngle = (this.moveBuffer[this.moveBuffer.length - 1] - this.moveBuffer[0]);
-
         if (Math.abs(deltaAngle) > 0.01) {
             let a = deltaAngle;
             a = Math.min(Math.max(-0.1, a), 0.1);
             this.say("startSpinning", a);
         }
-    }
-
-
-    offsetFromRayTip(ray, distance) {
-        const {v3_add, v3_scale, v3_dot} = Microverse;
-        // tip is at the end of the current ray at same distance as down ray
-        let tip = v3_add(ray.origin, v3_scale(ray.direction, distance));
-        // offset is tip's distance from the plane
-        let offset = v3_dot(this.plane.normal, tip) - this.plane.constant;
-        return offset;
     }
 
     planeFromRayAndAxis(ray, axis) {
@@ -154,6 +152,15 @@ class SpinPawn {
         // ray origin is on the plane
         let constant = v3_dot(normal, ray.origin);
         return {normal, constant};
+    }
+
+    offsetFromRayTip(ray, distance) {
+        const {v3_add, v3_scale, v3_dot} = Microverse;
+        // tip is at the end of the current ray at same distance as down ray
+        let tip = v3_add(ray.origin, v3_scale(ray.direction, distance));
+        // offset is tip's distance from the plane
+        let offset = v3_dot(this.plane.normal, tip) - this.plane.constant;
+        return offset;
     }
 
     teardown() {
