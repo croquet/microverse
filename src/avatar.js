@@ -17,7 +17,7 @@ import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
 // import { TextFieldActor } from "./text/text.js";
 
-import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
+import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./hud.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 import { startHelpMenu } from "./helpMenu.js";
 

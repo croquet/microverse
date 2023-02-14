@@ -153,18 +153,11 @@ function initWorldMenu(badge) {
     <div class="menu-icon presentationMode-icon"></div>
     <span class="menu-label-text">Gather</span>
 </div>
-<div id="worldMenu-shareButton" class="menu-label menu-item">
-    <div class="menu-icon share-icon"></div>
-    <span class="menu-label-text">Invite</span>
-</div>
 <div id="worldMenu-settings" class="menu-label menu-item">
     <div class="menu-icon settings-icon"></div>
     <span class="menu-label-text">Settings</span>
 </div>
-<div id="worldMenu-helpButton" class="menu-label menu-item">
-    <div class="menu-icon help-icon"></div>
-    <span class="menu-label-text">Help</span>
-</div>
+
 `.trim();
 
     let div = document.createElement("div");
@@ -173,8 +166,6 @@ function initWorldMenu(badge) {
     let load = div.querySelector("#worldMenu-load");
     let connect = div.querySelector("#worldMenu-connect");
     let settings = div.querySelector("#worldMenu-settings");
-    let share = div.querySelector("#worldMenu-shareButton");
-    let help = div.querySelector("#worldMenu-helpButton");
     let presentationMode = div.querySelector("#worldMenu-gather");
 
     html.appendChild(badge);
@@ -184,9 +175,7 @@ function initWorldMenu(badge) {
     html.appendChild(load);
     html.appendChild(connect);
     html.appendChild(presentationMode);
-    html.appendChild(share);
     html.appendChild(settings);
-    html.appendChild(help);
 
     worldMenu = html;
 
@@ -194,6 +183,34 @@ function initWorldMenu(badge) {
     worldMenuVisible = false;
     document.getElementById("hud").appendChild(worldMenu);
 }
+
+function hudButtons(myAvatar){
+    const html = document.getElementById("control-panel")
+    let buttons = `
+        <div id="worldMenu-shareButton" class="menu-label menu-item">
+            <div class="menu-icon share-icon"></div>
+        </div>
+        <div id="worldMenu-helpButton" class="menu-label menu-item">
+            <div class="menu-icon help-icon"></div>
+        </div>
+        `
+
+        let div = document.createElement("div");
+        div.innerHTML = buttons;
+
+        let share = div.querySelector("#worldMenu-shareButton");
+        let help = div.querySelector("#worldMenu-helpButton");
+
+        html.appendChild(share);
+        html.appendChild(help);
+
+        div = document.querySelector("#worldMenu-shareButton");
+        if (div) div.onclick = () => {sharePressed(myAvatar)};
+    
+        div = document.getElementById("worldMenu-helpButton");
+        if (div) div.onclick = () => helpPressed(myAvatar);
+}
+
 
 function setMenuItems(myAvatar) {
     let gatherItem = worldMenu.querySelector("#worldMenu-gather");
@@ -232,11 +249,6 @@ function setMenuItems(myAvatar) {
     div = worldMenu.querySelector("#worldMenu-settings");
     if (div) div.onclick = () => settingsPressed(myAvatar);
 
-    div = worldMenu.querySelector("#worldMenu-shareButton");
-    if (div) div.onclick = () => {sharePressed(myAvatar)};
-
-    div = worldMenu.querySelector("#worldMenu-helpButton");
-    if (div) div.onclick = () => helpPressed(myAvatar);
 
     div = gatherItem;
     if (div) {
@@ -290,6 +302,7 @@ export function setupWorldMenuButton(myAvatar, App, sessionId) {
         qrDiv.onclick = null;
 
         initWorldMenu(badge);
+        hudButtons(myAvatar);
     }
     let worldMenuBtn = document.querySelector("#worldMenuBtn");
 
