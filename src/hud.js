@@ -191,7 +191,7 @@ function hudButtons(myAvatar) {
     let buttons = `
 
         <div id="homeBtn" class="btn btn-ui">
-            <i class="fas fa-solid fa-house-user no-pointer-events"></i>
+        <i class="fas fa-regular fa-house"></i>
         </div>
         <div id="worldMenu-shareButton" class="btn btn-ui">
             <i class="fas fa-user-plus"></i>
