@@ -33,7 +33,7 @@ function loadPressed(myAvatar) {
             for (const file of imageInput.files) {
                 let type = getFileType(file.name);
 
-                new Promise(resolve => {
+                new Promise((resolve) => {
                     let reader = new FileReader();
                     reader.onload = () => resolve(reader.result);
                     reader.readAsArrayBuffer(file);
@@ -58,19 +58,19 @@ function loadPressed(myAvatar) {
 }
 
 export function connectFeedback(flag) {
-    let connectButton = document.getElementById('connectBtn');
-    let connectIcon = document.getElementById('connectIcon')
+    let connectButton = document.getElementById("connectBtn");
+    let connectIcon = document.getElementById("connectIcon");
 
     if (flag) {
-        connectButton.textContent = 'Connected';
-        connectButton.classList.add('connected');
-        connectIcon.classList.remove('connect-icon');
-        connectIcon.classList.add('connected-icon');
+        connectButton.textContent = "Connected";
+        connectButton.classList.add("connected");
+        connectIcon.classList.remove("connect-icon");
+        connectIcon.classList.add("connected-icon");
     } else {
-        connectButton.textContent = 'Connect';
-        connectButton.classList.remove('connected');
-        connectIcon.classList.add('connect-icon');
-        connectIcon.classList.remove('connected-icon');
+        connectButton.textContent = "Connect";
+        connectButton.classList.remove("connected");
+        connectIcon.classList.add("connect-icon");
+        connectIcon.classList.remove("connected-icon");
     }
 }
 
@@ -85,7 +85,7 @@ function connectPressed(myAvatar) {
 function settingsPressed(myAvatar) {
     if (myAvatar) {
         myAvatar.showSettingsMenu();
-        sendToShell("hud", {joystick: false, fullscreen: false});
+        sendToShell("hud", { joystick: false, fullscreen: false });
     }
     toggleMenu();
 }
@@ -93,7 +93,7 @@ function settingsPressed(myAvatar) {
 function sharePressed(myAvatar) {
     if (myAvatar) {
         myAvatar.showShareMenu();
-        sendToShell("hud", {joystick: false, fullscreen: false});
+        sendToShell("hud", { joystick: false, fullscreen: false });
     }
     toggleMenu();
 }
@@ -101,7 +101,7 @@ function sharePressed(myAvatar) {
 function helpPressed(myAvatar) {
     if (myAvatar) {
         myAvatar.showHelpMenu();
-        sendToShell("hud", {joystick: false, fullscreen: false});
+        sendToShell("hud", { joystick: false, fullscreen: false });
     }
     toggleMenu();
 }
@@ -114,7 +114,9 @@ function switchQRView(_myAvatar) {
 
     let cls = "statsHidden";
 
-    if (innderDivSecond) {innderDivSecond.classList.add(cls);}
+    if (innderDivSecond) {
+        innderDivSecond.classList.add(cls);
+    }
 
     // workaround until I understand it more
     statsDiv.style.height = "176px";
@@ -184,8 +186,8 @@ function initWorldMenu(badge) {
     document.getElementById("hud").appendChild(worldMenu);
 }
 
-function hudButtons(myAvatar){
-    const html = document.getElementById("control-panel")
+function hudButtons(myAvatar) {
+    const html = document.getElementById("control-panel");
     let buttons = `
 
         <div id="homeBtn" class="btn btn-ui">
@@ -200,31 +202,33 @@ function hudButtons(myAvatar){
         <div id="worldMenu-helpButton" class="btn btn-ui">
             <i class="fas fa-question-circle"></i>
         </div>
-        `
+        `;
 
-        let div = document.createElement("div");
-        div.innerHTML = buttons;
+    let div = document.createElement("div");
+    div.innerHTML = buttons;
 
-        let home = div.querySelector("#homeBtn");
-        let share = div.querySelector("#worldMenu-shareButton");
-        let menu = div.querySelector("#worldMenuBtn");
-        let help = div.querySelector("#worldMenu-helpButton");
+    let home = div.querySelector("#homeBtn");
+    let share = div.querySelector("#worldMenu-shareButton");
+    let menu = div.querySelector("#worldMenuBtn");
+    let help = div.querySelector("#worldMenu-helpButton");
 
-        html.appendChild(home);
-        html.appendChild(share);
-        html.appendChild(menu);
-        html.appendChild(help);
+    html.appendChild(home);
+    html.appendChild(share);
+    html.appendChild(menu);
+    html.appendChild(help);
 
-        div = document.querySelector("#worldMenu-shareButton");
-        if (div) div.onclick = () => {sharePressed(myAvatar)};
-    
-        div = document.getElementById("worldMenu-helpButton");
-        if (div) div.onclick = () => helpPressed(myAvatar);
+    div = document.querySelector("#worldMenu-shareButton");
+    if (div)
+        div.onclick = () => {
+            sharePressed(myAvatar);
+        };
 
-        document.getElementById("homeBtn").onclick = () => this.goHome();
-        filterDomEventsOn(document.getElementById("homeBtn"));
+    div = document.getElementById("worldMenu-helpButton");
+    if (div) div.onclick = () => helpPressed(myAvatar);
+
+    document.getElementById("homeBtn").onclick = () => this.goHome();
+    filterDomEventsOn(document.getElementById("homeBtn"));
 }
-
 
 function setMenuItems(myAvatar) {
     let gatherItem = worldMenu.querySelector("#worldMenu-gather");
@@ -248,21 +252,20 @@ function setMenuItems(myAvatar) {
             return;
         }
         qrPressed(myAvatar, window.location);
-    }
+    };
 
     div = worldMenu.querySelector("#worldMenu-load");
     div.onclick = (evt) => {
         evt.preventDefault();
         evt.stopPropagation();
         loadPressed(myAvatar);
-    }
+    };
 
     div = worldMenu.querySelector("#worldMenu-connect");
     div.onclick = () => connectPressed(myAvatar);
 
     div = worldMenu.querySelector("#worldMenu-settings");
     if (div) div.onclick = () => settingsPressed(myAvatar);
-
 
     div = gatherItem;
     if (div) {
@@ -291,7 +294,9 @@ function toggleMenu(myAvatar) {
 }
 
 export function updateWorldMenu(myAvatar) {
-    if (!worldMenuVisible) {return;}
+    if (!worldMenuVisible) {
+        return;
+    }
     setMenuItems(myAvatar);
 }
 
@@ -334,7 +339,7 @@ export function filterDomEventsOn(elem) {
 export function closeAllDialogs() {
     let panels = document.querySelectorAll(".dialogPanel");
     panels.forEach((p) => p.remove());
-    sendToShell("hud", {joystick: true, fullscreen: true});
+    sendToShell("hud", { joystick: true, fullscreen: true });
 
     let homeBtn = document.querySelector("#homeBtn");
     if (homeBtn) {
@@ -343,7 +348,7 @@ export function closeAllDialogs() {
 }
 
 export function hideShellControls() {
-    sendToShell("hud", {joystick: false, fullscreen: false});
+    sendToShell("hud", { joystick: false, fullscreen: false });
     let homeBtn = document.querySelector("#homeBtn");
     if (homeBtn) {
         homeBtn.style.display = "none";
