@@ -13,7 +13,7 @@ import {
 } from '@croquet/worldcore-kernel';
 import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
-import { addMeshProperties, normalizeSVG, addTexture } from './assetManager.js'
+import { addMeshProperties, normalizeSVG, addTexture, toIndexed } from './assetManager.js'
 import { TextFieldActor } from './text/text.js';
 import { DynamicTexture } from './DynamicTexture.js'
 import { AM_Code, PM_Code } from './code.js';
@@ -706,7 +706,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.placeholder = mesh;
             this.placeholder.position.set(...offset);
             this.placeholder.name = "placeholder";
-            if (this.actor.layers.indexOf('walk') >= 0) {
+            if (this.actor.layers.indexOf("walk") >= 0) {
                 this.constructCollider(this.placeholder);
             }
             this.shape.add(this.placeholder);
@@ -757,7 +757,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
             let fullBright = options.fullBright !== undefined ? options.fullBright : false;
             addMeshProperties(obj, shadow, singleSided, noFog, fullBright, THREE);
-            if (this.actor.layers.indexOf('walk') >= 0) {
+            if (this.actor.layers.indexOf("walk") >= 0) {
                 this.constructCollider(obj);
             }
 
@@ -902,6 +902,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 return assetManager.load(buffer, "svg", THREE, loadOptions);
             }).then((obj) => {
                 normalizeSVG(obj, depth, shadow, THREE);
+                // this is not working for SVGs
+                // let geometry = toIndexed(obj.children[0].geometry, THREE, true);
+                // obj.children[0].geometry = geometry;
                 return obj;
             }).then((obj) => {
                 if (this.texture) {
@@ -916,6 +919,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 }
                 this.objectCreated(obj);
                 this.shape.add(obj);
+                if (this.actor.layers.indexOf("walk") >= 0) {
+                    this.constructCollider(obj);
+                }
                 publishLoaded();
             });
         } else {
@@ -946,6 +952,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 obj.name = "2d";
                 this.objectCreated(obj);
                 this.shape.add(obj);
+                if (this.actor.layers.indexOf("walk") >= 0) {
+                    this.constructCollider(obj);
+                }
                 publishLoaded();
             });
         }
@@ -1006,6 +1015,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         let mergedGeometry;
 
+        // We traverse the nested geometries, and flatten them in the reference to the "obj".
+        // we temporarily set the matrix of obj to identity, apply matrixWorld of each sub object but then
+        // restore obj's matrix. In a typical case when this is called only when things are set up,
+        // this method is called before adding "obj" to shape so obj.matrix is typically an identity anyway.
+
+        let tmpMat = obj.matrix;
+        obj.matrix = new THREE.Matrix4();
         try {
             obj.traverse(c =>{
                 if(c.geometry){
@@ -1033,6 +1049,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             console.error("failed to build the BVH collider for:", obj);
             console.error(err);
             return;
+        } finally {
+            obj.matrix = tmpMat;
         }
 
         let collider = new THREE.Mesh(mergedGeometry);
@@ -1135,13 +1153,17 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
         };
 
+        let newGeometry = toIndexed(geometry, THREE, true);
+
         let boundingBox = new THREE.Box3(
             new THREE.Vector3(-x, -y, -z),
             new THREE.Vector3( x,  y,  z));
 
-        let uv = geometry.getAttribute('uv');
+        newGeometry.parameters = geometry.parameters;
+        let uv = newGeometry.getAttribute('uv');
         normalizeUV(uv.array, boundingBox);
-        return geometry;
+
+        return newGeometry;
     }
 
     makePlaneMaterial(depth, color, frameColor, fullBright) {
