@@ -191,11 +191,11 @@ function hudButtons(myAvatar){
         <div id="homeBtn" class="btn btn-ui">
             <i class="fas fa-solid fa-house-user no-pointer-events"></i>
         </div>
-        <div id="worldMenuBtn" class="btn btn-ui">
-            <i class="fa fa-solid fa-bars no-pointer-events"></i>
-        </div>
         <div id="worldMenu-shareButton" class="btn btn-ui">
             <i class="fas fa-user-plus"></i>
+        </div>
+        <div id="worldMenuBtn" class="btn btn-ui">
+            <i class="fa fa-solid fa-bars no-pointer-events"></i>
         </div>
         <div id="worldMenu-helpButton" class="btn btn-ui">
             <i class="fas fa-question-circle"></i>
@@ -206,13 +206,13 @@ function hudButtons(myAvatar){
         div.innerHTML = buttons;
 
         let home = div.querySelector("#homeBtn");
-        let menu = div.querySelector("#worldMenuBtn");
         let share = div.querySelector("#worldMenu-shareButton");
+        let menu = div.querySelector("#worldMenuBtn");
         let help = div.querySelector("#worldMenu-helpButton");
 
         html.appendChild(home);
-        html.appendChild(menu);
         html.appendChild(share);
+        html.appendChild(menu);
         html.appendChild(help);
 
         div = document.querySelector("#worldMenu-shareButton");
