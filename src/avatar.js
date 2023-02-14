@@ -1679,7 +1679,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             segment.applyMatrix4(iMat);
             cBox.applyMatrix4(iMat);
-            let scaledRadius = Math.abs(radius * iMat.elements[0]);
+            let scaleVector = new THREE.Vector3();
+            scaleVector.setFromMatrixScale(iMat);
+            let scaledRadius = Math.abs(radius * scaleVector.x);
             // so, this have to be changed to allow non-uniform scaling. a warped semisphere still should tell
             // you where the closest hit is, and gives the capsule the right direction and distance.
             // it'd have to do something else to make it work that way thoguh.
