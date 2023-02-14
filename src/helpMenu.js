@@ -65,7 +65,8 @@ function createHelpMenu() {
                             <p class="table-head">Home</p>
                             <p class="table-desc">Reset location back to original landing place.</p>
                         </td>
-                        <td class="icon-column"><i class="fas fa-solid fa-house-user icons"></i></td>
+                        <td class="icon-column"><i class="fas fa-regular fa-house"></i>
+                        </td>
                     </tr>
                     <tr class="help-row">
                         <td>
