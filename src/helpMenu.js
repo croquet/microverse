@@ -10,7 +10,6 @@ export function startHelpMenu(simplerMenuFlag) {
     simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createHelpMenu();
-    hideShellControls();
 }
 
 function createHelpMenu() {
