@@ -29,7 +29,6 @@ export function startShareMenu(avatar, simplerMenuFlag) {
     simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createShareMenu(avatar);
-    hideShellControls();
 }
 
 function createSettingsMenu(useEnter) {
