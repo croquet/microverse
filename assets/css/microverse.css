@@ -350,7 +350,7 @@ body.tilt > iframe {
     color: #212529;
     display: inline-block;
     width: 100%;
-    top: 0;
+    top: -1px;
 }
 
 #userCountDisplay {
@@ -361,6 +361,7 @@ body.tilt > iframe {
     border-radius: 0px 0px 10px 10px;
     height: 50px;
     font-size: 16px;
+    border: 1px solid black;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
 }
@@ -410,7 +411,7 @@ button#VRButton {
     color: #212529;
     display: inline-block;
     width: 100%;
-    bottom: 0;
+    bottom: -1px;
 }
 
 .control-panel {
@@ -421,6 +422,7 @@ button#VRButton {
     border-radius: 10px 10px 0px 0px;
     height: 50px;
     font-size: 16px;
+    border: 1px solid black;
 
     display: grid;
     grid-template-columns: repeat(4, 1fr);
