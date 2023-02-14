@@ -748,8 +748,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
-        document.getElementById("homeBtn").onclick = () => this.goHome();
-        filterDomEventsOn(document.getElementById("homeBtn"));
 
         document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBtn").setAttribute("pressed", false);

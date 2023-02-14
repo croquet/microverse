@@ -187,20 +187,31 @@ function initWorldMenu(badge) {
 function hudButtons(myAvatar){
     const html = document.getElementById("control-panel")
     let buttons = `
-        <div id="worldMenu-shareButton" class="menu-label menu-item">
-            <div class="menu-icon share-icon"></div>
+
+        <div id="homeBtn" class="btn btn-ui">
+            <i class="fas fa-solid fa-house-user no-pointer-events"></i>
         </div>
-        <div id="worldMenu-helpButton" class="menu-label menu-item">
-            <div class="menu-icon help-icon"></div>
+        <div id="worldMenuBtn" class="btn btn-ui">
+            <i class="fa fa-solid fa-bars no-pointer-events"></i>
+        </div>
+        <div id="worldMenu-shareButton" class="btn btn-ui">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <div id="worldMenu-helpButton" class="btn btn-ui">
+            <i class="fas fa-question-circle"></i>
         </div>
         `
 
         let div = document.createElement("div");
         div.innerHTML = buttons;
 
+        let home = div.querySelector("#homeBtn");
+        let menu = div.querySelector("#worldMenuBtn");
         let share = div.querySelector("#worldMenu-shareButton");
         let help = div.querySelector("#worldMenu-helpButton");
 
+        html.appendChild(home);
+        html.appendChild(menu);
         html.appendChild(share);
         html.appendChild(help);
 
@@ -209,6 +220,9 @@ function hudButtons(myAvatar){
     
         div = document.getElementById("worldMenu-helpButton");
         if (div) div.onclick = () => helpPressed(myAvatar);
+
+        document.getElementById("homeBtn").onclick = () => this.goHome();
+        filterDomEventsOn(document.getElementById("homeBtn"));
 }
 
 
