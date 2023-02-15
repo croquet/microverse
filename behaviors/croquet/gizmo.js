@@ -11,6 +11,16 @@ class GizmoActor {
         this.listen("goodBye", "goodBye");
     }
 
+    initializeGizmo(data) {
+        let {parent, target, creatorId} = data;
+        if (parent) {
+            this.set({parent});
+        }
+        this.target = target;
+        this.set({translation: target.translation});
+        this.creatorId = creatorId;
+    }
+
     goodBye(viewId) {
         let avatar = [...this.service("ActorManager").actors].find(([_k, actor]) => {
             return actor.playerId === viewId;

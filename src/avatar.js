@@ -482,12 +482,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 translation: m4_getTranslation(target.global),
                 name: 'gizmo',
                 behaviorModules: ["Gizmo"],
-                //parent: target.parent,
+                // parent: target.parent,
                 type: "object",
                 noSave: true,
             });
-            this.gizmo.target = target;
-            this.gizmo.creatorId = viewId;
+            this.gizmo.call("Gizmo$GizmoActor", "initializeGizmo", {parent: target.parent, target, creatorId: viewId});
         } else {
             this.publish(this.gizmo.id, "cycleModes");
         }
