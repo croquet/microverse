@@ -367,10 +367,11 @@ body.tilt > iframe {
 }
 
 #userCountReadout {
-    width: fit-content;
-    white-space: nowrap;
-    padding: 8px;
-    color: white;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em;
 }
 
 #userCountReadout[presenting="true"] {
