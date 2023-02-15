@@ -162,6 +162,12 @@
     border-color: #dc3545;
 }
 
+.btn-danger:hover {
+    color: #fff;
+    background-color: #620a13;
+    border-color: #620a13;
+}
+
 .topright {
     position: absolute;
     right: -20px;
