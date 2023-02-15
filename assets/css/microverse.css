@@ -415,14 +415,21 @@ button#VRButton {
 }
 
 .control-panel {
-    background-color: rgba(0, 0, 0, 0.5);
+    /* background-color: rgba(0, 0, 0, 0.5);
     margin: 0 auto;
     text-align: center;
     color: white;
     border-radius: 10px 10px 0px 0px;
     height: 50px;
     font-size: 16px;
-    border: 1px solid black;
+    border: 1px solid black; */
+
+    background-image: url("../images/Subtract.png");
+    background-repeat: no-repeat;
+    margin-left: auto;
+    margin-right: auto;
+    height: 50px;
+    font-size: 16px;
 
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -430,7 +437,7 @@ button#VRButton {
 
 @media (min-width: 600px){
     .control-panel, #userCountDisplay{
-        width: 40%!important;
+        width: 550px!important;
     }
 }
 

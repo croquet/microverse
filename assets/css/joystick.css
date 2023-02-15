@@ -1,12 +1,12 @@
 #joystick {
     position: fixed;
     left: 50%;
-    bottom: 50px;
+    bottom: 25px;
     -ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
     width: 120px;
     height: 120px;
-    border: 3px solid #FFF;
+    border: 1px solid #000;
     border-radius: 50%;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     opacity: 0.75;
@@ -22,7 +22,7 @@
     width: 60px;
     height: 60px;
     border-radius: 40px;
-    background-color: rgba(224, 224, 224, 0.8);
+    background-color: rgba(0, 0, 0, 1);
     z-index: 310;
     pointer-events: none;
 }
@@ -33,7 +33,6 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background-color: rgba(124, 124, 124, 0.2);
     pointer-events: none;
 }
 
@@ -60,7 +59,7 @@
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
 
-    border-bottom: 8px solid #aaa;
+    border-bottom: 8px solid #ffffff;
 }
 
 #joystick-arrow-n {
