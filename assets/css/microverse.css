@@ -415,17 +415,6 @@ button#VRButton {
 }
 
 .control-panel {
-    /* background-color: rgba(0, 0, 0, 0.5);
-    margin: 0 auto;
-    text-align: center;
-    color: white;
-    border-radius: 10px 10px 0px 0px;
-    height: 50px;
-    font-size: 16px;
-    border: 1px solid black; */
-
-    background-image: url("../images/Subtract.png");
-    background-repeat: no-repeat;
     margin-left: auto;
     margin-right: auto;
     height: 50px;
@@ -439,21 +428,31 @@ button#VRButton {
     .control-panel, #userCountDisplay{
         width: 550px!important;
     }
+
+    .control-panel{
+        background-image: url("../images/Subtract.png");
+        background-repeat: no-repeat;
+    }
 }
 
 @media (max-width: 601px){
     .control-panel, #userCountDisplay{
         width: 100%!important;
     }
-}
 
-.world-info-container {
-    position: fixed;
-    z-index: 1;
-    width: 100%;
-    color: #212529;
-    display: inline-block;
-    width: 100%;
-    top: 0;
-}
+    .control-panel{
+        background-color:rgba(0, 0, 0, 0.5);
+        border: 1px solid black;
+    }
 
+    .world-info-container {
+        position: fixed;
+        z-index: 1;
+        width: 100%;
+        color: #212529;
+        display: inline-block;
+        width: 100%;
+        top: 0;
+    }
+
+}
