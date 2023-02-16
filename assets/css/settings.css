@@ -234,8 +234,8 @@
         justify-content: center;
         align-items: center;
         font-size: 1.5em; */
-        overflow:hidden;
-        display: flex;
+    overflow: hidden;
+    display: flex;
 }
 
 #local {
@@ -284,19 +284,17 @@
     left: 36px;
     top: 0px;
 
-
-        color: #212529;
-        background-color: #ffc107;
-        display: inline-block;
-        padding: 0.25em 0.4em;
-        font-size: 75%;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-        border-radius: 0.25rem;
-
+    color: #212529;
+    background-color: #ffc107;
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
 }
 
 #chatButtons {
@@ -383,7 +381,8 @@
 
 #connection-tooltip.bouncing {
     /* @keyframes duration | easing-function | delay | iteration-count | direction | fill-mode | play-state | name */
-    animation: 2s linear 0s 5 bounce, 2s linear 10s 1 normal forwards running fade;
+    animation: 2s linear 0s 5 bounce,
+        2s linear 10s 1 normal forwards running fade;
 }
 
 #connection-tooltip-arrow {
@@ -412,48 +411,48 @@
     10%,
     26%,
     50% {
-	animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-	transform: translateY(0);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+        transform: translateY(0);
     }
 
     20%,
     22% {
-	animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
-	transform: translateY(-14px);
+        animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+        transform: translateY(-14px);
     }
 
     35% {
-	animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
-	transform: translateY(-8px);
-  }
+        animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+        transform: translateY(-8px);
+    }
 
     40% {
-	transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-	transform: translateY(0);
+        transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+        transform: translateY(0);
     }
 
     45% {
-	transform: translateY(-6px);
+        transform: translateY(-6px);
     }
 
     to {
-	transform: translateY(0);
+        transform: translateY(0);
     }
 }
 
 @keyframes fade {
     from {
-	opacity: 1;
-	transform: scale(1);
+        opacity: 1;
+        transform: scale(1);
     }
 
     99% {
-	opacity: 0;
-	transform: scale(1);
+        opacity: 0;
+        transform: scale(1);
     }
 
     to {
-	transform: scale(0);
+        transform: scale(0);
     }
 }
 
@@ -882,7 +881,7 @@
     padding-left: 10px;
     overflow: hidden;
     white-space: nowrap;
-    flex-grow: 1
+    flex-grow: 1;
 }
 
 .desc {
@@ -909,130 +908,127 @@
 
 @media (max-width: 600px), (max-height: 600px) {
     .dialogPanel {
-	height: 80%;
-	width: 90%;
-	min-width: 300px;
-	min-height: 300px;
-	display: flex;
-	margin-left: auto;
-	margin-right: auto;
-	flex-direction: column;
-	justify-content: space-around;
+        height: 80%;
+        width: 90%;
+        min-width: 300px;
+        min-height: 300px;
+        display: flex;
+        margin-left: auto;
+        margin-right: auto;
+        flex-direction: column;
+        justify-content: space-around;
     }
 
-
-
     .content-container {
-	width: 95%;
-	height: 95%;
+        width: 95%;
+        height: 95%;
     }
 
     #dialogAvatarSelections {
-	height: 40px;
-	padding-bottom: 10px;
+        height: 40px;
+        padding-bottom: 10px;
     }
 
     .namePrompt {
-	font-size: 12px;
+        font-size: 12px;
     }
 
     .nameField {
-	height: 14px;
-	font-size: 12px;
-	padding-top: 2px;
-	flex-grow: 1;
+        height: 14px;
+        font-size: 12px;
+        padding-top: 2px;
+        flex-grow: 1;
     }
 
     #nameExplanation {
-	display: none;
+        display: none;
     }
 
     #nameFilterWarning {
-	display: none;
+        display: none;
     }
 
     #handednessLabel {
-	font-size: 12px;
+        font-size: 12px;
     }
 
     .handedness-label {
-	font-size: 12px;
+        font-size: 12px;
     }
 
     #share-qr {
-	display: none;
+        display: none;
     }
 
     .topright {
-	right: 10px;
-	top: 10px;
+        right: 10px;
+        top: 10px;
     }
 }
 
 @media (max-height: 600px) {
     .dialogPanel {
-	width: 80%;
-	height: 300px;
+        width: 80%;
+        height: 300px;
     }
 
     .panel-title {
-	margin: 2px 20px 2px 20px;
+        margin: 2px 20px 2px 20px;
     }
 
     #table-wrapper {
-	padding: 10px;
-	height: calc(100% - 50px);
+        padding: 10px;
+        height: calc(100% - 50px);
     }
 
     #joinPrompt {
-	display: none;
+        display: none;
     }
 
     #avatarNameField {
-	margin-bottom: 10px;
+        margin-bottom: 10px;
     }
 
     .dialogButtonsHolder {
-	position: relative;
-	top: -65px;
-	width: 50%;
-	left: 50%;
+        position: relative;
+        top: -65px;
+        width: 50%;
+        left: 50%;
     }
-
 }
 
 @media (max-width: 600px) {
     .dialogPanel {
-	height: 80%;
-	width: 90%;
+        height: 80%;
+        width: 90%;
     }
 
     .panel-title {
-	margin: 20px 0px 10px 0px;
+        margin: 20px 0px 10px 0px;
     }
 
     #table-wrapper {
-	height: calc(100% - 100px);
+        height: calc(100% - 100px);
     }
 
     .share-settings-label {
-	font-size: 12px;
+        font-size: 12px;
     }
 
     .stringInputHolder {
-	flex-direction: row;
+        flex-direction: row;
     }
 
     .copy-link {
-	font-size: 12px;
-	height: 14px;
-	border: 1px solid grey;
-	border-radius: 10px;
-	display: flex;
-	align-items: center;
-	padding-left: 10px;
-	overflow: hidden;
-	white-space: nowrap;
-	flex-grow: 1;
+        font-size: 12px;
+        height: 14px;
+        border: 1px solid grey;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        flex-grow: 1;
     }
 }
