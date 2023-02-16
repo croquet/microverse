@@ -34,7 +34,7 @@ Microverse uses the vector types defined in the Worldcore library. Those vectors
 
 `type Quaternion = [<number>, <number, <number>, <number>]`
 
-Some rotation related methods take an array with 3 elements as an Euler angle. Internally it converts the Euler angle to a Quaternion.
+Some rotation related methods take an array with 3 elements as an Euler angle. Internally it converts the Euler angle to a Quaternion. Thus they may take a union of `Quaternion` or `Vector3` as a generic rotation argument.
 
 `type Rotation = Quaternion|Vector3`
 
@@ -187,7 +187,9 @@ When rot is a number, it is interpreted as [0, rot, 0].
 
 This method sets the rotation of the card to the specified by the argument.
 
-### `scaleTo(s:Vector3)`
+### `scaleTo(s:Vector3|number)`
+
+When s is a number, it is interpreted as `[s, s, s]`.
 
 This method sets the scale of the card to the specified by scale factors in [x, y, z] axis.
 
@@ -215,9 +217,9 @@ This method multiplies the scale of the card by the specified by scale factors i
 
 ### `forwardBy(v:Vector3|number)`
 
-This method translates the object by `the specified offset, in the reference frame of the object.
-
 When v is a number, it is interpreted as [0, 0, v].
+
+This method translates the object by `the specified offset, in the reference frame of the object.
 
 ### `setAnimationClipIndex(animationClipIndex:number)`
 
