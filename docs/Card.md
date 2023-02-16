@@ -34,6 +34,10 @@ Microverse uses the vector types defined in the Worldcore library. Those vectors
 
 `type Quaternion = [<number>, <number, <number>, <number>]`
 
+Some rotation related methods take an array with 3 elements as an Euler angle. Internally it converts the Euler angle to a Quaternion.
+
+`type Rotation = Quaternion|Vector3`
+
 Also, the Card can handle certain kinds of pointer events. The EventName type is defined as:
 
 `type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
@@ -175,9 +179,13 @@ This method removes an element from the `layers` array. If `layerName` is not in
 
 This method moves the translation of the card to the specified `[x, y, z]` coordinates.
 
-### `rotateTo(q:Quaternion)`
+### `rotateTo(rot:Rotation|number)`
 
-This method sets the rotation of the card to the specified by a quaternion (`[x, y, z, w]`).
+When rot is a 4 element array, it is interpreted as a quaternion.
+When rot is a 3 element array, it is interpreted as an Euler angle.
+When rot is a number, it is interpreted as [0, rot, 0].
+
+This method sets the rotation of the card to the specified by the argument.
 
 ### `scaleTo(s:Vector3)`
 
@@ -191,13 +199,25 @@ This method sets the translation and rotation of the card, making sure that thos
 
 This method moves the translation of the card by the specified `[x, y, z]` vector.
 
-### `rotateBy(q:Quaternion)`
+### `rotateBy(rot:Rotation|number)`
 
-This method combines the rotation of the card by the specified by a quaternion (`[x, y, z, w]`).
+When rot is a 4 element array, it is interpreted as a quaternion.
+When rot is a 3 element array, it is interpreted as an Euler angle.
+When rot is a number, it is interpreted as [0, rot, 0].
 
-### `scaleBy(s:Vector3)`
+This method combines the rotation of the card by the specified rotation.
+
+### `scaleBy(s:Vector3|number)`
+
+When s is a number, it is interpreted as [s, s, s].
 
 This method multiplies the scale of the card by the specified by scale factors in [x, y, z] axis.
+
+### `forwardBy(v:Vector3|number)`
+
+This method translates the object by `the specified offset, in the reference frame of the object.
+
+When v is a number, it is interpreted as [0, 0, v].
 
 ### `setAnimationClipIndex(animationClipIndex:number)`
 
