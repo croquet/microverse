@@ -85,8 +85,8 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
                 </div>
             </div>
             <div id='toggleAudio' tabindex='1'>
-                <div class='buttonImage enabled' title='mute mic'></div>
-                <div class='buttonImage disabled' title='unmute mic'></div>
+                <div class='buttonImage enabled' title='mute mic'><i class="fa-solid fa-microphone"></i></div>
+                <div class='buttonImage disabled' title='unmute mic'><i class="fa-solid fa-microphone-slash"></i></div>
                 <div class='buttonImage unavailable' title='mic unavailable'></div>
             </div>
             <div id='toggleSettings' tabindex='4'>
