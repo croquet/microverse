@@ -281,14 +281,22 @@
 #chatCount {
     position: absolute;
     width: 30px;
-    height: 50px;
     left: 36px;
     top: 0px;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 50px;
-    text-align: center;
-    color: white;
+
+
+        color: #212529;
+        background-color: #ffc107;
+        display: inline-block;
+        padding: 0.25em 0.4em;
+        font-size: 75%;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+
 }
 
 #chatButtons {

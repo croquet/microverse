@@ -73,9 +73,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     <div id='chatUI'>
         <div id='chatState' class='noselect'>
             <!-- <div id='worldName'></div> -->
-            <div id='chatSymbol'></div>
-            <div id='peopleSymbol'></div>
-            <div id='chatCount' class='noselect'><span id='chatCountText'>-</span></div>
+            <div id='chatCount' class='noselect'><span id='chatCountText'>0</span></div>
         </div>
         <div id='chatButtons'>
             <div id='toggleConnection' tabindex='4'>
@@ -117,7 +115,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 `;
             chatHolder = div.firstChild;
             document.getElementById("world-info-container").append(chatHolder);
-            
+
             ['toggleConnection', 'toggleAudio', 'toggleSettings', 'toggleMicrophoneTest'].forEach(buttonName => {
                 const elem = document.getElementById(buttonName);
                 elem.addEventListener('pointerdown', evt => evt.stopPropagation());
