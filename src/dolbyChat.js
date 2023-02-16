@@ -116,8 +116,8 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 </div>
 `;
             chatHolder = div.firstChild;
-            document.body.appendChild(chatHolder);
-
+            document.getElementById("world-info-container").append(chatHolder);
+            
             ['toggleConnection', 'toggleAudio', 'toggleSettings', 'toggleMicrophoneTest'].forEach(buttonName => {
                 const elem = document.getElementById(buttonName);
                 elem.addEventListener('pointerdown', evt => evt.stopPropagation());
@@ -147,12 +147,12 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             loudnessValue: document.querySelector('#loudness .value'),
         };
 
-        this.uiStyles = {
-            preConnect: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
-            connected: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
-            settings: { width: '220px', height: '188px', transform: 'translate(-116px, 0px)' }
-        };
-        this.setUIStyle('preConnect');
+        // this.uiStyles = {
+        //     preConnect: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
+        //     connected: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
+        //     settings: { width: '220px', height: '188px', transform: 'translate(-116px, 0px)' }
+        // };
+        // this.setUIStyle('preConnect');
 
         chatHolder.classList.remove('hidden');
     }

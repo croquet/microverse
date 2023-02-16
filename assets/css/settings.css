@@ -218,7 +218,7 @@
 }
 
 #chatHolder {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
     align-items: stretch;
     overflow: hidden;
@@ -230,6 +230,12 @@
     left: 70%;
     top: 10px;
     z-index: 1;
+
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5em; */
+        overflow:hidden;
+        display: flex;
 }
 
 #local {
@@ -241,14 +247,11 @@
     flex: none;
 }
 
-#chatState {
+/* #chatState {
     position: absolute;
     width: 70px;
     height: 50px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
+} */
 
 #chatHolder:not(.hide-settings) #chatState {
     border-bottom-left-radius: 0px;
@@ -294,9 +297,6 @@
     position: absolute;
     left: 70px;
     height: 50px;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
 }
 
 #chatHolder:not(.hide-settings) #chatButtons {
@@ -449,13 +449,13 @@
     }
 }
 
-#chatHolder.unconnected #toggleConnection > .joined {
+/* #chatHolder.unconnected #toggleConnection > .joined {
     display: none;
 }
 
 #chatHolder:not(.unconnected) #toggleConnection > .notJoined {
     display: none;
-}
+} */
 
 #chatHolder.unconnected.joining #toggleConnection {
     pointer-events: none;

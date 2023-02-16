@@ -1136,16 +1136,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         if (!userCountDisplay) {
             
             const container = document.getElementById("world-info-container");
-            
-
             let c = document.createElement("div");
             c.setAttribute("id", "world-info");
             c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
-            container.innerHTML = c;
-
+            
             userCountDisplay = c.firstChild;
 
-            document.body.append(c);
+            container.appendChild(userCountDisplay);
         }
 
         let readout = userCountDisplay.querySelector("#userCountReadout");

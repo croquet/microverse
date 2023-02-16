@@ -226,8 +226,8 @@ function hudButtons(myAvatar) {
     div = document.getElementById("worldMenu-helpButton");
     if (div) div.onclick = () => helpPressed(myAvatar);
 
-    document.getElementById("homeBtn").onclick = () => this.goHome();
-    filterDomEventsOn(document.getElementById("homeBtn"));
+    document.querySelector("#homeBtn").onclick = () => this.goHome();
+    filterDomEventsOn(document.querySelector("#homeBtn"));
 }
 
 function setMenuItems(myAvatar) {

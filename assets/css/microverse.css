@@ -354,6 +354,18 @@ body.tilt > iframe {
 }
 
 #userCountDisplay {
+    display: flex;
+    justify-content: center;
+}
+
+#world-info-container {
+    position: absolute;
+    z-index: 1000;
+    width: 550px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-areas: "left center right";
+
     background-color: rgba(0, 0, 0, 0.5);
     margin: 0 auto;
     text-align: center;
@@ -362,16 +374,19 @@ body.tilt > iframe {
     height: 50px;
     font-size: 16px;
     border: 1px solid black;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 #userCountReadout {
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.5em;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    flex-direction: row-reverse;
 }
 
 #userCountReadout[presenting="true"] {
@@ -427,7 +442,7 @@ button#VRButton {
 
 @media (min-width: 600px) {
     .control-panel,
-    #userCountDisplay {
+    #world-info-contrainer {
         width: 550px !important;
     }
 
@@ -439,7 +454,7 @@ button#VRButton {
 
 @media (max-width: 601px) {
     .control-panel,
-    #userCountDisplay {
+    #world-info-contrainer {
         width: 100% !important;
     }
 
