@@ -456,13 +456,13 @@
     }
 }
 
-/* #chatHolder.unconnected #toggleConnection > .joined {
+#chatHolder.unconnected #toggleConnection > .joined {
     display: none;
 }
 
 #chatHolder:not(.unconnected) #toggleConnection > .notJoined {
     display: none;
-} */
+}
 
 #chatHolder.unconnected.joining #toggleConnection {
     pointer-events: none;
