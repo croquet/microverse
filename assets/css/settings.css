@@ -293,7 +293,7 @@
 }
 
 #chatButtons > div {
-    width:  50px;
+    width: 50px;
     height: 50px;
     border-radius: 50%;
 }
@@ -468,12 +468,12 @@
 
 #chatHolder:not(.mute-audio) #toggleAudio:not(.error) > .enabled {
     display: flex;
-    color: #2B2B2B;
+    color: #2b2b2b;
 }
 
 #chatHolder.mute-audio #toggleAudio:not(.error) > .disabled {
     display: flex;
-    color: #2B2B2B;
+    color: #2b2b2b;
     background-color: #c9c9c9;
 }
 
@@ -486,12 +486,12 @@
 }
 
 #toggleSettings > .enabled {
-    color: #2B2B2B;
-    background-color:#c9c9c9;
+    color: #2b2b2b;
+    background-color: #c9c9c9;
 }
 
 #toggleSettings > .disabled {
-    color: #2B2B2B;
+    color: #2b2b2b;
 }
 
 #chatHolder.hide-settings #toggleSettings > .enabled {
