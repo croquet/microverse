@@ -78,7 +78,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         <div id='chatButtons'>
             <div id='toggleConnection' tabindex='4'>
                 <div class='buttonImage joined' title='leave voice chat'></div>
-                <div class='buttonImage notJoined' title='join voice chat'></div>
+                <div class='buttonImage notJoined' title='join voice chat'>Join</div>
                 <div id='connection-tooltip' class='bouncing'>
                     <div id='connection-tooltip-arrow'></div>
                     <div id='connection-tooltip-contents' class='noselect'>join voice chat</div>
