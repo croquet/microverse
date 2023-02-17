@@ -97,9 +97,7 @@ As a result, everyone who joins a new Microverse World Session defined by our mo
         ```
 14. Save your modified `tutorial1.js`.
 
-## Conclusion
-
-You're done! Now, everyone who visits [http://localhost:9684/?world=tutorial1](http://localhost:9684/?world=tutorial1) - no matter what Session they join - will see your precisely-positioned Mosby Card in the 3D world.
+Now, everyone who visits [http://localhost:9684/?world=tutorial1](http://localhost:9684/?world=tutorial1) - no matter what Session they join - will see your precisely-positioned Mosby Card in the 3D world.
 
 <p align="center">
     <img src="./assets/AddingPersistentContent/catInWorldFinished.jpg" width="720"/>
@@ -109,4 +107,37 @@ You can test this yourself: Open [http://localhost:9684/?world=tutorial1](http:/
 
 You can repeat these steps with other content that you add to your Microverse world to make them show up by default, across all Sessions. For example, you could add a 3D model of a castle to the Tutorial1 World Template so that everyone who shows up to your Tutorial1 World will see that castle.
 
+## Exporting and Sharing Individual Cards
+There are times during World development when you may want to bring a Card from one Microverse session into another.
+
+For example, let's say that you are working inside Session A. Inside Session A, you have added to the 3D world an image of a puppy on a Card.
+
+At that time, if you were to join Session **B**, you would no longer see the Puppy Card you added in Session A. How can we get the Puppy Card from Session A into Session B without re-uploading the puppy image? The answer is to use a `.vrse` file:
+
+1. Download `puppy.jpg` from here:
+    <p align="center" style="margin:16px;">
+        <img src="./assets/AddingPersistentContent/puppy.jpg" width="720"/>
+    </p>
+2. Start a new Microverse `Tutorial1` session by visiting [http://localhost:9684/?world=tutorial1](http://localhost:9684/?world=tutorial1) in a brand-new browser tab.
+3. Create your Puppy Card in this session by dragging and dropping `puppy.jpg` into the world.
+4. `Ctrl+Click` on the Puppy Card, then open the Puppy Card's Property Sheet.
+5. Click on the "Save" button in the bottom right:
+    <p align="center" style="margin:16px;">
+        <img src="./assets/AddingPersistentContent/puppyProps.jpg" width="720"/>
+    </p>
+6. Your Downloads folder will now contain a small `.vrse` file named `_puppy.jpg.vrse`.
+    - `.vrse` files are plain text files. You can open them in your favorite text editor to see what they contain.
+    - `.vrse` files do not directly contain image data, so the filesize is significantly smaller than the filesize of an original image.
+7. Join a brand new session by visiting [http://localhost:9684/?world=tutorial1](http://localhost:9684/?world=tutorial1) in a new browser tab.
+    - You should _not yet_ see your Puppy Card from the earlier steps, because the Puppy Card is not a part of the `tutorial1.js` Template.
+8. Drag and drop `_puppy.jpg.vrse` from your Downloads folder into this new Session.
+
+A Puppy Card should now be visible in your current session.
+
+When you import a `.vrse` file into a session, certain Card properties, such as translation, rotation, and some behaviors, are **not preserved**.
+
+## Conclusion
+
 We hope you enjoy building with Microverse World Builder, and we look forward to interacting with your creations. See you in the Open Metaverse!
+
+**Copyright (c) 2022 Croquet Corporation**
