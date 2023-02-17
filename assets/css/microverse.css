@@ -204,8 +204,7 @@ body.tilt > iframe {
 .menu-icon {
     width: 30px;
     height: 30px;
-    margin-left: 6px;
-    margin-right: 6px;
+    margin-left: 20px;
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
