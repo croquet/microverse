@@ -352,6 +352,8 @@ body.tilt > iframe {
 #userCountDisplay {
     display: flex;
     justify-content: center;
+    grid-column: 1;
+    grid-row: 2 / 1;
 }
 
 #world-info-container {

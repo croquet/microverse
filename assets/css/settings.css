@@ -220,6 +220,8 @@
 #chatHolder {
     overflow: hidden;
     width: 100%;
+    grid-column: 3;
+    grid-row: 2 / 1;
 }
 
 #local {
@@ -265,9 +267,7 @@
 #chatCount {
     position: absolute;
     width: 30px;
-    left: 36px;
     top: 0px;
-
     color: #212529;
     background-color: #ffc107;
     display: inline-block;
@@ -280,6 +280,7 @@
     vertical-align: baseline;
     border-radius: 0.25rem;
     z-index: 1;
+    margin-left: 35px;
 }
 
 #chatButtons {
@@ -335,7 +336,7 @@
 
 #toggleConnection > .notJoined {
     background-color: #28a745;
-    width: 183px;
+    border-radius: 0px 0px 10px 0px;
 }
 
 #toggleConnection:hover > .notJoined {
