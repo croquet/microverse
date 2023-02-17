@@ -107,10 +107,10 @@ body.tilt > iframe {
     right: 10px;
 }
 
-#homeBtn:hover, #worldMenu-helpButton:hover{
-    background-color: rgba(0,0,0,0.3);
+#homeBtn:hover,
+#worldMenu-helpButton:hover {
+    background-color: rgba(0, 0, 0, 0.3);
 }
-
 
 #editModeBtn {
     top: 50%;
@@ -357,7 +357,7 @@ body.tilt > iframe {
     justify-content: center;
     grid-column: 1;
     grid-row: 2 / 1;
-    background-color: rgba(0,0,0,0.3);
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 #world-info-container {
@@ -469,14 +469,13 @@ button#VRButton {
         height: 100%;
     }
 
-    #worldMenuBtn:hover{
+    #worldMenuBtn:hover {
         background-image: url("../images/right.png");
     }
-    
-    #worldMenu-shareButton:hover{
+
+    #worldMenu-shareButton:hover {
         background-image: url("../images/left.png");
     }
-    
 }
 
 @media (max-width: 601px) {
@@ -511,13 +510,13 @@ button#VRButton {
         margin-right: auto;
     }
 
-    #worldMenuBtn:hover, #worldMenu-shareButton:hover{
-        background-color: rgba(0,0,0,0.3);
+    #worldMenuBtn:hover,
+    #worldMenu-shareButton:hover {
+        background-color: rgba(0, 0, 0, 0.3);
     }
-    
 }
 
-#visitors-img{
+#visitors-img {
     margin-right: 5px;
     width: 15px;
 }
