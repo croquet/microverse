@@ -379,6 +379,7 @@ body.tilt > iframe {
     text-align: center;
     left: 50%;
     transform: translateX(-50%);
+    top: -1px;
 }
 
 #userCountReadout {
