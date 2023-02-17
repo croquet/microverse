@@ -489,10 +489,12 @@
 #toggleSettings > .enabled {
     color: #2b2b2b;
     background-color: #c9c9c9;
+    border-radius: 0px 0px 10px 0px;
 }
 
 #toggleSettings > .disabled {
     color: #2b2b2b;
+    border-radius: 0px 0px 10px 0px;
 }
 
 #chatHolder.hide-settings #toggleSettings > .enabled {
@@ -1007,4 +1009,12 @@
         white-space: nowrap;
         flex-grow: 1;
     }
+}
+
+p#world-title{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

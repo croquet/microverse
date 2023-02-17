@@ -354,6 +354,7 @@ body.tilt > iframe {
     justify-content: center;
     grid-column: 1;
     grid-row: 2 / 1;
+    background-color: rgba(0,0,0,0.3);
 }
 
 #world-info-container {
@@ -382,7 +383,7 @@ body.tilt > iframe {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.5em;
+    font-size: 1.2em;
     flex-direction: row-reverse;
 }
 
@@ -496,4 +497,9 @@ button#VRButton {
         margin-left: auto;
         margin-right: auto;
     }
+}
+
+#visitors-img{
+    margin-right: 5px;
+    width: 15px;
 }
