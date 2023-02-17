@@ -193,6 +193,7 @@ body.tilt > iframe {
     align-items: center;
     transition: opacity 0.5s;
     cursor: pointer;
+    width: 25%;
 }
 
 .menu-label:hover {
@@ -209,11 +210,8 @@ body.tilt > iframe {
 
 .menu-icon {
     width: 30px;
-    height: 30px;
     margin-left: 20px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center;
+    margin-right: 20px;
 }
 
 #worldMenu-settings {

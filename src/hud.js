@@ -144,19 +144,19 @@ function initWorldMenu(badge) {
 
     let buttons = `
 <div id="worldMenu-load" class="menu-label menu-item">
-    <div class="menu-icon import-icon"></div>
+    <i class="fa-solid fa-upload menu-icon"></i>
     <span class="menu-label-text">Import</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
-    <div class="menu-icon connect-icon" id="connectIcon"></div>
+    <i class="fa-solid fa-link menu-icon"></i>
     <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
 <div id="worldMenu-gather" class="menu-label menu-item">
-    <div class="menu-icon presentationMode-icon"></div>
+    <i class="fa-solid fa-users-viewfinder menu-icon"></i>
     <span class="menu-label-text">Gather</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
-    <div class="menu-icon settings-icon"></div>
+    <i class="fa-solid fa-gear menu-icon"></i>
     <span class="menu-label-text">Settings</span>
 </div>
 
