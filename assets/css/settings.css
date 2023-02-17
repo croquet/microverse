@@ -293,7 +293,7 @@
 }
 
 #chatButtons > div {
-    width: 50px;
+    width: 100%;
     height: 50px;
     border-radius: 50%;
 }

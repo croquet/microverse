@@ -361,7 +361,6 @@ body.tilt > iframe {
 #world-info-container {
     position: absolute;
     z-index: 1000;
-    width: 550px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-areas: "left center right";
@@ -450,6 +449,10 @@ button#VRButton {
         background-image: url("../images/Subtract.png");
         background-repeat: no-repeat;
     }
+
+    #world-info-container{
+        width: 550px!important;
+    }
 }
 
 @media (max-width: 601px) {
@@ -471,5 +474,9 @@ button#VRButton {
         display: inline-block;
         width: 100%;
         top: 0;
+    }
+
+    #world-info-container{
+        width: 100%!important;
     }
 }
