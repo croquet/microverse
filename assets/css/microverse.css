@@ -142,15 +142,16 @@ body.tilt > iframe {
 .worldMenu {
     background-color: rgba(0, 0, 0, 0.5);
     position: absolute;
-    top: 70px;
-    right: 10px;
+    bottom: 50px;
     z-index: 200;
     display: none;
     border-radius: 15px;
     padding: 5px;
-    border: 1px solid white;
+    border: 1px solid black;
     color: white;
     width: 210px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .menuVisible {
@@ -167,12 +168,8 @@ body.tilt > iframe {
     justify-content: center;
     border-radius: 10px;
     background-color: white;
-    padding: 10px;
     cursor: pointer;
-}
-
-#qrDiv {
-    width: 90%;
+    width: 50%;
 }
 
 /* .menu-item {
@@ -444,20 +441,33 @@ button#VRButton {
     #world-info-contrainer {
         width: 550px !important;
     }
+    #worldMenu {
+        width: 540px !important;
+    }
+
+    #worldMenu {
+        height: 215px;
+    }
 
     .control-panel {
         background-image: url("../images/Subtract.png");
         background-repeat: no-repeat;
     }
 
-    #world-info-container{
-        width: 550px!important;
+    #world-info-container {
+        width: 550px !important;
+    }
+
+    .menu-qr {
+        float: left;
+        height: 100%;
     }
 }
 
 @media (max-width: 601px) {
     .control-panel,
-    #world-info-contrainer {
+    #world-info-contrainer,
+    #worldMenu {
         width: 100% !important;
     }
 
@@ -476,7 +486,13 @@ button#VRButton {
         top: 0;
     }
 
-    #world-info-container{
-        width: 100%!important;
+    #world-info-container {
+        width: 100% !important;
+    }
+
+    .menu-qr {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 }

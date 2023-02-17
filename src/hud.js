@@ -282,9 +282,13 @@ function setMenuItems(myAvatar) {
 
 function toggleMenu(myAvatar) {
     if (worldMenuVisible) {
+        sendToShell("hud", { joystick: true, fullscreen: true });
+
         worldMenu.classList.remove("menuVisible");
         worldMenuVisible = false;
         return;
+    } else {
+        sendToShell("hud", { joystick: false, fullscreen: false });
     }
 
     setMenuItems(myAvatar);
