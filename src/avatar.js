@@ -185,11 +185,17 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     getLookFromAnchor() {
         let anchor = this._anchor;
-        if (!anchor || !anchor._cardData) {return null;}
+        let lookOffset = v3_zero();
+        let lookPitch = 0;
+        let lookYaw = 0;
+        if (!anchor || !anchor._cardData) {
+            return {lookOffset, lookPitch, lookYaw};
+        }
+
         let anchorData = anchor._cardData;
-        let lookOffset = anchorData.lookOffset == undefined ? v3_zero() : anchorData.lookOffset;
-        let lookPitch = anchorData.lookPitch == undefined ? 0 : anchorData.lookPitch;
-        let lookYaw = anchorData.lookYaw == undefined ? 0 : anchorData.lookYaw;
+        if (anchorData.lookOffset) {lookOffset = anchorData.lookOffset;}
+        if (anchorData.lookPitch) {lookPitch = anchorData.lookPitch;}
+        if (anchorData.lookYaw) {lookYaw = anchorData.lookYaw;}
         return {lookOffset, lookPitch, lookYaw};
     }
 
@@ -476,12 +482,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 translation: m4_getTranslation(target.global),
                 name: 'gizmo',
                 behaviorModules: ["Gizmo"],
-                //parent: target.parent,
+                // parent: target.parent,
                 type: "object",
                 noSave: true,
             });
-            this.gizmo.target = target;
-            this.gizmo.creatorId = viewId;
+            this.gizmo.call("Gizmo$GizmoActor", "initializeGizmo", {parent: target.parent, target, creatorId: viewId});
         } else {
             this.publish(this.gizmo.id, "cycleModes");
         }
@@ -1680,18 +1685,23 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             segment.applyMatrix4(iMat);
             cBox.applyMatrix4(iMat);
+            let scaleVector = new THREE.Vector3();
+            scaleVector.setFromMatrixScale(iMat);
+            let scaledRadius = Math.abs(radius * scaleVector.x);
+            // so, this have to be changed to allow non-uniform scaling. a warped semisphere still should tell
+            // you where the closest hit is, and gives the capsule the right direction and distance.
+            // it'd have to do something else to make it work that way thoguh.
 
             let directions = [];
             // let start = Date.now();
-
             let maybeUp;
 
             c.children[0].geometry.boundsTree.shapecast({
                 intersectsBounds: box => box.intersectsBox(cBox),
                 intersectsTriangle: tri => {
                     const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
-                    if (distance < radius) {
-                        const depth = radius - distance;
+                    if (distance < scaledRadius) {
+                        const depth = scaledRadius - distance;
                         const direction = capsulePoint.sub(triPoint).normalize();
 
                         let h = Math.sqrt(direction.x ** 2 + direction.z ** 2);
@@ -1709,8 +1719,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
             directions.forEach((tri) => {
                 const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
-                if (distance < radius) {
-                    let depth = radius - distance;
+                if (distance < scaledRadius) {
+                    let depth = scaledRadius - distance;
                     const direction = capsulePoint.sub(triPoint).normalize();
 
                     // there is an issue when you double click a too low point, but it is
@@ -1934,7 +1944,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     addSticky(e) {
         if (e.shiftKey) {
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(e, render.threeLayerUnion('pointer', 'walk'));
+            const rc = this.pointerRaycast(e, render.threeLayerUnion("pointer", "walk"));
             let pe = this.pointerEvent(rc, e);
             this.say("addSticky", pe);
         }

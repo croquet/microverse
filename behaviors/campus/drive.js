@@ -8,7 +8,7 @@ class DriveActor {
         }
         this.addEventListener("keyDown", "control");
         this.addEventListener("pointerDown", "nop");
-        // this.subscribe("scope", "newAngle", "newAngle");
+        // this.subscribe("demo", "newAngle", "newAngle");
     }
     run() {
         if (!this.running) {return;}
@@ -27,7 +27,7 @@ class DriveActor {
         // angle = angle / 20;
         // console.log(angle);
         this.angle = angle;
-    } 
+    }
     */
     control(key) {
         if (key.key === "ArrowRight") {
@@ -43,6 +43,7 @@ class DriveActor {
     teardown() {
         this.removeEventListener("pointerDown", "toggle");
         this.removeEventListener("keyDown", "turn");
+        this.unsubscribe("demo", "newAngle", "newAngle");
         this.running = false;
     }
 }
@@ -55,5 +56,3 @@ export default {
         }
     ]
 }
-
-/* globals Microverse */

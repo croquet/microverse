@@ -5,7 +5,7 @@
 class SingleUserInteractionActor {
     setup() {
         if (this.occupier === undefined) this.occupier = null;
-        if (this.lastOccupyerAction === undefined) this.lastOccupyerAction = -1; // this.now();
+        if (this.lastOccupierAction === undefined) this.lastOccupierAction = -1; // this.now();
 
         this.subscribe(this.sessionId, "view-exit", "unfocus");
         this.subscribe(this.id, "focus", "focus");
@@ -16,11 +16,11 @@ class SingleUserInteractionActor {
         // console.log("actor tryOccupy", viewId);
         if (!this.occupier) {
             this.occupier = viewId;
-            this.lastOccupyerAction = this.now();
+            this.lastOccupierAction = this.now();
             this.say("focusChanged");
             this.future(1000).checkDropOut();
         } else if (this.occupier === viewId) {
-            this.lastOccupyerAction = this.now();
+            this.lastOccupierAction = this.now();
         }
     }
 
@@ -28,7 +28,7 @@ class SingleUserInteractionActor {
         // console.log("actor tryOccupy", viewId);
         if (this.occupier === viewId) {
             this.occupier = null;
-            this.lastOccupyerAction = -1;
+            this.lastOccupierAction = -1;
             this.say("focusChanged");
         }
     }
@@ -36,14 +36,14 @@ class SingleUserInteractionActor {
     checkDropOut() {
         if (this.occupier) {this.future(1000).checkDropOut();}
         let timeout = this._cardData.singleUserTimeOut || 5000;
-        if (this.lastOccupyerAction >= 0 && this.now() - this.lastOccupyerAction >= timeout) {
+        if (this.lastOccupierAction >= 0 && this.now() - this.lastOccupierAction >= timeout) {
             this.unfocus(this.occupier);
         }
     }
 
     teardown() {
         delete this.occupier;
-        delete this.lastOccupyerAction;
+        delete this.lastOccupierAction;
     }
 }
 
