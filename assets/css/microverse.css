@@ -107,14 +107,6 @@ body.tilt > iframe {
     right: 10px;
 }
 
-#worldMenuBtn:hover{
-    background-image: url("../images/right.png");
-}
-
-#worldMenu-shareButton:hover{
-    background-image: url("../images/left.png");
-}
-
 #homeBtn:hover, #worldMenu-helpButton:hover{
     background-color: rgba(0,0,0,0.3);
 }
@@ -477,6 +469,15 @@ button#VRButton {
         float: left;
         height: 100%;
     }
+
+    #worldMenuBtn:hover{
+        background-image: url("../images/right.png");
+    }
+    
+    #worldMenu-shareButton:hover{
+        background-image: url("../images/left.png");
+    }
+    
 }
 
 @media (max-width: 601px) {
@@ -510,6 +511,11 @@ button#VRButton {
         margin-left: auto;
         margin-right: auto;
     }
+
+    #worldMenuBtn:hover, #worldMenu-shareButton:hover{
+        background-color: rgba(0,0,0,0.3);
+    }
+    
 }
 
 #visitors-img{
