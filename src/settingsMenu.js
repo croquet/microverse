@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
+import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./hud.js";
 import { App } from "@croquet/worldcore-kernel";
 
 let settingsMenu = null;
@@ -29,7 +29,6 @@ export function startShareMenu(avatar, simplerMenuFlag) {
     simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createShareMenu(avatar);
-    hideShellControls();
 }
 
 function createSettingsMenu(useEnter) {

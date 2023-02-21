@@ -17,7 +17,7 @@ import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
 // import { TextFieldActor } from "./text/text.js";
 
-import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
+import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./hud.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 import { startHelpMenu } from "./helpMenu.js";
 
@@ -753,8 +753,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
-        document.getElementById("homeBtn").onclick = () => this.goHome();
-        filterDomEventsOn(document.getElementById("homeBtn"));
 
         document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBtn").setAttribute("pressed", false);
@@ -1141,16 +1139,21 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (!userCountDisplay) {
-            let c = document.createElement("div");
-            c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
-            userCountDisplay = c.firstChild;
-            document.body.appendChild(userCountDisplay);
+            
+            const container = document.getElementById("world-info-container");
 
-            if (this.service("DolbyChatManager") && window.innerWidth >= 600) {
-                userCountDisplay.style.left = "40%";
-            } else {
-                userCountDisplay.style.left = "50%";
-            }
+            const title = document.createElement("p");
+            title.setAttribute("id", "world-title");
+            title.innerHTML = "world name";
+
+            let c = document.createElement("div");
+            c.setAttribute("id", "world-info");
+            c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
+            
+            userCountDisplay = c.firstChild;
+
+            container.appendChild(title);
+            container.appendChild(userCountDisplay);
         }
 
         let readout = userCountDisplay.querySelector("#userCountReadout");
@@ -1159,7 +1162,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
-        let suffix = here === 1 ? "visitor" : "visitors";
+        let suffix = document.createElement("img");
+        suffix.setAttribute("id", "visitors-img");
+        suffix.src = "../../assets/images/visitors.png";
+
         let tooltip = `${here} ${here === 1 ? "visitor is" : "visitors are"} in this world`;
         if (here !== total) {
             let watching = total - here;
@@ -1168,13 +1174,15 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
         if (manager.presentationMode) {
             let followers = manager.followers.size; // includes the presenter
-            readout.textContent = `${followers}/${total} ${suffix}`;
+            readout.textContent = `${followers}/${total}`;
             tooltip = `${followers} ${followers === 1 ? "visitor" : "visitors"} in guided tour, ${tooltip}`;
         } else {
-            readout.textContent = `${total} ${suffix}`;
+            readout.textContent = `${total}`;
         }
         userCountDisplay.setAttribute("title", tooltip);
         readout.setAttribute("presenting", this.presenting);
+        readout.append(suffix);
+
     }
 
     presentationStarted() {

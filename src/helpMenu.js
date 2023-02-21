@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
+import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./hud.js";
 
 let simplerMenu;
 
@@ -10,7 +10,6 @@ export function startHelpMenu(simplerMenuFlag) {
     simplerMenu = simplerMenuFlag;
     closeAllDialogs();
     createHelpMenu();
-    hideShellControls();
 }
 
 function createHelpMenu() {
@@ -66,7 +65,8 @@ function createHelpMenu() {
                             <p class="table-head">Home</p>
                             <p class="table-desc">Reset location back to original landing place.</p>
                         </td>
-                        <td class="icon-column"><i class="fas fa-solid fa-house-user icons"></i></td>
+                        <td class="icon-column"><i class="fas fa-regular fa-house"></i>
+                        </td>
                     </tr>
                     <tr class="help-row">
                         <td>

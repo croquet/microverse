@@ -73,27 +73,25 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     <div id='chatUI'>
         <div id='chatState' class='noselect'>
             <!-- <div id='worldName'></div> -->
-            <div id='chatSymbol'></div>
-            <div id='peopleSymbol'></div>
-            <div id='chatCount' class='noselect'><span id='chatCountText'>-</span></div>
+            <div id='chatCount' class='noselect'><span id='chatCountText'>0</span></div>
         </div>
         <div id='chatButtons'>
             <div id='toggleConnection' tabindex='4'>
-                <div class='buttonImage joined' title='leave voice chat'></div>
-                <div class='buttonImage notJoined' title='join voice chat'></div>
+                <div class='buttonImage joined' title='leave voice chat'>Leave</div>
+                <div class='buttonImage notJoined' title='join voice chat'>Join</div>
                 <div id='connection-tooltip' class='bouncing'>
                     <div id='connection-tooltip-arrow'></div>
                     <div id='connection-tooltip-contents' class='noselect'>join voice chat</div>
                 </div>
             </div>
             <div id='toggleAudio' tabindex='1'>
-                <div class='buttonImage enabled' title='mute mic'></div>
-                <div class='buttonImage disabled' title='unmute mic'></div>
+                <div class='buttonImage enabled' title='mute mic'><i class="fa-solid fa-microphone"></i></div>
+                <div class='buttonImage disabled' title='unmute mic'><i class="fa-solid fa-microphone-slash"></i></div>
                 <div class='buttonImage unavailable' title='mic unavailable'></div>
             </div>
             <div id='toggleSettings' tabindex='4'>
-                <div class='buttonImage enabled' title='hide settings'></div>
-                <div class='buttonImage disabled' title='show settings'></div>
+                <div class='buttonImage enabled' title='hide settings'><i class="fa-solid fa-gear"></i></div>
+                <div class='buttonImage disabled' title='show settings'><i class="fa-solid fa-gear"></i></div>
             </div>
         </div>
     </div>
@@ -116,7 +114,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 </div>
 `;
             chatHolder = div.firstChild;
-            document.body.appendChild(chatHolder);
+            document.getElementById("world-info-container").append(chatHolder);
 
             ['toggleConnection', 'toggleAudio', 'toggleSettings', 'toggleMicrophoneTest'].forEach(buttonName => {
                 const elem = document.getElementById(buttonName);
@@ -147,22 +145,11 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             loudnessValue: document.querySelector('#loudness .value'),
         };
 
-        this.uiStyles = {
-            preConnect: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
-            connected: { width: '220px', height: '50px', transform: 'translate(-116px, 0px)' },
-            settings: { width: '220px', height: '188px', transform: 'translate(-116px, 0px)' }
-        };
-        this.setUIStyle('preConnect');
-
         chatHolder.classList.remove('hidden');
     }
 
     setUIStyle(mode) {
-        const settings = this.uiStyles[mode];
-        const isNarrow = window.innerWidth < 600;
-        settings.left = isNarrow ? '60%' : '';
-        settings.top = isNarrow ? '60px' : '';
-        Object.assign(this.elements.chatHolder.style, settings);
+        Object.assign(this.elements.chatHolder.style);
     }
 
     toggleConnection() {
