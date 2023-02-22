@@ -1162,10 +1162,9 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
-        let suffix = document.createElement("img");
+        let suffix = document.createElement("div");
         suffix.setAttribute("id", "visitors-img");
-        suffix.src = "../../assets/images/visitors.png";
-
+        suffix.innerHTML = `<i class="fa-solid fa-user"></i>`;
         let tooltip = `${here} ${here === 1 ? "visitor is" : "visitors are"} in this world`;
         if (here !== total) {
             let watching = total - here;
