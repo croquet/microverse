@@ -82,7 +82,15 @@ function createHelpMenu() {
                     <tr class="help-row" id="import-row">
                         <td>
                             <p class="table-head">Import</p>
-                            <p class="table-desc">Import .jpeg, .png, .pdf or .svg from your computer or drag and drop it in to the Microverse.</p>
+                            <p class="table-desc">Import from your device or drag and drop it in to the Microverse.</p>
+                            <p class="table-desc">
+                            Supported formats are:<br>
+                            
+                            <b>3D:</b> .glb, .obj, .fbx, .vrml
+                            <br>
+                            <b>Files:</b> svg, png, jpeg, gif, .pdf
+                            
+                            </p>
                         </td>
                         <td class="icon-column">
                             <div class="icons">
