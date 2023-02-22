@@ -113,22 +113,18 @@ body.tilt > iframe {
 }
 
 #editModeBtn {
-    top: 50%;
+    bottom: 50px;
     left: 10px;
     transform: translate(0, -50%);
     display: none;
+    z-index: 1;
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 1px solid black;
 }
 
 #editModeBtn[mobile="true"] {
     display: flex;
-}
-
-#editModeBtn[pressed="true"] {
-    background-color: #80808080;
-}
-
-#editModeBtn[pressed="false"] {
-    background-color: #d3d3d380;
 }
 
 #ghostSlider {
