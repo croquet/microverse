@@ -2,7 +2,11 @@
 // https://croquet.io
 // info@croquet.io
 
-import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./hud.js";
+import {
+    filterDomEventsOn,
+    closeAllDialogs,
+    hideShellControls,
+} from "./hud.js";
 
 let simplerMenu;
 
@@ -135,12 +139,14 @@ function createHelpMenu() {
     closeButton.onclick = () => closeAllDialogs();
 
     if (simplerMenu) {
-        ["manipulate-row", "import-row", "connect-row", "settings-row"].forEach((n) => {
-            let e = helpMenu.querySelector(`#${n}`);
-            if (e) {
-                e.remove();
+        ["manipulate-row", "import-row", "connect-row", "settings-row"].forEach(
+            (n) => {
+                let e = helpMenu.querySelector(`#${n}`);
+                if (e) {
+                    e.remove();
+                }
             }
-        });
+        );
     }
 
     document.body.appendChild(helpMenu);
