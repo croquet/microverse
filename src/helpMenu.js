@@ -78,23 +78,22 @@ function createHelpMenu() {
                     <tr class="help-row" id="import-row">
                         <td>
                             <p class="table-head">Import</p>
-                            <p class="table-desc">Import any of these formats from your desktop directly
-                                 into the Microverse World. Either drag and drop, or choose the import menu item.</p>
+                            <p class="table-desc">Import .jpeg, .png, .pdf or .svg from your computer or drag and drop it in to the Microverse.</p>
                         </td>
                         <td class="icon-column">
                             <div class="icons">
-                                <div class="help-pane-icon import-icon help-menu-icon"></div>
+                                <i class="fa-solid fa-upload menu-icon"></i>
                             </div>
                         </td>
                      </tr>
                      <tr class="help-row" id="connect-row">
                          <td>
                              <p class="table-head">Connect</p>
-                             <p class="table-desc">Click connect to link your text editor to edit behavior files.</p>
+                             <p class="table-desc">Link your text editor to edit behavior file code.</p>
                          </td>
                          <td class="icon-column">
                              <div class="icons">
-                                 <div class="help-pane-icon connect-icon help-menu-icon"</div>
+                                <i class="fa-solid fa-link menu-icon"></i>
                              </div>
                          </td>
                      </tr>
@@ -105,7 +104,7 @@ function createHelpMenu() {
                          </td>
                          <td class="icon-column">
                              <div class="icons">
-                                 <div class="help-pane-icon share-icon help-menu-icon"></div>
+                                <i class="fas fa-user-plus"></i>
                              </div>
                          </td>
                      </tr>
@@ -116,7 +115,7 @@ function createHelpMenu() {
                          </td>
                          <td class="icon-column">
                              <div class="icons">
-                                 <div class="help-pane-icon settings-icon help-menu-icon"></div>
+                                <i class="fa-solid fa-gear menu-icon"></i>
                              </div>
                          </td>
                     </tr>
