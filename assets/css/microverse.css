@@ -410,9 +410,12 @@ body.tilt > iframe {
 }
 
 button#VRButton {
-    border-radius: 30px !important;
-    line-height: 7px !important;
-    font-weight: 700 !important;
+    border: 1px solid black!important;
+    color: black!important;
+    bottom: 20%!important;
+
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @media (max-width: 600px) {
