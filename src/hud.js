@@ -159,9 +159,14 @@ function initWorldMenu(badge) {
     <i class="fa-solid fa-gear menu-icon"></i>
     <span class="menu-label-text">Settings</span>
 </div>
+<hr>
+<div id="fullscreenBtn" class="menu-label menu-item">
+    <i class="fas fa-solid fa-expand icons menu-icon"></i>
+    <span class="menu-label-text">Fullscreen</span>
+</div>
+
 
 `.trim();
-
     let div = document.createElement("div");
     div.innerHTML = buttons;
 
@@ -169,6 +174,7 @@ function initWorldMenu(badge) {
     let connect = div.querySelector("#worldMenu-connect");
     let settings = div.querySelector("#worldMenu-settings");
     let presentationMode = div.querySelector("#worldMenu-gather");
+    let fullscreen = div.querySelector("#fullscreenBtn");
 
     html.appendChild(badge);
     badge.id = "worldMenu-qr";
@@ -177,9 +183,36 @@ function initWorldMenu(badge) {
     html.appendChild(load);
     html.appendChild(connect);
     html.appendChild(presentationMode);
+    html.appendChild(fullscreen);
     html.appendChild(settings);
 
     worldMenu = html;
+
+
+
+if (fullscreen) {
+    fullscreen.onclick = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (e.shiftKey) {
+            document.body.classList.toggle("tilt");
+            return;
+        }
+
+        if (!document.fullscreenElement) {
+            // If the document is not in full screen mode
+            // make the document full screen
+            document.body.requestFullscreen();
+        } else {
+            // Otherwise exit the full screen
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+}
+
 
     filterDomEventsOn(worldMenu);
     worldMenuVisible = false;

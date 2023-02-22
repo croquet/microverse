@@ -210,10 +210,6 @@ body.tilt > iframe {
     margin-right: 20px;
 }
 
-#worldMenu-settings {
-    border-top: 1px solid black;
-}
-
 .help-menu-icon {
     width: 36px;
     height: 36px;
@@ -451,7 +447,7 @@ button#VRButton {
     }
 
     #worldMenu {
-        height: 215px;
+        height: 270px;
     }
 
     .control-panel {
