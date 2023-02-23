@@ -229,11 +229,11 @@ function hudButtons(myAvatar) {
         <div id="worldMenu-shareButton" class="btn btn-ui">
             <i class="fas fa-user-plus"></i>
         </div>
-        <div id="worldMenuBtn" class="btn btn-ui">
-            <i class="fa fa-solid fa-bars no-pointer-events"></i>
-        </div>
         <div id="worldMenu-helpButton" class="btn btn-ui">
             <i class="fas fa-question-circle"></i>
+        </div>
+        <div id="worldMenuBtn" class="btn btn-ui">
+            <i class="fa fa-solid fa-bars no-pointer-events"></i>
         </div>
         `;
 
@@ -246,8 +246,8 @@ function hudButtons(myAvatar) {
     let help = div.querySelector("#worldMenu-helpButton");
 
     html.appendChild(home);
-    html.appendChild(share);
     html.appendChild(menu);
+    html.appendChild(share);
     html.appendChild(help);
 
     div = document.querySelector("#worldMenu-shareButton");

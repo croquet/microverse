@@ -465,11 +465,11 @@ button#VRButton {
     }
 
     #worldMenuBtn:hover {
-        background-image: url("../images/right.png");
+        background-image: url("../images/left.png");
     }
 
     #worldMenu-shareButton:hover {
-        background-image: url("../images/left.png");
+        background-image: url("../images/right.png");
     }
 }
 
