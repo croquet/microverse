@@ -403,18 +403,13 @@ function createShareMenu(avatar) {
         <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
         <div id="share-container" class="content-container">
             <div id="share-title" class="panel-title">Invite Users<br></div>
-            <div class="promptBlurb">Scan QR code or click to open a new browser tab in the same session.</div>
-            <div id="share-qr"></div>
-
-            <div class="share-settings-label">Copy Share Link</div>
+            <div class="share-settings-label">Send an invite link to a friend</div>
             <div class="share-menu-row">
                 <div id="copy-link" class="copy-link allow-select">generated link</div>
                 <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
             </div>
-            <div id="save-vrse-row" class="share-menu-row">
-                <div class="share-settings-label">Save world as VRSE file</div>
-                <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
-            </div>
+            <div class="promptBlurb">Or, scan QR code or click to open a new browser tab in the same session.</div>
+            <div id="share-qr"></div>
         </div>
     </div>`.trim();
 
@@ -450,9 +445,6 @@ function createShareMenu(avatar) {
     closeButton.onclick = () => closeAllDialogs();
 
     link.textContent = url;
-
-    saveWorld.onclick = (_evt) => savePressed(avatar);
-    copyLink.onclick = (_evt) => copyPressed(avatar);
 
     if (simplerMenu) {
         saveVrseRow.style.display = "none";

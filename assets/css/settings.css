@@ -78,11 +78,8 @@
     font-weight: bold;
 }
 
-.promptBlurb {
-    font-size: 13px;
-    line-height: 20px;
-    margin-top: 13px;
-    margin-bottom: 13px;
+.promptBlurb, .share-settings-label {
+    margin: 15px 0px 15px 0px;
 }
 
 .stringInputHolder {
@@ -863,11 +860,6 @@
 
 .desc {
     font-size: 13px;
-}
-
-.share-settings-label {
-    margin-bottom: 10px;
-    margin-top: 20px;
 }
 
 .share-menu-row {
