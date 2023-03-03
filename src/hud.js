@@ -53,7 +53,7 @@ function loadPressed(myAvatar) {
 
     imageInput.click();
     if (worldMenuVisible) {
-        toggleMenu();
+        toggleMenu(myAvatar);
     }
 }
 
@@ -87,7 +87,7 @@ function settingsPressed(myAvatar) {
         myAvatar.showSettingsMenu();
         sendToShell("hud", { joystick: false, fullscreen: false });
     }
-    toggleMenu();
+    toggleMenu(myAvatar);
 }
 
 function sharePressed(myAvatar) {
@@ -95,7 +95,7 @@ function sharePressed(myAvatar) {
         myAvatar.showShareMenu();
         sendToShell("hud", { joystick: false, fullscreen: false });
     }
-    toggleMenu();
+    toggleMenu(myAvatar);
 }
 
 function helpPressed(myAvatar) {
@@ -103,7 +103,7 @@ function helpPressed(myAvatar) {
         myAvatar.showHelpMenu();
         sendToShell("hud", { joystick: false, fullscreen: false });
     }
-    toggleMenu();
+    toggleMenu(myAvatar);
 }
 
 function switchQRView(_myAvatar) {
@@ -133,7 +133,7 @@ function switchQRView(_myAvatar) {
 function forceStop(myAvatar) {
     myAvatar.say("stopPresentation");
     if (worldMenuVisible) {
-        // toggleMenu();
+        // toggleMenu(myAvatar);
     }
 }
 
@@ -303,7 +303,7 @@ function setMenuItems(myAvatar) {
     div = gatherItem;
     if (div) {
         div.onclick = () => {
-            // toggleMenu();
+            // toggleMenu(myAvatar);
             if (myAvatar.actor.service("PlayerManager").presentationMode) {
                 forceStop(myAvatar);
             } else {
