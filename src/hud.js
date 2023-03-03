@@ -83,27 +83,33 @@ function connectPressed(myAvatar) {
 }
 
 function settingsPressed(myAvatar) {
+    if (worldMenuVisible) {
+        toggleMenu(myAvatar);
+    }
     if (myAvatar) {
         myAvatar.showSettingsMenu();
         sendToShell("hud", { joystick: false, fullscreen: false });
     }
-    toggleMenu(myAvatar);
 }
 
 function sharePressed(myAvatar) {
+    if (worldMenuVisible) {
+        toggleMenu(myAvatar);
+    }
     if (myAvatar) {
         myAvatar.showShareMenu();
         sendToShell("hud", { joystick: false, fullscreen: false });
     }
-    toggleMenu(myAvatar);
 }
 
 function helpPressed(myAvatar) {
+    if (worldMenuVisible) {
+        toggleMenu(myAvatar);
+    }
     if (myAvatar) {
         myAvatar.showHelpMenu();
         sendToShell("hud", { joystick: false, fullscreen: false });
     }
-    toggleMenu(myAvatar);
 }
 
 function switchQRView(_myAvatar) {
