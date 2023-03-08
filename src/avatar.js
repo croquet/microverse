@@ -20,6 +20,8 @@ import {CardActor, CardPawn} from "./card.js";
 import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./hud.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 import { startHelpMenu } from "./helpMenu.js";
+import {closeAllDialogs} from "./hud.js";
+
 
 const EYE_HEIGHT = 1.676;
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
@@ -2221,10 +2223,27 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         startShareMenu(this, showcase && !showcase.useAvatar);
     }
 
+
     showHelpMenu() {
+        let helpMenu = document.getElementById("helpDialog");
+
         let showcase = Constants.ShowCaseSpec;
-        startHelpMenu(showcase && !showcase.useAvatar);
+        if(!helpMenu){
+            sendToShell("hud", { joystick: false, fullscreen: false });
+            startHelpMenu(showcase && !showcase.useAvatar);
+            
+            helpMenu = true;
+
+        }else if (helpMenu){
+            sendToShell("hud", { joystick: true, fullscreen: true });
+            closeAllDialogs();
+
+            helpMenu = false;
+            console.log("close")
+        }
     }
+
+    
 
     goHome() {
         if (!this.spectator) this.say("goHome");

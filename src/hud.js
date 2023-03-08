@@ -108,7 +108,6 @@ function helpPressed(myAvatar) {
     }
     if (myAvatar) {
         myAvatar.showHelpMenu();
-        sendToShell("hud", { joystick: false, fullscreen: false });
     }
 }
 

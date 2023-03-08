@@ -12,7 +12,6 @@ let simplerMenu;
 
 export function startHelpMenu(simplerMenuFlag) {
     simplerMenu = simplerMenuFlag;
-    closeAllDialogs();
     createHelpMenu();
 }
 
