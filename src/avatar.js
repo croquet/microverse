@@ -2219,8 +2219,24 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     showShareMenu() {
+        let shareMenu = document.getElementById("shareDialog");
+
         let showcase = Constants.ShowCaseSpec;
-        startShareMenu(this, showcase && !showcase.useAvatar);
+
+        if(!shareMenu){
+            sendToShell("hud", { joystick: false, fullscreen: false });
+            startShareMenu(this, showcase && !showcase.useAvatar);
+            
+            shareMenu = true;
+
+        }else if (shareMenu){
+            sendToShell("hud", { joystick: true, fullscreen: true });
+            closeAllDialogs();
+
+            shareMenu = false;
+            console.log("close")
+        }
+
     }
 
 

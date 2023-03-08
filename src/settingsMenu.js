@@ -20,14 +20,12 @@ export function startSettingsMenu(useEnter, simplerMenuFlag, r) {
     nicknameIsValid = false;
     avatarIsValid = false;
     simplerMenu = simplerMenuFlag;
-    closeAllDialogs();
     createSettingsMenu(useEnter).then(fillFromPrevious);
     hideShellControls();
 }
 
 export function startShareMenu(avatar, simplerMenuFlag) {
     simplerMenu = simplerMenuFlag;
-    closeAllDialogs();
     createShareMenu(avatar);
 }
 

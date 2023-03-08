@@ -88,7 +88,6 @@ function settingsPressed(myAvatar) {
     }
     if (myAvatar) {
         myAvatar.showSettingsMenu();
-        sendToShell("hud", { joystick: false, fullscreen: false });
     }
 }
 
@@ -98,7 +97,6 @@ function sharePressed(myAvatar) {
     }
     if (myAvatar) {
         myAvatar.showShareMenu();
-        sendToShell("hud", { joystick: false, fullscreen: false });
     }
 }
 
