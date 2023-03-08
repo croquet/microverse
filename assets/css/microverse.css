@@ -171,7 +171,6 @@ body.tilt > iframe {
     border-radius: 10px;
     background-color: white;
     cursor: pointer;
-    width: 50%;
 }
 
 /* .menu-item {

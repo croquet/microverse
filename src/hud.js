@@ -156,7 +156,7 @@ function initWorldMenu(badge) {
     <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
 <div id="worldMenu-gather" class="menu-label menu-item">
-    <i class="fa-solid fa-users-viewfinder menu-icon"></i>
+    <i class="fas fa-solid fa-users menu-icon"></i>
     <span class="menu-label-text">Gather</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">

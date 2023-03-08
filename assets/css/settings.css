@@ -894,11 +894,6 @@
         justify-content: space-around;
     }
 
-    .content-container {
-        width: 95%;
-        height: 95%;
-    }
-
     #dialogAvatarSelections {
         height: 40px;
         padding-bottom: 10px;
@@ -929,10 +924,6 @@
 
     .handedness-label {
         font-size: 12px;
-    }
-
-    #share-qr {
-        display: none;
     }
 
     .topright {
@@ -995,8 +986,6 @@
     }
 
     .copy-link {
-        font-size: 12px;
-        height: 14px;
         border: 1px solid grey;
         border-radius: 10px;
         display: flex;
