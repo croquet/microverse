@@ -25,7 +25,6 @@ export function startSettingsMenu(useEnter, simplerMenuFlag, r) {
     avatarIsValid = false;
     simplerMenu = simplerMenuFlag;
     createSettingsMenu(useEnter).then(fillFromPrevious);
-    hideShellControls();
 }
 
 export function startShareMenu(avatar, simplerMenuFlag) {
