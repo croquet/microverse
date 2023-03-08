@@ -2664,25 +2664,36 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     showSettingsMenu() {
-        let promise = new Promise((resolve, _reject) => {
-            let showcase = Constants.ShowCaseSpec;
-            startSettingsMenu(false, showcase && !showcase.useAvatar, resolve);
-        });
-        promise.then((changed) => {
-            if (changed) {
-                const configuration = window.settingsMenuConfiguration;
-                sendToShell("update-configuration", {
-                    localConfig: configuration,
-                });
-                let tempCardSpec = this.makeCardSpecFrom(
-                    window.settingsMenuConfiguration,
-                    this.actor
+        let shareMenu = document.getElementById("shareDialog");
+        let helpMenu = document.getElementById("helpDialog");
+
+        if (!helpMenu && !shareMenu) {
+            let promise = new Promise((resolve, _reject) => {
+                let showcase = Constants.ShowCaseSpec;
+                startSettingsMenu(
+                    false,
+                    showcase && !showcase.useAvatar,
+                    resolve
                 );
-                delete this.modelLoadTime;
-                this.say("setAvatarData", tempCardSpec);
-                this.modelHasLoaded = false;
-            }
-        });
+            });
+            promise.then((changed) => {
+                if (changed) {
+                    const configuration = window.settingsMenuConfiguration;
+                    sendToShell("update-configuration", {
+                        localConfig: configuration,
+                    });
+                    let tempCardSpec = this.makeCardSpecFrom(
+                        window.settingsMenuConfiguration,
+                        this.actor
+                    );
+                    delete this.modelLoadTime;
+                    this.say("setAvatarData", tempCardSpec);
+                    this.modelHasLoaded = false;
+                }
+            });
+        } else {
+            return;
+        }
     }
 
     showShareMenu() {
