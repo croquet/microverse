@@ -2713,7 +2713,6 @@ export class AvatarPawn extends mix(CardPawn).with(
             closeAllDialogs();
 
             shareMenu = false;
-            console.log("close");
         }
     }
 

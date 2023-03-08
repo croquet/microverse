@@ -340,6 +340,12 @@
     background-color: #218838;
 }
 
+@media (max-width: 750px){
+    #connection-tooltip{
+        display: none;
+    }
+}
+
 #connection-tooltip {
     position: absolute;
     top: 14px;
