@@ -191,31 +191,28 @@ function initWorldMenu(badge) {
 
     worldMenu = html;
 
+    if (fullscreen) {
+        fullscreen.onclick = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
 
-
-if (fullscreen) {
-    fullscreen.onclick = (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-
-        if (e.shiftKey) {
-            document.body.classList.toggle("tilt");
-            return;
-        }
-
-        if (!document.fullscreenElement) {
-            // If the document is not in full screen mode
-            // make the document full screen
-            document.body.requestFullscreen();
-        } else {
-            // Otherwise exit the full screen
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
+            if (e.shiftKey) {
+                document.body.classList.toggle("tilt");
+                return;
             }
-        }
-    }
-}
 
+            if (!document.fullscreenElement) {
+                // If the document is not in full screen mode
+                // make the document full screen
+                document.body.requestFullscreen();
+            } else {
+                // Otherwise exit the full screen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        };
+    }
 
     filterDomEventsOn(worldMenu);
     worldMenuVisible = false;
