@@ -156,7 +156,7 @@
 .btn-danger {
     color: #fff;
     background-color: #dc3545;
-    border-color: #dc3545;
+    border: 1px solid #620a13;
 }
 
 .btn-danger:hover {
