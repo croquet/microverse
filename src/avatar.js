@@ -2698,10 +2698,12 @@ export class AvatarPawn extends mix(CardPawn).with(
 
     showShareMenu() {
         let shareMenu = document.getElementById("shareDialog");
+        let helpMenu = document.getElementById("helpDialog");
+        let settings = document.getElementById("joinDialog");
 
         let showcase = Constants.ShowCaseSpec;
 
-        if (!shareMenu) {
+        if (!shareMenu && !helpMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
 
@@ -2717,9 +2719,11 @@ export class AvatarPawn extends mix(CardPawn).with(
 
     showHelpMenu() {
         let helpMenu = document.getElementById("helpDialog");
+        let shareMenu = document.getElementById("shareDialog");
+        let settings = document.getElementById("joinDialog");
 
         let showcase = Constants.ShowCaseSpec;
-        if (!helpMenu) {
+        if (!helpMenu && !shareMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startHelpMenu(showcase && !showcase.useAvatar);
 
@@ -2729,7 +2733,6 @@ export class AvatarPawn extends mix(CardPawn).with(
             closeAllDialogs();
 
             helpMenu = false;
-            console.log("close");
         }
     }
 
