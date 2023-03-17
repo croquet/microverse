@@ -266,15 +266,17 @@ export const PM_Pointer = superclass => class extends superclass {
 
         /* Microverse uses InputManager from Worldcore */
 
-        this.subscribe("input", "pointerDown", this.doPointerDown);
-        this.subscribe("input", "pointerUp", this.doPointerUp);
-        this.subscribe("input", "pointerMove", this.doPointerMove);
-        this.subscribe("input", "click", this.doPointerClick);
-        this.subscribe("input", "wheel", this.doPointerWheel);
-        this.subscribe("input", "doubleDown", this.doPointerDoubleDown);
-        this.subscribe("input", "tap", this.doPointerTap);
-        this.subscribe("input", "keyDown", this.doKeyDown);
-        this.subscribe("input", "keyUp", this.doKeyUp);
+        // immediate handling so handler runs inside of the DOM event handler invocation
+        // and can open links, toggle audio, etc.
+        this.subscribe("input", {event: "pointerDown", handling: "immediate"}, this.doPointerDown);
+        this.subscribe("input", {event: "pointerUp", handling: "immediate"}, this.doPointerUp);
+        this.subscribe("input", {event: "pointerMove", handling: "immediate"}, this.doPointerMove);
+        this.subscribe("input", {event: "click", handling: "immediate"}, this.doPointerClick);
+        this.subscribe("input", {event: "wheel", handling: "immediate"}, this.doPointerWheel);
+        this.subscribe("input", {event: "doubleDown", handling: "immediate"}, this.doPointerDoubleDown);
+        this.subscribe("input", {event: "tap", handling: "immediate"}, this.doPointerTap);
+        this.subscribe("input", {event: "keyDown", handling: "immediate"}, this.doKeyDown);
+        this.subscribe("input", {event: "keyUp", handling: "immediate"}, this.doKeyUp);
 
         this.firstResponders = new Map();
         this.lastResponders = new Map();
