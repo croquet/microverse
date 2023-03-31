@@ -130,6 +130,18 @@ function createHelpMenu() {
                              </div>
                          </td>
                     </tr>
+
+                    <tr class="help-row" id="voicechat-row">
+                        <td>
+                            <p class="table-head">Voice Chat</p>
+                            <p class="table-desc">Adding the argument <b>?voiceChat=true</b> to your URL bar enables Dolby.io Spatial Audio.</p>
+                        </td>
+                        <td class="icon-column">
+                            <div class="icons">
+                                <img src="../../assets/images/2020_DolbyIO.png" class="dolby-img">
+                            </div>
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>

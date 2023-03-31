@@ -888,7 +888,6 @@
 
 @media (max-width: 600px), (max-height: 600px) {
     .dialogPanel {
-        height: 80%;
         width: 90%;
         min-width: 300px;
         min-height: 300px;
@@ -970,16 +969,11 @@
 
 @media (max-width: 600px) {
     .dialogPanel {
-        height: 80%;
         width: 90%;
     }
 
     .panel-title {
         margin: 20px 0px 10px 0px;
-    }
-
-    #table-wrapper {
-        height: calc(100% - 100px);
     }
 
     .share-settings-label {
@@ -1008,4 +1002,8 @@ p#world-title {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+img.dolby-img {
+    width: 100px;
 }
