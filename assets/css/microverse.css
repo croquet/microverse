@@ -461,6 +461,7 @@ button#VRButton {
     .menu-qr {
         float: left;
         height: 100%;
+        width: 50%;
     }
 
     #worldMenuBtn:hover {
@@ -503,6 +504,7 @@ button#VRButton {
         margin-left: auto;
         margin-right: auto;
         padding: 25px;
+        width: 50%;
     }
 
     #worldMenuBtn:hover,
