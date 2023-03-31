@@ -1393,7 +1393,7 @@ export class AvatarPawn extends mix(CardPawn).with(
 
             const title = document.createElement("p");
             title.setAttribute("id", "world-title");
-            title.innerHTML = "world name";
+            title.innerHTML = "Croquet Microverse";
 
             let c = document.createElement("div");
             c.setAttribute("id", "world-info");
