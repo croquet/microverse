@@ -25,6 +25,10 @@
     width: 100%;
 }
 
+#shareDialog {
+    display: block;
+}
+
 .dialogPanel {
     display: flex;
     justify-content: center;
@@ -78,7 +82,8 @@
     font-weight: bold;
 }
 
-.promptBlurb, .share-settings-label {
+.promptBlurb,
+.share-settings-label {
     margin: 15px 0px 15px 0px;
 }
 
@@ -340,8 +345,8 @@
     background-color: #218838;
 }
 
-@media (max-width: 750px){
-    #connection-tooltip{
+@media (max-width: 750px) {
+    #connection-tooltip {
         display: none;
     }
 }
@@ -997,7 +1002,7 @@
     }
 }
 
-p#world-title{
+p#world-title {
     margin-top: 0px;
     margin-bottom: 0px;
     display: flex;
