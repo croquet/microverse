@@ -459,7 +459,6 @@ function createShareMenu(avatar) {
     const copyURL = async () => {
         try {
             await navigator.clipboard.writeText(link.innerHTML);
-            console.log(tooltip, "Content copied to clipboard");
             tooltip.style.display = "block";
             setTimeout(function () {
                 tooltip.style.display = "none";
