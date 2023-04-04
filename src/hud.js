@@ -318,6 +318,8 @@ function closeModals() {
     const modals = document.getElementsByClassName("dialogPanel")[0];
     if (modals) {
         modals.style.display = "none";
+    } else {
+        modals.style.display = "block";
     }
 }
 
