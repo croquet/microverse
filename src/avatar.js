@@ -2700,8 +2700,13 @@ export class AvatarPawn extends mix(CardPawn).with(
         let shareMenu = document.getElementById("shareDialog");
         let helpMenu = document.getElementById("helpDialog");
         let settings = document.getElementById("joinDialog");
-
         let showcase = Constants.ShowCaseSpec;
+
+        if (helpMenu) {
+            helpMenu.style.display = "none";
+            sendToShell("hud", { joystick: false, fullscreen: false });
+            startShareMenu(this, showcase && !showcase.useAvatar);
+        }
 
         if (!shareMenu && !helpMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
