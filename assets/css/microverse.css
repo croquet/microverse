@@ -504,6 +504,9 @@ button#VRButton {
         margin-left: auto;
         margin-right: auto;
         padding: 25px;
+    }
+
+    #worldMenu .menu-qr {
         width: 50%;
     }
 
