@@ -452,6 +452,16 @@ function createShareMenu(avatar) {
     let checkBox = div.querySelector("#voiceCheck");
     let voice = div.querySelector("#voiceChat");
 
+    copyLink.onclick = () => copyURL();
+
+    const copyURL = async () => {
+        try {
+            await navigator.clipboard.writeText(link.innerHTML);
+            console.log("Content copied to clipboard");
+        } catch (err) {
+            console.error("Failed to copy", err);
+        }
+    };
     checkBox.onclick = () => addVoiceChat();
 
     function addVoiceChat() {
