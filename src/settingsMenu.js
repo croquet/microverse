@@ -432,6 +432,7 @@ function createShareMenu(avatar) {
             <div class="share-menu-row">
                 <div id="copy-link" class="copy-link allow-select">generated link</div>
                 <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
+                <div id="tooltiptext" style="display:none">Copied</div>
             </div>
             <div class="promptBlurb">Or, scan QR code or click to open a new browser tab in the same session.</div>
             <div id="share-qr"></div>
@@ -451,15 +452,20 @@ function createShareMenu(avatar) {
     let saveVrseRow = div.querySelector("#save-vrse-row");
     let checkBox = div.querySelector("#voiceCheck");
     let voice = div.querySelector("#voiceChat");
+    const tooltip = div.querySelector("#tooltiptext");
 
     copyLink.onclick = () => copyURL();
 
     const copyURL = async () => {
         try {
             await navigator.clipboard.writeText(link.innerHTML);
-            console.log("Content copied to clipboard");
+            console.log(tooltip, "Content copied to clipboard");
+            tooltip.style.display = "block";
+            setTimeout(function () {
+                tooltip.style.display = "none";
+            }, 500);
         } catch (err) {
-            console.error("Failed to copy", err);
+            return;
         }
     };
     checkBox.onclick = () => addVoiceChat();
