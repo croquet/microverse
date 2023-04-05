@@ -111,7 +111,10 @@
     padding: 12px 20px;
 }
 
-#nameExplanation,
+#nameExplanation {
+    color: #007bff;
+}
+
 #nameFilterWarning {
     font-size: 13px;
     font-weight: 600;
