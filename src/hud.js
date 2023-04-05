@@ -89,7 +89,6 @@ function settingsPressed(myAvatar) {
     if (myAvatar) {
         myAvatar.showSettingsMenu();
     }
-    sendToShell("hud", { joystick: false, fullscreen: false });
 }
 
 function sharePressed(myAvatar) {
@@ -314,6 +313,15 @@ function setMenuItems(myAvatar) {
     }
 }
 
+function closeModals() {
+    let modals = document.getElementsByClassName("dialogPanel")[0];
+    if (modals) {
+        modals.style.display = "none";
+    } else {
+        modals.style.display = "block";
+    }
+}
+
 function toggleMenu(myAvatar) {
     if (worldMenuVisible) {
         sendToShell("hud", { joystick: true, fullscreen: true });
@@ -329,16 +337,6 @@ function toggleMenu(myAvatar) {
 
     worldMenuVisible = true;
     worldMenu.classList.add("menuVisible");
-
-    function closeModals() {
-        let share = document.getElementById("shareDialog");
-        let help = document.getElementById("helpDialog");
-        if (help) {
-            help.style.display = "none";
-        } else if (share) {
-            share.style.display = "none";
-        }
-    }
 
     closeModals();
 }
