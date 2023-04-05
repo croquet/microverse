@@ -27,7 +27,7 @@ function createHelpMenu() {
                         <tr class="help-row">
                             <td>
                                 <p class="table-head">Navigate</p>
-                                <p class="table-desc">Move around using the joystick, or WASD keys.</p>
+                                <p class="table-desc">Move around using the joystick or WASD keys.</p>
                             </td>
                             <td class="icon-column">
                                 <div class="icons">
@@ -48,7 +48,7 @@ function createHelpMenu() {
                     <tr class="help-row" id="manipulate-row">
                         <td>
                             <p class="table-head">Manipulate</p>
-                            <p class="table-desc">Ctrl + click on an object to open and cycle through the "gizmo" tools. The icon of a multi-pane tool is a button to open the property sheet tool.</p>
+                            <p class="table-desc">Ctrl + click (on PC) or CMD + Click (on Mac) on an object to open and cycle through the "gizmo" tools. The icon of a multi-pane tool is a button to open the property sheet.</p>
                         </td>
                         <td class="icon-column">
                             <div class="icons">
@@ -81,7 +81,7 @@ function createHelpMenu() {
                     <tr class="help-row" id="import-row">
                         <td>
                             <p class="table-head">Import</p>
-                            <p class="table-desc">Import from your device or drag and drop it in to the Microverse.</p>
+                            <p class="table-desc">Import from your device or drag and drop it into the Microverse.</p>
                             <p class="table-desc">
                             Supported formats are:<br>
                             
@@ -111,7 +111,7 @@ function createHelpMenu() {
                      <tr class="help-row">
                          <td>
                              <p class="table-head">Invite</p>
-                             <p class="table-desc">Save your Microverse as a .vrse file to share or use the QR code to share the session with others.</p>
+                             <p class="table-desc">Use the QR code or the share link to share the session with others.</p>
                          </td>
                          <td class="icon-column">
                              <div class="icons">
@@ -122,7 +122,7 @@ function createHelpMenu() {
                      <tr class="help-row" id="settings-row">
                          <td>
                              <p class="table-head">Settings</p>
-                             <p class="table-desc">Update your in-world nickname, select from default avatars or paste a link to your own.</p>
+                             <p class="table-desc">Update your in-world nickname, select from default avatars, or, paste a link to your own.</p>
                          </td>
                          <td class="icon-column">
                              <div class="icons">
