@@ -147,11 +147,11 @@ function initWorldMenu(badge) {
 
     let buttons = `
 <div id="worldMenu-load" class="menu-label menu-item">
-    <i class="fa-solid fa-upload menu-icon"></i>
+    <i class="fas fa-solid fa-upload menu-icon"></i>
     <span class="menu-label-text">Import</span>
 </div>
 <div id="worldMenu-connect" class="menu-label menu-item">
-    <i class="fa-solid fa-link menu-icon"></i>
+    <i class="fas fa-solid fa-link menu-icon"></i>
     <span class="menu-label-text" id="connectBtn">Connect</span>
 </div>
 <div id="worldMenu-gather" class="menu-label menu-item">
@@ -159,12 +159,12 @@ function initWorldMenu(badge) {
     <span class="menu-label-text">Gather</span>
 </div>
 <div id="worldMenu-settings" class="menu-label menu-item">
-    <i class="fa-solid fa-gear menu-icon"></i>
+    <i class="fas fa-solid fa-gear menu-icon"></i>
     <span class="menu-label-text">Settings</span>
 </div>
 <hr>
 <div id="fullscreenBtn" class="menu-label menu-item">
-    <i class="fas fa-solid fa-expand icons menu-icon"></i>
+    <i class="fas fa-solid fa-expand menu-icon"></i>
     <span class="menu-label-text">Fullscreen</span>
 </div>
 

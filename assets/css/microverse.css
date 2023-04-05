@@ -188,7 +188,7 @@ body.tilt > iframe {
     align-items: center;
     transition: opacity 0.5s;
     cursor: pointer;
-    width: 25%;
+    text-align: center;
 }
 
 .menu-label:hover {
