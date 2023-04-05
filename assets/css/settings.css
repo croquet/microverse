@@ -265,31 +265,12 @@
     top: 10px;
 }
 
-#chatCount > .joined {
+#chatCount {
     position: absolute;
     width: 30px;
     top: 0px;
     color: #212529;
     background-color: #ffc107;
-    display: inline-block;
-    padding: 0.25em 0.4em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: baseline;
-    border-radius: 0.25rem;
-    z-index: 1;
-    margin-left: 35px;
-}
-
-#chatCount > .notJoined {
-    position: absolute;
-    width: 30px;
-    top: 0px;
-    color: #212529;
-    background-color: red;
     display: inline-block;
     padding: 0.25em 0.4em;
     font-size: 75%;
