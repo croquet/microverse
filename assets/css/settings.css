@@ -935,7 +935,6 @@
 @media (max-height: 600px) {
     .dialogPanel {
         width: 80%;
-        height: 300px;
     }
 
     .panel-title {
