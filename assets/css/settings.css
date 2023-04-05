@@ -25,10 +25,6 @@
     width: 100%;
 }
 
-#shareDialog {
-    display: block;
-}
-
 .dialogPanel {
     display: flex;
     justify-content: center;
@@ -1042,4 +1038,8 @@ img.dolby-img {
 
 a.dolby-link {
     color: white;
+}
+
+.remove {
+    display: none;
 }

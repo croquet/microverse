@@ -314,7 +314,7 @@ function setMenuItems(myAvatar) {
 }
 
 function toggleMenu(myAvatar) {
-    let settings = document.getElementById("joinDialog");
+    closeAllDialogs();
     if (worldMenuVisible) {
         sendToShell("hud", { joystick: true, fullscreen: true });
 
