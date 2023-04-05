@@ -427,8 +427,6 @@ function createShareMenu(avatar) {
         <div id="share-container" class="content-container">
             <div id="share-title" class="panel-title">Invite Users<br></div>
             <div class="share-settings-label">Send an invite link to a friend</div>
-            <label><input type="checkbox" id="voiceCheck">Enable Voice Chat</label>
-            <div id="voiceChat"></div>
             <div class="share-menu-row">
                 <div id="copy-link" class="copy-link allow-select">generated link</div>
                 <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
@@ -467,18 +465,6 @@ function createShareMenu(avatar) {
             return;
         }
     };
-    checkBox.onclick = () => addVoiceChat();
-
-    function addVoiceChat() {
-        if (checkBox.checked == true) {
-            voice.style.display = "block";
-            voice.innerHTML = "?voiceChat=true";
-            return voice;
-        } else if (checkBox.checked == false) {
-            voice.style.display = "none";
-        }
-    }
-
     filterDomEventsOn(shareDialog);
 
     let badge = App.makeQRCanvas();
