@@ -313,16 +313,8 @@ function setMenuItems(myAvatar) {
     }
 }
 
-function closeModals() {
-    let modals = document.getElementsByClassName("dialogPanel")[0];
-    if (modals) {
-        modals.style.display = "none";
-    } else {
-        modals.style.display = "block";
-    }
-}
-
 function toggleMenu(myAvatar) {
+    let settings = document.getElementById("joinDialog");
     if (worldMenuVisible) {
         sendToShell("hud", { joystick: true, fullscreen: true });
 
@@ -337,8 +329,6 @@ function toggleMenu(myAvatar) {
 
     worldMenuVisible = true;
     worldMenu.classList.add("menuVisible");
-
-    closeModals();
 }
 
 export function updateWorldMenu(myAvatar) {

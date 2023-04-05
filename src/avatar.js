@@ -2664,10 +2664,11 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     showSettingsMenu() {
+        console.log("show settings");
         let shareMenu = document.getElementById("shareDialog");
         let helpMenu = document.getElementById("helpDialog");
-
-        if (!helpMenu && !shareMenu) {
+        let settings = document.getElementById("joinDialog");
+        if (!shareMenu && !helpMenu) {
             let promise = new Promise((resolve, _reject) => {
                 let showcase = Constants.ShowCaseSpec;
                 startSettingsMenu(
@@ -2691,12 +2692,17 @@ export class AvatarPawn extends mix(CardPawn).with(
                     this.modelHasLoaded = false;
                 }
             });
-        } else {
-            return;
+            sendToShell("hud", { joystick: false, fullscreen: false });
+        } else if (settings) {
+            sendToShell("hud", { joystick: true, fullscreen: true });
+            closeAllDialogs();
+
+            settings = false;
         }
     }
 
     showShareMenu() {
+        console.log("show share");
         let shareMenu = document.getElementById("shareDialog");
         let helpMenu = document.getElementById("helpDialog");
         let settings = document.getElementById("joinDialog");
@@ -2722,6 +2728,7 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     showHelpMenu() {
+        console.log("show help");
         let helpMenu = document.getElementById("helpDialog");
         let shareMenu = document.getElementById("shareDialog");
         let settings = document.getElementById("joinDialog");
