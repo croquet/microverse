@@ -349,6 +349,7 @@ body.tilt > iframe {
     grid-column: 1;
     grid-row: 2 / 1;
     background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 0px 0px 0px 10px;
 }
 
 #world-info-container {
