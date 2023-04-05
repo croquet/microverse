@@ -139,7 +139,7 @@ function createHelpMenu() {
                         </td>
                         <td class="icon-column">
                             <div class="icons">
-                                <img src="../../assets/images/2020_DolbyIO.png" class="dolby-img">
+                                <img src="../assets/images/2020_DolbyIO.png" class="dolby-img">
                             </div>
                         </td>
                     </tr>
