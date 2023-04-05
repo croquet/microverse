@@ -134,8 +134,8 @@ function createHelpMenu() {
                     <tr class="help-row" id="voicechat-row">
                         <td>
                             <p class="table-head">Voice Chat</p>
-                            <p class="table-desc">Croquet Microverse Worlds support Dolby.io Spatial Voice Call technology. Voice chat is enabled for people with the voiceChat=true query parameter in a World's URL.
-                            You can toggle this query parameter in a world's Share menu.</p>
+                            <p class="table-desc">Croquet Microverse sessions support <a href="https://dolby.io/products/voice-call/" class="dolby-link" target="_blank">Dolby.io Spatial Voice Call</a> technology for communicating using realistic spatial audio.
+                            </p>
                         </td>
                         <td class="icon-column">
                             <div class="icons">

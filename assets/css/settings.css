@@ -1039,3 +1039,7 @@ img.dolby-img {
 .visible {
     display: block;
 }
+
+a.dolby-link {
+    color: white;
+}
