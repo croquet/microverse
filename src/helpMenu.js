@@ -122,7 +122,7 @@ function createHelpMenu() {
                      <tr class="help-row" id="settings-row">
                          <td>
                              <p class="table-head">Settings</p>
-                             <p class="table-desc">Update your in-world nickname, select from default avatars, or, paste a link to your own.</p>
+                             <p class="table-desc">Update your in-world nickname, select from default avatars, or paste a link to your own.</p>
                          </td>
                          <td class="icon-column">
                              <div class="icons">
