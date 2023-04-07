@@ -842,29 +842,18 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.video.muted = muted;
             this.video.loop = loop;
             this.video.controls = false;
-            texturePromise = this.getBuffer(textureLocation).then((bufferOrObj) => {
-                if (bufferOrObj.buffer) {
-                    return new Promise((resolve, _reject) => {
-                        let objectURL = URL.createObjectURL(new Blob([bufferOrObj.buffer], {type: "video/mp4"}));
-                        this.video.src = objectURL;
-                        this.video.preload = "metadata";
-                        this.objectURL = objectURL;
-                        this.videoPromiseResolved = true;
-                        setTimeout(() => resolve(bufferOrObj), 10);
-                    });
-                }
-
-                let objectURL = URL.createObjectURL(new Blob([bufferOrObj], {type: "video/mp4"}));
+            texturePromise = this.getBuffer(textureLocation).then((buffer) => {
+                let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
                 this.video.preload = "metadata";
                 this.objectURL = objectURL;
                 this.videoPromiseResolved = false;
                 return new Promise((resolve, reject) => {
                     this.video.onloadeddata = resolve;
-                    this.video.onloadedmetadata = resolve(bufferOrObj);
+                    this.video.onloadedmetadata = resolve;
                     this.video.onerror = reject;
                 });
-            }).then((buffer) => {
+            }).then(() => {
                 if (!this.videoPromiseResolved) {
                     this.videoPromiseResolved = true;
                     this.video.onloadeddata = null;
@@ -881,7 +870,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 return {
                     width: this.video.width,
                     height: this.video.height,
-                    buffer: buffer,
                     texture: this.texture
                 }
             });
