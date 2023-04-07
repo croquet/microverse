@@ -5,6 +5,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-04-07
+### Fixed
+- Dolby.io echo cancellation is fixed by calling getUserMedia() carefully.
+
+### Changed
+- View side user event handling uses immediate event handling.
+
+### Added
+- Some documentations added.
+
 ## 2023-02-10
 ### Added
 - show hit point in XR
