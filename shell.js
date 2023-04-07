@@ -95,6 +95,30 @@ class Shell {
             }
         });
 
+        this.fullscreenBtn = document.getElementById("fullscreenBtn");
+        if (this.fullscreenBtn) {
+            this.fullscreenBtn.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (e.shiftKey) {
+                    document.body.classList.toggle("tilt");
+                    return;
+                }
+
+                if (!document.fullscreenElement) {
+                    // If the document is not in full screen mode
+                    // make the document full screen
+                    document.body.requestFullscreen();
+                } else {
+                    // Otherwise exit the full screen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            }
+        }
+
         // joystick sends events into primary frame
         this.capturedPointers = {};
         this.joystick = document.getElementById("joystick");

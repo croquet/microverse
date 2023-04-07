@@ -5,67 +5,21 @@
 /* globals XRRigidTransform */
 
 import {
-    Data,
-    App,
-    View,
-    Constants,
-    mix,
-    GetPawn,
-    AM_Player,
-    PM_Player,
-    v3_zero,
-    v3_isZero,
-    v3_add,
-    v3_sub,
-    v3_scale,
-    v3_sqrMag,
-    v3_normalize,
-    v3_rotate,
-    v3_multiply,
-    v3_lerp,
-    v3_transform,
-    v3_magnitude,
-    v3_equals,
-    q_isZero,
-    q_normalize,
-    q_pitch,
-    q_yaw,
-    q_roll,
-    q_identity,
-    q_euler,
-    q_axisAngle,
-    q_slerp,
-    q_multiply,
-    q_equals,
-    m4_multiply,
-    m4_rotationQ,
-    m4_rotationY,
-    m4_translation,
-    m4_invert,
-    m4_getTranslation,
-    m4_getRotation,
+    Data, App, View, Constants, mix, GetPawn, AM_Player, PM_Player,
+    v3_zero, v3_isZero, v3_add, v3_sub, v3_scale, v3_sqrMag, v3_normalize, v3_rotate, v3_multiply, v3_lerp, v3_transform, v3_magnitude, v3_equals,
+    q_isZero, q_normalize, q_pitch, q_yaw, q_roll, q_identity, q_euler, q_axisAngle, q_slerp, q_multiply, q_equals,
+    m4_multiply, m4_rotationQ, m4_rotationY, m4_translation, m4_invert, m4_getTranslation, m4_getRotation,
 } from "@croquet/worldcore-kernel";
 import { THREE, PM_ThreeCamera, PM_ThreeVisible } from "./ThreeRender.js";
 
-import {
-    frameName,
-    isPrimaryFrame,
-    addShellListener,
-    removeShellListener,
-    sendToShell,
-} from "./frame.js";
-import { PM_Pointer } from "./Pointer.js";
-import { CardActor, CardPawn } from "./card.js";
+import { frameName, isPrimaryFrame, addShellListener, removeShellListener, sendToShell } from "./frame.js";
+import {PM_Pointer} from "./Pointer.js";
+import {CardActor, CardPawn} from "./card.js";
 // import { TextFieldActor } from "./text/text.js";
 
-import {
-    setupWorldMenuButton,
-    filterDomEventsOn,
-    updateWorldMenu,
-} from "./hud.js";
+import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 import { startHelpMenu } from "./helpMenu.js";
-import { closeAllDialogs } from "./hud.js";
 
 const EYE_HEIGHT = 1.676;
 const PORTAL_DISTANCE = 0.4; // tuned to the girth of the avatars
@@ -90,7 +44,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
         this.fall = false;
         this.tug = 0.05; // minimize effect of unstable wifi
-        this.set({ tickStep: 30 });
+        this.set({tickStep: 30});
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startFalling", this.startFalling);
@@ -106,16 +60,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("addSticky", this.addSticky);
         this.listen("textPasted", this.textPasted);
         this.listen("resetStartPosition", this.resetStartPosition);
-        this.subscribe(
-            "playerManager",
-            "presentationStarted",
-            this.presentationStarted
-        );
-        this.subscribe(
-            "playerManager",
-            "presentationStopped",
-            this.presentationStopped
-        );
+        this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
+        this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
         this.subscribe("actorManager", "destroyed", this.actorDestroyed);
 
         this.listen("leavePresentation", this.leavePresentation);
@@ -137,26 +83,16 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.publish("playerManager", "detailsUpdated");
     }
 
-    get pawn() {
-        return AvatarPawnFactory;
-    }
-    get lookNormal() {
-        return v3_rotate([0, 0, -1], this.rotation);
-    }
+    get pawn() { return AvatarPawnFactory; }
+    get lookNormal() { return v3_rotate([0, 0, -1], this.rotation); }
 
     // used by the BVH based walking logic. customizable when the avatar is not a human size.
-    get collisionRadius() {
-        return this._cardData.collisionRadius || COLLISION_RADIUS;
-    }
-    get inWorld() {
-        return !!this._inWorld;
-    } // our user is either in this world or render
+    get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
+    get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
     ensureNicknameCard() {
         if (!this.inWorld) return;
-        if (this._cardData.noNicknameCard) {
-            return;
-        }
+        if (this._cardData.noNicknameCard) {return;}
 
         const nickname = this._name;
         if (!nickname) {
@@ -172,9 +108,9 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
         if (!this.nicknameCard) {
             const marginLeft = (PADDING - MARGIN_FUDGE) / TEXT_SCALE;
-            const marginTop = (PADDING * 1.1) / TEXT_SCALE;
+            const marginTop = PADDING * 1.1 / TEXT_SCALE;
             const options = {
-                name: "nickname",
+                name: 'nickname',
                 behaviorModules: ["Billboard"],
                 translation: [0, 1, -0.1], // above and slightly in front
                 type: "text",
@@ -192,26 +128,16 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 noDismissButton: true,
                 noSave: true,
                 avatarParts: true,
-                parent: this,
+                parent: this
             };
             this.nicknameCard = this.createCard(options);
         }
 
-        const measurement =
-            this.getTextFieldActorClass().defaultMeasurement(nickname);
-        const signWidth = Math.min(
-            measurement.width * TEXT_SCALE + 2 * PADDING,
-            2
-        );
-        const signHeight = Math.min(
-            measurement.height * TEXT_SCALE + 2 * PADDING,
-            0.4
-        );
-        this.nicknameCard.load([{ text: nickname, style: { color: "white" } }]);
-        this.nicknameCard.setExtent({
-            width: signWidth / TEXT_SCALE,
-            height: signHeight / TEXT_SCALE,
-        });
+        const measurement = this.getTextFieldActorClass().defaultMeasurement(nickname);
+        const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
+        const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
+        this.nicknameCard.load([{text: nickname, style: {color: 'white'}}]);
+        this.nicknameCard.setExtent({width: signWidth / TEXT_SCALE, height: signHeight / TEXT_SCALE});
     }
 
     removeNicknameCard() {
@@ -223,18 +149,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     // The user leaves the "guided tour".
     leavePresentation() {
-        if (!this.follow) {
-            return;
-        }
+        if (!this.follow) {return;}
 
         let manager = this.service("PlayerManager");
         let presentationMode = manager.presentationMode;
-        if (!presentationMode) {
-            return;
-        }
+        if (!presentationMode) {return;}
         if (this.follow !== this.playerId) {
             this.presentationStopped();
-            this.say("setLookAngles", { lookOffset: [0, 0, 0] });
+            this.say("setLookAngles", {lookOffset: [0, 0, 0]});
             manager.leavePresentation(this.playerId);
         }
     }
@@ -248,12 +170,12 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.service("PlayerManager").stopPresentation();
     }
 
-    inWorldSet({ o, v }) {
+    inWorldSet({o, v}) {
         if (!o !== !v) this.service("PlayerManager").playerInWorldChanged(this);
         if (v) this.ensureNicknameCard();
     }
 
-    nameSet({ o, v }) {
+    nameSet({o, v}) {
         if (o !== v) this.ensureNicknameCard();
     }
 
@@ -267,20 +189,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let lookPitch = 0;
         let lookYaw = 0;
         if (!anchor || !anchor._cardData) {
-            return { lookOffset, lookPitch, lookYaw };
+            return {lookOffset, lookPitch, lookYaw};
         }
 
         let anchorData = anchor._cardData;
-        if (anchorData.lookOffset) {
-            lookOffset = anchorData.lookOffset;
-        }
-        if (anchorData.lookPitch) {
-            lookPitch = anchorData.lookPitch;
-        }
-        if (anchorData.lookYaw) {
-            lookYaw = anchorData.lookYaw;
-        }
-        return { lookOffset, lookPitch, lookYaw };
+        if (anchorData.lookOffset) {lookOffset = anchorData.lookOffset;}
+        if (anchorData.lookPitch) {lookPitch = anchorData.lookPitch;}
+        if (anchorData.lookYaw) {lookYaw = anchorData.lookYaw;}
+        return {lookOffset, lookPitch, lookYaw};
     }
 
     resetStartPosition() {
@@ -298,12 +214,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     onLookTo(data) {
         let [pitch, yaw, lookOffset] = data;
-        if (pitch !== undefined) {
-            this.lookPitch = pitch;
-        }
-        if (yaw !== undefined) {
-            this.lookYaw = yaw;
-        }
+        if (pitch !== undefined) {this.lookPitch = pitch;}
+        if (yaw !== undefined) {this.lookYaw = yaw;}
         if (lookOffset !== undefined) this.lookOffset = lookOffset;
         this.rotateTo(q_euler(0, this.lookYaw, 0));
         this.restoreTargetId = undefined; // if you look around, you can't jump back
@@ -323,11 +235,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.lookOffset = look.lookOffset;
         this.lookPitch = look.lookPitch;
         this.lookYaw = look.lookYaw;
-        this.say("setLookAngles", {
-            pitch: this.lookPitch,
-            yaw: this.lookYaw,
-            lookOffset: this.lookOffset,
-        });
+        this.say("setLookAngles", {pitch: this.lookPitch, yaw: this.lookYaw, lookOffset: this.lookOffset});
     }
 
     goTo(v, q, fall, look) {
@@ -338,11 +246,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.qEnd = q;
         this.fall = fall;
         if (look) {
-            this.lookStart = {
-                lookPitch: this.lookPitch,
-                lookYaw: this.lookYaw,
-                lookOffset: this.lookOffset,
-            };
+            this.lookStart = {lookPitch: this.lookPitch, lookYaw: this.lookYaw, lookOffset: this.lookOffset};
             this.lookEnd = look;
         }
         this.goToStep(0.1);
@@ -354,8 +258,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.vStart = this.translation;
         this.qStart = this.rotation;
 
-        if (!this.fall && p3d.targetId === this.restoreTargetId) {
-            // jumpback if you are  doubleclicking on the same target you did before
+        if (!this.fall && (p3d.targetId === this.restoreTargetId)) { // jumpback if you are  doubleclicking on the same target you did before
             this.vEnd = this.restoreTranslation;
             this.qEnd = this.restoreRotation;
             delete this.restoreRotation;
@@ -368,15 +271,12 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             this.restoreTargetId = p3d.targetId;
             let normal = [...(p3d.normal || this.lookNormal)]; //target normal may not exist
             let point = p3d.xyz;
-            this.vEnd = v3_add(
-                point,
-                v3_scale(normal, p3d.offset || EYE_HEIGHT)
-            );
+            this.vEnd = v3_add(point, v3_scale(normal, p3d.offset || EYE_HEIGHT));
             normal[1] = 0; // clear up and down
             let nsq = v3_sqrMag(normal);
             if (nsq < 0.0001) {
                 this.qEnd = this.rotation; // use the current rotation
-            } else {
+            }else {
                 normal = v3_normalize(normal);
                 let theta = Math.atan2(normal[0], normal[2]);
                 this.qEnd = q_euler(0, theta, 0);
@@ -386,7 +286,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 let yaw = q_yaw(this.qEnd);
                 this.lookPitch = pitch;
                 this.lookYaw = yaw;
-                this.say("setLookAngles", { pitch, yaw });
+                this.say("setLookAngles", {pitch, yaw});
             }
         }
         this.goToStep(0.1);
@@ -420,11 +320,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     presentationStarted() {
         // the PlayerManager has already decided which players are in the presentation
         const { presenter, followers } = this.service("PlayerManager");
-        if (
-            presenter.playerId === this.playerId ||
-            !followers.has(this.playerId)
-        )
-            return;
+        if (presenter.playerId === this.playerId || !followers.has(this.playerId)) return;
 
         this._translation = presenter.translation;
         this._rotation = presenter.rotation;
@@ -459,23 +355,13 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (t >= 1) t = 1;
         let v = v3_lerp(this.vStart, this.vEnd, t);
         let q = q_slerp(this.qStart, this.qEnd, t);
-        this.positionTo({ v, q });
+        this.positionTo({v, q});
 
         if (this.lookStart && this.lookEnd) {
-            let lookPitch =
-                this.lookStart.lookPitch * (1 - t) + this.lookEnd.lookPitch * t;
-            let lookYaw =
-                this.lookStart.lookYaw * (1 - t) + this.lookEnd.lookYaw * t;
-            let lookOffset = v3_lerp(
-                this.lookStart.lookOffset,
-                this.lookEnd.lookOffset,
-                t
-            );
-            this.say("setLookAngles", {
-                pitch: lookPitch,
-                yaw: lookYaw,
-                lookOffset: lookOffset,
-            });
+            let lookPitch = this.lookStart.lookPitch * (1 - t) + this.lookEnd.lookPitch * t;
+            let lookYaw = this.lookStart.lookYaw * (1 - t) + this.lookEnd.lookYaw * t;
+            let lookOffset = v3_lerp(this.lookStart.lookOffset, this.lookEnd.lookOffset, t);
+            this.say("setLookAngles", {pitch: lookPitch, yaw: lookYaw, lookOffset: lookOffset});
         }
 
         this.say("forceOnPosition");
@@ -487,22 +373,13 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     // A following avatar updates its pose based on leader's pose, and updates its pawn
     tick(_delta) {
         if (this.follow) {
-            let followMe = this.service("PlayerManager").players.get(
-                this.follow
-            );
+            let followMe = this.service("PlayerManager").players.get(this.follow);
             if (followMe) {
-                this.positionTo({
-                    v: followMe._translation,
-                    q: followMe._rotation,
-                });
+                this.positionTo({v: followMe._translation, q: followMe._rotation});
                 this.lookOffset = followMe.lookOffset;
                 this.lookPitch = followMe.lookPitch;
                 this.lookYaw = followMe.lookYaw;
-                this.say("setLookAngles", {
-                    pitch: followMe.lookPitch,
-                    yaw: followMe.lookYaw,
-                    lookOffset: followMe.lookOffset,
-                });
+                this.say("setLookAngles", {pitch: followMe.lookPitch, yaw: followMe.lookYaw, lookOffset: followMe.lookOffset});
             } else {
                 this.presentationStopped();
             }
@@ -518,29 +395,24 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let r = this.rotation;
         if (!optOffset) {
             let p = v3_add(v3_scale(n, distance), t);
-            return { translation: p, rotation: r };
+            return {translation: p, rotation: r};
         }
 
         let q = q_euler(0, -Math.PI / 2, 0);
         let perpendicular = v3_rotate(n, q);
         let offset = v3_multiply(optOffset, perpendicular);
         let p = v3_add(v3_add(v3_scale(n, distance), t), offset);
-        return { translation: p, rotation: r };
+        return {translation:p, rotation:r};
     }
 
     // invoked in response to a file drop.
     fileUploaded(data) {
-        let handler = this.behaviorManager.lookup(
-            "FileDragAndDropHandler",
-            "FileDragAndDropActor"
-        );
-        if (!handler) {
-            return;
-        }
+        let handler = this.behaviorManager.lookup("FileDragAndDropHandler", "FileDragAndDropActor");
+        if (!handler) {return;}
         return handler.invoke(this, "fileUploaded", data);
     }
 
-    textPasted({ string, translation, rotation }) {
+    textPasted({string, translation, rotation}) {
         if (string.startsWith("http://") || string.startsWith("https://")) {
             this.createPortal(translation, rotation, string);
         } else {
@@ -551,9 +423,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     addSticky(pe) {
-        if (!this.behaviorManager.hasBehavior("StickyNote")) {
-            return;
-        }
+        if (!this.behaviorManager.hasBehavior("StickyNote")) {return;}
         const tackOffset = 0.1;
         let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
         let normal = [...pe.normal]; // clear up and down
@@ -576,22 +446,22 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         if (!text) {
             text = "";
         }
-        runs.push({ text });
+        runs.push({text});
         let options = {
-            name: "sticky note",
+            name:'sticky note',
             className: "TextFieldActor",
             behaviorModules: ["StickyNote"],
             translation,
             rotation,
             type: "text",
             depth: 0.05,
-            margins: { left: 20, top: 20, right: 20, bottom: 20 },
+            margins: {left: 20, top: 20, right: 20, bottom: 20},
             backgroundColor: 0xf4e056,
             frameColor: 0xfad912,
             runs,
             width: 1,
             height: 1,
-            textScale: 0.002,
+            textScale: 0.002
         };
 
         this.createCard(options);
@@ -605,24 +475,18 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     addOrCycleGizmo(data) {
-        let { target, viewId } = data;
+        let {target, viewId} = data;
         if (!this.gizmo) {
-            if (!this.behaviorManager.modules.get("Gizmo")) {
-                return;
-            }
+            if (!this.behaviorManager.modules.get("Gizmo")) {return;}
             this.gizmo = this.createCard({
                 translation: m4_getTranslation(target.global),
-                name: "gizmo",
+                name: 'gizmo',
                 behaviorModules: ["Gizmo"],
                 // parent: target.parent,
                 type: "object",
                 noSave: true,
             });
-            this.gizmo.call("Gizmo$GizmoActor", "initializeGizmo", {
-                parent: target.parent,
-                target,
-                creatorId: viewId,
-            });
+            this.gizmo.call("Gizmo$GizmoActor", "initializeGizmo", {parent: target.parent, target, creatorId: viewId});
         } else {
             this.publish(this.gizmo.id, "cycleModes");
         }
@@ -646,7 +510,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             rotation,
             type: "2d",
             layers: ["pointer"],
-            color: 0xff66cc,
+            color: 0xFF66CC,
             frameColor: 0x888888,
             width: 3,
             height: 3,
@@ -681,10 +545,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 options.behaviorModules = [handlerModuleName];
             } else {
                 if (!options.behaviorModules.includes(handlerModuleName)) {
-                    options.behaviorModules = [
-                        ...options.behaviorModules,
-                        handlerModuleName,
-                    ];
+                    options.behaviorModules = [...options.behaviorModules, handlerModuleName];
                 }
             }
         }
@@ -696,7 +557,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 }
 
-AvatarActor.register("AvatarActor");
+AvatarActor.register('AvatarActor');
 
 class AvatarPawnFactory extends View {
     constructor(actor) {
@@ -708,90 +569,80 @@ class AvatarPawnFactory extends View {
     }
 }
 
-const PM_SmoothedDriver = (superclass) =>
-    class extends superclass {
-        constructor(options) {
-            super(options);
-            this.throttle = 125; //ms
-            this.ignore("scaleSet");
-            this.ignore("rotationSet");
-            this.ignore("translationSet");
-            this.ignore("positionSet");
-        }
+const PM_SmoothedDriver = superclass => class extends superclass {
+    constructor(options) {
+        super(options);
+        this.throttle = 125; //ms
+        this.ignore("scaleSet");
+        this.ignore("rotationSet");
+        this.ignore("translationSet");
+        this.ignore("positionSet");
+    }
 
-        // If our global changes, so do the globals of our children
-        globalChanged() {
-            if (
-                !this._global &&
-                this.renderObject &&
-                !this.renderObject.matrixWorldNeedsUpdate
-            ) {
-                this.refreshDrawTransform();
-                if (this.children) {
-                    this.children.forEach((child) => child.onGlobalChanged());
-                }
+    // If our global changes, so do the globals of our children
+    globalChanged() {
+        if (!this._global && this.renderObject && !this.renderObject.matrixWorldNeedsUpdate) {
+            this.refreshDrawTransform();
+            if (this.children)  {
+                this.children.forEach(child => child.onGlobalChanged());
             }
         }
+    }
 
-        positionTo(v, q, throttle) {
-            if (!this.actor.follow) {
-                throttle = throttle || this.throttle;
-                // we have special case here for avatar movement
-                if (
-                    v3_equals(this.actor.translation, v, 0) &&
-                    q_equals(this.actor.rotation, q, 0)
-                ) {
-                    return;
-                }
+    positionTo(v, q, throttle) {
+        if (!this.actor.follow) {
+            throttle = throttle || this.throttle;
+            // we have special case here for avatar movement
+            if (v3_equals(this.actor.translation, v, 0) && q_equals(this.actor.rotation, q, 0)) {return;}
 
-                this._translation = v;
-                this._rotation = q;
-                this.onLocalChanged();
-                this.isTranslating = false;
-                this.isRotating = false;
-            }
-            super.positionTo(v, q, throttle);
-            this.globalChanged();
+            this._translation = v;
+            this._rotation = q;
+            this.onLocalChanged();
+            this.isTranslating = false;
+            this.isRotating = false;
         }
+        super.positionTo(v, q, throttle);
+        this.globalChanged();
+    }
 
-        scaleTo(v, throttle) {
-            if (!this.actor.follow) {
-                throttle = throttle || this.throttle;
-                this._scale = v;
-                this.onLocalChanged();
-                this.isScaling = false;
-            }
-            super.scaleTo(v, throttle);
-            this.globalChanged();
+    scaleTo(v, throttle) {
+        if (!this.actor.follow) {
+            throttle = throttle || this.throttle;
+            this._scale = v;
+            this.onLocalChanged();
+            this.isScaling = false;
         }
+        super.scaleTo(v, throttle);
+        this.globalChanged();
+    }
 
-        rotateTo(q, throttle) {
-            if (!this.actor.follow) {
-                throttle = throttle || this.throttle;
-                this._rotation = q;
-                this.onLocalChanged();
-                this.isRotating = false;
-            }
-            super.rotateTo(q, throttle);
-            this.globalChanged();
+    rotateTo(q, throttle) {
+        if (!this.actor.follow) {
+            throttle = throttle || this.throttle;
+            this._rotation = q;
+            this.onLocalChanged();
+            this.isRotating = false;
         }
+        super.rotateTo(q, throttle);
+        this.globalChanged();
+    }
 
-        translateTo(v, throttle) {
-            if (!this.actor.follow) {
-                throttle = throttle || this.throttle;
-                this._translation = v;
-                this.isTranslating = false;
-                this.onLocalChanged();
-            }
-            super.translateTo(v, throttle);
-            this.globalChanged();
+    translateTo(v, throttle)  {
+        if (!this.actor.follow) {
+            throttle = throttle || this.throttle;
+            this._translation = v;
+            this.isTranslating = false;
+            this.onLocalChanged();
         }
-    };
+        super.translateTo(v, throttle);
+        this.globalChanged();
+    }
+}
 
 function setModelOpacity(model, visible, opacity) {
     let transparent = opacity !== 1;
     model.visible = visible;
-    model.traverse((n) => {
+    model.traverse(n => {
         n.renderOrder = 10000; // render this only after everything else
         if (n.material && n.material.opacity !== opacity) {
             n.material.opacity = opacity;
@@ -824,20 +675,14 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
     }
 
     setOpacity(opacity) {
-        if (!this.shape) {
-            return;
-        }
+        if (!this.shape) {return;}
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
-            opacity = this.call(
-                `${handlerModuleName}$AvatarPawn`,
-                "mapOpacity",
-                opacity
-            );
+            opacity = this.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", opacity);
         }
         let transparent = opacity !== 1;
         this.shape.visible = this.actor.inWorld && opacity !== 0;
-        this.shape.traverse((n) => {
+        this.shape.traverse(n => {
             if (n.material) {
                 n.material.opacity = opacity;
                 n.material.transparent = transparent;
@@ -869,13 +714,7 @@ class RemoteAvatarPawn extends mix(CardPawn).with(PM_Player, PM_ThreeVisible) {
 let dormantAvatarSpec = null;
 let useDormantAvatarSpec = true;
 
-export class AvatarPawn extends mix(CardPawn).with(
-    PM_Player,
-    PM_SmoothedDriver,
-    PM_ThreeVisible,
-    PM_ThreeCamera,
-    PM_Pointer
-) {
+export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver, PM_ThreeVisible, PM_ThreeCamera, PM_Pointer) {
     constructor(actor) {
         super(actor);
 
@@ -905,12 +744,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         this.yawDirection = this.isMobile ? -1 : 1;
         this.pitchDirection = this.isMobile ? 1 : -1;
 
-        this.portalcaster = new THREE.Raycaster(
-            new THREE.Vector3(),
-            new THREE.Vector3(),
-            0,
-            PORTAL_DISTANCE
-        );
+        this.portalcaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(), 0, PORTAL_DISTANCE);
 
         this.fadeNearby();
         if (this.fadeNearbyInterval) {
@@ -919,9 +753,10 @@ export class AvatarPawn extends mix(CardPawn).with(
         }
         this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
-        document
-            .getElementById("editModeBtn")
-            .setAttribute("mobile", this.isMobile);
+        document.getElementById("homeBtn").onclick = () => this.goHome();
+        filterDomEventsOn(document.getElementById("homeBtn"));
+
+        document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
         document.getElementById("editModeBtn").setAttribute("pressed", false);
 
         let editButton = document.getElementById("editModeBtn");
@@ -940,22 +775,15 @@ export class AvatarPawn extends mix(CardPawn).with(
 
         if (this.actor.behaviorManager.hasBehavior("FileDragAndDropHandler")) {
             // drop and paste
-            this.service("AssetManager").assetManager.setupHandlersOn(
-                document,
-                (buffer, fileName, type) => {
-                    if (type === "pastedtext") {
-                        this.pasteText(buffer);
-                    } else if (type === "vrse") {
-                        this.loadvrse(buffer);
-                    } else {
-                        this.analyzeAndUploadFile(
-                            new Uint8Array(buffer),
-                            fileName,
-                            type
-                        );
-                    }
+            this.service("AssetManager").assetManager.setupHandlersOn(document, (buffer, fileName, type) => {
+                if (type === "pastedtext") {
+                    this.pasteText(buffer);
+                } else if (type === "vrse") {
+                    this.loadvrse(buffer);
+                } else {
+                    this.analyzeAndUploadFile(new Uint8Array(buffer), fileName, type);
                 }
-            );
+            });
         }
 
         // keep track of being in the primary frame or not.  because of the delay involved
@@ -970,10 +798,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
         this.setPortalClipping();
 
-        this.shellListener = (
-            command,
-            { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }
-        ) => {
+        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }) => {
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
             switch (command) {
                 case "frame-type":
@@ -981,8 +806,7 @@ export class AvatarPawn extends mix(CardPawn).with(
                     // a frame generated by addFrame supplies no spec.  in all other cases
                     // (portal-enter, world-enter) we need to start with the frame frozen.
                     if (spec) this.setWorldSwitchFreeze(true);
-                    if (isPrimary !== this.isPrimary)
-                        this.frameTypeChanged(isPrimary, spec);
+                    if (isPrimary !== this.isPrimary) this.frameTypeChanged(isPrimary, spec);
                     // a secondary frame for which we already have camera information
                     // will receive it as part of this message
                     if (cameraMatrix) this.portalCameraUpdate(cameraMatrix);
@@ -998,10 +822,7 @@ export class AvatarPawn extends mix(CardPawn).with(
                     break;
                 case "sync-render-now":
                     if (this.frozenForWorldSwitch) {
-                        console.log(
-                            frameName(),
-                            "ignoring sync-render while frozen"
-                        );
+                        console.log(frameName(), "ignoring sync-render while frozen");
                         return;
                     }
                     this.refreshCameraTransform();
@@ -1015,58 +836,28 @@ export class AvatarPawn extends mix(CardPawn).with(
                     this.portalCameraUpdate(cameraMatrix);
                     break;
                 case "motion-start":
-                    if (
-                        this.hasBehavior(
-                            `${handlerModuleName}$AvatarPawn`,
-                            "startMotion"
-                        )
-                    ) {
-                        this.call(
-                            `${handlerModuleName}$AvatarPawn`,
-                            "startMotion",
-                            dx,
-                            dy
-                        );
+                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
                     } else {
                         this.startMotion(dx, dy);
                     }
                     break;
                 case "motion-end":
-                    if (
-                        this.hasBehavior(
-                            `${handlerModuleName}$AvatarPawn`,
-                            "endMotion"
-                        )
-                    ) {
-                        this.call(
-                            `${handlerModuleName}$AvatarPawn`,
-                            "endMotion",
-                            dx,
-                            dy
-                        );
+                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
                     } else {
                         this.endMotion(dx, dy);
                     }
                     break;
                 case "motion-update":
-                    if (
-                        this.hasBehavior(
-                            `${handlerModuleName}$AvatarPawn`,
-                            "updateMotion"
-                        )
-                    ) {
-                        this.call(
-                            `${handlerModuleName}$AvatarPawn`,
-                            "updateMotion",
-                            dx,
-                            dy
-                        );
+                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
+                        this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
                     } else {
                         this.updateMotion(dx, dy);
                     }
                     break;
             }
-        };
+        }
         addShellListener(this.shellListener);
 
         // initialize actor
@@ -1092,10 +883,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             let avatarSpec;
             let avatarName;
             if (inWorld && dormantAvatarSpec) {
-                const anchor = this.anchorFromURL(
-                    window.location,
-                    !this.isPrimary
-                );
+                const anchor = this.anchorFromURL(window.location, !this.isPrimary);
                 actorSpec = dormantAvatarSpec;
                 actorSpec.anchor = anchor;
                 actorSpec.inWorld = true;
@@ -1105,21 +893,14 @@ export class AvatarPawn extends mix(CardPawn).with(
                 avatarSpec.name = avatarName;
             } else {
                 actorSpec = { inWorld };
-                const anchor = this.anchorFromURL(
-                    window.location,
-                    !this.isPrimary
-                );
+                const anchor = this.anchorFromURL(window.location, !this.isPrimary);
                 if (anchor) {
                     actorSpec.anchor = anchor; // actor or {translation, rotation}
                     actorSpec.translation = anchor.translation;
                     actorSpec.rotation = anchor.rotation;
                 }
-                let tempCardSpec = this.makeCardSpecFrom(
-                    window.settingsMenuConfiguration,
-                    this.actor,
-                    avatarName
-                );
-                avatarSpec = { ...tempCardSpec };
+                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor, avatarName);
+                avatarSpec = {...tempCardSpec};
             }
 
             // FIXME: do not send 3 messages via reflector
@@ -1127,8 +908,7 @@ export class AvatarPawn extends mix(CardPawn).with(
                 inWorld: actorSpec.inWorld,
                 translation: actorSpec.translation,
                 rotation: actorSpec.rotation,
-                anchor: actorSpec.anchor,
-            });
+                anchor: actorSpec.anchor});
             this.say("setAvatarData", avatarSpec); // NB: after setting actor's name
             this.say("resetStartPosition");
         }
@@ -1147,19 +927,11 @@ export class AvatarPawn extends mix(CardPawn).with(
 
         this.listen("clearGizmo", this.clearGizmo);
 
-        this.subscribe(
-            "playerManager",
-            "presentationStarted",
-            this.presentationStarted
-        );
-        this.subscribe(
-            "playerManager",
-            "presentationStopped",
-            this.presentationStopped
-        );
+        this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
+        this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
 
         this.wasdVelocity = [0, 0, 0];
-        this.wasdMap = { w: false, a: false, d: false, s: false };
+        this.wasdMap = {w: false, a: false, d: false, s: false};
 
         // console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
     }
@@ -1191,7 +963,7 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     updateMotion(dx, dy) {
-        const JOYSTICK_V = 0.00003;
+        const JOYSTICK_V = 0.000030;
         const MAX_V = 0.015;
         const MAX_SPIN = 0.0004;
 
@@ -1199,15 +971,13 @@ export class AvatarPawn extends mix(CardPawn).with(
         v = Math.min(Math.max(v, -MAX_V), MAX_V);
 
         const yaw = dx * (this.isMobile ? -2.5 * MAX_SPIN : -MAX_SPIN);
-        this.spin = q_euler(0, yaw, 0);
+        this.spin = q_euler(0, yaw ,0);
         this.velocity = [0, 0, v];
         this.maybeLeavePresentation();
     }
 
     get presenting() {
-        return (
-            this.actor.service("PlayerManager").presentationMode === this.viewId
-        );
+        return this.actor.service("PlayerManager").presentationMode === this.viewId;
     }
 
     get spectator() {
@@ -1231,16 +1001,10 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     setLookAngles(data) {
-        let { pitch, yaw, lookOffset } = data;
-        if (pitch !== undefined) {
-            this.lookPitch = pitch;
-        }
-        if (yaw !== undefined) {
-            this.lookYaw = yaw;
-        }
-        if (lookOffset !== undefined) {
-            this.lookOffset = lookOffset;
-        }
+        let {pitch, yaw, lookOffset} = data;
+        if (pitch !== undefined) {this.lookPitch = pitch;}
+        if (yaw !== undefined) {this.lookYaw = yaw;}
+        if (lookOffset !== undefined) {this.lookOffset = lookOffset;}
     }
 
     async analyzeAndUploadFile(buffer, fileName, type) {
@@ -1261,8 +1025,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             return;
         }
 
-        if (obj && obj.isObject3D) {
-            // is3D
+        if (obj && obj.isObject3D) { // is3D
             assetManager.setCache(dataId, buffer, "0");
             if (obj._croquetAnimation) {
                 animationClipIndex = 0;
@@ -1277,13 +1040,11 @@ export class AvatarPawn extends mix(CardPawn).with(
 
         let pose = this.dropPose(6);
         this.say("fileUploaded", {
-            dataId,
-            fileName,
-            type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
+            dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
             translation: pose.translation,
             rotation: pose.rotation,
             animationClipIndex,
-            dataScale,
+            dataScale
         });
     }
 
@@ -1292,11 +1053,9 @@ export class AvatarPawn extends mix(CardPawn).with(
         let dataId = Data.toId(handle);
         let pose = this.dropPose(6);
         this.say("fileUploaded", {
-            dataId,
-            fileName,
-            type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
+            dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
             translation: pose.translation,
-            rotation: pose.rotation,
+            rotation: pose.rotation
         });
     }
 
@@ -1310,7 +1069,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         this.say("textPasted", {
             string,
             translation: pose.translation,
-            rotation: pose.rotation,
+            rotation: pose.rotation
         });
     }
 
@@ -1323,25 +1082,20 @@ export class AvatarPawn extends mix(CardPawn).with(
             console.log("vrse file is not in JSON format");
         }
 
-        if (!parsed) {
-            return;
-        }
+        if (!parsed) {return;}
 
         let cards = parsed.data.cards;
         let toplevel = 0;
         for (let i = 0; i < cards.length; i++) {
             let card = cards[i].card;
-            if (!card.parent) {
-                toplevel++;
-            }
+            if (!card.parent) {toplevel++;}
         }
 
         let asScene = toplevel >= 2;
         this.loadFromFile(result, asScene, !asScene);
     }
 
-    dropPose(distance, optOffset) {
-        // compute the position in front of the avatar
+    dropPose(distance, optOffset) { // compute the position in front of the avatar
         return this.actor.dropPose(distance, optOffset);
     }
 
@@ -1369,75 +1123,58 @@ export class AvatarPawn extends mix(CardPawn).with(
             if (actor.name === anchorString) return actor;
         }
         // otherwise it might be explicit coordinates
-        const coords = anchorString.split(",").map((x) => parseFloat(x));
-        if (coords.length !== 7 || coords.some((x) => isNaN(x))) return null;
+        const coords = anchorString.split(",").map(x => parseFloat(x));
+        if (coords.length !== 7 || coords.some(x => isNaN(x))) return null;
         const [vx, vy, vz, ru, rv, rw, rq] = coords;
         return {
             translation: [vx, vy, vz],
-            rotation: [ru, rv, rw, rq],
-        };
+            rotation: [ru, rv, rw, rq]
+        }
     }
 
     showNumbers() {
         let manager = this.actor.service("PlayerManager");
         let userCountDisplay = document.getElementById("userCountDisplay");
         if (this.service("AgoraChatManager")) {
-            if (userCountDisplay) {
-                userCountDisplay.remove();
-            }
+            if (userCountDisplay) {userCountDisplay.remove();}
             return;
         }
 
         if (!userCountDisplay) {
-            const container = document.getElementById("world-info-container");
-
-            const title = document.createElement("p");
-            title.setAttribute("id", "world-title");
-            title.innerHTML = "Croquet Microverse";
-
             let c = document.createElement("div");
-            c.setAttribute("id", "world-info");
             c.innerHTML = `<div id="userCountDisplay"><div id="userCountReadout">0</div></div>`;
-
             userCountDisplay = c.firstChild;
+            document.body.appendChild(userCountDisplay);
 
-            container.appendChild(title);
-            container.appendChild(userCountDisplay);
+            if (this.service("DolbyChatManager") && window.innerWidth >= 600) {
+                userCountDisplay.style.left = "40%";
+            } else {
+                userCountDisplay.style.left = "50%";
+            }
         }
 
         let readout = userCountDisplay.querySelector("#userCountReadout");
-        if (!readout) {
-            return;
-        }
+        if (!readout) {return;}
 
         // TODO: change PlayerManager to only create avatars for players that are actually in the world
         let total = manager.players.size;
         let here = manager.playersInWorld().length;
-        let suffix = document.createElement("div");
-        suffix.setAttribute("id", "visitors-img");
-        suffix.innerHTML = `<i class="fa-solid fa-user"></i>`;
-        let tooltip = `${here} ${
-            here === 1 ? "visitor is" : "visitors are"
-        } in this world`;
+        let suffix = here === 1 ? "visitor" : "visitors";
+        let tooltip = `${here} ${here === 1 ? "visitor is" : "visitors are"} in this world`;
         if (here !== total) {
             let watching = total - here;
-            tooltip += `, ${watching} ${
-                watching === 1 ? "visitor has" : "visitors have"
-            } not entered yet`;
+            tooltip += `, ${watching} ${watching === 1 ? "visitor has" : "visitors have"} not entered yet`;
             total = `${here}+${watching}`;
         }
         if (manager.presentationMode) {
             let followers = manager.followers.size; // includes the presenter
-            readout.textContent = `${followers}/${total}`;
-            tooltip = `${followers} ${
-                followers === 1 ? "visitor" : "visitors"
-            } in guided tour, ${tooltip}`;
+            readout.textContent = `${followers}/${total} ${suffix}`;
+            tooltip = `${followers} ${followers === 1 ? "visitor" : "visitors"} in guided tour, ${tooltip}`;
         } else {
-            readout.textContent = `${total}`;
+            readout.textContent = `${total} ${suffix}`;
         }
         userCountDisplay.setAttribute("title", tooltip);
         readout.setAttribute("presenting", this.presenting);
-        readout.append(suffix);
     }
 
     presentationStarted() {
@@ -1459,14 +1196,14 @@ export class AvatarPawn extends mix(CardPawn).with(
         evt.target.setAttribute("pressed", true);
         evt.target.setPointerCapture(evt.pointerId);
         evt.stopPropagation();
-        this.service("InputManager").setModifierKeys({ ctrlKey: true });
+        this.service("InputManager").setModifierKeys({ctrlKey: true});
     }
 
     clearEditMode(evt) {
         evt.target.setAttribute("pressed", false);
         evt.target.releasePointerCapture(evt.pointerId);
         evt.stopPropagation();
-        this.service("InputManager").setModifierKeys({ ctrlKey: false });
+        this.service("InputManager").setModifierKeys({ctrlKey: false});
     }
 
     maybeLeavePresentation() {
@@ -1477,7 +1214,7 @@ export class AvatarPawn extends mix(CardPawn).with(
 
     lookTo(pitch, yaw, lookOffset) {
         this.maybeLeavePresentation();
-        this.setLookAngles({ pitch, yaw, lookOffset });
+        this.setLookAngles({pitch, yaw, lookOffset});
         this.say("avatarLookTo", [pitch, yaw, lookOffset], 30);
         let q = q_euler(0, this.lookYaw, 0);
 
@@ -1498,8 +1235,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             // This test above is relevant only at the start up.
             // This is called from ThreeCamera's constructor but
             // all look* properties are not intialized yet.
-            if (!this.isPrimary && this.portalLookExternal)
-                return this.portalLook;
+            if (!this.isPrimary && this.portalLookExternal) return this.portalLook;
             else return this.walkLook();
         } else return this.global;
     }
@@ -1511,7 +1247,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             return this.call(`${handlerModuleName}$AvatarPawn`, "walkLook");
         }
 
-        const pitchRotation = q_axisAngle([1, 0, 0], this.lookPitch);
+        const pitchRotation = q_axisAngle([1,0,0], this.lookPitch);
         const m0 = m4_translation(this.lookOffset);
         const m1 = m4_rotationQ(pitchRotation);
         const m2 = m4_multiply(m1, m0);
@@ -1522,11 +1258,7 @@ export class AvatarPawn extends mix(CardPawn).with(
     // and our own anchor
     get portalLook() {
         // apply portal transform to external camera
-        const anchor = this.anchor ||
-            this.actor._anchor || {
-                translation: [0, 0, 0],
-                rotation: [0, 0, 0, 1],
-            };
+        const anchor = this.anchor || this.actor._anchor || { translation: [0,0,0], rotation: [0,0,0,1] };
         const mtra = m4_translation(anchor.translation);
         const mrot = m4_rotationQ(anchor.rotation);
         const mrot_inv = m4_multiply(mrot, M4_ROTATIONY_180); // flip by 180 degrees
@@ -1602,7 +1334,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             cardData: this.actor._cardData, // keep avatar appearance
             name: this.actor._name, // and name
             url: portal.resolvePortalURL(),
-            crossingBackwards,
+            crossingBackwards
         };
         // keep presenting
         if (this.presenting) spec.presenting = Data.hash(this.viewId); // hash to not leak the viewId
@@ -1636,10 +1368,7 @@ export class AvatarPawn extends mix(CardPawn).with(
                 const m_avatar = m4_multiply(m_avatar_rot, m_avatar_tra);
                 const m_anchor_tra = m4_translation(anchor.translation);
                 const m_anchor_rot = m4_rotationQ(anchor.rotation);
-                const m_anchor_rot_inv = m4_multiply(
-                    m_anchor_rot,
-                    M4_ROTATIONY_180
-                ); // flip by 180 degrees
+                const m_anchor_rot_inv = m4_multiply(m_anchor_rot, M4_ROTATIONY_180); // flip by 180 degrees
                 const m_anchor = m4_multiply(m_anchor_rot_inv, m_anchor_tra);
                 const m = m4_multiply(m_avatar, m_anchor);
                 translation = m4_getTranslation(m);
@@ -1687,16 +1416,11 @@ export class AvatarPawn extends mix(CardPawn).with(
     followToWorld({ followerTransferData }) {
         const { url, following } = followerTransferData;
         if (this.isPrimary) {
-            console.log(
-                `${frameName()} sending world-enter to ${url} following: ${following}`
-            );
+            console.log(`${frameName()} sending world-enter to ${url} following: ${following}`);
             this.setWorldSwitchFreeze(true);
             followerTransferData.cardData = this.actor._cardData;
             followerTransferData.name = this.actor._name;
-            sendToShell("world-enter", {
-                portalURL: url,
-                transferData: followerTransferData,
-            });
+            sendToShell("world-enter", { portalURL: url, transferData: followerTransferData });
         } else {
             console.log(`${frameName()} not sending world-enter to ${url}`);
         }
@@ -1713,15 +1437,14 @@ export class AvatarPawn extends mix(CardPawn).with(
         } else {
             this.tug = 0.2;
             const manager = this.actor.service("PlayerManager");
-            this.throttle =
-                manager.presentationMode === this.actor.playerId ? 60 : 125;
+            this.throttle = (manager.presentationMode === this.actor.playerId) ? 60 : 125;
             if (this.actor.inWorld || this.spectator) {
                 // get the potential new pose from velocity and spin.
                 // the v and q variable is passed around to compute a new position.
                 // unless positionTo() is called the avatar state (should) stays the same.
 
                 let vq = this.updatePose(delta);
-                let walkManager = this.service("WalkManager");
+                let walkManager = this.service("WalkManager")
                 vq = walkManager.walk(this, vq, time, delta);
 
                 // the implementation of positionTo checks closeness to the current value so
@@ -1746,9 +1469,7 @@ export class AvatarPawn extends mix(CardPawn).with(
 
     updateXRReference() {
         let manager = this.service("ThreeRenderManager");
-        if (!manager.origReferenceSpace) {
-            return;
-        }
+        if (!manager.origReferenceSpace) {return;}
 
         let xr = manager.renderer.xr;
         let inv = m4_invert(this.global);
@@ -1758,12 +1479,10 @@ export class AvatarPawn extends mix(CardPawn).with(
         vv[1] += 1.6; // eye height
 
         let offsetTransform = new XRRigidTransform(
-            { x: vv[0], y: vv[1], z: vv[2] },
-            { x: rr[0], y: rr[1], z: rr[2], w: rr[3] }
-        );
+            {x: vv[0], y: vv[1], z: vv[2]},
+            {x: rr[0], y: rr[1], z: rr[2], w: rr[3]});
 
-        let newSpace =
-            manager.origReferenceSpace.getOffsetReferenceSpace(offsetTransform);
+        let newSpace = manager.origReferenceSpace.getOffsetReferenceSpace(offsetTransform);
         xr.setReferenceSpace(newSpace);
     }
 
@@ -1771,16 +1490,10 @@ export class AvatarPawn extends mix(CardPawn).with(
     updatePose(delta) {
         let q, v;
         let tug = this.tug;
-        if (delta) tug = Math.min(1, (tug * delta) / 15);
+        if (delta) tug = Math.min(1, tug * delta / 15);
 
         if (!q_isZero(this.spin)) {
-            q = q_normalize(
-                q_slerp(
-                    this.rotation,
-                    q_multiply(this.rotation, this.spin),
-                    tug
-                )
-            );
+            q = q_normalize(q_slerp(this.rotation, q_multiply(this.rotation, this.spin), tug));
         } else {
             q = this.rotation;
         }
@@ -1792,7 +1505,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             v = this.translation;
         }
 
-        return { v, q };
+        return {v, q};
     }
 
     // update the camera transform and clipping planes depending on whether this avatar
@@ -1821,15 +1534,14 @@ export class AvatarPawn extends mix(CardPawn).with(
             const portalSpecs = [];
             let secondaryRenders = false;
             this.publish("avatar", "gatherPortalSpecs", {
-                callback: (spec) => {
+                callback: spec => {
                     portalSpecs.push(spec);
                     secondaryRenders |= !!spec.cameraMatrix;
                 },
-                force,
+                force
             });
             const renderMgr = this.service("ThreeRenderManager");
-            if (portalSpecs.length)
-                sendToShell("portal-update", { portalSpecs });
+            if (portalSpecs.length) sendToShell("portal-update", { portalSpecs });
             else renderMgr.setRender(true); // no portals, so use automatic rendering.
 
             // if we are being woken after a world switch (in which case force=true),
@@ -1837,10 +1549,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             // will await, render immediately and send "primary-rendered" to the shell
             // so it will reorder any frames.
             if (force && !secondaryRenders) {
-                console.log(
-                    frameName(),
-                    "no portals in sight; rendering immediately"
-                );
+                console.log(frameName(), "no portals in sight; rendering immediately");
                 renderMgr.render();
                 sendToShell("primary-rendered");
             }
@@ -1858,8 +1567,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         if (cameraMatrix) {
             if (this.endMovementTimeout) clearTimeout(this.endMovementTimeout);
             this.endMovementTimeout = setTimeout(() => {
-                const renderNow =
-                    !!this.lastCameraMatrix && !this.frozenForWorldSwitch;
+                const renderNow = !!this.lastCameraMatrix && !this.frozenForWorldSwitch;
                 // console.log(`movement ended; setRender(${renderNow})`);
                 renderMgr.setRender(renderNow);
             }, 50);
@@ -1872,12 +1580,13 @@ export class AvatarPawn extends mix(CardPawn).with(
                 sendToShell("portal-world-rendered");
             }
         }
+
     }
 
     checkFloor(vq) {
         // cast a ray to negative y direction and see if there is a walk layer object
         let walkLayer = this.service("ThreeRenderManager").threeLayer("walk");
-        let collideList = walkLayer.filter((obj) => obj.collider);
+        let collideList = walkLayer.filter(obj => obj.collider);
 
         let someFloor = false;
 
@@ -1956,16 +1665,8 @@ export class AvatarPawn extends mix(CardPawn).with(
             iMat.invert();
 
             let segment = new THREE.Line3(
-                new THREE.Vector3(
-                    newPosition[0],
-                    newPosition[1],
-                    newPosition[2]
-                ),
-                new THREE.Vector3(
-                    newPosition[0],
-                    newPosition[1] - leg,
-                    newPosition[2]
-                )
+                new THREE.Vector3(newPosition[0], newPosition[1], newPosition[2]),
+                new THREE.Vector3(newPosition[0], newPosition[1] - leg, newPosition[2])
             );
 
             let cBox = new THREE.Box3();
@@ -1989,42 +1690,28 @@ export class AvatarPawn extends mix(CardPawn).with(
             let maybeUp;
 
             c.children[0].geometry.boundsTree.shapecast({
-                intersectsBounds: (box) => box.intersectsBox(cBox),
-                intersectsTriangle: (tri) => {
-                    const distance = tri.closestPointToSegment(
-                        segment,
-                        triPoint,
-                        capsulePoint
-                    );
+                intersectsBounds: box => box.intersectsBox(cBox),
+                intersectsTriangle: tri => {
+                    const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
                     if (distance < scaledRadius) {
                         const depth = scaledRadius - distance;
-                        const direction = capsulePoint
-                            .sub(triPoint)
-                            .normalize();
+                        const direction = capsulePoint.sub(triPoint).normalize();
 
                         let h = Math.sqrt(direction.x ** 2 + direction.z ** 2);
                         let v = direction.y;
 
-                        if (
-                            h < 0.1 &&
-                            v > 0.9 &&
-                            (!maybeUp || depth > maybeUp.depth)
-                        ) {
+                        if (h < 0.1 && v > 0.9 && (!maybeUp || depth > maybeUp.depth)) {
                             maybeUp = tri.clone();
                             directions.unshift(maybeUp);
                         } else {
                             directions.push(tri.clone());
                         }
                     }
-                },
+                }
             });
 
             directions.forEach((tri) => {
-                const distance = tri.closestPointToSegment(
-                    segment,
-                    triPoint,
-                    capsulePoint
-                );
+                const distance = tri.closestPointToSegment(segment, triPoint, capsulePoint);
                 if (distance < scaledRadius) {
                     let depth = scaledRadius - distance;
                     const direction = capsulePoint.sub(triPoint).normalize();
@@ -2049,22 +1736,17 @@ export class AvatarPawn extends mix(CardPawn).with(
 
             newPosition = outPosition.toArray();
             // console.log(deltaVector);
-            onGround =
-                onGround ||
-                (positionChanged &&
-                    velocity[1] < -0.1 &&
-                    Math.abs(velocity[0]) < 0.001 &&
-                    Math.abs(velocity[2]) < 0.001);
+            onGround = onGround || positionChanged && velocity[1] < -0.1 && Math.abs(velocity[0]) < 0.001 && Math.abs(velocity[2]) < 0.001;
         }
 
         if (onGround) {
             this.isFalling = false;
-            return { v: this.translation, q: vq.q };
+            return {v: this.translation, q: vq.q};
         }
 
         if (positionChanged) {
             this.isFalling = true;
-            return { v: newPosition, q: vq.q };
+            return {v: newPosition, q: vq.q};
         } else {
             this.isFalling = true;
             return vq;
@@ -2096,18 +1778,14 @@ export class AvatarPawn extends mix(CardPawn).with(
         this.portalcaster.far = 5; // first just find a portal; later worry about if we're close enough to cross it
         this.portalcaster.ray.direction.set(...dir);
         this.portalcaster.ray.origin.set(...this.translation);
-        const firstIntersection = this.portalcaster.intersectObjects(
-            portalLayer,
-            true
-        )[0];
+        const firstIntersection = this.portalcaster.intersectObjects(portalLayer, true)[0];
         if (firstIntersection) {
             let portal = this.pawnFrom3D(firstIntersection.object);
             if (!portal) return false;
 
             // the normal of the portal's globalPlane points into the portal world
             const portalPlane = portal.globalPlane;
-            const movingTowards =
-                portalPlane.normal.dot(new THREE.Vector3(...dir)) > 0;
+            const movingTowards = portalPlane.normal.dot(new THREE.Vector3(...dir)) > 0;
             if (!movingTowards) return false;
 
             // simplest check is whether the distance to the intersect with the portal
@@ -2119,9 +1797,7 @@ export class AvatarPawn extends mix(CardPawn).with(
                 // otherwise, find our signed perpendicular distance to the portal's plane.
                 // if within the designated portal-crossing distance, on the portal's
                 // front side, we're going to cross.
-                const perpendicular = portalPlane.distanceToPoint(
-                    new THREE.Vector3(...vq.v)
-                );
+                const perpendicular = portalPlane.distanceToPoint(new THREE.Vector3(...vq.v));
                 crosses = perpendicular >= -PORTAL_DISTANCE;
             }
 
@@ -2136,13 +1812,7 @@ export class AvatarPawn extends mix(CardPawn).with(
 
             // NOTE: THIS IS NOT THE ONLY CODE PATH FOR ENTERING WORLDS
             // we also jump between worlds using the browser's "forward/back" buttons
-            console.log(
-                frameName(),
-                "player",
-                this.viewId,
-                "enter portal",
-                portal.portalId
-            );
+            console.log(frameName(), "player", this.viewId, "enter portal", portal.portalId);
 
             // make sure automatic rendering is off, and update-generated rendering
             renderMgr.setRender(false);
@@ -2150,29 +1820,15 @@ export class AvatarPawn extends mix(CardPawn).with(
 
             // spec for this avatar in new world
             let jumpVector = v3_scale(dir, firstIntersection.distance);
-            jumpVector = v3_add(
-                jumpVector,
-                v3_scale(portalPlane.normal.toArray(), PORTAL_DISTANCE)
-            );
-            const transferData = this.specForPortal(
-                portal,
-                jumpVector,
-                crossingBackwards
-            );
+            jumpVector = v3_add(jumpVector, v3_scale(portalPlane.normal.toArray(), PORTAL_DISTANCE));
+            const transferData = this.specForPortal(portal, jumpVector, crossingBackwards);
 
             // shell will swap iframes and trigger avatarPawn.frameTypeChanged() for this user in both worlds
             // but it also may delete this frame if it is unowned
-            sendToShell("portal-enter", {
-                portalId: portal.portalId,
-                transferData,
-            });
+            sendToShell("portal-enter", { portalId: portal.portalId, transferData });
             // if we were presenting, tell followers to come with us
             if (this.presenting) {
-                const {
-                    cardData: _cd,
-                    name: _n,
-                    ...presenterTransferData
-                } = transferData;
+                const { cardData: _cd, name: _n, ...presenterTransferData } = transferData;
                 this.say("followMeToWorld", presenterTransferData);
                 // calls followToWorld() in followers
                 // which will result in frameTypeChanged() on follower's clients
@@ -2193,73 +1849,50 @@ export class AvatarPawn extends mix(CardPawn).with(
         const KEY_V = MAX_V / 2;
 
         if (e.ctrlKey || e.altKey) {
-            switch (e.key) {
-                case "a":
+            switch(e.key) {
+                case 'a':
                     console.log("My avatar pawn", this);
-                    console.log("translation: ", this.actor.translation);
-                    console.log(
-                        "rotation (euler):",
+                    console.log("translation: ",this.actor.translation);
+                    console.log("rotation (euler):",
                         q_pitch(this.actor.rotation),
                         q_yaw(this.actor.rotation),
-                        q_roll(this.actor.rotation)
-                    );
+                        q_roll(this.actor.rotation));
                     console.log("scale:", this.actor.scale);
                     break;
-                case "r":
+                case 'r':
                     let renderer = this.service("ThreeRenderManager").renderer;
                     console.log("Renderer", renderer);
-                    console.log(
-                        "Scene polycount:",
-                        renderer.info.render.triangles
-                    );
-                    console.log(
-                        "Active Drawcalls:",
-                        renderer.info.render.calls
-                    );
-                    console.log(
-                        "Textures in Memory",
-                        renderer.info.memory.textures
-                    );
-                    console.log(
-                        "Geometries in Memory",
-                        renderer.info.memory.geometries
-                    );
+                    console.log("Scene polycount:", renderer.info.render.triangles)
+                    console.log("Active Drawcalls:", renderer.info.render.calls)
+                    console.log("Textures in Memory", renderer.info.memory.textures)
+                    console.log("Geometries in Memory", renderer.info.memory.geometries)
                     break;
             }
             return;
         }
 
-        switch (e.key) {
-            case "Tab":
-                this.jumpToNote(e);
-                break;
-            case "w":
-            case "W": // forward
-            case "a":
-            case "A": // left strafe
-            case "d":
-            case "D": // right strafe
-            case "s":
-            case "S": // backward
+        switch(e.key) {
+            case 'Tab':
+                this.jumpToNote(e); break;
+            case 'w': case 'W': // forward
+            case 'a': case 'A': // left strafe
+            case 'd': case 'D': // right strafe
+            case 's': case 'S': // backward
                 this.wasdMap[e.key.toLowerCase()] = true;
                 switch (e.key) {
-                    case "w":
-                    case "W": // forward
+                    case 'w': case 'W': // forward
                         nw = w[2] === KEY_V ? 0 : -KEY_V;
                         this.wasdVelocity = [w[0], w[1], nw];
                         break;
-                    case "a":
-                    case "A": // left strafe
+                    case 'a': case 'A': // left strafe
                         nw = w[0] === KEY_V ? 0 : -KEY_V;
                         this.wasdVelocity = [nw, w[1], w[2]];
                         break;
-                    case "d":
-                    case "D": // right strafe
+                    case 'd': case 'D': // right strafe
                         nw = w[0] === -KEY_V ? 0 : KEY_V;
                         this.wasdVelocity = [nw, w[1], w[2]];
                         break;
-                    case "s":
-                    case "S": // backward
+                    case 's': case 'S': // backward
                         nw = w[2] === -KEY_V ? 0 : KEY_V;
                         this.wasdVelocity = [w[0], w[1], nw];
                         break;
@@ -2274,15 +1907,11 @@ export class AvatarPawn extends mix(CardPawn).with(
         // This is currently invoked as the "last responder", namely only if no card handled it.
         // by writing a new avatarEvents.js that exports a different AvatarEventHandler behavior module
         // you can override the avatars behavior.
-        switch (e.key) {
-            case "w":
-            case "W": // forward
-            case "a":
-            case "A": // left strafe
-            case "d":
-            case "D": // right strafe
-            case "s":
-            case "S": // backward
+        switch(e.key) {
+            case 'w': case 'W': // forward
+            case 'a': case 'A': // left strafe
+            case 'd': case 'D': // right strafe
+            case 's': case 'S': // backward
                 this.wasdMap[e.key.toLowerCase()] = false;
                 let h;
                 if (this.wasdMap.a && !this.wasdMap.d) {
@@ -2301,17 +1930,14 @@ export class AvatarPawn extends mix(CardPawn).with(
                     v = 0;
                 }
                 this.wasdVelocity = [h, 0, v];
-                this.velocity = this.wasdVelocity;
+                this.velocity = this.wasdVelocity;;
         }
     }
 
     addSticky(e) {
         if (e.shiftKey) {
             const render = this.service("ThreeRenderManager");
-            const rc = this.pointerRaycast(
-                e,
-                render.threeLayerUnion("pointer", "walk")
-            );
+            const rc = this.pointerRaycast(e, render.threeLayerUnion("pointer", "walk"));
             let pe = this.pointerEvent(rc, e);
             this.say("addSticky", pe);
         }
@@ -2326,8 +1952,8 @@ export class AvatarPawn extends mix(CardPawn).with(
         let fov = camera.fov / 2;
         let h = window.innerHeight / 2;
         let w = window.innerWidth / 2;
-        let c = (fov * Math.PI) / 180 / h;
-        return [c * (xy[0] - w), c * (h - xy[1])];
+        let c = (fov * Math.PI / 180) / h;
+        return[c * (xy[0] - w), c * (h - xy[1])];
     }
 
     clearGizmo() {
@@ -2343,35 +1969,24 @@ export class AvatarPawn extends mix(CardPawn).with(
 
         let pawnIsGizmo = pawn && pawn.actor.isGizmoManipulator;
 
-        if (
-            this.gizmoTargetPawn &&
-            !pawnIsGizmo &&
-            pawn !== this.gizmoTargetPawn
-        ) {
+        if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
             this.gizmoTargetPawn.unselectEdit();
             this.gizmoTargetPawn = null;
             this.publish(this.actor.id, "removeGizmo");
         }
 
-        if (e.ctrlKey || e.altKey) {
-            // should be the first responder case
+        if (e.ctrlKey || e.altKey) { // should be the first responder case
             let doGizmo = this.actor.behaviorManager.modules.get("Gizmo");
             if (pawn && doGizmo) {
                 if (pawnIsGizmo) {
                     console.log("Tried to gizmo gizmo");
-                    this.publish(this.actor.id, "addOrCycleGizmo", {
-                        target: this.gizmoTargetPawn.actor,
-                        viewId: this.viewId,
-                    });
+                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
                 } else {
                     if (this.gizmoTargetPawn != pawn) {
                         pawn.selectEdit();
                     }
                     this.gizmoTargetPawn = pawn;
-                    this.publish(this.actor.id, "addOrCycleGizmo", {
-                        target: this.gizmoTargetPawn.actor,
-                        viewId: this.viewId,
-                    });
+                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
                 }
             } else {
                 this.publish(this.actor.id, "removeGizmo");
@@ -2386,19 +2001,8 @@ export class AvatarPawn extends mix(CardPawn).with(
                 this.lookYaw = q_yaw(this._rotation);
             }
             let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            if (
-                this.hasBehavior(
-                    `${handlerModuleName}$AvatarPawn`,
-                    "handlingEvent"
-                )
-            ) {
-                this.call(
-                    `${handlerModuleName}$AvatarPawn`,
-                    "handlingEvent",
-                    "pointerDown",
-                    this,
-                    e
-                );
+            if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+                this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
             }
             if (!pawnIsGizmo) {
                 this.publish(this.actor.id, "removeGizmo");
@@ -2410,26 +2014,15 @@ export class AvatarPawn extends mix(CardPawn).with(
         // should be the last responder case
         if (!this.focusPawn && this.isPointerDown && e.xy && this.dragWorld) {
             let yp = this.xy2yp(e.xy);
-            let yaw =
-                this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
-            let pitch =
-                this.lookPitch +
-                (this.dragWorld[1] - yp[1]) * this.pitchDirection;
-            pitch = pitch > 1 ? 1 : pitch < -1 ? -1 : pitch;
+            let yaw = this.lookYaw + (this.dragWorld[0] - yp[0]) * this.yawDirection;
+            let pitch = this.lookPitch + (this.dragWorld[1] - yp[1]) * this.pitchDirection;
+            pitch = pitch > 1 ? 1 : (pitch < -1 ? -1 : pitch);
             this.dragWorld = yp;
             this.lookTo(pitch, yaw);
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (
-            this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")
-        ) {
-            this.call(
-                `${handlerModuleName}$AvatarPawn`,
-                "handlingEvent",
-                "pointerMove",
-                this,
-                e
-            );
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerMove", this, e);
         }
     }
 
@@ -2448,16 +2041,8 @@ export class AvatarPawn extends mix(CardPawn).with(
             }
         }
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
-        if (
-            this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")
-        ) {
-            this.call(
-                `${handlerModuleName}$AvatarPawn`,
-                "handlingEvent",
-                "pointerUp",
-                this,
-                e
-            );
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerUp", this, e);
         }
     }
 
@@ -2472,8 +2057,8 @@ export class AvatarPawn extends mix(CardPawn).with(
 
     pointerWheel(e) {
         let z = this.lookOffset[2];
-        z += (Math.max(1, z) * e.deltaY) / 1000.0;
-        z = Math.min(100, Math.max(z, 0));
+        z += Math.max(1,z) * e.deltaY / 1000.0;
+        z = Math.min(100, Math.max(z,0));
         this.lookOffset = [this.lookOffset[0], z, z];
         let pitch = (this.lookPitch * 11 + Math.max(-z / 2, -Math.PI / 4)) / 12;
         this.lookTo(pitch, q_yaw(this._rotation), this.lookOffset); //,
@@ -2485,12 +2070,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         let setOpacity = (pawn, opacity) => {
             const inWorld = pawn.actor.inWorld;
             // don't try to set (and record) opacity until the avatar has its model
-            if (
-                !pawn.modelLoadTime ||
-                (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)
-            ) {
-                return;
-            }
+            if (!pawn.modelLoadTime || (pawn.lastOpacity === opacity && pawn.lastInWorld === inWorld)) {return;}
 
             pawn.lastOpacity = opacity;
             pawn.lastInWorld = inWorld;
@@ -2498,24 +2078,12 @@ export class AvatarPawn extends mix(CardPawn).with(
             let origOpacity = opacity;
 
             let handlerModuleName = pawn.actor._cardData.avatarEventHandler;
-            if (
-                pawn.hasBehavior(
-                    `${handlerModuleName}$AvatarPawn`,
-                    "mapOpacity"
-                )
-            ) {
-                opacity = pawn.call(
-                    `${handlerModuleName}$AvatarPawn`,
-                    "mapOpacity",
-                    this,
-                    opacity
-                );
+            if (pawn.hasBehavior(`${handlerModuleName}$AvatarPawn`, "mapOpacity")) {
+                opacity = pawn.call(`${handlerModuleName}$AvatarPawn`, "mapOpacity", this, opacity);
             }
 
             let model = pawn.shape.children[0];
-            if (!model) {
-                return;
-            }
+            if (!model) {return;}
 
             let visible = inWorld && opacity !== 0;
             setModelOpacity(model, visible, opacity);
@@ -2524,8 +2092,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             // visible or invisible appropriately
             if (pawn._children) {
                 for (let c of pawn._children) {
-                    if (c.actor._cardData.avatarParts)
-                        c.shape.visible = visible;
+                    if (c.actor._cardData.avatarParts) c.shape.visible = visible;
                 }
             }
 
@@ -2538,30 +2105,20 @@ export class AvatarPawn extends mix(CardPawn).with(
         for (let [_viewId, a] of manager.players) {
             // a for actor, p for pawn
             let p = GetPawn(a.id);
-            if (!p) {
-                continue;
-            }
+            if (!p) {continue;}
             if (!this.actor.inWorld) {
                 setOpacity(p, 1); // we are not even here so don't affect their opacity
             } else if (a.follow) {
                 setOpacity(p, 0); // never render followers
-            } else if (
-                ((p === this && v3_isZero(a.lookOffset)) ||
-                    (a._playerId === presentationMode && this.actor.follow)) &&
-                v3_isZero(a.lookOffset)
-            ) {
+            } else if (((p === this && v3_isZero(a.lookOffset)) || (a._playerId === presentationMode && this.actor.follow)) && v3_isZero(a.lookOffset)) {
                 setOpacity(p, 0); // never render me or my leader in 1st person
-            } else {
-                // fade based on their (or our own) distance between avatar and camera
+            } else { // fade based on their (or our own) distance between avatar and camera
                 let m = this.lookGlobal; // camera location
                 let cv = new THREE.Vector3(m[12], m[13], m[14]);
                 m = a.global; // avatar location
                 let av = new THREE.Vector3(m[12], m[13], m[14]);
                 // fade between 0.5 and 3.3 meters (but we used squared distance)
-                let d = Math.min(
-                    Math.max((cv.distanceToSquared(av) - 0.7) / 10, 0),
-                    1
-                );
+                let d = Math.min(Math.max((cv.distanceToSquared(av) - 0.7) / 10, 0), 1);
                 setOpacity(p, d);
             }
         }
@@ -2578,26 +2135,15 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     makeCardSpecFrom(configuration, actor, avatarName) {
-        let oldCardData = { ...actor._cardData };
+        let oldCardData = {...actor._cardData};
         let handlerModuleName = this.actor._cardData.avatarEventHandler;
         let behaviorModules = actor._behaviorModules || [];
         let avatarType = configuration.avatarType;
         let maybeDataLocation = oldCardData.dataLocation;
 
         [
-            "dataLocation",
-            "dataTranslation",
-            "dataScale",
-            "dataRotation",
-            "handedness",
-            "modelType",
-            "type",
-            "name",
-            "shadow",
-            "avatarType",
-        ].forEach((n) => {
-            delete oldCardData[n];
-        });
+            "dataLocation", "dataTranslation", "dataScale", "dataRotation", "handedness",
+            "modelType", "type", "name", "shadow", "avatarType"].forEach((n) => {delete oldCardData[n];});
 
         if (avatarType === "wonderland" || !configuration.type) {
             let options = {
@@ -2605,17 +2151,13 @@ export class AvatarPawn extends mix(CardPawn).with(
                 dataScale: [0.3, 0.3, 0.3],
                 dataRotation: q_euler(0, Math.PI, 0),
                 dataTranslation: [0, -0.4, 0],
-                dataLocation:
-                    maybeDataLocation ||
-                    `./assets/avatars/${this.actor._name}.zip`,
+                dataLocation: maybeDataLocation || `./assets/avatars/${this.actor._name}.zip`,
                 modelType: "glb",
                 type: "3d",
                 behaviorModules: behaviorModules,
                 ...oldCardData,
             };
-            if (options.type === "initial") {
-                options.type = "3d";
-            }
+            if (options.type === "initial") {options.type = "3d";}
             return options;
         }
 
@@ -2630,128 +2172,51 @@ export class AvatarPawn extends mix(CardPawn).with(
             behaviorModules: behaviorModules,
             ...oldCardData,
         };
-        if (options.type === "initial") {
-            options.type = "3d";
-        }
+        if (options.type === "initial") {options.type = "3d";}
         if (configuration.type === "ReadyPlayerMe") {
-            options = {
-                ...options,
-                ...{
-                    avatarEventHandler: "HalfBodyAvatarEventHandler",
-                    dataScale: [1.5, 1.5, 1.5],
-                    dataTranslation: [0, -0.7, 0],
-                    behaviorModules: [
-                        ...options.behaviorModules,
-                        "HalfBodyAvatarEventHandler",
-                    ],
-                },
-            };
+            options = {...options, ...{
+                avatarEventHandler: "HalfBodyAvatarEventHandler",
+                dataScale: [1.5, 1.5, 1.5],
+                dataTranslation: [0, -0.7, 0],
+                behaviorModules: [...options.behaviorModules, "HalfBodyAvatarEventHandler"]
+            }};
             if (options.behaviorModules.indexOf(handlerModuleName) >= 0) {
-                options.behaviorModules = options.behaviorModules.filter(
-                    (n) => n !== handlerModuleName
-                );
+                options.behaviorModules = options.behaviorModules.filter((n) => n !== handlerModuleName);
             }
         } else {
-            options = {
-                ...options,
-                ...{
-                    dataScale: [0.3, 0.3, 0.3],
-                    dataTranslation: [0, -0.4, 0],
-                },
-            };
+            options = {...options, ...{
+                dataScale:  [0.3, 0.3, 0.3],
+                dataTranslation:  [0, -0.4, 0]
+            }};
         }
         return options;
     }
 
     showSettingsMenu() {
-        console.log("show settings");
-        let shareMenu = document.getElementById("shareDialog");
-        let helpMenu = document.getElementById("helpDialog");
-        let settings = document.getElementById("joinDialog");
-        if (!shareMenu && !helpMenu) {
-            let promise = new Promise((resolve, _reject) => {
-                let showcase = Constants.ShowCaseSpec;
-                startSettingsMenu(
-                    false,
-                    showcase && !showcase.useAvatar,
-                    resolve
-                );
-            });
-            promise.then((changed) => {
-                if (changed) {
-                    const configuration = window.settingsMenuConfiguration;
-                    sendToShell("update-configuration", {
-                        localConfig: configuration,
-                    });
-                    let tempCardSpec = this.makeCardSpecFrom(
-                        window.settingsMenuConfiguration,
-                        this.actor
-                    );
-                    delete this.modelLoadTime;
-                    this.say("setAvatarData", tempCardSpec);
-                    this.modelHasLoaded = false;
-                }
-            });
-            sendToShell("hud", { joystick: false, fullscreen: false });
-        } else if (settings) {
-            sendToShell("hud", { joystick: true, fullscreen: true });
-            closeAllDialogs();
-
-            settings = false;
-        }
+        let promise = new Promise((resolve, _reject) => {
+            let showcase = Constants.ShowCaseSpec;
+            startSettingsMenu(false, showcase && !showcase.useAvatar, resolve);
+        });
+        promise.then(changed => {
+            if (changed) {
+                const configuration = window.settingsMenuConfiguration;
+                sendToShell("update-configuration", { localConfig: configuration });
+                let tempCardSpec = this.makeCardSpecFrom(window.settingsMenuConfiguration, this.actor);
+                delete this.modelLoadTime;
+                this.say("setAvatarData", tempCardSpec);
+                this.modelHasLoaded = false;
+            }
+        });
     }
 
     showShareMenu() {
-        console.log("show share");
-        let shareMenu = document.getElementById("shareDialog");
-        let helpMenu = document.getElementById("helpDialog");
-        let settings = document.getElementById("joinDialog");
         let showcase = Constants.ShowCaseSpec;
-
-        if (helpMenu) {
-            helpMenu.style.display = "none";
-            sendToShell("hud", { joystick: false, fullscreen: false });
-            startShareMenu(this, showcase && !showcase.useAvatar);
-        }
-
-        if (!shareMenu && !helpMenu && !settings) {
-            sendToShell("hud", { joystick: false, fullscreen: false });
-            startShareMenu(this, showcase && !showcase.useAvatar);
-
-            shareMenu = true;
-        } else if (shareMenu) {
-            sendToShell("hud", { joystick: true, fullscreen: true });
-            closeAllDialogs();
-
-            shareMenu = false;
-        }
+        startShareMenu(this, showcase && !showcase.useAvatar);
     }
 
     showHelpMenu() {
-        console.log("show help");
-        let helpMenu = document.getElementById("helpDialog");
-        let shareMenu = document.getElementById("shareDialog");
-        let settings = document.getElementById("joinDialog");
-
         let showcase = Constants.ShowCaseSpec;
-
-        if (shareMenu) {
-            shareMenu.style.display = "none";
-            sendToShell("hud", { joystick: false, fullscreen: false });
-            startHelpMenu(showcase && !showcase.useAvatar);
-        }
-
-        if (!helpMenu && !shareMenu && !settings) {
-            sendToShell("hud", { joystick: false, fullscreen: false });
-            startHelpMenu(showcase && !showcase.useAvatar);
-
-            helpMenu = true;
-        } else if (helpMenu) {
-            sendToShell("hud", { joystick: true, fullscreen: true });
-            closeAllDialogs();
-
-            helpMenu = false;
-        }
+        startHelpMenu(showcase && !showcase.useAvatar);
     }
 
     goHome() {
@@ -2762,7 +2227,7 @@ export class AvatarPawn extends mix(CardPawn).with(
                 anchor = {
                     translation: v3_zero(),
                     rotation: q_identity(),
-                };
+                }
             }
             let translation = [...anchor.translation];
             this.lastCollideTranslation = translation;
@@ -2785,12 +2250,12 @@ export class AvatarPawn extends mix(CardPawn).with(
 
     jumpToNote(e) {
         // collect the notes and jump to the next one or last.
-        let cards = this.actor.queryCards({ methodName: "filterNotes" }, this);
+        let cards = this.actor.queryCards({methodName: "filterNotes"}, this);
         let lastIndex;
         if (this.lastCardId === undefined) {
             lastIndex = 0;
         } else {
-            lastIndex = cards.findIndex((c) => c.id === this.lastCardId);
+            lastIndex = cards.findIndex(c => c.id === this.lastCardId);
             if (e.shiftKey) {
                 lastIndex--;
             } else {
@@ -2811,19 +2276,11 @@ export class AvatarPawn extends mix(CardPawn).with(
         if (newCard) {
             this.lastCardId = newCard.id;
             let pawn = GetPawn(newCard.id);
-            if (!pawn) {
-                return;
-            }
+            if (!pawn) {return;}
             let pose = pawn.getJumpToPose ? pawn.getJumpToPose() : null;
 
             if (pose) {
-                let obj = {
-                    xyz: pose[0],
-                    offset: pose[1],
-                    look: true,
-                    targetId: newCard.id,
-                    normal: pawn.hitNormal || [0, 0, 1],
-                };
+                let obj = {xyz: pose[0], offset: pose[1], look: true, targetId: newCard.id, normal: pawn.hitNormal || [0, 0, 1]};
                 this.say("goThere", obj);
             }
         }
@@ -2844,12 +2301,12 @@ export class AvatarPawn extends mix(CardPawn).with(
 
         while (ind < array.length) {
             let buf = array.slice(ind, ind + 2880);
-            this.publish(model.id, "loadOne", { key, buf });
+            this.publish(model.id, "loadOne", {key, buf});
             ind += 2880;
         }
 
         let pose = inFront ? this.dropPose(6) : null;
-        this.publish(model.id, "loadDone", { asScene, key, pose });
+        this.publish(model.id, "loadDone", {asScene, key, pose});
     }
 
     getAudioListener() {

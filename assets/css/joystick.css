@@ -1,12 +1,12 @@
 #joystick {
     position: fixed;
     left: 50%;
-    bottom: 25px;
+    bottom: 50px;
     -ms-transform: translate(-50%, 0%);
     transform: translate(-50%, 0%);
     width: 120px;
     height: 120px;
-    border: 1px solid #000;
+    border: 3px solid #FFF;
     border-radius: 50%;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     opacity: 0.75;
@@ -22,7 +22,7 @@
     width: 60px;
     height: 60px;
     border-radius: 40px;
-    background-color: rgba(0, 0, 0, 1);
+    background-color: rgba(224, 224, 224, 0.8);
     z-index: 310;
     pointer-events: none;
 }
@@ -33,6 +33,7 @@
     width: 120px;
     height: 120px;
     border-radius: 50%;
+    background-color: rgba(124, 124, 124, 0.2);
     pointer-events: none;
 }
 
@@ -59,7 +60,7 @@
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
 
-    border-bottom: 8px solid #ffffff;
+    border-bottom: 8px solid #aaa;
 }
 
 #joystick-arrow-n {
@@ -67,25 +68,25 @@
 }
 
 #joystick-arrow-e {
-    transform: translate(48px, 0px) rotate(90deg);
+    transform:  translate(48px, 0px) rotate(90deg);
 }
 
 #joystick-arrow-w {
-    transform: translate(-48px, 0px) rotate(-90deg);
+    transform:  translate(-48px, 0px) rotate(-90deg);
 }
 
 #joystick-arrow-s {
-    transform: translate(0px, 48px) rotate(180deg);
+    transform:  translate(0px, 48px) rotate(180deg);
 }
 
-@media (max-width: 600px), (max-height: 600px) {
+@media (max-width:600px), (max-height:600px) {
     #trackingknob {
         width: 86px;
         height: 86px;
     }
 
     #joystick {
-        bottom: 60px;
+        bottom: 18px;
         width: 86px;
         height: 86px;
     }
@@ -96,40 +97,41 @@
     }
 
     #joystick-arrows {
-        left: 43px;
-        top: 43px;
+	left: 43px;
+	top: 43px;
     }
 
     #joystick-arrow-n {
-        transform: translate(0px, -34px);
+	transform: translate(0px, -34px);
     }
 
     #joystick-arrow-e {
-        transform: translate(34px, 0px) rotate(90deg);
+	transform:  translate(34px, 0px) rotate(90deg);
     }
 
     #joystick-arrow-w {
-        transform: translate(-34px, 0px) rotate(-90deg);
+	transform:  translate(-34px, 0px) rotate(-90deg);
     }
 
     #joystick-arrow-s {
-        transform: translate(0px, 34px) rotate(180deg);
+	transform:  translate(0px, 34px) rotate(180deg);
     }
 }
 
-@media (max-height: 600px) {
+@media (max-height:600px) {
     #joystick {
         bottom: 24px;
     }
 }
 
-@media (min-width: 1900px) {
+@media (min-width:1900px) {
     #trackingknob {
         width: 140px;
         height: 140px;
     }
 
     #joystick {
+        bottom: 65px;
         width: 140px;
         height: 140px;
     }
@@ -140,23 +142,23 @@
     }
 
     #joystick-arrows {
-        left: 70px;
-        top: 70px;
+	left: 70px;
+	top: 70px;
     }
 
     #joystick-arrow-n {
-        transform: translate(0px, -56px);
+	transform: translate(0px, -56px);
     }
 
     #joystick-arrow-e {
-        transform: translate(56px, 0px) rotate(90deg);
+	transform:  translate(56px, 0px) rotate(90deg);
     }
 
     #joystick-arrow-w {
-        transform: translate(-56px, 0px) rotate(-90deg);
+	transform:  translate(-56px, 0px) rotate(-90deg);
     }
 
     #joystick-arrow-s {
-        transform: translate(0px, 56px) rotate(180deg);
+	transform:  translate(0px, 56px) rotate(180deg);
     }
 }
