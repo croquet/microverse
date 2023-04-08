@@ -1,4 +1,14 @@
 #!/bin/bash
+
+# .github/workflows/deploy-to-pages.yml calls "npm run build-pages" with a
+# list of branches to build and deploy to GitHub Pages. This script then builds
+# each branch and creates a directory in the _site directory for each branch.
+# The _site directory is then deployed to GitHub Pages.
+
+# for testing, you can run this script locally
+# e.g. ./scripts/build-pages.sh main 1234-branch
+# and then open _site/index.html in your browser
+
 BRANCHES=${@}
 
 # make sure "main" is in the list of branches
@@ -23,7 +33,7 @@ for BRANCH in ${BRANCHES[@]}; do
     echo "Building branch: ${BRANCH}"
     if [ "${BRANCH}" != "${CURRENT_BRANCH}" ]; then
         rm -rf .git/worktrees/${BRANCH}
-        git worktree add -B ${BRANCH} .git/worktrees/${BRANCH} ${BRANCH}
+        git worktree add -B ${BRANCH} .git/worktrees/${BRANCH} remotes/origin/${BRANCH}
         cd .git/worktrees/${BRANCH}
         cp ${ROOT}/apiKey.js .
     fi
@@ -33,6 +43,10 @@ for BRANCH in ${BRANCHES[@]}; do
     mv dist ${ROOT}/_site/${BRANCH}
     COMMIT=$(git show -s --format='%ad %H' --date=format:'%Y-%m-%d %H:%M:%S')
     LINKS+=("<dt><a href=\"${BRANCH}/\">${BRANCH}</a></dt><dd>${COMMIT}</dd>")
+    if [ "${BRANCH}" != "${CURRENT_BRANCH}" ]; then
+        cd ${ROOT}
+        git worktree remove --force .git/worktrees/${BRANCH}
+    fi
 done
 
 cd ${ROOT}

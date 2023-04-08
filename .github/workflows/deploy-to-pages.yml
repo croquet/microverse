@@ -31,7 +31,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          ref: main
           fetch-depth: 0
 
       - name: Setup Pages
@@ -54,7 +53,7 @@ jobs:
           npm run build-pages \
             main control-panel control-panel-20230407
 
-      - name: Upload dist
+      - name: Upload _site
         uses: actions/upload-pages-artifact@v1
 
       - name: Deploy to GitHub Pages
