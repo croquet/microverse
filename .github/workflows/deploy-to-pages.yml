@@ -2,8 +2,9 @@ name: Deploy to Pages
 
 on:
   # Runs on pushes to these branches
+  # the same list should be used below in the "Build branches" step
   push:
-    branches: ["main"]
+    branches: ["main", "control-panel", "control-panel-20230407"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -30,6 +31,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Setup Pages
@@ -40,20 +42,20 @@ jobs:
         with:
           node-version: 16
 
-      - name: Build microverse
+      # vars defined in https://github.com/croquet/microverse/settings/variables/actions
+      - name: Create apiKey.js
         run: |
-          git branch -a
-          npm install
-          npm run build
-          npm run create-version
-          echo 'const apiKey = "1rN7t58Mo1ani03Djcl4amvdEAnoitB6g3oNxEDrC";' > dist/apiKey.js
-          echo 'const appId = "io.croquet.microverse";' >> dist/apiKey.js
-          echo 'export default {apiKey, appId};' >> dist/apiKey.js
+          echo 'const apiKey = "${{ vars.API_KEY }}";' > apiKey.js
+          echo 'const appId = "${{ vars.APP_ID }}";' >> apiKey.js
+          echo 'export default {apiKey, appId};' >> apiKey.js
+
+      - name: Build branches
+        run: |
+          npm run build-pages \
+            main control-panel control-panel-20230407
 
       - name: Upload dist
         uses: actions/upload-pages-artifact@v1
-        with:
-          path: 'dist'
 
       - name: Deploy to GitHub Pages
         id: deployment

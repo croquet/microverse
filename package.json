@@ -12,6 +12,7 @@
     "build": "webpack --mode production",
     "build-dev": "webpack --mode development",
     "build-watch": "webpack watch --mode development --devtool eval-source-map --output-filename 'lib/[name].js'",
+    "build-pages": "./scripts/build-pages.sh",
     "create-version": "./scripts/commit.sh",
     "build-lib": "npm run build-dev; npm run create-version; ./scripts/npm-files.sh"
   },
