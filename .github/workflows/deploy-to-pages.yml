@@ -2,9 +2,12 @@ name: Deploy to Pages
 
 on:
   # Runs on pushes to these branches
-  # the same list should be used below in the "Build branches" step
   push:
-    branches: ["main", "control-panel", "control-panel-20230407"]
+    branches: # the same list should be used below in the "Build branches" step
+      - main
+      - deploy
+      - control-panel
+      - control-panel-20230407
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -48,10 +51,14 @@ jobs:
           echo 'const appId = "${{ vars.APP_ID }}";' >> apiKey.js
           echo 'export default {apiKey, appId};' >> apiKey.js
 
+      # should match the "on push branches" list on top
       - name: Build branches
         run: |
           npm run build-pages \
-            main control-panel control-panel-20230407
+            main \
+            deploy \
+            control-panel \
+            control-panel-20230407
 
       - name: Upload _site
         uses: actions/upload-pages-artifact@v1
