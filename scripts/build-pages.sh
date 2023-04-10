@@ -64,6 +64,16 @@ cat > _site/index.html <<EOF
     <dl>
         ${LINKS[@]}
     </dl>
+    <script>
+        const {search, hash} = window.location;
+        const links = document.getElementsByTagName('a');
+        for (const link of links) {
+            const url = new URL(link.href);
+            url.search = search;
+            url.hash = hash;
+            link.href = url.toString();
+        }
+    </script>
 </body>
 </html>
 EOF
