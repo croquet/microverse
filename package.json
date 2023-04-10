@@ -23,8 +23,8 @@
   ],
   "dependencies": {
     "@croquet/hybrid-msdf-text": "^1.0.1",
-    "@croquet/worldcore-kernel": "^1.3.2",
-    "@dimforge/rapier3d": "^0.11.1",
+    "@croquet/worldcore-kernel": "1.3.3",
+    "@dimforge/rapier3d": "0.11.1",
     "fflate": "^0.7.3",
     "jszip": "^3.7.1",
     "load-bmfont": "^1.4.1",
