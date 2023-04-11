@@ -957,7 +957,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     endMotion(_dx, _dy) {
-        this.activeMMotion = false;
         this.spin = q_identity();
         this.velocity = v3_zero();
     }
@@ -1898,6 +1897,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                         break;
                 }
                 this.velocity = this.wasdVelocity;
+                this.say("startFalling");
                 this.maybeLeavePresentation();
                 break;
         }
