@@ -82,7 +82,8 @@ export class KeyFocusManager extends ViewService {
         }
         this.keyboardInput = obj;
         if (obj) {
-            this.hiddenInput.focus();
+            setTimeout(() => this.hiddenInput.focus(), 0);
+            
         }
     }
 
