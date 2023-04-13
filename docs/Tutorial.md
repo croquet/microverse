@@ -211,7 +211,7 @@ Croquet Microverse utilizes the [Rapier Physics Engine](https://rapier.rs/). Wri
 
 The following tutorials will provide a great start to creating your own living Microverse. Let's get started.
 
-* [Tutorial1]{@tutorial Tutorial1}
-* [Tutorial2]{@tutorial Tutorial2}
+* [Tutorial1](@tutorial Tutorial1)
+* [Tutorial2](@tutorial Tutorial2)
 
 **Copyright (c) 2022 Croquet Corporation**
