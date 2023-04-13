@@ -58,8 +58,11 @@ function getViewRoot() {
 export const AM_Code = superclass => class extends superclass {
     init(options) {
         super.init(options);
-        this.scriptListeners = new Map();
         this.behaviorManager = this.service("BehaviorModelManager");
+        this.scriptListeners = new Map();
+    }
+
+    initBehaviors(options) {
         if (options.behaviorModules) {
             options.behaviorModules.forEach((name) => { /* name: Bar */
                 let module = this.behaviorManager.modules.get(name);
@@ -80,7 +83,7 @@ export const AM_Code = superclass => class extends superclass {
                 }
             });
         }
-    }
+    }        
 
     destroy() {
         if (this[isProxy]) {
@@ -1002,7 +1005,7 @@ export class BehaviorModelManager extends ModelService {
             array.push(modelId);
             behavior.ensureBehavior();
             if (behavior.$behavior.setup) {
-                behavior.future(0).invoke(model[isProxy] ? model._target : model, "setup");
+                behavior.invoke(model[isProxy] ? model._target : model, "setup");
             }
         }
     }

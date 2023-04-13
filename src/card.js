@@ -467,6 +467,8 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
                     actor.subscribe(behavior.id, "setCode", "loadAndReset");
                 }
 
+                actor.initBehaviors(options);
+
                 return actor;
             });
         }

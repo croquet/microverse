@@ -485,8 +485,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
                 // parent: target.parent,
                 type: "object",
                 noSave: true,
+                target: target,
+                targetParent: target.parent,
+                creatorId: viewId
             });
-            this.gizmo.call("Gizmo$GizmoActor", "initializeGizmo", {parent: target.parent, target, creatorId: viewId});
+            // this.gizmo.call("Gizmo$GizmoActor", "initializeGizmo", {parent: target.parent, target, creatorId: viewId});
         } else {
             this.publish(this.gizmo.id, "cycleModes");
         }

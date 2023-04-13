@@ -1,5 +1,12 @@
 class GizmoActor {
     setup() {
+        this.target = this._cardData.target;
+        let targetParent = this._cardData.targetParent;
+        this.creatorId = this._cardData.creatorId;
+
+        this.set({parent: targetParent});
+        this.set({translation: this.target.translation});
+
         this.listen("cycleModes", "cycleModes");
         this.isGizmoManipulator = true;
         this.cycleModes();
@@ -11,6 +18,7 @@ class GizmoActor {
         this.listen("goodBye", "goodBye");
     }
 
+    /*
     initializeGizmo(data) {
         let {parent, target, creatorId} = data;
         if (parent) {
@@ -20,6 +28,7 @@ class GizmoActor {
         this.set({translation: target.translation});
         this.creatorId = creatorId;
     }
+    */
 
     goodBye(viewId) {
         let avatar = [...this.service("ActorManager").actors].find(([_k, actor]) => {
