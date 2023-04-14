@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import * as WorldcoreExports from "@croquet/worldcore-kernel";
-const {ViewService, ModelService, GetPawn, Model, Constants} = WorldcoreExports;
+const {ViewService, ModelService, GetPawn, Model, Constants, App} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "./ThreeRender.js";
 import * as PhysicsExports from "./physics.js";
@@ -682,6 +682,7 @@ class ScriptingBehavior extends Model {
             }
         } catch (e) {
             console.error(`an error occured in ${behaviorName}.${name}() on`, receiver, e);
+            App.messages && App.showMessage(`Error in ${behaviorName}.${name}()`, { level: "error" });
         }
         return result;
     }
