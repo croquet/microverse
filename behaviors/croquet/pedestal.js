@@ -604,13 +604,13 @@ class PoseGizmoPawn {
     }
 
     pointerEnter() {
-        console.log("pointerEnter")
+        // console.log("pointerEnter")
         let hilite = this.actor._cardData.hiliteColor || 0xffaaa;
         this.doHilite(hilite); // hilite in yellow
     }
 
     pointerLeave() {
-        console.log("pointerLeave")
+        // console.log("pointerLeave")
         this.doHilite(null);
     }
 
