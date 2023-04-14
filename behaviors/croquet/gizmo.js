@@ -581,6 +581,7 @@ class GizmoRotorPawn {
         window.planeHelper = new Microverse.THREE.PlaneHelper( interactionPlane, 10, 0xffff00 )
         this.shape.parent.add(window.planeHelper);
         */
+
         return interactionPlane;
     }
 
@@ -645,19 +646,25 @@ class GizmoRotorPawn {
         let projNewDirection = newDragPoint;
         let normal = this.localRotationAxis();
 
-        let sign;
+        let nSign;
         if (this.actor._cardData.axis[0] === 1) {
-            sign = normal[0] < 0 ? -1 : 1;
+            nSign = normal[0] < 0 ? 1 : -1;
         } else if (this.actor._cardData.axis[1] === 1) {
-            sign = normal[1] < 0 ? -1 : 1;
+            nSign = normal[1] < 0 ? 1 : -1;
         } else if (this.actor._cardData.axis[2] === 1) {
-            sign = normal[2] < 0 ? -1 : 1;
+            nSign = normal[2] < 0 ? 1 : -1;
         }
 
-        let angle = Math.atan2(v3_dot(v3_cross(projStartDirection, projNewDirection), normal), v3_dot(projStartDirection, projNewDirection)) * sign;
+        let dot = v3_dot(projStartDirection, projNewDirection);
+        let cross = v3_cross(projNewDirection, projStartDirection);
 
-        let axisAngle = q_axisAngle(this.actor._cardData.axis, angle);
-        const nextRotation = q_multiply(axisAngle, this.gizmoRotationAtDragStart);
+        let dotCross = v3_dot(cross, normal);
+        let acos = Math.acos(dot);
+        let sign = Math.sign(dotCross);
+
+        let axisAngle = q_axisAngle(this.actor._cardData.axis, acos * sign * nSign);
+
+        let nextRotation = q_multiply(axisAngle, this.gizmoRotationAtDragStart);
 
         this.publish(this.parent.actor.id, "rotateTarget", nextRotation)
         this.publish(this.parent.id, "interaction");
