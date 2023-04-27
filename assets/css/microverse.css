@@ -395,12 +395,6 @@ body.tilt > iframe {
     }
 }
 
-@media (max-height: 500px) {
-    .menu-qr {
-        display: none;
-    }
-}
-
 button#VRButton {
     border: 1px solid black !important;
     color: black !important;

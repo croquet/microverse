@@ -41,7 +41,7 @@
     width: 600px;
     min-height: 600px;
 
-    z-index: 2;
+    z-index: 1000;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -820,7 +820,6 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    height: 400px;
 }
 
 #table-scroll {
@@ -859,12 +858,6 @@
     align-items: center;
 }
 
-.share-qr-canvas {
-    width: 200px;
-    height: 200px;
-    margin: 10px;
-}
-
 .copy-link {
     height: 35px;
     border: 1px solid grey;
@@ -894,7 +887,7 @@
     font-weight: bold;
 }
 
-@media (max-width: 600px), (max-height: 600px) {
+@media (max-width: 600px), (max-height: 715px) {
     .dialogPanel {
         width: 90%;
         min-width: 300px;
@@ -904,6 +897,30 @@
         margin-right: auto;
         flex-direction: column;
         justify-content: space-around;
+    }
+
+    #table-wrapper {
+        height: 400px;
+    }
+
+    #share-container #table-wrapper {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 250px;
+    }
+
+    #helpDialog,
+    .dialogPanel {
+        height: 70%;
+    }
+
+    #share-qr {
+        height: 50%;
+    }
+
+    .content-container {
+        height: 80%;
     }
 
     #dialogAvatarSelections {
@@ -944,9 +961,22 @@
     }
 }
 
+@media (min-height: 716px) {
+    .share-qr-canvas {
+        width: 200px;
+        height: 200px;
+        margin: 10px;
+    }
+
+    #table-wrapper {
+        height: 400px;
+    }
+}
+
 @media (max-height: 600px) {
     .dialogPanel {
         width: 80%;
+        padding: 15px;
     }
 
     .panel-title {
