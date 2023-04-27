@@ -4,16 +4,23 @@
 
 /* global VoxeetSDK */
 
-import { Data, ViewService, v3_equals, q_equals, q_yaw } from "@croquet/worldcore-kernel";
+import {
+    Data,
+    ViewService,
+    v3_equals,
+    q_equals,
+    q_yaw,
+} from "@croquet/worldcore-kernel";
 
 let chatAudioMuted = false; // this state has to persist through dormancy
 let userSelectedMicLabel = null; // ditto
 let activeManager = null;
 
 async function getAccessToken() {
-    const functionURL = 'https://us-central1-dolby-croquet.cloudfunctions.net/generateToken';
+    const functionURL =
+        "https://us-central1-dolby-croquet.cloudfunctions.net/generateToken";
     const response = await fetch(functionURL);
-console.log("Dolby token generated");
+    console.log("Dolby token generated");
 
     const json = await response.json();
     return json.token;
@@ -25,14 +32,19 @@ export class DolbyChatManager extends ViewService {
         activeManager = this;
 
         if (!window.isSecureContext) {
-            console.warn("Audio Chat failed to get microphone permissions. If you are running it off http, please enable https");
+            console.warn(
+                "Audio Chat failed to get microphone permissions. If you are running it off http, please enable https"
+            );
             return;
         }
 
         if (!window.dolbyPromise) {
-            window.dolbyPromise = new Promise(resolve => {
-                const s = document.createElement('script');
-                s.setAttribute('src', 'https://cdn.jsdelivr.net/npm/@voxeet/voxeet-web-sdk');
+            window.dolbyPromise = new Promise((resolve) => {
+                const s = document.createElement("script");
+                s.setAttribute(
+                    "src",
+                    "https://cdn.jsdelivr.net/npm/@voxeet/voxeet-web-sdk"
+                );
                 s.onload = async () => {
                     console.log("initialize Dolby SDK");
                     const accessToken = await getAccessToken();
@@ -49,7 +61,7 @@ export class DolbyChatManager extends ViewService {
         this.subscribe("playerManager", "leave", "playerLeave");
 
         this.sessionP = null;
-        this.joinState = 'left';
+        this.joinState = "left";
 
         this.initChatUI();
         this.initAudio(); // async
@@ -59,17 +71,23 @@ export class DolbyChatManager extends ViewService {
         const player = this.localPlayer;
         const alreadyHere = player && player.inWorld;
         if (alreadyHere) this.prepareSession();
-console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"} here)`, this);
+        console.log(
+            `DolbyChatManager (local actor ${
+                alreadyHere ? "already" : "not yet"
+            } here)`,
+            this
+        );
     }
 
-    get localPlayer() { return this.model.service("PlayerManager").players.get(this.viewId); }
+    get localPlayer() {
+        return this.model.service("PlayerManager").players.get(this.viewId);
+    }
 
     initChatUI() {
-        let chatHolder = document.getElementById('chatHolder');
+        let chatHolder = document.getElementById("chatHolder");
         if (!chatHolder) {
             const div = document.createElement("div");
-            div.innerHTML =
-`<div id='chatHolder' class='hidden hide-settings unconnected'>
+            div.innerHTML = `<div id='chatHolder' class='hidden hide-settings unconnected'>
     <div id='chatUI'>
         <div id='chatState' class='noselect'>
             <!-- <div id='worldName'></div> -->
@@ -116,36 +134,49 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             chatHolder = div.firstChild;
             document.getElementById("world-info-container").append(chatHolder);
 
-            ['toggleConnection', 'toggleAudio', 'toggleSettings', 'toggleMicrophoneTest'].forEach(buttonName => {
+            [
+                "toggleConnection",
+                "toggleAudio",
+                "toggleSettings",
+                "toggleMicrophoneTest",
+            ].forEach((buttonName) => {
                 const elem = document.getElementById(buttonName);
-                elem.addEventListener('pointerdown', evt => evt.stopPropagation());
-                elem.addEventListener('click', () => this[buttonName]());
+                elem.addEventListener("pointerdown", (evt) =>
+                    evt.stopPropagation()
+                );
+                elem.addEventListener("click", () => this[buttonName]());
             });
-            const audioInputs = document.getElementById('audioInputs');
-            audioInputs.addEventListener('pointerdown', evt => evt.stopPropagation());
-            audioInputs.addEventListener('input', () => this.setAudioInput());
-            navigator.mediaDevices.addEventListener('devicechange', () => this.updateAudioInputs());
+            const audioInputs = document.getElementById("audioInputs");
+            audioInputs.addEventListener("pointerdown", (evt) =>
+                evt.stopPropagation()
+            );
+            audioInputs.addEventListener("input", () => this.setAudioInput());
+            navigator.mediaDevices.addEventListener("devicechange", () =>
+                this.updateAudioInputs()
+            );
 
             // if rebuilding after dormancy, re-impose the previous mute state
-            if (chatAudioMuted) chatHolder.classList.add('mute-audio');
+            if (chatAudioMuted) chatHolder.classList.add("mute-audio");
         }
 
         this.elements = {
             chatHolder,
-            connectionTooltip: document.getElementById('connection-tooltip'),
-            toggleAudio: document.getElementById('toggleAudio'),
-            audioInputs: document.getElementById('audioInputs'),
+            connectionTooltip: document.getElementById("connection-tooltip"),
+            toggleAudio: document.getElementById("toggleAudio"),
+            audioInputs: document.getElementById("audioInputs"),
 
             localAudio: document.querySelector(`#local > audio`),
-            toggleMicrophoneTest: document.getElementById('toggleMicrophoneTest'),
+            toggleMicrophoneTest: document.getElementById(
+                "toggleMicrophoneTest"
+            ),
 
-            loudness: document.querySelector('#loudness'),
-            loudnessBar: document.querySelector('#loudness .bar'),
-            loudnessMax: document.querySelector('#loudness .max'),
-            loudnessValue: document.querySelector('#loudness .value'),
+            loudness: document.querySelector("#loudness"),
+            loudnessBar: document.querySelector("#loudness .bar"),
+            loudnessMax: document.querySelector("#loudness .max"),
+            loudnessValue: document.querySelector("#loudness .value"),
         };
 
-        chatHolder.classList.remove('hidden');
+        chatHolder.classList.remove("hidden");
     }
 
     setUIStyle(mode) {
@@ -156,10 +187,15 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         this.resumeAudioContextIfNeeded();
         this.elements.connectionTooltip.style.display = "none";
         const now = Date.now();
-        if (now - (this.lastToggle || 0) < 2000 || this.joinState === 'joining' || this.joinState === 'leaving') return;
+        if (
+            now - (this.lastToggle || 0) < 2000 ||
+            this.joinState === "joining" ||
+            this.joinState === "leaving"
+        )
+            return;
         this.lastToggle = now;
 
-        if (this.joinState === 'left') this.joinConference();
+        if (this.joinState === "left") this.joinConference();
         else this.leaveConference();
     }
 
@@ -173,12 +209,16 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     toggleSettings() {
         this.resumeAudioContextIfNeeded();
-        this.elements.chatHolder.classList.toggle('hide-settings');
-        this.setUIStyle(this.elements.chatHolder.classList.contains('hide-settings') ? 'connected' : 'settings');
+        this.elements.chatHolder.classList.toggle("hide-settings");
+        this.setUIStyle(
+            this.elements.chatHolder.classList.contains("hide-settings")
+                ? "connected"
+                : "settings"
+        );
     }
 
     toggleMicrophoneTest() {
-        if (this.elements.chatHolder.classList.contains('testing-microphone')) {
+        if (this.elements.chatHolder.classList.contains("testing-microphone")) {
             this.stopTestingMicrophone();
         } else {
             this.testMicrophone();
@@ -188,10 +228,10 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     computeSessionHandles() {
         // derive handles { persistent, ephemeral } from the
         // persistentId and sessionId respectively.
-        const hasher = id => Data.hash(id).slice(0, 8); // chat app only uses 8 chars
+        const hasher = (id) => Data.hash(id).slice(0, 8); // chat app only uses 8 chars
         const persistent = this.session.persistentId;
         const ephemeral = this.sessionId;
-        return { persistent: hasher(persistent), ephemeral: hasher(ephemeral)};
+        return { persistent: hasher(persistent), ephemeral: hasher(ephemeral) };
     }
 
     addConferenceEventHandlers() {
@@ -222,7 +262,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     prepareSession() {
         if (!this.sessionP) {
-            this.sessionP = new Promise(async resolve => {
+            this.sessionP = new Promise(async (resolve) => {
                 // sessionName is typically the participant name.  not clear if it's meant
                 // to be unique.
                 console.log("open Dolby session");
@@ -232,7 +272,10 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
                 // mean it hasn't yet been restored fully.  make sure we've waited a full
                 // second before looking.
                 const waited = Date.now() - start;
-                if (waited < 1000) await new Promise(resolve => setTimeout(resolve, 1000 - waited));
+                if (waited < 1000)
+                    await new Promise((resolve) =>
+                        setTimeout(resolve, 1000 - waited)
+                    );
                 // fingers crossed that all's well now
                 const participant = this.localPlayer._name;
                 try {
@@ -251,14 +294,17 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     async createConference() {
         console.log("create Dolby conference");
         const { persistent, ephemeral } = this.computeSessionHandles();
-        const conferenceAlias = `${persistent.slice(0, 8)}:${ephemeral.slice(0, 8)}`;
+        const conferenceAlias = `${persistent.slice(0, 8)}:${ephemeral.slice(
+            0,
+            8
+        )}`;
         const conferenceOptions = {
             alias: conferenceAlias,
             params: {
                 audioOnly: true,
-                spatialAudioStyle: "shared"
-            }
-        }
+                spatialAudioStyle: "shared",
+            },
+        };
         let conference = null;
         try {
             // it's fine for multiple users to ask to create the conference.  if it
@@ -271,26 +317,31 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     }
 
     async joinConference() {
-        this.joinState = 'joining';
-        this.elements.chatHolder.classList.add('joining');
-        const conference = await this.prepareSession() && await this.createConference();
+        this.joinState = "joining";
+        this.elements.chatHolder.classList.add("joining");
+        const conference =
+            (await this.prepareSession()) && (await this.createConference());
         if (!conference) {
-            this.elements.chatHolder.classList.remove('joining');
-            this.joinState = 'left';
+            this.elements.chatHolder.classList.remove("joining");
+            this.joinState = "left";
             return;
         }
 
         console.log("join Dolby conference");
         const joinOptions = {
             spatialAudio: true,
-            constraints: { audio: true, video: false }
+            constraints: { audio: true, video: false },
         };
         try {
             await VoxeetSDK.conference.join(conference, joinOptions);
             await this.setAudioInput();
-            if (chatAudioMuted) await VoxeetSDK.conference.mute(VoxeetSDK.session.participant, true);
-            this.joinState = 'joined';
-            this.elements.chatHolder.classList.remove('unconnected');
+            if (chatAudioMuted)
+                await VoxeetSDK.conference.mute(
+                    VoxeetSDK.session.participant,
+                    true
+                );
+            this.joinState = "joined";
+            this.elements.chatHolder.classList.remove("unconnected");
             this.startTestingAudioLevel();
             this.updateActiveInChat();
 
@@ -301,30 +352,38 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
             const axis_scale = 6; // make the fade gradual (to zero at 600 units)
             const scale = { x: axis_scale, y: axis_scale, z: axis_scale };
 
-            VoxeetSDK.conference.setSpatialEnvironment(scale, forward, up, right);
+            VoxeetSDK.conference.setSpatialEnvironment(
+                scale,
+                forward,
+                up,
+                right
+            );
 
             // start regular setting of the local participant’s position
             this.setMyPosition();
         } catch (error) {
             console.error(error);
-            this.joinState = 'left';
+            this.joinState = "left";
         }
 
-        this.elements.chatHolder.classList.remove('joining');
-    };
+        this.elements.chatHolder.classList.remove("joining");
+    }
 
     async leaveConference() {
         console.log("Leave Dolby conference");
         const prevJoinState = this.joinState;
-        this.joinState = 'leaving';
+        this.joinState = "leaving";
         this.sessionP = null;
         this.myLastPosition = null;
-        if (!this.elements) {return;}
-        this.elements.chatHolder.classList.add('unconnected');
+        if (!this.elements) {
+            return;
+        }
+        this.elements.chatHolder.classList.add("unconnected");
         this.stopTestingMicrophone();
         this.stopTestingAudioLevel();
-        if (!this.elements.chatHolder.classList.contains('hide-settings')) this.toggleSettings();
-        if (prevJoinState === 'joined') {
+        if (!this.elements.chatHolder.classList.contains("hide-settings"))
+            this.toggleSettings();
+        if (prevJoinState === "joined") {
             try {
                 await VoxeetSDK.conference.leave();
             } catch (error) {
@@ -339,12 +398,12 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
                 console.error(error);
             }
         }
-        this.joinState = 'left';
+        this.joinState = "left";
         this.updateActiveInChat();
     }
 
     setMyPosition() {
-        if (this.joinState !== 'joined') return;
+        if (this.joinState !== "joined") return;
 
         const { _translation: newPos, _rotation: newRot } = this.localPlayer;
         let moved = true;
@@ -356,10 +415,16 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         if (moved) {
             const [x, y, z] = newPos;
             const myPosition = { x, y, z };
-            const yaw = q_yaw(newRot) * 180 / Math.PI;
+            const yaw = (q_yaw(newRot) * 180) / Math.PI;
             const myRotation = { x: 0, y: yaw, z: 0 };
-            VoxeetSDK.conference.setSpatialPosition(VoxeetSDK.session.participant, myPosition);
-            VoxeetSDK.conference.setSpatialDirection(VoxeetSDK.session.participant, myRotation);
+            VoxeetSDK.conference.setSpatialPosition(
+                VoxeetSDK.session.participant,
+                myPosition
+            );
+            VoxeetSDK.conference.setSpatialDirection(
+                VoxeetSDK.session.participant,
+                myRotation
+            );
         }
         this.future(100).setMyPosition();
     }
@@ -383,12 +448,21 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     }
 
     updateActiveInChat() {
-        const elem = document.getElementById('chatCountText');
-        if (this.joinState === 'joined') {
+        const elem = document.getElementById("chatCountText");
+        if (this.joinState === "joined") {
             // show which users are currently in the chat
-            const participants = Array.from(VoxeetSDK.conference.participants.values());
-            const inChat = participants.filter(p => p.audioTransmitting).map(p => p.info.name).sort();
-            if (this.lastInChat?.length === inChat.length && !inChat.some((nick, i) => this.lastInChat[i] !== nick)) return;
+            const participants = Array.from(
+                VoxeetSDK.conference.participants.values()
+            );
+            const inChat = participants
+                .filter((p) => p.audioTransmitting)
+                .map((p) => p.info.name)
+                .sort();
+            if (
+                this.lastInChat?.length === inChat.length &&
+                !inChat.some((nick, i) => this.lastInChat[i] !== nick)
+            )
+                return;
 
             this.lastInChat = inChat;
             elem.textContent = String(inChat.length);
@@ -400,7 +474,8 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     }
 
     async initAudio() {
-        this.audioContext = new (window.AudioContext || window.webkitAudioContext)(); // default sample rate
+        this.audioContext = new (window.AudioContext ||
+            window.webkitAudioContext)(); // default sample rate
 
         // create a gain node that is always
         // connected to an analyser to measure level (even if the
@@ -431,7 +506,10 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     resumeAudioContextIfNeeded() {
         // on Safari (at least), the audioContext doesn't start
         // in 'running' state.
-        if (this.audioContext.state !== 'running' && this.audioContext.state !== 'closed') {
+        if (
+            this.audioContext.state !== "running" &&
+            this.audioContext.state !== "closed"
+        ) {
             console.log("attempting to resume audioContext");
             this.audioContext.resume();
         }
@@ -439,7 +517,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     stopStream(stream) {
         if (!stream) return;
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
     }
 
     stopMeasurableAudioStream() {
@@ -451,43 +529,60 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 
     updateAudioInputs() {
         // refresh the audio-selection list with all available built-in devices
-        if (this._updateAudioInputsPromise) return this._updateAudioInputsPromise;
+        if (this._updateAudioInputsPromise)
+            return this._updateAudioInputsPromise;
 
         const previousSelection = this.elements.audioInputs.selectedOptions[0];
-        const previousLabel = (previousSelection && previousSelection.label)
-            || (this.chatAudioTrack && this.chatAudioTrack.label)
-            || userSelectedMicLabel;
+        const previousLabel =
+            (previousSelection && previousSelection.label) ||
+            (this.chatAudioTrack && this.chatAudioTrack.label) ||
+            userSelectedMicLabel;
         let lookingForPrevious = !!previousLabel;
         let firstOption;
 
         const audioInputs = this.elements.audioInputs;
-        audioInputs.innerHTML = '';
-        const audioPlaceholderOption = document.createElement('optgroup');
+        audioInputs.innerHTML = "";
+        const audioPlaceholderOption = document.createElement("optgroup");
         audioPlaceholderOption.disabled = true;
         audioPlaceholderOption.selected = false;
         audioPlaceholderOption.label = "Select Microphone";
         audioInputs.appendChild(audioPlaceholderOption);
 
         // Firefox won't provide labels for audio devices unless we get an audio input first. https://stackoverflow.com/questions/46648645/navigator-mediadevices-enumeratedevices-not-display-device-label-on-firefox
-        const prelimPromise = navigator.userAgent.indexOf("Firefox") === -1 ? Promise.resolve() : navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const prelimPromise =
+            navigator.userAgent.indexOf("Firefox") === -1
+                ? Promise.resolve()
+                : navigator.mediaDevices.getUserMedia({
+                      audio: true,
+                      video: false,
+                  });
 
-        const promise = this._updateAudioInputsPromise = prelimPromise
+        const promise = (this._updateAudioInputsPromise = prelimPromise
             .then(() => VoxeetSDK.mediaDevice.enumerateAudioInputDevices())
-            .then(devices => {
-                devices.forEach(device => {
+            .then((devices) => {
+                devices.forEach((device) => {
                     const { deviceId, label } = device;
 
-                    if (deviceId === 'default' || deviceId === 'communications') {
+                    if (
+                        deviceId === "default" ||
+                        deviceId === "communications"
+                    ) {
                         // console.log(`rejecting "default" device (${label})`);
                         return;
                     }
 
                     // re-apply any earlier selection
-                    const selected = lookingForPrevious && previousLabel === label;
+                    const selected =
+                        lookingForPrevious && previousLabel === label;
                     if (selected) lookingForPrevious = false;
 
                     // (text, value, defaultSelected, selected)
-                    const option = new Option(label, deviceId, selected, selected);
+                    const option = new Option(
+                        label,
+                        deviceId,
+                        selected,
+                        selected
+                    );
                     if (!firstOption) firstOption = option;
                     audioInputs.appendChild(option);
                 });
@@ -496,15 +591,19 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
                 // and (if the chat stream is already running) force a
                 // change to that device.
                 if (lookingForPrevious && firstOption) {
-                    console.warn(`previous device "${previousLabel}" is gone; switching to "${firstOption.label}"`);
+                    console.warn(
+                        `previous device "${previousLabel}" is gone; switching to "${firstOption.label}"`
+                    );
                     audioInputs.value = firstOption.value;
                     if (this.mediaStarted) this.setAudioInput();
                 }
-            }).catch(err => {
+            })
+            .catch((err) => {
                 console.error("error in updateAudioInputs", err);
-            }).finally(() => {
+            })
+            .finally(() => {
                 delete this._updateAudioInputsPromise;
-            });
+            }));
 
         return promise;
     }
@@ -523,7 +622,12 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         const selectedLabel = option.label;
 
         const currentAudioTrack = this.chatAudioTrack;
-        if (!force && currentAudioTrack && currentAudioTrack.label === selectedLabel && currentAudioTrack.readyState === 'live') {
+        if (
+            !force &&
+            currentAudioTrack &&
+            currentAudioTrack.label === selectedLabel &&
+            currentAudioTrack.readyState === "live"
+        ) {
             console.log("audio stream already matches selection");
             return Promise.resolve();
         }
@@ -544,8 +648,9 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
         // local audio level.
 
         console.log(`asking Voxeet to select device ID "${selectedId}"`);
-        const promise = this._setAudioInputPromise = VoxeetSDK.mediaDevice.selectAudioInput(selectedId)
-            .then(response => {
+        const promise = (this._setAudioInputPromise = VoxeetSDK.mediaDevice
+            .selectAudioInput(selectedId)
+            .then((response) => {
                 console.log("response from Voxeet:", response);
 
                 // jan 2021: avoid re-running getUserMedia on iPad - because there
@@ -558,51 +663,61 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
                     console.log(`not invoking getUserMedia`);
                     return this.chatAudioStream;
                 } else {
-                    return navigator.mediaDevices.getUserMedia({ audio: { deviceId: selectedId } });
+                    return navigator.mediaDevices.getUserMedia({
+                        audio: { deviceId: selectedId },
+                    });
                 }
-            }).then(stream => {
+            })
+            .then((stream) => {
                 const chatAudioTrack = stream.getAudioTracks()[0];
                 const prevAudioTrack = this.chatAudioTrack;
                 if (!force && chatAudioTrack === prevAudioTrack) {
-                    console.warn(`same audio track found; no replacement needed`);
+                    console.warn(
+                        `same audio track found; no replacement needed`
+                    );
                     return;
                 }
 
                 this.chatAudioStream = stream;
                 this.chatAudioTrack = chatAudioTrack;
                 chatAudioTrack.onmute = () => {
-                    console.log('audio track muted itself');
+                    console.log("audio track muted itself");
                 };
                 chatAudioTrack.onunmute = () => {
-                    console.log('audio track unmuted itself');
+                    console.log("audio track unmuted itself");
                 };
 
                 // replace the stream that feeds the level meter and the feedback
                 // test.
                 this.stopMeasurableAudioStream(); // disconnects mediaStreamSource, if any
-                const mediaStreamSource = this.audioContext.createMediaStreamSource(stream);
+                const mediaStreamSource =
+                    this.audioContext.createMediaStreamSource(stream);
                 mediaStreamSource.connect(this.gainNode);
                 this.measurableAudioStreamSource = mediaStreamSource;
 
-                this.elements.toggleAudio.classList.remove('error');
+                this.elements.toggleAudio.classList.remove("error");
                 this.mediaStarted = true;
-            }).catch(err => {
-                console.warn(`setAudioInput failed for id ${selectedId}: ${err}`);
-                this.elements.toggleAudio.classList.add('error');
-            }).finally(() => {
+            })
+            .catch((err) => {
+                console.warn(
+                    `setAudioInput failed for id ${selectedId}: ${err}`
+                );
+                this.elements.toggleAudio.classList.add("error");
+            })
+            .finally(() => {
                 delete this._setAudioInputPromise;
-            });
+            }));
 
         return promise;
     }
 
     async muteChatAudio() {
-console.log("muting local audio");
+        console.log("muting local audio");
         await this.ensureAudioMuteState(true);
     }
 
     async unmuteChatAudio() {
-console.log("unmuting local audio");
+        console.log("unmuting local audio");
         this.stopTestingMicrophone();
 
         await this.ensureAudioMuteState(false);
@@ -611,45 +726,63 @@ console.log("unmuting local audio");
     async ensureAudioMuteState(muted) {
         // used to mute/unmute our audio in the call.
         if (chatAudioMuted !== muted) {
-            await VoxeetSDK.conference.mute(VoxeetSDK.session.participant, muted);
+            await VoxeetSDK.conference.mute(
+                VoxeetSDK.session.participant,
+                muted
+            );
             chatAudioMuted = muted;
-            this.elements.chatHolder.classList.toggle('mute-audio', muted);
+            this.elements.chatHolder.classList.toggle("mute-audio", muted);
         }
     }
 
     startTestingAudioLevel() {
         this._testAudioInterval = 100;
-        this._testAudioLevelIntervalId = window.setInterval(this.testAudioLevel.bind(this), this._testAudioInterval);
+        this._testAudioLevelIntervalId = window.setInterval(
+            this.testAudioLevel.bind(this),
+            this._testAudioInterval
+        );
     }
 
     testAudioLevel() {
         const audioLevel = this.getLocalAudioLevel();
 
         // no need to display audio level if the meter isn't on view.
-        if (this.elements.chatHolder.classList.contains('hide-settings') || !this.measurableAudioStreamSource) return;
+        if (
+            this.elements.chatHolder.classList.contains("hide-settings") ||
+            !this.measurableAudioStreamSource
+        )
+            return;
 
-        if (this._maxAudioLevelLongTerm === undefined || audioLevel > this._maxAudioLevelLongTerm) {
+        if (
+            this._maxAudioLevelLongTerm === undefined ||
+            audioLevel > this._maxAudioLevelLongTerm
+        ) {
             this._maxAudioLevelLongTerm = audioLevel;
             window.clearTimeout(this._maxAudioLevelLongTermTimeoutId);
             this._maxAudioLevelLongTermTimeoutId = window.setTimeout(() => {
                 delete this._maxAudioLevelLongTerm;
                 delete this._maxAudioLevelLongTermTimeoutId;
 
-                this.elements.loudnessMax.style.bottom = '';
-                this.elements.loudnessMax.style.left = '';
+                this.elements.loudnessMax.style.bottom = "";
+                this.elements.loudnessMax.style.left = "";
             }, 1500);
 
-            const { flexDirection } = getComputedStyle(this.elements.loudnessBar);
-            if (flexDirection.includes('row')) {
+            const { flexDirection } = getComputedStyle(
+                this.elements.loudnessBar
+            );
+            if (flexDirection.includes("row")) {
                 this.elements.loudnessMax.style.left = `${94 * audioLevel}%`;
-                this.elements.loudnessMax.style.bottom = '-3px';
+                this.elements.loudnessMax.style.bottom = "-3px";
             } else {
-                this.elements.loudnessMax.style.left = '-1px';
+                this.elements.loudnessMax.style.left = "-1px";
                 this.elements.loudnessMax.style.bottom = `${94 * audioLevel}%`;
             }
         }
 
-        if (this._maxAudioLevelShortTerm === undefined || audioLevel > this._maxAudioLevelShortTerm) {
+        if (
+            this._maxAudioLevelShortTerm === undefined ||
+            audioLevel > this._maxAudioLevelShortTerm
+        ) {
             this._maxAudioLevelShortTerm = audioLevel;
             window.clearTimeout(this._maxAudioLevelShortTermTimeoutId);
             this._maxAudioLevelShortTermTimeoutId = window.setTimeout(() => {
@@ -657,12 +790,12 @@ console.log("unmuting local audio");
                 delete this._maxAudioLevelShortTermTimeoutId;
 
                 this.elements.loudnessValue.style.flex = 0;
-                this.elements.loudnessValue.style.backgroundColor = 'green';
+                this.elements.loudnessValue.style.backgroundColor = "green";
             }, 100);
 
             this.elements.loudnessValue.style.flex = audioLevel;
 
-            const color = `hsl(${120 * (1 - (audioLevel ** 2))}, 100%, 50%)`;
+            const color = `hsl(${120 * (1 - audioLevel ** 2)}, 100%, 50%)`;
 
             this.elements.loudnessValue.style.backgroundColor = color;
         }
@@ -682,7 +815,8 @@ console.log("unmuting local audio");
         // examining one in 19 implies an inter-measurement
         // interval of 1000/(48000/19), approx 0.4ms.
         const numSamples = this.analyser.fftSize;
-        let value, max = 0;
+        let value,
+            max = 0;
         for (let i = 0; i < numSamples; i += 19) {
             value = data[i];
             value = Math.abs(value - 128);
@@ -699,19 +833,23 @@ console.log("unmuting local audio");
         if (!chatAudioMuted) this.muteChatAudio();
 
         this.elements.localAudio.muted = false; // make it audible
-        this.elements.chatHolder.classList.add('testing-microphone');
+        this.elements.chatHolder.classList.add("testing-microphone");
     }
     stopTestingMicrophone() {
         this.elements.localAudio.muted = true; // silence, but don't remove
-        this.elements.chatHolder.classList.remove('testing-microphone');
+        this.elements.chatHolder.classList.remove("testing-microphone");
     }
 
     destroy() {
         console.log("DolbyChatMgr: destroy");
         this.stopTestingAudioLevel();
         try {
-            this.leaveConference().then(() => this.elements?.chatHolder.remove());
-        } catch(e) { /* ignore */ }
+            this.leaveConference().then(() =>
+                this.elements?.chatHolder.remove()
+            );
+        } catch (e) {
+            /* ignore */
+        }
         activeManager = null; // stop handling events
         super.destroy();
     }
