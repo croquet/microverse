@@ -173,6 +173,10 @@ body.tilt > iframe {
     cursor: pointer;
 }
 
+#worldMenu-qr #qrDiv {
+    width: 75%;
+}
+
 /* .menu-item {
     border-radius: 10px;
     margin-top: 5px;
