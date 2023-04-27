@@ -286,6 +286,10 @@
     margin-left: 35px;
 }
 
+.badge-joined {
+    margin-left: 70px !important;
+}
+
 #chatButtons {
     display: flex;
     flex-direction: row;
