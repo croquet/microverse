@@ -157,9 +157,6 @@ export class DolbyChatManager extends ViewService {
 
             // if rebuilding after dormancy, re-impose the previous mute state
             if (chatAudioMuted) chatHolder.classList.add("mute-audio");
-
-            const people = chatHolder.querySelector("#chatCount");
-            console.log(people);
         }
 
         this.elements = {
@@ -453,8 +450,6 @@ export class DolbyChatManager extends ViewService {
     updateActiveInChat() {
         const elem = document.getElementById("chatCountText");
         const badge = document.getElementById("chatCount");
-
-        console.log(badge);
         if (this.joinState === "joined") {
             // show which users are currently in the chat
             const participants = Array.from(

@@ -335,6 +335,7 @@
 
 #toggleConnection > .joined {
     background-color: #dc3545;
+    font-size: 12px;
 }
 
 #toggleConnection:hover > .joined {
