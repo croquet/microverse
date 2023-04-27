@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Anton&display=swap");
+
 .allow-select {
     -webkit-user-select: text;
     -moz-user-select: text;
@@ -171,8 +173,8 @@
 
 .topright {
     position: absolute;
-    right: -20px;
-    top: -25px;
+    right: 15px;
+    top: 15px;
 }
 
 .btn-radio-button {
@@ -800,10 +802,18 @@
 }
 
 .btn-x {
-    width: 40px;
-    height: 40px;
-    border-radius: 60px;
     z-index: 10;
+    line-height: 1.2;
+    background-color: #f7f8f8;
+    border: 1px solid #f7f8f8;
+    color: #474748;
+    font-family: "Varela Round", sans-serif;
+}
+
+.btn-x:hover {
+    color: white;
+    background-color: #dc3545;
+    border: 1px solid #dc3545;
 }
 
 #table-wrapper {

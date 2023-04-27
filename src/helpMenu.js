@@ -18,7 +18,7 @@ export function startHelpMenu(simplerMenuFlag) {
 function createHelpMenu() {
     let help = `
     <div id="helpDialog" class="dialogPanel no-select">
-    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+    <button id="close-button" type="button" class="btn btn-x topright"><i class="fa-solid fa-xmark"></i></button>
         <div id="share-container" class="content-container">
             <div id="help-title" class="panel-title">Help</div>
             <div id="table-wrapper">

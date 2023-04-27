@@ -35,7 +35,7 @@ export function startShareMenu(avatar, simplerMenuFlag) {
 function createSettingsMenu(useEnter) {
     let settings = `
 <div id="joinDialog" class="dialogPanel no-select">
-    <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+    <button id="close-button" type="button" class="btn btn-x topright"><i class="fa-solid fa-xmark"></i></button>
     <div id="join-container" class="content-container">
         <!--
         <div id="dialogTitle">
@@ -423,7 +423,7 @@ function populateAvatarSelection() {
 function createShareMenu(avatar) {
     let share = `
     <div id="shareDialog" class="dialogPanel no-select">
-        <button id="close-button" type="button" class="btn btn-danger btn-x topright">x</button>
+        <button id="close-button" type="button" class="btn btn-x topright"><i class="fa-solid fa-xmark"></i></button>
         <div id="share-container" class="content-container">
             <div id="share-title" class="panel-title">Invite<br></div>
             <div class="share-settings-label">Anyone with this link can join you in this session.</div>
