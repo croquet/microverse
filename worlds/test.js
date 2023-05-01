@@ -21,7 +21,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "csmLights.js"
+        "csmLights.js", "video.js"
     ];
 
     Constants.DefaultCards = [
@@ -50,5 +50,21 @@ export function init(Constants) {
                 dataType: "jpg",
             }
         },
+        {
+            card: {
+                type: "2d",
+                translation: [0, 2.500142101961323, -2],
+                width: 4,
+                height: 2,
+                fullBright: true,
+                behaviorModules: ["VideoPlayer"],
+                textureLocation: "./assets/Big_Buck_Bunny2.mp4",
+                textureWidth: 4096,
+                textureHeight: 2048,
+                textureType: "video",
+                step: 1.5,
+            }
+        },
+        
     ];
 }

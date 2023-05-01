@@ -797,7 +797,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
             delete this._model3dLoading;
             publishLoaded();
-        }).catch(_err => {
+        }).catch((e) => {
+            console.error(e.message, e.path);
+            this.say("assetLoadError", e);
             delete this._model3dLoading;
         });
     }
@@ -874,6 +876,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     height: this.video.height,
                     texture: this.texture
                 }
+            }).catch((e) => {
+                console.error(e.message, e.path);
+                this.say("assetLoadError", e);
             });
         } else if (textureType === "image") {
             texturePromise = this.getBuffer(textureLocation).then((bufferOrObj) => {
@@ -891,6 +896,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                             resolve({width: texture.image.width, height: texture.image.height, texture})
                         }, null, reject);
                 });
+            }).catch((e) => {
+                console.error(e.message, e.path);
+                this.say("assetLoadError", e);
             });
         } else if (textureType === "canvas") {
             this.canvas = document.createElement("canvas");
@@ -945,6 +953,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     this.constructCollider(obj);
                 }
                 publishLoaded();
+            }).catch((e) => {
+                console.error(e.message, e.path);
+                this.say("assetLoadError", e);
             });
         } else {
             return texturePromise.then((textureObj) => {
@@ -1241,7 +1252,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (dataType === "url" || dataType === "dataUri") {
             return fetch(name)
                 .then((resp) => {
-                    if (!resp.ok) throw Error(`fetch failed: ${resp.status} ${resp.statusText}`);
+                    if (!resp.ok) {
+                        let e = {
+                            message: `fetch failed: ${resp.status} ${resp.statusText}`,
+                            path: name
+                        };
+                        throw e;
+                    }
                     return resp.arrayBuffer();
                 }).then((arrayBuffer) => new Uint8Array(arrayBuffer))
         } else if (dataType === "dataId") {

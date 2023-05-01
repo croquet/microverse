@@ -275,6 +275,7 @@ class PDFPawn {
             }
         } catch (err) {
             // PDF loading error
+            this.say("assetLoadError", {message: err.message, path: pdfLocation});
             console.error(err.message);
         }
         if (objectURL) URL.revokeObjectURL(objectURL);
