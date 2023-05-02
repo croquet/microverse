@@ -472,6 +472,38 @@ button#VRButton {
     }
 }
 
+#worldMenu-shareButton {
+    clip-path: polygon(
+        0% 67%,
+        15% 60%,
+        21% 54%,
+        28% 49%,
+        35% 40%,
+        38% 27%,
+        42% 18%,
+        44% 0,
+        100% 1%,
+        100% 100%,
+        0% 100%
+    );
+}
+
+#worldMenuBtn {
+    clip-path: polygon(
+        100% 65%,
+        87% 62%,
+        77% 55%,
+        71% 47%,
+        66% 37%,
+        60% 28%,
+        58% 14%,
+        60% 0,
+        0 0,
+        0 100%,
+        100% 100%
+    );
+}
+
 @media (max-width: 601px) {
     .control-panel,
     #world-info-contrainer,
