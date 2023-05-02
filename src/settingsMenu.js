@@ -429,8 +429,10 @@ function createShareMenu(avatar) {
             <div class="share-settings-label">Anyone with this link can join you in this session.</div>
             <div class="share-menu-row">
                 <div id="copy-link" class="copy-link allow-select">generated link</div>
-                <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
-                <div id="tooltiptext" style="display:none">Copied</div>
+                <div class="button-container">
+                    <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
+                </div>
+                
             </div>
             <div id="share-qr"></div>
         </div>
@@ -449,17 +451,16 @@ function createShareMenu(avatar) {
     let saveVrseRow = div.querySelector("#save-vrse-row");
     let checkBox = div.querySelector("#voiceCheck");
     let voice = div.querySelector("#voiceChat");
-    const tooltip = div.querySelector("#tooltiptext");
 
     copyLink.onclick = () => copyURL();
 
     const copyURL = async () => {
         try {
             await navigator.clipboard.writeText(link.innerHTML);
-            tooltip.style.display = "block";
+            copyLink.innerHTML = "Copied!";
             setTimeout(function () {
-                tooltip.style.display = "none";
-            }, 500);
+                copyLink.innerHTML = "Copy";
+            }, 1000);
         } catch (err) {
             return;
         }

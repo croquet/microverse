@@ -1089,3 +1089,7 @@ a.dolby-link {
 .remove {
     display: none;
 }
+
+.button-container {
+    width: 180px;
+}
