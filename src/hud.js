@@ -376,12 +376,21 @@ export function filterDomEventsOn(elem) {
 
 export function closeAllDialogs() {
     let panels = document.querySelectorAll(".dialogPanel");
+    const shareButton = document.getElementById("worldMenu-shareButton");
+    const helpButton = document.getElementById("worldMenu-helpButton");
+
     panels.forEach((p) => p.remove());
     sendToShell("hud", { joystick: true, fullscreen: true });
 
     let homeBtn = document.querySelector("#homeBtn");
     if (homeBtn) {
         homeBtn.style.display = "flex";
+    }
+    if (shareButton) {
+        shareButton.classList.remove("share-clicked");
+    }
+    if (helpButton) {
+        helpButton.classList.remove("help-clicked");
     }
 }
 
