@@ -2711,12 +2711,14 @@ export class AvatarPawn extends mix(CardPawn).with(
             helpMenu.remove();
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
+        } else {
         }
         if (!shareMenu && !helpMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
             shareMenu = true;
         } else if (shareMenu) {
+            shareMenu.remove();
             shareMenu = false;
         }
     }
@@ -2740,6 +2742,7 @@ export class AvatarPawn extends mix(CardPawn).with(
 
             helpMenu = true;
         } else if (helpMenu) {
+            helpMenu.remove();
             helpMenu = false;
         }
     }

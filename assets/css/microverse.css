@@ -477,6 +477,10 @@ button#VRButton {
     }
 }
 
+.share-clicked {
+    background-image: url("../images/right.png");
+}
+
 #worldMenu-shareButton {
     clip-path: polygon(
         0% 67%,
