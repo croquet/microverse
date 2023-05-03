@@ -2705,19 +2705,27 @@ export class AvatarPawn extends mix(CardPawn).with(
         let shareMenu = document.getElementById("shareDialog");
         let helpMenu = document.getElementById("helpDialog");
         let settings = document.getElementById("joinDialog");
+        const shareButton = document.getElementById("worldMenu-shareButton");
+        const helpButton = document.getElementById("worldMenu-helpButton");
         let showcase = Constants.ShowCaseSpec;
+
+        shareButton.classList.add("share-clicked");
 
         if (helpMenu) {
             helpMenu.remove();
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
+            helpButton.classList.remove("help-clicked");
         } else {
         }
         if (!shareMenu && !helpMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
+            helpButton.classList.remove("help-clicked");
+
             shareMenu = true;
         } else if (shareMenu) {
+            helpButton.classList.remove("help-clicked");
             shareMenu.remove();
             shareMenu = false;
         }
@@ -2727,21 +2735,28 @@ export class AvatarPawn extends mix(CardPawn).with(
         let helpMenu = document.getElementById("helpDialog");
         let shareMenu = document.getElementById("shareDialog");
         let settings = document.getElementById("joinDialog");
+        const shareButton = document.getElementById("worldMenu-shareButton");
+        const helpButton = document.getElementById("worldMenu-helpButton");
 
         let showcase = Constants.ShowCaseSpec;
+
+        helpButton.classList.add("help-clicked");
 
         if (shareMenu) {
             shareMenu.remove();
             sendToShell("hud", { joystick: false, fullscreen: false });
             startHelpMenu(showcase && !showcase.useAvatar);
+            shareButton.classList.remove("share-clicked");
         }
 
         if (!helpMenu && !shareMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startHelpMenu(showcase && !showcase.useAvatar);
+            shareButton.classList.remove("share-clicked");
 
             helpMenu = true;
         } else if (helpMenu) {
+            shareButton.classList.remove("share-clicked");
             helpMenu.remove();
             helpMenu = false;
         }

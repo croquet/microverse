@@ -481,6 +481,10 @@ button#VRButton {
     background-image: url("../images/right.png");
 }
 
+.help-clicked {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
 #worldMenu-shareButton {
     clip-path: polygon(
         0% 67%,
