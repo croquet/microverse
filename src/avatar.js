@@ -2702,7 +2702,6 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     showShareMenu() {
-        console.log("show share");
         let shareMenu = document.getElementById("shareDialog");
         let helpMenu = document.getElementById("helpDialog");
         let settings = document.getElementById("joinDialog");
@@ -2723,7 +2722,6 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     showHelpMenu() {
-        console.log("show help");
         let helpMenu = document.getElementById("helpDialog");
         let shareMenu = document.getElementById("shareDialog");
         let settings = document.getElementById("joinDialog");
