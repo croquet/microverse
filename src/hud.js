@@ -319,10 +319,12 @@ function toggleMenu(myAvatar) {
         sendToShell("hud", { joystick: true, fullscreen: true });
 
         worldMenu.classList.remove("menuVisible");
+        worldMenuBtn.classList.remove("menu-clicked");
         worldMenuVisible = false;
         return;
     } else {
         sendToShell("hud", { joystick: false, fullscreen: false });
+        worldMenuBtn.classList.add("menu-clicked");
     }
 
     setMenuItems(myAvatar);
