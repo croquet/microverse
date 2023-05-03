@@ -100,7 +100,7 @@ function createHelpMenu() {
                      <tr class="help-row" id="connect-row">
                          <td>
                              <p class="table-head">Connect</p>
-                             <p class="table-desc">Link your text editor to edit behavior file code.</p>
+                             <p class="table-desc">run a dev server to link your text editor to edit behavior file code.</p>
                          </td>
                          <td class="icon-column">
                              <div class="icons">

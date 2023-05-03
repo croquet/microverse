@@ -435,6 +435,11 @@ button#VRButton {
     grid-template-columns: repeat(4, 1fr);
 }
 
+#world-title {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
 @media (min-width: 600px) {
     .control-panel,
     #world-info-contrainer {
@@ -454,7 +459,7 @@ button#VRButton {
     }
 
     #world-info-container {
-        width: 550px !important;
+        min-width: 550px !important;
     }
 
     .menu-qr {
