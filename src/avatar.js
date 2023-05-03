@@ -2709,20 +2709,15 @@ export class AvatarPawn extends mix(CardPawn).with(
         let showcase = Constants.ShowCaseSpec;
 
         if (helpMenu) {
-            helpMenu.style.display = "none";
+            helpMenu.remove();
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
         }
-
         if (!shareMenu && !helpMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startShareMenu(this, showcase && !showcase.useAvatar);
-
             shareMenu = true;
         } else if (shareMenu) {
-            sendToShell("hud", { joystick: true, fullscreen: true });
-            closeAllDialogs();
-
             shareMenu = false;
         }
     }
@@ -2736,7 +2731,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         let showcase = Constants.ShowCaseSpec;
 
         if (shareMenu) {
-            shareMenu.style.display = "none";
+            shareMenu.remove();
             sendToShell("hud", { joystick: false, fullscreen: false });
             startHelpMenu(showcase && !showcase.useAvatar);
         }
@@ -2747,9 +2742,6 @@ export class AvatarPawn extends mix(CardPawn).with(
 
             helpMenu = true;
         } else if (helpMenu) {
-            sendToShell("hud", { joystick: true, fullscreen: true });
-            closeAllDialogs();
-
             helpMenu = false;
         }
     }
