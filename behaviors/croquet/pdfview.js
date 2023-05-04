@@ -259,11 +259,14 @@ class PDFPawn {
     }
 
     async loadDocument(pdfLocation) {
+        const assetManager = this.service("AssetManager").assetManager;
         this.pdf = null;
         this.pdfLocation = null;
         let objectURL;
         try {
-            const buffer = await this.getBuffer(pdfLocation);
+            const buffer = await assetManager.fillCacheIfAbsent(pdfLocation, () => {
+                return this.getBuffer(pdfLocation);
+            }, this.id);
             objectURL = URL.createObjectURL(new Blob([buffer]));
             const pdfjsLib = await window.pdfjsPromise;
             const pdf = await pdfjsLib.getDocument(objectURL).promise;
@@ -765,6 +768,11 @@ class PDFPawn {
 
         let moduleName = this._behavior.module.externalName;
         this.removeUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
+
+        if (this.pdfLocation) {
+            const assetManager = this.service("AssetManager").assetManager;
+            assetManager.revoke(this.pdfLocation, this.id);
+        }
     }
 }
 
