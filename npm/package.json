@@ -1,6 +1,6 @@
 {
     "name": "@croquet/microverse-library",
-    "version": "0.4.6",
+    "version": "0.4.7",
     "description": "An npm package version of Microverse",
     "main": "lib/index.js",
     "author": "Croquet Corporation",

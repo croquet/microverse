@@ -16,6 +16,9 @@ rm -rf ${DIST}/assets/images
 mkdir -p ${DIST}/assets/fonts
 cp -rp assets/fonts/css assets/fonts/webfonts assets/fonts/Roboto* assets/fonts/Poppins*.woff2 ${DIST}/assets/fonts
 
+mkdir -p ${DIST}/assets/avatar-animations
+cp -rp assets/avatar-animations ${DIST}/assets/
+
 rm -rf ${DIST}/apps
 rm -rf ${DIST}/docs
 
