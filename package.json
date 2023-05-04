@@ -14,7 +14,7 @@
     "build-watch": "webpack watch --mode development --devtool eval-source-map --output-filename 'lib/[name].js'",
     "create-version": "./scripts/commit.sh",
     "build-lib": "npm run build-dev; npm run create-version; ./scripts/npm-files.sh",
-    "build-pages": "sh ./scripts/build-pages.sh"
+    "build-pages": "bash ./scripts/build-pages.sh"
   },
   "author": "Croquet Corporation",
   "license": "Apache-2.0",
