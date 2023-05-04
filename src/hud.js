@@ -311,6 +311,16 @@ function setMenuItems(myAvatar) {
             }
         };
     }
+
+    document.onkeydown = function (e) {
+        if (e.key === "g") {
+            if (myAvatar.actor.service("PlayerManager").presentationMode) {
+                forceStop(myAvatar);
+            } else {
+                myAvatar.comeToMe();
+            }
+        }
+    };
 }
 
 function toggleMenu(myAvatar) {
