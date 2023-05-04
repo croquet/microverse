@@ -2730,7 +2730,7 @@ export class AvatarPawn extends mix(CardPawn).with(
             shareMenu = true;
         } else if (shareMenu) {
             helpButton.classList.remove("help-clicked");
-            shareButton.classList.remove("help-clicked");
+            shareButton.classList.remove("help-clicked", "share-clicked");
             sendToShell("hud", { joystick: true, fullscreen: true });
             shareMenu.remove();
             shareMenu = false;
