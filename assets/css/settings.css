@@ -916,11 +916,6 @@
         height: 250px;
     }
 
-    #helpDialog,
-    .dialogPanel {
-        height: 70%;
-    }
-
     #share-qr {
         height: 50%;
     }
