@@ -329,12 +329,19 @@ function toggleMenu(myAvatar) {
         sendToShell("hud", { joystick: true, fullscreen: true });
 
         worldMenu.classList.remove("menuVisible");
-        worldMenuBtn.classList.remove("menu-clicked");
+        worldMenuBtn.classList.remove("menu-clicked", "help-clicked");
         worldMenuVisible = false;
         return;
     } else {
         sendToShell("hud", { joystick: false, fullscreen: false });
-        worldMenuBtn.classList.add("menu-clicked");
+
+        const width = window.innerWidth;
+        if (width <= 768) {
+            worldMenuBtn.classList.add("help-clicked");
+            console.log(width);
+        } else if (width >= 769) {
+            worldMenuBtn.classList.add("menu-clicked");
+        }
     }
 
     setMenuItems(myAvatar);
@@ -399,7 +406,7 @@ export function closeAllDialogs() {
         homeBtn.style.display = "flex";
     }
     if (shareButton) {
-        shareButton.classList.remove("share-clicked");
+        shareButton.classList.remove("share-clicked", "help-clicked");
     }
     if (helpButton) {
         helpButton.classList.remove("help-clicked");

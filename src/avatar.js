@@ -2664,7 +2664,6 @@ export class AvatarPawn extends mix(CardPawn).with(
     }
 
     showSettingsMenu() {
-        console.log("show settings");
         let shareMenu = document.getElementById("shareDialog");
         let helpMenu = document.getElementById("helpDialog");
         let settings = document.getElementById("joinDialog");
@@ -2709,7 +2708,12 @@ export class AvatarPawn extends mix(CardPawn).with(
         const helpButton = document.getElementById("worldMenu-helpButton");
         let showcase = Constants.ShowCaseSpec;
 
-        shareButton.classList.add("share-clicked");
+        const width = window.innerWidth;
+        if (width <= 768) {
+            shareButton.classList.add("help-clicked");
+        } else if (width >= 769) {
+            shareButton.classList.add("share-clicked");
+        }
 
         if (helpMenu) {
             helpMenu.remove();
@@ -2726,6 +2730,8 @@ export class AvatarPawn extends mix(CardPawn).with(
             shareMenu = true;
         } else if (shareMenu) {
             helpButton.classList.remove("help-clicked");
+            shareButton.classList.remove("help-clicked");
+            sendToShell("hud", { joystick: true, fullscreen: true });
             shareMenu.remove();
             shareMenu = false;
         }
@@ -2746,17 +2752,19 @@ export class AvatarPawn extends mix(CardPawn).with(
             shareMenu.remove();
             sendToShell("hud", { joystick: false, fullscreen: false });
             startHelpMenu(showcase && !showcase.useAvatar);
-            shareButton.classList.remove("share-clicked");
+            shareButton.classList.remove("share-clicked", "help-clicked");
         }
 
         if (!helpMenu && !shareMenu && !settings) {
             sendToShell("hud", { joystick: false, fullscreen: false });
             startHelpMenu(showcase && !showcase.useAvatar);
-            shareButton.classList.remove("share-clicked");
+            shareButton.classList.remove("share-clicked", "help-clicked");
 
             helpMenu = true;
         } else if (helpMenu) {
-            shareButton.classList.remove("share-clicked");
+            shareButton.classList.remove("share-clicked", "help-clicked");
+            helpButton.classList.remove("help-clicked");
+            sendToShell("hud", { joystick: true, fullscreen: true });
             helpMenu.remove();
             helpMenu = false;
         }
