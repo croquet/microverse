@@ -743,8 +743,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (!model3d || this._model3dLoading === model3d) {return;}
 
         this._model3dLoading = model3d;
-        this.getBuffer(model3d).then((buffer) => {
-            assetManager.setCache(model3d, buffer, this.id);
+        assetManager.fillCacheIfAbsent(model3d, () => {
+            let b = this.getBuffer(model3d);
+            console.log("b", b);
+            return b;
+        }, this.id).then((buffer) => {
             return assetManager.load(buffer, modelType, THREE);
         }).then((obj) => {
             if (model3d !== this._model3dLoading) {
@@ -805,6 +808,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     construct2D(options) {
+        let assetManager = this.service("AssetManager").assetManager;
+
         let dataLocation = options.dataLocation;
         let textureLocation = options.textureLocation;
         let textureType = options.textureType;
@@ -846,7 +851,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             this.video.muted = muted;
             this.video.loop = loop;
             this.video.controls = false;
-            texturePromise = this.getBuffer(textureLocation).then((buffer) => {
+
+            texturePromise = assetManager.fillCacheIfAbsent(textureLocation, () => {
+                return this.getBuffer(textureLocation);
+            }, this.id).then((buffer) => {
                 let objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                 this.video.src = objectURL;
                 this.video.preload = "metadata";
@@ -881,25 +889,23 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 this.say("assetLoadError", e);
             });
         } else if (textureType === "image") {
-            texturePromise = this.getBuffer(textureLocation).then((bufferOrObj) => {
-                if (bufferOrObj.texture) {
-                    this.texture = bufferOrObj.texture;
-                    return Promise.resolve(bufferOrObj);
-                }
-                let objectURL = URL.createObjectURL(new Blob([bufferOrObj]));
-                this.objectURL = objectURL;
-                return new Promise((resolve, reject) => {
-                    this.texture = new THREE.TextureLoader().load(
-                        objectURL,
-                        (texture) => {
-                            URL.revokeObjectURL(objectURL);
-                            resolve({width: texture.image.width, height: texture.image.height, texture})
-                        }, null, reject);
+            texturePromise = assetManager.fillCacheIfAbsent(textureLocation, () =>
+                this.getBuffer(textureLocation), this.id)
+                .then((buffer) => {
+                    let objectURL = URL.createObjectURL(new Blob([buffer]));
+                    this.objectURL = objectURL;
+                    return new Promise((resolve, reject) => {
+                        this.texture = new THREE.TextureLoader().load(
+                            objectURL,
+                            (texture) => {
+                                URL.revokeObjectURL(objectURL);
+                                resolve({width: texture.image.width, height: texture.image.height, texture})
+                            }, null, reject);
+                    });
+                }).catch((e) => {
+                    console.error(e.message, e.path);
+                    this.say("assetLoadError", e);
                 });
-            }).catch((e) => {
-                console.error(e.message, e.path);
-                this.say("assetLoadError", e);
-            });
         } else if (textureType === "canvas") {
             this.canvas = document.createElement("canvas");
             this.canvas.id = name;
@@ -924,39 +930,39 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             depth,
         };
 
-        let assetManager = this.service("AssetManager").assetManager;
-
         if (dataLocation) {
-            return this.getBuffer(dataLocation).then((buffer) => {
-                assetManager.setCache(dataLocation, buffer, this.id);
-                return assetManager.load(buffer, "svg", THREE, loadOptions);
-            }).then((obj) => {
-                normalizeSVG(obj, depth, shadow, THREE);
-                // this is not working for SVGs
-                // let geometry = toIndexed(obj.children[0].geometry, THREE, true);
-                // obj.children[0].geometry = geometry;
-                return obj;
-            }).then((obj) => {
-                if (this.texture) {
-                    addTexture(obj, this.texture);
-                }
-                if (options.dataTranslation) {
-                    obj.position.set(...options.dataTranslation);
-                }
-                obj.name = "2d";
-                if (Array.isArray(obj.material)) {
-                    obj.material.dispose = arrayDispose;
-                }
-                this.objectCreated(obj);
-                this.shape.add(obj);
-                if (this.actor.layers.indexOf("walk") >= 0) {
-                    this.constructCollider(obj);
-                }
-                publishLoaded();
-            }).catch((e) => {
-                console.error(e.message, e.path);
-                this.say("assetLoadError", e);
-            });
+            assetManager.fillCacheIfAbsent(
+                dataLocation,
+                () => this.getBuffer(dataLocation),
+                this.id)
+                .then((buffer) => assetManager.load(buffer, "svg", THREE, loadOptions))
+                .then((obj) => {
+                    normalizeSVG(obj, depth, shadow, THREE);
+                    // this is not working for SVGs
+                    // let geometry = toIndexed(obj.children[0].geometry, THREE, true);
+                    // obj.children[0].geometry = geometry;
+                    return obj;
+                }).then((obj) => {
+                    if (this.texture) {
+                        addTexture(obj, this.texture);
+                    }
+                    if (options.dataTranslation) {
+                        obj.position.set(...options.dataTranslation);
+                    }
+                    obj.name = "2d";
+                    if (Array.isArray(obj.material)) {
+                        obj.material.dispose = arrayDispose;
+                    }
+                    this.objectCreated(obj);
+                    this.shape.add(obj);
+                    if (this.actor.layers.indexOf("walk") >= 0) {
+                        this.constructCollider(obj);
+                    }
+                    publishLoaded();
+                }).catch((e) => {
+                    console.error(e.message, e.path);
+                    this.say("assetLoadError", e);
+                });
         } else {
             return texturePromise.then((textureObj) => {
                 if (textureObj && textureObj.texture) {
@@ -1734,4 +1740,3 @@ function arrayDispose() {
         this.dispose();
     }
 }
-

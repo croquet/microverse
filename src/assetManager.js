@@ -219,6 +219,7 @@ export class AssetManager {
 
     fillCacheIfAbsent(dataId, func, id) {
         let obj = this.assetCache[dataId];
+        console.log(dataId, obj, id);
         if (obj) {
             this.assetCache[dataId].ids.add(id);
             return obj.data;

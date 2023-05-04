@@ -1028,7 +1028,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         if (obj && obj.isObject3D) { // is3D
-            assetManager.setCache(dataId, buffer, "0");
+            assetManager.setCache(dataId, Promise.resolve(buffer), "0");
             if (obj._croquetAnimation) {
                 animationClipIndex = 0;
             }
