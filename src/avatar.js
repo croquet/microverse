@@ -1401,7 +1401,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.say("_set", actorSpec);
         if (enteringWorld) {
             delete this.modelLoadTime;
-            this.say("setAvatarData", actorSpec.cardData || {}); // NB: after setting actor's name
+            this.say("setAvatarData", {
+                ...actorSpec.cardData,
+                dataLocation: (actorSpec.cardData.skins || {})[this.actor.world.name] || actorSpec.cardData?.dataLocation,
+            }); // NB: after setting actor's name
             // start presenting and following in new space too
             if (spec?.presenting) {
                 let manager = this.actor.service("PlayerManager");
@@ -1446,7 +1449,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 // unless positionTo() is called the avatar state (should) stays the same.
 
                 let vq = this.updatePose(delta);
-                let walkManager = this.service("WalkManager")
+                let walkManager = this.service("WalkManager");
                 vq = walkManager.walk(this, vq, time, delta);
 
                 // the implementation of positionTo checks closeness to the current value so
@@ -1933,7 +1936,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     v = 0;
                 }
                 this.wasdVelocity = [h, 0, v];
-                this.velocity = this.wasdVelocity;;
+                this.velocity = this.wasdVelocity;
         }
     }
 
@@ -2186,7 +2189,29 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             if (options.behaviorModules.indexOf(handlerModuleName) >= 0) {
                 options.behaviorModules = options.behaviorModules.filter((n) => n !== handlerModuleName);
             }
-        } else {
+        }  else if (configuration.type === "ReadyPlayerMePerson") {
+            options = {
+                ...options,
+                ...{
+                    dataLocation: configuration.skins.default,
+                    skins: [configuration.skins.default],
+                    avatarEventHandler: "FullBodyAvatarEventHandler",
+                    // the animation mixer overrides those values the fullBodyAvatar.modelLoaded()
+                    // inserts an extra group to adjust things.
+                    // dataScale: [2, 2, 2],
+                    // dataTranslation: [0, -3.2, 0],
+                    // dataRotation: q_euler(0, Math.PI, 0),
+                    behaviorModules: [
+                        ...options.behaviorModules,
+                        "FullBodyAvatarEventHandler",
+                    ],
+                    // todo: remove for fixed models
+                }
+            };
+            if (options.behaviorModules.indexOf(handlerModuleName) >= 0) {
+                options.behaviorModules = options.behaviorModules.filter((n) => n !== handlerModuleName);
+            }
+        }else {
             options = {...options, ...{
                 dataScale:  [0.3, 0.3, 0.3],
                 dataTranslation:  [0, -0.4, 0]
