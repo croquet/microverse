@@ -168,7 +168,7 @@ body.tilt > iframe {
     cursor: pointer;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 601px) {
     #worldMenu-qr #qrDiv {
         width: 75%;
     }
@@ -438,7 +438,7 @@ button#VRButton {
     padding-right: 10px;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 601px) {
     .control-panel,
     #world-info-contrainer {
         width: 550px !important;
@@ -462,8 +462,8 @@ button#VRButton {
 
     .menu-qr {
         float: left;
-        height: 100%;
         width: 50%;
+        height: 100%;
     }
 
     #worldMenuBtn:hover {
@@ -539,6 +539,14 @@ button#VRButton {
         width: 100% !important;
     }
 
+    #worldMenu {
+        max-height: 80%;
+    }
+
+    #worldMenu-qr {
+        width: 30%;
+    }
+
     .control-panel {
         background-color: rgba(0, 0, 0, 0.5);
         border: 1px solid black;
@@ -563,10 +571,6 @@ button#VRButton {
         margin-left: auto;
         margin-right: auto;
         padding: 25px;
-    }
-
-    #worldMenu .menu-qr {
-        width: 50%;
     }
 }
 
