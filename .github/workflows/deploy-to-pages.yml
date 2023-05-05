@@ -1,64 +1,74 @@
+# Workflow to build a GitHub Pages site for multiple branches simultaneously
+
+# NOTE: to make this work, in GitHub Settings under Pages – Build and Deployment
+# change Source from "Deploy from a branch" to "GitHub Actions"!
+
+# AND this file needs to be present in all deployed branches
+# as well as the scripts/build-pages.sh script and the line to run it in package.json
+
 name: Deploy to Pages
 
 on:
-    # Runs on pushes to these branches
-    push:
-        branches: # the same list should be used below in the "Build branches" step
-            - main
-            - deploy
-            - control-panel
+  # Runs on pushes to these branches
+  push:
+    branches: # the same list should be used below in the "Build branches" step
+      - main
+      - deploy
+      - control-panel
 
-    # Allows you to run this workflow manually from the Actions tab
-    workflow_dispatch:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-    contents: read
-    pages: write
-    id-token: write
+  contents: read
+  pages: write
+  id-token: write
 
 # Allow one concurrent deployment
 concurrency:
-    group: "pages"
-    cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-    # Single deploy job since we're just deploying
-    deploy:
-        environment:
-            name: github-pages
-            url: ${{ steps.deployment.outputs.page_url }}
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v3
-              with:
-                  fetch-depth: 0
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-            - name: Setup Pages
-              uses: actions/configure-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
 
-            - name: Use Node.js 16
-              uses: actions/setup-node@v3
-              with:
-                  node-version: 16
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
-            # vars defined in https://github.com/croquet/microverse/settings/variables/actions
-            - name: Create apiKey.js
-              run: |
-                  echo 'const apiKey = "${{ vars.API_KEY }}";' > apiKey.js
-                  echo 'const appId = "${{ vars.APP_ID }}";' >> apiKey.js
-                  echo 'export default {apiKey, appId};' >> apiKey.js
-            # should match the "on push branches" list on top
-            - name: Build branches
-              run: |
-                  npm run build-pages \
-                    main \
-                    deploy \
-                    control-panel \
-            - name: Upload _site
-              uses: actions/upload-pages-artifact@v1
+      # vars defined in https://github.com/croquet/microverse/settings/variables/actions
+      - name: Create apiKey.js
+        run: |
+          echo 'const apiKey = "${{ vars.API_KEY }}";' > apiKey.js
+          echo 'const appId = "${{ vars.APP_ID }}";' >> apiKey.js
+          echo 'export default {apiKey, appId};' >> apiKey.js
 
-            - name: Deploy to GitHub Pages
-              id: deployment
-              uses: actions/deploy-pages@v1
+      # should match the "on push branches" list on top
+      - name: Build branches
+        run: |
+          npm run build-pages \
+            main \
+            deploy \
+            control-panel \
+
+      - name: Upload _site
+        uses: actions/upload-pages-artifact@v1
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

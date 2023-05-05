@@ -195,7 +195,6 @@ function initWorldMenu(badge) {
         fullscreen.onclick = (e) => {
             e.stopPropagation();
             e.preventDefault();
-
             if (e.shiftKey) {
                 document.body.classList.toggle("tilt");
                 return;
@@ -263,6 +262,17 @@ function hudButtons(myAvatar) {
     filterDomEventsOn(document.querySelector("#homeBtn"));
 }
 
+document.onkeydown = function (e) {
+    if (e.key === "g") {
+        console.log("here");
+        if (myAvatar.actor.service("PlayerManager").presentationMode) {
+            forceStop(myAvatar);
+        } else {
+            myAvatar.comeToMe();
+        }
+    }
+};
+
 function setMenuItems(myAvatar) {
     let gatherItem = worldMenu.querySelector("#worldMenu-gather");
     let label = gatherItem.querySelector("span");
@@ -301,6 +311,7 @@ function setMenuItems(myAvatar) {
     if (div) div.onclick = () => settingsPressed(myAvatar);
 
     div = gatherItem;
+
     if (div) {
         div.onclick = () => {
             // toggleMenu(myAvatar);
@@ -311,16 +322,6 @@ function setMenuItems(myAvatar) {
             }
         };
     }
-
-    document.onkeydown = function (e) {
-        if (e.key === "g") {
-            if (myAvatar.actor.service("PlayerManager").presentationMode) {
-                forceStop(myAvatar);
-            } else {
-                myAvatar.comeToMe();
-            }
-        }
-    };
 }
 
 function toggleMenu(myAvatar) {

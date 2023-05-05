@@ -37,10 +37,8 @@
     align-items: center;
     position: absolute;
     padding-bottom: 10px;
-
-    width: 600px;
     min-height: 600px;
-
+    width: 600px;
     z-index: 1000;
     left: 50%;
     top: 50%;
@@ -895,7 +893,6 @@
 
 @media (max-width: 600px), (max-height: 715px) {
     .dialogPanel {
-        width: 90%;
         min-width: 300px;
         min-height: 300px;
         display: flex;
