@@ -325,6 +325,8 @@ function setMenuItems(myAvatar) {
 }
 
 function toggleMenu(myAvatar) {
+    let worldMenuBtn = document.querySelector("#worldMenuBtn");
+
     closeAllDialogs();
     if (worldMenuVisible) {
         sendToShell("hud", { joystick: true, fullscreen: true });
@@ -337,10 +339,10 @@ function toggleMenu(myAvatar) {
         sendToShell("hud", { joystick: false, fullscreen: false });
 
         const width = window.innerWidth;
-        if (width <= 768) {
+        if (width <= 600) {
             worldMenuBtn.classList.add("help-clicked");
             console.log(width);
-        } else if (width >= 769) {
+        } else if (width >= 601) {
             worldMenuBtn.classList.add("menu-clicked");
         }
     }

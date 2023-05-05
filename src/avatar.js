@@ -2709,9 +2709,9 @@ export class AvatarPawn extends mix(CardPawn).with(
         let showcase = Constants.ShowCaseSpec;
 
         const width = window.innerWidth;
-        if (width <= 768) {
+        if (width <= 600) {
             shareButton.classList.add("help-clicked");
-        } else if (width >= 769) {
+        } else if (width >= 601) {
             shareButton.classList.add("share-clicked");
         }
 

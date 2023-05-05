@@ -487,7 +487,7 @@ button#VRButton {
     background-image: url("../images/left.png");
 }
 
-@media (min-width: 769px) {
+@media (min-width: 601px) {
     #worldMenu-shareButton {
         clip-path: polygon(
             46% 0%,
