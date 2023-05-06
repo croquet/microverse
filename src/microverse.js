@@ -862,26 +862,11 @@ export function startMicroverse() {
     // Constants is not initialized yet, as Croquet session has not been started.
     let showcase = window.showcase;
 
-    sendToShell("hud", {joystick: false, fullscreen: false});
-    setButtons("none");
+    window.settingsMenuConfiguration = {};
 
-    const configPromise = new Promise(resolve => resolveConfiguration = resolve)
-        .then(localConfig => {
-            window.settingsMenuConfiguration = { ...localConfig };
-            return !localConfig.showSettings || localConfig.userHasSet
-                ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
-        });
-    sendToShell("send-configuration");
-
-    return configPromise.then(changed => {
-        if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
-        if (!showcase) {
-            sendToShell("hud", {joystick: true, fullscreen: true});
-            setButtons("flex");
-        }
-        return getAntialias();
-    }).then((aa) => {
+    sendToShell("hud", {joystick: true, fullscreen: true});
+    setButtons("flex");
+    return getAntialias().then((aa) => {
         AA = aa;
         launchMicroverse();
     });
