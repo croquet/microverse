@@ -2,10 +2,11 @@
 // https://croquet.io
 // info@croquet.io
 
-import { App } from "@croquet/worldcore-kernel";
+import { startMicroverse } from "./src/microverse.js";
+
 
 // shared prefix for shell messages
-const PREFIX = "croquet:microverse:";
+// const PREFIX = "croquet:microverse:";
 
 let shell;
 // no url option => no voice, no settings and use alice avatars
@@ -22,10 +23,10 @@ localConfiguration.voice = voice;
 localConfiguration.showSettings = showSettings;
 
 export function startShell() {
-    shell = new IFrameShell();
+    shell = new VanillaShell();
 }
 
-class IFrameShell {
+class VanillaShell {
     constructor() {
         if (!this.hud) {
             this.hud = document.querySelector("#hud");
@@ -62,6 +63,7 @@ class IFrameShell {
 </div>`.trim();
 
                 this.hud = div.children[0];
+                document.body.appendChild(this.hud);
                 this.fullscreenBtn = this.hud.querySelector("#fullscreenBtn");
                 this.fullscreenBtn.onclick = (e) => {
                     e.stopPropagation();
@@ -89,11 +91,10 @@ class IFrameShell {
 
                 this.joystick = this.hud.querySelector("#joystick");
                 this.knob = this.joystick.querySelector("#knob");
-                this.trackingKnob = this.joystick.querySelector("#trackingKnob");
+                this.trackingknob = this.joystick.querySelector("#trackingknob");
             }
         }
 
-        this.adjustJoystickKnob();
         window.onresize = () => this.adjustJoystickKnob();
 
         if (!document.head.querySelector("#joystick-css")) {
@@ -111,6 +112,8 @@ class IFrameShell {
             let root = window.microverseDir ? window.microverseDir : "./";
             css.href = root + "assets/css/joystick.css";
             document.head.appendChild(css);
+        } else {
+            this.adjustJoystickKnob();
         }
 
         this.releaseHandler = (e) => {
@@ -133,6 +136,8 @@ class IFrameShell {
         this.joystick.onpointerup = (e) => this.releaseHandler(e);
         this.joystick.onpointercancel = (e) => this.releaseHandler(e);
         this.joystick.onlostpointercapture = (e) => this.releaseHandler(e);
+
+        startMicroverse();
     }
 
     adjustJoystickKnob() {
@@ -146,25 +151,25 @@ class IFrameShell {
         this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`;
     }
 
-    frameEntry(frameId) {
+    frameEntry(_frameId) {
     }
 
-    frameFromId(frameId) {
+    frameFromId(_frameId) {
     }
 
-    portalId(targetFrame) {
+    portalId(_targetFrame) {
         return null;
     }
 
     get primaryFrame() { return this.frameFromId(this.primaryFrameId) }
 
-    addFrame(owningFrameId, portalURL) {
+    addFrame(_owningFrameId, _portalURL) {
     }
 
-    removeFrame(portalId) {
+    removeFrame(_portalId) {
     }
 
-    sortFrames(mainFrame, portalFrame) {
+    sortFrames(_mainFrame, _portalFrame) {
     }
 
     receiveFromPortal(fromPortalId, fromFrame, cmd, data) {
@@ -272,134 +277,13 @@ class IFrameShell {
         }
     }
 
-    sendToPortal(toPortalId, cmd, data = {}) {
-        const frame = window;
-        data.message = `${PREFIX}${cmd}`;
-        // console.log(`shell: to portal-${toPortalId}: ${JSON.stringify(data)}`);
-        frame.contentWindow?.postMessage(data, "*");
+    sendToPortal() {
     }
 
-    sendFrameType(frameId, spec = null) {
-        const frameType = "primary";
-        const frameEntry = this.frameEntry(frameId);
-        frameEntry.frameTypeArgs = { frameType, spec };
-        if (frameEntry.frameTypeInterval) return; // we're already polling.  latest args will be used.
-
-        const pollingStart = Date.now();
-        frameEntry.frameTypeInterval = setInterval(() => {
-            if (!this.frameEntry(frameId)) {
-                console.log(`shell: abandoning "frame-type" send for removed portal-${frameId}`);
-                clearInterval(frameEntry.frameTypeInterval);
-                return;
-            }
-            // under normal circs the frame will respond within 100ms.  we give it a
-            // super-generous 20s (because 2s turned out not to be enough, in some browser
-            // situations) before deciding that this really really isn't looking like a
-            // microverse frame.
-            if (Date.now() - pollingStart > 20000 && !frameEntry.isMicroverse) {
-                console.log(`shell: abandoning "frame-type" send for timed-out portal-${frameId}`);
-                clearInterval(frameEntry.frameTypeInterval);
-                return;
-            }
-
-            // there are three listeners to the frame-type message:
-            //   1. the frame itself (frame.js)
-            //   2. the avatar (avatar.js)
-            //   3. any portal that resides within the frame (portal.js)
-            // the avatar only gets constructed after joining the session,
-            // so we keep sending this message until the avatar is there,
-            // receives the next message send, then sends "frame-type-received"
-            // which clears this interval.
-            const frameArgs = frameEntry.frameTypeArgs;
-            // if this is a secondary world, and we have a record of a through-portal
-            // camera location as supplied by the primary, send it to the world along
-            // with the frame type (normally it's sent in a portal-camera-update message,
-            // but we need to ensure that a frame that's just waking up doesn't hear
-            // portal-camera-update before it's heard frame-type).
-            if (frameArgs.frameType === "secondary") {
-                const cameraMatrix = this.portalData.get(frameId);
-                if (cameraMatrix) frameArgs.cameraMatrix = cameraMatrix;
-            }
-            this.sendToPortal(frameId, "frame-type", frameArgs);
-            // console.log(`shell: send frame type "${frameArgs.frameType}" to portal-${frameId}`);
-        }, 200);
+    sendFrameType() {
     }
 
-    activateFrame(toPortalId, pushState = true, transferData = null) {
-        // sent on receipt of messages "portal-enter" and "world-enter", and on window
-        // event "popstate"
-        const frameEntry = this.frameEntry(toPortalId);
-        if (!frameEntry.isMicroverse) {
-            window.location.href = frameEntry.frame.src;
-            return;
-        }
-
-        const fromFrameId = this.primaryFrameId;
-        const fromFrame = this.primaryFrame;
-        const toFrame = this.frameFromId(toPortalId);
-        const portalURL = frameToPortalURL(toFrame.src, toPortalId);
-
-        // TODO: a cleaner, more general way of doing this
-        this.pendingSortFrames = [ toFrame, fromFrame ];
-        if (this.pendingSortTimeout) clearTimeout(this.pendingSortTimeout);
-        this.pendingSortTimeout = setTimeout(() => {
-            if (this.pendingSortFrames) {
-                console.warn("sorting frames after timeout");
-                this.sortFrames(...this.pendingSortFrames);
-                delete this.pendingSortFrames;
-            }
-        }, 2000);
-
-        if (transferData && !transferData.crossingBackwards) fromFrame.style.display = 'none';
-
-        if (pushState) try {
-            window.history.pushState({
-                portalId: toPortalId,
-            }, null, portalURL);
-        } catch (e) {
-            // probably failed because portalURL has a different origin
-            // print error only if same origin
-            if (new URL(portalURL, location.href).origin === window.location.origin) {
-                console.error(e);
-            }
-            // we could reload the page but that would be disruptive
-            // instead, we stay on the same origin but change the URL
-            window.history.pushState({
-                portalId: toPortalId,
-            }, null, portalToShellURL(portalURL));
-        }
-        setTitle(portalURL);
-        this.primaryFrameId = toPortalId;
-        this.portalData.delete(toPortalId); // don't hang on to where the avatar entered
-        this.awaitedRenders = {}; // don't act on any secondary renders that are in the pipeline
-        this.awaitedFrameTypes = {};
-
-        if (!this.frameEntry(fromFrameId).owningFrame) {
-            console.log(`shell: removing unowned secondary frame ${fromFrameId}`);
-            this.removeFrame(fromFrameId);
-        } else {
-            console.log(`shell: sending frame-type "secondary" to portal-${fromFrameId}`, { portalURL });
-            this.sendFrameType(fromFrameId, { portalURL }); // portalURL seems redundant, but supplying some non-null spec is important (see avatar "frame-type" handling)
-            this.awaitedFrameTypes[fromFrameId] = true;
-        }
-        console.log(`shell: sending frame-type "primary" to portal-${toPortalId}`, transferData);
-        this.primaryFrame.focus();
-        this.sendFrameType(toPortalId, transferData);
-        this.awaitedFrameTypes[toPortalId] = true;
-
-        if (this.awaitedFramesTimeout) clearTimeout(this.awaitedFramesTimeout);
-        this.awaitedFramesTimeout = setTimeout(() => {
-            if (Object.keys(this.awaitedFrameTypes).length) {
-                console.warn("releasing freeze after timeout");
-                this.awaitedFrameTypes = {};
-                this.sendToPortal(this.primaryFrameId, "release-freeze");
-            }
-        }, 2000);
-
-        if (this.activeMMotion) {
-            const { dx, dy } = this.activeMMotion;
-            this.sendToPortal(this.primaryFrameId, "motion-start", { dx, dy });
-        }
+    activateFrame() {
     }
 
     // mouse motion via joystick element
@@ -446,4 +330,29 @@ class IFrameShell {
         }
     }
 }
-    
+
+function loadLocalStorage() {
+    if (!window.localStorage) { return null; }
+    try {
+        let localSettings = JSON.parse(window.localStorage.getItem('microverse-settings'));
+        if (!localSettings || localSettings.version !== "1") {
+            throw new Error("different version of data");
+        }
+        return localSettings;
+    } catch (e) { return null; }
+}
+
+function saveLocalStorage(configuration) {
+    if (!window.localStorage) { return; }
+    try {
+        let {nickname, type, avatarURL, handedness} = configuration;
+        let settings = {
+            version: "1",
+            nickname,
+            type,
+            avatarURL,
+            handedness
+        };
+        window.localStorage.setItem('microverse-settings', JSON.stringify(settings));
+    } catch (e) { /* ignore */ }
+}

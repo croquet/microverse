@@ -9,8 +9,14 @@ function isShellFrame() {
     return !portalId;
 }
 
+window.standalone = true;
+
 async function start() {
-    if (false/*isShellFrame()*/) {
+    if (window.standalone) {
+        const { startShell } = await import("./tools.js");
+        return startShell();
+    }
+    if (isShellFrame()) {
         const { startShell } = await import("./shell.js");
         startShell();
     } else {

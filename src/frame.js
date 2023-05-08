@@ -21,7 +21,11 @@ const PREFIX = "croquet:microverse:";
 
 // sending to shell
 export function sendToShell(command, args) {
-    window.parent.postMessage({ message: PREFIX+command, ...args }, "*");
+    let dest = window;
+    if (!window.standalone) {
+        dest = dest.parent;
+    }
+    dest.postMessage({ message: PREFIX+command, ...args }, "*");
 }
 
 // registry of callback functions to receive from shell
