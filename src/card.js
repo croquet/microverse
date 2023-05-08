@@ -745,7 +745,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this._model3dLoading = model3d;
         assetManager.fillCacheIfAbsent(model3d, () => {
             let b = this.getBuffer(model3d);
-            console.log("b", b);
             return b;
         }, this.id).then((buffer) => {
             return assetManager.load(buffer, modelType, THREE);

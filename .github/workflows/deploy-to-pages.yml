@@ -1,3 +1,11 @@
+# Workflow to build a GitHub Pages site for multiple branches simultaneously
+
+# NOTE: to make this work, in GitHub Settings under Pages – Build and Deployment
+# change Source from "Deploy from a branch" to "GitHub Actions"!
+
+# AND this file needs to be present in all deployed branches
+# as well as the scripts/build-pages.sh script and the line to run it in package.json
+
 name: Deploy to Pages
 
 on:
