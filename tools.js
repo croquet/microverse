@@ -6,7 +6,7 @@ import { startMicroverse } from "./src/microverse.js";
 
 
 // shared prefix for shell messages
-// const PREFIX = "croquet:microverse:";
+const PREFIX = "croquet:microverse:";
 
 let shell;
 // no url option => no voice, no settings and use alice avatars
@@ -277,7 +277,10 @@ class VanillaShell {
         }
     }
 
-    sendToPortal() {
+    sendToPortal(_potalId, cmd, data = {}) {
+        console.log(data);
+        data.message = `${PREFIX}${cmd}`;
+        window.postMessage(data, "*");
     }
 
     sendFrameType() {

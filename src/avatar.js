@@ -794,6 +794,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // processed a "frame-type" message and set its exported isPrimaryFrame value.
         this.isPrimary = isPrimaryFrame;
 
+        this.isPrimary = true;
+
+        
+
         // clip halfspace behind portalCamera.
         // [old comment] 0.2 is to cover the gap of the portal thickness
         // if there is no anchor, this is the default clip plane
@@ -874,7 +878,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // the primary-frame avatar, we publish that spec to become the configuration for
         // this actor - and hence for this pawn, and all RemoteAvatarPawns that other
         // users have for it.
-        const inWorld = this.isPrimary;
+        const inWorld = true;// this.isPrimary;
 
         // spectator pawns cannot talk to their actors
         if (this.spectator) {
@@ -937,6 +941,10 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.wasdMap = {w: false, a: false, d: false, s: false};
 
         // console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
+
+        this.setWorldSwitchFreeze(false);
+        this.refreshCameraTransform();
+        this.updatePortalRender(true); 
     }
 
     detach() {
@@ -1535,7 +1543,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     // changed (due to motion of either the avatar or the portal).  if changed
     // portals are found, we tell the shell so it can coordinate rendering.
     updatePortalRender(force = false) {
-        if (this.isPrimary) {
+        if (true /*this.isPrimary*/) {
             const portalSpecs = [];
             let secondaryRenders = false;
             this.publish("avatar", "gatherPortalSpecs", {
