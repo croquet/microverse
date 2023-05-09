@@ -444,6 +444,7 @@ class ThreeRenderManager extends RenderManager {
 
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
+        debugger;
 
         this.vrButtonStyleSet = false;
 

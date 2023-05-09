@@ -860,11 +860,9 @@ export function startMicroverse() {
 
     window.settingsMenuConfiguration = {};
 
-    sendToShell("hud", {joystick: true, fullscreen: true});
     setButtons("flex");
     return getAntialias().then((aa) => {
         AA = aa;
-        debugger;
         sendToShell("hud", {joystick: true, fullscreen: true});
         launchMicroverse();
     });

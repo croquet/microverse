@@ -253,13 +253,16 @@ class VanillaShell {
                 localConfiguration.userHasSet = true;
                 saveLocalStorage(data.localConfig);
                 return;
+            case "motion-start":
+            case "motion-end":
+            case "motion-update":
+                return;
             default:
                 console.warn(`shell: received unknown command "${cmd}" from portal-${fromPortalId}`, data);
         }
     }
 
     setButtonsVisibility(data) {
-        debugger;
         let joystickFlag = data.joystick;
         let fullscreenFlag = data.fullscreen;
         if (!document.head.querySelector("#joystick-css")) {
@@ -287,7 +290,6 @@ class VanillaShell {
     }
 
     sendToPortal(_potalId, cmd, data = {}) {
-        console.log(data);
         data.message = `${PREFIX}${cmd}`;
         window.postMessage(data, "*");
     }
