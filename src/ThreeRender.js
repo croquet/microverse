@@ -444,6 +444,7 @@ class ThreeRenderManager extends RenderManager {
 
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
+        this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
         this.vrButtonStyleSet = false;
 
