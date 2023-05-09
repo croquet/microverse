@@ -23,9 +23,6 @@ import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
 import { startSettingsMenu } from "./settingsMenu.js";
 
-// apps -------------------------------------------
-import { MultiBlaster } from '../apps/multiblaster.js';
-
 import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./wcAssetManager.js";
@@ -409,7 +406,6 @@ class MyModelRoot extends ModelRoot {
     init(options, persistentData) {
         super.init(options);
         let appManager = this.service("MicroverseAppManager");
-        appManager.add(MultiBlaster);
         appManager.add(TextFieldActor);
         appManager.add(PortalActor);
 

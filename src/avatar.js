@@ -1409,9 +1409,11 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.say("_set", actorSpec);
         if (enteringWorld) {
             delete this.modelLoadTime;
+            let dataLocation = actorSpec.cardData.skins ? actorSpec.cardData.skins["default"]
+                : actorSpec.cardData?.dataLocation;
             this.say("setAvatarData", {
                 ...actorSpec.cardData,
-                dataLocation: (actorSpec.cardData.skins || {})[this.actor.world.name] || actorSpec.cardData?.dataLocation,
+                dataLocation
             }); // NB: after setting actor's name
             // start presenting and following in new space too
             if (spec?.presenting) {
@@ -2202,7 +2204,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 ...options,
                 ...{
                     dataLocation: configuration.skins.default,
-                    skins: [configuration.skins.default],
+                    skins: {default: configuration.skins.default},
                     avatarEventHandler: "FullBodyAvatarEventHandler",
                     // the animation mixer overrides those values the fullBodyAvatar.modelLoaded()
                     // inserts an extra group to adjust things.

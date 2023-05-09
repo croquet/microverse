@@ -5,6 +5,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-05-05
+### Added
+- publish a message when asset loading fails
+- Ready Player Me full body avatar support is added.
+
+### Changed
+- use fillCacheIfAbsent more thoroughly
+
+## 2023-04-21
+### Changed
+- use terser and not uglify
+
+## 2023-04-14
+### Changed
+- wasd key down also make avatar start falling.
+- user input event handlers are made immediate.
+
+### Fixed
+- Gizmo rotation is made sane.
+
 ## 2023-04-07
 ### Fixed
 - Dolby.io echo cancellation is fixed by calling getUserMedia() carefully.
