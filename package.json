@@ -28,7 +28,7 @@
     "fflate": "0.7.4",
     "jszip": "3.10.1",
     "load-bmfont": "1.4.1",
-    "three": "0.152.2",
+    "three": "0.151.0",
     "three-mesh-bvh": "0.5.23"
   },
   "devDependencies": {
