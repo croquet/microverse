@@ -571,7 +571,7 @@ class PDFPawn {
         // Prepare canvas using PDF page dimensions
         if (!this.renderCanvas) this.renderCanvas = document.createElement("canvas");
         const canvas = this.renderCanvas;
-        const context = canvas.getContext("2d");
+        const context = canvas.getContext("2d", { willReadFrequently: true });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
         const renderContext = {
