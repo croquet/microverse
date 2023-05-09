@@ -33,7 +33,7 @@ class VanillaShell {
             if (!this.hud) {
                 let div = document.createElement("div");
                 div.innerHTML = `
-<div id="hud">
+<div id="hud" style="display: inherit">
   <div class="container">
     <div class="controllers" style="border:1px solid red">
       <div id="homeBtn" class="btn btn-ui">
@@ -137,6 +137,14 @@ class VanillaShell {
         this.joystick.onpointercancel = (e) => this.releaseHandler(e);
         this.joystick.onlostpointercapture = (e) => this.releaseHandler(e);
 
+        window.addEventListener("message", e => {
+            if (e.data?.message?.startsWith?.(PREFIX)) {
+                const cmd = e.data.message.substring(PREFIX.length);
+                this.receiveFromPortal(null, this, cmd, e.data);
+                return;
+            }
+        });
+
         startMicroverse();
     }
 
@@ -148,7 +156,7 @@ class VanillaShell {
         let radius = center - size;
         this.joystickLayout = { center, radius };
         this.trackingknob.style.transform = "translate(0px, 0px)"; // top-left
-        this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`;
+        this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`; // eslint-disable-line
     }
 
     frameEntry(_frameId) {
@@ -251,6 +259,7 @@ class VanillaShell {
     }
 
     setButtonsVisibility(data) {
+        debugger;
         let joystickFlag = data.joystick;
         let fullscreenFlag = data.fullscreen;
         if (!document.head.querySelector("#joystick-css")) {

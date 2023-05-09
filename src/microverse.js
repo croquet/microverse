@@ -864,6 +864,8 @@ export function startMicroverse() {
     setButtons("flex");
     return getAntialias().then((aa) => {
         AA = aa;
+        debugger;
+        sendToShell("hud", {joystick: true, fullscreen: true});
         launchMicroverse();
     });
 }
