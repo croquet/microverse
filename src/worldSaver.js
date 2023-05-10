@@ -8,7 +8,6 @@
 // loading time: in general, the parent needs to be created before a child
 
 import {intrinsicProperties} from "./card.js";
-import {Constants} from "@croquet/worldcore-kernel";
 
 export class WorldSaver {
     constructor(defaultClass) {
@@ -131,6 +130,11 @@ export class WorldSaver {
             return this.stringifyInner(replacement, seen);
         }
 
+        if (node.constructor === window.Set) {
+            let replacement = {__set: true, values: [...node]};
+            return this.stringifyInner(replacement, seen);
+        }
+
         let keys = Object.keys(node).sort();
         out = '';
         for (let i = 0; i < keys.length; i++) {
@@ -153,6 +157,8 @@ export class WorldSaver {
         return JSON.parse(string, (_key, value) => {
             if (typeof value === "object" && value !== null && value.__map) {
                 return new Map(value.values);
+            } else if (typeof value === "object" && value !== null && value.__set) {
+                return new Set(value.values);
             }
             return value;
         });
