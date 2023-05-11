@@ -639,6 +639,7 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.id = wcEvent.id;
         pe.button = wcEvent.button;
         pe.buttons = wcEvent.buttons;
+        pe.instanceId = rc.instanceId;
         if (rc.ray) {
             pe.ray = {origin: rc.ray.origin.toArray(), direction: rc.ray.direction.toArray()};
         }

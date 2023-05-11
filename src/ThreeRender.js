@@ -205,6 +205,7 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
             uv: hit.uv ? hit.uv.toArray() : undefined,
             normal: normal ? normal.toArray() : undefined,
             distance: hit.distance,
+            instanceId: hit.instanceId,
             ray: this.raycaster.ray.clone()
         };
     }
