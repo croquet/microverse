@@ -8,7 +8,7 @@
 # for testing, you can run this script locally
 # e.g. ./scripts/build-pages.sh main 1234-branch
 # and then open _site/index.html in your browser
-
+env
 BRANCHES=${@}
 
 # make sure "main" is in the list of branches
@@ -31,6 +31,7 @@ LINKS=()
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 for BRANCH in ${BRANCHES[@]}; do
     echo "Building branch: ${BRANCH}"
+    # checkout the branch
     if [ "${BRANCH}" != "${CURRENT_BRANCH}" ]; then
         rm -rf .git/worktrees/${BRANCH}
         git worktree add -B ${BRANCH} .git/worktrees/${BRANCH} remotes/origin/${BRANCH}
@@ -38,15 +39,19 @@ for BRANCH in ${BRANCHES[@]}; do
         cp ${ROOT}/apiKey.js .
     fi
     npm ci
+    # build the app
     npm run build
     npm run create-version
     mv dist ${ROOT}/_site/${BRANCH}
+    # build the library zip
+    VERSION="microverse-library.${BRANCH}-$(git show -s --format='%ad-%h' --date=format:'%Y%m%d')"
     npm run build-lib
-    mv dist microverse-latest
-    zip -r ${ROOT}/_site/${BRANCH}/microverse-latest.zip microverse-latest
-    rm -rf microverse-latest
+    mv dist $VERSION
+    zip -r ${ROOT}/_site/${BRANCH}/$VERSION.zip $VERSION
+    rm -rf $VERSION
+    # create links for the index page
     COMMIT=$(git show -s --format='%ad %H' --date=format:'%Y-%m-%d %H:%M:%S')
-    LINKS+=("<dt><a href=\"${BRANCH}/\">${BRANCH}</a></dt><dd>${COMMIT} (<a href=\"${BRANCH}/microverse-latest.zip\">lib</a>)</dd>")
+    LINKS+=("<dt><a href=\"${BRANCH}/\">${BRANCH}</a></dt><dd>${COMMIT} (<a href=\"${BRANCH}/${VERSION}.zip\">lib</a>)</dd>")
     if [ "${BRANCH}" != "${CURRENT_BRANCH}" ]; then
         cd ${ROOT}
         git worktree remove --force .git/worktrees/${BRANCH}
