@@ -1033,7 +1033,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let BufferGeometryUtils = THREE.BufferGeometryUtils;
             meshData.forEach(m=>{
                 endCount++;
-                let mergedGeometry = BufferGeometryUtils.mergeGeometries( m.geometries, false);
+                let mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( m.geometries, false);
                 let mesh = new THREE.Mesh(mergedGeometry, m.material);
                 staticGroup.add(mesh);
             })
@@ -1081,7 +1081,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             });
 
             let BufferGeometryUtils = window.THREE.BufferGeometryUtils;
-            mergedGeometry = BufferGeometryUtils.mergeGeometries( geometries, false);
+            mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( geometries, false);
             mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
         } catch (err) {
             console.error("failed to build the BVH collider for:", obj);
@@ -1586,7 +1586,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let cylinders = [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11];
 
         let BufferGeometryUtils = THREE.BufferGeometryUtils;
-        let mergedGeometry = BufferGeometryUtils.mergeGeometries(cylinders, false);
+        let mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(cylinders, false);
 
         let mat = new THREE.MeshStandardMaterial({
             color: 0xdddddd,
