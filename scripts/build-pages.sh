@@ -41,8 +41,12 @@ for BRANCH in ${BRANCHES[@]}; do
     npm run build
     npm run create-version
     mv dist ${ROOT}/_site/${BRANCH}
+    npm run build-lib
+    mv dist microverse-latest
+    zip -r ${ROOT}/_site/${BRANCH}/microverse-latest.zip microverse-latest
+    rm -rf microverse-latest
     COMMIT=$(git show -s --format='%ad %H' --date=format:'%Y-%m-%d %H:%M:%S')
-    LINKS+=("<dt><a href=\"${BRANCH}/\">${BRANCH}</a></dt><dd>${COMMIT}</dd>")
+    LINKS+=("<dt><a href=\"${BRANCH}/\">${BRANCH}</a></dt><dd>${COMMIT} (<a href=\"${BRANCH}/microverse-latest.zip\">lib</a>)</dd>")
     if [ "${BRANCH}" != "${CURRENT_BRANCH}" ]; then
         cd ${ROOT}
         git worktree remove --force .git/worktrees/${BRANCH}
