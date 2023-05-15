@@ -34,23 +34,12 @@ jobs:
   # Single deploy job since we're just deploying
   deploy:
     # do not run on forks unless they specify their API key and app ID
-    # if: vars.API_KEY != '' && vars.APP_ID != ''
+    if: ${{ vars.API_KEY != '' && vars.APP_ID != '' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    env:
-      HAS_API_KEY: ${{ vars.API_KEY != '' }}
-      HAS_APP_ID: ${{ vars.APP_ID != '' }}
-      SHOULD_RUN: ${{ vars.API_KEY && vars.APP_ID }}
-      SHOULD_RUN2: ${{ vars.API_KEY != '' && vars.APP_ID != '' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Temp Debug
-        run: |
-          echo 'env.HAS_API_KEY ${{ env.HAS_API_KEY }}'
-          echo 'env.HAS_APP_ID ${{ env.HAS_APP_ID }}'
-          echo 'env.SHOULD_RUN ${{ env.SHOULD_RUN }}'
-          echo 'env.SHOULD_RUN2 ${{ env.SHOULD_RUN2 }}'
       - name: Checkout
         uses: actions/checkout@v3
         with:
