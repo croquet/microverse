@@ -8,6 +8,10 @@
 
 name: Deploy to Pages
 
+# do not run on forks unless they specify their API key and app ID
+env:
+  SHOULD_DEPLOY: ${{ vars.API_KEY != '' && vars.APP_ID != '' }}
+
 on:
   # Runs on pushes to these branches
   push:
@@ -33,10 +37,7 @@ concurrency:
 jobs:
   # Single deploy job since we're just deploying
   deploy:
-    # do not run on forks unless they specify their API key and app ID
-    env:
-      SHOULD_RUN: ${{ vars.API_KEY != '' && vars.APP_ID != '' }}
-    if: env.SHOULD_RUN == 'true'
+    if: env.SHOULD_DEPLOY == 'true'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
