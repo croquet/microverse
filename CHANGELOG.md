@@ -5,6 +5,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-05-12
+### Fixed
+- Some issues around full body avatars are ironed out.
+
+### Added
+- Sets can be stored in the persistent data.
+- the instanceId property is added to user events.
+- assetLoadError Behavior can show a load error image when asset file is not available.
+
+### Changed
+- Use THREE.js version 149.
+
 ## 2023-05-05
 ### Added
 - publish a message when asset loading fails
