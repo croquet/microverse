@@ -41,9 +41,8 @@ jobs:
     env:
       HAS_API_KEY: ${{ vars.API_KEY != '' }}
       HAS_APP_ID: ${{ vars.APP_ID != '' }}
-      SHOULD_RUN: ${{ env.HAS_API_KEY && env.HAS_APP_ID }}
+      SHOULD_RUN: ${{ vars.API_KEY && vars.APP_ID }}
       SHOULD_RUN2: ${{ vars.API_KEY != '' && vars.APP_ID != '' }}
-      SHOULD_RUN3: ${{ vars.API_KEY && vars.APP_ID }}
     runs-on: ubuntu-latest
     steps:
       - name: Temp Debug
@@ -52,7 +51,6 @@ jobs:
           echo 'env.HAS_APP_ID ${{ env.HAS_APP_ID }}'
           echo 'env.SHOULD_RUN ${{ env.SHOULD_RUN }}'
           echo 'env.SHOULD_RUN2 ${{ env.SHOULD_RUN2 }}'
-          echo 'env.SHOULD_RUN3 ${{ env.SHOULD_RUN3 }}'
       - name: Checkout
         uses: actions/checkout@v3
         with:
