@@ -34,7 +34,7 @@ jobs:
   # Single deploy job since we're just deploying
   deploy:
     # do not run on forks unless they specify their API key and app ID
-    if: {{ vars.API_KEY != '' && vars.APP_ID != '' }}
+    if: vars.API_KEY && vars.APP_ID
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
