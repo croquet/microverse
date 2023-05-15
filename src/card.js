@@ -800,8 +800,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             delete this._model3dLoading;
             publishLoaded();
         }).catch((e) => {
-            console.error(e.message, e.path);
-            this.say("assetLoadError", e);
+            console.error(e.message, model3d);
+            this.say("assetLoadError", {message: e.message, path: model3d});
             delete this._model3dLoading;
         });
     }
@@ -884,8 +884,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     texture: this.texture
                 }
             }).catch((e) => {
-                console.error(e.message, e.path);
-                this.say("assetLoadError", e);
+                console.error(e.message, textureLocation);
+                this.say("assetLoadError", {message: e.message, path: textureLocation});
             });
         } else if (textureType === "image") {
             texturePromise = assetManager.fillCacheIfAbsent(textureLocation, () =>
@@ -902,8 +902,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                             }, null, reject);
                     });
                 }).catch((e) => {
-                    console.error(e.message, e.path);
-                    this.say("assetLoadError", e);
+                    console.error(e.message, textureLocation);
+                    this.say("assetLoadError", {message: e.message, path: textureLocation});
                 });
         } else if (textureType === "canvas") {
             this.canvas = document.createElement("canvas");
@@ -959,8 +959,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     }
                     publishLoaded();
                 }).catch((e) => {
-                    console.error(e.message, e.path);
-                    this.say("assetLoadError", e);
+                    console.error(e.message, dataLocation);
+                    this.say("assetLoadError", {message: e.message, path: dataLocation});
                 });
         } else {
             return texturePromise.then((textureObj) => {
