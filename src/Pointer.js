@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { GetPawn, RegisterMixin } from "@croquet/worldcore-kernel";
+import { GetPawn, RegisterMixin } from "./worldcore";
 
 //------------------------------------------------------------------------------------------
 //-- AM_PointerTarget ----------------------------------------------------------------------

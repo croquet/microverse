@@ -10,7 +10,7 @@ import {
     v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform, v3_rotate,
     q_euler, q_multiply,
     m4_invert, m4_identity
-} from '@croquet/worldcore-kernel';
+} from './worldcore';
 import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
 import { addMeshProperties, normalizeSVG, addTexture, toIndexed } from './assetManager.js'

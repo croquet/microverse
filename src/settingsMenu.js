@@ -3,7 +3,7 @@
 // info@croquet.io
 
 import {filterDomEventsOn, closeAllDialogs, hideShellControls} from "./worldMenu.js";
-import { App } from "@croquet/worldcore-kernel";
+import { App } from "./worldcore";
 
 let settingsMenu = null;
 let nicknameIsValid;
