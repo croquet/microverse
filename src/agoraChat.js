@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { Data, ViewService, GetPawn } from "@croquet/worldcore-kernel";
+import { Data, ViewService, GetPawn } from "./worldcore";
 
 export class AgoraChatManager extends ViewService {
     constructor(name) {

@@ -1,4 +1,4 @@
-import {ViewService} from "@croquet/worldcore-kernel";
+import {ViewService} from "./worldcore";
 
 export class WalkManager extends ViewService {
     constructor(name) {

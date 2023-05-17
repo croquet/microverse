@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import * as WorldcoreExports from "@croquet/worldcore-kernel";
+import * as WorldcoreExports from "./worldcore";
 const {ViewService, ModelService, GetPawn, Model, Constants, App} = WorldcoreExports;
 
 import * as WorldcoreThreeExports from "./ThreeRender.js";
@@ -83,7 +83,7 @@ export const AM_Code = superclass => class extends superclass {
                 }
             });
         }
-    }        
+    }
 
     destroy() {
         if (this[isProxy]) {

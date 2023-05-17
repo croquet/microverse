@@ -1,8 +1,8 @@
 
-import { Actor, Pawn } from "@croquet/worldcore-kernel";
+import { Actor, Pawn } from "../src/worldcore.js";
 import { CardActor, CardPawn} from "../src/card.js";
 
-/////////// Model code is executed inside of synced VM /////////// 
+/////////// Model code is executed inside of synced VM ///////////
 
 export class MultiBlaster extends CardActor {
     get pawn(){ return MultiBlasterDisplay; }
@@ -261,7 +261,7 @@ class Blast extends Actor {
 Blast.register("Blast");
 
 
-/////////// Code below is executed outside of synced VM /////////// 
+/////////// Code below is executed outside of synced VM ///////////
 
 // Copyright 2021 by Croquet Corporation, Inc. All Rights Reserved.
 // https://croquet.io

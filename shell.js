@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { App } from "@croquet/worldcore-kernel";
+import { App } from "@croquet/croquet";
 
 // shared prefix for shell messages
 const PREFIX = "croquet:microverse:";

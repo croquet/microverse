@@ -24,7 +24,7 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { XRControllerModelFactory } from 'three/examples/jsm//webxr/XRControllerModelFactory.js';
 
-import { PM_Visible, PM_Camera, RenderManager } from "@croquet/worldcore-kernel";
+import { PM_Visible, PM_Camera, RenderManager } from "./worldcore";
 
 //------------------------------------------------------------------------------------------
 //-- ThreeVisible  -------------------------------------------------------------------------

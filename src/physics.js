@@ -2,7 +2,7 @@
 // https://croquet.io
 // info@croquet.io
 
-import { ModelService, Model } from "@croquet/worldcore-kernel";
+import { ModelService, Model } from "./worldcore";
 
 export let Physics;
 

@@ -4,7 +4,7 @@
 
 import {
     Constants, App, ModelRoot, ViewRoot, StartWorldcore,
-    InputManager, PlayerManager, q_euler} from "@croquet/worldcore-kernel";
+    InputManager, PlayerManager, q_euler} from "./worldcore";
 import { THREE, ThreeRenderManager } from "./ThreeRender.js";
 import { PhysicsManager } from "./physics.js";
 /*import { AgoraChatManager } from "./agoraChat.js"; */

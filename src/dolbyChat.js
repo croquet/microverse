@@ -4,7 +4,7 @@
 
 /* global VoxeetSDK */
 
-import { Data, ViewService, v3_equals, q_equals, q_yaw } from "@croquet/worldcore-kernel";
+import { Data, ViewService, v3_equals, q_equals, q_yaw } from "./worldcore";
 
 let chatAudioMuted = false; // this state has to persist through dormancy
 let userSelectedMicLabel = null; // ditto
