@@ -17,6 +17,13 @@ export function clampRad(x) {
     return x % TAU;
 }
 
+export function slerp(a,b,t) {
+    const cc = (1-t)*Math.cos(a) + t*Math.cos(b);
+    const ss = (1-t)*Math.sin(a) + t*Math.sin(b);
+    return Math.atan2(ss,cc);
+}
+
+
 export function gaussian(count, step = 1, standardDeviation = 1) {
     const sd = 2 * standardDeviation * standardDeviation;
     const a = 1/Math.sqrt(Math.PI * sd);
@@ -118,17 +125,6 @@ export function v2_divide(a,b) {
     return [a[0] / b[0], a[1] / b[1]];
 }
 
-// Clockwise in radians
-// export function v2_rotate(v,a,c) {
-//     const sinA = Math.sin(a);
-//     const cosA = Math.cos(a);
-//     if (c) {
-//         const vc = v2_sub(v, c);
-//         return v2_add(c, [cosA*vc[0] - sinA*vc[1], sinA*vc[0] + cosA*vc[1]]);
-//     }
-//     return [cosA*v[0] - sinA*v[1], sinA*v[0] + cosA*v[1]];
-// }
-
 export function v2_rotate(v,a) {
     const sinA = Math.sin(a);
     const cosA = Math.cos(a);
@@ -159,6 +155,10 @@ export function v2_angle(a,b) {
     return Math.acos(Math.min(1,(Math.max(-1, v2_dot(v2_normalize(a), v2_normalize(b))))));
 }
 
+export function v2_signedAngle(a,b) {
+    return Math.atan2(a[0]* b[1]-a[1]*b[0], a[0]*b[0]+a[1]*b[1]);
+}
+
 export function v2_lerp(a,b,t) {
     return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 }
@@ -172,6 +172,18 @@ export function v2_isZero(v) {
     return v[0] === 0 && v[1] === 0;
 }
 
+export function v2_distance(a,b) {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    return Math.sqrt(dx*dx+dy*dy);
+}
+
+export function v2_distanceSqr(a,b) {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    return dx*dx+dy*dy;
+}
+
 export function v2_manhattan(a, b) {
     return Math.abs(a[0]-b[0]) + Math.abs(a[1]-b[1]);
 }
@@ -182,6 +194,14 @@ export function v2_transform(v, m) {
         m[0] * x + m[2] * y,
         m[1] * x + m[3] * y
     ]);
+}
+
+export function v2_perpendicular(v) {
+    return[v[1], v[0]];
+}
+
+export function v2_closest(v,p) { // The closest point on vector v from point p, assumes v is normalized
+    return v2_scale(v,v2_dot(v,p));
 }
 
 //--------------------------------------------------------------------------------
@@ -228,7 +248,7 @@ export function v3_inverse(v) {
 }
 
 export function v3_abs(v) {
-    return [Math.abs(v[0]), Math.v3_abs(v[1]), Math.abs(v[2])];
+    return [Math.abs(v[0]), Math.abs(v[1]), Math.abs(v[2])];
 }
 
 export function v3_ceil(v) {
@@ -289,7 +309,10 @@ export function v3_dot(a,b) {
 export function v3_cross(a,b) {
     const a0 = a[0], a1 = a[1], a2 = a[2];
     const b0 = b[0], b1 = b[1], b2 = b[2];
-    return [a1 * b2 - a2 * b1, a2 * b0 - a0 * b2, a0 * b1 - a1 * b0];
+    return [
+        a1 * b2 - a2 * b1,
+        a2 * b0 - a0 * b2,
+        a0 * b1 - a1 * b0];
 }
 
 export function v3_min(a,b) {
@@ -347,6 +370,19 @@ export function v3_isZero(v) {
     return v[0] === 0 && v[1] === 0 && v[2] === 0;
 }
 
+export function v3_distance(a,b) {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    const dz = a[2] - b[2];
+    return Math.sqrt(dx*dx+dy*dy+dz*dz);
+}
+
+export function v3_distanceSqr(a,b) {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    const dz = a[2] - b[2];
+    return dx*dx+dy*dy+dz*dz;
+}
 //--------------------------------------------------------------------------------
 //-- 4 Vectors -------------------------------------------------------------------
 //--------------------------------------------------------------------------------
@@ -614,6 +650,10 @@ export function m4_getTranslation(m) {
     return [m[12], m[13], m[14]];
 }
 
+// export function m4_getTranslation(m) {
+//     return [m[12]/m[15], m[13]/m[15], m[14]/m[15]];
+// }
+
 // Accepts a scalar or a 3 vector
 export function m4_scale(s) {
     if (s instanceof Array) {
@@ -629,6 +669,14 @@ export function m4_scale(s) {
         0,s,0,0,
         0,0,s,0,
         0,0,0,1
+    ];
+}
+
+export function m4_getScale(m) {
+    return [
+        v3_magnitude([m[0], m[4], m[8]]),
+        v3_magnitude([m[1], m[5], m[9]]),
+        v3_magnitude([m[2], m[6], m[10]])
     ];
 }
 
@@ -735,40 +783,99 @@ export function m4_rotationQ(q) {
 }
 
 // Extracts the rotation component and returns it as a quaternion
+// ignores scale, result is normalized
 
 export function m4_getRotation(m) {
-    const trace = m[0] + m[5] + m[10];
-    let s = 0;
-    const q = [0,0,0,0];
+    const s0 = v3_magnitude([m[0], m[4], m[8]]);
+    const s1 = v3_magnitude([m[1], m[5], m[9]]);
+    const s2 = v3_magnitude([m[2], m[6], m[10]]);
 
-    if (trace > 0) {
-      s = Math.sqrt(trace + 1.0) * 2;
-      q[3] = 0.25 * s;
-      q[0] = (m[6] - m[9]) / s;
-      q[1] = (m[8] - m[2]) / s;
-      q[2] = (m[1] - m[4]) / s;
-    } else if ((m[0] > m[5]) && (m[0] > m[10])) {
-      s = Math.sqrt(1.0 + m[0] - m[5] - m[10]) * 2;
-      q[3] = (m[6] - m[9]) / s;
-      q[0] = 0.25 * s;
-      q[1] = (m[1] + m[4]) / s;
-      q[2] = (m[8] + m[2]) / s;
-    } else if (m[5] > m[10]) {
-      s = Math.sqrt(1.0 + m[5] - m[0] - m[10]) * 2;
-      q[3] = (m[8] - m[2]) / s;
-      q[0] = (m[1] + m[4]) / s;
-      q[1] = 0.25 * s;
-      q[2] = (m[6] + m[9]) / s;
+    const m00 = m[0] / s0;
+    const m01 = m[1] / s1;
+    const m02 = m[2] / s2;
+
+    const m10 = m[4] / s0;
+    const m11 = m[5] / s1;
+    const m12 = m[6] / s2;
+
+    const m20 = m[8] / s0;
+    const m21 = m[9] / s1;
+    const m22 = m[10] / s2;
+
+    let t;
+    let x;
+    let y;
+    let z;
+    let w;
+
+    if (m22 < 0) {
+        if (m00 > m11) {
+            t = 1 + m00 - m11 - m22;
+            x = t;
+            y = m01+m10;
+            z = m20+m02;
+            w = m12-m21;
+        } else {
+            t = 1 - m00 + m11 - m22;
+            x = m01+m10;
+            y = t;
+            z = m12+m21;
+            w = m20-m02;
+        }
     } else {
-      s = Math.sqrt(1.0 + m[10] - m[0] - m[5]) * 2;
-      q[3] = (m[1] - m[4]) / s;
-      q[0] = (m[8] + m[2]) / s;
-      q[1] = (m[6] + m[9]) / s;
-      q[2] = 0.25 * s;
+        if (m00 < -m11) {
+            t = 1 - m00 - m11 + m22;
+            x = m20+m02;
+            y = m12+m21;
+            z = t;
+            w = m01-m10;
+        } else {
+            t = 1 + m00 + m11 + m22;
+            x = m12-m21;
+            y = m20-m02;
+            z = m01-m10;
+            w = t;
+        }
     }
 
-    return q;
-  }
+    const f = 0.5 / Math.sqrt(t);
+    return [f*x, f*y, f*z, f*w];
+
+}
+
+// export function m4_getRotation(m) {
+//     const trace = m[0] + m[5] + m[10];
+//     let s = 0;
+//     const q = [0,0,0,0];
+
+//     if (trace > 0) {
+//       s = Math.sqrt(trace + 1.0) * 2;
+//       q[3] = 0.25 * s;
+//       q[0] = (m[6] - m[9]) / s;
+//       q[1] = (m[8] - m[2]) / s;
+//       q[2] = (m[1] - m[4]) / s;
+//     } else if ((m[0] > m[5]) && (m[0] > m[10])) {
+//       s = Math.sqrt(1.0 + m[0] - m[5] - m[10]) * 2;
+//       q[3] = (m[6] - m[9]) / s;
+//       q[0] = 0.25 * s;
+//       q[1] = (m[1] + m[4]) / s;
+//       q[2] = (m[8] + m[2]) / s;
+//     } else if (m[5] > m[10]) {
+//       s = Math.sqrt(1.0 + m[5] - m[0] - m[10]) * 2;
+//       q[3] = (m[8] - m[2]) / s;
+//       q[0] = (m[1] + m[4]) / s;
+//       q[1] = 0.25 * s;
+//       q[2] = (m[6] + m[9]) / s;
+//     } else {
+//       s = Math.sqrt(1.0 + m[10] - m[0] - m[5]) * 2;
+//       q[3] = (m[1] - m[4]) / s;
+//       q[0] = (m[8] + m[2]) / s;
+//       q[1] = (m[6] + m[9]) / s;
+//       q[2] = 0.25 * s;
+//     }
+
+//     return q;
+//   }
 
 // Applied in that order. Scale can be either a 3-vector or a scaler. Rotation is a quaternion.
 export function m4_scaleRotationTranslation(s, q, v) {
@@ -807,6 +914,63 @@ export function m4_scaleRotationTranslation(s, q, v) {
   ];
 
 
+}
+
+export function m4_getScaleRotationTranslation(m) {
+    const s0 = v3_magnitude([m[0], m[4], m[8]]);
+    const s1 = v3_magnitude([m[1], m[5], m[9]]);
+    const s2 = v3_magnitude([m[2], m[6], m[10]]);
+
+    const m00 = m[0] / s0;
+    const m01 = m[1] / s1;
+    const m02 = m[2] / s2;
+
+    const m10 = m[4] / s0;
+    const m11 = m[5] / s1;
+    const m12 = m[6] / s2;
+
+    const m20 = m[8] / s0;
+    const m21 = m[9] / s1;
+    const m22 = m[10] / s2;
+
+    let t;
+    let x;
+    let y;
+    let z;
+    let w;
+
+    if (m22 < 0) {
+        if (m00 > m11) {
+            t = 1 + m00 - m11 - m22;
+            x = t;
+            y = m01+m10;
+            z = m20+m02;
+            w = m12-m21;
+        } else {
+            t = 1 - m00 + m11 - m22;
+            x = m01+m10;
+            y = t;
+            z = m12+m21;
+            w = m20-m02;
+        }
+    } else {
+        if (m00 < -m11) {
+            t = 1 - m00 - m11 + m22;
+            x = m20+m02;
+            y = m12+m21;
+            z = t;
+            w = m01-m10;
+        } else {
+            t = 1 + m00 + m11 + m22;
+            x = m12-m21;
+            y = m20-m02;
+            z = m01-m10;
+            w = t;
+        }
+    }
+
+    const f = 0.5 / Math.sqrt(t);
+    return [[s0, s1, s2], [f*x, f*y, f*z, f*w], [m[12], m[13], m[14]]];
 }
 
 // FOV is vertical field of view in radians
@@ -939,6 +1103,10 @@ export function m4_multiply(a,b) {
 
 // Extracts the scaling/rotation components and performs an inverse/transpose operation to generate a 4x4 normal transform matrix.
 export function m4_toNormal4(m) {
+    let q = m4_getRotation(m);
+    return m4_rotationQ(q);
+
+    /*
     const a00 = m[0], a01 = m[1], a02 = m[2];
     const a10 = m[4], a11 = m[5], a12 = m[6];
     const a20 = m[8], a21 = m[9], a22 = m[10];
@@ -964,6 +1132,7 @@ export function m4_toNormal4(m) {
         b20/d, -b21/d, b22/d, 0,
         0, 0, 0, 1
     ];
+    */
 }
 
 // Extracts the scaling/rotation components and performs an inverse/transpose operation to generate a 3x3 normal transform matrix.
@@ -1053,12 +1222,27 @@ export function q_axisAngle(axis, angle) {
     return [sinH * axis[0], sinH * axis[1], sinH * axis[2], cosH];
 }
 
+export function q_toAxisAngle(quat) {
+    let q = q_normalize(quat);
+    let angle = 2 * Math.acos(q[3]);
+    let axis;
+    let s = Math.sqrt( 1 - q[3] * q[3]);
+    // assuming quaternion normalised then w is less than 1, so term always positive.
+    if (s < 0.001) { // test to avoid divide by zero, s is always positive due to sqrt
+        // if s is close to zero then direction of axis not important
+        axis = [0, 1, 0];
+    } else {
+        axis = [q[0] / s, q[1] / s, q[2] / s]; // normalize vector
+    }
+    return {axis, angle};
+}
+
 // Given a forward vector and an up vector, generates the quaternion that will rotate
 // the forward vector to look at the target.
 export function q_lookAt(f, u, t) {
     const epsilon = 0.00001;
     const dot = v3_dot(f,t);
-    if (Math.abs(dot+1) < epsilon) return q_axisAngle(u, Math.PI)
+    if (Math.abs(dot+1) < epsilon) return q_axisAngle(u, Math.PI);
     if (Math.abs(dot-1) < epsilon) return q_identity();
     const angle = Math.acos(dot);
     const axis = v3_normalize(v3_cross(f,t));
@@ -1067,9 +1251,9 @@ export function q_lookAt(f, u, t) {
 
 // Creates a quaternion from the given Euler angles.
 export function q_euler(x, y ,z) {
-    x *= 0.5
-    y *= 0.5
-    z *= 0.5
+    x *= 0.5;
+    y *= 0.5;
+    z *= 0.5;
     const sinX = Math.sin(x);
     const cosX = Math.cos(x);
     const sinY = Math.sin(y);
@@ -1084,6 +1268,26 @@ export function q_euler(x, y ,z) {
         cosX * cosY * cosZ + sinX * sinY * sinZ
     ];
 
+}
+
+export function q_eulerYXZ(x, y, z){
+    const cos = Math.cos;
+    const sin = Math.sin;
+
+    const c1 = cos( x / 2 );
+    const c2 = cos( y / 2 );
+    const c3 = cos( z / 2 );
+
+    const s1 = sin( x / 2 );
+    const s2 = sin( y / 2 );
+    const s3 = sin( z / 2 );
+
+    return [
+        s1 * c2 * c3 + c1 * s2 * s3,
+        c1 * s2 * c3 - s1 * c2 * s3,
+        c1 * c2 * s3 - s1 * s2 * c3,
+        c1 * c2 * c3 + s1 * s2 * s3,
+    ];
 }
 
 // Returns the equivalent Euler angle around the x axis
