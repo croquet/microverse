@@ -375,8 +375,7 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     intrinsicProperties() {return intrinsicProperties;}
 
     saySelectEdit(editBox) {
-        console.log("saySelectEdit says doSelectEdit", editBox);
-        this.editBox = editBox;
+        this.editBox = editBox; // used only by the pedestal
         this.say("doSelectEdit");
     }
 
@@ -530,7 +529,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.animationInterval = null;
         this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
         this.constructCard();
-        this._editMode = false; // used to determine if we should ignore pointer events
     }
 
     sayDeck(message, vars) {
@@ -1497,8 +1495,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     doSelectEdit() {
-        this._editMode = true;
-        console.log("doSelectEdit")
         /*
         if (this.renderObject) {
             this.addWireBox(this.renderObject);
@@ -1507,8 +1503,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     doUnselectEdit() {
-        this._editMode = false;
-        console.log("doUnselectEdit")
         /*
         if (this.renderObject) {
             this.removeWireBox(this.renderObject);
