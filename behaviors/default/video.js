@@ -26,6 +26,13 @@ class VideoActor {
         this.subscribe(this.id, "playPressed", "playPressed");
         this.subscribe(this.id, "pausePressed", "pausePressed");
         this.subscribe(this.id, "rewindPressed", "rewindPressed");
+
+        this.buttonPrototype = this.createCard({
+            type: "object",
+            isPrototype: true,
+            parent: this,
+            behaviorModules: ["VideoButton"]
+        });
     }
 
     addButtons() {
@@ -464,6 +471,7 @@ class VideoButtonActor {
     // }
 
     setProperties(props) {
+        if (this._cardData.isPrototype) {return;}
         const { name, svgScale, svgPosition, backgroundOpacity } = props;
         this.buttonName = name;
         this.svgScale = svgScale;
@@ -474,6 +482,8 @@ class VideoButtonActor {
 
 class VideoButtonPawn {
     setup() {
+        if (this.actor._cardData.isPrototype) {return;}
+        
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
 
         this.addEventListener("pointerMove", "nop");
