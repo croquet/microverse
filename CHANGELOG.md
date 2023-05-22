@@ -5,6 +5,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-05-19
+### Changed
+- assetLoadError takes a serializable object as argument.
+- github workflow cleaned up.
+- Include a version of Worldcore in the repo.
+- Use Croquet OS 1.1.0-22.
+
+### Fixed
+- Make video saveable as vrse.
+
+### Added
+- Some vector functions.
+
+
 ## 2023-05-12
 ### Fixed
 - Some issues around full body avatars are ironed out.
