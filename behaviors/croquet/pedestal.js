@@ -15,8 +15,6 @@ class GizmoActor {
         this.subscribe(this.target.id, "translationSet", "translateTarget");
         this.subscribe(this.target.id, "rotationSet", "rotateTarget");
         this.subscribe(this.target.id, "scaleSet", "scaleTarget");
-        this.subscribe(this.sessionId, "view-exit", "goodBye");
-        this.listen("goodBye", "goodBye");
     }
 
     /*
@@ -29,17 +27,6 @@ class GizmoActor {
         this.creatorId = creatorId;
     }
     */
-
-    goodBye(viewId) {
-        let avatar = [...this.service("ActorManager").actors].find(([_k, actor]) => {
-            return actor.playerId === viewId;
-        });
-        if (avatar) {
-            avatar = avatar[1];
-        }
-        if (!avatar) {return;}
-        avatar.removeGizmo();
-    }
 
     getScale(m) {
         let x = [m[0], m[1], m[2]];
@@ -239,7 +226,9 @@ class GizmoActor {
 class GizmoPawn {
     setup() {
         this.lastTime = this.now();
-        if (!this.interval) {
+        this.isMine = this.actor.creatorId === this.viewId;
+        
+        if (this.isMine && !this.interval) {
             this.interval = setInterval(() => this.checkInteraction(), 1000);
         }
 
@@ -258,7 +247,9 @@ class GizmoPawn {
             if (this.interval) {
                 clearInterval(this.interval);
             }
-            this.say("goodBye", this.viewId);
+            let avatar = this.getMyAvatar();
+            if ((!avatar.actor.gizmo) || avatar.actor.gizmo.id !== this.actor.id) {return;}
+            this.publish(avatar.actor.id, "goodByeGizmo", this.actor.id);
         }
     }
 
@@ -287,6 +278,7 @@ class GizmoPawn {
 class GizmoPropertySheetButtonPawn {
     setup() {
         let isMine = this.parent?.actor.creatorId === this.viewId;
+        this.isMine = isMine;
 
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
         this.parent.call("Gizmo$GizmoPawn", "forceOnTop", this.shape);
@@ -410,6 +402,7 @@ class PoseGizmoPawn {
         this.action = this.actor._cardData.action;
         this.plane = this.actor._cardData.plane;
         let isMine = this.parent?.actor.creatorId === this.viewId;
+        this.isMine = isMine;
         let THREE = Microverse.THREE;
         this.baseVector = new THREE.Vector3();
         this.vec = new THREE.Vector3();
