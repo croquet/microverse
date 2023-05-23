@@ -14,8 +14,6 @@ class GizmoActor {
         this.subscribe(this.target.id, "translationSet", "translateTarget");
         this.subscribe(this.target.id, "rotationSet", "rotateTarget");
         this.subscribe(this.target.id, "scaleSet", "scaleTarget");
-        this.subscribe(this.sessionId, "view-exit", "goodBye");
-        this.listen("goodBye", "goodBye");
     }
 
     /*
@@ -29,17 +27,6 @@ class GizmoActor {
         this.creatorId = creatorId;
     }
     */
-
-    goodBye(viewId) {
-        let avatar = [...this.service("ActorManager").actors].find(([_k, actor]) => {
-            return actor.playerId === viewId;
-        });
-        if (avatar) {
-            avatar = avatar[1];
-        }
-        if (!avatar) {return;}
-        avatar.removeGizmo();
-    }
 
     getScale(m) {
         let x = [m[0], m[1], m[2]];
@@ -340,7 +327,9 @@ class GizmoActor {
 class GizmoPawn {
     setup() {
         this.lastTime = this.now();
-        if (!this.interval) {
+        this.isMine = this.actor.creatorId === this.viewId;
+
+        if (this.isMine && !this.interval) {
             this.interval = setInterval(() => this.checkInteraction(), 1000);
         }
 
@@ -359,7 +348,10 @@ class GizmoPawn {
             if (this.interval) {
                 clearInterval(this.interval);
             }
-            this.say("goodBye", this.viewId);
+
+            let avatar = this.getMyAvatar();
+            if ((!avatar.actor.gizmo) || avatar.actor.gizmo.id !== this.actor.id) {return;}
+            this.publish(avatar.actor.id, "goodByeGizmo", this.actor.id);
         }
     }
 
@@ -401,6 +393,7 @@ class GizmoAxisPawn {
         this.originalColor = this.actor._cardData.color;
 
         let isMine = this.parent?.actor.creatorId === this.viewId;
+        this.isMine = isMine;
 
         this.shape.add(this.makeAxisHelper(isMine));
 
@@ -528,6 +521,7 @@ class GizmoRotorPawn {
         this.originalColor = this.actor._cardData.color;
 
         let isMine = this.parent?.actor.creatorId === this.viewId;
+        this.isMine = isMine;
         this.shape.add(this.createCircle(isMine ? this.actor._cardData.color : 0xffffff, this.actor._cardData.axis));
 
         if (isMine) {
@@ -707,6 +701,7 @@ class GizmoScalerPawn {
     setup() {
         this.originalColor = this.actor._cardData.color;
         let isMine = this.parent?.actor.creatorId === this.viewId;
+        this.isMine = isMine;
 
         this.targetScaleSet();
 
@@ -873,6 +868,7 @@ class GizmoPropertySheetButtonActor {
 class GizmoPropertySheetButtonPawn {
     setup() {
         let isMine = this.parent?.actor.creatorId === this.viewId;
+        this.isMine = isMine;
 
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
         this.parent.call("Gizmo$GizmoPawn", "forceOnTop", this.shape);
@@ -920,6 +916,7 @@ class GizmoPropertySheetButtonPawn {
     openPropertySheet(event) {
         let avatarPawn = Microverse.GetPawn(event.avatarId);
         let avatar = avatarPawn.actor;
+
         if (!event.shiftKey) {
             this.say("openPropertySheet", {avatar: avatar.id, distance: avatarPawn.targetDistance});
             this.destroy(); // remove button
@@ -930,10 +927,16 @@ class GizmoPropertySheetButtonPawn {
             // log func name and args by default (and reminder that func can be set)
             let fn = window.microverseShiftClickPropFunc;
             let keepGizmo = false;
-            if (fn) keepGizmo = fn(args);
-            else console.log("microverseShiftClickPropFunc (not set)", args);
-            if (!keepGizmo) avatarPawn.say("removeGizmo");
+            if (fn) {
+                keepGizmo = fn(args);
+            } else {
+                console.log("microverseShiftClickPropFunc (not set)", args);
+            }
+            if (!keepGizmo) {
+                this.publish(avatar.actor.id, "goodByeGizmo", this.actor.id);
+            }
         }
+        // this.say("openPropertySheet", {avatar: avatar.id, distance: avatarPawn.targetDistance});
     }
 }
 

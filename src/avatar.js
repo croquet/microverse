@@ -469,8 +469,8 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     actorDestroyed(id) {
-        if (this.gizmo?.target?.id === id) {
-            this.removeGizmo();
+        if (id === this.gizmo?.id) {
+            this.removeGizmo(id);
         }
     }
 
@@ -495,10 +495,14 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         }
     }
 
-    removeGizmo() {
-        this.gizmo?.destroy();
-        delete this.gizmo;
-        this.say("clearGizmo"); // let the pawn know
+    removeGizmo(id) {
+        if (!id || id === this.gizmo?.id) {
+            let g = this.gizmo;
+            delete this.gizmo;
+            if (g) {
+                g.destroy();
+            }
+        }
     }
 
     createPortal(translation, rotation, portalURL) {
@@ -928,7 +932,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
 
-        this.listen("clearGizmo", this.clearGizmo);
+        this.subscribe(this.actor.id, "goodByeGizmo", "goodByeGizmo");
 
         this.subscribe("playerManager", "presentationStarted", this.presentationStarted);
         this.subscribe("playerManager", "presentationStopped", this.presentationStopped);
@@ -947,7 +951,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         this.gizmoTargetPawn?.unselectEdit();
-        delete this.gizmoTargetPawn;
         delete this.modelLoadTime;
         super.detach();
     }
@@ -1964,9 +1967,18 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         return[c * (xy[0] - w), c * (h - xy[1])];
     }
 
-    clearGizmo() {
-        this.gizmoTargetPawn = null;
+    goodByeGizmo(id) {
+        this.gizmoTargetPawn?.unselectEdit();
+        delete this.gizmoTargetPawn;
+        this.say("removeGizmo", id);
     }
+
+    /*
+    clearGizmo(id) {
+        console.log("clearGizmo", this.gizmoTargetPawn?.id, id, GetPawn(id));
+        // delete this.gizmoTargetPawn;
+    }
+    */
 
     pointerDown(e) {
         let render = this.service("ThreeRenderManager");
@@ -1975,46 +1987,51 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let p3e = this.pointerEvent(rc, e);
         let pawn = GetPawn(p3e.targetId);
 
-        let pawnIsGizmo = pawn && pawn.actor.isGizmoManipulator;
-
-        if (this.gizmoTargetPawn && !pawnIsGizmo && pawn !== this.gizmoTargetPawn) {
-            this.gizmoTargetPawn.unselectEdit();
-            this.gizmoTargetPawn = null;
-            this.publish(this.actor.id, "removeGizmo");
-        }
+        let pawnIsMyGizmo = pawn && this.gizmoTargetPawn && pawn.actor.isGizmoManipulator && pawn.isMine;
 
         if (e.ctrlKey || e.altKey) { // should be the first responder case
             let doGizmo = this.actor.behaviorManager.modules.get("Gizmo");
             if (pawn && doGizmo) {
-                if (pawnIsGizmo) {
-                    console.log("Tried to gizmo gizmo");
-                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
-                } else {
-                    if (this.gizmoTargetPawn != pawn) {
-                        pawn.selectEdit();
-                    }
-                    this.gizmoTargetPawn = pawn;
-                    this.publish(this.actor.id, "addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
+                if (pawnIsMyGizmo) {
+                    console.log("Tried to gizmo gizmo", this.gizmoTargetPawn.actor.id);
+                    this.say("addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
+                    return;
                 }
-            } else {
-                this.publish(this.actor.id, "removeGizmo");
+                if (this.gizmoTargetPawn && this.gizmoTargetPawn !== pawn) {
+                    this.gizmoTargetPawn.unselectEdit();
+                    this.say("removeGizmo", this.actor.gizmo?.id);
+                }
+                // fall through to make the next gizmo for the new target
+
+                if (this.gizmoTargetPawn !== pawn) {
+                    pawn.selectEdit();
+                }
+                this.gizmoTargetPawn = pawn;
+                // either not to have a gizmo on the model side at this point
+                this.say("addOrCycleGizmo", {target: this.gizmoTargetPawn.actor, viewId: this.viewId});
+                return;
             }
-        } else {
             if (this.gizmoTargetPawn) {
                 this.gizmoTargetPawn.unselectEdit();
-                this.gizmoTargetPawn = null;
-                this.publish(this.actor.id, "removeGizmo");
-            } else if (e.xy) {
-                this.dragWorld = this.xy2yp(e.xy);
-                this.lookYaw = q_yaw(this._rotation);
+                this.say("removeGizmo",this.actor.gizmo?.id);
+                delete this.gizmoTargetPawn;
             }
-            let handlerModuleName = this.actor._cardData.avatarEventHandler;
-            if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
-                this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
-            }
-            if (!pawnIsGizmo) {
-                this.publish(this.actor.id, "removeGizmo");
-            }
+            return;
+        }
+        if (this.gizmoTargetPawn) {
+            this.gizmoTargetPawn.unselectEdit();
+            this.say("removeGizmo", this.actor.gizmo?.id);
+            delete this.gizmoTargetPawn;
+            return;
+        }
+
+        if (e.xy) {
+            this.dragWorld = this.xy2yp(e.xy);
+            this.lookYaw = q_yaw(this._rotation);
+        }
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "handlingEvent")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "handlingEvent", "pointerDown", this, e);
         }
     }
 
