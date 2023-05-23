@@ -22,7 +22,7 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/croquet": "1.1.0-22",
+    "@croquet/croquet": "1.1.0-24",
     "@croquet/hybrid-msdf-text": "1.0.1",
     "@dimforge/rapier3d": "0.11.1",
     "fflate": "0.7.4",
