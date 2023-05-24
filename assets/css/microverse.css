@@ -578,3 +578,15 @@ button#VRButton {
     margin-right: 5px;
     width: 15px;
 }
+
+@media (max-width: 1151px) {
+    #world-info-container {
+        margin-top: 60px;
+    }
+}
+
+@media (min-width: 1152px) {
+    #world-info-container {
+        margin-top: 55px;
+    }
+}
