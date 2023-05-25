@@ -139,7 +139,7 @@ body.tilt > iframe {
 .worldMenu {
     background-color: rgba(0, 0, 0, 0.5);
     position: absolute;
-    bottom: 50px;
+    bottom: 60px;
     z-index: 200;
     display: none;
     border-radius: 15px;
@@ -579,14 +579,13 @@ button#VRButton {
     width: 15px;
 }
 
-@media (max-width: 1151px) {
-    #world-info-container {
-        margin-top: 60px;
+@media (max-width: 1015px) {
+    .name-container {
+        bottom: 55px !important;
     }
 }
 
-@media (min-width: 1152px) {
-    #world-info-container {
-        margin-top: 55px;
-    }
+img.menu-badge {
+    max-width: 200px;
+    margin-left: 25px;
 }
