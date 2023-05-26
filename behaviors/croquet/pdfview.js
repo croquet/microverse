@@ -259,11 +259,14 @@ class PDFPawn {
     }
 
     async loadDocument(pdfLocation) {
+        const assetManager = this.service("AssetManager").assetManager;
         this.pdf = null;
         this.pdfLocation = null;
         let objectURL;
         try {
-            const buffer = await this.getBuffer(pdfLocation);
+            const buffer = await assetManager.fillCacheIfAbsent(pdfLocation, () => {
+                return this.getBuffer(pdfLocation);
+            }, this.id);
             objectURL = URL.createObjectURL(new Blob([buffer]));
             const pdfjsLib = await window.pdfjsPromise;
             const pdf = await pdfjsLib.getDocument(objectURL).promise;
@@ -275,6 +278,7 @@ class PDFPawn {
             }
         } catch (err) {
             // PDF loading error
+            this.say("assetLoadError", {message: err.message, path: pdfLocation});
             console.error(err.message);
         }
         if (objectURL) URL.revokeObjectURL(objectURL);
@@ -567,7 +571,7 @@ class PDFPawn {
         // Prepare canvas using PDF page dimensions
         if (!this.renderCanvas) this.renderCanvas = document.createElement("canvas");
         const canvas = this.renderCanvas;
-        const context = canvas.getContext("2d");
+        const context = canvas.getContext("2d", { willReadFrequently: true });
         canvas.height = viewport.height;
         canvas.width = viewport.width;
         const renderContext = {
@@ -764,6 +768,11 @@ class PDFPawn {
 
         let moduleName = this._behavior.module.externalName;
         this.removeUpdateRequest([`${moduleName}$PDFPawn`, "update"]);
+
+        if (this.pdfLocation) {
+            const assetManager = this.service("AssetManager").assetManager;
+            assetManager.revoke(this.pdfLocation, this.id);
+        }
     }
 }
 
