@@ -96,10 +96,10 @@ export class DolbyChatManager extends ViewService {
         <div id='chatButtons'>
             <div id='toggleConnection' tabindex='4'>
                 <div class='buttonImage joined' title='leave voice chat'>Leave</div>
-                <div class='buttonImage notJoined' id='joinButton' title='join voice chat'>Join</div>
+                <div class='buttonImage notJoined' id='joinButton' title='join voice chat'><i class="fa-solid fa-phone-volume" style="margin-right:10px"></i> Join Call</div>
                 <div id='connection-tooltip' class='bouncing'>
                     <div id='connection-tooltip-arrow'></div>
-                    <div id='connection-tooltip-contents' class='noselect'>join voice chat</div>
+                    <div id='connection-tooltip-contents' class='noselect'>join voice call</div>
                 </div>
             </div>
             <div id='toggleAudio' tabindex='1'>
