@@ -1415,7 +1415,7 @@ export class AvatarPawn extends mix(CardPawn).with(
         let here = manager.playersInWorld().length;
         let suffix = document.createElement("div");
         suffix.setAttribute("id", "visitors-img");
-        suffix.innerHTML = `<i class="fa-solid fa-user"></i>`;
+        suffix.innerHTML = `<i class="fas fa-solid fa-users"></i>`;
         let tooltip = `${here} ${
             here === 1 ? "visitor is" : "visitors are"
         } in this world`;
