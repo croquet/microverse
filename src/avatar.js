@@ -919,15 +919,6 @@ export class AvatarPawn extends mix(CardPawn).with(
         }
         this.fadeNearbyInterval = setInterval(() => this.fadeNearby(), 100);
 
-        document
-            .getElementById("editModeBtn")
-            .setAttribute("mobile", this.isMobile);
-        document.getElementById("editModeBtn").setAttribute("pressed", false);
-
-        let editButton = document.getElementById("editModeBtn");
-        editButton.onpointerdown = (evt) => this.setEditMode(evt);
-        editButton.onpointerup = (evt) => this.clearEditMode(evt);
-
         setupWorldMenuButton(this, App, this.sessionId);
 
         window.myAvatar = this;
