@@ -37,38 +37,80 @@ const defaultSystemBehaviorModules = [
 ];
 
 let AA = true;
+let HighDPI = false;
 
 console.log("%cTHREE.REVISION:", "color: #f00", THREE.REVISION);
 
-async function getAntialias() {
+async function getDisplayOptions() {
     // turn off antialiasing for mobile and safari
     // Safari has exhibited a number of problems when using antialiasing. It is also extremely slow rendering webgl. This is likely on purpose by Apple.
     // Firefox seems to be dissolving in front of our eyes as well. It is also much slower.
     // mobile devices are usually slower, so we don't want to run those with antialias either. Modern iPads are very fast but see the previous line.
 
-    let urlOption = new URL(window.location).searchParams.get("AA");
-    if (urlOption) {
-        if (urlOption === "true") {
+    // allows to enable HighDPI rendering. uses more canvas pixel sizes but css scales it.
+
+    let aa;
+    let highdpi;
+
+    let aaOption = new URL(window.location).searchParams.get("AA");
+    if (aaOption) {
+        if (aaOption === "true") {
             console.log(`antialias is true, urlOption AA is set`);
-            return true;
+            aa = true;
         } else {
             console.log(`antialias is false, urlOption AA is unset`);
-            return false;
+            aa = false;
         }
     }
+
+    let dpiOption = new URL(window.location).searchParams.get("HighDPI");
+    if (dpiOption) {
+        if (dpiOption === "true") {
+            console.log(`HighDPI is true, urlOption HighDPI is set`);
+            highdpi = true;
+        } else {
+            console.log(`HighDPI is false, urlOption HighDPI is unset`);
+            highdpi = false;
+        }
+    }
+
     const isSafari = navigator.userAgent.includes("Safari") && !navigator.userAgent.includes("Chrome");
     const isFirefox = navigator.userAgent.includes("Firefox");
     const isMobile = !!("ontouchstart" in window);
 
     // the code below looks redundant, but let us keep it so that we remember what to do when
     // we change our mind again.
-    let aa = true;
-    if (isMobile) {
-        aa = false;
-    } else if (isSafari && isMobile) {
-        aa = false;
-    } else if (isFirefox) {
-        aa = true;
+
+    if (highdpi === undefined) {
+        highdpi = false;
+    }
+
+    if (aa === undefined) {
+        if (isMobile) {
+            aa = false;
+        } else if (isSafari && isMobile) {
+            aa = false;
+        } else if (isFirefox) {
+            aa = true;
+        } else {
+            aa = true;
+            // when there is no url option, deafults to true
+        }
+    }
+
+    if (highdpi === undefined) {
+        highdpi = false;
+        /*
+          if (isMobile) {
+          highdpi = false;
+          } else if (isSafari && isMobile) {
+          highdpi = false;
+          } else if (isFirefox) {
+          highdpi = true;
+          } else {
+          // when there is no url option, deafults to true
+          }
+        */
     }
 
     try {
@@ -76,8 +118,8 @@ async function getAntialias() {
         if (supported) {aa = supported;}
     } catch (_) { /* ignore */ }
 
-    console.log(`antialias is ${aa}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
-    return aa;
+    console.log(`antialias is ${aa}, highDPI is ${highdpi}, mobile: ${isMobile}, browser: ${isFirefox ? "Firefox" : isSafari ? "Safari" : "Other Browser"}`);
+    return {AA: aa, HighDPI: highdpi};
 }
 
 function loadLoaders() {
@@ -661,7 +703,7 @@ class MyViewRoot extends ViewRoot {
     static viewServices() {
         const services = [
             InputManager,
-            {service: ThreeRenderManager, options:{useBVH: true, antialias: AA, useDevicePixelRatio: AA}},
+            {service: ThreeRenderManager, options:{useBVH: true, antialias: AA, useDevicePixelRatio: HighDPI}},
             AssetManager,
             KeyFocusManager,
             FontViewManager,
@@ -876,9 +918,10 @@ export function startMicroverse() {
             sendToShell("hud", {joystick: true, fullscreen: true});
             setButtons("flex");
         }
-        return getAntialias();
-    }).then((aa) => {
-        AA = aa;
+        return getDisplayOptions();
+    }).then((options) => {
+        AA = options.AA;
+        HighDPI = options.HighDPI;
         launchMicroverse();
     });
 }
