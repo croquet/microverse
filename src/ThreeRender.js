@@ -31,8 +31,8 @@ import { PM_Visible, PM_Camera, RenderManager } from "./worldcore";
 //------------------------------------------------------------------------------------------
 const PM_ThreeVisible = superclass => class extends PM_Visible(superclass) {
 
-    constructor(...args) {
-        super(...args);
+    constructor(options) {
+        super(options);
         this.listen("viewGlobalChanged", this.refreshDrawTransform);
     }
 
@@ -446,6 +446,10 @@ class ThreeRenderManager extends RenderManager {
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
         // this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+
+        if (options.useDevicePixelRatio) {
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+        }
 
         this.vrButtonStyleSet = false;
 
