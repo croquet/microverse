@@ -788,7 +788,7 @@ class MyViewRoot extends ViewRoot {
         let id = data.id;
         this.notLoadedSynchronousCards.delete(id);
         if (this.notLoadedSynchronousCards.size === 0) {
-            this.publish(this.sessionId, "allSynnchronousCardsLoaded");
+            this.publish(this.sessionId, "allSynchronousCardsLoaded");
         }
     }
 }

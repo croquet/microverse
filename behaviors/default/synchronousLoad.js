@@ -1,7 +1,7 @@
 class SynchronousCardLoaderPawn {
     setup() {
         this.subscribe(this.sessionId, "synchronousLoadCardsStarted", "synchronousLoadCardsStarted");
-        this.subscribe(this.sessionId, "allSynnchronousCardsLoaded", "allSynnchronousCardsLoaded");
+        this.subscribe(this.sessionId, "allSynchronousCardsLoaded", "allSynchronousCardsLoaded");
 
         let viewRoot = Microverse.getViewRoot();
         if (viewRoot.notLoadedSynchronousCards) {
@@ -30,8 +30,8 @@ class SynchronousCardLoaderPawn {
         Microverse.sendToShell("hud", {joystick: false, fullscreen: false});
     }
 
-    allSynnchronousCardsLoaded() {
-        console.log("allSynnchronousCardsLoaded");
+    allSynchronousCardsLoaded() {
+        console.log("allSynchronousCardsLoaded");
         if (window.initialCoverDiv) {
             window.initialCoverDiv.style.transition = "opacity 1s";
             window.initialCoverDiv.style.opacity = 0;
