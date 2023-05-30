@@ -92,6 +92,10 @@ The list of behavior modules installed to the card.
 
 An informative string for the card.
 
+### `_hidden`
+`boolean|undefined`
+The visibility of the card, and whether it responds to pointer events or not.
+
 ### `_cardData`
 
 Any other values that the CardActor holds are stored in an object stored in the `_cardData` property. This is needed to mark the values to be stored in the persistent data.

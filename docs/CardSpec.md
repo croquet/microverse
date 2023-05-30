@@ -270,12 +270,35 @@ When it is "text", the card becomes a text area.
 When it is "code", it creates a text area but has some more functionality to support in world code editing.
 When it is "object" or `undefined`, custom behavior code is expected to set the cards' visual appearance.
 
---- 
+---
+
+### Name
+
+`hidden`
+
+### Category
+
+visual
+
+
+### Type
+
+```TypeScript
+boolean|undefined
+```
+
+### Description
+The value specifies whether the root of the Three.js objects for the card to have the `visible` flag set or not. The value defaults to false (that is the visible flag to be true).
+
+When the hidden flag is true, the card also stops responding pointer events.
+
+---
 
 ### Name
 `dataLocation`
 
 ### Category
+
 visual
 
 ### Type
