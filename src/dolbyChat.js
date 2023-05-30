@@ -96,10 +96,10 @@ export class DolbyChatManager extends ViewService {
         <div id='chatButtons'>
             <div id='toggleConnection' tabindex='4'>
                 <div class='buttonImage joined' title='leave voice chat'>Leave</div>
-                <div class='buttonImage notJoined' id='joinButton' title='join voice chat'><i class="fa-solid fa-phone-volume" style="margin-right:10px"></i> Join Call</div>
+                <div class='buttonImage notJoined' id='joinButton' title='join voice chat'><i class="fa-solid fa-phone-volume" style="margin-right:10px"></i> Join Voice Chat</div>
                 <div id='connection-tooltip' class='bouncing'>
                     <div id='connection-tooltip-arrow'></div>
-                    <div id='connection-tooltip-contents' class='noselect'>join voice call</div>
+                    <div id='connection-tooltip-contents' class='noselect'>join</div>
                 </div>
             </div>
             <div id='toggleAudio' tabindex='1'>
@@ -326,7 +326,7 @@ export class DolbyChatManager extends ViewService {
         if (!conference) {
             let button = document.getElementById("joinButton");
             this.elements.chatHolder.classList.remove("joining");
-            button.innerHTML = "Join";
+            button.innerHTML = "Join Voice Chat";
             this.joinState = "left";
             return;
         }
@@ -371,7 +371,7 @@ export class DolbyChatManager extends ViewService {
         }
 
         this.elements.chatHolder.classList.remove("joining");
-        button.innerHTML = "Join";
+        button.innerHTML = "Join Voice Chat";
     }
 
     async leaveConference() {

@@ -281,7 +281,8 @@
     vertical-align: baseline;
     border-radius: 0.25rem;
     z-index: 1;
-    margin-left: 50px;
+    margin-left: 80px;
+    border: 1px solid black;
 }
 
 .badge-joined {
@@ -360,12 +361,13 @@
     top: 14px;
     left: 100%;
     height: 1.5rem;
-    width: 6.4rem;
+    width: 2.5rem;
     color: #000;
     background-color: #ffc107 !important;
     border-radius: 0.25rem;
     font-size: 12px;
     pointer-events: none;
+    z-index: 1;
 }
 
 #connection-tooltip.bouncing {
