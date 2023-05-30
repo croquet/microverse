@@ -230,7 +230,7 @@ class XRController {
         this.manager = manager;
         this.controllerModelFactory = new XRControllerModelFactory();
 
-        function selectStart(controller, evt) {
+        function selectStart(controller, _evt) {
             if (manager.avatar) {
                 let e = {
                     type: "xr",
@@ -245,7 +245,7 @@ class XRController {
             controller.userData.pointerDownTime = Date.now();
         }
 
-        function selectEnd(controller, evt) {
+        function selectEnd(controller, _evt) {
             if (manager.avatar) {
                 let e = {
                     type: "xr",
@@ -567,7 +567,11 @@ class ThreeRenderManager extends RenderManager {
     threeLayer(name) {
         if (!this.layers[name]) return [];
         if (!this.threeLayers[name]) {
-            this.threeLayers[name] = Array.from(this.layers[name]).map(p => p.colliderObject || p.renderObject);
+            let array = Array.from(this.layers[name]).map(p => p.colliderObject || p.renderObject);
+            if (name === "pointer") {
+                array = array.filter(p => p.visible);
+            }
+            this.threeLayers[name] = array;
         }
         return this.threeLayers[name];
     }

@@ -555,7 +555,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.shape.name = this.actor.name;
         this.setRenderObject(this.shape);
         this.constructShape(this.actor._cardData);
-        this.onHiddenSet({v: this.actor.hidden});
+        if (this.actor.hidden) {
+            this.onHiddenSet({v: this.actor.hidden});
+        }
     }
 
     constructShape(options) {
@@ -1392,8 +1394,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
     }
 
     onHiddenSet(hidden) {
-        console.log("onHiddenSet");
         this.shape.visible = !hidden.v;
+        let renderer = this.service("ThreeRenderManager");
+        renderer.dirtyLayer("pointer");
     }
 
     tryStartAnimation() {
