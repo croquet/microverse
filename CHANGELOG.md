@@ -5,6 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-05-26
+
+### Fixed
+- Transfering, or ctrl-click on a different card while another already has gizmo, is fixed.
+
+
 ## 2023-05-19
 ### Changed
 - assetLoadError takes a serializable object as argument.

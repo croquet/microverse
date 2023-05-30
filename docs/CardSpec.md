@@ -812,8 +812,6 @@ boolean?
 
 When there is a card with type "2d" or "3d" and with the property "loadSynchronously" set to be true, and also the SynchrnousCardLoader behavior module is attached to a card in the system, the system sends synchronousLoadCardsStarted and allSynnchronousCardsLoaded events. See the details in `behaviors/default/synchronousLoad.js` for more details.
 
----
-
 ## Code Properties
 
 ---
