@@ -857,8 +857,14 @@
     border: 1px solid grey;
     border-radius: 10px;
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
+    flex-wrap: nowrap;
     align-items: center;
+    flex-direction: column-reverse;
+}
+
+.scan-me{
+    margin-bottom: 0px;
 }
 
 .copy-link {

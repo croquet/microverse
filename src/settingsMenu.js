@@ -426,15 +426,14 @@ function createShareMenu(avatar) {
         <button id="close-button" type="button" class="btn btn-x topright"><i class="fa-solid fa-xmark"></i></button>
         <div id="share-container" class="content-container">
             <div id="share-title" class="panel-title">Invite<br></div>
-            <div class="share-settings-label">Anyone with this link can join you in this session.</div>
+            <div class="share-settings-label">Invite other to join you here. Anyone with this link can join you in this world.</div>
             <div class="share-menu-row">
                 <div id="copy-link" class="copy-link allow-select">generated link</div>
                 <div class="button-container">
                     <button id="copy-button" type="button" class="btn btn-outline-success">Copy</button>
                 </div>
             </div>
-            <div id="share-qr"></div>
-
+            <div id="share-qr"><p class="scan-me">Scan with your phone to join this world.</p></div>
             <div id="save-vrse-row" class="share-menu-row">
                 <div class="share-settings-label">Save world as VRSE file</div>
                 <button id="save-button" type="button" class="btn btn-outline-success">Download</button>
