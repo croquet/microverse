@@ -23,7 +23,7 @@ import { WorldSaver } from './worldSaver.js';
 
 const { MeshBVH, /*MeshBVHVisualizer*/ } = THREE_MESH_BVH;
 
-export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "behaviorModules", "multiuser", "name", "noSave"];
+export const intrinsicProperties = ["translation", "scale", "rotation", "layers", "parent", "behaviorModules", "name", "noSave", "hidden"];
 
 
 //------------------------------------------------------------------------------------------
@@ -43,6 +43,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
         super.init(cardOptions);
         this._cardData = cardData;
         this.noSave = options.noSave;
+        if (cardOptions.hidden) {
+            this._hidden = cardOptions.hidden;
+        }
         this.createShape(cardData);
         this.listen("selectEdit", this.saySelectEdit);
         this.listen("unselectEdit", this.sayUnselectEdit);
@@ -504,6 +507,9 @@ export class CardActor extends mix(Actor).with(AM_Smoothed, AM_PointerTarget, AM
     getTextFieldActorClass() {
         return TextFieldActor;
     }
+
+    get hidden() { return !!this._hidden; }
+    set hidden(hidden) { this._hidden = hidden; }
 }
 CardActor.register('CardActor');
 
@@ -528,6 +534,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.listen("animationStateChanged", this.tryStartAnimation);
         this.animationInterval = null;
         this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
+
+        this.listen("hiddenSet", this.onHiddenSet);
+        
         this.constructCard();
     }
 
@@ -546,6 +555,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.shape.name = this.actor.name;
         this.setRenderObject(this.shape);
         this.constructShape(this.actor._cardData);
+        this.onHiddenSet({v: this.actor.hidden});
     }
 
     constructShape(options) {
@@ -1381,49 +1391,9 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return v3_normalize(normal);
     }
 
-    dragPlane(rayCaster, p3e){
-        // XYZZY the flamingo does not follow the cursor when dragging in the plane.
-        if(!this._plane) {
-            let normal = p3e.normal || p3e.lookNormal; // normal may not exist
-            normal = this.verticalNorm( normal );
-
-            let offset = v3_dot(p3e.xyz, normal);
-            this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
-            this._parentInvert = this._parent ? m4_invert(this._parent.global) : m4_identity();
-            this.startDrag = v3_transform(p3e.xyz, this._parentInvert)
-            this._startTranslation = this._translation;
-        }
-        let p = new THREE.Vector3();
-        rayCaster.ray.intersectPlane(this._plane, p);
-        let here = p.toArray();
-        let localHere = v3_transform(here, this._parentInvert);
-        let delta = v3_sub(localHere, this.startDrag);
-        this.set({translation: v3_add(this._startTranslation, delta)});
-    }
-
-    rotatePlane(rayCaster, p3e){
-        if(!this._plane) {
-            // first
-            let normal = [...p3e.lookNormal];
-            normal[1] = 0;
-            // let nsq = v3_sqrMag(normal);
-            normal = v3_normalize(normal);
-            let offset = v3_dot(p3e.xyz, normal);
-            this._plane = new THREE.Plane(new THREE.Vector3(...normal), -offset);
-            this.startDrag = p3e.xyz;
-            this.baseRotation = this._rotation;
-            this.rotAngle = 0;
-        }
-        let p = new THREE.Vector3();
-        rayCaster.ray.intersectPlane(this._plane, p);
-        let here = p.toArray();
-        let delta = v3_sub(this.startDrag, here);
-        delta[1] = 0;
-        let angle = v3_magnitude(delta);
-        let sign = v3_cross(p3e.lookNormal, delta)[1];
-        if (sign < 0) angle = -angle;
-        let qAngle = q_euler(0, angle, 0);
-        this.set({rotation: q_multiply(this.baseRotation, qAngle)});
+    onHiddenSet(hidden) {
+        console.log("onHiddenSet");
+        this.shape.visible = !hidden.v;
     }
 
     tryStartAnimation() {
@@ -1527,7 +1497,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         if (!myAvatar) {return undefined;}
         return GetPawn(myAvatar.id);
     }
-
 
     addWireBox(obj3d) {
         let tmpMat = new THREE.Matrix4();
