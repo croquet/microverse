@@ -27,7 +27,7 @@ function createHelpMenu() {
                         <tr class="help-row">
                             <td>
                                 <p class="table-head">Navigate</p>
-                                <p class="table-desc">Move around using the joystick or WASD keys.</p>
+                                <p class="table-desc">Move around using the joystick or WASD keys. Double click on a card or location to jump to it.</p>
                             </td>
                             <td class="icon-column">
                                 <div class="icons">
@@ -74,8 +74,7 @@ function createHelpMenu() {
                     <tr class="help-row">
                         <td>
                             <p class="table-head">Gather</p>
-                            <p class="table-desc">Shows how many users in a world. Click to "gather" all users to you.</p>
-                        </td>
+                            <p class="table-desc">See how many users in a world in the top bar. Click "gather" in the menu or press G to collect all users to you.</p>                        </td>
                         <td class="icon-column"><i class="fas fa-solid fa-users icons"></i></td>
                     </tr>
                     <tr class="help-row" id="import-row">
