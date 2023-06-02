@@ -82,7 +82,10 @@ async function getDisplayOptions() {
     // we change our mind again.
 
     if (highdpi === undefined) {
-        highdpi = false;
+        let showcase = window.showcase;
+        if (showcase) {
+            highdpi = showcase.highDPI !== undefined ? showcase.highDPI : true;
+        }
     }
 
     if (aa === undefined) {
