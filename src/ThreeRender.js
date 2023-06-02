@@ -449,6 +449,7 @@ class ThreeRenderManager extends RenderManager {
 
         if (options.useDevicePixelRatio) {
             this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.listenOnDevicePixelRatio();
         }
 
         this.vrButtonStyleSet = false;
@@ -504,7 +505,7 @@ class ThreeRenderManager extends RenderManager {
         });
     }
 
-    installOutlinePass(){
+    installOutlinePass() {
         if(!this.outlinePass){
             this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), this.scene, this.camera );
             this.outlinePass.edgeStrength = 3.0;
@@ -518,13 +519,23 @@ class ThreeRenderManager extends RenderManager {
         }
     }
 
-    addToOutline(obj){
-        if(!this.outlinePass)this.installOutlinePass();
-        this.outlinePass.selectedObjects.push( obj );
+    addToOutline(obj) {
+        if (!this.outlinePass) this.installOutlinePass();
+        this.outlinePass.selectedObjects.push(obj);
     }
 
-    clearOutline(){
+    clearOutline() {
         this.outlinePass.selectedObjects = [];
+    }
+
+    listenOnDevicePixelRatio() {
+        let onChange = () => {
+            console.log("devicePixelRatio changed: " + window.devicePixelRatio);
+            this.renderer.setPixelRatio(window.devicePixelRatio);
+            this.listenOnDevicePixelRatio();
+        };
+        matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+            .addEventListener("change", onChange, {once: true});
     }
 
     setRender(bool) {
