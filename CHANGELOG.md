@@ -5,6 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-06-02
+
+### Added
+- Add support for High pixel density displays
+- Add the hidden property for a card that makes it invisible in the scene and ignore pointer events.
+
 ## 2023-05-26
 
 ### Fixed
