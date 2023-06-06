@@ -355,7 +355,7 @@ body.tilt > iframe {
 
 #world-info-container {
     position: absolute;
-    z-index: 1000;
+    z-index: 999;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-areas: "left center right";
