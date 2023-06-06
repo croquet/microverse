@@ -181,7 +181,7 @@ export class DolbyChatManager extends ViewService {
 
     toggleConnection() {
         this.resumeAudioContextIfNeeded();
-        this.elements.connectionTooltip.style.display = "none";
+        // this.elements.connectionTooltip.style.display = "none";
         const now = Date.now();
         if (
             now - (this.lastToggle || 0) < 2000 ||
