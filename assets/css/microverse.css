@@ -184,7 +184,7 @@ body.tilt > iframe {
 }
 
 .menu-label {
-    height: 55px;
+    height: 25%;
     display: flex;
     align-items: center;
     transition: opacity 0.5s;
@@ -206,7 +206,7 @@ body.tilt > iframe {
 
 .menu-icon {
     width: 30px;
-    margin-left: 20px;
+    margin-left: 35px;
     margin-right: 20px;
 }
 
