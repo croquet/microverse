@@ -575,3 +575,11 @@ button#VRButton {
 #visitors-img {
     margin-right: 5px;
 }
+
+.control-panel .fa-user-plus {
+    margin-left: 15px;
+}
+
+.control-panel .fa-bars {
+    margin-right: 15px;
+}
