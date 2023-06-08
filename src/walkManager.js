@@ -45,7 +45,8 @@ export class WalkManager extends ViewService {
     }
 
     findIndex(walkerSpec) {
-        return this.walkers.findIndex((a) => a[0] == `${walkerSpec[0]}$${walkerSpec[1]}` && a[2] === walkerSpec[2]);
+        let w = walkerSpec;
+        return this.walkers.findIndex((a) => a[0] === w[0] && a[1] === w[1] && a[2] === w[2]);
     }
 
     removeAll() {
