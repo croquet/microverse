@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-06-09
+### Fixed
+- WalkManager.findIndex now uses the right format of data.
+
 ## 2023-06-02
 
 ### Added

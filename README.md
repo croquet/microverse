@@ -4,6 +4,10 @@
 
 [https://croquet.io](https://croquet.io)
 
+## Getting Started
+
+A new project can be started by running `npm create croquet-microverse@latest` in an empty directory on your computer and then run `npm start` in the directory. For more information, refer to The [Quick Start Guide](https://croquet.io/docs/microverse/index.html). This repository contains the "Microvese Library" that can be used new projects. If you wish to learn more about Microverse, or modify code in the library to enhance it for your projects, please read on the following.
+
 ## Description
 
 Croquet Microverse is a framework for building multiplayer immersive 3D virtual worlds on the web. It is built on the Croquet OS and the Worldcore framework.
@@ -31,8 +35,6 @@ The quickest way to get a feel for Microverse is to visit a default world served
    * sending the copied URL to a friend, to load in their own browser, or
    * clicking the hamburger menu at top right, and pointing your phone camera at the QR code that appears.
 4. All browser tabs with the same URL are in the same world.  As you navigate in any tab, everyone else can see your avatar.  As you interact with objects, everyone else can see you interacting.
-
-## Serve a world from your own computer
 
 The worlds on the Croquet server cannot be modified by you.  But if you are a developer who already has the tools `git` and `npm`, follow these steps to get a taste of how straightforward it is to set up your own shareable worlds:
 
