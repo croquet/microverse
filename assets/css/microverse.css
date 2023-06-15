@@ -92,20 +92,6 @@ body.tilt > iframe {
     -ms-user-select: none;
 }
 
-.btn:hover {
-    /* background-color: rgba(0, 0, 0, 0.5); */
-    /* mix-blend-mode: multiply; */
-}
-
-#fullscreenBtn {
-    top: 10px;
-    left: 10px;
-}
-
-#worldMenuBtn {
-    top: 10px;
-    right: 10px;
-}
 
 #editModeBtn {
     bottom: 50px;
@@ -286,6 +272,8 @@ body.tilt > iframe {
     border-radius: 0.25rem;
     transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
         border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+    bottom: 70px;
 }
 
 .btn-outline-success {
@@ -310,10 +298,6 @@ body.tilt > iframe {
 
 .btn-ui {
     color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     font-size: 1.5em;
 }
 
@@ -467,16 +451,16 @@ button#VRButton {
     }
 
     #worldMenuBtn:hover {
-        background-image: url("../images/left.png");
+        background-image: url("../images/right.png");
     }
 
     #worldMenu-shareButton:hover {
-        background-image: url("../images/right.png");
+        background-image: url("../images/left.png");
     }
 }
 
 .share-clicked {
-    background-image: url("../images/right.png");
+    background-image: url("../images/left.png");
 }
 
 .help-clicked {
@@ -488,7 +472,7 @@ button#VRButton {
 }
 
 @media (min-width: 601px) {
-    #worldMenu-shareButton {
+    #worldMenuBtn {
         clip-path: polygon(
             46% 0%,
             100% 0,
@@ -506,7 +490,7 @@ button#VRButton {
         );
     }
 
-    #worldMenuBtn {
+    #worldMenu-shareButton {
         clip-path: polygon(
             100% 66%,
             100% 100%,
@@ -576,10 +560,45 @@ button#VRButton {
     margin-right: 5px;
 }
 
-.control-panel .fa-user-plus {
+/* .control-panel .fa-user-plus {
     margin-left: 15px;
+} */
+
+/* .control-panel .fa-bars {
+    margin-right: 15px;
+} */
+
+p.tooltip {
+    position: absolute;
+    top: -60px;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 8px;
+    font-size: 1rem;
+    color: #fff;
+    border-radius: 5px;
+    border: 1px solid #5c25fa;
+    animation: fadeIn 0.6s;
+    text-align: center;
+    margin-left: 35px;
+    display: none;
 }
 
-.control-panel .fa-bars {
-    margin-right: 15px;
+p.tooltip:before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -8px;
+  border: 8px solid transparent;
+  border-top: 8px solid rgba(0, 0, 0, 0.8);
+}
+
+@keyframes fadeIn {
+ from {
+   opacity: 0;
+ }
+ to {
+   opacity: 1;
+ }
 }
