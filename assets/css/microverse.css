@@ -466,7 +466,7 @@ button#VRButton {
 }
 
 .menu-clicked {
-    background-image: url("../images/left.png");
+    background-image: url("../images/right.png");
 }
 
 @media (min-width: 601px) {
