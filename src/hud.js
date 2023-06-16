@@ -222,21 +222,21 @@ function hudButtons(myAvatar) {
     const html = document.getElementById("control-panel");
     let buttons = `
 
-            <div id="tooltip-container-home">
+            <div id="tooltip-container-home" class="tooltip-container">
                 <p class="tooltip-text-home tooltip">home</p>
                 <div id="homeBtn" class="btn btn-ui">
                     <i class="fas fa-regular fa-house"></i>
                 </div>
             </div>
 
-            <div id="tooltip-container-share">
+            <div id="tooltip-container-share" class="tooltip-container">
                 <p class="tooltip-text-share tooltip"> share</p>
                 <div id="worldMenu-shareButton" class="btn btn-ui">
                     <i class="fas fa-user-plus"></i>
                 </div>
             </div>
 
-            <div id="tooltip-container-menu">
+            <div id="tooltip-container-menu" class="tooltip-container">
                 <p class="tooltip-text-menu tooltip"> menu</p>
                 <div id="worldMenuBtn" class="btn btn-ui"> 
                     <i class="fa fa-solid fa-bars no-pointer-events"></i>
@@ -244,7 +244,7 @@ function hudButtons(myAvatar) {
 
             </div>
 
-            <div id="tooltip-container-help">
+            <div id="tooltip-container-help" class="tooltip-container">
                 <p class="tooltip-text-help tooltip"> help</p>
                 <div id="worldMenu-helpButton" class="btn btn-ui">
                     <i class="fas fa-question-circle"></i>
@@ -256,42 +256,7 @@ function hudButtons(myAvatar) {
 
     let div = document.createElement("div");
     div.innerHTML = buttons;
-
-    const tooltipHome = div.querySelector(".tooltip-text-home");
-    const tooltipShare = div.querySelector(".tooltip-text-share");
-    const tooltipMenu = div.querySelector(".tooltip-text-menu");
-    const tooltipHelp = div.querySelector(".tooltip-text-help");
-
-    console.log("here!", tooltipHelp);
-
-
-    let home = div.querySelector("#homeBtn");
-    let share = div.querySelector("#worldMenu-shareButton");
-    let menu = div.querySelector("#worldMenuBtn");
-    let help = div.querySelector("#worldMenu-helpButton");
-
-    let tooltipHomeContainer = div.querySelector("#tooltip-container-home");
-    let tooltipShareContainer = div.querySelector("#tooltip-container-share");
-    let tooltipMenuContainer = div.querySelector("#tooltip-container-menu");
-    let tooltipHelpContainer = div.querySelector("#tooltip-container-help");
-
-
-    html.appendChild(tooltipHomeContainer);
-    html.appendChild(tooltipShareContainer);
-    html.appendChild(tooltipMenuContainer);
-    html.appendChild(tooltipHelpContainer);
-
-    tooltipHomeContainer.appendChild(home);
-    tooltipShareContainer.appendChild(share);
-    tooltipMenuContainer.appendChild(menu);
-    tooltipHelpContainer.appendChild(help);
-
-    tooltipHomeContainer.appendChild(home, tooltipHome);
-    tooltipShareContainer.appendChild(share, tooltipShare);
-    tooltipMenuContainer.appendChild(menu, tooltipMenu);
-    tooltipHelpContainer.appendChild(help, tooltipHelp);
-
-
+    html.append(...div.children);
 
     div = document.querySelector("#worldMenu-shareButton");
     if (div)
@@ -305,28 +270,24 @@ function hudButtons(myAvatar) {
     document.querySelector("#homeBtn").onclick = () => myAvatar.goHome();
     filterDomEventsOn(document.querySelector("#homeBtn"));
 
-    let timeout;
+    const tooltipContainers = document.querySelectorAll('.tooltip-container');
 
-    const showTooltip = () => {
-    tooltipHelp.style.display = "block";
-    timeout = undefined;
-    }
+    tooltipContainers.forEach(item => {
+        let timeout;
+        const button = item.querySelector(".btn-ui");
+        const tooltip = item.querySelector(".tooltip");
+        
+        button.addEventListener('mouseover', () => {
+            timeout = setTimeout(()=>{tooltip.style.display = "block"}, 1000);
+        })
 
-    const hideTooltip = () => {
-        tooltipHelp.style.display = "none";
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = undefined;
-        }
-      }
+        button.addEventListener('mouseout', () =>{
+            tooltip.style.display = "none";
+            clearTimeout(timeout);
+        })
 
-    help.addEventListener("mouseover", () => {
-        timeout = setTimeout(showTooltip, 1000);
-      });
-
-    help.addEventListener("mouseout", hideTooltip);
-
-    }
+    })
+}
 
 document.onkeydown = function (e) {
     if (e.key === "g") {
