@@ -431,10 +431,6 @@ export function closeAllDialogs() {
     panels.forEach((p) => p.remove());
     sendToShell("hud", { joystick: true, fullscreen: true });
 
-    let homeBtn = document.querySelector("#homeBtn");
-    if (homeBtn) {
-        homeBtn.style.display = "flex";
-    }
     if (shareButton) {
         shareButton.classList.remove("share-clicked", "help-clicked");
     }
