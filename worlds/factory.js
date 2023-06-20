@@ -88,7 +88,7 @@ export function init(Constants) {
                 runs: [{text: "Lateral Crane Controller"}],
                 margins: {left: 15, top: 48, right: 10, bottom: 0},
                 backgroundColor: 0x707070,
-                color: 0xB0841B,
+                color: 0xf1b62a,
                 frameColor: 0x222222,
                 width: 3.4,
                 height: 1,

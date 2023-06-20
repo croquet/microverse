@@ -31,7 +31,7 @@ class LightPawn {
         ];
         points.forEach((pair) => {
             let v = pair.v
-            let point = new Microverse.THREE.PointLight(0xffffff, 0.5);
+            let point = new Microverse.THREE.PointLight(0xffffff, 0.1);
             point.position.set(...v);
             if (pair.s) {
                 point.castShadow = true;
@@ -40,7 +40,7 @@ class LightPawn {
             group.add(point);
         });
 
-        let directional = new Microverse.THREE.DirectionalLight(0xffffff, 0.8);
+        let directional = new Microverse.THREE.DirectionalLight(0xffffff, 0.1);
         directional.position.set(2, 20, 30);
         // directional.castShadow = true;
         this.lights.push(directional);
@@ -85,8 +85,12 @@ class LightPawn {
                 let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
                 pmremGenerator.compileEquirectangularShader();
 
+                texture.colorSpace = THREE.SRGBColorSpace;
+
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
+
+                exrBackground.colorSpace = THREE.SRGBColorSpace;
 
                 let bg = scene.background;
                 let e = scene.environment;

@@ -395,6 +395,7 @@ class PDFPawn {
                 uv.needsUpdate = true;
 
                 if (!pageEntry.texture) pageEntry.texture = new Microverse.THREE.Texture(renderResult);
+                pageEntry.texture.colorSpace = THREE.SRGBColorSpace;
                 if (pageMesh.material.map !== pageEntry.texture) {
                     pageMesh.material.map = pageEntry.texture;
                     pageEntry.texture.needsUpdate = true;

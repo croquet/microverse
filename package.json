@@ -22,14 +22,14 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/croquet": "1.1.0-24",
+    "@croquet/croquet": "1.1.0-25",
     "@croquet/hybrid-msdf-text": "1.0.1",
     "@dimforge/rapier3d": "0.11.1",
     "fflate": "0.7.4",
     "jszip": "3.10.1",
     "load-bmfont": "1.4.1",
-    "three": "0.149.0",
-    "three-mesh-bvh": "0.5.23"
+    "three": "0.152.0",
+    "three-mesh-bvh": "0.6.0"
   },
   "devDependencies": {
     "@croquet/microverse-file-server": "^1.0.7",

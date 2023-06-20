@@ -908,6 +908,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                             objectURL,
                             (texture) => {
                                 URL.revokeObjectURL(objectURL);
+                                texture.colorSpace = THREE.SRGBColorSpace;
                                 resolve({width: texture.image.width, height: texture.image.height, texture})
                             }, null, reject);
                     });

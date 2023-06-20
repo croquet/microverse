@@ -155,7 +155,7 @@ class BitcoinTrackerPawn {
         let color = this.lastAmount > amount ? "#FF2222" : "#22FF22";
         this.lastAmount = amount;
 
-        this.clear("#222222");
+        this.clear("#050505");
         let ctx = this.canvas.getContext("2d");
         ctx.textAlign = "right";
         ctx.fillStyle = color;

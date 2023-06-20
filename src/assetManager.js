@@ -517,6 +517,19 @@ export class Loader {
                 }
             }).then((loaded) => {
                 let {scene, animations} = loaded;
+                scene.traverse((m) => {
+                    if (m.material) {
+                        ["color", "emissive"].forEach((p) => {
+                            if (m.material[p]) {
+                                // m.material[p].setHex(0);
+                                // m.material[p].convertLinearToSRGB();
+                                // m.material[p].convertSRGBToLinear();
+                            }
+                        });
+                    }
+                });
+
+                
                 if (animations.length > 0) {
                     const mixer = new THREE.AnimationMixer(scene);
                     scene._croquetAnimation = {
@@ -633,16 +646,16 @@ export class Loader {
 
         let contents = await setupFiles();
 
-        let obj = new Promise((resolve, reject) => {
-            new THREE.EXRLoader().load(contents.exr, resolve, null, reject);
+        return new Promise((resolve, reject) => {
+            return new THREE.EXRLoader().load(contents.exr, resolve, null, reject);
+        }).then((obj) => {
+            Object.keys(contents).forEach((k) => {
+                if (contents[k] && k !== "imgContents") {
+                    URL.revokeObjectURL(contents[k]);
+                }
+            });
+            return obj;
         });
-
-        Object.keys(contents).forEach((k) => {
-            if (contents[k] && k !== "imgContents") {
-                URL.revokeObjectURL(contents[k]);
-            }
-        });
-        return obj;
     }
 }
 

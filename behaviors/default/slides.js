@@ -52,6 +52,7 @@ class SlidesPawn {
                         resolve({width: texture.image.width, height: texture.image.height, texture})
                         // texture.wrapS = THREE.RepeatWrapping;
                         // texture.wrapT = THREE.RepeatWrapping;
+                        texure.colorSpace = THREE.SRGBColorSpace;
                     }, null, reject);
             });
         }).then((textureData) => {

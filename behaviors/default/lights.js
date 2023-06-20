@@ -1,17 +1,15 @@
 class LightPawn {
     setup() {
-        /*
           let trm = this.service("ThreeRenderManager");
-          let scene =  trm.scene;
-          let camera = trm.camera;
-        */
+        //trm.renderer.outputColorSpace = Microverse.THREE.SRGBColorSpace;
+
         let group = this.shape;
         let THREE = Microverse.THREE;
 
         this.removeLights();
         this.lights = [];
 
-        const ambient = new THREE.AmbientLight( 0xffffff, .25 );
+        const ambient = new THREE.AmbientLight( 0xffffff, .5 );
         group.add(ambient);
         this.lights.push(ambient);
 
@@ -105,6 +103,8 @@ class LightPawn {
 
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
+
+                exrBackground.colorSpace = Microverse.THREE.SRGBColorSpace;
 
                 let bg = scene.background;
                 let e = scene.environment;

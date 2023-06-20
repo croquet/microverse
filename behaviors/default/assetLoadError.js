@@ -51,6 +51,7 @@ class AssetLoadErrorDisplayPawn {
                     this.texture.dispose();
                 }
                 this.texture = new Microverse.THREE.CanvasTexture(canvas);
+                this.texture.colorSpace = THREE.SRGBColorSpace;
 
                 if (this.material) {
                     let m;
