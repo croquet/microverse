@@ -241,7 +241,6 @@ function hudButtons(myAvatar) {
                 <div id="worldMenuBtn" class="btn btn-ui"> 
                     <i class="fa fa-solid fa-bars no-pointer-events"></i>
                 </div>
-
             </div>
 
             <div id="tooltip-container-help" class="tooltip-container">

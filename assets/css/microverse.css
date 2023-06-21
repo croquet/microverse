@@ -92,7 +92,6 @@ body.tilt > iframe {
     -ms-user-select: none;
 }
 
-
 #editModeBtn {
     bottom: 50px;
     left: 10px;
@@ -583,20 +582,52 @@ p.tooltip {
 }
 
 p.tooltip:before {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -8px;
-  border: 8px solid transparent;
-  border-top: 8px solid rgba(0, 0, 0, 0.8);
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border: 8px solid transparent;
+    border-top: 8px solid rgba(0, 0, 0, 0.8);
 }
 
 @keyframes fadeIn {
- from {
-   opacity: 0;
- }
- to {
-   opacity: 1;
- }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fa-bars {
+    margin-left: 15px;
+}
+
+.fa-user-plus {
+    margin-right: 15px;
+}
+
+p.tooltip-text-help {
+    margin-left: 42px;
+}
+
+p.tooltip-text-menu {
+    margin-left: 63px;
+}
+
+p.tooltip-text-menu:before {
+    margin-left: -30px;
+}
+
+p.tooltip-text-share {
+    margin-left: 10px;
+}
+
+p.tooltip-text-share:before {
+    margin-left: 15px;
+}
+
+p.tooltip-text-home {
+    margin-left: 37px;
 }
