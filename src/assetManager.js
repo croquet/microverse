@@ -517,19 +517,18 @@ export class Loader {
                 }
             }).then((loaded) => {
                 let {scene, animations} = loaded;
-                scene.traverse((m) => {
-                    if (m.material) {
-                        ["color", "emissive"].forEach((p) => {
-                            if (m.material[p]) {
-                                // m.material[p].setHex(0);
-                                // m.material[p].convertLinearToSRGB();
-                                // m.material[p].convertSRGBToLinear();
-                            }
-                        });
-                    }
-                });
-
-                
+                if (options && options.envMapIntensity !== undefined) {
+                    scene.traverse((m) => {
+                        if (m.material &&
+                            m.material.envMapIntensity !== undefined &&
+                            m.material.envMapIntensity === 1) {
+                            m.material.envMapIntensity = options.envMapIntensity;
+                            // m.material[p].setHex(0);
+                            // m.material[p].convertLinearToSRGB();
+                            // m.material[p].convertSRGBToLinear();
+                        }
+                    });
+                }
                 if (animations.length > 0) {
                     const mixer = new THREE.AnimationMixer(scene);
                     scene._croquetAnimation = {

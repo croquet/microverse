@@ -90,7 +90,9 @@ class LightPawn {
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
 
-                exrBackground.colorSpace = THREE.SRGBColorSpace;
+                // we don't set it here as PMREM generator spits out purposefully
+                // srgb-linear color space and we don't necessarily override it.
+                // exrBackground.colorSpace = THREE.SRGBColorSpace;
 
                 let bg = scene.background;
                 let e = scene.environment;

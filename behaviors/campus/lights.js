@@ -59,10 +59,15 @@ class LightPawn {
                 let renderer = TRM.renderer;
                 let scene = TRM.scene;
                 let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
-                pmremGenerator.compileEquirectangularShader();
 
+                texture.colorSpace = THREE.SRGBColorSpace;
+                pmremGenerator.compileEquirectangularShader();
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
+
+                // we don't set it here as PMREM generator spits out purposefully
+                // srgb-linear color space and we don't necessarily override it.
+                // exrBackground.colorSpace = THREE.SRGBColorSpace;
 
                 let bg = scene.background;
                 let e = scene.environment;

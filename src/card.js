@@ -757,7 +757,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let b = this.getBuffer(model3d);
             return b;
         }, this.id).then((buffer) => {
-            return assetManager.load(buffer, modelType, THREE);
+            let params = {};
+            if (options.envMapIntensity !== undefined) {
+                params.envMapIntensity = options.envMapIntensity;
+            }
+            return assetManager.load(buffer, modelType, THREE, params);
         }).then((obj) => {
             if (model3d !== this._model3dLoading) {
                 console.log("model load has been superseded");

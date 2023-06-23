@@ -35,7 +35,6 @@ export function init(Constants) {
                 layers: ["walk"],
                 translation:[0, -1.7, 0],
                 dataScale:[1,1,1],
-
                 placeholder: true,
                 placeholderSize: [400, 0.1, 400],
                 placeholderColor: 0x808080,
