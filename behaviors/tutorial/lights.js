@@ -1,10 +1,13 @@
 class LightPawn {
     setup() {
-        console.log("LightPawn");
         let trm = this.service("ThreeRenderManager");
         let scene =  trm.scene;
         let camera = trm.camera;
         let group = this.shape;
+
+        if (this.actor._cardData.toneMappingExposure !== undefined) {
+            trm.renderer.toneMappingExposure = this.actor._cardData.toneMappingExposure;
+        }
 
         this.removeLights();
         this.lights = [];
@@ -56,26 +59,36 @@ class LightPawn {
         let TRM = this.service("ThreeRenderManager");
         let renderer = TRM.renderer;
         let scene = TRM.scene;
-        if (options.dataLocation)
-            return this.getBuffer(options.dataLocation).then((buffer) => {
-                return assetManager.load(buffer, dataType, Microverse.THREE, options).then((texture) => {
 
-                    let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
-                    pmremGenerator.compileEquirectangularShader();
+        if (!options.dataLocation) {
+            if (options.clearColor) renderer.setClearColor(options.clearColor);
+            return;
+        }
+        return this.getBuffer(options.dataLocation).then((buffer) => {
+            return assetManager.load(buffer, dataType, Microverse.THREE, options).then((texture) => {
+                let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
+                pmremGenerator.compileEquirectangularShader();
 
-                    let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
-                    let exrBackground = exrCubeRenderTarget.texture;
+                // we treat the color space of the loaded exr texture.
+                texture.colorSpace = Microverse.THREE.SRGBColorSpace;
 
-                    let bg = scene.background;
-                    let e = scene.environment;
-                    scene.background = exrBackground;
-                    scene.environment = exrBackground;
-                    if(e !== bg) if(bg) bg.dispose();
-                    if(e) e.dispose();
-                    texture.dispose();
-                });
+                let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
+                let exrBackground = exrCubeRenderTarget.texture;
+
+                // we don't set the color space for exrBackground as PMREM generator
+                // spits out purposefully
+                // srgb-linear color space and we don't necessarily override it.
+                // exrBackground.colorSpace = THREE.SRGBColorSpace;
+
+                let bg = scene.background;
+                let e = scene.environment;
+                scene.background = exrBackground;
+                scene.environment = exrBackground;
+                if(e !== bg) if(bg) bg.dispose();
+                if(e) e.dispose();
+                texture.dispose();
             });
-        else if(options.clearColor)renderer.setClearColor(options.clearColor);
+        });
     }
 
     setupCSM(scene, camera, THREE) {

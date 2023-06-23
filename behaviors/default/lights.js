@@ -1,10 +1,13 @@
 class LightPawn {
     setup() {
-          let trm = this.service("ThreeRenderManager");
-        //trm.renderer.outputColorSpace = Microverse.THREE.SRGBColorSpace;
-
+        let trm = this.service("ThreeRenderManager");
         let group = this.shape;
         let THREE = Microverse.THREE;
+        // window.myRenderer = trm;
+
+        if (this.actor._cardData.toneMappingExposure !== undefined) {
+            trm.renderer.toneMappingExposure = this.actor._cardData.toneMappingExposure;
+        }
 
         this.removeLights();
         this.lights = [];
@@ -38,13 +41,7 @@ class LightPawn {
         redLight.position.set(1, 100, -150);
         group.add(redLight);
         this.lights.push(redLight);
-/*
-        const sunTarget = new THREE.Object3D();
-        sunTarget.position.set(1, 0, 8);
-        group.add(sunTarget);
-        this.lights.push(sunTarget);
-        sun.target = sunTarget;
-*/
+
         this.constructBackground(this.actor._cardData);
 
         let moduleName = this._behavior.module.externalName;
@@ -101,10 +98,16 @@ class LightPawn {
                 let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
                 pmremGenerator.compileEquirectangularShader();
 
+                // we treat the color space of the loaded exr texture.
+                // texture.colorSpace = THREE.SRGBColorSpace;
+
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
 
-                exrBackground.colorSpace = Microverse.THREE.SRGBColorSpace;
+                // we don't set the color space for exrBackground as PMREM generator
+                // spits out purposefully
+                // srgb-linear color space and we don't necessarily override it.
+                // exrBackground.colorSpace = THREE.SRGBColorSpace;
 
                 let bg = scene.background;
                 let e = scene.environment;

@@ -446,6 +446,7 @@ class ThreeRenderManager extends RenderManager {
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
         // this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
+        this.renderer.toneMappingExposure = 1.4;
 
         if (options.useDevicePixelRatio) {
             this.renderer.setPixelRatio(window.devicePixelRatio);

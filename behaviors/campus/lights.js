@@ -1,10 +1,13 @@
 class LightPawn {
     setup() {
-        console.log("LightPawn");
         let trm = this.service("ThreeRenderManager");
         let scene =  trm.scene;
         let camera = trm.camera;
         let group = this.shape;
+
+        if (this.actor._cardData.toneMappingExposure !== undefined) {
+            trm.renderer.toneMappingExposure = this.actor._cardData.toneMappingExposure;
+        }
 
         this.removeLights();
         this.lights = [];
@@ -59,9 +62,11 @@ class LightPawn {
                 let renderer = TRM.renderer;
                 let scene = TRM.scene;
                 let pmremGenerator = new Microverse.THREE.PMREMGenerator(renderer);
-
-                texture.colorSpace = THREE.SRGBColorSpace;
                 pmremGenerator.compileEquirectangularShader();
+
+                // we treat the color space of the loaded exr texture
+                texture.colorSpace = THREE.SRGBColorSpace;
+
                 let exrCubeRenderTarget = pmremGenerator.fromEquirectangular(texture);
                 let exrBackground = exrCubeRenderTarget.texture;
 
