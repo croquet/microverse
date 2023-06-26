@@ -15,6 +15,7 @@ on:
       - main
       - deploy
       - control-panel
+      - three153
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -67,6 +68,7 @@ jobs:
             main \
             deploy \
             control-panel \
+            three153 \
 
       - name: Upload _site
         uses: actions/upload-pages-artifact@v1
