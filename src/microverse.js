@@ -466,14 +466,16 @@ class MyModelRoot extends ModelRoot {
         if (persistentData) {
             console.log("loading persistent data");
             this.loadPersistentData(persistentData);
-            return;
+            if (Constants.ShowCaseSpec) {
+                this.publish(this.sessionId, "disableCodeLoadFlag");
+            }
+        } else {
+            this.loadBehaviorModules(Constants.Library.modules, "1");
+            if (Constants.ShowCaseSpec) {
+                this.publish(this.sessionId, "disableCodeLoadFlag");
+            }
+            this.load(Constants.DefaultCards, "1");
         }
-
-        this.loadBehaviorModules(Constants.Library.modules, "1");
-        if (Constants.ShowCaseSpec) {
-            this.publish(this.sessionId, "disableCodeLoadFlag");
-        }
-        this.load(Constants.DefaultCards, "1");
     }
 
     ensurePersistenceProps() {
@@ -726,8 +728,6 @@ class MyViewRoot extends ViewRoot {
         super(model);
         const threeRenderManager = this.service("ThreeRenderManager");
         const renderer = threeRenderManager.renderer;
-        window.scene = threeRenderManager.scene;
-
         this.service("FontViewManager").setModel(model.service("FontModelManager"));
 
         renderer.toneMapping = THREE.ReinhardToneMapping;
@@ -747,8 +747,13 @@ class MyViewRoot extends ViewRoot {
         let cards = [...actorManager.actors].filter((a) => a[1].isCard).map(a => a[1]);
         this.synchronousLoadCards = cards.filter((c) => c._cardData.loadSynchronously);
 
-        if (this.synchronousLoadCards) {
+        if (this.synchronousLoadCards.length > 0) {
             this.notLoadedSynchronousCards = new Set(this.synchronousLoadCards.map(c => c.id));
+            this.readyToLoadPromise = new Promise((resolve, reject) => {
+                this.readyToLoadPromiseResolver = resolve;
+            });
+        } else {
+            this.readyToLoadPromise = Promise.resolve(true);
         }
 
         this.subscribe(this.sessionId, "synchronousCardLoaded", "synchronousCardLoaded");
@@ -756,6 +761,8 @@ class MyViewRoot extends ViewRoot {
         if (broadcasting) this.publish(this.sessionId, "addBroadcaster", this.viewId);
         if (Constants.ShowCaseSpec && !model.persistentDataDisabled) this.publish(this.sessionId, "setPersistentDataFlag", false);
         window.viewRoot = this; // used by getViewRoot() function
+        // defar creating pawns until properties in this object is set up
+        this.service("PawnManager").spawnPawns();
     }
 
     detach() {
@@ -792,6 +799,10 @@ class MyViewRoot extends ViewRoot {
         this.notLoadedSynchronousCards.delete(id);
         if (this.notLoadedSynchronousCards.size === 0) {
             this.publish(this.sessionId, "allSynchronousCardsLoaded");
+            if (this.readyToLoadPromiseResolver) {
+                console.log("resolving load promise");
+                this.readyToLoadPromiseResolver(this);
+            }
         }
     }
 }

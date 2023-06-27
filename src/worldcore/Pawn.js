@@ -13,11 +13,6 @@ export class PawnManager extends ViewService {
         pm = this;
         this.pawns = new Map();
 
-        const actorManager = this.modelService("ActorManager");
-        actorManager.actors.forEach(actor => this.spawnPawn(actor));
-
-        for(const pawn of this.pawns.values()) { pawn.link() }; // recreate child links after all pawns are spawned
-
         this.subscribe("actor", "createActor", this.spawnPawn);
     }
 
@@ -28,9 +23,18 @@ export class PawnManager extends ViewService {
         super.destroy();
     }
 
-    spawnPawn(actor) { if (actor.pawn) {
-        const p = new actor.pawn(actor);
-        p.link();}
+    spawnPawns() {
+        const actorManager = this.modelService("ActorManager");
+        actorManager.actors.forEach(actor => this.spawnPawn(actor));
+
+        for(const pawn of this.pawns.values()) { pawn.link() }; // recreate child links after all pawns are spawned
+    }
+
+    spawnPawn(actor) {
+        if (actor.pawn) {
+            const p = new actor.pawn(actor);
+            p.link();
+        }
     }
 
     add(pawn) {  this.pawns.set(pawn.actor.id, pawn); }
@@ -144,9 +148,9 @@ export class Pawn extends WorldcoreView {
         this.say("_set", options, throttle);
     }
 
-    preUpdate(time, delta) {} // Called immediately before the main update
-    update(time, delta) {}
-    postUpdate(time, delta){} // Called immediately after the main update.
+    preUpdate(_time, _delta) {} // Called immediately before the main update
+    update(_time, _delta) {}
+    postUpdate(_time, _delta) {} // Called immediately after the main update.
 
     fullUpdate(time, delta) {
         this.preUpdate(time, delta);

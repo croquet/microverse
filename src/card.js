@@ -1256,11 +1256,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return "url";
     }
 
-    getBuffer(name) {
+    async getBuffer(name) {
         let assetManager = this.service("AssetManager").assetManager;
         let buffer = assetManager.getCache(name);
         if (buffer) { return Promise.resolve(buffer); }
         let dataType = this.dataType(name);
+
+        if (!this.actor._cardData.loadSynchronously) {
+            await this.session.view.readyToLoadPromise;
+        }
+
         if (dataType === "url" || dataType === "dataUri") {
             return fetch(name)
                 .then((resp) => {
