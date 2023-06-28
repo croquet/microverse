@@ -76,6 +76,9 @@ class LightPawn {
                 if(e !== bg) if(bg) bg.dispose();
                 if(e) e.dispose();
                 texture.dispose();
+                if (this.actor._cardData.loadSynchronously) {
+                    this.publish(this.sessionId, "synchronousCardLoaded", {id: this.actor.id});
+                }
             });
         });
     }
