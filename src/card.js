@@ -1003,13 +1003,13 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     }
                 };
 
-                if (options.textureType === "image" && options.alpha !== undefined) {
+                if (options.textureType === "image" && options.alphaTest !== undefined) {
                     if (Array.isArray(material)) {
-                        setAlpha(material[0], options.alpha);
+                        setAlpha(material[0], options.alphaTest);
                         material[1].opacity = 0;
                         material[1].transparent = true;
                     } else {
-                        setAlpha(material, options.alpha);
+                        setAlpha(material, options.alphaTest);
                     }
                 }
 
