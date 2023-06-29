@@ -421,6 +421,26 @@ When the "type" is "2d", the value is used for the edge of the 2D card.
 
 ### Name
 
+`alphaTest`
+
+### Category
+
+visual
+
+### Type
+
+```TypeScript
+number|undefined
+```
+
+### Description
+
+When the "type" is "2d" and "textureType" is "image", and "alphaTest" is defined, the value is used for the alphaTest property of the resulting material for the image. This is useful when you need to show a transparent PNG in the world.
+
+---
+
+### Name
+
 `shadow`
 
 ### Category
