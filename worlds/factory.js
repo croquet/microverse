@@ -362,7 +362,7 @@ export function init(Constants) {
                 rotation: [0, -0.9837726947014075, 0, 0.1794192998535309],
                 type: "object",
                 scale: [0.3, 0.3, 0.3],
-                behaviorModules: ["Elected", "FlightTracker", "Spin"],
+                behaviorModules: ["Elected", "Earth", "FlightTracker", "Spin"],
                 layers: ["pointer"],
                 color: 0xaaaaaa,
             }
