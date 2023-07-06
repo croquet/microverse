@@ -68,7 +68,7 @@ class AvatarPawn {
         this.avatarModel = this.shape.children[0];
         const group = new Microverse.THREE.Group();
         group.add( this.shape.children[0] );
-        group.rotateY(Math.PI);
+        // group.rotateY(Math.PI);
         group.translateY(-1.7);
         this.shape.add(group);
 
