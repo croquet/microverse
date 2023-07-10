@@ -16,7 +16,7 @@ html {
 body {
     font-family: "Poppins", sans-serif;
     margin: 0;
-    background-color: #000;
+    background-image: url("../../assets/images/welcome-background.jpg");
     color: #fff;
     font-size: 20px;
     line-height: 24px;
@@ -631,3 +631,31 @@ p.tooltip-text-share:before {
 p.tooltip-text-home {
     margin-left: 37px;
 }
+
+
+.modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.fade.show {
+    opacity: 1;
+}
+.modal {
+    z-index: 1072;
+}
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    display: none;
+    overflow: hidden;
+    outline: 0;
+}
+.fade {
+    opacity: 0;
+    transition: opacity .15s linear;
+}
+

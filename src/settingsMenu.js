@@ -37,15 +37,8 @@ function createSettingsMenu(useEnter) {
 <div id="joinDialog" class="dialogPanel no-select">
     <button id="close-button" type="button" class="btn btn-x topright"><i class="fa-solid fa-xmark"></i></button>
     <div id="join-container" class="content-container">
-        <!--
-        <div id="dialogTitle">
-            <div id="titleHolder">
-                <img id="titleLogo" src="assets/images/microverse-logo.png" />
-            </div>
-        </div>
-        -->
         <div id="joinPrompt">
-            <div id="joinPromptTitle">Settings</div>
+            <img src="../../assets/images/microverse-logo.png" class="welcome-title-logo">
             <div id="joinPromptBlurb" class="promptBlurb">Specify a nickname, and choose an avatar either
                 by selecting from those on display or pasting a valid Ready Player Me URL.
             </div>
@@ -171,6 +164,13 @@ function createSettingsMenu(useEnter) {
 
     if (joinPromptBlurb && simplerMenu) {
         joinPromptBlurb.textContent = "Specify a nickname and press Enter.";
+    }
+
+    if (settingsMenu){
+        document.getElementById("world-info-container").style.display = "none";
+        document.getElementById("control-panel").style.display = "none";
+    } else {
+        return;
     }
 
     populateAvatarSelection();
