@@ -23,6 +23,7 @@ class EarthPawn {
             let tex = new THREE.TextureLoader().load(earthbase);
             tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
             tex.repeat.set(1,1);
+            tex.colorSpace = THREE.SRGBColorSpace;
             return tex;
         }, this.id);
 
@@ -30,18 +31,19 @@ class EarthPawn {
             let tex = new THREE.TextureLoader().load(earthshadow);
             tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
             tex.repeat.set(1,1);
+            tex.colorSpace = THREE.SRGBColorSpace;
             return tex;
         }, this.id);
 
         this.shadowSphere = new THREE.Mesh(
             new THREE.SphereGeometry(SHADOWRADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: 0xaaaaaa, roughness: 0.7, opacity:0.9, transparent: true }));
+            new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: 0xeeeeee, roughness: 0.7, opacity:0.9, transparent: true }));
         this.shadowSphere.receiveShadow = true;
         this.shape.add(this.shadowSphere);
 
         this.baseSphere = new THREE.Mesh(
             new THREE.SphereGeometry(BASERADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: 0x22ee22, roughness: 0.7, opacity:0.9, transparent: true }));
+            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: 0x44f844, roughness: 0.7, opacity:0.9, transparent: true }));
         this.baseSphere.receiveShadow = true;
         this.baseSphere.castShadow = true;
         this.shape.add(this.baseSphere);

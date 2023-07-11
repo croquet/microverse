@@ -33,6 +33,7 @@ export function init(Constants) {
                 type: "lighting",
                 behaviorModules: ["Light"],
                 clearColor: 0xaabbff,
+                toneMappingExposure: 1.2
             }
         },
         {
