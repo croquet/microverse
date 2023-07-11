@@ -45,21 +45,18 @@ function createSettingsMenu(useEnter) {
         </div>
         <div id="settings-title" class="panel-title">Settings</div>
         <div class="settings-container">
-            <div id="nameInput" class="stringInputHolder">
-                <div id="namePrompt" class="namePrompt">Nickname<span>*</span></div>
+        <div id="selectAvatar" class="namePrompt">Choose Avatar</div>
+        <div id="dialogAvatarSelections">
+            <div id="avatarList"></div>
+        </div>
+        <div class="two-columns">
+            <div id="nameInput" class="stringInputHolder half-left">
+                <div id="namePrompt" class="namePrompt">Choose Nickname<span>*</span></div>
                 <div id="nameField" class="nameField allow-select" contenteditable="true"></div>
                 <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
                 <div id="nameFilterWarning"><br /></div>
             </div>
-            <div id="selectAvatar" class="namePrompt">Select Avatar</div>
-            <div id="dialogAvatarSelections">
-                <div id="avatarList"></div>
-            </div>
-            <div id="avatarURL" class="stringInputHolder">
-                <div id="avatarURLPrompt" class="namePrompt">Or, Enter an Avatar URL</div>
-                <div id="avatarURLField" class="nameField avatarNameField allow-select" contenteditable="true"></div>
-            </div>
-            <div id="handednessRow">
+            <div id="handednessRow" class="half-right">
                 <div id="handednessLabel">Hand:</div>
                 <div class="btn-group" id="handedness">
                     <label class="btn btn-radio-button">
@@ -70,6 +67,7 @@ function createSettingsMenu(useEnter) {
                     </label>
                 </div>
             </div>
+        </div>
             <div id="dialogEnterButton" class="dialogButtonsHolder disabled">
                 <div id="enterButton">Enter</div>
             </div>
@@ -113,12 +111,12 @@ function createSettingsMenu(useEnter) {
     nameField.addEventListener("input", (evt) => nameFieldChanged(evt));
     nameField.addEventListener("paste", (evt) => evt.stopPropagation());
 
-    let avatarURLField = settingsMenu.querySelector("#avatarURLField");
-    avatarURLField.addEventListener("input", (evt) =>
-        avatarURLFieldChanged(evt)
-    );
-    avatarURLField.addEventListener("paste", (evt) => evt.stopPropagation());
-    avatarURLField.addEventListener("keydown", (evt) => evt.stopPropagation());
+    // let avatarURLField = settingsMenu.querySelector("#avatarURLField");
+    // avatarURLField.addEventListener("input", (evt) =>
+    //     avatarURLFieldChanged(evt)
+    // );
+    // avatarURLField.addEventListener("paste", (evt) => evt.stopPropagation());
+    // avatarURLField.addEventListener("keydown", (evt) => evt.stopPropagation());
 
     enterButton.onclick = () => dialogCloseEnter();
     acceptButton.onclick = () => accept();
@@ -159,7 +157,7 @@ function createSettingsMenu(useEnter) {
     }
 
     if (handednessRow) {
-        handednessRow.style.display = simplerMenu ? "none" : "flex";
+        handednessRow.style.display = simplerMenu ? "none" : "block";
     }
 
     if (joinPromptBlurb && simplerMenu) {
@@ -318,11 +316,6 @@ let avatars = [
         type: "ReadyPlayerMe",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/f2.png",
-        url: "https://d1a370nemizbjq.cloudfront.net/50ef7f5f-b401-4b47-a8dc-1c4eda1ba8d2.glb",
-        type: "ReadyPlayerMe",
-    },
-    {
         png: "https://croquet.io/microverse/assets/avatar-images/f3.png",
         url: "https://d1a370nemizbjq.cloudfront.net/b5c04bb2-a1df-4ca4-be2e-fb54799e9030.glb",
         type: "ReadyPlayerMe",
@@ -340,16 +333,6 @@ let avatars = [
     {
         png: "https://croquet.io/microverse/assets/avatar-images/m2.png",
         url: "https://d1a370nemizbjq.cloudfront.net/2955d824-31a4-47e1-ba58-6c387c63b660.glb",
-        type: "ReadyPlayerMe",
-    },
-    {
-        png: "https://croquet.io/microverse/assets/avatar-images/m3.png",
-        url: "https://d1a370nemizbjq.cloudfront.net/579d4ec8-ade3-49ea-8b52-2ea5fe097f7d.glb",
-        type: "ReadyPlayerMe",
-    },
-    {
-        png: "https://croquet.io/microverse/assets/avatar-images/m4.png",
-        url: "https://d1a370nemizbjq.cloudfront.net/535100f3-c58c-4fd8-9fb9-4ee090e844bf.glb",
         type: "ReadyPlayerMe",
     },
 ];

@@ -719,11 +719,6 @@
     justify-content: space-around;
 }
 
-#handednessRow {
-    display: flex;
-    align-items: center;
-}
-
 #handednessLabel {
     margin-right: 10px;
 }
@@ -736,18 +731,18 @@
 }
 
 .avatarThumb {
-    width: 14%;
-    background-color: white;
+    width: 20%;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    border: 5px solid transparent;
+    border-radius: 50%;
 }
 
 .avatarThumb[selected="true"] {
     border: 5px solid #761cfe;
     box-shadow: 0 0 10px 2px #761cfe;
     z-index: 1;
+    width: 20%;
 }
 
 .avatarNameField {
@@ -762,6 +757,7 @@
     width: 85%;
     margin-left: auto;
     margin-right: auto;
+    padding: 20px;
 }
 
 .dialog-container {
@@ -1101,4 +1097,14 @@ a.dolby-link {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* columns */
+.two-columns-grid > * {
+    padding:1rem;
 }
