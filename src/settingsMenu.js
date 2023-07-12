@@ -73,6 +73,14 @@ function createSettingsMenu(useEnter) {
             </div>
         </div>
     </div>
+    <div id="badges">
+        <a href="https://croquet.io/webshowcase/#getcode" target="_blank" id="github">
+            <div id="get-code">Get Code &lt;/></div>
+        </a>
+        <a href="https://croquet.io/croquet-os/" target="_blank">
+            <div id="built-with"><img src="../../assets/images/built-with-logo.png" class="badges"/></div>
+        </a>
+    </div>
 </div>
 `.trim();
 
@@ -113,7 +121,6 @@ function createSettingsMenu(useEnter) {
     // );
     // avatarURLField.addEventListener("paste", (evt) => evt.stopPropagation());
     // avatarURLField.addEventListener("keydown", (evt) => evt.stopPropagation());
-
     enterButton.onclick = () => dialogCloseEnter();
     acceptButton.onclick = () => accept();
     closeButton.onclick = () => closeAllDialogs();
@@ -171,6 +178,7 @@ function createSettingsMenu(useEnter) {
 
     document.body.appendChild(settingsMenu);
     filterDomEventsOn(settingsMenu);
+
 
     return Promise.resolve(settingsMenu);
 }

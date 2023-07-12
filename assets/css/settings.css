@@ -1123,3 +1123,29 @@ a.dolby-link {
 .two-columns-grid > * {
     padding:1rem;
 }
+
+#badges{
+    position: absolute;
+    bottom: -75px;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+img.badges{
+    width: 150px;
+}
+
+#get-code{
+    color: white;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+a#github{
+    text-decoration: none;
+    color: white;
+}
