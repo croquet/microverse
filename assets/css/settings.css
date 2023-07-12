@@ -206,7 +206,6 @@
 }
 
 #enterButton {
-    width: 40%;
     height: 45px;
     line-height: 45px;
     text-align: center;
@@ -215,6 +214,7 @@
     background-color: white;
     border-color: white;
     color: #761CFE;
+    padding: 5px 15px;
 }
 
 #enterButton:hover {
@@ -723,7 +723,6 @@
 #dialogAvatarSelections {
     height: 100px;
     width: 100%;
-    padding-bottom: 30px;
 }
 
 #avatarOr {
@@ -937,12 +936,7 @@
     .content-container {
         height: 80%;
     }
-
-    #dialogAvatarSelections {
-        height: 40px;
-        padding-bottom: 10px;
-    }
-
+    
     .namePrompt {
         font-size: 12px;
     }
@@ -1032,10 +1026,6 @@
         font-size: 12px;
     }
 
-    .stringInputHolder {
-        flex-direction: row;
-    }
-
     .copy-link {
         border: 1px solid grey;
         border-radius: 10px;
@@ -1045,6 +1035,20 @@
         overflow: hidden;
         white-space: nowrap;
         flex-grow: 1;
+    }
+
+    .two-columns{
+        display: block;
+    }
+}
+
+@media (min-width: 601px){
+    .two-columns{
+        display: grid;
+    }
+
+    #dialogAvatarSelections {
+        padding-bottom: 30px;
     }
 }
 
@@ -1114,14 +1118,13 @@ a.dolby-link {
 }
 
 .two-columns {
-    display: grid;
     grid-template-columns: 1fr 1fr;
     justify-items: end;
 }
 
 /* columns */
 .two-columns-grid > * {
-    padding:1rem;
+    padding: 1rem;
 }
 
 #badges{
