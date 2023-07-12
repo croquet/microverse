@@ -17,6 +17,8 @@ body {
     font-family: "Poppins", sans-serif;
     margin: 0;
     background-image: url("../../assets/images/welcome-background.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
     color: #fff;
     font-size: 20px;
     line-height: 24px;

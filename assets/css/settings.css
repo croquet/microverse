@@ -43,6 +43,7 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    border: 2px solid #761CFE;
 }
 
 .panel-title {
@@ -103,13 +104,17 @@
 
 .nameField {
     height: 24px;
-    font-size: 24px;
-    color: white;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.747);
     background-color: rgba(0, 0, 0, 0.5);
-    border: 2px solid white;
-    border-radius: 20px;
+    border: 1px solid #761CFE;
+    border-radius: 10px;
     padding: 12px 20px;
 }
+
+[contentEditable=true]:empty:not(:focus):before {
+    content: attr(data-text)
+  }
 
 #nameExplanation {
     color: #007bff;
@@ -129,10 +134,11 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    font-size: 15px;
-    font-weight: bold;
+    font-size: 30px;
     color: white;
     margin-top: 30px;
+    text-transform: uppercase;
+    font-family: 'Impact', sans-serif;
 }
 
 .dialogButtonsHolder.twoItems {
@@ -177,10 +183,8 @@
 
 .btn-radio-button {
     color: #fff;
-    background-color: #6c757d;
-    border-color: #6c757d;
-
-    margin-left: 4px;
+    background-color: black;
+    border-color: black;
     margin-right: 4px;
 }
 
@@ -213,9 +217,9 @@
 
 .dialogButtonsHolder.disabled #enterButton,
 .dialogButtonsHolder.disabled #acceptButton {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    pointer-events: none;
+    background-color: white;
+    border-color: white;
+    color: #761CFE;
 }
 
 #chatHolder {
@@ -720,7 +724,7 @@
 }
 
 #handednessLabel {
-    margin-right: 10px;
+    margin-bottom: 10px;
 }
 
 #avatarList {
@@ -739,8 +743,9 @@
 }
 
 .avatarThumb[selected="true"] {
-    border: 5px solid #761cfe;
-    box-shadow: 0 0 10px 2px #761cfe;
+    border: 5px solid #000000ea;
+    outline: 5px solid #EF4A3E;
+    background-color: white;
     z-index: 1;
     width: 20%;
 }
@@ -1097,11 +1102,13 @@ a.dolby-link {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 30px;
 }
 
 .two-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    justify-items: end;
 }
 
 /* columns */

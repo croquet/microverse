@@ -39,9 +39,6 @@ function createSettingsMenu(useEnter) {
     <div id="join-container" class="content-container">
         <div id="joinPrompt">
             <img src="../../assets/images/microverse-logo.png" class="welcome-title-logo">
-            <div id="joinPromptBlurb" class="promptBlurb">Specify a nickname, and choose an avatar either
-                by selecting from those on display or pasting a valid Ready Player Me URL.
-            </div>
         </div>
         <div id="settings-title" class="panel-title">Settings</div>
         <div class="settings-container">
@@ -52,12 +49,11 @@ function createSettingsMenu(useEnter) {
         <div class="two-columns">
             <div id="nameInput" class="stringInputHolder half-left">
                 <div id="namePrompt" class="namePrompt">Choose Nickname<span>*</span></div>
-                <div id="nameField" class="nameField allow-select" contenteditable="true"></div>
-                <div id="nameExplanation">Enter 1-12 characters (ASCII only).</div>
+                <div id="nameField" data-text="1-12 characters (ASCII)" class="nameField allow-select" contentEditable="true"></div>
                 <div id="nameFilterWarning"><br /></div>
             </div>
             <div id="handednessRow" class="half-right">
-                <div id="handednessLabel">Hand:</div>
+                <div id="handednessLabel" class="namePrompt">Hand:</div>
                 <div class="btn-group" id="handedness">
                     <label class="btn btn-radio-button">
                          <input type="radio" name="options" id="left"><span class="handedness-label">Left</span>
@@ -69,7 +65,7 @@ function createSettingsMenu(useEnter) {
             </div>
         </div>
             <div id="dialogEnterButton" class="dialogButtonsHolder disabled">
-                <div id="enterButton">Enter</div>
+                <div id="enterButton">ENTER WORLD</div>
             </div>
             <div id="dialogAcceptCancelButtons" class="dialogButtonsHolder twoItems">
                 <button id="cancel-button" type="button" class="btn btn-danger cancel-button">Cancel</button>
