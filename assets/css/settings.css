@@ -88,17 +88,21 @@
     flex-direction: column;
     align-content: center;
     gap: 6px;
+    width: 100%;
 }
 
 .namePrompt {
     font-size: 17px;
-    font-weight: 600;
     color: white;
 }
 
 .namePrompt span {
     margin-left: 4px;
     color: #fb3232;
+}
+
+#selectAvatar{
+    margin-bottom: 6px;
 }
 
 .nameField {
@@ -144,22 +148,9 @@
     justify-content: space-evenly;
 }
 
-#enterButton {
-    width: 40%;
-    height: 45px;
-    line-height: 45px;
-    text-align: center;
-    background-color: #28a745;
-    border-radius: 0.25rem;
-    cursor: pointer;
-}
 
 #dialogEnterButton.notUseEnter {
     display: none;
-}
-
-#enterButton:hover {
-    background-color: #218838;
 }
 
 .btn-danger {
@@ -214,11 +205,29 @@
     display: flex;
 }
 
-.dialogButtonsHolder.disabled #enterButton,
-.dialogButtonsHolder.disabled #acceptButton {
+#enterButton {
+    width: 40%;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    border-radius: 0.25rem;
+    cursor: pointer;
     background-color: white;
     border-color: white;
     color: #761CFE;
+}
+
+#enterButton:hover {
+    background-color: #cfcfcf;
+}
+
+.dialogButtonsHolder.disabled #enterButton,
+.dialogButtonsHolder.disabled #acceptButton {
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+    opacity: .65;
+    cursor: default;
 }
 
 #chatHolder {
