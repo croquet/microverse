@@ -37,7 +37,6 @@
     align-items: center;
     position: absolute;
     padding-bottom: 10px;
-    min-height: 600px;
     width: 600px;
     z-index: 1000;
     left: 50%;
