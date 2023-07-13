@@ -757,7 +757,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let b = this.getBuffer(model3d);
             return b;
         }, this.id).then((buffer) => {
-            return assetManager.load(buffer, modelType, THREE);
+            let params = {};
+            if (options.envMapIntensity !== undefined) {
+                params.envMapIntensity = options.envMapIntensity;
+            }
+            return assetManager.load(buffer, modelType, THREE, params);
         }).then((obj) => {
             if (model3d !== this._model3dLoading) {
                 console.log("model load has been superseded");
@@ -909,6 +913,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                             objectURL,
                             (texture) => {
                                 URL.revokeObjectURL(objectURL);
+                                texture.colorSpace = THREE.SRGBColorSpace;
                                 resolve({width: texture.image.width, height: texture.image.height, texture})
                             }, null, reject);
                     });
@@ -1045,6 +1050,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     if (cloned.index) {
                         // this test may be dubious as some models can legitimately contain
                         // non-indexed buffered geometry.
+                        if(cloned.attributes.uv1){
+                            // three.js doesn't support these
+                            delete cloned.attributes.uv1;
+                            delete cloned.attributes.texcoord_1;
+                        }
                         if(cloned.attributes.uv2){
                             // three.js doesn't support these
                             delete cloned.attributes.uv2;
@@ -1062,7 +1072,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             let BufferGeometryUtils = THREE.BufferGeometryUtils;
             meshData.forEach(m=>{
                 endCount++;
-                let mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( m.geometries, false);
+                let mergedGeometry = BufferGeometryUtils.mergeGeometries( m.geometries, false);
                 let mesh = new THREE.Mesh(mergedGeometry, m.material);
                 staticGroup.add(mesh);
             })
@@ -1109,8 +1119,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 }
             });
 
-            let BufferGeometryUtils = window.THREE.BufferGeometryUtils;
-            mergedGeometry = BufferGeometryUtils.mergeBufferGeometries( geometries, false);
+            let BufferGeometryUtils = THREE.BufferGeometryUtils;
+            mergedGeometry = BufferGeometryUtils.mergeGeometries( geometries, false);
             mergedGeometry.boundsTree = new MeshBVH( mergedGeometry, { lazyGeneration: false } );
         } catch (err) {
             console.error("failed to build the BVH collider for:", obj);
@@ -1585,7 +1595,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let cylinders = [c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11];
 
         let BufferGeometryUtils = THREE.BufferGeometryUtils;
-        let mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(cylinders, false);
+        let mergedGeometry = BufferGeometryUtils.mergeGeometries(cylinders, false);
 
         let mat = new THREE.MeshStandardMaterial({
             color: 0xdddddd,

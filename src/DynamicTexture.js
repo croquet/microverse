@@ -25,6 +25,7 @@ export class DynamicTexture{
 
         this.context = this.canvas.getContext("2d");
         this.texture = new THREE.CanvasTexture(this.canvas);
+        this.texture.colorSpace = THREE.SRGBColorSpace;
         this.extractMipmapLevel = 3;
 
         this.fontName = 'Arial';

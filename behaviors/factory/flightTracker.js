@@ -26,73 +26,37 @@ class FlightTrackerActor {
 class FlightTrackerPawn {
     setup() {
         this.listen("displayFlight", "displayFlight");
-        this.constructEarth();
         this.chunkSize = 100; //number of plane records to send
 
         this.listen("handleElected", "handleElected");
         this.listen("handleUnelected", "handleUnelected");
 
         this.say("electionStatusRequested");
+        this.makeMesh();
+        // this.displayFlight();
     }
 
-    constructEarth() {
-        // Create the earth
-        const SHADOWRADIUS = 3.95; // size of the earth (water)
-        const BASERADIUS = 4;      // size of the earth (land)
-        const earthbase = `./assets/images/earthbase.png`;
-        const earthshadow = `./assets/images/earthshadow.jpg`;
-        const ball = './assets/images/ball.png';
-
-        const THREE = Microverse.THREE;
-
-        [...this.shape.children].forEach((c) => {
-            c.material.dispose();
-            this.shape.remove(c);
-        });
-
+    makeMesh() {
+        if (this.planes) {
+            this.planes.removeFromParent();
+        }
         let assetManager = this.service("AssetManager").assetManager;
-
-        let earthBaseTexture = assetManager.fillCacheIfAbsent(earthbase, () => {
-            let tex = new THREE.TextureLoader().load(earthbase);
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(1,1);
-            return tex;
-        }, this.id);
-
-        let earthShadowTexture = assetManager.fillCacheIfAbsent(earthshadow, () => {
-            let tex = new THREE.TextureLoader().load(earthshadow);
-            tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-            tex.repeat.set(1,1);
-            return tex;
-        }, this.id);
-
-        this.shadowSphere = new THREE.Mesh(
-            new THREE.SphereGeometry(SHADOWRADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ map: earthShadowTexture, color: 0xaaaaaa, roughness: 0.7, opacity:0.9, transparent: true }));
-        this.shadowSphere.receiveShadow = true;
-        this.shape.add(this.shadowSphere);
-
-        this.baseSphere = new THREE.Mesh(
-            new THREE.SphereGeometry(BASERADIUS, 64, 64),
-            new THREE.MeshStandardMaterial({ alphaMap: earthBaseTexture, color: 0x22ee22, roughness: 0.7, opacity:0.9, transparent: true }));
-        this.baseSphere.receiveShadow = true;
-        this.baseSphere.castShadow = true;
-        this.shape.add(this.baseSphere);
-
+        let THREE = Microverse.THREE;
+        let ball = './assets/images/ball.png';
         let geometry = new THREE.BufferGeometry();
-        const vertices = [];
-        vertices.push(0,0,0);
 
         let sprite = assetManager.fillCacheIfAbsent(ball, () => {
             return new THREE.TextureLoader().load(ball);
         }, this.id);
 
-        geometry.setAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-        let material = new THREE.PointsMaterial( { size: 0.025, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true } );
-        material.color.set( 0xffaa33 );
 
-        this.planes = new THREE.Points( geometry, material );
-        this.shape.add( this.planes );
+        let material = new THREE.PointsMaterial({size: 0.025, sizeAttenuation: true, map: sprite, alphaTest: 0.5, transparent: true});
+        material.color.set(0xffaa33);
+
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute([4, 4, 4], 3));
+
+        this.planes = new THREE.Points(geometry, material);
+        this.shape.add(this.planes);
         this.displayFlight();
     }
 

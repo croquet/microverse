@@ -26,7 +26,7 @@ class CascadeBoxActor {
             behaviorModules: ["Physics", "Cascade"],
             rotation: [0.5, 0, 0],
             physicsSize: [5, 0.3, 3.5],
-            color: 0x997777,
+            color: 0xccaaaa,
             physicsShape: "cuboid",
             physicsType: "positionBased",
             shadow: true,
@@ -41,7 +41,7 @@ class CascadeBoxActor {
             translation: [0, -1.65, 3.8],
             rotation: [0.28, 0, 0],
             physicsSize: [5, 0.3, 3.5],
-            color: 0x997777,
+            color: 0xccaaaa,
             physicsShape: "cuboid",
             physicsType: "positionBased",
             shadow: true,
@@ -54,7 +54,7 @@ class CascadeBoxActor {
             layers: ["pointer"],
             translation: [0, 2, 0],
             behaviorModules: ["Spray"],
-            color: 0xcccccc,
+            color: 0xeeeeee,
             shadow: true,
             parent: this,
         });
@@ -305,8 +305,8 @@ class SprayActor {
 
     randomColor() {
         let h = Math.random();
-        let s = 0.8;
-        let v = 0.8;
+        let s = 0.6;
+        let v = 0.9;
         let r, g, b, i, f, p, q, t;
         i = Math.floor(h * 6);
         f = h * 6 - i;

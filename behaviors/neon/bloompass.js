@@ -1,6 +1,6 @@
 class BloomPassPawn {
     setup() {
-        const THREE = Worldcore.THREE;
+        const THREE = Microverse.THREE;
         const { renderer, composer } = this.service("ThreeRenderManager");
 
         // tweak these values to get a different looking bloom effect
