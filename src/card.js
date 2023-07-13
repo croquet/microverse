@@ -1028,6 +1028,11 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     if (cloned.index) {
                         // this test may be dubious as some models can legitimately contain
                         // non-indexed buffered geometry.
+                        if(cloned.attributes.uv1){
+                            // three.js doesn't support these
+                            delete cloned.attributes.uv1;
+                            delete cloned.attributes.texcoord_1;
+                        }
                         if(cloned.attributes.uv2){
                             // three.js doesn't support these
                             delete cloned.attributes.uv2;
