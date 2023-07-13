@@ -812,6 +812,26 @@ boolean?
 
 When there is a card with type "2d" or "3d" and with the property "loadSynchronously" set to be true, and also the SynchrnousCardLoader behavior module is attached to a card in the system, the system sends synchronousLoadCardsStarted and allSynnchronousCardsLoaded events. See the details in `behaviors/default/synchronousLoad.js` for more details.
 
+---
+
+### Name
+
+`toneMappingExposure`
+
+### Category
+
+visual
+
+### Type
+
+```TypeScript
+number
+```
+
+### Description
+
+When specified for a light, the default implementation of lights uses the value to set the toneMappingExposure property of THREE.js renderer to control the brightness of the over all scene. The system uses 1.4 as default.
+
 ## Code Properties
 
 ---
