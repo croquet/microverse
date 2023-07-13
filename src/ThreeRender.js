@@ -417,6 +417,7 @@ class ThreeRenderManager extends RenderManager {
         this.threeLayers = {}; // Three-specific layers
 
         this.scene = new THREE.Scene();
+        window.scene = this.scene;
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
 
         if (!options.canvas) {

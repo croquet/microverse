@@ -35,6 +35,8 @@ export function init(Constants) {
                 layers: ["walk"],
                 translation:[0, -1.7, 0],
                 dataScale:[1,1,1],
+                loadSynchronously: true,
+
                 placeholder: true,
                 placeholderSize: [400, 0.1, 400],
                 placeholderColor: 0x808080,
@@ -50,7 +52,9 @@ export function init(Constants) {
                 fileName: "/shanghai_riverside_2k.exr",
                 dataLocation: "32nxXNZxuyT3h-bh0OX-2uMdBRJ0WmDduuTJwwewEE60WkZGQkEIHR1UW15XQRxHQRxRQF1DR1dGHFtdHUcddVZkUEtee0FzWWNRcGpWAXVKU0RLRWd5ZWtrAB1bXRxRQF1DR1dGHF9bUUBdRFdAQVcdAH9ae3ZoZVdYW1FVZgNDBVZ9SAR2R1lgalt_cAMfW1h5cXYAfGtWX3lQex1WU0ZTHXVreUhtUEFeU218aAYDRVxqAHB_Rn5YZmFFZWsAZERtWHF_WkIGZEtRdnM",
                 dataType: "exr",
+
                 toneMappingExposure: 1.2,
+                loadSynchronously: true,
             }
         },
         {

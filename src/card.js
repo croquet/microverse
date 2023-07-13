@@ -841,6 +841,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         let fullBright = options.fullBright !== undefined ? options.fullBright : false;
         let shadow = options.shadow !== undefined ? options.shadow : true;
         let cornerRadius = options.cornerRadius !== undefined ? options.cornerRadius : 0;
+        let singleSided = options.singleSided !== undefined ? options.singleSided : true;
 
         this.properties2D = {depth, width, height, textureWidth, textureHeight, name, color, frameColor, fullBright, shadow, cornerRadius};
 
@@ -990,10 +991,31 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                 }
 
                 let geometry = this.roundedCornerGeometry(width, height, depth, cornerRadius);
-                let material = this.makePlaneMaterial(depth, color || 0xffffff, frameColor, fullBright);
+                let material = this.makePlaneMaterial(depth, color || 0xffffff, frameColor, fullBright, singleSided);
 
                 if (this.texture) {
-                    material[0].map = this.texture;
+                    if (Array.isArray(material)) {
+                        material[0].map = this.texture;
+                    } else {
+                        material.map = this.texture;
+                    }
+                }
+
+                let setAlpha = (mat, alpha) => {
+                    if (mat.transparent !== undefined) {
+                        mat.transparent = true;
+                        mat.alphaTest = alpha;
+                    }
+                };
+
+                if (options.textureType === "image" && options.alphaTest !== undefined) {
+                    if (Array.isArray(material)) {
+                        setAlpha(material[0], options.alphaTest);
+                        material[1].opacity = 0;
+                        material[1].transparent = true;
+                    } else {
+                        setAlpha(material, options.alphaTest);
+                    }
                 }
 
                 this.material = material;
@@ -1187,7 +1209,12 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
         let extrudePath = new THREE.LineCurve3(new THREE.Vector3(0, 0, z), new THREE.Vector3(0, 0, -z));
         extrudePath.arcLengthDivisions = 3;
-        let geometry = new THREE.ExtrudeGeometry(shape, {extrudePath});
+        let geometry;
+        if (depth > 0) {
+            geometry = new THREE.ExtrudeGeometry(shape, {extrudePath});
+        } else {
+            geometry = new THREE.ShapeGeometry(shape);
+        }
 
         geometry.parameters.width = width;
         geometry.parameters.height = height;
@@ -1208,7 +1235,10 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
             }
         };
 
-        let newGeometry = toIndexed(geometry, THREE, true);
+        let newGeometry = geometry;
+        if (depth > 0) {
+            newGeometry = toIndexed(geometry, THREE, true);
+        }
 
         let boundingBox = new THREE.Box3(
             new THREE.Vector3(-x, -y, -z),
@@ -1221,15 +1251,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return newGeometry;
     }
 
-    makePlaneMaterial(depth, color, frameColor, fullBright) {
+    makePlaneMaterial(depth, color, frameColor, fullBright, singleSided) {
         if (this.material) {
             this.material.dispose();
         }
         let material;
+        let side = singleSided === undefined || singleSided ? THREE.FrontSide : THREE.DoubleSide;
         if (!fullBright) {
-            material = new THREE.MeshPhongMaterial({color:color, side: THREE.FrontSide});
+            material = new THREE.MeshPhongMaterial({color:color, side});
         } else {
-            material = new THREE.MeshBasicMaterial({color:color, side: THREE.FrontSide, toneMapped: false});
+            material = new THREE.MeshBasicMaterial({color:color, side, toneMapped: false});
         }
 
         if (depth > 0) {
@@ -1266,11 +1297,16 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         return "url";
     }
 
-    getBuffer(name) {
+    async getBuffer(name) {
         let assetManager = this.service("AssetManager").assetManager;
         let buffer = assetManager.getCache(name);
         if (buffer) { return Promise.resolve(buffer); }
         let dataType = this.dataType(name);
+
+        if (!this.actor._cardData.loadSynchronously) {
+            await this.session.view.readyToLoadPromise;
+        }
+
         if (dataType === "url" || dataType === "dataUri") {
             return fetch(name)
                 .then((resp) => {
