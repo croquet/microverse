@@ -41,6 +41,9 @@ function loadPressed(myAvatar) {
                     if (type === "vrse") {
                         myAvatar.loadvrse(data);
                     } else {
+                        if (type === "glb") {
+                            data = new Uint8Array(data);
+                        }
                         myAvatar.analyzeAndUploadFile(data, file.name, type);
                     }
                 });
