@@ -5,6 +5,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-07-14
+### Changed
+- Migrate to Three.js 152. A migration doc is addded.
+
+### Fixed
+- GLB loading from the Import menu now works.
+
+### Added
+- ReplaceWorld can take avatar data across transition.
+
+## 2023-07-07
+### Added
+- alphaTest property for 2D card to support translucent PNG.
+
+### Fixed
+- 2D image card with depth 0 can be used.
+
+## 2023-06-30
+### Fixed
+- Default csmLight.js properly publishes synchrnousCardLoaded event.
+
 ## 2023-06-16
 ### Changed
 - Mention npm create croquet-microverse in the README to indicate that this is the standard way to start a project.
