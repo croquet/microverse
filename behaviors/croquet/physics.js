@@ -38,6 +38,7 @@ class PhysicsActor {
         if (!this.$rigidBody) {
             if (this.rigidBodyHandle === undefined) return undefined;
             const physicsWorld = this.physicsWorld;
+            if (!physicsWorld || !physicsWorld.world) {return undefined;}
             this.$rigidBody = physicsWorld.world.getRigidBody(this.rigidBodyHandle);
         }
         return this.$rigidBody;
