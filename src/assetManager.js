@@ -262,7 +262,7 @@ export class AssetManager {
 
             for (let file in types) {
                 if (files.find((name) => name.endsWith(`.${file}`))) {
-                    let loader = new Loader();
+                    let loader = new Loader(this);
                     return loader[types[file]](buffer, options, THREE);
                 }
             }
@@ -272,7 +272,7 @@ export class AssetManager {
 
         for (let file in types) {
             if (type === file) {
-                let loader = new Loader();
+                let loader = new Loader(this);
                 return loader[types[file]](buffer, options, THREE);
             }
         }
@@ -281,7 +281,8 @@ export class AssetManager {
 }
 
 export class Loader {
-    constructor() {
+    constructor(assetManager) {
+        this.assetManager = assetManager;
     }
 
     localName(str) {
@@ -505,6 +506,13 @@ export class Loader {
                 // draco.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
                 draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
                 loader.setDRACOLoader(draco);
+
+                let renderer = this.assetManager.renderer;
+                let ktx2Loader = new THREE.KTX2Loader()
+                    .setTranscoderPath("/lib/basis/")
+                    .detectSupport(renderer);
+
+                loader.setKTX2Loader(ktx2Loader);
                 cachedLoaders.dracoLoader = loader;
             }
             return new Promise(async (resolve, reject) => {
@@ -605,7 +613,7 @@ export class Loader {
                     }
                 }
                 resolve(group);
-	    });
+            });
         });
 
         Object.keys(contents).forEach((k) => {

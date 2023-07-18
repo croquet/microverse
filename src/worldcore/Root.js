@@ -1,7 +1,6 @@
 import { Model, View, Session } from "@croquet/croquet";
 import { ActorManager} from "./Actor";
 import { PawnManager} from "./Pawn";
-import { ClearObjectCache } from "./ObjectCache";
 
 //------------------------------------------------------------------------------------------
 //-- WorldcoreModel ------------------------------------------------------------------------
@@ -105,7 +104,6 @@ export class ViewRoot extends WorldcoreView {
         time0 = 0;
         time1 = 0;
         viewServices.clear();
-        ClearObjectCache();
         this.constructor.viewServices().forEach( service => {
             let options;
             let name = service.name; // either the class name, or the name property;
