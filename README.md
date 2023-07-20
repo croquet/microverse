@@ -6,7 +6,7 @@
 
 ## Getting Started
 
-A new project can be started by running `npm create croquet-microverse@latest` in an empty directory on your computer and then run `npm start` in the directory. For more information, refer to The [Quick Start Guide](https://croquet.io/docs/microverse/index.html). This repository contains the "Microvese Library" that can be used new projects. If you wish to learn more about Microverse, or modify code in the library to enhance it for your projects, please read on the following.
+A new project can be started by running `npm create croquet-microverse@latest` in an empty directory on your computer and then run `npm start` in the directory. If you wish to make a new Microverse world with a stable version of library, no need to clone this repositoty. For more information, refer to The [Quick Start Guide](https://croquet.io/docs/microverse/index.html). This repository contains the source code and build scripts of "Microvese Library" that is ued in the `npm create ...` command.  If you wish to learn more aboutMicroverse system itself and modify code in the library to enhance it for your projects, please read on the following.
 
 ## Description
 
