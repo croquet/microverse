@@ -48,6 +48,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         this.listen("goHome", this.goHome);
         this.listen("goThere", this.goThere);
         this.listen("startFalling", this.startFalling);
+        this.listen("stopFalling", this.stopFalling);
         this.listen("avatarLookTo", this.onLookTo);
         this.listen("comeToMe", this.comeToMe);
         this.listen("followMeToWorld", this.followMeToWorld);
@@ -181,6 +182,10 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     startFalling() {
         this.fall = true;
+    }
+
+    stopFalling() {
+        this.fall = false;
     }
 
     getLookFromAnchor() {
