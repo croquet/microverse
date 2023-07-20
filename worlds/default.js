@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "demo.js", "lights.js", "bouncingBall.js", "bitcoinTracker.js", "spin.js", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
+        "lights.js", "bouncingBall.js", "bitcoinTracker.js", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
     ];
 
     const frameColor = 0x888888;
@@ -50,7 +50,7 @@ export function init(Constants) {
                 type: "lighting",
                 behaviorModules: ["Light"],
                 fileName: "/shanghai_riverside_2k.exr",
-                dataLocation: "shanghai_riverside_2k.exr",
+                dataLocation: "./assets/sky/shanghai_riverside_2k.exr",
                 dataType: "exr",
                 toneMappingExposure: 0.7,
                 loadSynchronously: true,
