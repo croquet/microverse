@@ -308,6 +308,16 @@ function avatarURLFieldChanged(evt) {
     let avatarURLField = settingsMenu.querySelector('#avatarURLField');
     let value = avatarURLField.textContent.trim(); // may be empty
 
+    let gallery = /(https:\/\/)?.*\.?readyplayer.me\/gallery\/([a-f0-9]+)/.exec(value);
+
+    if (gallery) {
+        value = `https://models.readyplayer.me/${gallery[2]}.glb`;
+    }
+
+    if (avatarURLField.childNodes.length > 0) {
+        avatarURLField.innerHTML = value;
+    }
+
     avatarSelected({
         url: value,
         type: "ReadyPlayerMePerson",
@@ -382,6 +392,7 @@ function avatarSelected(entry) {
         let child = holder.childNodes[i];
         if (child.getAttribute("avatarURL") === value) {
             child.setAttribute("selected", true);
+            avatarURLField.textContent = "";
             avatarIsValid = true;
         } else {
             child.removeAttribute("selected");
@@ -390,9 +401,6 @@ function avatarSelected(entry) {
 
     if (value && (value === entry.url || value === entry.skins.default)) {
         avatarIsValid = urlValid;
-    } else {
-        let avatarURLField = settingsMenu.querySelector('#avatarURLField');
-        avatarURLField.textContent = "";
     }
 
     updateButtonState();
