@@ -38,7 +38,7 @@ class ImportChecker {
 export class AssetManager {
     constructor() {
         this.assetCache = {}; // {[dataId]: {data /*(of any kind)*/, ids: [viewObjectId|"0"]}}
-        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "wrl", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf", "vrse"]);
+        this.supportedFileTypes = new Set(["zip", "glb", "obj", "fbx", "wrl", "svg", "png", "jpeg", "jpg", "gif", "exr", "pdf", "vrse", "mov", "mp4"]);
     }
 
     fetchFile(item) {

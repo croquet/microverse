@@ -2,7 +2,11 @@ class FileDragAndDropActor {
     fileUploaded(data) {
         let {dataId, fileName, type, translation, rotation, animationClipIndex, dataScale} = data;
 
-        let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" || type === "pdf" ? "2d" : "3d");
+        if (type == "mov" || type === "mp4") {
+            type = "video";
+        }
+
+        let cardType = type === "exr" ? "lighting" : (type === "svg" || type === "img" || type === "pdf" || type === "video" ? "2d" : "3d");
 
         let options = {
             name: fileName,
@@ -44,6 +48,31 @@ class FileDragAndDropActor {
                 depth: 0.05,
                 fullBright: true,
                 pdfLocation: dataId
+            };
+        } else if (type === "video") {
+            let textureWidth = data.width;
+            let textureHeight = data.height;
+            let width;
+            let height;
+            if (textureWidth > textureHeight) {
+                width = 3;
+                height = width * (textureHeight / textureWidth);
+            } else {
+                height = 3;
+                width = width * (textureWidth / textureHeight);
+            }
+            options = {
+                ...options,
+                scale: [4, 4, 4],
+                behaviorModules: ["VideoPlayer"],
+                type: "2d",
+                textureType: "video",
+                frameColor: 0xffffff,
+                color: 0xcccccc,
+                depth: 0.05,
+                fullBright: true,
+                textureLocation: dataId,
+                textureWidth, textureHeight, width, height
             };
         } else {
             options = {...options, dataLocation: dataId};

@@ -398,6 +398,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         let n = this.lookNormal;
         let t = this.translation;
         let r = this.rotation;
+        if (n && Math.abs(n[1]) < 0.001) {
+            n = [n[0], 0.1, n[2]];
+            n = v3_normalize(n);
+        }
+
         if (!optOffset) {
             let p = v3_add(v3_scale(n, distance), t);
             return {translation: p, rotation: r};
@@ -1027,11 +1032,38 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         let obj;
         let animationClipIndex;
         let dataScale;
+
+        let canonicalVideo = type === "mov" || type === "mp4";
+
         try {
-            if (type !== "pdf") {
-                // it is special cased as the assetManager itself does not load pdf
+            if (type !== "pdf" && !canonicalVideo) {
+                // it is a special cased as the assetManager itself does not load pdf
                 // but still is supported by a behavior.
                 obj = await assetManager.load(buffer, type, THREE, {});
+            } if (canonicalVideo) {
+                let videoPromiseResolved;
+                let objectURL;
+                let video = document.createElement("video");
+                let videoLoaded = false;
+                obj = await new Promise((resolve, reject) => {
+                    objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
+                    video.src = objectURL;
+                    video.preload = "metadata";
+                    videoPromiseResolved = false;
+                    video.onloadeddata = resolve;
+                    video.onloadedmetadata = resolve;
+                    video.onerror = reject;
+                }).then(() => {
+                    if (!videoPromiseResolved) {
+                        videoPromiseResolved = true;
+                        video.onloadeddata = null;
+                        video.onloadedmetadata = null;
+                    }
+                    return {
+                        width: video.videoWidth || 1024,
+                        height: video.videoHeight || 1024
+                    };
+                });
             }
         } catch (e) {
             console.warn("dropped file could not be processed", e);
@@ -1052,13 +1084,28 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
 
         let pose = this.dropPose(6);
-        this.say("fileUploaded", {
-            dataId, fileName, type: /^(jpe?g|png|gif)$/.test(type) ? "img" : type,
+        let cType = canonicalVideo ? "video" : (/^(jpe?g|png|gif)$/.test(type) ? "img" : type);
+
+        let data = {
+            dataId, fileName, type: cType,
             translation: pose.translation,
             rotation: pose.rotation,
-            animationClipIndex,
-            dataScale
-        });
+        };
+
+        if (obj.width && obj.height) {
+            data.width = obj.width;
+            data.height = obj.height;
+        }
+
+        if (animationClipIndex !== undefined) {
+            data.animationClipIndex = animationClipIndex;
+        }
+
+        if (dataScale) {
+            data.dataScale = dataScale;
+        }
+
+        this.say("fileUploaded", data);
     }
 
     async uploadFile(buffer, fileName, type) {
