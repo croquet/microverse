@@ -17,6 +17,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { SVGLoader } from 'three/examples/jsm/loaders/SVGLoader.js';
 import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js';
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { FontLoader, Font } from 'three/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
@@ -620,7 +621,7 @@ class ThreeRenderManager extends RenderManager {
 
 const THREE = {
     ...THREEModule, Pass, UnrealBloomPass, CopyShader, CSMFrustum, CSMShader, CSM,
-    OBJLoader, MTLLoader, GLTFLoader, FBXLoader, VRMLLoader, DRACOLoader, SVGLoader, EXRLoader, KTX2Loader, BufferGeometryUtils,
+    OBJLoader, MTLLoader, GLTFLoader, FBXLoader, VRMLLoader, DRACOLoader, KTX2Loader, MeshoptDecoder, SVGLoader, EXRLoader, BufferGeometryUtils,
     FontLoader, Font, TextGeometry
 };
 

@@ -513,6 +513,7 @@ export class Loader {
                     .detectSupport(renderer);
 
                 loader.setKTX2Loader(ktx2Loader);
+                loader.setMeshoptDecoder(THREE.MeshoptDecoder);
                 cachedLoaders.dracoLoader = loader;
             }
             return new Promise(async (resolve, reject) => {

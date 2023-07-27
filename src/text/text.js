@@ -601,12 +601,14 @@ export class TextFieldPawn extends CardPawn {
         let textMesh;
         if (!this.fonts.get(name)) {return;}
         let texture = this.fonts.get(name).texture;
-        this.textMaterial = new THREE.RawShaderMaterial(HybridMSDFShader({
+        let shader = HybridMSDFShader({
             map: texture,
             textureSize: texture.image.width,
             side: THREE.BackSide,
             transparent: true,
-        }, THREE));
+            glslVersion: "300 es"
+        }, THREE);
+        this.textMaterial = new THREE.RawShaderMaterial(shader);
 
         if (makeNew) {
             textMesh = new THREE.Mesh(this.textGeometry, this.textMaterial);

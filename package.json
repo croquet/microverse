@@ -23,13 +23,13 @@
   ],
   "dependencies": {
     "@croquet/croquet": "1.1.0-32",
-    "@croquet/hybrid-msdf-text": "1.0.1",
+    "@croquet/hybrid-msdf-text": "2.0.0",
     "@dimforge/rapier3d": "0.11.1",
     "fflate": "0.7.4",
     "jszip": "3.10.1",
     "load-bmfont": "1.4.1",
-    "three": "0.152.0",
-    "three-mesh-bvh": "0.6.0"
+    "three": "0.155.0",
+    "three-mesh-bvh": "0.6.3"
   },
   "devDependencies": {
     "@croquet/microverse-file-server": "^1.0.7",
