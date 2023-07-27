@@ -5,6 +5,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-07-21
+### Added
+- Support a GLB model with KTX2 texture.
+- Add stopFalling message to AvatarModel to programmatically stop falling to ground.
+
+### Fixed
+- removeRigidBody should check if the physicsWorld is valid.
+- GLB URL is inferred when ReadyPlayerMe gallery image link is pasted.
+
+### Removed
+- Some examples are moved out to individual example repos.
+
 ## 2023-07-14
 ### Changed
 - Migrate to Three.js 152. A migration doc is addded.
