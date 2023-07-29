@@ -9,7 +9,13 @@ function isShellFrame() {
     return !portalId;
 }
 
+window.microverseUseShell = new URL(window.location).searchParams.has("useShell");
+
 async function start() {
+    if (!window.microverseUseShell) {
+        const { startShell } = await import("./simpleShell.js");
+        return startShell();
+    }
     if (isShellFrame()) {
         const { startShell } = await import("./shell.js");
         startShell();

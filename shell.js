@@ -4,6 +4,8 @@
 
 import { App } from "@croquet/croquet";
 
+import { shellInnerHTML } from "./src/hud.js";
+
 // shared prefix for shell messages
 const PREFIX = "croquet:microverse:";
 
@@ -32,6 +34,15 @@ class Shell {
             console.log("shell: redirecting to canonical URL", canonicalUrl);
             location.href = canonicalUrl; // causes reload
         }
+
+        this.hud = document.querySelector("#hud");
+        if (!this.hud) {
+            let div = document.createElement("div");
+            div.innerHTML = shellInnerHTML;
+
+            this.hud = div.querySelector("#shell-hud");
+            document.body.appendChild(this.hud);
+        }
         // console.log("shell: starting");
         this.frames = new Map(); // portalId => { frame, owningFrame, ownedFrames, isMicroverse, ?frameTypeArgs, ?frameTypeInterval }
         this.portalData = new Map(); // portalId => portalData
@@ -49,7 +60,9 @@ class Shell {
         setTitle(portalURL);
         // remove HUD from DOM in shell
         const hud = document.getElementById("hud");
-        hud.remove();
+        if (hud) {
+            hud.remove();
+        }
         const shellHud = document.getElementById("shell-hud");
         shellHud.classList.toggle("is-shell", true);
         // TODO: create HUD only when needed?
