@@ -35,7 +35,7 @@ export function init(Constants) {
                 translation:[0, -1.7, 0],
                 placeholder: true,
                 placeholderSize: [400, 0.1, 400],
-                placeholderColor: 0xc0c0c0,
+                placeholderColor: 0xe0e0e0,
                 placeholderOffset: [0, 0, 0],
             }
         },
@@ -50,24 +50,6 @@ export function init(Constants) {
                 dataType: "jpg",
                 toneMappingExposure: 1.2
             }
-        },
-        {
-            card: {
-                translation: [0, 2, -4],
-                scale: [4, 4, 4],
-                layers: ["pointer"],
-                behaviorModules: ["PDFView"],
-                color: 8947848,
-                depth: 0.05,
-                frameColor: 16777215,
-                fullBright: true,
-                modelType: "pdf",
-                fileName: "/Croquet Microverse Product Deck - Oct 25b 2022 - Distro.pdf",
-                pdfLocation: "3HgyNLeuXEk5ULkVat-Q3pm19KHPQU3YmpYZBQTiumFQIDw8ODtyZ2cuISQtO2Y9O2YrOic5PS08ZiEnZz1nDyweKjEkATsJIxkrChAsew8wKT4xPx0DHxERemchJ2YrOic5PS08Zi8pJCQtOjFnIQIHOAYnB314ADp8CQwbJw8nCx8AGHplDQQBLycOB3w4CgV5OQ0ALR0XHWcsKTwpZwAMMB4FO39_fXxlO38bcBh8eQ0BDnB8eS0CIxsMcR8rEQsiPAs_Fx4iHyc",
-                shadow: true,
-                singleSided: true,
-                type: "2d",
-            }
-        },
+        }
     ];
 }

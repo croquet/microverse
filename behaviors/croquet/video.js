@@ -518,8 +518,6 @@ class VideoButtonPawn {
         hittableMesh.rotation.x = Math.PI / 2;
         hittableMesh.position.z = -depth / 2;
         this.shape.add(hittableMesh);
-        hittableMesh._baseRaycast = hittableMesh.raycast;
-        hittableMesh.raycast = (...args) => this.shape.visible ? hittableMesh._baseRaycast(...args) : false;
         this.shape.visible = false; // until placed
         this.updateState();
     }
@@ -529,8 +527,12 @@ class VideoButtonPawn {
         if (!buttonState) return; // video size not set yet
 
         const visible = buttonState[this.actor.buttonName];
+        let wasVisible = this.shape.visible;
         this.shape.visible = visible;
-        if (visible) this.setColor();
+        if (!wasVisible && visible) {
+            this.service("RenderManager").dirtyLayer("pointer");
+            this.setColor();
+        }
     }
 
     setColor() {
