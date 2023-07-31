@@ -973,8 +973,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     if (this.actor.layers.indexOf("walk") >= 0) {
                         this.constructCollider(obj);
                     }
-
-                    this.service("RenderManager").dirtyAllLayers();
                     publishLoaded();
                 }).catch((e) => {
                     console.error(e.message, dataLocation);
