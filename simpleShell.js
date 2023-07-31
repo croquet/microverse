@@ -34,38 +34,38 @@ class SimpleShell {
             if (!this.hud) {
                 let div = document.createElement("div");
                 div.innerHTML = innerHTML;
-
                 this.hud = div.children[0];
                 document.body.appendChild(this.hud);
-                this.fullscreenBtn = this.hud.querySelector("#fullscreenBtn");
-                this.fullscreenBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-
-                    if (e.shiftKey) {
-                        document.body.classList.toggle("tilt");
-                        return;
-                    }
-
-                    if (!document.fullscreenElement) {
-                        // If the document is not in full screen mode
-                        // make the document full screen
-                        document.body.requestFullscreen();
-                    } else {
-                        // Otherwise exit the full screen
-                        if (document.exitFullscreen) {
-                            document.exitFullscreen();
-                        }
-                    }
-                };
-
-                // joystick sends events into primary frame
-                this.capturedPointers = {};
-
-                this.joystick = this.hud.querySelector("#joystick");
-                this.knob = this.joystick.querySelector("#knob");
-                this.trackingknob = this.joystick.querySelector("#trackingknob");
             }
+            
+            this.fullscreenBtn = this.hud.querySelector("#fullscreenBtn");
+            this.fullscreenBtn.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (e.shiftKey) {
+                    document.body.classList.toggle("tilt");
+                    return;
+                }
+
+                if (!document.fullscreenElement) {
+                    // If the document is not in full screen mode
+                    // make the document full screen
+                    document.body.requestFullscreen();
+                } else {
+                    // Otherwise exit the full screen
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+            };
+
+            // joystick sends events into primary frame
+            this.capturedPointers = {};
+
+            this.joystick = this.hud.querySelector("#joystick");
+            this.knob = this.joystick.querySelector("#knob");
+            this.trackingknob = this.joystick.querySelector("#trackingknob");
         }
 
         window.onresize = () => this.adjustJoystickKnob();
@@ -215,7 +215,7 @@ class SimpleShell {
                 this.sendToPortal(fromPortalId, "local-configuration", { localConfig: localConfiguration });
                 return;
             case "update-configuration":
-                console.log("updated config", data.localConfig);
+                // console.log("updated config", data.localConfig);
                 localConfiguration = data.localConfig;
                 localConfiguration.userHasSet = true;
                 saveLocalStorage(data.localConfig);

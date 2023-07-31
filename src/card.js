@@ -717,7 +717,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
-            let color = options.placeholderColor || 0x808080;
+            let color = options.placeholderColor || 0xa08080;
             let offset = options.placeholderOffset || [0, -1.7, 0];
 
             const gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
@@ -973,6 +973,8 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
                     if (this.actor.layers.indexOf("walk") >= 0) {
                         this.constructCollider(obj);
                     }
+
+                    this.service("RenderManager").dirtyAllLayers();
                     publishLoaded();
                 }).catch((e) => {
                     console.error(e.message, dataLocation);
