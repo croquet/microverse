@@ -7,9 +7,8 @@
 import {
     Data, Constants, // re-exported from @croquet/croquet
     Actor, Pawn, ModelService, mix, AM_Smoothed, PM_Smoothed, GetPawn,
-    v3_dot, v3_cross, v3_sub, v3_add, v3_normalize, v3_magnitude, v3_sqrMag, v3_transform, v3_rotate,
+    v3_normalize, v3_sqrMag, v3_rotate,
     q_euler, q_multiply,
-    m4_invert, m4_identity
 } from './worldcore';
 import { THREE, THREE_MESH_BVH, PM_ThreeVisible } from './ThreeRender.js';
 import { AM_PointerTarget, PM_PointerTarget } from './Pointer.js';
@@ -536,7 +535,6 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         this.subscribe(this.id, "3dModelLoaded", this.tryStartAnimation);
 
         this.listen("hiddenSet", this.onHiddenSet);
-        
         this.constructCard();
     }
 
@@ -717,7 +715,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
         /* this is really a hack to make it work with the current model. */
         if (options.placeholder) {
             let size = options.placeholderSize || [40, 1, 40];
-            let color = options.placeholderColor || 0x808080;
+            let color = options.placeholderColor || 0xe0e0e0;
             let offset = options.placeholderOffset || [0, -1.7, 0];
 
             const gridImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOnAAADusBZ+q87AAAAJtJREFUeJzt0EENwDAAxLDbNP6UOxh+NEYQ5dl2drFv286598GrA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAa4AO0BqgA7QG6ACtATpAu37AD8eaBH5JQdVbAAAAAElFTkSuQmCC";
