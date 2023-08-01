@@ -2,6 +2,9 @@
 // https://croquet.io
 // info@croquet.io
 
+import { startShell, startMicroverse, setupController, setupFullScreenButton } from "./simpleShell.js";
+
+
 function isShellFrame() {
     const isOuterFrame = window.self === window.parent;
     if (isOuterFrame) return true;
@@ -13,14 +16,16 @@ window.microverseUseShell = new URL(window.location).searchParams.has("useShell"
 
 async function start() {
     if (!window.microverseUseShell) {
-        const { startShell } = await import("./simpleShell.js");
-        return startShell();
+        startShell();
+        setupController(true);
+        startMicroverse();
+        return;
     }
     if (isShellFrame()) {
-        const { startShell } = await import("./shell.js");
-        startShell();
+        startShell(true);
+        setupFullScreenButton();
     } else {
-        const { startMicroverse } = await import("./src/microverse.js");
+        setupController();
         startMicroverse();
     }
 }

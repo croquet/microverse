@@ -988,7 +988,8 @@ const shellListener = (command, data) => {
 };
 addShellListener(shellListener);
 
-export function startMicroverse(innerHTML) {
+export function startMicroverse() {
+    /*
     let hud = document.querySelector("#hud");
     if (!hud) {
         let div = document.createElement("div");
@@ -996,6 +997,7 @@ export function startMicroverse(innerHTML) {
         hud = div.querySelector("#hud");
         document.body.appendChild(hud);
     }
+    */
 
     let setButtons = (display) => {
         ["homeBtn", "worldMenuBtn"].forEach((n) => {
