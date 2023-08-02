@@ -28,7 +28,7 @@ localConfiguration.showSettings = showSettings;
 
 export function startShell(useIframeFlag) {
     useIframe = !!useIframeFlag;
-    shell = new SimpleShell();
+    shell = new Shell();
 }
 
 export function setupController(fullScreenFlag) {
@@ -226,7 +226,7 @@ export class HudController {
     */
 }
 
-class SimpleShell {
+class Shell {
     constructor() {
         if (useIframe) {
             const canonicalUrl = shellToCanonicalURL(location.href);
@@ -833,12 +833,6 @@ class SimpleShell {
         }
     }
 }
-
-function sendToSelf(cmd, data = {}) {
-    data.message = `${PREFIX}${cmd}`;
-    window.postMessage(data, "*");
-}
-
 
 // each iframe's src is the portal URL plus `?portal=<portalId>`
 // which the shell uses to know if it needs to load a world
