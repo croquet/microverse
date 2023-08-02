@@ -56,7 +56,6 @@ let hudFlags;
 let releaseHandler;
 
 export function setupJoystick(myAvatar) {
-    debugger;
     avatar = myAvatar;
     // joystick sends events into primary frame
     capturedPointers = {};
@@ -124,8 +123,12 @@ function adjustJoystickKnob() {
 // mouse motion via joystick element
 
 function startMMotion(e) {
+    e.preventDefault();
+    e.stopPropagation();
     activeMMotion = {};
-    updateMMotion(e, "motion-start");
+    if (avatar) {
+        avatar.motionStart();
+    }
 }
 
 function endMMotion(e) {
