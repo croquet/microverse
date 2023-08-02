@@ -1839,6 +1839,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     collidePortal(vq) {
         if (this.frozenForWorldSwitch) return false;
+        if (!window.microverseUseShell) return false;
 
         const renderMgr = this.service("ThreeRenderManager");
         const portalLayer = renderMgr.threeLayer("portal");
