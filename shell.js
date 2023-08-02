@@ -783,21 +783,23 @@ class Shell {
 
         if (transferData && !transferData.crossingBackwards) fromFrame.style.display = 'none';
 
-        if (pushState) try {
-            window.history.pushState({
-                portalId: toPortalId,
-            }, null, portalURL);
-        } catch (e) {
-            // probably failed because portalURL has a different origin
-            // print error only if same origin
-            if (new URL(portalURL, location.href).origin === window.location.origin) {
-                console.error(e);
+        if (pushState) {
+            try {
+                window.history.pushState({
+                    portalId: toPortalId,
+                }, null, portalURL);
+            } catch (e) {
+                // probably failed because portalURL has a different origin
+                // print error only if same origin
+                if (new URL(portalURL, location.href).origin === window.location.origin) {
+                    console.error(e);
+                }
+                // we could reload the page but that would be disruptive
+                // instead, we stay on the same origin but change the URL
+                window.history.pushState({
+                    portalId: toPortalId,
+                }, null, portalToShellURL(portalURL));
             }
-            // we could reload the page but that would be disruptive
-            // instead, we stay on the same origin but change the URL
-            window.history.pushState({
-                portalId: toPortalId,
-            }, null, portalToShellURL(portalURL));
         }
         setTitle(portalURL);
         this.primaryFrameId = toPortalId;

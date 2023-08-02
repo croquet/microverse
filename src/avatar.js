@@ -808,7 +808,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // keep track of being in the primary frame or not.  because of the delay involved
         // in creating the avatar, the frame itself (in frame.js) is bound to have already
         // processed a "frame-type" message and set its exported isPrimaryFrame value.
-        this.isPrimary = !window.microverseUseShell ? true : isPrimaryFrame;
+        this.isPrimary = !window.microverseEnablePortal ? true : isPrimaryFrame;
 
         // clip halfspace behind portalCamera.
         // [old comment] 0.2 is to cover the gap of the portal thickness
@@ -871,7 +871,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // the primary-frame avatar, we publish that spec to become the configuration for
         // this actor - and hence for this pawn, and all RemoteAvatarPawns that other
         // users have for it.
-        const inWorld = !window.microverseUseShell ? true : this.isPrimary;
+        const inWorld = !window.microverseEnablePortal ? true : this.isPrimary;
 
         // spectator pawns cannot talk to their actors
         if (this.spectator) {
@@ -1839,7 +1839,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     collidePortal(vq) {
         if (this.frozenForWorldSwitch) return false;
-        if (!window.microverseUseShell) return false;
+        if (!window.microverseEnablePortal) return false;
 
         const renderMgr = this.service("ThreeRenderManager");
         const portalLayer = renderMgr.threeLayer("portal");

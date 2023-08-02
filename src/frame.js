@@ -21,7 +21,7 @@ const PREFIX = "croquet:microverse:";
 
 // sending to shell
 export function sendToShell(command, args) {
-    let target = window.microverseUseShell ? window.parent : window;
+    let target = window.microverseEnablePortal ? window.parent : window;
     target.postMessage({ message: PREFIX+command, ...args }, "*");
 }
 
@@ -39,8 +39,9 @@ export function removeShellListener(fn) {
 // we register one global event listener for all messages from the shell
 // that invokes all callbacks in the registry
 // This guaranteees the order in which they will be invoked
+
 window.addEventListener("message", e => {
-    let target = window.microverseUseShell ? window.parent : window;
+    let target = window.microverseEnablePortal ? window.parent : window;
     if (e.source === target) {
         const { message }  = e.data;
         if (typeof message === "string" && message.startsWith(PREFIX)) {
