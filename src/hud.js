@@ -13,7 +13,7 @@ const joystickHTML = `
 
 export const fullScreenHTML = `
 <div id="fullscreenBtn" class="btn btn-ui">
-    <i class="fas fa-solid fa-expand"></i>
+    <i class="fa-icon fa-expand world-icon"></i>
 </div>
 `.trim();
 
@@ -21,13 +21,13 @@ const container = `
 <div class="container">
     <div class="controllers" style="border:1px solid red">
         <div id="homeBtn" class="btn btn-ui">
-            <i class="fas fa-solid fa-house-user no-pointer-events"></i>
+            <div class="fa-icon fa-house-user world-icon no-pointer-events"></div>
         </div>
         <div id="editModeBtn" mobile="false" class="btn">
-            <i class="fas fa-solid fa-angle-up no-pointer-events"></i>
+            <i class="fa-icon fa-angle-up world-icon no-pointer-events"></i>
         </div>
         <div id="worldMenuBtn" class="btn btn-ui">
-            <i class="fa fa-solid fa-bars no-pointer-events"></i>
+            <i class="fa-icon fa-bars world-icon no-pointer-events"></i>
         </div>
         <input id="ghostSlider" type="range" min="0" max="100">
     </div>
