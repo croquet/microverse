@@ -882,7 +882,6 @@ function frameToPortalURL(frameURL) {
     const filename = url.pathname.split('/').pop();
     if (filename === "index.html") url.pathname = url.pathname.slice(0, -10);
     // that's it
-    console.log(url);
     return url.toString();
 }
 
