@@ -831,6 +831,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     // a secondary frame for which we already have camera information
                     // will receive it as part of this message
                     if (cameraMatrix) this.portalCameraUpdate(cameraMatrix);
+                    document.getElementById("joystick")?.classList.toggle("primary-frame", isPrimary);
                     // acknowledge receipt so that shell knows this frame is ready
                     sendToShell("avatar-ready", { frameType });
                     break;
@@ -1054,7 +1055,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 let videoPromiseResolved;
                 let objectURL;
                 let video = document.createElement("video");
-                let videoLoaded = false;
                 obj = await new Promise((resolve, reject) => {
                     objectURL = URL.createObjectURL(new Blob([buffer], {type: "video/mp4"}));
                     video.src = objectURL;

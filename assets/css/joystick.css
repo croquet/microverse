@@ -79,6 +79,16 @@
     transform:  translate(0px, 48px) rotate(180deg);
 }
 
+#joystick {
+    display: none;
+}
+
+#joystick.primary-frame {
+    display: block;
+}
+
+
+
 @media (max-width:600px), (max-height:600px) {
     #trackingknob {
         width: 86px;

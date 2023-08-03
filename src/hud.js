@@ -57,7 +57,6 @@ let releaseHandler;
 
 export function setupJoystick(myAvatar) {
     avatar = myAvatar;
-    // joystick sends events into primary frame
     capturedPointers = {};
 
     let hud = document.querySelector("#hud");

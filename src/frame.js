@@ -61,7 +61,7 @@ const primaryListener = (command, data) => {
         if (isPrimaryFrame !== primary) {
             isPrimaryFrame = primary;
             document.body.style.background = "transparent";
-            document.getElementById("hud").classList.toggle("primary-frame", isPrimaryFrame);
+            document.getElementById("hud")?.classList.toggle("primary-frame", isPrimaryFrame);
             if (isPrimaryFrame) window.focus();
             sendToShell("frame-ready", { frameType });
         }

@@ -867,7 +867,6 @@ function portalToFrameURL(portalURL, portalId) {
     });
     url.search = new URLSearchParams(params).toString();
 
-    console.log(url);
     return url.toString();
 }
 
