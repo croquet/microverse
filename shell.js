@@ -69,7 +69,7 @@ export function setupFullScreenButton() {
     }
 }
 
-export class HudController {
+class HudController {
     constructor() {
         this.hud = document.querySelector("#hud");
 

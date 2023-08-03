@@ -74,6 +74,7 @@ function main() {
         copyFolderRecursiveSync("worlds", dist, true);
         copyFolderRecursiveSync("meta", dist);
         copyFolderRecursiveSync("lib", dist);
+        copyFileSync("prelude.js", `${dist}${sep}prelude.js`, true);
         copyFileSync("index.html", `${dist}${sep}index.html`);
         copyFileSync("apiKey.js-example", `${dist}${sep}apiKey.js-example`);
         copyFileSync("gitignore", `${dist}${sep}.gitignore`, true);

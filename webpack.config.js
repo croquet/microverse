@@ -65,6 +65,7 @@ const config = {
                 { from: 'meta/version.txt', to: 'meta/version.txt'},
                 { from: 'apiKey.js', noErrorOnMissing: true },
                 { from: 'apiKey-dev.js', noErrorOnMissing: true },
+                { from: 'prelude.js'},
                 { from: 'basis/*', to: 'lib/',
                   context: path.resolve(__dirname, "node_modules", "three", "examples", "jsm", "libs")
                 }

@@ -50,13 +50,6 @@ export async function prelude() {
     */
 
     /*
-      The list of viewServices can be modified.
-
-         let {AgoraChatManager} = await import("./assets/src/agoraChat.js");
-         window.microverseAdditionalViewServices = [AgoraChatManager];
-    */
-
-    /*
       The caller of this function in index.js await's the result. As
       this function is async the folllowing return is implicitly
       converted to a Promise. Your custom code may return an explicit

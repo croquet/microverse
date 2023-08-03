@@ -14,8 +14,19 @@ function isShellFrame() {
 }
 
 async function runPrelude() {
+    let url = window.location.origin + window.location.pathname;
+    let match = /([^/]+)\.html$/.exec(url);
+
+    let baseurl;
+    if (match) {
+        baseurl = url.slice(0, match.index);
+    } else {
+        let slash = url.lastIndexOf("/");
+        baseurl = url.slice(0, slash + 1);
+    }
+
     try {
-        const { prelude } = await import("./prelude.js");
+        const { prelude } = await eval(`import('${baseurl}prelude.js')`);
         await prelude();
     } catch(e) {
         console.log("error in the prelude function");

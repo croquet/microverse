@@ -735,10 +735,6 @@ class MyViewRoot extends ViewRoot {
             Constants.ShowCaseSpec && Constants.ShowCaseSpec.voiceChat) {
             services.push(DolbyChatManager);
         }
-
-        if (window.microverseAdditionalViewServices) {
-            services.push(...window.microverseAdditionalViewServices);
-        }
         return services;
     }
 
