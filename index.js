@@ -4,6 +4,8 @@
 
 import { startShell, startMicroverse, setupController, setupFullScreenButton } from "./shell.js";
 
+window.microverseEnablePortal = new URL(window.location).searchParams.has("enablePortal");
+
 function isShellFrame() {
     const isOuterFrame = window.self === window.parent;
     if (isOuterFrame) return true;
@@ -11,9 +13,17 @@ function isShellFrame() {
     return !portalId;
 }
 
-window.microverseEnablePortal = new URL(window.location).searchParams.has("enablePortal");
+async function runPrelude() {
+    try {
+        const { prelude } = await import("./prelude.js");
+        await prelude();
+    } catch(e) {
+        console.log("error in the prelude function");
+    }
+}
 
 async function start() {
+    await runPrelude();
     if (!window.microverseEnablePortal) {
         startShell();
         setupController(true);

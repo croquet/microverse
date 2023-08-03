@@ -55,7 +55,13 @@ async function getDisplayOptions() {
     let highdpi;
 
     let aaOption = new URL(window.location).searchParams.get("AA");
-    if (aaOption) {
+    if (aaOption === null) {
+        aaOption = window.microverseAAOption === undefined
+            ? null
+            : window.microverseAAOption === true ? "true" : window.microverseAAOption;
+    }
+
+    if (aaOption !== null) {
         if (aaOption === "true") {
             console.log(`antialias is true, urlOption AA is set`);
             aa = true;
@@ -66,6 +72,13 @@ async function getDisplayOptions() {
     }
 
     let dpiOption = new URL(window.location).searchParams.get("HighDPI");
+
+    if (dpiOption === null) {
+        dpiOption = window.microverseHighDPIOption === undefined
+            ? null
+            : window.microverseHighDPIOption === true ? "true" : window.microverseHighDPIOption;
+    }
+
     if (dpiOption) {
         if (dpiOption === "true") {
             console.log(`HighDPI is true, urlOption HighDPI is set`);
@@ -708,7 +721,7 @@ function setupBroadcastMode(model) {
 
 class MyViewRoot extends ViewRoot {
     static viewServices() {
-        const services = [
+        let services = [
             InputManager,
             {service: ThreeRenderManager, options:{useBVH: true, antialias: AA, useDevicePixelRatio: HighDPI}},
             AssetManager,
@@ -721,6 +734,10 @@ class MyViewRoot extends ViewRoot {
         if (window.settingsMenuConfiguration?.voice ||
             Constants.ShowCaseSpec && Constants.ShowCaseSpec.voiceChat) {
             services.push(DolbyChatManager);
+        }
+
+        if (window.microverseAdditionalViewServices) {
+            services.push(...window.microverseAdditionalViewServices);
         }
         return services;
     }
