@@ -19,12 +19,20 @@ class PDFActor {
 
         this.listen("setCardData", "cardDataUpdated");
         this.subscribe(this.id, "buttonPageChange", "changePage");
+        this.subscribe(this.sessionId, "resetAppState", "resetAppState");
     }
 
     viewJoined(_viewId) {
     }
 
     viewExited(_viewId) {
+    }
+
+    resetAppState() {
+        this.scrollState = { page: 1, percent: 0 };
+        this.scrollState.upAvailable = false;
+        this.scrollState.downAvailable = true;
+        this.publish(this.id, "updateButtons");
     }
 
     addButtons() {
@@ -842,7 +850,6 @@ class PDFButtonPawn {
         this.shape.visible = true;
         const wasEnabled = this.enabled;
         this.enabled = buttonState[this.actor.buttonName];
-
         if (!wasVisible || this.enabled !== wasEnabled) {
             this.service("RenderManager").dirtyLayer("pointer");
             this.setColor();

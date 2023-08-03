@@ -8,7 +8,7 @@ class URLPawn {
         this.addEventListener("pointerEnter", "enter");
         this.addEventListener("pointerLeave", "leave");
         this.addEventListener("pointerMove", "move");
-        this.listen("selectEdit", this.leave);
+        this.listen("selectEdit", "leave");
     }
 
     tap() {
@@ -30,7 +30,6 @@ class URLPawn {
     }
 
     leave(){
-        console.log("urlLink leave")
         if (this.interval) {
             clearInterval(this.interval);
             this.interval = undefined;

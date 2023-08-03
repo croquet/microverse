@@ -1,11 +1,17 @@
 class CradleActor {
     setup() {
+        this.subscribe(this.sessionId, "resetAppState", "resetAppState");
+        
         if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world");
             this.setPhysicsWorld(physicsManager.createWorld({timeStep: 10}, this.id));
         }
 
+        this.setupCradle();
+    }
+
+    setupCradle() {
         if (this.cradle) {
             this.cradle.forEach((c) => {
                 let {links, joints} = c;
@@ -117,6 +123,10 @@ class CradleActor {
             joints.forEach(j => j.destroy());
         });
         this.cradle = null;
+    }
+
+    resetAppState() {
+        this.setupCradle();
     }
 }
 

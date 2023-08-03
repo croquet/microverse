@@ -334,6 +334,8 @@ export class PortalPawn extends CardPawn {
         [ "showSettings", "voiceChat" ].forEach(setting => {
             if (worldUrl.searchParams.has(setting)) portalSearchParams.set(setting, "true");
         });
+        // enablePortal should be always set when resolving portal URL
+        portalSearchParams.set("enablePortal", "true");
         // remove origin from portalURL if it is the same as the world URL
         // we could also construct an even shorter relative URL, but this is easier
         portalURL = portalTempUrl.toString();

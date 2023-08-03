@@ -17,6 +17,8 @@ import {PM_Pointer} from "./Pointer.js";
 import {CardActor, CardPawn} from "./card.js";
 // import { TextFieldActor } from "./text/text.js";
 
+import {setupJoystick} from "./hud.js";
+
 import {setupWorldMenuButton, filterDomEventsOn, updateWorldMenu} from "./worldMenu.js";
 import { startSettingsMenu, startShareMenu } from "./settingsMenu.js";
 import { startHelpMenu } from "./helpMenu.js";
@@ -806,7 +808,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // keep track of being in the primary frame or not.  because of the delay involved
         // in creating the avatar, the frame itself (in frame.js) is bound to have already
         // processed a "frame-type" message and set its exported isPrimaryFrame value.
-        this.isPrimary = isPrimaryFrame;
+        this.isPrimary = !window.microverseEnablePortal ? true : isPrimaryFrame;
 
         // clip halfspace behind portalCamera.
         // [old comment] 0.2 is to cover the gap of the portal thickness
@@ -815,8 +817,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.portalClip = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);
         this.setPortalClipping();
 
-        this.shellListener = (command, { frameType, spec, cameraMatrix, dx, dy, acknowledgeReceipt }) => {
-            let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        this.shellListener = (command, { frameType, spec, cameraMatrix, acknowledgeReceipt }) => {
             switch (command) {
                 case "frame-type":
                     const isPrimary = frameType === "primary";
@@ -855,27 +856,6 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                     this.setWorldSwitchFreeze(false);
                     this.portalCameraUpdate(cameraMatrix);
                     break;
-                case "motion-start":
-                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
-                        this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
-                    } else {
-                        this.startMotion(dx, dy);
-                    }
-                    break;
-                case "motion-end":
-                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
-                        this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
-                    } else {
-                        this.endMotion(dx, dy);
-                    }
-                    break;
-                case "motion-update":
-                    if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
-                        this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
-                    } else {
-                        this.updateMotion(dx, dy);
-                    }
-                    break;
             }
         }
         addShellListener(this.shellListener);
@@ -891,7 +871,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         // the primary-frame avatar, we publish that spec to become the configuration for
         // this actor - and hence for this pawn, and all RemoteAvatarPawns that other
         // users have for it.
-        const inWorld = this.isPrimary;
+        const inWorld = !window.microverseEnablePortal ? true : this.isPrimary;
 
         // spectator pawns cannot talk to their actors
         if (this.spectator) {
@@ -954,6 +934,8 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.wasdMap = {w: false, a: false, d: false, s: false};
 
         // console.log(frameName(), "MyPlayerPawn created", this, "primary:", this.isPrimary);
+
+        setupJoystick(this);
     }
 
     detach() {
@@ -966,6 +948,34 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         this.gizmoTargetPawn?.unselectEdit();
         delete this.modelLoadTime;
         super.detach();
+    }
+
+    motionStart(dx, dy) {
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "startMotion")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "startMotion", dx, dy);
+        } else {
+            this.startMotion(dx, dy);
+        }
+    }
+
+    motionEnd(dx, dy) {
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "endMotion")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "endMotion", dx, dy);
+        } else {
+            this.endMotion(dx, dy);
+        }
+    }
+
+
+    motionUpdate(dx, dy) {
+        let handlerModuleName = this.actor._cardData.avatarEventHandler;
+        if (this.hasBehavior(`${handlerModuleName}$AvatarPawn`, "updateMotion")) {
+            this.call(`${handlerModuleName}$AvatarPawn`, "updateMotion", dx, dy);
+        } else {
+            this.updateMotion(dx, dy);
+        }
     }
 
     startMotion(dx, dy) {
@@ -1829,6 +1839,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
 
     collidePortal(vq) {
         if (this.frozenForWorldSwitch) return false;
+        if (!window.microverseEnablePortal) return false;
 
         const renderMgr = this.service("ThreeRenderManager");
         const portalLayer = renderMgr.threeLayer("portal");

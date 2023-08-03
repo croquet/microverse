@@ -59,21 +59,33 @@ function createHelpMenu() {
                             <p class="table-head">Fullscreen</p>
                             <p class="table-desc">Make your browser fullscreen.</p>
                         </td>
-                        <td class="icon-column"><i class="fas fa-solid fa-expand icons"></i></td>
+                        <td class="icon-column">
+                            <div class="icons">
+                                <div class="fa-icon fa-expand help-pane-icon help-menu-icon"></div>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="help-row">
                         <td>
                             <p class="table-head">Home</p>
                             <p class="table-desc">Reset location back to original landing place.</p>
                         </td>
-                        <td class="icon-column"><i class="fas fa-solid fa-house-user icons"></i></td>
+                        <td class="icon-column">
+                            <div class="icons">
+                                <div class="fa-icon fa-house-user  help-pane-icon help-menu-icon"></div>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="help-row">
                         <td>
                             <p class="table-head">Gather</p>
                             <p class="table-desc">Shows how many users in a world. Click to "gather" all users to you.</p>
                         </td>
-                        <td class="icon-column"><i class="fas fa-solid fa-users icons"></i></td>
+                        <td class="icon-column">
+                            <div class="icons">
+                                <div class="fa-icon presentationMode-icon help-pane-icon help-menu-icon"></div>
+                            </div>
+                        </td>
                     </tr>
                     <tr class="help-row" id="import-row">
                         <td>

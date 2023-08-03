@@ -27,6 +27,8 @@ import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./wcAssetManager.js";
 
+import {microverseHTML} from "./hud.js";
+
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
 ];
@@ -749,7 +751,7 @@ class MyViewRoot extends ViewRoot {
 
         if (this.synchronousLoadCards.length > 0) {
             this.notLoadedSynchronousCards = new Set(this.synchronousLoadCards.map(c => c.id));
-            this.readyToLoadPromise = new Promise((resolve, reject) => {
+            this.readyToLoadPromise = new Promise((resolve, _reject) => {
                 this.readyToLoadPromiseResolver = resolve;
             });
         } else {
@@ -900,46 +902,6 @@ function isRunningLocalNetwork() {
     return false;
 }
 
-export function startMicroverse() {
-    let setButtons = (display) => {
-        ["homeBtn", "worldMenuBtn"].forEach((n) => {
-            let btn = document.querySelector("#" + n);
-            if (btn) {
-                btn.style.display = display;
-            }
-        });
-    };
-
-    // let showcase = Constants.ShowCaseSpec;
-    // Constants is not initialized yet, as Croquet session has not been started.
-    let showcase = window.showcase;
-
-    sendToShell("hud", {joystick: false, fullscreen: false});
-    setButtons("none");
-
-    const configPromise = new Promise(resolve => resolveConfiguration = resolve)
-        .then(localConfig => {
-            window.settingsMenuConfiguration = { ...localConfig };
-            return !localConfig.showSettings || localConfig.userHasSet
-                ? false // as if user has run dialog with no changes
-                : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
-        });
-    sendToShell("send-configuration");
-
-    return configPromise.then(changed => {
-        if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
-        if (!showcase) {
-            sendToShell("hud", {joystick: true, fullscreen: true});
-            setButtons("flex");
-        }
-        return getDisplayOptions();
-    }).then((options) => {
-        AA = options.AA;
-        HighDPI = options.HighDPI;
-        launchMicroverse();
-    });
-}
-
 async function launchMicroverse() {
     if (window.microverseInitFunction) {
         return window.microverseInitFunction(startWorld, { Constants, App });
@@ -1025,3 +987,53 @@ const shellListener = (command, data) => {
     }
 };
 addShellListener(shellListener);
+
+export function startMicroverse() {
+    /*
+    let hud = document.querySelector("#hud");
+    if (!hud) {
+        let div = document.createElement("div");
+        div.innerHTML = innerHTML || microverseHTML;
+        hud = div.querySelector("#hud");
+        document.body.appendChild(hud);
+    }
+    */
+
+    let setButtons = (display) => {
+        ["homeBtn", "worldMenuBtn"].forEach((n) => {
+            let btn = document.querySelector("#" + n);
+            if (btn) {
+                btn.style.display = display;
+            }
+        });
+    };
+
+    // let showcase = Constants.ShowCaseSpec;
+    // Constants is not initialized yet, as Croquet session has not been started.
+    let showcase = window.showcase;
+
+    sendToShell("hud", {joystick: false, fullscreen: false});
+    setButtons("none");
+
+    const configPromise = new Promise(resolve => resolveConfiguration = resolve)
+        .then(localConfig => {
+            window.settingsMenuConfiguration = { ...localConfig };
+            return !localConfig.showSettings || localConfig.userHasSet
+                ? false // as if user has run dialog with no changes
+                : new Promise(resolve => startSettingsMenu(true, showcase && !showcase.useAvatar, resolve));
+        });
+    sendToShell("send-configuration");
+
+    return configPromise.then(changed => {
+        if (changed) sendToShell("update-configuration", { localConfig: window.settingsMenuConfiguration });
+        if (!showcase) {
+            sendToShell("hud", {joystick: true, fullscreen: true});
+            setButtons("flex");
+        }
+        return getDisplayOptions();
+    }).then((options) => {
+        AA = options.AA;
+        HighDPI = options.HighDPI;
+        launchMicroverse();
+    });
+}

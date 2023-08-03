@@ -21,7 +21,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "csmLights.js"
+        "lights.js"
     ];
 
     Constants.DefaultCards = [
@@ -50,6 +50,6 @@ export function init(Constants) {
                 dataType: "jpg",
                 toneMappingExposure: 1.2
             }
-        },
+        }
     ];
 }
