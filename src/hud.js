@@ -106,6 +106,10 @@ export function setupJoystick(myAvatar) {
     joystick.onpointerup = (e) => releaseHandler(e);
     joystick.onpointercancel = (e) => releaseHandler(e);
     joystick.onlostpointercapture = (e) => releaseHandler(e);
+
+    if (!window.microverseEnablePortal) {
+        joystick.classList.toggle("primary-frame", true);
+    }
 }
 
 function adjustJoystickKnob() {
