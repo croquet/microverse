@@ -7,7 +7,7 @@ We generally group weekly changes into one dated entry on Fridays.
 
 ## 2023-08-04
 ### Changed
-- User Croquet OS 1.1.0-34
+- Use Croquet OS 1.1.0-34
 - Move joystick into the Microverse iframe
 - Make the shell iframe optional
 
