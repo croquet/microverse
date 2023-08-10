@@ -4,7 +4,7 @@
 
 class AvatarVoiceLevelActor {
 	setup() {
-		this.subscribe(this._parent.id, "voiceLevelChanged", this.voiceLevelChanged);
+		this.subscribe(this.parent.id, "voiceLevelChanged", "voiceLevelChanged");
 	}
 
 	voiceLevelChanged(audioLevel) {
@@ -15,7 +15,7 @@ class AvatarVoiceLevelActor {
 
 class AvatarVoiceLevelPawn {
 	setup() {
-		this.subscribe(this.actor.id, "voiceLevelChanged", this.voiceLevelChanged);
+		this.subscribe(this.actor.id, "voiceLevelChanged", "voiceLevelChanged");
 	}
 
 	voiceLevelChanged(audioLevel) {
