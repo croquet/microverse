@@ -114,7 +114,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             const marginTop = PADDING * 1.1 / TEXT_SCALE;
             const options = {
                 name: 'nickname',
-                behaviorModules: ["Billboard"],
+                behaviorModules: ["Billboard", "SpeakerIndicator"],
                 translation: [0, 1, -0.1], // above and slightly in front
                 type: "text",
                 depth: 0.02,

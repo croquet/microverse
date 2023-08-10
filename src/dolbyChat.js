@@ -638,6 +638,10 @@ console.log("unmuting local audio");
     testAudioLevel() {
         const audioLevel = this.getLocalAudioLevel();
 
+        if (!chatAudioMuted) {
+            this.publish(this.localPlayer.id, "audioLevelChanged", audioLevel);
+        }
+
         // no need to display audio level if the meter isn't on view.
         if (this.elements.chatHolder.classList.contains('hide-settings') || !this.measurableAudioStreamSource) return;
 
