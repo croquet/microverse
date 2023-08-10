@@ -35,7 +35,7 @@ const defaultAvatarNames = [
 
 const defaultSystemBehaviorDirectory = "behaviors/croquet";
 const defaultSystemBehaviorModules = [
-    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "fullBodyAvatar.js", "propertySheet.js", "dragAndDrop.js", "gizmo.js", "video.js"
+    "avatarEvents.js", "billboard.js", "elected.js", "menu.js", "pdfview.js", "physics.js", "rapier.js", "scrollableArea.js", "singleUser.js", "stickyNote.js", "halfBodyAvatar.js", "fullBodyAvatar.js", "propertySheet.js", "dragAndDrop.js", "gizmo.js", "video.js", "avatarVoiceLevel.js"
 ];
 
 let AA = true;
