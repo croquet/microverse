@@ -612,6 +612,7 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
     async muteChatAudio() {
 console.log("muting local audio");
         await this.ensureAudioMuteState(true);
+        this.audioLevelChanged(0);
     }
 
     async unmuteChatAudio() {
@@ -635,11 +636,15 @@ console.log("unmuting local audio");
         this._testAudioLevelIntervalId = window.setInterval(this.testAudioLevel.bind(this), this._testAudioInterval);
     }
 
+    audioLevelChanged(level) {
+        this.publish(this.localPlayer.id, "voiceLevelChanged", level);
+    }
+
     testAudioLevel() {
         const audioLevel = this.getLocalAudioLevel();
 
         if (!chatAudioMuted) {
-            this.publish(this.localPlayer.id, "audioLevelChanged", audioLevel);
+            this.audioLevelChanged(audioLevel);
         }
 
         // no need to display audio level if the meter isn't on view.

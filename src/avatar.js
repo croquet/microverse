@@ -109,12 +109,13 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
         const PADDING = 0.1; // horizontal and vertical
         const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
+        const voiceLevelBehavior = this.behaviorManager.hasBehavior("AvatarVoiceLevel") ? ["AvatarVoiceLevel"] : [];
         if (!this.nicknameCard) {
             const marginLeft = (PADDING - MARGIN_FUDGE) / TEXT_SCALE;
             const marginTop = PADDING * 1.1 / TEXT_SCALE;
             const options = {
                 name: 'nickname',
-                behaviorModules: ["Billboard", "SpeakerIndicator"],
+                behaviorModules: ["Billboard", ...voiceLevelBehavior],
                 translation: [0, 1, -0.1], // above and slightly in front
                 type: "text",
                 depth: 0.02,
