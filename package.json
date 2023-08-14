@@ -32,8 +32,8 @@
     "three-mesh-bvh": "0.6.3"
   },
   "devDependencies": {
-    "@croquet/microverse-file-server": "^1.0.7",
-    "@croquet/microverse-watch-server": "^1.0.6",
+    "@croquet/microverse-file-server": "1.0.7",
+    "@croquet/microverse-watch-server": "1.0.7",
     "@types/three": "0.152.0",
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^11.0.0",

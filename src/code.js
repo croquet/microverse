@@ -9,7 +9,7 @@ import * as WorldcoreThreeExports from "./ThreeRender.js";
 import * as PhysicsExports from "./physics.js";
 import * as FrameExports from "./frame.js";
 
-//console.log(WorldcoreRapierExports);
+import {TSCompiler, JSCompiler} from "./compiler.js";
 
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, module, behavior) {
@@ -633,7 +633,7 @@ class ScriptingBehavior extends Model {
         let cls;
         try {
             const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...PhysicsExports, ...FrameExports, RAPIER: PhysicsExports.Physics, getViewRoot};
-            cls = new Function("Worldcore", "Microverse", code)(Microverse, Microverse);
+            cls = new Function("Microverse", code)(Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
             try {
@@ -1149,9 +1149,7 @@ export class BehaviorViewManager extends ViewService {
 
         let systemModuleMap = new Map();
 
-        let dataURLs = [];
         let promises = [];
-        let scripts = [];
 
         if (!window._allResolvers) {
             window._allResolvers = new Map();
@@ -1166,86 +1164,64 @@ export class BehaviorViewManager extends ViewService {
         array.forEach((obj) => {
             // {action, name, content, systemModule} = obj;
             if (obj.action === "add") {
+                delete obj.action;
                 systemModuleMap.set(obj.name, obj.systemModule);
-                let id = Math.random().toString();
-                let promise = new Promise((resolve, _reject) => {
-                    current.set(id, resolve);
-                    let script = document.createElement("script");
-                    scripts.push(script);
-                    script.type = "module";
-                    let dataURL = URL.createObjectURL(new Blob([obj.content], {type: "application/javascript"}));
-                    script.innerHTML = `
-import * as data from "${dataURL}";
-let map = window._allResolvers.get("${key}");
-if (map) {map.get("${id}")({data, key: ${key}, name: "${obj.name}"});}
-`;
-                    document.body.appendChild(script);
-                    dataURLs.push(dataURL);
-                }).catch((e) => {console.log(e); return null});
-                promises.push(promise);
+                let modPromise = compileToModule(obj.content, obj.name)
+                    .catch((e) => {console.log(e); return null;});
+                promises.push(modPromise);
             }
         });
 
         Promise.all(promises).then(async (allData) => {
-            dataURLs.forEach((url) => URL.revokeObjectURL(url));
-            scripts.forEach((s) => s.remove());
             allData = allData.filter((o) => o);
             if (allData.length === 0) {return;}
 
-            let keys = [...window._allResolvers.keys()];
+            // probably it needs to check if another loop is underway
 
-            let index = keys.indexOf(key);
-            window._allResolvers.delete(key);
+            let library = new CodeLibrary();
+            allData.forEach((obj) => {
+                let dot = obj.name.lastIndexOf(".");
+                let location = obj.name.slice(0, dot);
+                let isSystem = obj.name.startsWith("croquet");
 
-            if (index !== keys.length - 1) {
-                // if it is not the last element,
-                // there was already another call so discard it
-            } else {
-                let library = new CodeLibrary();
-                allData.forEach((obj) => {
-                    let dot = obj.name.lastIndexOf(".");
-                    let location = obj.name.slice(0, dot);
-                    let isSystem = obj.name.startsWith("croquet");
-
-                    if (!obj || checkModule(obj.data)) {
-                        throw new Error("a behavior file does not export an array of modules");
-                    }
-
-                    library.add(obj.data.default, location, isSystem);
-                });
-
-                let sendBuffer = [];
-                let key = Math.random();
-
-                for (let [_k, m] of library.modules) {
-                    let {actorBehaviors, pawnBehaviors, name, location, systemModule} = m;
-                    sendBuffer.push({
-                        name, systemModule, location,
-                        actorBehaviors: [...actorBehaviors],
-                        pawnBehaviors: [...pawnBehaviors]
-                    });
-                };
-
-                let string = JSON.stringify(sendBuffer);
-                let array = new TextEncoder().encode(string);
-                let ind = 0;
-
-                this.publish(this.model.id, "loadStart", key);
-                let throttle = array.length > 80000;
-
-                while (ind < array.length) {
-                    let buf = array.slice(ind, ind + 2880);
-                    this.publish(this.model.id, "loadOne", {key, buf});
-                    ind += 2880;
-                    if (throttle) {
-                        await new Promise((resolve) => {
-                            setTimeout(resolve, 5);
-                        });
-                    }
+                if (!obj || checkModule(obj.data)) {
+                    throw new Error("a behavior file does not export an array of modules");
                 }
 
-                this.publish(this.model.id, "loadDone", key);
+                library.add(obj.data.default, location, isSystem);
+            });
+
+            let sendBuffer = [];
+            let key = Math.random();
+
+            for (let [_k, m] of library.modules) {
+                let {actorBehaviors, pawnBehaviors, name, location, systemModule} = m;
+                sendBuffer.push({
+                    name, systemModule, location,
+                    actorBehaviors: [...actorBehaviors],
+                    pawnBehaviors: [...pawnBehaviors]
+                });
+            };
+
+            let string = JSON.stringify(sendBuffer);
+            let array = new TextEncoder().encode(string);
+            let ind = 0;
+
+            this.publish(this.model.id, "loadStart", key);
+            let throttle = array.length > 80000;
+
+            while (ind < array.length) {
+                let buf = array.slice(ind, ind + 2880);
+                this.publish(this.model.id, "loadOne", {key, buf});
+                ind += 2880;
+                if (throttle) {
+                    await new Promise((resolve) => {
+                        setTimeout(resolve, 16);
+                    });
+                }
             }
+
+            this.publish(this.model.id, "loadDone", key);
         });
     }
 }
@@ -1259,7 +1235,7 @@ export class CodeLibrary {
         this.classes = new Map();
     }
 
-    add(library, location, isSystem) {
+    add(library, location, isSystem, language) {
         if (library.modules) {
             library.modules.forEach(module => {
                 let {name, actorBehaviors, pawnBehaviors} = module;
@@ -1285,7 +1261,8 @@ export class CodeLibrary {
                     location,
                     actorBehaviors: actors,
                     pawnBehaviors: pawns,
-                    systemModule: isSystem
+                    systemModule: isSystem,
+                    language: language
                 });
             });
         }
@@ -1349,3 +1326,29 @@ export function checkModule(module) {
     });
 }
 
+export function compileToModule(text, path) {
+    let language = path.endsWith(".ts") ? "ts" : "js";
+
+    let jsCompiler;
+    let tsCompiler;
+
+    if (!jsCompiler) {
+        jsCompiler = new JSCompiler();
+    }
+
+    let js = jsCompiler.compile(text, path);
+
+    if (language === "ts") {
+        if (!tsCompiler) {
+            tsCompiler = new TSCompiler();
+        }
+        js = tsCompiler.compile(js, path);
+    }
+
+    let dataURL = URL.createObjectURL(new Blob([js], {type: "application/javascript"}));
+    return eval(`import("${dataURL}")`).then((mod) => {
+        return {name: path, data: mod};
+    }).finally(() => {
+        URL.revokeObjectURL(dataURL);
+    });
+}

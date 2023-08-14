@@ -17,7 +17,9 @@ import { AvatarActor, } from "./avatar.js";
 import { WalkManager } from "./walkManager.js"
 import { frameName, sendToShell, addShellListener } from "./frame.js";
 
-import { BehaviorModelManager, BehaviorViewManager, CodeLibrary, checkModule } from "./code.js";
+import {
+    BehaviorModelManager, BehaviorViewManager,
+    CodeLibrary, checkModule, compileToModule } from "./code.js";
 import { TextFieldActor } from "./text/text.js";
 import { PortalActor } from "./portal.js";
 import { WorldSaver } from "./worldSaver.js";
@@ -27,7 +29,7 @@ import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./wcAssetManager.js";
 
-import {microverseHTML} from "./hud.js";
+// import {microverseHTML} from "./hud.js";
 
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
@@ -181,29 +183,28 @@ function loadInitialBehaviors(paths, directory) {
 
     let promises = paths.map((path) => {
         if (!isSystem) {
-            let code = `import('${root}${directory}/${path}')`;
-            return eval(code).then((module) => {
-                let rest = directory.slice("behaviors".length);
-                if (rest[0] === "/") {rest = rest.slice(1);}
-                return [`${rest === "" ? "" : (rest + "/")}${path}`, module];
-            })
+            let match = /\/?behaviors\/(.*)/.exec(directory);
+            let dir = match ? match[1] : directory;
+            return fetch(`${root}${directory}/${path}`)
+                .then((res) => res.text())
+                .then((text) => compileToModule(text, `${dir}/${path}`));
         } else {
             let modulePath = `${directory.split("/")[1]}/${path}`;
-            let code = `import('${root}behaviors/${modulePath}')`;
-            return eval(code).then((module) => {
-                return [modulePath, module];
-            })
+            return fetch(`${root}behaviors/${modulePath}`)
+                .then((res) => res.text())
+                .then((text) => compileToModule(text, modulePath));
         }
     });
 
     return Promise.all(promises).then((array) => {
-        array.forEach((pair) => {
-            let [path, module] = pair;
-            let dot = path.lastIndexOf(".");
-            let fileName = path.slice(0, dot);
+        array.forEach((obj) => {
+            let {name, data} = obj;
+            let dot = name.lastIndexOf(".");
+            let fileName = name.slice(0, dot);
+            let language = name.slice(dot + 1);
 
-            checkModule(module); // may throw an error
-            library.add(module.default, fileName, isSystem);
+            checkModule(data); // may throw an error
+            library.add(data.default, fileName, isSystem, language);
         });
         return true;
     });

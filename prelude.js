@@ -56,5 +56,13 @@ export async function prelude() {
       Promise like the one above.
     */
 
+    await new Promise((resolve, reject) => {
+        let script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/typescript@5.1.6/lib/typescript.min.js";
+        script.onload = resolve;
+        script.type = "text/javascript";
+        document.head.appendChild(script);
+    });
+
     return null;
 }
