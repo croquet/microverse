@@ -7,7 +7,7 @@ We generally group weekly changes into one dated entry on Fridays.
 
 ## 2023-08-11
 ### Added
-- The nickname tag shows who is speaking over the dolby chat (thanks to Maksym Domaretskyi).
+- The nickname tag shows who is speaking over the dolby chat (thanks to Maksym Danylchenko).
 
 ### Changed
 - Allow an avatar to be "object" type without any visual appearances
