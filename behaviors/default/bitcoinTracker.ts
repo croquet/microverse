@@ -5,9 +5,11 @@
 // the following import statement is solely for the type checking and
 // autocompletion features in IDE.  A Behavior cannot inherit from
 // another behavior or a base class but can use the methods and
-// properties of the card to which it is installed. The prototype classes ActorBehavior and PawnBehavior provide the features defined at the card object.
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
 
-import {ActorBehavior, PawnBehavior, PlaneMaterial} from "../PrototypeBehavior";
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
 
 /*
 This module manages a list of recent values from a bitcoin position
@@ -18,7 +20,7 @@ BitcoinTrackerActor's history is a list of {date<milliseconds>, and amount<dolla
 */
 
 type History = {date: number, amount: number};
-type BarMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial|PlaneMaterial>;
+type BarMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
 type BaseMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
 
 
@@ -41,7 +43,7 @@ class BitcoinTrackerActor extends ActorBehavior {
         // the last data point, and publishes value-change event.
         if (date - this.latest().date < 1000) return;
         this.addEntries({date, amount});
-        this.say("value-changed", amount);
+        this.say<number>("value-changed", amount);
     }
 
     onBitcoinHistory(prices) {
@@ -65,7 +67,7 @@ class BitcoinTrackerPawn extends PawnBehavior {
 
     setup() {
         this.lastAmount = 0;
-        this.listen("value-changed", "onBTCUSDChanged");
+        this.listen<number>("value-changed", "onBTCUSDChanged");
 
         this.onBTCUSDChanged();
 
@@ -200,7 +202,7 @@ class BitLogoPawn extends PawnBehavior {
     lastColor: string
     setup() {
         // this is a case where a method of the base object is called.
-        if (this.parent) this.subscribe(this.parent.id, "setColor", "setColor");
+        this.subscribe(this.parent.id, "setColor", "setColor");
         this.removeEventListener("pointerWheel", "onPointerWheel");
     }
 
@@ -209,8 +211,8 @@ class BitLogoPawn extends PawnBehavior {
         let material = this.makePlaneMaterial(this.actor._cardData.depth, color, this.actor._cardData.frameColor, false);
         let obj = this.shape.children.find((o) => o.name === "2d") as BarMesh;
         if (!obj || !obj.children || obj.children.length === 0) {return;}
-        obj = (obj.children[0] as BarMesh);
-        obj.material = material;
+        obj = obj.children[0] as BarMesh;
+        obj.material = (material as THREE.MeshStandardMaterial);
         this.lastColor = color;
     }
 }
@@ -222,10 +224,8 @@ class BarGraphActor extends ActorBehavior {
             this._cardData.length = 20;
             this._cardData.height = 0.5;
         }
-        if (this.parent) {
-            this.subscribe(this.parent.id, "value-changed", this.updateBars);
-            this.subscribe(this.parent.id, "value-init", this.initBars);
-        }
+        this.subscribe<number>(this.parent.id, "value-changed", "updateBars");
+        this.subscribe<Array<number>>(this.parent.id, "value-init", "initBars");
     }
 
     length() {
@@ -240,7 +240,7 @@ class BarGraphActor extends ActorBehavior {
         return this._cardData.values;
     }
 
-    updateBars(value, notSay) {
+    updateBars(value: number, notSay: boolean) {
         let values = this._cardData.values;
         values.push(value);
         if (values.length > this.length()) {
@@ -252,7 +252,7 @@ class BarGraphActor extends ActorBehavior {
         }
     }
 
-    initBars(values) {
+    initBars(values: Array<number>) {
         values.forEach((value) => this.updateBars(value, true));
         this.say("updateGraph");
     }
@@ -265,7 +265,7 @@ class BarGraphPawn extends PawnBehavior {
     setup() {
         this.constructBars();
         this.listen("updateGraph", "updateGraph");
-        if (this.parent) this.subscribe(this.parent.id, "setColor", "setColor");
+        this.subscribe(this.parent.id, "setColor", "setColor");
         this.updateGraph();
         this.removeEventListener("pointerWheel", "onPointerWheel");
     }
@@ -303,7 +303,7 @@ class BarGraphPawn extends PawnBehavior {
         this.base.material.emissive = c;
     }
 
-    updateGraph(){
+    updateGraph() {
         let values = this.actor._cardData.values;
         let height = this.actor._cardData.height;
         let mn = Math.min(...values);

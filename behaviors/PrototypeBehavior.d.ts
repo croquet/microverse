@@ -1,14 +1,25 @@
 export type Quaternion = import("../src/types").Quaternion;
 export type Vector3 = import("../src/types").Vector3;
+export type Vector2 = import("../src/types").Vector2;
 export type MicroverseModule = import("../src/types").MicroverseModule;
 
 export type BehaviorMethod = Array<string>;
-export type PlaneMaterial = THREE.Material|Array<THREE.Material>;
+export type PlaneMaterial = THREE.MeshStandardMaterial|Array<THREE.Material>;
 export type Rotation = Quaternion|Vector3;
 
 export type CardActor = ActorBehavior;
 export type CardPawn = PawnBehavior;
 export type AvatarPawn = PawnBehavior;
+export type P3DEvent = {
+   targetId: string, avatarId: string,
+   xyz: Vector3, uv: Vector2,
+   normal: Vector3, distance: number,
+   ctrlKey: boolean, altKey: boolean, shiftKey: boolean, metaKey: boolean,
+   xy: Vector2, id: number,
+   button: number, buttons, number, instanceId: number,
+   ray: {origin: Vector3, direction: Vector3},
+   deltaY: number
+}
 
 declare global {
     var Microverse: MicroverseModule
@@ -72,7 +83,7 @@ The scale of the card in three axes.
        @public
        @type CardActor
     */
-    get parent(): CardActor|null
+    get parent(): CardActor
 
     /**
        The list of behavior modules installed to the card.
@@ -155,7 +166,7 @@ When the first form is used, it specifies the globally known module name and the
        @param {number} time - the delay in logical millisecond
        @returns A proxy to invoke a method on
     */
-    future(time: number): CardActor
+    future(time: number): ThisType
 
     /**
        This method updates some elements in the `_cardData` object. The current value and the new values are merged to create the new `_cardData` object. As a side effect, it publishes `cardDataSet` Croquet event that can be handled by the pawn or any other subscribers.
@@ -175,7 +186,7 @@ Calling this method with the same arguments removes the previous listener before
        @param {EventName} eventType - the event type
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
-    addEventListener(eventName: string, listener: string|Function): void
+    addEventListener(eventName: string, listener: string|((evt: P3DEvent) => void)): void
 
     /**
 This method removes the event listener that was added. You can call it when there is no matching event listener.
@@ -184,7 +195,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {EventType} eventName - the event type
        @param {string|function} listener
     */
-    removeEventListener(eventName: string, listener: string|Function): void
+    removeEventListener(eventName: string, listener: string|((evt: P3DEvent) => void)): void
 
     /**
        This method adds a Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding the new one. This semantics ensures that it is safe to call this from the `setup()` of a behavior.
@@ -194,7 +205,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
-    subscribe(scope: string, eventName: string, listener: string|Function): void
+    subscribe<T>(scope: string, eventName: string, listener: string|((data: T) => void)): void
 
     /**
        This method publishes a Croquet event.
@@ -204,7 +215,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {any} data - serializable data to be published
     */
-    publish(scope: string, eventName: string, data: any): void
+    publish<T>(scope: string, eventName: string, data: T): void
 
     /**
        This method adds a Croquet event subscription by calling the `subscribe()` method with `this.id` as the `scope`.
@@ -213,7 +224,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
-    listen(eventName: string, listener: string|Function): void
+    listen<T>(eventName: string, listener: string|((arg: T) => void)): void
 
     /**
        This method publishes a Croquet event with `this.id` as the `scope`. It is usually used to publish an event whose expect recipient is the corresponding CardPawn.
@@ -222,7 +233,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {any} data - serializable data to be published
     */
-    say(eventName: string, data?: any): void
+    say<T>(eventName: string, data?: T): void
 
     /**
        This method adds a new element to the `layers` array. If `newLayerName` is already in the `layers` array, the call does not have any effects.
@@ -369,7 +380,7 @@ The corresponding actor of this pawn:
        @public
        @type CardActor
     */
-    get parent(): CardPawn|null
+    get parent(): CardPawn
     
     /**
        the shape property is the root of the visual appearance of the card. It is a THREE.Object3D.
@@ -456,7 +467,7 @@ mth` of the same behavior will be invoked. If you would like to call a method of
        @returns a proxy to call a method on
        @param {number} time - the wall clock time to delay the method invocatino.
     */
-    future(time: number): CardPawn
+    future(time: number): ThisType
 
     /**
 This method adds a "listener" to be invoked when an event occurs on the pawn of a card. When `listener` is a string, it has to have the name of an existing method of CardPawn or the behavior itself. (Internally the function object is stored in the event listener data structure.)
@@ -468,7 +479,7 @@ Calling this with the same arguments (thus the string form) removes the previous
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    addEventListener(eventName: string, listener: string|Function): void
+    addEventListener(eventName: string, listener: string|((evt: P3DEvent) => void)): void
 
     /**
 This method removes the event listener that was added. You can call it even when there is no matching event listener.
@@ -478,7 +489,7 @@ This method removes the event listener that was added. You can call it even when
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    removeEventListener(eventName: string, listener: string|Function): void
+    removeEventListener(eventName: string, listener: string|((evt: P3DEvent) => void)): void
 
     /**
        This method adds Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding a new one; so that it is safe to call this from the `setup()` of a behavior.
@@ -495,7 +506,7 @@ This method removes the event listener that was added. You can call it even when
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
        */
 
-    subscribe(scope: string, eventName: string, listener: string|Function): void
+    subscribe<T>(scope: string, eventName: string, listener: string|((evt: T) => void)): void
 
     /**
        This method publishes a Croquet event.
@@ -506,7 +517,7 @@ This method removes the event listener that was added. You can call it even when
        @param {anyf} data - serializable data to be published
     */
 
-    publish(scope: string, eventName: string, data: any): void
+    publish<T>(scope: string, eventName: string, data?: T): void
 
     /**
        This method add a Croquet event subscription by calling the `subscribe()` method with `this.actor.id` as the `scope`.
@@ -516,7 +527,7 @@ This method removes the event listener that was added. You can call it even when
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    listen(eventName: string, listener: string|Function): void
+    listen<T>(eventName: string, listener: string|((evt: T) => void)): void
 
     /**
        This method publishes a Croquet event with `this.actor.id` as its `scope`.
@@ -526,7 +537,7 @@ This method removes the event listener that was added. You can call it even when
        @param {any} data - serializable data to be published
     */
 
-    say(eventName: string, data?: any): void
+    say<T>(eventName: string, data?: T): void
 
     /**
        This method returns the AvatarPawn of the local client. Recall that the notion of "my" avatar only exists on the view side. The model side treats all avatars equally, even the one that is associated with the local computer. This is why this method is on the pawn side, and returns the AvatarPawn.

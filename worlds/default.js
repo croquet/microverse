@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "lights.js", "bouncingBall.js", "bitcoinTracker.ts", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
+        "lights.js", "bouncingBall.ts", "bitcoinTracker.ts", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
     ];
 
     const frameColor = 0x888888;
@@ -140,7 +140,7 @@ export function init(Constants) {
                 layers: ["pointer"],
                 type: "2d",
                 dataLocation: "./assets/SVG/full-circle.svg",
-                textureType: "dynamic",
+                textureType: "canvas",
                 textureWidth: 1024,
                 textureHeight: 1024,
                 frameColor: frameColor,
