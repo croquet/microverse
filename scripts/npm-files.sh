@@ -30,6 +30,7 @@ rm -rf ${DIST}/behaviors
 mkdir -p ${DIST}/behaviors/default
 cp -rp behaviors/croquet ${DIST}/behaviors
 cp -p behaviors/default/lights.js ${DIST}/behaviors/default/lights.js
+cp -p behaviors/PrototypeBehavior.d.ts ${DIST}/behaviors/PrototypeBehavior.d.ts
 
 rm -rf ${DIST}/worlds
 mkdir -p ${DIST}/worlds

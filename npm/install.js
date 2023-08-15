@@ -70,6 +70,7 @@ function main() {
         console.log("starting to copy files", process.cwd());
         copyFolderRecursiveSync(`behaviors${sep}croquet`, `${dist}${sep}behaviors`);
         copyFolderRecursiveSync(`behaviors${sep}default`, `${dist}${sep}behaviors`, true);
+        copyFileSync(`behaviors${sep}PrototypeBehavior.d.ts`, `${dist}${sep}behaviors${sep}PrototypeBehavior.d.ts`);
         copyFolderRecursiveSync("assets", dist);
         copyFolderRecursiveSync("worlds", dist, true);
         copyFolderRecursiveSync("meta", dist);
