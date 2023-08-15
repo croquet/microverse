@@ -16,6 +16,22 @@ declare global {
 
 export class ActorBehavior {
     /**
+The id of the CardActor.
+
+        @public
+        @type string
+    */
+    get id(): string
+
+    /**
+The id of the session.
+
+        @public
+        @type string
+    */
+    get sessionId(): string
+
+    /**
 The [x, y, z] translation of the card.
 
         @public
@@ -51,7 +67,7 @@ The scale of the card in three axes.
     get layers(): Array<string>
 
     /**
-       The cards in the world are organized in a hierarchical parent-children structure. The `_parent` specifies its parent. Note that this is a "logical" structure. All cards are held as a direct child of the Three.JS scene, with automatic matrix composition for nested cards.
+       The cards in the world are organized in a hierarchical parent-children structure. The `parent` specifies its parent. Note that this is a "logical" structure. All cards are held as a direct child of the Three.JS scene, with automatic matrix composition for nested cards.
 
        @public
        @type CardActor
@@ -159,7 +175,7 @@ Calling this method with the same arguments removes the previous listener before
        @param {EventName} eventType - the event type
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
-    addEventListener(eventName: string, listener: string|function): void
+    addEventListener(eventName: string, listener: string|Function): void
 
     /**
 This method removes the event listener that was added. You can call it when there is no matching event listener.
@@ -168,7 +184,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {EventType} eventName - the event type
        @param {string|function} listener
     */
-    removeEventListener(eventName: string, listener: string|function): void
+    removeEventListener(eventName: string, listener: string|Function): void
 
     /**
        This method adds a Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding the new one. This semantics ensures that it is safe to call this from the `setup()` of a behavior.
@@ -178,7 +194,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
-    subscribe(scope: string, eventName: string, listener: string|function): void
+    subscribe(scope: string, eventName: string, listener: string|Function): void
 
     /**
        This method publishes a Croquet event.
@@ -197,7 +213,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
-    listen(eventName: string, listener: string|function): void
+    listen(eventName: string, listener: string|Function): void
 
     /**
        This method publishes a Croquet event with `this.id` as the `scope`. It is usually used to publish an event whose expect recipient is the corresponding CardPawn.
@@ -206,7 +222,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {any} data - serializable data to be published
     */
-    say(eventName: string, data: any): void
+    say(eventName: string, data?: any): void
 
     /**
        This method adds a new element to the `layers` array. If `newLayerName` is already in the `layers` array, the call does not have any effects.
@@ -249,7 +265,7 @@ This method sets the scale of the card to the specified by scale factors in [x, 
        @public
        @param {Vector3|number} s - the scale for the card
     */
-    scaleTo(s: Vector3:number): void
+    scaleTo(s: Vector3|number): void
 
     /**
 This method sets the translation and rotation of the card, making sure that those two values are used in the same logical time and used for the rendering.
@@ -316,12 +332,53 @@ A Three.js keyframe based animation is supported. The animation clip can contain
 
 export class PawnBehavior {
     /**
+The id of the CardPawn.
+
+        @public
+        @type string
+    */
+    get id(): string
+
+    /**
+The viewId of the session.
+
+        @public
+        @type string
+    */
+    get viewId(): string
+
+    /**
+The id of the session.
+
+        @public
+        @type string
+    */
+    get sessionId(): string
+
+    /**
 The corresponding actor of this pawn:
 
         @public
         @type CardActor
     */
     get actor(): CardActor
+
+    /**
+       The cards in the world are organized in a hierarchical parent-children structure. The `parent` property specifies its parent. The pawn side implementation here returns a pawn if the card has a parent.
+
+       @public
+       @type CardActor
+    */
+    get parent(): CardPawn|null
+    
+    /**
+       the shape property is the root of the visual appearance of the card. It is a THREE.Object3D.
+
+       @public
+       @type THREE.Object3D
+    */
+    get shape(): THREE.Object3D
+    
 
     /**
 The [x, y, z] translation of the card.
@@ -411,7 +468,7 @@ Calling this with the same arguments (thus the string form) removes the previous
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    addEventListener(eventName: string, listener: string|function): void
+    addEventListener(eventName: string, listener: string|Function): void
 
     /**
 This method removes the event listener that was added. You can call it even when there is no matching event listener.
@@ -421,7 +478,7 @@ This method removes the event listener that was added. You can call it even when
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    removeEventListener(eventName: string, listener: string|function): void
+    removeEventListener(eventName: string, listener: string|Function): void
 
     /**
        This method adds Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding a new one; so that it is safe to call this from the `setup()` of a behavior.
@@ -438,7 +495,7 @@ This method removes the event listener that was added. You can call it even when
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
        */
 
-    subscribe(scope: string, eventName: string, listener: string|function): void
+    subscribe(scope: string, eventName: string, listener: string|Function): void
 
     /**
        This method publishes a Croquet event.
@@ -459,7 +516,7 @@ This method removes the event listener that was added. You can call it even when
        @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    listen(eventName: string, listener: string|function): void
+    listen(eventName: string, listener: string|Function): void
 
     /**
        This method publishes a Croquet event with `this.actor.id` as its `scope`.
@@ -469,7 +526,7 @@ This method removes the event listener that was added. You can call it even when
        @param {any} data - serializable data to be published
     */
 
-    say(eventName: string, data: any): void
+    say(eventName: string, data?: any): void
 
     /**
        This method returns the AvatarPawn of the local client. Recall that the notion of "my" avatar only exists on the view side. The model side treats all avatars equally, even the one that is associated with the local computer. This is why this method is on the pawn side, and returns the AvatarPawn.
@@ -502,7 +559,7 @@ This method removes the event listener that was added. You can call it even when
        @returns {Geometry} THREE.Geometry created
     */
 
-    roundedCornerGeometry(width: number, height: number, depth: number, cornerRadius: number): THREE.Geometry
+    roundedCornerGeometry(width: number, height: number, depth: number, cornerRadius: number): THREE.BufferGeometry
 
     /**
 `type PlaneMaterial = Material|Array<Material>`

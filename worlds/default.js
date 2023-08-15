@@ -9,7 +9,7 @@ export function init(Constants) {
 
     Constants.UserBehaviorDirectory = "behaviors/default";
     Constants.UserBehaviorModules = [
-        "lights.js", "bouncingBall.js", "bitcoinTracker.js", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
+        "lights.js", "bouncingBall.js", "bitcoinTracker.ts", "openPortal.js", "urlLink.js", "cradle.js", // "pendulum.js"
     ];
 
     const frameColor = 0x888888;

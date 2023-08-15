@@ -1,5 +1,5 @@
 {
-    "include": ["src/PrototypeBehavior.js"],
+    "include": ["behaviors/PrototypeBehavior.d.ts"],
     "compilerOptions": {
         /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
