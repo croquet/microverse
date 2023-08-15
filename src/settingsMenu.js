@@ -388,6 +388,7 @@ function avatarSelected(entry) {
     avatarIsValid = false;
 
     let holder = settingsMenu.querySelector("#avatarList");
+    let avatarURLField = settingsMenu.querySelector('#avatarURLField');
     for (let i = 0; i < holder.childNodes.length; i++) {
         let child = holder.childNodes[i];
         if (child.getAttribute("avatarURL") === value) {
