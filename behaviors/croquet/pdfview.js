@@ -1,4 +1,13 @@
-class PDFActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class PDFActor extends ActorBehavior {
     setup() {
         // these will be initialised by the first client to load the doc and figure out
         // a suitable aspect ratio.  pageGapPercent is needed for calculating overall
@@ -176,7 +185,7 @@ class PDFActor {
     }
 }
 
-class PDFPawn {
+class PDFPawn extends PawnBehavior {
     setup() {
         if (!window.pdfjsPromise) {
             window.pdfjsPromise = new Promise(resolve => {
@@ -403,7 +412,7 @@ class PDFPawn {
                 uv.needsUpdate = true;
 
                 if (!pageEntry.texture) pageEntry.texture = new Microverse.THREE.Texture(renderResult);
-                pageEntry.texture.colorSpace = THREE.SRGBColorSpace;
+                pageEntry.texture.colorSpace = Microverse.THREE.SRGBColorSpace;
                 if (pageMesh.material.map !== pageEntry.texture) {
                     pageMesh.material.map = pageEntry.texture;
                     pageEntry.texture.needsUpdate = true;
@@ -787,7 +796,7 @@ class PDFPawn {
     }
 }
 
-class PDFButtonActor {
+class PDFButtonActor extends ActorBehavior {
     // setup() {
     // }
 
@@ -798,7 +807,7 @@ class PDFButtonActor {
     }
 }
 
-class PDFButtonPawn {
+class PDFButtonPawn extends PawnBehavior {
     setup() {
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
 

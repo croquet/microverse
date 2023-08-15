@@ -9,7 +9,8 @@ export type Rotation = Quaternion|Vector3;
 
 export type CardActor = ActorBehavior;
 export type CardPawn = PawnBehavior;
-export type AvatarPawn = PawnBehavior;
+export type AvatarActor = ActorBehavior & AvatarActorPart;
+export type AvatarPawn = PawnBehavior & AvatarPawnPart;
 export type P3DEvent = {
    targetId: string, avatarId: string,
    xyz: Vector3, uv: Vector2,
@@ -656,4 +657,93 @@ if (this.actor.layers && this.actor.layers.includes("walk")) {
     */
 
     nop(): void
+}
+
+
+class AvatarActorPart {
+    /**
+The avatar's camera rotation around the X axis (the axis going from left to right; thus a positive value indicates to look "up", and a negative value indicates to look "down".)
+
+To get desired effects, use the set method:
+
+```JavaScript
+this.set({lookPitch: n});
+```
+
+Typically you would set lookPitch and lookYaw at the same time:
+
+```JavaScript
+this.set({lookPitch: m, lookYaw: n});
+```
+        @public
+        @type number
+    */
+    get lookPitch(): number
+    /**
+The avatar's camera rotation around the Y axis in the scene (the axis going from bottom to top; thus a positive value indicates to look east, and a negative value indicates to look west.
+
+        @public
+        @type number
+    */
+    get lookYaw(): number
+
+    /**
+       The offset in 3D coordinates between avatar's position and the camera's position. A typical third person view behind the avatar has [0, p, p], where p is a positive number.
+
+       While those three variables are used in the default `walkLook()` implementation, you can override the method to have a totally custom camera position. (see below.)
+
+       @public
+       @type Vector3
+    */
+
+    get lookOffset(): Vector3
+
+    /**
+Equivalent to call:
+
+```JavaScript
+this.goTo([0, 0, 0], [0, 0, 0, 1])
+```
+
+and
+
+```JavaScript
+        this.set({lookPitch: 0, lookYaw: 0});
+```
+
+as well as to notify the pawn by:
+
+```JavaScript
+        this.say("setLookAngles", {pitch: 0, yaw: 0, lookOffset: [0, 0, 0]});
+```
+      @public
+     */
+
+      goHome()
+}
+
+class AvatarPawnPart {
+    
+    /** 
+	Sets the coressponding actor's look configurations by publishing an event to the actor.
+	@public
+	@param {number} pitch
+	@param {number} yaw
+	@param {Vector3} lookOffset
+    */
+    lookTo(pitch:number, yaw:number, lookOffset:Vector3)
+
+    /** 
+	This method sets the opacity of the 3D model by assigning a different opacity value into the Three.js material.
+
+	@public
+	@param {number} opacity
+    */
+    setOpacity(opacity:number)
+
+    /**
+       This call initiates tells the actor to move back to [0, 0, 0], and resets rotation.
+    */
+
+    goHome()
 }

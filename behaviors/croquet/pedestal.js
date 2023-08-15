@@ -1,4 +1,13 @@
-class GizmoActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class GizmoActor extends ActorBehavior {
     setup() {
         this.target = this._cardData.target;
         this.creatorId = this._cardData.creatorId;
@@ -223,11 +232,11 @@ class GizmoActor {
     }
 }
 
-class GizmoPawn {
+class GizmoPawn extends PawnBehavior {
     setup() {
         this.lastTime = this.now();
         this.isMine = this.actor.creatorId === this.viewId;
-        
+
         if (this.isMine && !this.interval) {
             this.interval = setInterval(() => this.checkInteraction(), 1000);
         }
@@ -275,7 +284,7 @@ class GizmoPawn {
     }
 }
 
-class GizmoPropertySheetButtonPawn {
+class GizmoPropertySheetButtonPawn extends PawnBehavior {
     setup() {
         let isMine = this.parent?.actor.creatorId === this.viewId;
         this.isMine = isMine;
@@ -330,7 +339,7 @@ class GizmoPropertySheetButtonPawn {
     }
 }
 
-class PoseGizmoActor {
+class PoseGizmoActor extends ActorBehavior {
     setup() {
         console.log("PoseGizmo", this.id);
         this.isGizmoManipulator = true;
@@ -396,7 +405,7 @@ class PoseGizmoActor {
     }
 }
 
-class PoseGizmoPawn {
+class PoseGizmoPawn extends PawnBehavior {
     setup() {
         this.originalColor = this.actor._cardData.color;
         this.action = this.actor._cardData.action;

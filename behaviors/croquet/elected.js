@@ -26,7 +26,16 @@ firstEligibleView prefers the currently elected view, it is safe to call again.
 
 */
 
-class ElectedActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class ElectedActor extends ActorBehavior {
     setup() {
         this.subscribe("playerManager", "create", "updateElectedView");
         this.subscribe("playerManager", "destroy", "updateElectedView");
@@ -79,7 +88,7 @@ to handle the event.
 
 */
 
-class ElectedPawn {
+class ElectedPawn extends PawnBehavior {
     setup() {
         if (this.electedViewId === undefined) {
             this.electedViewId = "";

@@ -1,7 +1,16 @@
-class CradleActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class CradleActor extends ActorBehavior {
     setup() {
         this.subscribe(this.sessionId, "resetAppState", "resetAppState");
-        
+
         if (!this.physicsWorld) {
             let physicsManager = this.service("PhysicsManager");
             console.log("new physics world");
@@ -73,16 +82,23 @@ class CradleActor {
                         shadow: true,
                     });
                     card.call("Physics$PhysicsActor", "createRigidBody", bodyDesc);
-                    if (i === 0) { cd = Microverse.Physics.ColliderDesc.cylinder(0.9, 0.1); } // Double Height (Gets Halved), Radius
-                    else { cd = Microverse.Physics.ColliderDesc.cylinder(5.9, 0.1);
-                           cd.setMassProperties(1.0, {x: 0, y: 4, z: 0}, 0.0, 0.0); }
+                    // Double Height (Gets Halved), Radius
+                    if (i === 0) {
+                        cd = Microverse.Physics.ColliderDesc.cylinder(0.9, 0.1);
+                    } else {
+                        cd = Microverse.Physics.ColliderDesc.cylinder(5.9, 0.1);
+                        cd.setMassProperties(1.0, {x: 0, y: 4, z: 0}, 0.0, 0.0);
+                    }
                 }
 
                 cd.setRestitution(0.995);
                 cd.setFriction(0.0);
 
-                if (i === d - 1) { cd.setDensity(2.0); }
-                else { cd.setDensity(8.0); }
+                if (i === d - 1) {
+                    cd.setDensity(2.0);
+                } else {
+                    cd.setDensity(8.0);
+                }
 
                 card.call("Physics$PhysicsActor", "createCollider", cd);
                 return card;
@@ -130,17 +146,17 @@ class CradleActor {
     }
 }
 
-class CradlePawn {
-  setup() {
-      if (this.obj) {
-          [...this.shape.children].forEach((o) => this.shape.remove(o));
-          this.obj.dispose();
-          this.obj = null;
-      }
+class CradlePawn extends PawnBehavior {
+    setup() {
+        if (this.obj) {
+            [...this.shape.children].forEach((o) => this.shape.remove(o));
+            this.obj.dispose();
+            this.obj = null;
+        }
 
-      this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
-      this.addEventListener("pointerDoubleDown", "nop");
-  }
+        this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
+        this.addEventListener("pointerDoubleDown", "nop");
+    }
 }
 
 class CradleLinkActor {
@@ -154,8 +170,11 @@ class CradleLinkActor {
         if (!p3d.normal) { return; }
         let r = this.rigidBody;
         if (!r) { return; }
-        if (p3d.normal[2] <= 0) { r.applyImpulse({x: 0, y: 0, z: -750}, true); }
-        else { r.applyImpulse({x: 0, y: 0, z: 750}, true); }
+        if (p3d.normal[2] <= 0) {
+            r.applyImpulse({x: 0, y: 0, z: -750}, true);
+        } else {
+            r.applyImpulse({x: 0, y: 0, z: 750}, true);
+        }
     }
 
     teardown() {

@@ -20,7 +20,17 @@ contain a rotation are special cased so that if the value is an array of
 
 */
 
-class PropertySheetActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+
+class PropertySheetActor extends ActorBehavior {
     setup() {
         if (this.windows) {
             this.windows.forEach((w) => w.destroy());
@@ -282,7 +292,7 @@ class PropertySheetActor {
     }
 }
 
-class PropertySheetPawn {
+class PropertySheetPawn extends PawnBehavior {
     setup() {
         if (this.frame) {
             this.shape.remove(this.frame);
@@ -411,7 +421,7 @@ pointerMove.
 
 */
 
-class PropertySheetWindowActor {
+class PropertySheetWindowActor extends ActorBehavior {
     setup() {
         if (this.dismiss) {
             this.dismiss.destroy();
@@ -439,7 +449,7 @@ class PropertySheetWindowActor {
     setObject() {console.log("set object");}
 }
 
-class PropertySheetWindowPawn {
+class PropertySheetWindowPawn extends PawnBehavior {
     setup() {
         if (this.frame) {
             this.shape.remove(this.frame);
@@ -526,12 +536,12 @@ expected to subscribe to it to destroy itself.
 
 */
 
-class PropertySheetDismissActor {
+class PropertySheetDismissActor extends ActorBehavior {
     setup() {
     }
 }
 
-class PropertySheetDismissPawn {
+class PropertySheetDismissPawn extends PawnBehavior {
     setup() {
         this.addEventListener("pointerTap", "tap");
 
@@ -574,7 +584,7 @@ class PropertySheetDismissPawn {
     }
 }
 
-class PropertySheetEditActor {
+class PropertySheetEditActor extends ActorBehavior {
     setup() {
         this.listen("launchCodeEditor", "launchCodeEditor");
     }
@@ -600,7 +610,7 @@ class PropertySheetEditActor {
     }
 }
 
-class PropertySheetEditPawn {
+class PropertySheetEditPawn extends PawnBehavior {
     setup() {
         this.addEventListener("pointerTap", "tap");
     }
@@ -639,12 +649,12 @@ class PropertySheetEditPawn {
     }
 }
 
-class PropertySheetWindowBarActor {
+class PropertySheetWindowBarActor extends ActorBehavior {
     setup() {
     }
 }
 
-class PropertySheetWindowBarPawn {
+class PropertySheetWindowBarPawn extends PawnBehavior {
     setup() {
         this.addEventListener("pointerDown", "pointerDown");
         this.addEventListener("pointerMove", "pointerMove");
@@ -681,7 +691,7 @@ class PropertySheetWindowBarPawn {
     }
 }
 
-class BehaviorMenuActor {
+class BehaviorMenuActor extends ActorBehavior {
     show() {
         if (this.menu) {
             this.menu.destroy();
@@ -755,7 +765,7 @@ class BehaviorMenuActor {
     }
 }
 
-class ActionMenuActor {
+class ActionMenuActor extends ActorBehavior {
     show() {
         if (this.menu) {
             this.menu.destroy();

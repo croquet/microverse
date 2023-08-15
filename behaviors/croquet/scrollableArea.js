@@ -1,4 +1,13 @@
-class ScrollAreaActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class ScrollAreaActor extends ActorBehavior {
     setup() {
         this.noSave = true;
         console.log("setup.scrollTop", this.scrollTop);
@@ -56,7 +65,7 @@ class ScrollAreaActor {
     }
 }
 
-class ScrollAreaPawn {
+class ScrollAreaPawn extends PawnBehavior {
     setup() {
         this.listen("targetSet", "targetSet");
         this.listen("updateDisplay", "updateDisplay");
@@ -154,10 +163,10 @@ class ScrollAreaPawn {
     }
 }
 
-class ScrollBarActor {
+class ScrollBarActor extends ActorBehavior {
     setup() {}
 }
-class ScrollBarPawn {
+class ScrollBarPawn extends PawnBehavior {
     setup() {
         this.addEventListener("pointerDown", "pointerDown");
         this.addEventListener("pointerUp", "pointerUp");

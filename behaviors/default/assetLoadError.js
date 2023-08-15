@@ -1,4 +1,13 @@
-class AssetLoadErrorDisplayPawn {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {PawnBehavior} from "../PrototypeBehavior";
+
+class AssetLoadErrorDisplayPawn extends PawnBehavior {
     setup() {
         this.listen("assetLoadError", "assetLoadError");
     }
@@ -51,7 +60,7 @@ class AssetLoadErrorDisplayPawn {
                     this.texture.dispose();
                 }
                 this.texture = new Microverse.THREE.CanvasTexture(canvas);
-                this.texture.colorSpace = THREE.SRGBColorSpace;
+                this.texture.colorSpace = Microverse.THREE.SRGBColorSpace;
 
                 if (this.material) {
                     let m;

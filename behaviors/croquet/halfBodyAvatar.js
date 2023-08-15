@@ -1,4 +1,13 @@
-class AvatarActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class AvatarActor extends ActorBehavior {
     setup() {
         this._cardData.animationClipIndex = 9;
         this.say("animationStateChanged");
@@ -17,7 +26,7 @@ class AvatarActor {
     }
 }
 
-class AvatarPawn {
+class AvatarPawn extends PawnBehavior {
     setup() {
         this.subscribe(this.id, "3dModelLoaded", "modelLoaded");
         this.listen("avatarPosed", "avatarPosed");

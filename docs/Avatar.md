@@ -69,7 +69,7 @@ Glide to the specified position and rotation in the global coordinate. The fall 
 Equivalent to call:
 
 ```JavaScript
-goTo([0, 0, 0], [0, 0, 0, 1])
+this.goTo([0, 0, 0], [0, 0, 0, 1])
 ```
 
 and

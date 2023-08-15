@@ -1,4 +1,13 @@
-class GizmoActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class GizmoActor extends ActorBehavior {
     setup() {
         this.target = this._cardData.target;
         let targetParent = this._cardData.targetParent;
@@ -324,7 +333,7 @@ class GizmoActor {
     }
 }
 
-class GizmoPawn {
+class GizmoPawn extends PawnBehavior {
     setup() {
         this.lastTime = this.now();
         this.isMine = this.actor.creatorId === this.viewId;
@@ -377,7 +386,7 @@ class GizmoPawn {
     }
 }
 
-class GizmoAxisActor {
+class GizmoAxisActor extends ActorBehavior {
     setup() {
         this.isGizmoManipulator = true;
         this.subscribe(this.parent.id, "translateTarget", "translateTarget");
@@ -388,7 +397,7 @@ class GizmoAxisActor {
     }
 }
 
-class GizmoAxisPawn {
+class GizmoAxisPawn extends PawnBehavior {
     setup() {
         this.originalColor = this.actor._cardData.color;
 
@@ -505,7 +514,7 @@ class GizmoAxisPawn {
     }
 }
 
-class GizmoRotorActor {
+class GizmoRotorActor extends ActorBehavior {
     setup() {
         this.isGizmoManipulator = true;
         this.subscribe(this.parent.id, "rotateTarget", "rotateTarget");
@@ -516,7 +525,7 @@ class GizmoRotorActor {
     }
 }
 
-class GizmoRotorPawn {
+class GizmoRotorPawn extends PawnBehavior {
     setup() {
         this.originalColor = this.actor._cardData.color;
 
@@ -697,7 +706,7 @@ class GizmoScalerActor {
     }
 }
 
-class GizmoScalerPawn {
+class GizmoScalerPawn extends PawnBehavior {
     setup() {
         this.originalColor = this.actor._cardData.color;
         let isMine = this.parent?.actor.creatorId === this.viewId;
@@ -859,13 +868,13 @@ class GizmoScalerPawn {
     }
 }
 
-class GizmoPropertySheetButtonActor {
+class GizmoPropertySheetButtonActor extends ActorBehavior {
     setup() {
         this.isGizmoManipulator = true;
     }
 }
 
-class GizmoPropertySheetButtonPawn {
+class GizmoPropertySheetButtonPawn extends PawnBehavior {
     setup() {
         let isMine = this.parent?.actor.creatorId === this.viewId;
         this.isMine = isMine;

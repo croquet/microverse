@@ -22,7 +22,17 @@ created.
 
 */
 
-class MenuActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+
+class MenuActor extends ActorBehavior {
     setItems(list) {
 
         if (this.items) {
@@ -185,7 +195,7 @@ class MenuActor {
     }
 }
 
-class MenuPawn {
+class MenuPawn extends PawnBehavior {
     setup() {
         this.listen("cardDataSet", "cardDataUpdated");
         this.initializeClipping();
@@ -236,13 +246,13 @@ behavior when the user tries to select an item.
 
 */
 
-class MenuItemActor {
+class MenuItemActor extends ActorBehavior {
     setup() {
     }
 
 }
 
-class MenuItemPawn {
+class MenuItemPawn extends PawnBehavior {
     setup() {
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addEventListener("pointerDoubleDown", "nop");
@@ -274,3 +284,5 @@ export default {
         }
     ]
 }
+
+/* globals Microverse */

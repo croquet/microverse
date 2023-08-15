@@ -21,8 +21,6 @@ BitcoinTrackerActor's history is a list of {date<milliseconds>, and amount<dolla
 
 type History = {date: number, amount: number};
 type BarMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
-type BaseMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
-
 
 class BitcoinTrackerActor extends ActorBehavior {
     history: Array<History>;
@@ -30,8 +28,8 @@ class BitcoinTrackerActor extends ActorBehavior {
         if (!this.history) {
             this.history = [{ date: 0, amount: 0 }];
         }
-        this.listen("BTC-USD", "onBitcoinData");
-        this.listen("BTC-USD-history", "onBitcoinHistory");
+        this.listen<History>("BTC-USD", this.onBitcoinData);
+        this.listen<Array<History>>("BTC-USD-history", this.onBitcoinHistory);
     }
 
     latest() {
@@ -46,10 +44,10 @@ class BitcoinTrackerActor extends ActorBehavior {
         this.say<number>("value-changed", amount);
     }
 
-    onBitcoinHistory(prices) {
+    onBitcoinHistory(prices: Array<History>) {
         const newer = prices.filter(p => p.date - this.latest().date > 25000);
         this.addEntries(...newer);
-        this.publish(this.id, "value-init", newer.map(v=>v.amount));
+        this.publish<Array<number>>(this.id, "value-init", newer.map(v=>v.amount));
     }
 
     addEntries(...data: Array<History>) {
@@ -261,7 +259,7 @@ class BarGraphActor extends ActorBehavior {
 class BarGraphPawn extends PawnBehavior {
     bars: Array<BarMesh>;
     bar: BarMesh;
-    base: BaseMesh;
+    base: BarMesh;
     setup() {
         this.constructBars();
         this.listen("updateGraph", "updateGraph");

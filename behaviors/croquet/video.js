@@ -12,7 +12,16 @@
   There is a case that the session comes back from dormant. so care is taken that the video element recreated won't start playing.
 */
 
-class VideoActor {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class VideoActor extends ActorBehavior {
     setup() {
         this.listen("setSize", "setSize");
         this.listen("ended", "ended");
@@ -152,7 +161,7 @@ class VideoActor {
     }
 }
 
-class VideoPawn {
+class VideoPawn extends PawnBehavior {
     setup() {
         this.addEventListener("pointerTap", "tapped");
         this.listen("cardDataSet", "videoChanged");
@@ -466,7 +475,7 @@ class VideoPawn {
 }
 
 
-class VideoButtonActor {
+class VideoButtonActor extends ActorBehavior {
     // setup() {
     // }
 
@@ -480,10 +489,10 @@ class VideoButtonActor {
     }
 }
 
-class VideoButtonPawn {
+class VideoButtonPawn extends PawnBehavior {
     setup() {
         if (this.actor._cardData.isPrototype) {return;}
-        
+
         this.subscribe(this.id, "2dModelLoaded", "svgLoaded");
 
         this.addEventListener("pointerMove", "nop");
