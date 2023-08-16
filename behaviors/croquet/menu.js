@@ -166,7 +166,7 @@ class MenuActor extends ActorBehavior {
                     i.selected = !i.selected;
                     this.selectionChanged(i);
                 } else {
-                    this.publish(this._parent.id, "fire", {
+                    this.publish(this.parent.id, "fire", {
                         action: item.label,
                         id: this.id,
                         viewId: data.viewId
@@ -186,7 +186,7 @@ class MenuActor extends ActorBehavior {
             this.selectionChanged(item);
 
             let selection = this.items.map((i) => ({label: i.label, selected: i.selected}));
-            this.publish(this._parent.id, "fire", {selection, id: this.id});
+            this.publish(this.parent.id, "fire", {selection, id: this.id});
         }
     }
 

@@ -695,7 +695,7 @@ class GizmoRotorPawn extends PawnBehavior {
     }
 }
 
-class GizmoScalerActor {
+class GizmoScalerActor extends ActorBehavior {
     setup() {
         this.isGizmoManipulator = true;
         this.subscribe(this.parent.id, "scaleTarget", "scaleTarget");

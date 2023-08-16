@@ -40,7 +40,7 @@ Some rotation related methods take an array with 3 elements as an Euler angle. I
 
 Also, the Card can handle certain kinds of pointer events. The EventName type is defined as:
 
-`type EventName = "pointerDown"|"pointerUp"|pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"wheel"|"doubleDown"|"click"|"keyUp"|"keyDown"`
+`type EventName = "pointerDown"|"pointerUp"|"pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"pointerWheel"|"pointerDoubleDown"|"click"|"keyUp"|"keyDown"`
 
 The `pointerTap` event, only one synthesized event type, is generated when a `pointerUp` event occurs close in time (< 300ms) and space (< 10 pixels) to the corresponding `pointerDown` event. Then first the `pointerTap` event is sent before the `pointerUp`.
 

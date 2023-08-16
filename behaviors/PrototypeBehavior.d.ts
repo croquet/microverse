@@ -3,6 +3,13 @@ export type Vector3 = [number, number, number];
 export type Vector2 = [number, number];
 export type Matrix2 = [number, number, number, number];
 export type Matrix3 = [number, number, number, number, number, number, number, number, number];
+
+export type EventName = "pointerDown"|"pointerUp"|"pointerMove"|"pointerTap"|"pointerLeave"|"pointerEnter"|"pointerWheel"|"pointerDoubleDown"|"click"|"keyUp"|"keyDown";
+
+export type EventMask = {altKey?: boolean, shiftKey?: boolean, ctrlKey?: boolean, metaKey?: boolean};
+
+export type VQ = {v: Vector3, q: Quaternion};
+
 export type Matrix4 = [
     number, number, number, number,
     number, number, number, number,
@@ -69,7 +76,7 @@ export type WorldcoreExports = {
     v3_transform(a: Vector3, m: Matrix4): Vector3,
     v3_rotate(v: Vector3, q: Quaternion): Vector3,
     v3_equals(a: Vector3, b: Vector3, e?: number), boolean,
-    v3_isZero(v: Vector3, b): boolean,
+    v3_isZero(v: Vector3): boolean,
     v3_distance(a: Vector3, b: Vector3): number,
     v3_distanceSqr(a: Vector3, b: Vector3): number,
 
@@ -115,11 +122,14 @@ export type WorldcoreExports = {
     q_multiply(a: Quaternion, b: Quaternion): Quaternion,
     q_slerp(a: Quaternion, b: Quaternion, t: number): Quaternion,
     q_equals(a: Quaternion, b: Quaternion, e?: number): boolean,
-    q_isZero(q: Quaternion): boolean
+    q_isZero(q: Quaternion): boolean,
+
+    GetPawn(id: string): CardPawn,
 };
 
 export type PhysicsExports = {
-    PhysicsVersion(): string
+    PhysicsVersion(): string,
+    Physics: any
 };
 
 export type FrameExports = {
@@ -135,8 +145,6 @@ export type Rotation = Quaternion|Vector3;
 
 export type CardActor = ActorBehavior;
 export type CardPawn = PawnBehavior;
-export type AvatarActor = ActorBehavior & AvatarActorPart;
-export type AvatarPawn = PawnBehavior & AvatarPawnPart;
 
 export type P3DEvent = {
    targetId: string, avatarId: string,
@@ -150,7 +158,7 @@ export type P3DEvent = {
 }
 
 declare global {
-    var Microverse: MicroverseModule
+    const Microverse: MicroverseModule
 }
 
 export class ActorBehavior {
@@ -160,7 +168,7 @@ The id of the CardActor.
         @public
         @type string
     */
-    get id(): string
+    id: string
 
     /**
 The id of the session.
@@ -168,7 +176,7 @@ The id of the session.
         @public
         @type string
     */
-    get sessionId(): string
+    sessionId: string
 
     /**
 The [x, y, z] translation of the card.
@@ -176,21 +184,21 @@ The [x, y, z] translation of the card.
         @public
         @type Vector3
     */
-    get translation(): Vector3
+    translation: Vector3
 
     /**
 The rotation of the card in quaternion.
        @public
        @type Quaternion
     */
-    get rotation(): Quaternion
+    rotation: Quaternion
 
     /**
 The scale of the card in three axes.
        @public
        @type Vector3
     */
-    get scale(): Vector3
+    scale: Vector3
 
     /**
        The layers property specifies how the card is treated when a special action is taken. Typical value are as follows:
@@ -203,7 +211,7 @@ The scale of the card in three axes.
        @type Array
 
     */
-    get layers(): Array<string>
+    layers: Array<string>
 
     /**
        The cards in the world are organized in a hierarchical parent-children structure. The `parent` specifies its parent. Note that this is a "logical" structure. All cards are held as a direct child of the Three.JS scene, with automatic matrix composition for nested cards.
@@ -211,7 +219,7 @@ The scale of the card in three axes.
        @public
        @type CardActor
     */
-    get parent(): CardActor
+    parent: CardActor
 
     /**
        The list of behavior modules installed to the card.
@@ -220,7 +228,7 @@ The scale of the card in three axes.
        @type Array
 
     */
-    get behaviorModules(): Array<string>
+    behaviorModules: Array<string>
 
     /**
        An informative string for the card.
@@ -228,7 +236,7 @@ The scale of the card in three axes.
        @public
        @type string
     */
-    get name(): string
+    name: string
 
     /**
        The visibility of the card, and whether it responds to pointer events or not.
@@ -237,7 +245,7 @@ The scale of the card in three axes.
        @type boolean
     */
 
-    get hidden(): boolean|undefined
+    hidden: boolean|undefined
 
     /**
        Any other values that the CardActor holds are stored in an object stored in the `_cardData` property. This is needed to mark the values to be stored in the persistent data.
@@ -245,7 +253,19 @@ The scale of the card in three axes.
        @public
        @type Object
     */
-    get _cardData(): any
+    _cardData: any
+
+    /**
+     The behavior object.
+    */
+
+    _behavior: any
+
+    /**
+     The unproxified base object of this behavior.
+    */
+
+    _target: CardActor
 
     /**
        This method creates a new card (a CardActor on the model side and a CardPawn on the view side), based on the `cardSpec`.
@@ -306,6 +326,14 @@ When the first form is used, it specifies the globally known module name and the
     setCardData(options:any): void
 
     /**
+       This method updates the intrinsic properties of the object.
+       @public
+       @param {object} options - keys and values to specify new values
+
+    */
+    set(options:any): void
+
+    /**
 This method adds a "listener" to be invoked when an event occurs on the card.  When `listener` is a function, it has to have a form of `this.mthName` where `mthName` is an existing method name of CardActor or the behavior itself. When listener is a string, it has to be the name of a method at CardActor or the behavior itself. The listener added by this Actor-side `addEventListener()` is invoked when any user in the world causes the corresponding user pointer or key event.
 
 Calling this method with the same arguments removes the previous listener before adding the new one. This semantics ensures that dynamically-modified method will be used.
@@ -336,6 +364,16 @@ This method removes the event listener that was added. You can call it when ther
     subscribe<T>(scope: string, eventName: string, listener: string|((data: T) => void)): void
 
     /**
+    This method removes a Croquet event subscription.
+    @public
+    @param {string} scope - the scope name of Croquet event
+    @param {string} eventName - the event name of Croquet event
+    @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
+       */
+
+    unsubscribe<T>(scope: string, eventName: string, listener?:  string|((data: T) => void)): void
+
+    /**
        This method publishes a Croquet event.
 
        @public
@@ -343,7 +381,7 @@ This method removes the event listener that was added. You can call it when ther
        @param {string} eventName - the event name of Croquet event
        @param {any} data - serializable data to be published
     */
-    publish<T>(scope: string, eventName: string, data: T): void
+    publish<T>(scope: string, eventName: string, data?: T): void
 
     /**
        This method adds a Croquet event subscription by calling the `subscribe()` method with `this.id` as the `scope`.
@@ -467,6 +505,22 @@ A Three.js keyframe based animation is supported. The animation clip can contain
        @public
     */
     nop(): void
+
+    /**
+       This method returns the Actor-side Worldcore service with the given name.
+
+       @public
+       @param {string} name - the name of the Actor-side Service.
+    */
+    service(name: string): any
+
+    /**
+    This method returns the current Croquet logical time.
+    @public
+    @type number
+    */
+
+    now(): number
 }
 
 export class PawnBehavior {
@@ -476,7 +530,7 @@ The id of the CardPawn.
         @public
         @type string
     */
-    get id(): string
+    id: string
 
     /**
 The viewId of the session.
@@ -484,7 +538,7 @@ The viewId of the session.
         @public
         @type string
     */
-    get viewId(): string
+    viewId: string
 
     /**
 The id of the session.
@@ -492,7 +546,7 @@ The id of the session.
         @public
         @type string
     */
-    get sessionId(): string
+    sessionId: string
 
     /**
 The corresponding actor of this pawn:
@@ -500,7 +554,7 @@ The corresponding actor of this pawn:
         @public
         @type CardActor
     */
-    get actor(): CardActor
+    actor: CardActor
 
     /**
        The cards in the world are organized in a hierarchical parent-children structure. The `parent` property specifies its parent. The pawn side implementation here returns a pawn if the card has a parent.
@@ -508,16 +562,15 @@ The corresponding actor of this pawn:
        @public
        @type CardActor
     */
-    get parent(): CardPawn
-    
+    parent: CardPawn
+
     /**
        the shape property is the root of the visual appearance of the card. It is a THREE.Object3D.
 
        @public
        @type THREE.Object3D
     */
-    get shape(): THREE.Object3D
-    
+    shape: THREE.Object3D
 
     /**
 The [x, y, z] translation of the card.
@@ -525,21 +578,58 @@ The [x, y, z] translation of the card.
         @public
         @type Vector3
     */
-    get translation(): Vector3
+    translation: Vector3
 
     /**
 The rotation of the card in quaternion.
        @public
        @type Quaternion
     */
-    get rotation(): Quaternion
+    rotation: Quaternion
 
     /**
 The scale of the card in three axes.
        @public
        @type Vector3
     */
-    get scale(): Vector3
+    scale: Vector3
+
+    /**
+       This method updates the intrinsic properties of the object. The values are sent to the actor.
+       @public
+       @param {object} options - keys and values to specify new values
+
+    */
+    set(options:any): void
+
+
+    /**
+     The behavior object.
+    */
+
+    _behavior: any
+
+    /**
+     The unproxified base object of this behavior.
+    */
+
+    _target: CardPawn
+
+    /**
+     The global transformation matrix for the object.
+     @public
+     @type Matrix4
+    */
+
+    global: Matrix4
+
+    /**
+      The local transformation matrix for the object.
+      @public
+      @type Matrix4
+   */
+
+    local: Matrix4
 
     /**
        This method invokes a method of another behavior. The `behaviorName` has to be in one of the form of:
@@ -620,7 +710,7 @@ This method removes the event listener that was added. You can call it even when
     removeEventListener(eventName: string, listener: string|((evt: P3DEvent) => void)): void
 
     /**
-       This method adds Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding a new one; so that it is safe to call this from the `setup()` of a behavior.
+       This method adds a Croquet event subscription. Unlike the version in the Croquet Library, this version removes the subscription with the same `scope` and `eventName` if it exists before adding a new one; so that it is safe to call this from the `setup()` of a behavior.
 
        * The `listener` can be either a function or a string in the form of:
 
@@ -635,6 +725,16 @@ This method removes the event listener that was added. You can call it even when
        */
 
     subscribe<T>(scope: string, eventName: string, listener: string|((evt: T) => void)): void
+
+    /**
+    This method removes a Croquet event subscription.
+    @public
+    @param {string} scope - the scope name of Croquet event
+    @param {string} eventName - the event name of Croquet event
+    @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
+    */
+
+    unsubscribe(scope: string, eventName: string, listener?: string|((evt: T) => void)): void
 
     /**
        This method publishes a Croquet event.
@@ -784,9 +884,50 @@ if (this.actor.layers && this.actor.layers.includes("walk")) {
     */
 
     nop(): void
+
+    /**
+       This method returns the Pawn-side Worldcore service with the given name.
+
+       @public
+       @param {string} name - the name of the Pawn-side Service.
+    */
+    service(name: string): any
+
+    /**
+       This method returns the data of the specified asset as ArrayBuffer. The parameter is a string in the form of a full URL, relative path, or a Croquet dataId.
+
+       @public
+       @param {string} name - the string that specifies the asset location.
+    */
+    getBuffer(name: string): Promise<ArrayBuffer>
+
+    /**
+     Add an additional method to invoke at each display frame, typically modify the visual appearance of the object.
+    */
+
+    addUpdateRequest(spec: Array<string, string>): void
+
+    /**
+     Remove an additional method to invoke at each display frame, typically modify the visual appearance of the object.
+    */
+
+    removeUpdateRequest(spec: Array<string, string>): void
+    /**
+     recompute matrices
+    */
+
+    onLocalChanged()
+
+    /**
+    This method returns the current Croquet logical time.
+    @public
+    @type number
+    */
+
+    now(): number
 }
 
-class AvatarActorPart {
+export class AvatarActor extends ActorBehavior {
     /**
 The avatar's camera rotation around the X axis (the axis going from left to right; thus a positive value indicates to look "up", and a negative value indicates to look "down".)
 
@@ -845,12 +986,41 @@ as well as to notify the pawn by:
       @public
      */
 
-      goHome()
+    goHome()
 }
 
-class AvatarPawnPart {
-    
-    /** 
+export class AvatarPawn extends PawnBehavior {
+    /**
+       isMyPlayerPawn flag indicates that this pawn is the local avatar.
+       @public
+       @type boolean
+    */
+
+    isMyPlayerPawn: boolean
+
+    /**
+       fallDistance governs the amount of fall per frame when the avatar is not on a walkable floor and isFalling is set
+       @public
+       @type number
+    */
+
+    fallDistance: number
+
+    /**
+       maxFall is the lower bound for the avatar to fall.
+       @public
+       @type number
+    */
+
+    maxFall: number
+
+    get lookPitch(): number
+
+    get lookYaw(): number
+
+    get lookOffset(): Vector3
+
+    /**
 	Sets the coressponding actor's look configurations by publishing an event to the actor.
 	@public
 	@param {number} pitch
@@ -859,7 +1029,7 @@ class AvatarPawnPart {
     */
     lookTo(pitch:number, yaw:number, lookOffset:Vector3)
 
-    /** 
+    /**
 	This method sets the opacity of the 3D model by assigning a different opacity value into the Three.js material.
 
 	@public
@@ -872,4 +1042,78 @@ class AvatarPawnPart {
     */
 
     goHome()
+
+    /**
+       This method add the pawn as the first responder so that the event of the specified type will be routed to the object first.
+
+       @public
+       @param {EventName} eventName - the name of the input event
+       @param {EventMask} eventMask - whether the modifier keys should be checked
+       @param {CardPawn} pawn - the first responder for the event
+    */
+
+    addFirstResponder(eventName: EventName, eventMask: EventMask, pawn: CardPawn)
+
+    /**
+       This method removes the pawn as the first responder so that the event of the specified type will no longer be routed to the object first.
+
+       @public
+       @param {EventName} eventName - the name of the input event
+       @param {EventMask} eventMask - whether the modifier keys should be checked
+       @param {CardPawn} pawn - the first responder for the event
+    */
+
+    removeFirstResponder(eventName: EventName, eventMask: EventMask, pawn: CardPawn)
+
+    /**
+       This method adds the pawn as the last responder so that the event of the specified type will be routed to the object when no other pawn handled it.
+
+       @public
+       @param {EventName} eventName - the name of the input event
+       @param {EventMask} eventMask - whether the modifier keys should be checked
+       @param {CardPawn} pawn - the first responder for the event
+    */
+
+    addLastResponder(eventName: EventName, eventMask: EventMask, pawn: CardPawn)
+
+    /**
+       This method removes the pawn as the last responder so that the event of the specified type will be routed to the object.
+
+       @public
+       @param {EventName} eventName - the name of the input event
+       @param {EventMask} eventMask - whether the modifier keys should be checked
+       @param {CardPawn} pawn - the first responder for the event
+    */
+
+    removeLastResponder(eventName: EventName, eventMask: EventMask, pawn: CardPawn)
+
+    /**
+       This method checks if given position (v) and rotation (q) collides with a portal in the world.
+
+       @public
+       @param {VQ} vq - the pose of the avatar
+       returns {boolean}
+    */
+
+    collidePortal(vq: VQ): boolean
+
+    /**
+       This method checks if given position (v) and rotation (q) collides with an object with the walk layer.
+
+       @public
+       @param {Array<Mesh>} collideList - array of Meshes that have the walk layer.
+       @param {VQ} vq - the pose of the avatar
+       returns {boolean}
+    */
+
+    collideBVH(collideList: Array<Mesh>, vq: VQ): boolean
+
+    /**
+       This method checks if there is a mesh with walk layer toward the negative y direction from the position (v).
+       @public
+       @param {VQ} vq - the pose of the avatar
+       returns {boolean}
+    */
+
+    checkFloor(vq: VQ): boolean
 }
