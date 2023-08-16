@@ -491,6 +491,21 @@ This method translates the object by `the specified offset, in the reference fra
     forwardBy(v: Vector3): void
 
     /**
+     The physics simulation world for this card. It looks up the value in the parent chain, starting from itself, or the "global" one if the world has a single global simulation world.
+     @public
+     @type any
+     */
+    physicsWorld: any
+
+    /**
+     set the physics simulation world to the card.
+     @public
+     @param {any} v - the physics world
+     */
+
+    setPhysicsWorld(v: any)
+
+    /**
 A Three.js keyframe based animation is supported. The animation clip can contain multiple tracks. The index specified here dictates which track to play. A cardData called animationStartTime specifiy the base for time offset.
 
 @public

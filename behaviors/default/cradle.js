@@ -159,7 +159,7 @@ class CradlePawn extends PawnBehavior {
     }
 }
 
-class CradleLinkActor {
+class CradleLinkActor extends ActorBehavior {
     setup() {
         if (this._cardData.cradleHandlesEvent) {
             this.addEventListener("pointerTap", "startMove");
@@ -182,7 +182,7 @@ class CradleLinkActor {
     }
 }
 
-class CradleLinkPawn {
+class CradleLinkPawn extends PawnBehavior {
     setup() {
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
         this.addEventListener("pointerDoubleDown", "nop");
