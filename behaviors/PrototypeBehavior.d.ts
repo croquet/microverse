@@ -10,7 +10,7 @@ export type Matrix4 = [
     number, number, number, number
 ];
 
-export type WorldcoreKernel = {
+export type WorldcoreExports = {
     slerp(a: number, b: number, t: number): number,
     v2_zero(): Vector2,
     v2_random(): Vector2,
@@ -118,8 +118,16 @@ export type WorldcoreKernel = {
     q_isZero(q: Quaternion): boolean
 };
 
+export type PhysicsExports = {
+    PhysicsVersion(): string
+};
+
+export type FrameExports = {
+    sendToShell(command: string, args: Array<any>)
+}
+
 export type THREE = typeof import("three");
-export type MicroverseModule = {THREE: THREE} & WorldcoreKernel;
+export type MicroverseModule = {THREE: THREE} & WorldcoreExports & PhysicsExports & FrameExports & {getViewRoot(): any};
 
 export type BehaviorMethod = Array<string>;
 export type PlaneMaterial = THREE.MeshStandardMaterial|Array<THREE.Material>;
