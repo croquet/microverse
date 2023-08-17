@@ -1,4 +1,4 @@
-import { v2_sub, v2_add, v2_scale, v2_magnitude, TAU, toRad, toDeg } from "./Vector";
+import { v2_sub, v2_add, v2_scale, v2_magnitude, TAU, toRad } from "./Vector";
 import { ViewService } from "./Root";
 
 // Need to add doubletap
@@ -243,11 +243,11 @@ export class InputManager extends ViewService {
         document.exitPointerLock();
     }
 
-    onPointerLock(event) {
+    onPointerLock(_event) {
         this.publish("input", "pointerLock", this.inPointerLock);
     }
 
-    onResize(event) {
+    onResize(_event) {
         // Delay actual resize event to address iOS posting of resize before page layout finishes.
         // (Also it kind of looks better .... )
         this.publish("input", "beforeResize");
@@ -258,11 +258,11 @@ export class InputManager extends ViewService {
         this.publish("input", "resize", [window.innerWidth, window.innerHeight]);
     }
 
-    onFocus(event) {
+    onFocus(_event) {
         this.publish("input", "focus");
     }
 
-    onBlur(event) {
+    onBlur(_event) {
         this.publish("input", "blur");
     }
 
@@ -302,13 +302,14 @@ export class InputManager extends ViewService {
 
     onPointerDown(event) {
         let modKeys = this.modifierKeysFrom(event);
+        let pressure = this.getPressure(event);
         this.presses.set(event.pointerId, {id: event.pointerId, time: event.timeStamp, start: [event.clientX, event.clientY], ...modKeys, xy: [event.clientX, event.clientY]});
-        this.publish("input", "pointerDown", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
+        this.publish("input", "pointerDown", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY], pressure});
         if (event.button === this.lastDown.button && event.timeStamp - this.lastDown.time < DOUBLE_DURATION && this.modifierEqual(event, this.lastDown)) {
             if (event.button === this.penultimateDown.button && event.timeStamp - this.penultimateDown.time < TRIPLE_DURATION) {
-                this.publish("input", "tripleDown", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
+                this.publish("input", "tripleDown", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY], pressure});
             } else {
-                this.publish("input", "doubleDown", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
+                this.publish("input", "doubleDown", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY], pressure});
             }
         }
         this.penultimateDown = this.lastDown;
@@ -318,6 +319,7 @@ export class InputManager extends ViewService {
 
     onPointerUp(event) {
         const press = this.presses.get(event.pointerId);
+        let pressure = this.getPressure(event);
         let modKeys = this.modifierKeysFrom(event);
         if (press) {
             press.xy = [event.clientX, event.clientY];
@@ -327,7 +329,7 @@ export class InputManager extends ViewService {
             const ax = Math.abs(dx);
             const ay = Math.abs(dy);
             if (duration < TAP_DURATION && ax < TAP_DISTANCE && ay < TAP_DISTANCE) {
-                this.publish("input", "tap", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
+                this.publish("input", "tap", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY], pressure});
             }
             if (duration < SWIPE_DURATION && ax > SWIPE_DISTANCE) {
                 this.publish("input", "swipeX", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, distance: dx, ...modKeys});
@@ -338,12 +340,13 @@ export class InputManager extends ViewService {
         }
 
         this.presses.delete(event.pointerId);
-        this.publish("input", "pointerUp", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
+        this.publish("input", "pointerUp", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY], pressure});
         this.zoomEnd();
     }
 
     onPointerMove(event) {
         const press = this.presses.get(event.pointerId);
+        let pressure = this.getPressure(event);
         let modKeys = this.modifierKeysFrom(event);
         if (press) {
             press.xy = [event.clientX, event.clientY];
@@ -353,8 +356,8 @@ export class InputManager extends ViewService {
             const ax = Math.abs(dx);
             const ay = Math.abs(dy);
             if (duration > TAP_DURATION || ax > TAP_DISTANCE || ay > TAP_DISTANCE) { // Only publish pressed move events that aren't taps
-                this.publish("input", "pointerMove", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
-                this.publish("input", "pointerDelta", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.movementX, event.movementY]});
+                this.publish("input", "pointerMove", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY], pressure});
+                this.publish("input", "pointerDelta", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.movementX, event.movementY]}, pressure);
             }
         } else {
             this.publish("input", "pointerMove", {id: event.pointerId, type: event.pointerType, button: event.button, buttons: event.buttons, ...modKeys, xy: [event.clientX, event.clientY]});
@@ -413,7 +416,7 @@ export class InputManager extends ViewService {
     onOrientation(event) {
         const alpha = event.alpha; // yaw
         const beta = event.beta; // Pitch if in portrait,
-        const gamma = event.gamma;
+        // const gamma = event.gamma;
         const pitch = toRad(beta);
         const yaw = toRad(alpha);
 
@@ -423,4 +426,15 @@ export class InputManager extends ViewService {
         this.publish("input", "orientation", {pitch, yaw});
     }
 
+    getPressure(evt) {
+        if (evt.pressure !== undefined) {
+            return evt.pressure;
+        } else if (evt.touchType === "stylus") {
+            return evt.force / Math.sin(evt.altitudeAngle);
+        } else if (evt.force !== undefined) {
+            return evt.force;
+        } else {
+            return 1;
+        }
+    }
 }
