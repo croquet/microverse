@@ -268,15 +268,15 @@ export const PM_Pointer = superclass => class extends superclass {
 
         // immediate handling so handler runs inside of the DOM event handler invocation
         // and can open links, toggle audio, etc.
-        this.subscribe("input", {event: "pointerDown", handling: "immediate"}, this.doPointerDown);
-        this.subscribe("input", {event: "pointerUp", handling: "immediate"}, this.doPointerUp);
-        this.subscribe("input", {event: "pointerMove", handling: "immediate"}, this.doPointerMove);
-        this.subscribe("input", {event: "click", handling: "immediate"}, this.doPointerClick);
-        this.subscribe("input", {event: "wheel", handling: "immediate"}, this.doPointerWheel);
-        this.subscribe("input", {event: "doubleDown", handling: "immediate"}, this.doPointerDoubleDown);
-        this.subscribe("input", {event: "tap", handling: "immediate"}, this.doPointerTap);
-        this.subscribe("input", {event: "keyDown", handling: "immediate"}, this.doKeyDown);
-        this.subscribe("input", {event: "keyUp", handling: "immediate"}, this.doKeyUp);
+        this.subscribe("_input", {event: "pointerDown", handling: "immediate"}, this.doPointerDown);
+        this.subscribe("_input", {event: "pointerUp", handling: "immediate"}, this.doPointerUp);
+        this.subscribe("_input", {event: "pointerMove", handling: "immediate"}, this.doPointerMove);
+        this.subscribe("_input", {event: "click", handling: "immediate"}, this.doPointerClick);
+        this.subscribe("_input", {event: "wheel", handling: "immediate"}, this.doPointerWheel);
+        this.subscribe("_input", {event: "doubleDown", handling: "immediate"}, this.doPointerDoubleDown);
+        this.subscribe("_input", {event: "tap", handling: "immediate"}, this.doPointerTap);
+        this.subscribe("_input", {event: "keyDown", handling: "immediate"}, this.doKeyDown);
+        this.subscribe("_input", {event: "keyUp", handling: "immediate"}, this.doKeyUp);
 
         this.firstResponders = new Map();
         this.lastResponders = new Map();
@@ -636,7 +636,7 @@ export const PM_Pointer = superclass => class extends superclass {
         pe.shiftKey = wcEvent.shiftKey;
         pe.metaKey = wcEvent.metaKey;
         pe.xy = wcEvent.xy;
-        pe.id = wcEvent.id;
+        pe.pointerId = wcEvent.pointerId;
         pe.button = wcEvent.button;
         pe.buttons = wcEvent.buttons;
         pe.instanceId = rc.instanceId;

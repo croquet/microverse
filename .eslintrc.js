@@ -96,7 +96,8 @@ module.exports = {
         "plugins": ["@typescript-eslint"],
         "rules": {
             "@typescript-eslint/no-explicit-any": 0,
-            'prefer-const': 'off'
+            'prefer-const': 'off',
+            '@typescript-eslint/no-unused-vars': ['error', {"argsIgnorePattern": "^_", "varsIgnorePattern": "^_"}],
         }
       }
   ]

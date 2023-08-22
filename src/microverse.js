@@ -29,8 +29,6 @@ import JSZip from 'jszip';
 import * as fflate from 'fflate';
 import {AssetManager} from "./wcAssetManager.js";
 
-// import {microverseHTML} from "./hud.js";
-
 const defaultAvatarNames = [
     "newwhite", "madhatter", "marchhare", "queenofhearts", "cheshirecat", "alice"
 ];
@@ -1003,16 +1001,6 @@ const shellListener = (command, data) => {
 addShellListener(shellListener);
 
 export function startMicroverse() {
-    /*
-    let hud = document.querySelector("#hud");
-    if (!hud) {
-        let div = document.createElement("div");
-        div.innerHTML = innerHTML || microverseHTML;
-        hud = div.querySelector("#hud");
-        document.body.appendChild(hud);
-    }
-    */
-
     let setButtons = (display) => {
         ["homeBtn", "worldMenuBtn"].forEach((n) => {
             let btn = document.querySelector("#" + n);

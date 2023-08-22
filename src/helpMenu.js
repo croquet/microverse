@@ -156,5 +156,6 @@ function createHelpMenu() {
         });
     }
 
-    document.body.appendChild(helpMenu);
+    let microverse = document.body.querySelector("#microverse");
+    (microverse || document.body).appendChild(helpMenu);
 }

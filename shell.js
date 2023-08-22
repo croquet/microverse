@@ -40,11 +40,12 @@ export function setupController(fullScreenFlag) {
 
 export function setupFullScreenButton() {
     let fullScreenBtn = document.querySelector("#fullScreenBtn");
+    let microverse = document.querySelector("#microverse");
     if (!fullScreenBtn) {
         let div = document.createElement("div");
         div.innerHTML = fullScreenHTML;
         fullScreenBtn = div.children[0];
-        document.body.appendChild(fullScreenBtn);
+        (microverse || document.body).appendChild(fullScreenBtn);
 
         fullScreenBtn.onclick = (e) => {
             e.stopPropagation();
@@ -72,158 +73,15 @@ export function setupFullScreenButton() {
 class HudController {
     constructor() {
         this.hud = document.querySelector("#hud");
+        let microverse = document.querySelector("#microverse");
 
         if (!this.hud) {
             let div = document.createElement("div");
             div.innerHTML = innerHTML;
             this.hud = div.children[0];
-            document.body.appendChild(this.hud);
-        }
-
-        /*
-        // joystick sends events into primary frame
-        this.capturedPointers = {};
-
-        this.joystick = this.hud.querySelector("#joystick");
-        this.knob = this.joystick.querySelector("#knob");
-        this.trackingknob = this.joystick.querySelector("#trackingknob");
-
-        window.onresize = () => this.adjustJoystickKnob();
-
-        if (!document.head.querySelector("#joystick-css")) {
-            let css = document.createElement("link");
-            css.rel = "stylesheet";
-            css.type = "text/css";
-            css.id = "joystick-css";
-            css.onload = () => {
-                this.adjustJoystickKnob();
-                if (this._hudFlags) {
-                    this.setButtonsVisibility(this._hudFlags);
-                    delete this._hudFlags;
-                }
-            };
-            let root = window.microverseDir ? window.microverseDir : "./";
-            css.href = root + "assets/css/joystick.css";
-            document.head.appendChild(css);
-        } else {
-            this.adjustJoystickKnob();
-        }
-
-        this.releaseHandler = (e) => {
-            for (let k in this.capturedPointers) {
-                this.joystick.releasePointerCapture(k);
-            }
-            this.capturedPointers = {};
-            this.endMMotion(e);
-        };
-        this.joystick.onpointerdown = (e) => {
-            if (e.pointerId !== undefined) {
-                this.capturedPointers[e.pointerId] = "hiddenKnob";
-                this.joystick.setPointerCapture(e.pointerId);
-            }
-            this.startMMotion(e); // use the knob to start
-        };
-        //this.joystick.onpointerenter = (e) => console.log("shell: pointerEnter")
-        // this.joystick.onpointerleave = (e) => this.releaseHandler(e);
-        this.joystick.onpointermove = (e) => this.updateMMotion(e);
-        this.joystick.onpointerup = (e) => this.releaseHandler(e);
-        this.joystick.onpointercancel = (e) => this.releaseHandler(e);
-        this.joystick.onlostpointercapture = (e) => this.releaseHandler(e);
-        */
-    }
-
-    /*
-
-    adjustJoystickKnob() {
-        let joystickStyle = window.getComputedStyle(this.joystick);
-        let knobStyle = window.getComputedStyle(this.knob);
-        let center = (parseFloat(joystickStyle.width) || 120) / 2;
-        let size = (parseFloat(knobStyle.width) || 60) / 2;
-        let radius = center - size;
-        this.joystickLayout = { center, radius };
-        this.trackingknob.style.transform = "translate(0px, 0px)"; // top-left
-        this.knob.style.transform = `translate(${center-size}px, ${center-size}px)`; // eslint-disable-line
-    }
-
-    // mouse motion via joystick element
-
-    startMMotion(e) {
-        this.activeMMotion = {};
-        this.updateMMotion(e, "motion-start");
-    }
-
-    endMMotion(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.activeMMotion = null;
-        let { radius } = this.joystickLayout;
-        this.trackingknob.style.transform = "translate(0px, 0px)";
-        this.knob.style.transform = `translate(${radius}px, ${radius}px)`;
-        sendToSelf("motion-end");
-    }
-
-    updateMMotion(e, cmd = "motion-update") {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (this.activeMMotion) {
-            let { center, radius } = this.joystickLayout;
-
-            let dx = e.offsetX - center;
-            let dy = e.offsetY - center;
-
-            sendToSelf(cmd, {dx, dy});
-            this.activeMMotion.dx = dx;
-            this.activeMMotion.dy = dy;
-
-            this.trackingknob.style.transform = `translate(${dx}px, ${dy}px)`;
-
-            let squaredDist = dx ** 2 + dy ** 2;
-            if (squaredDist > radius ** 2) {
-                let dist = Math.sqrt(squaredDist);
-                dx = radius * dx / dist;
-                dy = radius * dy / dist;
-            }
-
-            this.knob.style.transform = `translate(${radius + dx}px, ${radius + dy}px)`;
+            (microverse || document.body).appendChild(this.hud);
         }
     }
-
-    */
-
-    /*
-    setupFullScreenButton() {
-        let div = document.createElement("div");
-        div.innerHTML = fullScreenHTML;
-        let fullscreenBtn = div.children[0];
-
-        this.hud.appendChild(fullscreenBtn);
-        this.fullscreenBtn = this.hud.querySelector("#fullscreenBtn");
-
-        if (this.fullscreenBtn) {
-            this.fullscreenBtn.onclick = (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                if (e.shiftKey) {
-                    document.body.classList.toggle("tilt");
-                    return;
-                }
-
-                if (!document.fullscreenElement) {
-                    // If the document is not in full screen mode
-                    // make the document full screen
-                    document.body.requestFullscreen();
-                } else {
-                    // Otherwise exit the full screen
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                }
-            };
-        }
-    }
-    */
 }
 
 class Shell {
@@ -347,7 +205,8 @@ class Shell {
         };
         if (owningFrameId) this.frameEntry(owningFrameId)?.ownedFrames.add(portalId);
         this.frames.set(portalId, frameEntry);
-        document.body.appendChild(frame);
+        let microverse = document.querySelector("#microverse");
+        (microverse || document.body).appendChild(frame);
         this.sendFrameType(portalId);
         // console.log("shell: added frame", portalId, portalURL);
         return portalId;

@@ -116,7 +116,8 @@ console.log(`DolbyChatManager (local actor ${alreadyHere ? "already" : "not yet"
 </div>
 `;
             chatHolder = div.firstChild;
-            document.body.appendChild(chatHolder);
+            let microverse = document.body.querySelector("#microverse");
+            (microverse || document.body).appendChild(chatHolder);
 
             ['toggleConnection', 'toggleAudio', 'toggleSettings', 'toggleMicrophoneTest'].forEach(buttonName => {
                 const elem = document.getElementById(buttonName);

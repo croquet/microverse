@@ -501,7 +501,8 @@ function createShareMenu(avatar) {
         saveVrseRow.style.display = "none";
     }
 
-    document.body.appendChild(shareDialog);
+    let microverse = document.body.querySelector("#microverse");
+    (microverse || document.body).appendChild(shareDialog);
 }
 
 function savePressed(myAvatar) {

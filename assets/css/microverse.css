@@ -76,6 +76,14 @@ body.tilt > iframe {
     /* TODO Solve this in HTML */
 }
 
+#microverse {
+    position: relative;
+    /* position" relative is important as it makes the control buttons inside laid out accordingly. */
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
 .info-text {
     color: #fff;
     z-index: 200;
@@ -348,7 +356,7 @@ body.tilt > iframe {
 }
 
 .btn-ui {
-    position: fixed;
+    position: absolute;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 200;
     border-radius: 50%;
@@ -385,7 +393,7 @@ body.tilt > iframe {
     align-items: center;
     flex-direction: column;
 
-    position: fixed;
+    position: absolute;
     width: 0px;
     height: 50px;
 

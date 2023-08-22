@@ -17,9 +17,9 @@ export const fullScreenHTML = `
 </div>
 `.trim();
 
-const container = `
-<div class="container">
-    <div class="controllers" style="border:1px solid red">
+const hudContainer = `
+<div class="hud-container">
+    <div class="controllers" style="border:0px solid transparent">
         <div id="homeBtn" class="btn btn-ui">
             <div class="fa-icon fa-house-user world-icon no-pointer-events"></div>
         </div>
@@ -35,15 +35,18 @@ const container = `
 `.trim();
 
 export const microverseHTML = `
+<div id="microverse">
 <div id="hud">
-${container}
+${hudContainer}
+</div>
 </div>
 `.trim();
 export const innerHTML = `
+<div id="microverse">
 <div id="hud" style="display: inherit">
-${container}
+${hudContainer}
 ${joystickHTML}
-</div>`.trim();
+</div></div>`.trim();
 
 let avatar;
 let joystick;

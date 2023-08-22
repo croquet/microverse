@@ -105,7 +105,8 @@ export class AgoraChatManager extends ViewService {
         frame.style.cssText = "position: absolute; width: 1px; height: 1px; z-index: 100; transition: none;"
         frame.setAttribute("allow", "microphone;camera");
         frame.setAttribute("sandbox", "allow-same-origin allow-scripts");
-        document.body.appendChild(frame);
+        let microverse = document.querySelector("#microverse");
+        (microverse || document.body).appendChild(frame);
         const chatURL = new URL(`../video-chat/microverse.html?debug=session`, window.location.href).href;
         // const chatURL = new URL(`http://localhost:8000/video-chatv4/microverse.html?debug=session`).href;
         frame.src = chatURL;

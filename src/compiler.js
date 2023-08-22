@@ -16,7 +16,6 @@ export class TSCompiler {
 
         let program = ts.createProgram([location], this.options, this.compilerHost);
         let result = program.emit();
-        console.log(result);
 
         let compiledName = location.replace(/\.ts$/, ".js");
 

@@ -36,7 +36,9 @@ export class KeyFocusManager extends ViewService {
 
             this.hiddenInput.style.setProperty("width", "100px");
             this.hiddenInput.style.setProperty("height", "100px");
-            document.body.appendChild(this.hiddenInput);
+
+            let microverse = document.body.querySelector("#microverse");
+            (microverse || document.body).appendChild(this.hiddenInput);
 
             this.hiddenInput.addEventListener("input", evt => {
                 evt.stopPropagation();
@@ -72,7 +74,8 @@ export class KeyFocusManager extends ViewService {
 
             this.copyElement.style.setProperty("width", "100px");
             this.copyElement.style.setProperty("height", "100px");
-            document.body.appendChild(this.copyElement);
+            let microverse = document.body.querySelector("#microverse");
+            (microverse || document.body).appendChild(this.copyElement);
         }
     }
 

@@ -110,9 +110,9 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
     }
 
     setRaycastFrom2D(xy) {
-        const x = ( xy[0] / window.innerWidth ) * 2 - 1;
-        const y = - ( xy[1] / window.innerHeight ) * 2 + 1;
         const render = this.service("ThreeRenderManager");
+        const x = ( xy[0] / render.canvas.width ) * 2 - 1;
+        const y = - ( xy[1] / render.canvas.height) * 2 + 1;
         if (!this.raycaster) this.raycaster = new THREE.Raycaster();
         this.raycaster.setFromCamera({x: x, y: y}, render.camera);
         this.raycaster.params.Line = {threshold: 0.2};
@@ -423,10 +423,11 @@ class ThreeRenderManager extends RenderManager {
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
 
         if (!options.canvas) {
+            let microverse = document.querySelector("#microverse");
             this.canvas = document.createElement("canvas");
             this.canvas.id = "ThreeCanvas";
-            this.canvas.style.cssText = "position: absolute; left: 0; top: 0; z-index: 0";
-            document.body.insertBefore(this.canvas, null);
+            this.canvas.style.zIindex = 0;
+            (microverse || document.body).appendChild(this.canvas);
             options.canvas = this.canvas;
         }
 
@@ -445,6 +446,8 @@ class ThreeRenderManager extends RenderManager {
         if (this.canvas) {
             options.canvas = this.canvas;
         }
+
+        this.publish("_input", "setMicroverseDiv", {divQuery: "#microverse", canvasQuery: "#ThreeCanvas"});
 
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
@@ -494,7 +497,8 @@ class ThreeRenderManager extends RenderManager {
                 this.observer = new MutationObserver(styleCallback);
                 this.observer.observe(this.vrButton, {attributes: true, attributeFilter: ["style"]});
 
-                document.body.appendChild(this.vrButton);
+                let microverse = document.querySelector("#microverse");
+                (microverse || document.body).appendChild(this.vrButton);
                 this.renderer.xr.enabled = true;
                 this.xrController = new XRController(this);
             } else {
@@ -503,15 +507,16 @@ class ThreeRenderManager extends RenderManager {
                 this.renderPass = new RenderPass( this.scene, this.camera );
                 this.composer.addPass( this.renderPass );
             }
-            this.resize();
-            this.subscribe("input", "resize", () => this.resize());
+
+            // this.resize();
+            this.subscribe("_input", "resize", this.resize);
             this.setRender(true);
         });
     }
 
     installOutlinePass() {
         if(!this.outlinePass){
-            this.outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), this.scene, this.camera );
+            this.outlinePass = new OutlinePass( new THREE.Vector2(this.canvas.width, this.canvas.height), this.scene, this.camera );
             this.outlinePass.edgeStrength = 3.0;
             this.outlinePass.edgeGlow = 0.1;
             this.outlinePass.edgeThickness = 1.5;
@@ -562,12 +567,13 @@ class ThreeRenderManager extends RenderManager {
         if (this.observer) this.observer.disconnect();
     }
 
-    resize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+    resize(obj) {
+        // console.log("three resize", obj);
+        this.camera.aspect = obj.width / obj.height;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(obj.width, obj.height);
         if (this.composer) {
-            this.composer.setSize(window.innerWidth, window.innerHeight)
+            this.composer.setSize(obj.width, obj.height)
         }
     }
 

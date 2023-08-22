@@ -1,5 +1,5 @@
 #joystick {
-    position: fixed;
+    position: absolute;
     left: 50%;
     bottom: 50px;
     -ms-transform: translate(-50%, 0%);

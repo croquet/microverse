@@ -44,9 +44,13 @@ export async function prelude() {
           let css = document.createElement("link");
           css.rel = "stylesheet";
           css.type = "text/css";
+          css.
           css.id = "joystick-css";
           css.onload = resolve;
-      })
+          css.href = "/assets/css/joystick.css";
+          document.head.appendChild(css);
+      });
+
     */
 
     /*
