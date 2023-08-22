@@ -253,13 +253,13 @@ export class InputManager extends ViewService {
                 this.publish("_input", "tripleDown", {
                     pointerId: event.pointerId, pointerType: event.pointerType,
                     button: event.button, buttons: event.buttons, ...modKeys,
-                    xy: [event.offsetX, event.offset], pressure
+                    xy: [event.offsetX, event.offsetY], pressure
                 });
             } else {
                 this.publish("_input", "doubleDown", {
                     pointerId: event.pointerId, pointerType: event.pointerType,
                     button: event.button, buttons: event.buttons, ...modKeys,
-                    xy: [event.offsetX, event.offset], pressure
+                    xy: [event.offsetX, event.offsetY], pressure
                 });
             }
         }
