@@ -5,6 +5,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-08-18
+### Added
+- You can use TypeScript to write a behavior. A behavior written in JS can use autocomplete available methods and properties.
+- The 3D events have the pressure property for input coming from pressure sensitive input devices.
+
 ## 2023-08-11
 ### Added
 - The nickname tag shows who is speaking over the dolby chat (thanks to Maksym Domaretskyi).
