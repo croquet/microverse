@@ -133,7 +133,7 @@ export type PhysicsExports = {
 };
 
 export type FrameExports = {
-    sendToShell(command: string, args: Array<any>)
+    sendToShell(command: string, ...args: Array<any>)
 }
 
 export type THREE = typeof import("three");
