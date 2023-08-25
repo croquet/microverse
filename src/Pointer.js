@@ -71,7 +71,8 @@ export const AM_PointerTarget = superclass => class extends superclass {
         }
 
         if (!behaviorName && behavior) {
-            behaviorName = behavior.$behaviorName;
+            let compiled = behavior.ensureBehavior();
+            behaviorName = compiled.$behaviorName;
         }
 
         let array = this.eventListeners.get(eventName);
@@ -109,7 +110,7 @@ export const AM_PointerTarget = superclass => class extends superclass {
 
         */
 
-        let behaviorName = this._behavior.$behaviorName;
+        let behaviorName = this._behavior.ensureBehavior().$behaviorName;
         let moduleName = this._behavior.module.externalName;
 
         let array = this.eventListeners.get(eventName);

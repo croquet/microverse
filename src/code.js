@@ -11,6 +11,8 @@ import * as FrameExports from "./frame.js";
 
 import {TSCompiler, JSCompiler} from "./compiler.js";
 
+let compiledBehaviors = new Map(); // <ScriptingBehavior, {$behavior, $behaviorName}
+
 let isProxy = Symbol("isProxy");
 function newProxy(object, handler, module, behavior) {
     if (object[isProxy]) {
@@ -114,7 +116,8 @@ export const AM_Code = superclass => class extends superclass {
 
     future(time) {
         if (!this[isProxy]) {return super.future(time);}
-        let behaviorName = this._behavior.$behaviorName;
+        let compiled = this._behavior.getCompiledBehavior();
+        let behaviorName = compiled.$behaviorName;
         let moduleName = this._behavior.module.externalName;
         return this.futureWithBehavior(time, moduleName, behaviorName);
     }
@@ -136,7 +139,9 @@ export const AM_Code = superclass => class extends superclass {
             get(_target, property) {
                 let behavior = behaviorManager.lookup(moduleName, behaviorName);
 
-                let func = property === "call" ? basicCall : behavior.$behavior[property];
+                let compiled = behavior.getCompiledBehavior();
+
+                let func = property === "call" ? basicCall : compiled.$behavior[property];
                 let fullName = property === "call" ?  "call" : `${moduleName}$${behaviorName}.${property}`;
                 if (typeof func === "function") {
                     const methodProxy = new Proxy(func, {
@@ -226,8 +231,15 @@ export const AM_Code = superclass => class extends superclass {
 
         let behavior = behaviorManager.lookup(module, behaviorName);
         if (!behavior) {return false;}
+
+        let $behavior;
+        if (isActor) {
+            $behavior = behavior.ensureBehavior().$behavior
+        } else {
+            $behavior = behavior.ensureBehavior().$behavior;
+        }
         if (!maybeMethod) {return true;}
-        return !!behavior.$behavior[maybeMethod];
+        return !!$behavior[maybeMethod];
     }
 
     // setup() of a behavior, and typically a subscribe call in it, gets called multiple times
@@ -275,7 +287,7 @@ export const AM_Code = superclass => class extends superclass {
         }
 
         if (!behaviorName && behavior) {
-            behaviorName = behavior.$behaviorName;
+            behaviorName = behavior.getCompiledBehavior().$behaviorName;
         }
 
         let fullMethodName;
@@ -394,14 +406,14 @@ export const PM_Code = superclass => class extends superclass {
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
                         if (behavior) {
-                            behavior.ensureBehavior();
+                            let {$behavior, $behaviorName} = behavior.ensureBehavior();
+                            // future(0) is used so that setup() is called after
+                            // all behaviors specified are installed.
+                            if ($behavior.setup) {
+                                this.future(0).callSetup(`${module.externalName}$${$behaviorName}`);
+                            }
                         }
-                        // future(0) is used so that setup() is called after
-                        // all behaviors specified are installed.
-                        if (behavior.$behavior.setup) {
-                            this.future(0).callSetup(`${module.externalName}$${behavior.$behaviorName}`);
-                        }
-                    };
+                    }
                 }
             });
         }
@@ -449,8 +461,9 @@ export const PM_Code = superclass => class extends superclass {
                 let {pawnBehaviors} = module;
                 if (pawnBehaviors) {
                     for (let behavior of pawnBehaviors.values()) {
-                        if (behavior.$behavior.teardown) {
-                            this.call(`${behavior.module.externalName}$${behavior.$behaviorName}`, "teardown");
+                        let {$behavior, $behaviorName} = behavior.ensureBehavior();
+                        if ($behavior.teardown) {
+                            this.call(`${behavior.module.externalName}$${$behaviorName}`, "teardown");
                         }
                     };
                 }
@@ -537,7 +550,7 @@ export const PM_Code = superclass => class extends superclass {
         }
 
         if (!behaviorName && behavior) {
-            behaviorName = behavior.$behaviorName;
+            behaviorName = behavior.getCompiledBehavior().$behaviorName;
         }
 
         let fullMethodName;
@@ -602,7 +615,7 @@ export const PM_Code = superclass => class extends superclass {
 // so there is one instance of ScriptBehavior for each defined behavior.
 
 class ScriptingBehavior extends Model {
-    static okayToIgnore() { return [ "$behavior", "$behaviorName" ]; }
+    // static okayToIgnore() { return [ "$behavior", "$behaviorName" ]; }
 
     init(options) {
         this.systemBehavior = !!options.systemBehavior;
@@ -612,16 +625,10 @@ class ScriptingBehavior extends Model {
         this.location = options.location;
     }
 
-    setCode(string) {
+    compileBehavior(string) {
         if (!string) {
-            console.log("code is empty for ", this);
-            return;
+            string = this.code;
         }
-
-        let theSame = this.code === string;
-
-        this.code = string;
-
         let trimmed = string.trim();
         let source;
         if (trimmed.length === 0) {return;}
@@ -646,34 +653,57 @@ class ScriptingBehavior extends Model {
             return;
         }
 
-        this.$behavior = cls.prototype;
-        this.$behaviorName = cls.name;
+        return cls;
+    }
 
-        if (!theSame) {
-            this.publish(this.id, "setCode", string);
+    getCompiledBehavior() {
+        return compiledBehaviors.get(this);
+    }
+
+    setCode(string, forView) {
+        if (!string) {
+            console.log("code is empty for ", this);
+            return;
         }
+
+        let theSame = this.code === string;
+        let cls = this.compileBehavior(string);
+        let result = {$behavior: cls.prototype, $behaviorName: cls.name};
+        compiledBehaviors.set(this, result);
+
+        if (forView) {
+            if (!theSame) {
+                throw Error("view cannot specify new code");
+            }
+        } else {
+            if (!theSame) {
+                this.code = string;
+                this.publish(this.id, "setCode", string);
+            }
+        }
+        return result;
     }
 
     ensureBehavior() {
-        if (!this.$behavior) {
-            let maybeCode = this.code;
-            this.setCode(maybeCode);
+        let entry = compiledBehaviors.get(this);
+        if (!entry) {
+            let cls = this.compileBehavior();
+            entry = {$behavior: cls.prototype, $behaviorName: cls.name};
+            compiledBehaviors.set(this, entry);
         }
-        return this.$behavior;
+        return entry;
     }
 
     invoke(receiver, name, ...values) {
-        this.ensureBehavior();
-        let myHandler = this.$behavior;
-        let behaviorName = this.$behaviorName;
+        let {$behavior, $behaviorName} = this.ensureBehavior();
         let module = this.module;
         let result;
 
-        let proxy = newProxy(receiver, myHandler, module, this);
+        let proxy = newProxy(receiver, $behavior, module, this);
         try {
             let prop = proxy[name];
             if (typeof prop === "undefined") {
-                throw new Error(`a method named ${name} not found in ${behaviorName || this}`);
+                throw new Error(`a method named ${name} not found in ${$behaviorName || this}`);
             }
             if (typeof prop === "function") {
                 result = prop.apply(proxy, values);
@@ -681,8 +711,8 @@ class ScriptingBehavior extends Model {
                 result = prop;
             }
         } catch (e) {
-            console.error(`an error occured in ${behaviorName}.${name}() on`, receiver, e);
-            App.messages && App.showMessage(`Error in ${behaviorName}.${name}()`, { level: "error" });
+            console.error(`an error occured in ${$behaviorName}.${name}() on`, receiver, e);
+            App.messages && App.showMessage(`Error in ${$behaviorName}.${name}()`, { level: "error" });
         }
         return result;
     }
@@ -778,12 +808,10 @@ export class BehaviorModelManager extends ModelService {
         if (!module) {return null;}
         let b = module.actorBehaviors.get(behaviorName);
         if (b) {
-            b.ensureBehavior();
             return b;
         }
         b = module.pawnBehaviors.get(behaviorName);
         if (b) {
-            b.ensureBehavior();
             return b;
         }
         return null;
@@ -957,7 +985,7 @@ export class BehaviorModelManager extends ModelService {
 
         let toPublish = [];
         changed.forEach((behavior) => {
-            if (!behavior.$behavior.setup) {return;}
+            if (!behavior.getCompiledBehavior().setup) {return;}
             if (behavior.type === "actorBehavior") {
                 let modelUsers = this.modelUses.get(behavior);
                 let actorManager = this.service("ActorManager");
@@ -970,7 +998,7 @@ export class BehaviorModelManager extends ModelService {
                     });
                 }
             } else if (behavior.type === "pawnBehavior") {
-                toPublish.push([behavior.module.externalName, behavior.$behaviorName]);
+                toPublish.push([behavior.module.externalName, behavior.getCompiledBehavior().$behaviorName]);
             }
         });
         this.publish(this.id, "callViewSetupAll", toPublish);
@@ -1005,7 +1033,7 @@ export class BehaviorModelManager extends ModelService {
         if (array.indexOf(modelId) < 0) {
             array.push(modelId);
             behavior.ensureBehavior();
-            if (behavior.$behavior.setup) {
+            if (behavior.getCompiledBehavior().$behavior.setup) {
                 behavior.invoke(model[isProxy] ? model._target : model, "setup");
             }
         }
@@ -1018,7 +1046,8 @@ export class BehaviorModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        if (behavior.$behavior && behavior.$behavior.teardown) {
+        let compiled = behavior.getCompiledBehavior();
+        if (compiled && compiled.$behavior.teardown) {
             behavior.future(0).invoke(model[isProxy] ? model._target : model, "teardown");
         }
     }
@@ -1034,9 +1063,9 @@ export class BehaviorModelManager extends ModelService {
             array.push(modelId);
         }
 
-        behavior.ensureBehavior();
-        if (behavior.$behavior.setup) {
-            model.say("callSetup", `${behavior.module.externalName}$${behavior.$behaviorName}`);
+        let {$behavior, $behaviorName} = behavior.ensureBehavior();
+        if ($behavior.setup) {
+            model.say("callSetup", `${behavior.module.externalName}$${$behaviorName}`);
         }
     }
 
@@ -1047,8 +1076,9 @@ export class BehaviorModelManager extends ModelService {
         let ind = array.indexOf(modelId);
         if (ind < 0) {return;}
         array.splice(ind, 1);
-        if (behavior.$behavior && behavior.$behavior.teardown) {
-            model.say("callTeardown", `${behavior.module.externalName}$${behavior.$behaviorName}`);
+        let compiled = behavior.getCompiledBehavior();
+        if (compiled && compiled.$behavior.teardown) {
+            model.say("callTeardown", `${behavior.module.externalName}$${compiled.$behaviorName}`);
         }
     }
 }
@@ -1074,6 +1104,7 @@ export class BehaviorViewManager extends ViewService {
             this.callback(false);
         }
         this.setURL(null);
+        compiledBehaviors = new Map();
         super.destroy();
     }
 
