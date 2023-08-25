@@ -5,6 +5,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-08-25
+### Added
+- allow non-full window Microverse in a browser window.
+
+### Fixed
+- The compiled behaviors are handled without writing into the model.
+
 ## 2023-08-18
 ### Added
 - You can use TypeScript to write a behavior. A behavior written in JS can use autocomplete available methods and properties.
