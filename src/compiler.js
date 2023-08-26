@@ -1,3 +1,5 @@
+import * as ts from "typescript";
+
 export class TSCompiler {
     constructor() {
         if (!window.ts) {return;}
