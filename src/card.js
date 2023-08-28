@@ -1379,6 +1379,7 @@ export class CardPawn extends mix(Pawn).with(PM_Smoothed, PM_ThreeVisible, PM_Po
 
     onPointerDoubleDown(pe) {
         if (!pe.targetId) {return;}
+        if (pe.shiftKey || pe.ctrlKey || pe.altKey) {return;}
         let pose = this.getJumpToPose ? this.getJumpToPose() : null;
         if (pose) {
             pe.xyz = pose[0]; // world coordinates

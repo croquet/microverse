@@ -29,8 +29,14 @@ class AvatarPawn extends PawnBehavior {
         this.addEventListener("pointerWheel", this.pointerWheel);
 
         this.removeEventListener("pointerDoubleDown", "onPointerDoubleDown");
-        this.addFirstResponder("pointerDoubleDown", {shiftKey: true}, this);
-        this.addEventListener("pointerDoubleDown", this.addSticky);
+        let doubleDownAction = "doubleDown";
+        let eventMask = {shiftKey: true};
+        if (Microverse.Constants.PointerDoubleDownAction) {
+            doubleDownAction = Microverse.Constants.PointerDoubleDownAction;
+            eventMask = {};
+        }
+        this.addFirstResponder("pointerDoubleDown", eventMask, this);
+        this.addEventListener("pointerDoubleDown", doubleDownAction);
 
         this.addLastResponder("keyDown", {ctrlKey: true}, this);
         this.addEventListener("keyDown", this.keyDown);

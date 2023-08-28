@@ -2022,6 +2022,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         }
     }
 
+    doubleDown(e) {
+        if (e.shiftKey) {
+            this.addSticky(e);
+        }
+    }
+
     stopFalling() {
         this.isFalling = false;
     }
