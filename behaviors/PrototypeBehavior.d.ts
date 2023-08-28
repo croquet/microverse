@@ -19,111 +19,780 @@ export type Matrix4 = [
 
 export type WorldcoreExports = {
     slerp(a: number, b: number, t: number): number,
+
+    /**
+     * Null 2-vector [0, 0]
+     * @public
+     * @returns {Vector2}
+     */
     v2_zero(): Vector2,
+    /**
+     * Random point on a unit circle.
+     * @public
+     * @returns {Vector2}
+     */
     v2_random(): Vector2,
+
+    /**
+     * Magnitude of vector.
+     * @public
+     * @param {Vector2} v
+     * @returns {number}
+     */
     v2_magnitude(v: Vector2): number,
-    v2_sqrMag(v: Vector2) : number,
+
+    /**
+     * Squared magnitude of vector.
+     * @public
+     * @param {Vector2} v
+     * @returns {number}
+     */
+    v2_sqrMag(v: Vector2): number,
+
+    /**
+     * Normalized vector. (Error on magnitude 0)
+     * @public
+     * @param {Vector2} v
+     * @returns {number[]}
+     */
     v2_normalize(v: Vector2): Vector2,
+
+    /**
+     * Absolute value of all elements.
+     * @public
+     * @param {Vector2} v
+     * @returns {Vector2}
+     */
     v2_abs(v: Vector2): Vector2,
+
+    /**
+     * Ceiling of all elements.
+     * @public
+     * @param {Vector2} v
+     * @returns {Vector2}
+     */
     v2_ceil(v: Vector2): Vector2,
+
+    /**
+     * Floor of all elements.
+     * @public
+     * @param {Vector2} v
+     * @returns {Vector2}
+     */
     v2_floor(v: Vector2): Vector2,
+
+    /**
+     * Reciprocal of all elements.
+     * @public
+     * @param {Vector2} v
+     * @returns {Vector2}
+     */
     v2_inverse(v: Vector2): Vector2,
+
+    /**
+     * Multiply all elements by a constant scale factor.
+     * @public
+     * @param {Vector2} v
+     * @param {number} s
+     * @returns {Vector2}
+     */
     v2_scale(v: Vector2, s: number): Vector2,
+
+    /**
+     * Multiply individual elements of two vectors
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {Vector2}
+     */
     v2_multiply(a: Vector2, b: Vector2),
+
+    /**
+     * Divide individual elements of two vectors
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {Vector2}
+     */
     v2_divide(a: Vector2, b: Vector2);
+
+    /**
+     * Rotate clockwise. Angle in radians.
+     * @public
+     * @param {Vector2} v
+     * @param {number} a
+     * @returns {Vector2}
+     */
     v2_rotate(v: Vector2, a: number): Vector2,
+
+    /**
+     * Add two vectors
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {Vector2}
+     */
     v2_add(a: Vector2, b: Vector2): Vector2,
+
+    /**
+     * Subtract two vectors
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {Vector2}
+     */
     v2_sub(a: Vector2, b: Vector2): Vector2,
+
+    /**
+     * Dot product of two vectors
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {number}
+     */
     v2_dot(a: Vector2, b: Vector2): number,
+
+    /**
+     * Minimum of two vectors, compared element by element.
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {Vector2}
+     */
     v2_min(a: Vector2, b: Vector2): Vector2,
+
+    /**
+     * Maximum of two vectors, compared element by element.
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {Vector2}
+     */
     v2_max(a: Vector2, b: Vector2): Vector2,
+
+    /**
+     * Angle in radian between two vectors.
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @returns {number}
+     */
     v2_angle(a: Vector2, b: Vector2): number,
+
     v2_signedAngle(a: Vector2, b: Vector2): number,
+
+    /**
+     * Linear interpolation between two vectors
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {number} t - interpolation value between 0 and 1
+     * @returns {Vector2}
+     */
     v2_lerp(a: Vector2, b: Vector2, t: number): Vector2,
+
+    /**
+     * Checks for vector equality within an epsilon.
+     * @public
+     * @param {Vector2} a
+     * @param {Vector2} b
+     * @param {number} e - epsilon 0 by default
+     * @returns {boolean}
+     */
     v2_equals(a: Vector2, b: Vector2, e?: number): boolean,
+
+    /**
+     * Checks if vector is [0, 0]
+     * @public
+     * @param {Vector2} v
+     * @returns {boolean}
+     */
     v2_isZero(v: Vector2): boolean,
+
     v2_distance(a: Vector2, b: Vector2): number,
     v2_distanceSqr(a: Vector2, b: Vector2): number,
+
+    /**
+     * Manhattan distance of vector
+     * @public
+     * @param {Vector2} v
+     * @returns {number}
+     */
     v2_manhattan(a: Vector2, b: Vector2): number,
+
+    /**
+     * Multiplies vector by a 2x2 matrix
+     * @public
+     * @param {Vector2} v
+     * @param {Matrix2} m
+     * @returns {Vector2}
+     */
     v2_transform(v: Vector2, m: Matrix2): Vector2,
     v2_perpendicular(v: Vector2) : Vector2,
     v2_closest(v: Vector2, p: Vector2): Vector2,
 
+    /**
+     * Null 3-vector [0, 0, 0]
+     * @public
+     * @returns {Vector3}
+     */
     v3_zero(): Vector3,
+
+    /**
+     * Random point on a unit sphere.
+     * @public
+     * @returns {Vector3}
+     */
     v3_random(): Vector3,
+
+    /**
+     * Magnitude of vector.
+     * @public
+     * @param {Vector3} v
+     * @returns {number}
+     */
     v3_magnitude(v: Vector3): number,
+
+    /**
+     * Squared magnitude of vector.
+     * @public
+     * @param {Vector3} v
+     * @returns {number}
+     */
     v3_sqrMag(v: Vector3): number,
+
+    /**
+     * Normalized vector. (Error on magnitude 0)
+     * @public
+     * @param {Vector3} v
+     * @returns {Vector3}
+     */
     v3_normalize(v: Vector3): Vector3,
+
+    /**
+     * Reciprocal of all elements.
+     * @public
+     * @param {Vector3} v
+     * @returns {Vector3}
+     */
     v3_inverse(v: Vector3): Vector3,
+
+    /**
+     * Absolute value of all elements.
+     * @public
+     * @param {Vector3} v
+     * @returns {Vector3}
+     */
     v3_abs(v: Vector3): Vector3,
+
+    /**
+     * Ceiling of all elements.
+     * @public
+     * @param {Vector3} v
+     * @returns {Vector3}
+     */
     v3_ceil(v: Vector3): Vector3,
+
+    /**
+     * Floor of all elements.
+     * @public
+     * @param {Vector3} v
+     * @returns {Vector3}
+     */
     v3_floor(v: Vector3): Vector3,
+
+    /**
+     * Multiply all elements by a constant scale factor.
+     * @public
+     * @param {Vector3} v
+     * @param {number} s - scale
+     * @returns {Vector3}
+     */
     v3_scale(v: Vector3, s: number): number,
+
+    /**
+     * Multiply individual elements of two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {Vector3}
+     */
     v3_multiply(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Divide individual elements of two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {Vector3}
+     */
     v3_divide(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Rotate around x axis. Angle in radians. Clockwise looking along axis
+     * @public
+     * @param {Vector3} v
+     * @param {number} a
+     * @returns {Vector3}
+     */
     v3_rotateX(v: Vector3, a: number): Vector3,
-    v3_rotateY(v: Vector3, a: number): Vector3,
+
+    /**
+     * Rotate around y axis. Angle in radians. Clockwise looking along axis
+     * @public
+     * @param {Vector3} v
+     * @param {number} a
+     * @returns {Vector3}
+     */
+    v3_rotateY(v: Vectnlor3, a: number): Vector3,
+
+    /**
+     * Rotate around z axis. Angle in radians. Clockwise looking along axis
+     * @public
+     * @param {Vector3} v
+     * @param {number} a
+     * @returns {Vector3}
+     */
     v3_rotateZ(v: Vector3, a: number): Vector3,
+
+    /**
+     * Add two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {Vector3}
+     */
     v3_add(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Subtract two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {Vector3}
+     */
     v3_sub(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Dot product of two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {number}
+     */
     v3_dot(a: Vector3, b: Vector3): number,
+
+    /**
+     * Cross product of two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {number}
+     */
     v3_cross(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Minimum of two vectors, compared element by element.
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {number}
+     */
     v3_min(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Maximum of two vectors, compared element by element.
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {Vector3}
+     */
     v3_max(a: Vector3, b: Vector3): Vector3,
+
+    /**
+     * Manhattan distance of vector
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @returns {number}
+     */
     v3_manhattan(a: Vector3, b: Vector3): number,
+
+     /**
+      * Angle in radian between two vectors.
+      * @public
+      * @param {Vector3} a
+      * @param {Vector3} b
+      * @returns {number}
+      */
     v3_angle(a: Vector3, b: Vector3): number,
+
+    /**
+     * Linear interpolation between two vectors
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @param {number} t - value between 0 and 1
+     * @returns {Vector3}
+     */
     v3_lerp(a: Vector3, b: Vector3, t: number): Vector3,
+
+    /**
+     * Multiplies vector by a 4x4 matrix (Treats the vector as [x,y,z,1] in homogenous coordinates)
+     * @public
+     * @param {Vector3} a
+     * @param {Matrix4} m
+     * @returns {Vector3}
+     */
     v3_transform(a: Vector3, m: Matrix4): Vector3,
+
+    /**
+     * Rotate by a quaternion
+     * @public
+     * @param {Vector3} v
+     * @param {Quaternion} q
+     * @returns {Vector3}
+     */
     v3_rotate(v: Vector3, q: Quaternion): Vector3,
-    v3_equals(a: Vector3, b: Vector3, e?: number), boolean,
+
+    /**
+     * Checks for vector equality within an epsilon.
+     * @public
+     * @param {Vector3} a
+     * @param {Vector3} b
+     * @param {number=} e - epsilon defaults to zero
+     * @returns {boolean}
+     */
+    v3_equals(a: Vector3, b: Vector3, e?: number): boolean,
+
+    /**
+     * Checks if vector is [0, 0, 0]
+     * @public
+     * @param {Vector3} v
+     * @returns {boolean}
+     */
     v3_isZero(v: Vector3): boolean,
+
     v3_distance(a: Vector3, b: Vector3): number,
     v3_distanceSqr(a: Vector3, b: Vector3): number,
 
+    /**
+     * Returns a 2x2 zero Matrix
+     * @public
+     * @returns {Matrix2} 2x2 Matrix
+     */
     m2_zero(): Matrix2
+
+    /**
+     * Returns a 2x2 identity matrix
+     * @public
+     * @returns {Matrix2} 2x2 Matrix
+     */
     m2_identity(): Matrix2,
+
+    /**
+     * Returns a 2x2 matrix that will rotate a 2-vector clockwise. Angle is in radians.
+     * @public
+     * @param {number} angle
+     * @returns {Matrix2} 2x2 Matrix
+     */
     m2_rotation(angle: number): Matrix2,
 
+    /**
+     * Returns a 4x4 zero matrix
+     * @public
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_zero(): Matrix4,
+
+    /**
+     * Returns a 4x4 identity matrix
+     * @public
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_identity(): Matrix4
+
+    /**
+     * Creates a 4x4 transform matrix from a 3-vector translation.
+     * @public
+     * @param {Vector3} v
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_translation(v: Vector3): Matrix4,
+
+    /**
+     * Extracts the translation from a 4x4 transform matrix.
+     * @public
+     * @param {Matrix4} m
+     * @returns {Vector3} extracted translation
+     */
     m4_getTranslation(m: Matrix4): Vector3,
+
+    /**
+     * Creates a 4x4 transform matrix from a 3-vector scale, or a scale constant.
+     * @public
+     * @param {Vector3|number} s
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_scale(s: Vector3|number): Matrix4,
+
+    /**
+     * Extracts the scale from a 4x4 transform matrix.
+     * @public
+     * @param {Matrix4} m
+     * @returns {Vector3} extracted scale
+     */
     m4_getScale(m: Matrix4): Vector3,
+
+    /**
+     * Creates a 4x4 rotation matrix around the given axis. Angle is in radians, and rotation is clockwise looking along axis.
+     * @public
+     * @param {Vector3} axis
+     * @param {number} angle
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_rotation(axis: Vector3, angle: number): Matrix4,
+
+    /**
+     * Creates a 4x4 rotation matrix around the x axis. Angle is in radians, and rotation is clockwise looking along axis.
+     * @public
+     * @param {number} angle
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_rotationX(a: number): Matrix4,
+
+    /**
+     * Creates a 4x4 rotation matrix around the y axis. Angle is in radians, and rotation is clockwise looking along axis.
+     * @public
+     * @param {number} angle
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_rotationY(a: number): Matrix4,
+
+    /**
+     * Creates a 4x4 rotation matrix around the z axis. Angle is in radians, and rotation is clockwise looking along axis.
+     * @public
+     * @param {number} angle
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_rotationZ(a: number): Matrix4,
+
+    /**
+     * Creates a 4x4 rotation matrix from a quaternion.
+     * @public
+     * @param {Quaternion} rotation
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_rotationQ(q: Quaternion): Matrix4,
+
+    /**
+     * Extracts the rotation quaternion from a 4x4 transform matrix.
+     * @public
+     * @param {Matrix4} matrix
+     * @returns {Quaternion} Quaternion
+     */
     m4_getRotation(m: Matrix4): Quaternion,
-    m4_scaleRotationTranslation(s: Vector3|number, q: Quaternion, v: Vector3),
+
+    /**
+     * Creates a 4x4 transform matrix from a scale, a rotation, and a translation. The scale can be either a 3-vector or a scalar. The rotation is a quaternion.
+     * @public
+     * @param {Vector3|number} scale
+     * @param {Quaternion} rotation
+     * @param {Vector3} translation
+     * @returns {Matrix4} 4x4 Matrix
+     */
+    m4_scaleRotationTranslation(s: Vector3|number, q: Quaternion, v: Vector3) : Matrix4,
     m4_getScaleRotationTranslation(m: Matrix4): [Vector3, Quaternion, Vector3],
+
+    /**
+     * Creates a 4x4 perspective matrix from a field of view, an aspect ratio, and the near and far clip planes. The FOV is in radians.
+     * @public
+     * @param {number} fov
+     * @param {number} aspect
+     * @param {number} near
+     * @param {number} far
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_perspective(fov: number, aspect: number, near: number, far: number): Matrix4,
+
+    /**
+     * Returns the transpose of a 4x4 matrix
+     * @public
+     * @param {Matrix4} m
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_transpose(m: Matrix4): Matrix4,
+
+    /**
+     * Returns the determinant of a 4x4 matrix
+     * @public
+     * @param {Matrix4} matrix
+     * @returns {number} Determinant
+     */
     m4_determinant(m: Matrix4): number,
+
+    /**
+     * Returns the inverse of a 4x4 matrix
+     * @public
+     * @param {Matrix4} matrix
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_invert(m: Matrix4): Matrix4,
+
+    /**
+     * Multiply two 4x4 matrices
+     * @public
+     * @param {Matrix4} a
+     * @param {Matrix4} b
+     * @returns {Matrix4} 4x4 Matrix
+     */
     m4_multiply(a: Matrix4, b: Matrix4): Matrix4,
+
+    /**
+     * Extracts the scaling/rotation components of a 4x4 transform matrix and performs an inverse/transpose operation on them.
+     * This is the transform that should be applied to the surface normals of an object in a 3d rendered scene instead of the object's
+     * regular 4x4 transform.
+     * @public
+     * @param {Matrix4} m
+     * @returns {number[]} 4x4 Matrix
+     */
     m4_toNormal4(m: Matrix4): Matrix4,
 
+    /**
+     * Identity quaternion
+     * @public
+     * @returns {Quaternion}
+     */
     q_identity(): Quaternion,
     q_magnitude(q: Quaternion): number,
+
+    /**
+     * Normalize quaternion. (If you do a long series of quaternion operations, periodically renormalize to prevent drift.)
+     * @public
+     * @param {Quaternion} q
+     * @returns {Quaternion}
+     */
     q_normalize(q: Quaternion): number,
+
+    /**
+     * Reverse the rotation.
+     * @public
+     * @param {Quaternion} q
+     * @returns {Quaternion}
+     */
     q_conjugate(q: Quaternion): Quaternion,
+
+    /**
+     * Reverse the rotation.
+     * @public
+     * @param {Quaternion} q
+     * @returns {Quaternion}
+     */
     q_invert(q: Quaternion): Quaternion,
+
+    /**
+     * Creates a quaternion for a rotation around an axis. The angle is clockwise in radians looking along the axis. The axis should be normalized.
+     * @public
+     * @param {Vector3} axis
+     * @param {number} angle
+     * @returns {Quaternion}
+     */
     q_axisAngle(axis: Vector3, angle: number): Quaternion,
+
     q_toAxisAngle(quat: Quaternion): [Vector3, number],
+
+    /**
+     * Given a forward vector, an up vector,  and a target vector, generates a quaternion that will rotate the forward vector to look at the target vector.
+     * All vectors should be normalized.
+     * @public
+     * @param {Vector3} f - forward
+     * @param {Vector3} u - up
+     * @param {Vector3} t - target
+     * @returns {Quaternion}
+     */
     q_lookAt(f: Vector3, u: Vector3, t: Vector3): Quaternion,
+
+    /**
+     * Creates a quaternion from the given Euler angles. All angles are in radians.
+     * @public
+     * @param {number} x
+     * @param {number} y
+     * @param {number} z
+     * @returns {Quaternion}
+     */
     q_euler(x: number, y: number, z: number): Quaternion,
+
     q_eulerXYZ(x: number, y: number, z: number): Quaternion,
+
+    /**
+     * Extracts the Euler angle around the x axis from a quaternion.
+     * @public
+     * @param {Quaternion}
+     * @returns {number}
+     */
     q_pitch(q: Quaternion): number,
+
+    /**
+     * Extracts the Euler angle around the y axis from a quaternion.
+     * @public
+     * @param {Quaternion}
+     * @returns {number}
+     */
     q_yaw(q: Quaternion): number,
+
+    /**
+     * Extracts the Euler angle around the z axis from a quaternion.
+     * @public
+     * @param {Quaternion}
+     * @returns {number}
+     */
     q_roll(q: Quaternion): number,
+
     q_dot(q: Quaternion): number,
+
+    /**
+     * Combines two rotations. QuaternionA is applied before quaternionB.
+     * @public
+     * @param {Quaternion} a
+     * @param {Quaternion} b
+     * @returns {Quaternion}
+     */
     q_multiply(a: Quaternion, b: Quaternion): Quaternion,
+
+    /**
+     * Interpolates between two rotations.
+     * @public
+     * @param {Quaternion} a
+     * @param {Quaternion} b
+     * @param {number} t - value between 0 and 1
+     * @returns {Quaternion}
+     */
     q_slerp(a: Quaternion, b: Quaternion, t: number): Quaternion,
+
+    /**
+     * Checks for quaternion equality within an epsilon.
+     * @public
+     * @param {Quaternion} a
+     * @param {Quaternion} b
+     * @param {number=} e - epsilon that defaults to 0.0001
+     * @returns {boolean}
+     */
     q_equals(a: Quaternion, b: Quaternion, e?: number): boolean,
+
+    /**
+     * Checks if quaternion is [0, 0, 0, 1]
+     * @public
+     * @param {Quaternion} quaternion
+     * @returns {boolean}
+     */
     q_isZero(q: Quaternion): boolean,
 
+    /**
+     * Returns the CardPawn for given Actor Id. To be used only from pawn side behaviors.
+     * @public
+     * @param {string} id - actor's id
+     * @returns {CardPawn}
+     */
     GetPawn(id: string): CardPawn,
 };
 
