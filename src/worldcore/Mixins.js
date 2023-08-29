@@ -218,9 +218,14 @@ export const AM_Smoothed = superclass => class extends AM_Spatial(superclass) {
         this.say("translateTo", v);
     }
 
-    positionTo(data) {
-        this._translation = data.v;
-        this._rotation = data.q;
+    positionTo(data, data1) {
+        if (Array.isArray(data1)) {
+            this._translation = data;
+            this._rotation = data1;
+        } else {
+            this._translation = data.v;
+            this._rotation = data.q;
+        }
         this.$local = null;
         this.$global = null;
         this.say("rotateTo", data.q);
