@@ -76,7 +76,7 @@ export class JSCompiler {
                 result.push("");
                 continue;
             }
-            let test = /^class(\s+)(\S+)\s+extends\s(ActorBehavior|PawnBehavior)(.*)$/.exec(line)
+            let test = /^class(\s+)(\S+)\s+extends\s(ActorBehavior|PawnBehavior)(.*)\r?$/.exec(line)
             if (test) {
                 let newLine = `class${test[1]}${test[2]}${test[4]}`;
                 result.push(newLine);
