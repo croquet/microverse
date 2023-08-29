@@ -985,7 +985,7 @@ export class BehaviorModelManager extends ModelService {
 
         let toPublish = [];
         changed.forEach((behavior) => {
-            if (!behavior.getCompiledBehavior().setup) {return;}
+            if (!behavior.getCompiledBehavior().$behavior.setup) {return;}
             if (behavior.type === "actorBehavior") {
                 let modelUsers = this.modelUses.get(behavior);
                 let actorManager = this.service("ActorManager");
