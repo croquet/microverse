@@ -51,6 +51,7 @@ class BitcoinTrackerActor extends ActorBehavior {
     }
 
     addEntries(...data: Array<History>) {
+        if (data.length === 0) {return;}
         this.history.push(...data);
         if (this.history[0].date === 0) {this.history.shift();}
         if (this.history.length > 300) {this.history.shift();}

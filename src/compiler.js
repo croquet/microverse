@@ -72,13 +72,13 @@ export class JSCompiler {
 
         for (let i = 0; i < codeArray.length; i++) {
             let line = codeArray[i];
-            if (/^import/.test(line)) {
-                result.push("");
+            if (/^\s*import/.test(line)) {
+                result.push(line[line.length - 1] === "\r" ? "\r" : "");
                 continue;
             }
-            let test = /^class(\s+)(\S+)\s+extends\s(ActorBehavior|PawnBehavior)(.*)\r?$/.exec(line)
+            let test = /^\s*class(\s+)(\S+)\s+extends\s(ActorBehavior|PawnBehavior)(.*)(\r?)$/.exec(line);
             if (test) {
-                let newLine = `class${test[1]}${test[2]}${test[4]}`;
+                let newLine = `class${test[1]}${test[2]}${test[4]}${test[5]}`;
                 result.push(newLine);
                 continue;
             }
