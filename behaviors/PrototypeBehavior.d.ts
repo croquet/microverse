@@ -344,7 +344,7 @@ export type WorldcoreExports = {
      * @param {number} a
      * @returns {Vector3}
      */
-    v3_rotateY(v: Vectnlor3, a: number): Vector3,
+    v3_rotateY(v: Vector3, a: number): Vector3,
 
     /**
      * Rotate around z axis. Angle in radians. Clockwise looking along axis
@@ -796,17 +796,20 @@ export type WorldcoreExports = {
     GetPawn(id: string): CardPawn,
 };
 
-export type PhysicsExports = {
+// export type Rapier = typeof import("@dimforge/rapier3d");
+
+type PhysicsExports = {
     PhysicsVersion(): string,
-    Physics: any
+    Physics: any // Rapier
 };
 
-export type FrameExports = {
+
+type FrameExports = {
     sendToShell(command: string, ...args: Array<any>)
 }
 
 export type THREE = typeof import("three");
-export type MicroverseModule = {THREE: THREE} & WorldcoreExports & PhysicsExports & FrameExports & {getViewRoot(): any};
+type MicroverseModule = {THREE: THREE} & WorldcoreExports & PhysicsExports & FrameExports & {getViewRoot(): any};
 
 export type BehaviorMethod = Array<string>;
 export type PlaneMaterial = THREE.MeshStandardMaterial|Array<THREE.Material>;
@@ -917,6 +920,15 @@ The scale of the card in three axes.
     hidden: boolean|undefined
 
     /**
+      The Rapier Physics Engine object.
+
+      @public
+      @type any
+     */
+
+      rigidBody: any
+
+    /**
        Any other values that the CardActor holds are stored in an object stored in the `_cardData` property. This is needed to mark the values to be stored in the persistent data.
 
        @public
@@ -983,7 +995,7 @@ When the first form is used, it specifies the globally known module name and the
        @param {number} time - the delay in logical millisecond
        @returns A proxy to invoke a method on
     */
-    future(time: number): ThisType
+    future(time: number): this
 
     /**
        This method updates some elements in the `_cardData` object. The current value and the new values are merged to create the new `_cardData` object. As a side effect, it publishes `cardDataSet` Croquet event that can be handled by the pawn or any other subscribers.
@@ -1369,7 +1381,7 @@ mth` of the same behavior will be invoked. If you would like to call a method of
        @returns a proxy to call a method on
        @param {number} time - the wall clock time to delay the method invocatino.
     */
-    future(time: number): ThisType
+    future(time: number): this
 
     /**
 This method adds a "listener" to be invoked when an event occurs on the pawn of a card. When `listener` is a string, it has to have the name of an existing method of CardPawn or the behavior itself. (Internally the function object is stored in the event listener data structure.)
@@ -1418,7 +1430,7 @@ This method removes the event listener that was added. You can call it even when
     @param {string|function} listener - the name of the handler in the calling behavior, or a function specified in the form of `this.mth`
     */
 
-    unsubscribe(scope: string, eventName: string, listener?: string|((evt: T) => void)): void
+    unsubscribe<T>(scope: string, eventName: string, listener?: string|((evt: T) => void)): void
 
     /**
        This method publishes a Croquet event.
@@ -1589,13 +1601,13 @@ if (this.actor.layers && this.actor.layers.includes("walk")) {
      Add an additional method to invoke at each display frame, typically modify the visual appearance of the object.
     */
 
-    addUpdateRequest(spec: Array<string, string>): void
+    addUpdateRequest(spec: [string, string]): void
 
     /**
      Remove an additional method to invoke at each display frame, typically modify the visual appearance of the object.
     */
 
-    removeUpdateRequest(spec: Array<string, string>): void
+    removeUpdateRequest(spec: [string, string]): void
     /**
      recompute matrices
     */
@@ -1790,7 +1802,7 @@ export class AvatarPawn extends PawnBehavior {
        returns {boolean}
     */
 
-    collideBVH(collideList: Array<Mesh>, vq: VQ): boolean
+    collideBVH(collideList: Array<THREE.Mesh>, vq: VQ): boolean
 
     /**
        This method checks if there is a mesh with walk layer toward the negative y direction from the position (v).
