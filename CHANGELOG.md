@@ -5,6 +5,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-09-01
+### Added
+- An easier way to disable double down to jump by adding Constants.PointerDoubleDownAction property.
+- More type declaration doc for vector functions.
+- actor.positionTo checks arguments to allow two args invocation.
+
+### Fixed
+- The Import feature properly disabled when dragAndDrop.js is not loaded
+- TypeScript module is loaded on demand from the core part of the system, not from prelude.js.
+
 ## 2023-08-25
 ### Added
 - allow non-full window Microverse in a browser window.
