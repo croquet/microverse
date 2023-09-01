@@ -1357,23 +1357,18 @@ export function checkModule(module) {
     });
 }
 
-export function compileToModule(text, path) {
+export async function compileToModule(text, path) {
     let language = path.endsWith(".ts") ? "ts" : "js";
 
     let jsCompiler;
     let tsCompiler;
 
-    if (!jsCompiler) {
-        jsCompiler = new JSCompiler();
-    }
-
-    let js = jsCompiler.compile(text, path);
+    jsCompiler = new JSCompiler();
+    let js = await jsCompiler.compile(text, path);
 
     if (language === "ts") {
-        if (!tsCompiler) {
-            tsCompiler = new TSCompiler();
-        }
-        js = tsCompiler.compile(js, path);
+        tsCompiler = new TSCompiler();
+        js = await tsCompiler.compile(js, path);
     }
 
     let dataURL = URL.createObjectURL(new Blob([js], {type: "application/javascript"}));

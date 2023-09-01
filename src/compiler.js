@@ -1,21 +1,29 @@
 export class TSCompiler {
-    constructor() {
-        if (!window.ts) {return;}
+    async compile(tsCode, location) {
+        if (!window.tsPromise) {
+            window.tsPromise = new Promise((resolve, _reject) => {
+                let script = document.createElement("script");
+                script.src = "https://cdn.jsdelivr.net/npm/typescript@5.1.6/lib/typescript.min.js";
+                script.onload = resolve;
+                script.type = "text/javascript";
+                document.head.appendChild(script);
+            });
+        }
+
+        await window.tsPromise;
+        if (!window.ts) {return tsCode;}
         this.options = {
-            module: ts.ModuleKind.ESNext,
-            target: ts.ScriptTarget.ESNext,
+            module: window.ts.ModuleKind.ESNext,
+            target: window.ts.ScriptTarget.ESNext,
             noResolve: true,
         };
-        this.compilerHost = this.createCompilerHost();
-    }
 
-    compile(tsCode, location) {
-        if (!window.ts) {return tsCode;}
+        this.compilerHost = this.createCompilerHost();
         this.sources = new Map([[location, tsCode]]);
         this.results = new Map();
 
-        let program = ts.createProgram([location], this.options, this.compilerHost);
-        let result = program.emit();
+        let program = window.ts.createProgram([location], this.options, this.compilerHost);
+        let _result = program.emit();
 
         let compiledName = location.replace(/\.ts$/, ".js");
 
@@ -29,7 +37,7 @@ export class TSCompiler {
     getSourceFile(fileName, languageVersion, _onError) {
         const sourceText = this.readFile(fileName);
         return sourceText !== undefined
-            ? ts.createSourceFile(fileName, sourceText, languageVersion)
+            ? window.ts.createSourceFile(fileName, sourceText, languageVersion)
             : undefined;
     }
 
@@ -49,7 +57,7 @@ export class TSCompiler {
     createCompilerHost() {
         return {
             getSourceFile: this.getSourceFile,
-            getDefaultLibFileName: (defaultLibOptions) => "/" + ts.getDefaultLibFileName(defaultLibOptions),
+            getDefaultLibFileName: (defaultLibOptions) => "/" + window.ts.getDefaultLibFileName(defaultLibOptions),
             writeFile: (fileName, content) => this.writeFile(fileName, content),
             getCurrentDirectory: () => "/",
             getDirectories: (_path) => [],
@@ -84,8 +92,6 @@ export class JSCompiler {
             }
             result.push(line);
         }
-        return result.join("\n");
+        return Promise.resolve(result.join("\n"));
     }
 }
-
-/* globals ts*/
