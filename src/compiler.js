@@ -80,7 +80,7 @@ export class JSCompiler {
 
         for (let i = 0; i < codeArray.length; i++) {
             let line = codeArray[i];
-            if (/^\s*import/.test(line)) {
+            if (/^import/.test(line)) {
                 result.push(line[line.length - 1] === "\r" ? "\r" : "");
                 continue;
             }
