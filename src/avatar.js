@@ -437,10 +437,11 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
 
     addSticky(pe) {
         if (!this.behaviorManager.hasBehavior("StickyNote")) {return;}
+        if (!pe.xyz) {return;}
         const tackOffset = 0.1;
-        let tackPoint = v3_add(pe.xyz, v3_scale(pe.normal, tackOffset));
-        let normal = [...pe.normal]; // clear up and down
-        normal[1] = 0;
+        let normal = pe.normal || [0, 0, 1];
+        let tackPoint = v3_add(pe.xyz, v3_scale(normal, tackOffset));
+        normal = [normal[0], 0, normal[2]]; // clear up and down
         let nsq = v3_sqrMag(normal);
         let rotation;
         if (nsq > 0.0001) {
