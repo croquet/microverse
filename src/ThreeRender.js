@@ -109,8 +109,15 @@ const PM_ThreeCamera = superclass => class extends PM_Camera(superclass) {
         render.camera.matrixWorldNeedsUpdate = true;
     }
 
-    setRaycastFrom2D(xy) {
+    setRaycastFrom2D(eventXY) {
+        // eventXY is now from offsetX and offsetY of the DOM event.
         const render = this.service("ThreeRenderManager");
+        let xy = [...eventXY];
+        if (render.useDevicePixelRatio) {
+            xy[0] *= window.devicePixelRatio;
+            xy[1] *= window.devicePixelRatio;
+        }
+
         const x = ( xy[0] / render.canvas.width ) * 2 - 1;
         const y = - ( xy[1] / render.canvas.height) * 2 + 1;
         if (!this.raycaster) this.raycaster = new THREE.Raycaster();
@@ -454,6 +461,7 @@ class ThreeRenderManager extends RenderManager {
         // this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
         this.renderer.toneMappingExposure = 1.4;
 
+        this.useDevicePixelRatio = !!options.useDevicePixelRatio;
         if (options.useDevicePixelRatio) {
             this.renderer.setPixelRatio(window.devicePixelRatio);
             this.listenOnDevicePixelRatio();
