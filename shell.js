@@ -463,6 +463,21 @@ class Shell {
                 return;
             case "local-configuration":
                 return;
+            case "frame-type":
+                if (!useIframe) {
+                    // there is a case that non-portal enabled world is visited from a portal enabled shell
+                    // And replaceWorld will have to do the right thing in both cases;
+                    // namely, when this world is visited from a portal enabled world, going to another world
+                    // means to tell the shell to go there.
+                    // When this world is visited without that, it'd do location.replace()
+                    // We record if we have received a frame-type message, and use it from replaceWorld.
+                    const { frameType } = data;
+                    const target = window.parent;
+                    window.microverseFrameTypeReceived = true;
+                    const PREFIX = "croquet:microverse:";
+                    target.postMessage({ message: PREFIX + cmd, ...frameType }, "*");
+                }
+                return;
             default:
                 console.warn(`shell: received unknown command "${cmd}" from portal-${fromPortalId}`, data);
         }

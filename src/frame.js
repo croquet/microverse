@@ -21,7 +21,8 @@ const PREFIX = "croquet:microverse:";
 
 // sending to shell
 export function sendToShell(command, args) {
-    let target = window.microverseEnablePortal ? window.parent : window;
+    let check = window.microverseEnablePortal || (window.microverseFrameTypeReceived && command === "world-replace");
+    let target = check ? window.parent : window;
     target.postMessage({ message: PREFIX+command, ...args }, "*");
 }
 

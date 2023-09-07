@@ -2,7 +2,16 @@
 // https://croquet.io
 // info@croquet.io
 
-class ReplaceWorldPawn {
+// the following import statement is solely for the type checking and
+// autocompletion features in IDE.  A Behavior cannot inherit from
+// another behavior or a base class but can use the methods and
+// properties of the card to which it is installed.
+// The prototype classes ActorBehavior and PawnBehavior provide
+// the features defined at the card object.
+
+import {PawnBehavior} from "../PrototypeBehavior";
+
+class ReplaceWorldPawn extends PawnBehavior {
 
     get targetURL() { return this.actor._cardData.replaceWorldTargetURL; }
     set targetURL(url) { if (this.targetURL !== url) this.say("setCardData", { replaceWorldTargetURL: url }); }
@@ -19,7 +28,7 @@ class ReplaceWorldPawn {
         canvas.style.opacity = 0;
         const targetURL = this.resolveTargetURL();
         setTimeout(() => {
-            if (window.microverseEnablePortal) {
+            if (window.microverseEnablePortal || window.microverseFrameTypeReceived) {
                 Microverse.sendToShell("world-replace", { targetURL});
             } else {
                 window.location.replace(targetURL);
@@ -82,3 +91,5 @@ export default {
         },
     ]
 }
+
+/* globals Microverse */
