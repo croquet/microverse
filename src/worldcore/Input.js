@@ -50,6 +50,9 @@ export class InputManager extends ViewService {
                 }
             }
         };
+
+        let rect = this.microverseDiv.getBoundingClientRect();
+        this.scheduleResize({width: rect.width, height: rect.height});
         this.observer = new ResizeObserver(handleChange);
         this.observer.observe(this.microverseDiv);
         this.addAllListeners();

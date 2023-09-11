@@ -454,7 +454,7 @@ class ThreeRenderManager extends RenderManager {
             options.canvas = this.canvas;
         }
 
-        this.publish("_input", "setMicroverseDiv", {divQuery: "#microverse", canvasQuery: "#ThreeCanvas"});
+        this.publish("_input", "setMicroverseDiv", {divQuery: "#microverse", canvasQuery: `#${options.canvas.id}`});
 
         this.renderer = new THREE.WebGLRenderer(options);
         this.renderer.shadowMap.enabled = true;
