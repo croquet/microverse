@@ -778,10 +778,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
         document.getElementById("homeBtn").onclick = () => this.goHome();
         filterDomEventsOn(document.getElementById("homeBtn"));
 
-        document.getElementById("editModeBtn").setAttribute("mobile", this.isMobile);
-        document.getElementById("editModeBtn").setAttribute("pressed", false);
-
         let editButton = document.getElementById("editModeBtn");
+
+        let doGizmo = this.actor.behaviorManager.modules.get("Gizmo");
+        editButton.setAttribute("mobile", !!(this.isMobile && doGizmo));
+        editButton.setAttribute("pressed", false);
+
         editButton.onpointerdown = (evt) => this.setEditMode(evt);
         editButton.onpointerup = (evt) => this.clearEditMode(evt);
 

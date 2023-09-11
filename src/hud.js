@@ -23,7 +23,7 @@ const hudContainer = `
         <div id="homeBtn" class="btn btn-ui">
             <div class="fa-icon fa-house-user world-icon no-pointer-events"></div>
         </div>
-        <div id="editModeBtn" mobile="false" class="btn">
+        <div id="editModeBtn" mobile="false" class="btn btn-ui">
             <i class="fa-icon fa-angle-up world-icon no-pointer-events"></i>
         </div>
         <div id="worldMenuBtn" class="btn btn-ui">
