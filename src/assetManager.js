@@ -507,9 +507,16 @@ export class Loader {
                 draco.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
                 loader.setDRACOLoader(draco);
 
+                let loc = window.location;
+                let pathname = loc.pathname;
+                let slash = pathname.lastIndexOf("/");
+                if (slash >= 0) {
+                    pathname = pathname.slice(0, slash);
+                }
+
                 let renderer = this.assetManager.renderer;
                 let ktx2Loader = new THREE.KTX2Loader()
-                    .setTranscoderPath("/lib/basis/")
+                    .setTranscoderPath(`${loc.origin}${pathname}/lib/basis/`)
                     .detectSupport(renderer);
 
                 loader.setKTX2Loader(ktx2Loader);
