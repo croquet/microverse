@@ -5,6 +5,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-09-08
+### Fixed
+- handle devicePixelRatio correctly when offsetX and offsetY are used in input manager.
+- Avoid having unnecessary nested iframes when replaceWorld is used.
+
 ## 2023-09-01
 ### Added
 - An easier way to disable double down to jump by adding Constants.PointerDoubleDownAction property.
