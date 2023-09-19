@@ -5,6 +5,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-06-15
+
+### Fixed
+- The path to load the basis library uses proper relative path.
+- The initial Three.js canvas size is properly set.
+- The touch based control button is properly styled, and it is hidden when gizmo is disabled.
+
 ## 2023-09-08
 ### Fixed
 - handle devicePixelRatio correctly when offsetX and offsetY are used in input manager.
