@@ -800,19 +800,22 @@ function setTitle(url) {
 }
 
 function loadLocalStorage() {
-    if (!window.localStorage) { return null; }
     try {
+        if (!window.localStorage) { return null; }
         let localSettings = JSON.parse(window.localStorage.getItem('microverse-settings'));
         if (!localSettings || localSettings.version !== "1") {
             throw new Error("different version of data");
         }
         return localSettings;
-    } catch (e) { return null; }
+    } catch (e) {
+        console.log("localStorage is not avaialble");
+        return null;
+    }
 }
 
 function saveLocalStorage(configuration) {
-    if (!window.localStorage) { return; }
     try {
+        if (!window.localStorage) { return; }
         let {nickname, type, avatarURL, handedness} = configuration;
         let settings = {
             version: "1",
@@ -822,5 +825,7 @@ function saveLocalStorage(configuration) {
             handedness
         };
         window.localStorage.setItem('microverse-settings', JSON.stringify(settings));
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+        console.log("localStorage is not avaialble");
+    }
 }
