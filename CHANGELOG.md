@@ -5,8 +5,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
-## 2023-06-15
-
+## 2023-09-15
 ### Fixed
 - The path to load the basis library uses proper relative path.
 - The initial Three.js canvas size is properly set.
