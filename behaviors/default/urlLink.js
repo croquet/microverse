@@ -20,7 +20,6 @@ class URLPawn extends PawnBehavior {
     }
 
     tap() {
-        console.log("Did I tap tap tap tap?");
         let div = document.createElement("div");
         let url = this.actor._cardData.cardURL || "https://croquet.io"; // default to Croquet
         console.log(url);
@@ -33,7 +32,7 @@ class URLPawn extends PawnBehavior {
     enter() {
         let hilite = this.actor._cardData.cardHilite || 0xffaaa;
         this.doHilite(hilite);
-        if(this.interval)this.leave();
+        if(this.interval) this.leave();
         this.interval = setInterval(() => this.leave(), 10000);
     }
 
@@ -46,7 +45,6 @@ class URLPawn extends PawnBehavior {
     }
 
     move() {
-        console.log("moving")
     }
 
     doHilite(hval) {
@@ -62,7 +60,7 @@ class URLPawn extends PawnBehavior {
     }
 
     setColor(material, color) {
-        if(!material.saveColor)material.saveColor = material.color;
+        if(!material.saveColor) material.saveColor = material.color;
         if(color) {
             material.color = new Microverse.THREE.Color(color);
         } else {

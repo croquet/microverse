@@ -8,6 +8,7 @@ const {ViewService, ModelService, GetPawn, Model, Constants, App} = WorldcoreExp
 import * as WorldcoreThreeExports from "./ThreeRender.js";
 import * as PhysicsExports from "./physics.js";
 import * as FrameExports from "./frame.js";
+import {WorldSaver} from "./worldSaver.js";
 
 import {TSCompiler, JSCompiler} from "./compiler.js";
 
@@ -639,7 +640,7 @@ class ScriptingBehavior extends Model {
         let code = `return (${source}) //# sourceURL=${window.location.origin}/behaviors_evaled/${this.location}/${this.name}`;
         let cls;
         try {
-            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...PhysicsExports, ...FrameExports, RAPIER: PhysicsExports.Physics, getViewRoot};
+            const Microverse = {...WorldcoreExports, ...WorldcoreThreeExports, ...PhysicsExports, ...FrameExports, RAPIER: PhysicsExports.Physics, getViewRoot, WorldSaver};
             cls = new Function("Microverse", code)(Microverse);
         } catch(error) {
             console.log("error occured while compiling:", source, error);
