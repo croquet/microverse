@@ -16,6 +16,8 @@ export function frameName() {
     return `frame["${worldName}",${frameId}${isPrimaryFrame ? ",primary" : ""}]`;
 }
 
+import {setButtonsVisibility} from "./hud.js";
+
 // shared prefix for shell messages
 const PREFIX = "croquet:microverse:";
 
@@ -23,7 +25,13 @@ const PREFIX = "croquet:microverse:";
 export function sendToShell(command, args) {
     let check = window.microverseEnablePortal || (window.microverseFrameTypeReceived && command === "world-replace");
     let target = check ? window.parent : window;
-    target.postMessage({ message: PREFIX+command, ...args }, "*");
+
+    // a bit of hack. It has to deal with buttons in this frame and also owner
+    if (window.microverseEnablePortal && command === "hud") {
+        setButtonsVisibility(args);
+    }
+
+    target.postMessage({ message: PREFIX + command, ...args }, "*");
 }
 
 // registry of callback functions to receive from shell

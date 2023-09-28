@@ -77,7 +77,7 @@ export function setupJoystick(myAvatar) {
         css.onload = () => {
             adjustJoystickKnob();
             if (hudFlags) {
-                this.setButtonsVisibility(hudFlags);
+                setButtonsVisibility(hudFlags);
                 hudFlags = null;
             }
         };
@@ -112,6 +112,62 @@ export function setupJoystick(myAvatar) {
 
     if (!window.microverseEnablePortal) {
         joystick.classList.toggle("primary-frame", true);
+    }
+}
+
+export function setButtonsVisibility(data) {
+    let joystickFlag = data.joystick;
+    let fullscreenFlag = data.fullscreen;
+    let homeFlag = data.home;
+    let menuFlag = data.menu;
+
+    if (!document.head.querySelector("#joystick-css")) {
+        hudFlags = {joystick: joystickFlag, fullscreen: fullscreenFlag, home: homeFlag, menu: menuFlag};
+    }
+
+    // work around pointer capture bug on Quest
+    if (navigator.userAgent.indexOf("OculusBrowser") !== -1) {
+        joystickFlag = false;
+        fullscreenFlag = false;
+        homeFlag = false;
+        menuFlag = false;
+    }
+
+    let joystick = document.querySelector("#joystick");
+    let homeBtn = document.querySelector("#homeBtn");
+    let fullscreenBtn = document.querySelector("#fullscreenBtn");
+    let menuBtn = document.querySelector("#worldMenuBtn");
+
+    if (joystickFlag !== undefined && joystick) {
+        if (joystickFlag) {
+            joystick.style.removeProperty("display");
+        } else {
+            joystick.style.setProperty("display", "none");
+        }
+    }
+
+    if (fullscreenFlag !== undefined && fullscreenBtn) {
+        if (fullscreenFlag) {
+            fullscreenBtn.style.removeProperty("display");
+        } else {
+            fullscreenBtn.style.setProperty("display", "none");
+        }
+    }
+
+    if (homeFlag !== undefined && homeBtn) {
+        if (homeFlag) {
+            homeBtn.style.removeProperty("display");
+        } else {
+            homeBtn.style.setProperty("display", "none");
+        }
+    }
+
+    if (menuFlag !== undefined && menuBtn) {
+        if (menuFlag) {
+            menuBtn.style.removeProperty("display");
+        } else {
+            menuBtn.style.setProperty("display", "none");
+        }
     }
 }
 

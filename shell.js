@@ -5,7 +5,7 @@
 export { startMicroverse } from "./src/microverse.js";
 
 import { App } from "@croquet/croquet";
-import { innerHTML, fullScreenHTML }  from "./src/hud.js";
+import { innerHTML, fullScreenHTML, setButtonsVisibility }  from "./src/hud.js";
 
 // shared prefix for shell messages
 const PREFIX = "croquet:microverse:";
@@ -443,7 +443,7 @@ class Shell {
                 }
                 return;
             case "hud":
-                this.setButtonsVisibility(data);
+                setButtonsVisibility(data);
                 return;
             case "send-configuration":
                 // console.log("sending config", localConfiguration);
@@ -480,33 +480,6 @@ class Shell {
                 return;
             default:
                 console.warn(`shell: received unknown command "${cmd}" from portal-${fromPortalId}`, data);
-        }
-    }
-
-    setButtonsVisibility(data) {
-        let joystickFlag = data.joystick;
-        let fullscreenFlag = data.fullscreen;
-        if (!document.head.querySelector("#joystick-css")) {
-            this._hudFlags = {joystick: data.joystick, fullscreen: data.fullscreen};
-        }
-        // work around pointer capture bug on Quest
-        if (navigator.userAgent.indexOf("OculusBrowser") !== -1) {
-            joystickFlag = false;
-            fullscreenFlag = false;
-        }
-        if (joystickFlag !== undefined && this.joystick) {
-            if (joystickFlag) {
-                this.joystick.style.removeProperty("display");
-            } else {
-                this.joystick.style.setProperty("display", "none");
-            }
-        }
-        if (fullscreenFlag !== undefined && this.fullscreenBtn) {
-            if (fullscreenFlag) {
-                this.fullscreenBtn.style.removeProperty("display");
-            } else {
-                this.fullscreenBtn.style.setProperty("display", "none");
-            }
         }
     }
 
