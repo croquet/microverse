@@ -5,6 +5,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-09-22
+### Fixed
+- guarding accessing localStorage property as it may throw an error.
+
 ## 2023-09-15
 ### Fixed
 - The path to load the basis library uses proper relative path.
