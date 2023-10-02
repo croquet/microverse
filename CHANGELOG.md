@@ -5,6 +5,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-09-29
+### Added
+- WorldSaver is avaialbled in the Microverse global
+- sendToShell("hud", ...) to show and hide all DOM elements.
+
 ## 2023-09-22
 ### Fixed
 - guarding accessing localStorage property as it may throw an error.
