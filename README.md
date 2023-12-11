@@ -83,5 +83,6 @@ The documentation for the Croquet Microverse is located in the [docs](./docs) di
 * [docs/Tutorial1.md](./docs/Tutorial1.md) - The tutorial part 1.
 * [docs/Tutorial2.md](./docs/Tutorial2.md) - The tutorial part 2.
 
+This project is tested with BrowserStack
 
 **Copyright (c) 2022 Croquet Corporation**
