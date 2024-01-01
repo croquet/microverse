@@ -5,7 +5,14 @@
 // The prototype classes ActorBehavior and PawnBehavior provide
 // the features defined at the card object.
 
-import {PawnBehavior} from "../PrototypeBehavior";
+import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
+
+class AvatarActor extends ActorBehavior {
+    nicknameOffset() {
+        console.log("nicknameOffset");
+        return [0, 0.4, -0.1];
+    }
+}
 
 class AvatarPawn extends PawnBehavior {
     setup() {
@@ -246,6 +253,7 @@ export default {
     modules: [
         {
             name: "FullBodyAvatarEventHandler",
+            actorBehaviors: [AvatarActor],
             pawnBehaviors: [AvatarPawn],
         }
     ]

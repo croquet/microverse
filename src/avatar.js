@@ -93,18 +93,21 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     get collisionRadius() { return this._cardData.collisionRadius || COLLISION_RADIUS; }
     get inWorld() { return !!this._inWorld; }   // our user is either in this world or render
 
+    getNicknameOffset() {
+        let handlerModuleName = this._cardData.avatarEventHandler;
+        let offset = [0, 1, -0.1]; // above and slightly in front
+        if (this.has(`${handlerModuleName}$AvatarActor`, "nicknameOffset")) {
+            offset = this.call(`${handlerModuleName}$AvatarActor`, "nicknameOffset");
+        }
+        return offset;
+    }
+
     ensureNicknameCard() {
         if (!this.inWorld) return;
         if (this._cardData.noNicknameCard) {return;}
-
+        this.removeNicknameCard();
         const nickname = this._name;
-        if (!nickname) {
-            if (this.nicknameCard) {
-                this.nicknameCard.destroy();
-                this.nicknameCard = null;
-            }
-            return;
-        }
+        if (!nickname) {return;}
 
         const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
         const PADDING = 0.1; // horizontal and vertical
@@ -116,7 +119,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
             const options = {
                 name: 'nickname',
                 behaviorModules: ["Billboard", ...voiceLevelBehavior],
-                translation: [0, 1, -0.1], // above and slightly in front
+                translation: this.getNicknameOffset(),
                 type: "text",
                 depth: 0.02,
                 margins: { left: marginLeft, top: marginTop },
@@ -550,7 +553,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         // console.log("setAvatarData", options);
         this.setupAvatarBehavior(options);
         this.updateOptions(options);
-        // this.ensureNicknameCard(); handled separately
+        this.ensureNicknameCard();
     }
 
     setupAvatarBehavior(options) {
