@@ -10,7 +10,7 @@ import {ActorBehavior, PawnBehavior} from "../PrototypeBehavior";
 class AvatarActor extends ActorBehavior {
     nicknameOffset() {
         console.log("nicknameOffset");
-        return [0, 0.4, -0.1];
+        return [0, 0.5, 0];
     }
 }
 
