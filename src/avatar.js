@@ -103,17 +103,19 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     ensureNicknameCard() {
-        if (!this.inWorld) return;
-        if (this._cardData.noNicknameCard) {return;}
-        this.removeNicknameCard();
         const nickname = this._name;
-        if (!nickname) {return;}
-
         const TEXT_SCALE = 0.005; // 100px of text scales to 0.5 world units
         const PADDING = 0.1; // horizontal and vertical
         const MARGIN_FUDGE = 0.02; // compensate for text widget's small gap at the left
-        const voiceLevelBehavior = this.behaviorManager.hasBehavior("AvatarVoiceLevel") ? ["AvatarVoiceLevel"] : [];
+        if (this.nicknameCard) {
+            if (!this.inWorld || this._cardData.noNicknameCard || !nickname) {
+                this.removeNicknameCard();
+                return;
+            }
+        }
+
         if (!this.nicknameCard) {
+            const voiceLevelBehavior = this.behaviorManager.hasBehavior("AvatarVoiceLevel") ? ["AvatarVoiceLevel"] : [];
             const marginLeft = (PADDING - MARGIN_FUDGE) / TEXT_SCALE;
             const marginTop = PADDING * 1.1 / TEXT_SCALE;
             const options = {
@@ -144,6 +146,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
         const signWidth = Math.min(measurement.width * TEXT_SCALE + 2 * PADDING, 2);
         const signHeight = Math.min(measurement.height * TEXT_SCALE + 2 * PADDING, 0.4);
         this.nicknameCard.load([{text: nickname, style: {color: 'white'}}]);
+        this.nicknameCard.translateTo(this.getNicknameOffset()),
         this.nicknameCard.setExtent({width: signWidth / TEXT_SCALE, height: signHeight / TEXT_SCALE});
     }
 
