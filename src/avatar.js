@@ -1048,7 +1048,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     async analyzeAndUploadFile(buffer, fileName, type) {
-        let handle = await Data.store(this.sessionId, buffer, true);
+        let handle = await Data.store(this.sessionId, (buffer instanceof ArrayBuffer ? buffer : buffer.buffer), true);
         let dataId = Data.toId(handle);
         let assetManager = this.service("AssetManager").assetManager;
         let obj;
@@ -1113,7 +1113,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             rotation: pose.rotation,
         };
 
-        if (obj.width && obj.height) {
+        if (obj && obj.width && obj.height) {
             data.width = obj.width;
             data.height = obj.height;
         }
@@ -1130,7 +1130,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     async uploadFile(buffer, fileName, type) {
-        let handle = await Data.store(this.sessionId, buffer);
+        let handle = await Data.store(this.sessionId, (buffer instanceof ArrayBuffer ? buffer : buffer.buffer));
         let dataId = Data.toId(handle);
         let pose = this.dropPose(6);
         this.say("fileUploaded", {
