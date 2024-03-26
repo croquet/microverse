@@ -252,7 +252,7 @@ export function v3_abs(v) {
 }
 
 export function v3_ceil(v) {
-    return [Math.ceil(v[0]), Math.v3_ceil(v[1]), Math.ceil(v[2])];
+    return [Math.ceil(v[0]), Math.ceil(v[1]), Math.ceil(v[2])];
 }
 
 export function v3_floor(v) {
