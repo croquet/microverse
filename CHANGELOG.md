@@ -5,6 +5,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
+## 2023-03-29
+### Changed
+- Fix typo in the vector library
+
+## 2023-02-16
+### Changed
+- Use Croquet Library 1.1.0-43
+
+## 2023-01-05
+### Changed
+- Tweak the nickname card position
+
+## 2023-12-22
+### Changed
+- Use THREE.js 159
+
+## 2023-12-15
+### Changed
+- Use croquet.io address for Ready Player Me avatar files
+
+## 2023-09-29
+### Added
+- WorldSaver is avaialble in the Microverse global
+- sendToShell("hud", ...) to show and hide all DOM elements.
+
+  
 ## 2023-09-29
 ### Added
 - WorldSaver is avaialbled in the Microverse global
