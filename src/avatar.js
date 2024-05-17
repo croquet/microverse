@@ -553,7 +553,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     setAvatarData(options) {
-        // console.log("setAvatarData", options);
+        console.log("setAvatarData", options);
         this.setupAvatarBehavior(options);
         this.updateOptions(options);
         this.ensureNicknameCard();
@@ -899,10 +899,13 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 actorSpec = dormantAvatarSpec;
                 actorSpec.anchor = anchor;
                 actorSpec.inWorld = true;
-                dormantAvatarSpec = null;
                 avatarSpec = actorSpec.cardData;
                 avatarName = actorSpec.name;
+                if (dormantAvatarSpec?.behaviorModules) {
+                    avatarSpec.behaviorModules = [...dormantAvatarSpec.behaviorModules];
+                }
                 avatarSpec.name = avatarName;
+                dormantAvatarSpec = null;
             } else {
                 actorSpec = { inWorld };
                 const anchor = this.anchorFromURL(window.location, !this.isPrimary);
