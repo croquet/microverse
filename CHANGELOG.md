@@ -5,15 +5,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 We generally group weekly changes into one dated entry on Fridays.
 
-## 2023-03-29
+## 2024-05-17
+### Fixed
+- Workaround dormant resumption with the custom behavior modules list for the avatar.
+	
+## 2024-03-29
 ### Changed
 - Fix typo in the vector library
 
-## 2023-02-16
+## 2024-02-16
 ### Changed
 - Use Croquet Library 1.1.0-43
 
-## 2023-01-05
+## 2024-01-05
 ### Changed
 - Tweak the nickname card position
 
@@ -28,12 +32,6 @@ We generally group weekly changes into one dated entry on Fridays.
 ## 2023-09-29
 ### Added
 - WorldSaver is avaialble in the Microverse global
-- sendToShell("hud", ...) to show and hide all DOM elements.
-
-  
-## 2023-09-29
-### Added
-- WorldSaver is avaialbled in the Microverse global
 - sendToShell("hud", ...) to show and hide all DOM elements.
 
 ## 2023-09-22
