@@ -895,7 +895,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
             let avatarSpec;
             let avatarName;
             if (inWorld && dormantAvatarSpec) {
-                const anchor = this.anchorFromURL(window.location, !this.isPrimary);
+                const anchor = this.anchorFromURL(window.location, !this.isPrimary, dormantAvatarSpec);
                 actorSpec = dormantAvatarSpec;
                 actorSpec.anchor = anchor;
                 actorSpec.inWorld = true;
@@ -908,7 +908,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 dormantAvatarSpec = null;
             } else {
                 actorSpec = { inWorld };
-                const anchor = this.anchorFromURL(window.location, !this.isPrimary);
+                const anchor = this.anchorFromURL(window.location, !this.isPrimary, dormantAvatarSpec);
                 if (anchor) {
                     actorSpec.anchor = anchor; // actor or {translation, rotation}
                     actorSpec.translation = anchor.translation;
@@ -1184,7 +1184,7 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
     }
 
     // if our URL specifies an anchor, this is our home location
-    anchorFromURL(url, viaPortal) {
+    anchorFromURL(url, viaPortal, maybeDormant) {
         const { actors } = this.actor.service("ActorManager");
         const { searchParams } = new URL(url);
         const anchorString = searchParams.get("anchor");
@@ -1194,6 +1194,12 @@ export class AvatarPawn extends mix(CardPawn).with(PM_Player, PM_SmoothedDriver,
                 for (const actor of actors.values()) {
                     if (actor.isPortal) return actor;
                 }
+            }
+            if (maybeDormant) {
+                return {
+                    translation: maybeDormant.translation,
+                    rotation: maybeDormant.rotation,
+                };
             }
             // otherwise use the default anchor
             for (const actor of actors.values()) {
