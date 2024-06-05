@@ -1,6 +1,6 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.7.21",
+  "version": "0.7.22",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
@@ -32,8 +32,8 @@
     "three-mesh-bvh": "0.6.3"
   },
   "devDependencies": {
-    "@croquet/microverse-file-server": "1.0.7",
-    "@croquet/microverse-watch-server": "1.0.7",
+    "@croquet/microverse-file-server": "^1.0.8",
+    "@croquet/microverse-watch-server": "^1.0.7",
     "@types/three": "0.155.0",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
     "@typescript-eslint/parser": "^6.4.0",
