@@ -104,8 +104,9 @@ class BitcoinTrackerPawn extends PawnBehavior {
     openSocket() {
         this.closeSocket();
 
-        const host = "wss://ws.sfox.com/ws";
-        const sub_msg = {"type": "subscribe", "feeds": ["ticker.sfox.btcusd"]};
+        // https://eodhd.com/financial-apis/new-real-time-data-api-websockets
+        const host = "wss://ws.eodhistoricaldata.com/ws/crypto?api_token=demo";
+        const sub_msg = {"action": "subscribe", "symbols": "BTC-USD"};
 
         this.socket = new WebSocket(host);
 
@@ -114,14 +115,16 @@ class BitcoinTrackerPawn extends PawnBehavior {
         };
 
         this.socket.onmessage = (evt) => {
-            let last;
+            let price, time;
             try {
-                last = JSON.parse(evt.data).payload.last;
+                const dataPoint = JSON.parse(evt.data);
+                price = dataPoint.p;
+                time = dataPoint.t;
             } catch(e) {
                 console.log("invalid data");
             }
-            if (last !== undefined) {
-                this.say("BTC-USD", { date: Date.now(), amount: +last });
+            if (price !== undefined) {
+                this.say("BTC-USD", { date: time, amount: +price });
             }
         }
     }
@@ -137,14 +140,17 @@ class BitcoinTrackerPawn extends PawnBehavior {
     }
 
     /*
-      At the initialization time, we fetch more data via an http end point.
+      At initialization time, we fetch data via an http end point.
     */
     fetchHistory() {
         console.log("Fetching BTC-USD history from Coinbase...");
-        return fetch(`https://api.coinbase.com/v2/prices/BTC-USD/historic?period=day`).then((response) => {
+        // note (ael): not sure where to find documentation - but this API seems to
+        // have a minimum 'period' of one hour, which it fills with prices at 10-second
+        // intervals.  times are in whole seconds, as strings.
+        return fetch(`https://api.coinbase.com/v2/prices/BTC-USD/historic?period=hour`).then((response) => {
             return response.json();
         }).then((json) => {
-            const prices = json.data.prices.map(price => ({ date: +new Date(price.time), amount: +price.price }));
+            const prices = json.data.prices.map(price => ({ date: 1000 * price.time, amount: +price.price }));
             console.log("fetched %s prices", prices.length);
             const newer = prices.filter(price => price.date > this.latest().date).slice(0, 20);
             newer.sort((a, b) => a.date - b.date);
