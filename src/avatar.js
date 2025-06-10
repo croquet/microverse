@@ -553,7 +553,7 @@ export class AvatarActor extends mix(CardActor).with(AM_Player) {
     }
 
     setAvatarData(options) {
-        console.log("setAvatarData", options);
+        // console.log("setAvatarData", options);
         this.setupAvatarBehavior(options);
         this.updateOptions(options);
         this.ensureNicknameCard();

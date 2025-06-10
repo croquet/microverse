@@ -1,6 +1,6 @@
 {
   "name": "@croquet/microverse",
-  "version": "0.7.22",
+  "version": "0.8.0",
   "description": "Croquet Microverse",
   "main": "index.js",
   "private": true,
@@ -22,7 +22,7 @@
     "> 5%"
   ],
   "dependencies": {
-    "@croquet/croquet": "1.1.0",
+    "@croquet/croquet": "2.0.3",
     "@croquet/hybrid-msdf-text": "2.0.0",
     "@dimforge/rapier3d": "0.11.1",
     "fflate": "0.7.4",
