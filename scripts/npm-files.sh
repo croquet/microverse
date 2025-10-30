@@ -20,7 +20,7 @@ mkdir -p ${DIST}/assets/avatar-animations
 cp -rp assets/avatar-animations ${DIST}/assets/
 
 mkdir -p ${DIST}/assets/SVG
-cp -rp assets/SVG/property-sheet-buttton.svg ${DIST}/assets/SVG
+cp -rp assets/SVG/property-sheet-buttton.svg assets/SVG/edit.svg ${DIST}/assets/SVG
 
 rm -rf ${DIST}/apps
 rm -rf ${DIST}/docs
