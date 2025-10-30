@@ -118,7 +118,7 @@ class GizmoActor extends ActorBehavior {
 
         let t = this.closestCorner(this.creatorId);
 
-        this.dataLocation = "3ryPlwPIvSHXjABwnuJjrMQYPp1JH2OnghLGR_cdAbCEGgYGAgFIXV0UGx4XAVwHAVwRAB0DBxcGXBsdXQddNRYkEAseOwEzGSMRMCoWQTUKEwQLBSc5JSsrQF0bHVwRAB0DBxcGXB8bEQAdBBcAARddBRckQ0E8AEUcRwABPTExOhMCHEMeNENFIAglOitFNBg0OjNGPiYQIl81Sl0WEwYTXUMeCgYrHDc7HkECPScbJxYKOSE6RCgXK0YgFwYgCzAYPioRCkEkAEYVLRU";
+        this.dataLocation = "./assets/SVG/property-sheet-buttton.svg";
 
         this.propertySheetButton = this.createCard({
             name: "property sheet button",
