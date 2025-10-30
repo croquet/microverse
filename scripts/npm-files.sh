@@ -16,11 +16,13 @@ rm -rf ${DIST}/assets/images
 mkdir -p ${DIST}/assets/fonts
 cp -rp assets/fonts/Roboto* assets/fonts/Poppins*.woff2 ${DIST}/assets/fonts
 
-mkdir -p ${DIST}/assets/avatar-animations
 cp -rp assets/avatar-animations ${DIST}/assets/
 
 mkdir -p ${DIST}/assets/SVG
 cp -rp assets/SVG/property-sheet-buttton.svg assets/SVG/edit.svg ${DIST}/assets/SVG
+
+cp -rp assets/rpm-avatars ${DIST}/assets/
+cp -rp assets/avatar-images ${DIST}/assets/
 
 rm -rf ${DIST}/apps
 rm -rf ${DIST}/docs

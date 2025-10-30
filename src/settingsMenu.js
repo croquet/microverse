@@ -13,60 +13,62 @@ let simplerMenu;
 let configuration = {};
 let resolveDialog;
 
+let directory = window.location.origin + window.location.pathname;
+
 let avatars = [
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/f1.png",
+        png: directory + "assets/avatar-images/f1.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62f56aaf3e172e00545c2502.glb",
+            default: directory + "assets/rpm-avatars/62f56aaf3e172e00545c2502.glb",
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/f2.png",
+        png: directory + "assets/avatar-images/f2.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62f56ad53e172e00545c297d.glb"
+            default: directory + "assets/rpm-avatars/62f56ad53e172e00545c297d.glb"
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/f3.png",
+        png: directory + "assets/avatar-images/f3.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62f56b0a3e172e00545c2fc9.glb",
+            default: directory + "assets/rpm-avatars/62f56b0a3e172e00545c2fc9.glb",
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/f4.png",
+        png: directory + "assets/avatar-images/f4.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62fd66f93e172e005443e7cc.glb",
+            default: directory + "assets/rpm-avatars/62fd66f93e172e005443e7cc.glb",
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/m1.png",
+        png: directory + "assets/avatar-images/m1.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62f56a0f3e172e00545c12d4.glb",
+            default: directory + "assets/rpm-avatars/62f56a0f3e172e00545c12d4.glb",
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/m2.png",
+        png: directory + "assets/avatar-images/m2.png",
         skins: {
-            default:  "https://croquet.io/microverse/assets/rpm-avatars/62f56a823e172e00545c2055.glb"
+            default: directory + "assets/rpm-avatars/62f56a823e172e00545c2055.glb"
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/m3.png",
+        png: directory + "assets/avatar-images/m3.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62f56a4e3e172e00545c1a11.glb",
+            default: directory + "assets/rpm-avatars/62f56a4e3e172e00545c1a11.glb",
         },
         type: "ReadyPlayerMePerson",
     },
     {
-        png: "https://croquet.io/microverse/assets/avatar-images/m4.png",
+        png: directory + "assets/avatar-images/m4.png",
         skins: {
-            default: "https://croquet.io/microverse/assets/rpm-avatars/62fd6a133e172e0054443e36.glb",
+            default: directory + "assets/rpm-avatars/62fd6a133e172e0054443e36.glb",
         },
         type: "ReadyPlayerMePerson",
     },
